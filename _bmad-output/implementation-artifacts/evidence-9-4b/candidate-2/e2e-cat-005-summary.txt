@@ -1,0 +1,5 @@
+cat-005 run 1: ℹ tests 7 ℹ pass 7 ℹ fail 0 
+cat-005 run 2: ℹ tests 7 ℹ pass 7 ℹ fail 0 
+cat-005 run 3: ℹ tests 7 ℹ pass 7 ℹ fail 0 
+cat-005 run 4: ℹ tests 7 ℹ pass 7 ℹ fail 0 
+cat-005 run 5: ℹ tests 7 ℹ pass 7 ℹ fail 0 

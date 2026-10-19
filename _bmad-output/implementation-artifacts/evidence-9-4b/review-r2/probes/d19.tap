@@ -1,0 +1,85 @@
+TAP version 13
+# Session close finding (after the test): FINDING-A recalibrated
+# Session close finding (after the test): FINDING-B malformed reply
+# Session close finding (after the suites): FINDING-D suite close
+# Subtest: A passes but its session recorded a close finding
+not ok 1 - A passes but its session recorded a close finding
+  ---
+  duration_ms: 0.63425
+  type: 'test'
+  location: '/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/d19/d19-fixture.test.mjs:5:1'
+  failureType: 'hookFailed'
+  error: 'FINDING-A recalibrated'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/d19/d19-fixture.test.mjs:6:24)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.start (node:internal/test_runner/test:1262:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: B fails with its own error and also recorded a close finding
+not ok 2 - B fails with its own error and also recorded a close finding
+  ---
+  duration_ms: 0.140084
+  type: 'test'
+  location: '/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/d19/d19-fixture.test.mjs:9:1'
+  failureType: 'testCodeFailure'
+  error: 'OWN-ERROR-B'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/d19/d19-fixture.test.mjs:11:11)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: C passes with no finding (control)
+ok 3 - C passes with no finding (control)
+  ---
+  duration_ms: 0.085542
+  type: 'test'
+  ...
+# Subtest: D suite whose after hook closes a session with a finding
+    # Subtest: D1 passes
+    ok 1 - D1 passes
+      ---
+      duration_ms: 0.069583
+      type: 'test'
+      ...
+    1..1
+ok 4 - D suite whose after hook closes a session with a finding
+  ---
+  duration_ms: 0.180625
+  type: 'suite'
+  ...
+not ok 5 - /Users/aidan/dev/personal/tim/tools/workshop-close-findings.mjs
+  ---
+  duration_ms: 0.062708
+  location: '/Users/aidan/dev/personal/tim/tools/workshop-close-findings.mjs:25:1'
+  failureType: 'hookFailed'
+  error: 'FINDING-D suite close'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    SuiteContext.<anonymous> (file:///private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/d19/d19-fixture.test.mjs:18:36)
+    TestHook.runInAsyncScope (node:async_hooks:226:14)
+    TestHook.run (node:internal/test_runner/test:1402:25)
+    TestHook.run (node:internal/test_runner/test:1757:18)
+    TestHook.run (node:internal/util:581:20)
+    Suite.runHook (node:internal/test_runner/test:1289:20)
+    node:internal/test_runner/test:1883:38
+    node:internal/util:581:20
+    Suite.run (node:internal/test_runner/test:1906:13)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+1..5
+# tests 5
+# suites 1
+# pass 2
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 60.312417

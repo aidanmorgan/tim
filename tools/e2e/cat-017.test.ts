@@ -98,7 +98,7 @@ describe('CAT-017: System Clock Periodic Pulse Generator E2E', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Placement and wiring validation', { timeout: 150000 }, async () => {

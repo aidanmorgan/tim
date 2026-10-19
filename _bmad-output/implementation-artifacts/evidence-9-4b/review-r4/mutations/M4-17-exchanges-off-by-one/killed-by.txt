@@ -1,0 +1,2 @@
+CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)

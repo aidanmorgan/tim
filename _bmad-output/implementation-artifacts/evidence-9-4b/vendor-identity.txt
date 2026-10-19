@@ -1,0 +1,22 @@
+Story 9.4b R6 / D2: vendored Google FlatBuffers C# runtime identity (Amelia, 18 Oct 2026)
+
+Source: https://raw.githubusercontent.com/google/flatbuffers/v25.2.10/net/FlatBuffers/<file> and .../v25.2.10/LICENSE
+Package compared: Google.FlatBuffers 25.2.10 (newest on nuget.org per `dotnet package search Google.FlatBuffers --exact-match`;
+lib/net8.0 assembly built without UNSAFE_BYTEBUFFER/ENABLE_SPAN_T: it contains __vector_as_arraysegment, ToArraySegment and
+ReadLittleEndian, and no __vector_as_span or ToSpan). The vendored project therefore sets no compile defines.
+
+sha256 prefix (upstream / vendored), CuriousContraptions.FlatBuffers/:
+ByteBuffer.cs          f54f9f8643a9aea6 / f54f9f8643a9aea6  identical
+ByteBufferUtil.cs      b1f712041443cbcf / b1f712041443cbcf  identical
+FlatBufferBuilder.cs   e67577bd1e86154d / e67577bd1e86154d  identical
+FlatBufferConstants.cs 1df77a108bf9da81 / 1df77a108bf9da81  identical
+FlatBufferVerify.cs    fae566bc8df9d73d / 48b5b1325b6bace2  differs only by the UTF-8 BOM and trailing whitespace
+                                                            (`diff -b <(tail -c +4 upstream) vendored` is empty)
+IFlatbufferObject.cs   3741b1769a4b80ba / 3741b1769a4b80ba  identical
+Offset.cs              3ca223869957cd70 / 3ca223869957cd70  identical
+Struct.cs              08ea4836f780dcce / 08ea4836f780dcce  identical
+Table.cs               27541329485b2d53 / 27541329485b2d53  identical
+LICENSE                cfc7749b96f63bd3 / cfc7749b96f63bd3  identical (Apache-2.0)
+
+Generated wire code keeps its version assertion FlatBufferConstants.FLATBUFFERS_25_2_10() (engine/gpu/WorkshopWireGenerated.cs).
+Standalone build of CuriousContraptions.FlatBuffers.csproj (IsTrimmable=true, trim analyzer on): 0 errors, 0 warnings.

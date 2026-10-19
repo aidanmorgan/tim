@@ -1,0 +1,10 @@
+RETAINED_COST {"bundle":"line-removed","blocking":448,"p50":0.9149999916553497,"p95":3.6400000154972076,"busyFraction":0.192283333470424,"retainedPerSecond":0,"meanRetainedChars":0}
+✔ retained cost (15829.61125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16224.590916

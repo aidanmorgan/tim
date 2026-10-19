@@ -153,6 +153,25 @@ public sealed class ElectricalSupplyTests
         Assert.Equal(new[] {123f, 456f}, after);
     }
 
+    // Story 9.4b (CAT-015 ledger class): the electrical ledger never debits work that no store was credited with,
+    // including the source-limited final phase, so f32 dust cannot leak out of the battery as an unearned debit.
+    [Fact]
+    public void EverySourceDebitInTheSweepIsBackedByARealizedStoreCredit()
+    {
+        float[] capacities = [32f, 32f], next = new float[2];
+        for (var s = 0; s < 400; s++)
+        for (var b = 0; b < 40; b++)
+        {
+            var source = s == 0 ? float.Epsilon : s * .0013f + (s % 7) * 1e-7f;
+            float[] balances = [b * .79f, MathF.BitDecrement(32f - b * .41f)];
+            var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, source, 120f, balances, capacities, next);
+            var credited = (double)next[0] - balances[0] + next[1] - balances[1];
+            Assert.Equal(source - result.Remaining, result.Debit);
+            if (result.Debit > 0) Assert.True(credited > 0, $"debit {result.Debit} from {source} without any store credit");
+            Assert.InRange(result.Debit - credited, -1e-12, MathF.BitIncrement(source) - source);
+        }
+    }
+
     [Fact]
     public void RepeatedAllocationCannotOverfillOrSpendMoreThanInitialSource()
     {

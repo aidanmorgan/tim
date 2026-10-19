@@ -1,0 +1,591 @@
+Build succeeded.
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.73]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 30, y: 50, z: 70) [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 0) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 30, y: 50, z: 70) [2 ms]
+  Error Message:
+   tick 1: body 10 remainder LocalPosition { X = 0.5577955, Y = -0.33981323, Z = 0.055039406 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(Int32 x, Int32 y, Int32 z) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 219
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 0) [2 ms]
+  Error Message:
+   tick 7: body 10 remainder LocalPosition { X = 0.6510396, Y = 0.32377625, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.78]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 2) [FAIL]
+[xUnit.net 00:00:00.81]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: False, miss: 0) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 2) [< 1 ms]
+  Error Message:
+   tick 4: body 7 remainder LocalPosition { X = 0.74790853, Y = 0.29541397, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: False, miss: 0) [< 1 ms]
+  Error Message:
+   tick 4: body 7 remainder LocalPosition { X = 0.74790853, Y = 0.29541397, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.95]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AMovingTiltedPairPreservesReactionMomentumAndBoundedTotalEnergy [FAIL]
+[xUnit.net 00:00:00.98]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AMovingTiltedPairPreservesReactionMomentumAndBoundedTotalEnergy [2 ms]
+  Error Message:
+   tick 6: body 4 remainder LocalPosition { X = 0.5588088, Y = 0.13078308, Z = 1.1925921E-05 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AMovingTiltedPairPreservesReactionMomentumAndBoundedTotalEnergy() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 100
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation [3 ms]
+  Error Message:
+   tick 1: body 4 remainder LocalPosition { X = 0.61811066, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 215
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.99]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission [FAIL]
+[xUnit.net 00:00:00.99]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires [FAIL]
+[xUnit.net 00:00:00.99]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.TheOrientationThresholdIsDeclaredDataNotAConstantOfTheEngine [FAIL]
+[xUnit.net 00:00:01.00]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [FAIL]
+[xUnit.net 00:00:01.05]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(cadence: Hz240) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission [1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.79335666, Y = 0.07864821, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 149
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires [3 ms]
+  Error Message:
+   tick 47: body 4 remainder LocalPosition { X = 0.51705736, Y = -0.39349997, Z = -0.00023332525 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 81
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.TheOrientationThresholdIsDeclaredDataNotAConstantOfTheEngine [1 ms]
+  Error Message:
+   tick 14: body 4 remainder LocalPosition { X = 0.53441966, Y = -0.34132135, Z = 6.6358014E-05 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.<TheOrientationThresholdIsDeclaredDataNotAConstantOfTheEngine>g__FirstFire|14_0(Double degrees) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 167
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.TheOrientationThresholdIsDeclaredDataNotAConstantOfTheEngine() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 170
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [2 ms]
+  Error Message:
+   tick 14: body 4 remainder LocalPosition { X = 0.53441966, Y = -0.34132135, Z = 6.6358014E-05 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 125
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(cadence: Hz240) [21 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 319
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.06]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(cadence: Hz120) [FAIL]
+[xUnit.net 00:00:01.06]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(cadence: Hz60) [FAIL]
+[xUnit.net 00:00:01.06]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 4, topples: True) [FAIL]
+[xUnit.net 00:00:01.07]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 1, topples: False) [FAIL]
+[xUnit.net 00:00:01.07]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 1, topples: False) [FAIL]
+[xUnit.net 00:00:01.07]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 4, topples: True) [FAIL]
+[xUnit.net 00:00:01.07]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:01.08]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz120) [FAIL]
+[xUnit.net 00:00:01.08]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz60) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(cadence: Hz120) [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 319
+   at InvokeStub_WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(cadence: Hz60) [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 319
+   at InvokeStub_WorkshopPhysicsEngineTests.FreeFlightHorizontalSpeedDecaysAsTheDeclaredDragOnEveryTick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 4, topples: True) [4 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 443
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 1, topples: False) [2 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 443
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 1, topples: False) [2 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 443
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 4, topples: True) [1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 443
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz60) [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 347
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz120) [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 347
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz60) [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 347
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.08]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:01.08]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:01.08]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz120) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz240) [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 347
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz240) [1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 347
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz120) [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 347
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.54]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.SpeedBeyondTheEnvelopeClampsAndTheTickContinues [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.SpeedBeyondTheEnvelopeClampsAndTheTickContinues [< 1 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Specified argument was out of the range of valid values. (Parameter 'Canonical body axis exceeds admitted profile.')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/CanonicalBody.cs:line 83
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/engine/gpu/PhysicsGpuAbi.cs:line 250
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass20_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 255
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 234
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.SpeedBeyondTheEnvelopeClampsAndTheTickContinues() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 395
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.94]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [10 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 168
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.13]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [FAIL]
+[xUnit.net 00:00:02.13]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz60) [FAIL]
+[xUnit.net 00:00:02.13]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz120) [FAIL]
+[xUnit.net 00:00:02.13]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz240) [FAIL]
+[xUnit.net 00:00:02.13]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [1 ms]
+  Error Message:
+   tick 6: body 7 remainder LocalPosition { X = 0.5545368, Y = 0.2718389, Z = -8.858798E-07 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.Settle(LawScene scene, GpuBodyId body, Int32 seconds) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 676
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 718
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz60) [< 1 ms]
+  Error Message:
+   tick 1: body 1 remainder LocalPosition { X = 0.53270876, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.<AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped>g__Fly|23_0(Single declared, <>c__DisplayClass23_0&) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 547
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 549
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz120) [< 1 ms]
+  Error Message:
+   tick 2: body 1 remainder LocalPosition { X = 0.53270876, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.<AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped>g__Fly|23_0(Single declared, <>c__DisplayClass23_0&) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 547
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 549
+   at InvokeStub_WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz240) [< 1 ms]
+  Error Message:
+   tick 4: body 1 remainder LocalPosition { X = 0.53270876, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.<AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped>g__Fly|23_0(Single declared, <>c__DisplayClass23_0&) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 547
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 549
+   at InvokeStub_WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow [< 1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.79365456, Y = 0.07864809, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.<RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow>g__Roll|18_0(Nullable`1 moment, <>c__DisplayClass18_0&) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 450
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 452
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.13]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtTheEnvelopeBoundaryDeclaredDragStillSlowsABallFlyingAt63Point9OnEveryTick [FAIL]
+[xUnit.net 00:00:02.13]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [FAIL]
+[xUnit.net 00:00:02.14]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite [FAIL]
+[xUnit.net 00:00:02.14]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereMovingDiagonallySlowsAlongBothXAndZ [FAIL]
+[xUnit.net 00:00:02.15]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees [FAIL]
+[xUnit.net 00:00:02.15]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.WithZeroDeclaredDragAndCoefficientARollingBallKeepsItsSpeed [FAIL]
+[xUnit.net 00:00:02.15]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [FAIL]
+[xUnit.net 00:00:02.15]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtTheEnvelopeBoundaryDeclaredDragStillSlowsABallFlyingAt63Point9OnEveryTick [< 1 ms]
+  Error Message:
+   tick 2: body 1 remainder LocalPosition { X = 0.5181885, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtTheEnvelopeBoundaryDeclaredDragStillSlowsABallFlyingAt63Point9OnEveryTick() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 575
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [< 1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.53313255, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.<AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse>g__Run|38_1(Boolean resistanceFree, <>c__DisplayClass38_0&) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 744
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.<AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse>g__Strike|38_0(Single spin) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 747
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 750
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite [< 1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.5331334, Y = -0.024524689, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 487
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereMovingDiagonallySlowsAlongBothXAndZ [< 1 ms]
+  Error Message:
+   tick 2: body 1 remainder LocalPosition { X = 0.53270876, Y = 0, Z = -0.46729124 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereMovingDiagonallySlowsAlongBothXAndZ() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 562
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees [7 ms]
+  Error Message:
+   tick 81: body 7 remainder LocalPosition { X = 0.522419, Y = -0.35287285, Z = 0.0010934626 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 386
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.WithZeroDeclaredDragAndCoefficientARollingBallKeepsItsSpeed [< 1 ms]
+  Error Message:
+   tick 6: body 4 remainder LocalPosition { X = 0.56000006, Y = 0.07824111, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollOnBench(LawBall kind, Single speed, Int32 seconds, SimulationCadence cadence, Boolean resistanceFree) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 618
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.WithZeroDeclaredDragAndCoefficientARollingBallKeepsItsSpeed() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 647
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [1 ms]
+  Error Message:
+   tick 6: body 4 remainder LocalPosition { X = 0.5552854, Y = 0.11730361, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollOnBench(LawBall kind, Single speed, Int32 seconds, SimulationCadence cadence, Boolean resistanceFree) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 618
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 631
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [< 1 ms]
+  Error Message:
+   tick 6: body 4 remainder LocalPosition { X = 0.55456823, Y = 0.07824135, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollOnBench(LawBall kind, Single speed, Int32 seconds, SimulationCadence cadence, Boolean resistanceFree) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 618
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 631
+   at InvokeStub_WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.23]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ZeroRestitutionNeverReboundsAndZeroFrictionNeverSpinsUp [FAIL]
+[xUnit.net 00:00:02.24]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [FAIL]
+[xUnit.net 00:00:02.28]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ZeroRestitutionNeverReboundsAndZeroFrictionNeverSpinsUp [6 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.80000013, Y = 0.07864809, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ZeroRestitutionNeverReboundsAndZeroFrictionNeverSpinsUp() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 435
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [6 ms]
+  Error Message:
+   Assert.DoesNotMatch() Failure: Match found
+                                     ↓ (pos 46501)
+String: ···"&& MathF.Abs(c.ColA.Ty - 0.03f) < 0.01f && c.B.Mot"···
+RegEx:  "3\\.5f? \\* |2\\.5f? / |(\\|\\||\\?\\?) 0?\\.(34|75|1|3)f?"···
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 512
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (4094.7201000000005 - 4096)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 864
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.28]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [FAIL]
+[xUnit.net 00:00:02.29]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [FAIL]
+[xUnit.net 00:00:02.29]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [FAIL]
+[xUnit.net 00:00:02.29]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARemainderCrossingHalfACellCarriesIntoTheNextCell [FAIL]
+[xUnit.net 00:00:02.29]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABodyWhoseCentreOfMassSitsOffItsOriginSpinsAboutThatCentreInFreeFlight [FAIL]
+[xUnit.net 00:00:02.29]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter [FAIL]
+[xUnit.net 00:00:02.30]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [< 1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.6661377, Y = 0.07867503, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 809
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [< 1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.53115404, Y = 0.11746979, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollOnBench(LawBall kind, Single speed, Int32 seconds, SimulationCadence cadence, Boolean resistanceFree) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 618
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 660
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [< 1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.530835, Y = 0.078434944, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollOnBench(LawBall kind, Single speed, Int32 seconds, SimulationCadence cadence, Boolean resistanceFree) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 618
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 660
+   at InvokeStub_WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARemainderCrossingHalfACellCarriesIntoTheNextCell [1 ms]
+  Error Message:
+   tick 1: body 1 remainder LocalPosition { X = 0.50133324, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARemainderCrossingHalfACellCarriesIntoTheNextCell() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 466
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABodyWhoseCentreOfMassSitsOffItsOriginSpinsAboutThatCentreInFreeFlight [1 ms]
+  Error Message:
+   tick 49: body 1 remainder LocalPosition { X = 0.5044296, Y = -0.16590405, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABodyWhoseCentreOfMassSitsOffItsOriginSpinsAboutThatCentreInFreeFlight() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 833
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter [1 ms]
+  Error Message:
+   tick 14: body 4 remainder LocalPosition { X = 0.53441966, Y = -0.34132135, Z = 6.6358014E-05 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 309
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia [1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.79365456, Y = 0.07864809, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 331
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.31]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [FAIL]
+[xUnit.net 00:00:02.31]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [FAIL]
+[xUnit.net 00:00:02.31]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [FAIL]
+[xUnit.net 00:00:02.31]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.SpeedsBeyondTheEnvelopeClampInsideTheExactHostBoundInEveryDirectionAndTheTickContinues [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [1 ms]
+  Error Message:
+   tick 2: body 4 remainder LocalPosition { X = 0.6664691, Y = 0.07867408, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollOnBench(LawBall kind, Single speed, Int32 seconds, SimulationCadence cadence, Boolean resistanceFree) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 618
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 782
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [< 1 ms]
+  Error Message:
+   tick 6: body 7 remainder LocalPosition { X = 0.5544853, Y = -0.32209206, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.Settle(LawScene scene, GpuBodyId body, Int32 seconds) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 676
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 704
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [1 ms]
+  Error Message:
+   tick 6: body 4 remainder LocalPosition { X = 0.55528545, Y = 0.11730361, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 767
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.SpeedsBeyondTheEnvelopeClampInsideTheExactHostBoundInEveryDirectionAndTheTickContinues [1 ms]
+  Error Message:
+   tick 1: body 4 remainder LocalPosition { X = 0.9694717, Y = 0, Z = 0 } is not canonical
+  Stack Trace:
+     at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 265
+   at CuriousContraptions.Tests.WorkshopPhysicsLawTests.SpeedsBeyondTheEnvelopeClampInsideTheExactHostBoundInEveryDirectionAndTheTickContinues() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 408
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    52, Passed:    60, Skipped:     0, Total:   112, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

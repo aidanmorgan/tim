@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-consumers-read-while-renewing/original	2026-10-19 11:28:35.583662426 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockMapping.cs	2026-10-19 11:28:35.588339912 +0800
+@@ -125,7 +125,7 @@
+     public ClockGeneration Generation => _peer.Generation;
+     public TimestampUncertainty EndpointUncertainty => _peer.Uncertainty;
+     public int ValidProbeCount => _count;
+-    public bool IsQualified => State is ClockMappingState.Ready or ClockMappingState.Recovering;
++    public bool IsQualified => State is ClockMappingState.Ready or ClockMappingState.Recovering or ClockMappingState.Renewing;
+     public ClockProbe? Pending => (_flags & ClockBookkeepingFlags.Pending) != 0
+         ? new(Session, Generation, _peer.RequesterGeneration, _peer.RequesterRole, new(_sequence), new(_lastSent)) : null;
+ 

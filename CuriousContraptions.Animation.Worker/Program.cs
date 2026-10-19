@@ -13,7 +13,7 @@ public static partial class Program
     private static WorkshopClockMapping? _clock;
     private static WorkshopSchedule? _schedule;
     private static Preparation? _prepared;
-    private static byte[]? _queuedControl;
+    private static readonly AnimationControlDeferral Deferred = new();
     private static readonly AnimationBatch Tracks = new(WorkshopAnimationWire.TargetCapacity);
     private static readonly Track[] Instances = new Track[WorkshopAnimationWire.TargetCapacity];
     private struct Track
@@ -38,7 +38,6 @@ public static partial class Program
     [JSImport("control", "workshopAnimation")] private static partial void SendControl(byte[] bytes);
     [JSImport("output", "workshopAnimation")] private static partial void SendOutput(byte[] bytes);
     [JSImport("qualified", "workshopAnimation")] private static partial void Qualified();
-    [JSImport("acceptedReply", "workshopAnimation")] private static partial void AcceptedReply();
 
     [JSExport]
     public static void Bootstrap(byte[] bytes)
@@ -54,8 +53,8 @@ public static partial class Program
     public static void Reply(byte[] bytes, double receiptMilliseconds)
     {
         var receipt = WorkshopNativeClock.FromMilliseconds(receiptMilliseconds);
-        var observation = Clock.Receive(WorkshopClockWire.DecodeReply(bytes, Peer, receipt));
-        if (observation.Outcome == ClockProbeOutcome.Accepted) AcceptedReply();
+        // The requesters' one reply path: a malformed reply is one counted, typed rejection, never applied or dropped.
+        if (Clock.ReceiveEncoded(bytes, receipt) is null) return;
         if (Clock.IsQualified) Qualified();
     }
 
@@ -64,7 +63,15 @@ public static partial class Program
     {
         var now = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         if (Clock.BeginProbe(now) is { } probe) SendProbe(WorkshopClockWire.EncodeProbe(probe, Peer));
-        if (_prepared is not null || _schedule is not { } schedule || !Clock.TryMasterNow(now, out var interval)) return;
+        // A deferred control is applied once master time is available again, and that turn ends there (AnimationControlDeferral).
+        var interval = default(ClockInterval);
+        var masterTime = _schedule is not null && _prepared is null && Clock.TryMasterNow(now, out interval);
+        switch (Deferred.Turn(_schedule is not null, _prepared is not null, masterTime))
+        {
+            case AnimationServiceTurn.Wait: return;
+            case AnimationServiceTurn.ApplyDeferred: DrainControl(); return;
+        }
+        var schedule = _schedule!.Value;
         var due = WorkshopPulse.Due(schedule.Settings.AnimationRate, new(checked((long)interval.Lower)));
         if (due.Value < schedule.FirstAnimation.Value || due.Value <= _lastOrdinal) return;
         // Coalesce cosmetic evaluation opportunities, never create a Task for an individual pulse.
@@ -164,8 +171,8 @@ public static partial class Program
 
     private static void DrainControl()
     {
-        if (_queuedControl is not { } bytes) return;
-        _queuedControl = null; AnimationControl(bytes);
+        if (Deferred.Release() is not { } bytes) return;
+        AnimationControl(bytes);
     }
 
     [JSExport]
@@ -181,8 +188,8 @@ public static partial class Program
             throw new ArgumentException("Foreign channel control.");
         if (_prepared is not null)
         {
-            if (_queuedControl is not null) throw new InvalidOperationException("Deferred animation control capacity exceeded.");
-            _queuedControl = bytes; return;
+            Deferred.Hold(bytes, AnimationDeferralCause.Preparation);
+            return;
         }
         if (cadence.Value < schedule.Revision.Value ||
             (control.World.Value != 0 && control.World != schedule.World.WorldGeneration))
@@ -210,7 +217,12 @@ public static partial class Program
         if (control.Kind == AnimationControlKind.Visibility && previous.Handle is null)
             throw new ArgumentException("Visibility requires its registered target.");
         if (!Clock.TryMasterNow(WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), out var now))
-            throw new InvalidOperationException("Animation control requires qualified master time.");
+        {
+            // A recalibrating mapping (counted CCGPU_CLOCK_RECALIBRATED telemetry) has no master time yet: the control
+            // waits unapplied and unacknowledged, so the browser sends no other, until the mapping requalifies (Story 9.4b).
+            Deferred.Hold(bytes, AnimationDeferralCause.Recalibrating);
+            return;
+        }
         if (control.Kind == AnimationControlKind.Impulse)
         {
             // One impulse slot per target; every committed occurrence is enqueued and overlap is combined here.

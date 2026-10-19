@@ -1,0 +1,24 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.90]     CuriousContraptions.Tests.WorkshopClockDerivationTests.StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes [12 ms]
+  Error Message:
+   System.InvalidOperationException : Clock master derivation is not a stable offset within the 0.0158 ms bound: the most narrow exchanges admitting one correction are 3 of 4 (at most 0 outliers); the last was master 99.98419999999999 ms for the Simulation bracket [100, 100.01] ms.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopClockDerivation.Qualify(ClockDerivationExchange exchange) in /Users/aidan/dev/personal/tim/engine/gpu/WorkshopClockDerivation.cs:line 138
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 57
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.96]     CuriousContraptions.Tests.WorkshopClockDerivationTests.OneJitteredExchangeAmongTheStartupExchangesIsSetAsideAndTheOffsetComesFromTheRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.OneJitteredExchangeAmongTheStartupExchangesIsSetAsideAndTheOffsetComesFromTheRest [< 1 ms]
+  Error Message:
+   System.InvalidOperationException : Clock master derivation is not a stable offset within the 0.0158 ms bound: the most narrow exchanges admitting one correction are 1 of 2 (at most 0 outliers); the last was master 100.0078125 ms for the Simulation bracket [100, 100.015625] ms.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopClockDerivation.Qualify(ClockDerivationExchange exchange) in /Users/aidan/dev/personal/tim/engine/gpu/WorkshopClockDerivation.cs:line 138
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.<>c__DisplayClass9_0.<OneJitteredExchangeAmongTheStartupExchangesIsSetAsideAndTheOffsetComesFromTheRest>b__0() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 179
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.Capture[T](Func`1 action) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 23
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.OneJitteredExchangeAmongTheStartupExchangesIsSetAsideAndTheOffsetComesFromTheRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 175
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    31, Skipped:     0, Total:    33, Duration: 121 ms - CuriousContraptions.tests.dll (net10.0)

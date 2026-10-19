@@ -1,0 +1,11 @@
+# served vs candidate-3 bundle-identity, 2026-10-18T21:22:55Z
+simulation/_framework/CuriousContraptions.Simulation.wasm served=fcf70711fc9bb70c candidate=fcf70711fc9bb70c MATCH
+simulation/worker.js served=b892a2112aa8af21 candidate=b892a2112aa8af21 MATCH
+simulation/clock-master.js served=8af6087aa2440c12 candidate=8af6087aa2440c12 MATCH
+workshop-client.js served=9fdea5f87546ad4b candidate=9fdea5f87546ad4b MATCH
+clock-ring.js served=1c348f7a332b354a candidate=1c348f7a332b354a MATCH
+animation/worker.js served=b5b6cd9b268d540b candidate=b5b6cd9b268d540b MATCH
+animation/_framework/CuriousContraptions.Animation.Worker.wasm served=94076e9644f29ab7 candidate=94076e9644f29ab7 MATCH
+godot.pck served=a63b39745c29f630 candidate=a63b39745c29f630 MATCH
+index.html served=a9ce285101eff2a6 candidate=a9ce285101eff2a6 MATCH
+native-clock.js served=6b4b904664534ee6 candidate=6b4b904664534ee6 MATCH

@@ -76,8 +76,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     {
         ArgumentNullException.ThrowIfNull(controls);
         if (_committedWorld.Length != PhysicsGpuAbi.ByteLength ||
-            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(32)) != committed.Epoch.Value ||
-            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(40)) != committed.Tick.Value)
+            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(PhysicsGpuAbi.HeaderEpochOffset)) != committed.Epoch.Value ||
+            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(PhysicsGpuAbi.HeaderTickOffset)) != committed.Tick.Value)
             throw new ArgumentException("Advance does not own the committed physical world.");
         var network = _committedNetwork ?? throw new InvalidOperationException("No committed activation declarations.");
         var supply = _committedSupply ?? throw new InvalidOperationException("No committed switched-supply table.");
@@ -118,7 +118,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             if (PhysicsGpuAbi.ReadProfile(bytes) != profile)
                 throw new ArgumentException("GPU candidate changed the admitted cadence identity.");
             var bodies = validated.Bodies;
-            var sensorCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(24)));
+            var sensorCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSensorCountOffset)));
             Span<CaptureLatch> captures = stackalloc CaptureLatch[PhysicsSceneDeclaration.SensorCapacity];
             if (operation == WorkshopGpuOperation.Advance && _committedCaptures.Count != sensorCount)
                 throw new ArgumentException("The discrete controller population changed.");
@@ -131,10 +131,10 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _candidateCaptures = new(captures[..sensorCount]);
             // Every physical byte/event is validated before discrete evaluation. Neither
             // candidate is visible until the existing ownership-checked Commit below.
-            var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(100)));
+            var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderTriggerCountOffset)));
             Span<ContactTriggerRead> triggers = stackalloc ContactTriggerRead[PhysicsSceneDeclaration.TriggerCapacity];
             for (var i = 0; i < triggerCount; i++) triggers[i] = PhysicsGpuAbi.ReadTrigger(bytes, i);
-            var orientationCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(116)));
+            var orientationCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderOrientationSensorCountOffset)));
             Span<OrientationSensorRead> orientations = stackalloc OrientationSensorRead[PhysicsSceneDeclaration.OrientationSensorCapacity];
             for (var i = 0; i < orientationCount; i++) orientations[i] = PhysicsGpuAbi.ReadOrientationSensor(bytes, i);
             Span<PassageSensorRead> passages = stackalloc PassageSensorRead[8];
@@ -153,7 +153,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers;
             _candidateNetwork = network; _candidateSupply = supply;
             var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);
-            var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32))),
+            var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),
                 expectedTick, bodies,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
                 Motion: validated.Motion, ContactWorks: contactWorks, Electrical: electrical);
@@ -176,7 +176,6 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             throw;
         }
     }
-    public void MarkLost() => _initialized = false;
     public void Commit(CommandSequence sequence)
     {
         if (_disposed || _active != sequence || sequence.Value == 0)

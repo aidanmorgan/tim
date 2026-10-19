@@ -96,9 +96,9 @@ public static class CapabilityInputs
             if (!CapabilityCatalogueRequirements.Values.TryGetValue(key.Id, out var required))
                 throw new InvalidDataException("Catalogue lacks required semantic capability contract.");
             capabilities.Add(key, required);
-            if (catalogue.Admitted.Contains(key.Id))
+            if (catalogue.Admitted.TryGetValue(key.Id, out var admittedResource))
             {
-                var closure = ReadResourceClosure(root, key.Id);
+                var closure = ReadResourceClosure(root, admittedResource);
                 artifacts[key] = [..artifacts[key], ..closure.Artifacts];
                 symbols.Add(key, closure.Symbols);
             }
@@ -133,9 +133,8 @@ public static class CapabilityInputs
     }
 
     public sealed record ResourceClosure(SourceArtifact[] Artifacts, SourceSymbol[] Symbols);
-    public static ResourceClosure ReadResourceClosure(DirectoryInfo root, RequirementId key)
+    public static ResourceClosure ReadResourceClosure(DirectoryInfo root, SourcePath resource)
     {
-        var resource = new SourcePath("parts/catalog/" + key.Value + ".tres");
         var definition = File.ReadAllText(Path.Combine(root.FullName, resource.Value));
         var scene = ResourceLink(definition, ResourceBinding.CatalogueScene);
         var sceneText = File.ReadAllText(Path.Combine(root.FullName, scene.Value));

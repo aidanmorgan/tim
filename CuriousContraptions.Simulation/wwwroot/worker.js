@@ -1,70 +1,61 @@
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
+import { attachClockRing, deriveExchange, qualifyDerivation, writeDerivation, beat } from '../clock-ring.js';
 
 await admitNativeClock();
 const runtime = await dotnet.create();
 let host, activeRequests = 0, observationPending = false;
-let animationPort, roles, lifetime = 0, disposed = false;
+let animationPort, clockMaster, derivationCheck, roles, lifetime = 0, disposed = false;
+// Scheduler turns (Program.NextTurn): declared before anything that can dispose the session.
+const turnChannel = new MessageChannel(), queuedTurns = [], turnTimers = new Set();
 let poseRing, poseSeqView, poseDataView, poseFloatView, poseSlotIndex = 0, posePublicationSequence = 0n;
-let eventRing;
 let latestRead, pendingReadIdentity, occurrenceReadReserved = false;
 const occurrenceReads = [], pendingScheduleControls = [], occurrenceReadCapacity = 64;
 
-// Byte layouts owned by the C# ABI (WorkerAbiTests verifies these against C# constants).
-const PRISMATIC_BYTES = 160;
-const ELECTRICAL_SOURCE_BYTES = 64;
-const ELECTRICAL_BINDING_BYTES = 16;
-const BODY_BYTES = 160;
-const BODY_VELOCITY = 64;
-const BODY_ANGULAR_VELOCITY = 76;
-const BODY_MASS = 88;
-const BODY_DRAG = 90;
-const BODY_GRAVITY = 92;
-const BODY_CENTRE_OF_MASS = 98;
-const MOTION_HEADER_BYTES = 16;
-const MOTION_PIECE_BYTES = 144;
-const MOTION_DRAG_RATE = 60;
-const MOTION_VELOCITY = 80;
-const MOTION_ANGULAR_VELOCITY = 92;
-const MOTION_GRAVITY = 104;
-const READ_BODIES_OFFSET = 128;
-const BODY_WIRE_BYTES = 80;
-const BODY_WIRE_VELOCITY = 56;
-
-let COLLIDERS_OFFSET = 5408;
-let MATERIALS_OFFSET = 11552;
-let TRIGGERS_OFFSET = 15680;
-let CONTACT_WORKS_OFFSET = 16192;
+// Byte layouts owned by the C# ABI; WorkerAbiTests pins every one against its C# owner (Story 9.4b deleted the
+// declared-but-unused JS-kernel layouts and the never-written event ring, and named every offset this worker reads).
+const READ_CAPTURE_TIME = 72;          // WorkshopWire.ResponseCaptureTimeOffset
+const READ_BODY_COUNT = 104;           // WorkshopWire.ResponseBodyCountOffset
+const READ_BODIES_OFFSET = 128;        // WorkshopWire.ReadBodiesOffset
+const BODY_WIRE_BYTES = 80;            // PhysicsBodyWire.ByteLength
+const BODY_WIRE_CELL = 8;              // PhysicsBodyWire.CellOffset
+const BODY_WIRE_LOCAL = 20;            // PhysicsBodyWire.LocalOffset
+const BODY_WIRE_ROTATION = 32;         // PhysicsBodyWire.RotationOffset
+const BODY_WIRE_VELOCITY = 56;         // PhysicsBodyWire.VelocityOffset
+const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
+const POSE_BODY_CAPACITY = 16;         // WorkshopPoseRing.BodyCapacity
+const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
+const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
+const POSE_SLOT_BYTES = 1040;          // WorkshopPoseRing.SlotBytes
+const POSE_RING_BYTES = 3120;          // WorkshopPoseRing.TotalBytes
 
 function writePoseRing(bytes) {
-    if (!poseRing || !poseSeqView || !poseDataView || !poseFloatView || bytes.length < 128) return;
+    if (!poseRing || !poseSeqView || !poseDataView || !poseFloatView || bytes.length < READ_BODIES_OFFSET) return;
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    const bodyCount = bytes[104];
-    const timestamp = view.getBigInt64(72, true);
-    poseSlotIndex = (poseSlotIndex + 1) % 3;
+    const bodyCount = bytes[READ_BODY_COUNT];
+    const timestamp = view.getBigInt64(READ_CAPTURE_TIME, true);
+    poseSlotIndex = (poseSlotIndex + 1) % POSE_SLOT_COUNT;
     const s = poseSlotIndex;
-    const seqIndex = s * 130;
+    const seqIndex = s * (POSE_SLOT_BYTES / 8);
     const nextSeq = posePublicationSequence + 2n;
     posePublicationSequence = nextSeq;
     Atomics.store(poseSeqView, seqIndex, nextSeq - 1n);
 
-    const slotByteOffset = s * 1040;
+    const slotByteOffset = s * POSE_SLOT_BYTES;
     poseDataView.setBigInt64(slotByteOffset + 8, timestamp, true);
-    const bodyFloatOffset = (slotByteOffset + 16) / 4;
+    const bodyFloatOffset = (slotByteOffset + POSE_HEADER_BYTES) / 4;
 
-    for (let i = 0; i < 16; i++) {
-        const b = bodyFloatOffset + i * 16;
+    for (let i = 0; i < POSE_BODY_CAPACITY; i++) {
+        const b = bodyFloatOffset + i * (POSE_BODY_BYTES / 4);
         if (i < bodyCount && READ_BODIES_OFFSET + (i + 1) * BODY_WIRE_BYTES <= bytes.length) {
             const src = READ_BODIES_OFFSET + i * BODY_WIRE_BYTES;
-            poseFloatView[b + 0] = (view.getInt32(src + 8, true) + view.getFloat32(src + 20, true)) / 16;
-            poseFloatView[b + 1] = (view.getInt32(src + 12, true) + view.getFloat32(src + 24, true)) / 16;
-            poseFloatView[b + 2] = (view.getInt32(src + 16, true) + view.getFloat32(src + 28, true)) / 16;
+            for (let axis = 0; axis < 3; axis++)
+                poseFloatView[b + axis] = (view.getInt32(src + BODY_WIRE_CELL + axis * 4, true) +
+                    view.getFloat32(src + BODY_WIRE_LOCAL + axis * 4, true)) / 16;
             poseDataView.setUint32((b + 3) * 4, 0, true);
             poseDataView.setBigUint64((b + 12) * 4, view.getBigUint64(src, true), true);
-            poseFloatView[b + 4] = view.getFloat32(src + 32, true);
-            poseFloatView[b + 5] = view.getFloat32(src + 36, true);
-            poseFloatView[b + 6] = view.getFloat32(src + 40, true);
-            poseFloatView[b + 7] = view.getFloat32(src + 44, true);
+            for (let component = 0; component < 4; component++)
+                poseFloatView[b + 4 + component] = view.getFloat32(src + BODY_WIRE_ROTATION + component * 4, true);
             poseFloatView[b + 8] = view.getFloat32(src + BODY_WIRE_VELOCITY, true);
             poseFloatView[b + 9] = view.getFloat32(src + BODY_WIRE_VELOCITY + 4, true);
             poseFloatView[b + 10] = view.getFloat32(src + BODY_WIRE_VELOCITY + 8, true);
@@ -81,32 +72,6 @@ function writePoseRing(bytes) {
     Atomics.store(poseSeqView, seqIndex, nextSeq);
 }
 
-export function writeEventRing(ring, events) {
-    if (!ring || !events || !events.length) return;
-    const headerU32 = new Uint32Array(ring, 0, 16);
-    const headerU64 = new BigUint64Array(ring, 0, 8);
-    const capacity = headerU32[0] || 1024;
-    const dv = new DataView(ring);
-    const capMask = BigInt(capacity - 1);
-    for (const ev of events) {
-        const nextSeq = Atomics.add(headerU64, 1, 1n) + 1n;
-        const slotIdx = Number((nextSeq - 1n) & capMask);
-        const offset = 64 + slotIdx * 64;
-        dv.setBigUint64(offset + 8, BigInt(ev.timestampNs || 0), true);
-        dv.setUint32(offset + 16, ev.domain || 0, true);
-        dv.setUint32(offset + 20, ev.eventKind || 0, true);
-        dv.setBigUint64(offset + 24, BigInt(ev.sourceBodyId || 0), true);
-        dv.setBigUint64(offset + 32, BigInt(ev.targetBodyId || 0), true);
-        dv.setFloat32(offset + 40, ev.p0 ?? ev.impulse ?? 0, true);
-        dv.setFloat32(offset + 44, ev.p1 ?? ev.contactX ?? 0, true);
-        dv.setFloat32(offset + 48, ev.p2 ?? ev.contactY ?? 0, true);
-        dv.setFloat32(offset + 52, ev.p3 ?? ev.contactZ ?? 0, true);
-        dv.setFloat32(offset + 56, ev.p4 ?? ev.value ?? 0, true);
-        dv.setFloat32(offset + 60, ev.p5 ?? 0, true);
-        Atomics.store(new BigUint64Array(ring, offset, 1), 0, nextSeq);
-    }
-}
-
 function clockNow() {
     try { return nativeNow(); }
     catch (e) { disposeOwned(); self.postMessage({ failure: true, detail: String(e) }); self.close(); throw e; }
@@ -115,10 +80,86 @@ function clockNow() {
 function disposeOwned() {
     disposed = true; lifetime++;
     if (animationPort) { animationPort.onmessage = null; animationPort.close(); animationPort = undefined; }
+    if (clockMaster) { clockMaster.onmessage = clockMaster.onerror = null; clockMaster.terminate(); clockMaster = undefined; }
+    if (derivationCheck !== undefined) { clearInterval(derivationCheck); derivationCheck = undefined; }
+    // Scheduler turns end with the session: no queued or timed turn resumes a disposed run loop.
+    turnChannel.port1.onmessage = null; turnChannel.port1.close(); turnChannel.port2.close();
+    for (const timer of turnTimers) clearTimeout(timer);
+    turnTimers.clear(); queuedTurns.length = 0;
     poseRing = poseSeqView = poseDataView = poseFloatView = undefined;
-    eventRing = undefined;
     occurrenceReads.length = pendingScheduleControls.length = 0;
     latestRead = undefined; occurrenceReadReserved = false;
+}
+
+// The clock master context answers every requester's probe through the clock ring; this worker never does (Story 9.4b).
+// Its stamps derive the Simulation's native time from the shared isolated time origin plus the derivation correction,
+// so this worker runs bounded synchronous exchanges with it (WorkshopClockDerivation): all startup exchanges must hold
+// before the session is admitted, then one exchange every check interval, always between tick turns of this event
+// loop. A small measured drift is slewed under the same epoch; a large one installs a new correction under a new epoch
+// (each requester mapping recalibrates as counted telemetry); an unanswered or inconclusive check is counted. Each
+// check turn also beats the ring heartbeat the Browser's liveness check reads. Nothing falls back.
+async function startClockMaster(ringBuffer, browserPeer, animationPeer) {
+    const clock = attachClockRing(ringBuffer);
+    const [exchangeTimeout, checkInterval, checkExchanges] = Array.from(host.ClockDerivationProfile());
+    const context = new Worker(new URL('./clock-master.js', import.meta.url), { type: 'module' });
+    clockMaster = context;
+    await new Promise((resolve, reject) => {
+        context.onerror = event => reject(new Error(event.message || 'The clock master context failed to load.'));
+        context.onmessage = message => {
+            if (message.data?.awaitingBootstrap === true)
+                context.postMessage({ ring: ringBuffer, simulationOrigin: performance.timeOrigin, browserPeer, animationPeer });
+            else if (message.data?.ready === true) resolve();
+            else reject(new Error(message.data?.detail ?? 'The clock master context rejected its bootstrap.'));
+        };
+    });
+    context.onmessage = message => {
+        disposeOwned();
+        self.postMessage({ failure: true, detail: 'Clock master failed: ' + (message.data?.detail ?? 'unknown envelope') });
+    };
+    context.onerror = event => {
+        disposeOwned();
+        self.postMessage({ failure: true, detail: 'Clock master failed: ' + (event.message || 'context error') });
+    };
+    // Qualification retries wide or unanswered exchanges within the managed attempt budget, which refuses the session
+    // once it is exhausted; each attempt blocks this loop for at most one exchange timeout.
+    qualifyDerivation(clock, clockNow, exchangeTimeout, {
+        qualified: () => host.ClockDerivationQualified(),
+        qualify: exchange => host.QualifyClockDerivation(exchange.before, exchange.master, exchange.after, exchange.epoch),
+        missed: () => host.ClockDerivationQualificationMissed(),
+    });
+    // The derived offset between the contexts' time origins is installed under the initial epoch before any requester
+    // qualifies its mapping (this worker reports ready only after this returns).
+    host.AdoptClockDerivation(writeDerivation(clock, host.ClockDerivationStartupCorrection(), false));
+    derivationCheck = setInterval(() => {
+        if (disposed) return;
+        try {
+            // The heartbeat proves this event loop still runs between tick turns (the Browser faults the session when
+            // it stops); the derivation check rides on the same turn.
+            beat(clock);
+            // The first exchange wakes a master context asleep since the last check and is often wide; a wide one is
+            // retried back to back, so the check rests on a narrow exchange when the attempts allow. All exchanges of
+            // one check share a single exchange timeout, so a check blocks this loop for at most that long; the check
+            // uses the narrow exchange, or else the last one answered.
+            const started = clockNow();
+            let exchange = deriveExchange(clock, clockNow, exchangeTimeout);
+            for (let attempt = 1; exchange && attempt < checkExchanges &&
+                !host.ClockDerivationExchangeNarrow(exchange.before, exchange.master, exchange.after, exchange.epoch); attempt++) {
+                const remaining = exchangeTimeout - (clockNow() - started);
+                if (remaining <= 0) break;
+                host.ClockDerivationRetried();
+                const next = deriveExchange(clock, clockNow, remaining);
+                if (!next) break;
+                exchange = next;
+            }
+            if (!exchange) { host.ClockDerivationMissed(); return; }
+            const installation = Array.from(host.CheckClockDerivation(exchange.before, exchange.master, exchange.after, exchange.epoch));
+            if (installation.length === 2)
+                host.AdoptClockDerivation(writeDerivation(clock, installation[0], installation[1] === 1));
+        } catch (error) {
+            disposeOwned();
+            self.postMessage({ failure: true, detail: 'Clock derivation check failed: ' + String(error) });
+        }
+    }, checkInterval);
 }
 
 function forwardScheduleControl(bytes, recipient) {
@@ -135,39 +176,11 @@ function flushScheduleControls() {
     }
 }
 
+// Every physical read this worker publishes is the binary WorkshopWire response (Program.ReadOutput); its receipt identity
+// is the session and publication at the offsets the managed ResponseAbi declares. (Story 9.4b deleted a FlatBuffers
+// branch here that no read could reach: a read's leading sequence word is zero.)
 function extractReadIdentity(bytes, respAbi) {
-    if (bytes.length >= 12) {
-        const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-        const rootPos = view.getUint32(0, true);
-        if (rootPos >= 4 && rootPos <= bytes.length - 4) {
-            const vtableOffset = view.getInt32(rootPos, true);
-            const vtablePos = rootPos - vtableOffset;
-            if (vtableOffset > 0 && vtablePos >= 0 && vtablePos <= rootPos) {
-                const vtableSize = view.getUint16(vtablePos, true);
-                let publication = 0n, sessionBytes = null;
-                if (vtableSize >= 24) {
-                    const pubFieldOffset = view.getUint16(vtablePos + 22, true);
-                    if (pubFieldOffset > 0 && rootPos + pubFieldOffset + 8 <= bytes.length)
-                        publication = view.getBigUint64(rootPos + pubFieldOffset, true);
-                }
-                if (vtableSize >= 32) {
-                    const sessFieldOffset = view.getUint16(vtablePos + 30, true);
-                    if (sessFieldOffset > 0 && rootPos + sessFieldOffset + 4 <= bytes.length) {
-                        const vecOffset = view.getInt32(rootPos + sessFieldOffset, true);
-                        const vecPos = rootPos + sessFieldOffset + vecOffset;
-                        if (vecPos >= 0 && vecPos + 4 <= bytes.length && view.getUint32(vecPos, true) === 16)
-                            sessionBytes = bytes.subarray(vecPos + 4, vecPos + 20);
-                    }
-                }
-                if (sessionBytes) {
-                    const id = new Uint8Array(24);
-                    id.set(sessionBytes, 0);
-                    new DataView(id.buffer, id.byteOffset, 24).setBigUint64(16, publication, true);
-                    return id;
-                }
-            }
-        }
-    }
+    if (bytes.length !== respAbi[0]) throw new Error('A physical read must be one complete binary response.');
     const id = new Uint8Array(24);
     id.set(bytes.subarray(respAbi[1], respAbi[1] + 16));
     id.set(bytes.subarray(respAbi[2], respAbi[2] + 8), 16);
@@ -196,8 +209,25 @@ function acknowledgeRead(receipt) {
     flushObservation();
 }
 
+// Scheduler turns of the run loop (Program.NextTurn). Delay 0 is an immediate macrotask through a MessageChannel, so
+// queued commands, receipts and schedule controls run between tick batches without the 4 ms clamp a chained timer would
+// add to catch-up; a positive delay is the ordinary wake-up timer. Either task calls ResumeTurn itself, so the loop
+// continues inside it: one macrotask per turn, never a second runtime hop behind other queued work.
+// A turn that fails to resume is a worker fault reported through the failure envelope, never an uncaught error.
+function resumeTurn(turn) {
+    if (disposed) return;
+    try { host.ResumeTurn(turn); }
+    catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: 'Scheduler turn failed: ' + String(error) }); }
+}
+turnChannel.port1.onmessage = () => resumeTurn(queuedTurns.shift());
+
 runtime.setModuleImports('workshopGpu', {
     now: clockNow,
+    scheduleTurn(turn, delayMilliseconds) {
+        if (disposed) return;
+        if (delayMilliseconds === 0) { queuedTurns.push(turn); turnChannel.port2.postMessage(0); }
+        else { const timer = setTimeout(() => { turnTimers.delete(timer); resumeTurn(turn); }, delayMilliseconds); turnTimers.add(timer); }
+    },
     scheduleControl(bytes, recipient) {
         const val = new Uint8Array(bytes);
         if (pendingReadIdentity || latestRead || occurrenceReads.length) {
@@ -250,24 +280,18 @@ self.onmessage = async event => {
     if (bootstrap instanceof Uint8Array) {
         try {
             const captureMode = event.data.captureMode;
-            if (event.data?.poseRing) {
-                if (event.data.poseRing.byteLength !== 3120) throw new Error('Unsupported pose ring layout');
-                poseRing = event.data.poseRing;
-                poseSeqView = new BigInt64Array(poseRing);
-                poseDataView = new DataView(poseRing);
-                poseFloatView = new Float32Array(poseRing);
-                poseSlotIndex = 0;
-            }
-            if (event.data?.eventRing) {
-                if (event.data.eventRing.byteLength !== 65600) throw new Error('Unsupported event ring layout');
-                eventRing = event.data.eventRing;
-                const headerU32 = new Uint32Array(eventRing, 0, 16);
-                Atomics.store(headerU32, 0, 1024);
-                Atomics.store(headerU32, 1, 64);
-            }
+            if (!(event.data?.poseRing instanceof SharedArrayBuffer) || event.data.poseRing.byteLength !== POSE_RING_BYTES)
+                throw new Error('Bootstrap requires the session pose ring.');
+            poseRing = event.data.poseRing;
+            poseSeqView = new BigInt64Array(poseRing);
+            poseDataView = new DataView(poseRing);
+            poseFloatView = new Float32Array(poseRing);
+            poseSlotIndex = 0;
             if ((captureMode !== 1 && captureMode !== 2) || captureMode !== host.CaptureMode())
                 throw new Error('Browser and simulation capture modes differ.');
+            if (!(event.data?.clockRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session clock ring.');
             const masterPeer = new Uint8Array(host.Bootstrap(bootstrap));
+            await startClockMaster(event.data.clockRing, masterPeer.slice(), new Uint8Array(host.AnimationPeer()));
             const nativeClock = new Float64Array(nativeClockEvidence());
             self.postMessage({ ready: true, nativeClock, captureMode, masterPeer }, [nativeClock.buffer, masterPeer.buffer]);
             await host.PrepareGpu();
@@ -286,10 +310,7 @@ self.onmessage = async event => {
             const animationPeer = new Uint8Array(host.AnimationPeer());
             animationPort.onmessage = incoming => {
                 try {
-                    if (incoming.data?.clockProbe instanceof Uint8Array) {
-                        const value = new Uint8Array(host.AnimationClockReply(incoming.data.clockProbe, clockNow()));
-                        animationPort.postMessage({ clockReply: value }, [value.buffer]);
-                    } else if (incoming.data?.scheduleControl instanceof Uint8Array) {
+                    if (incoming.data?.scheduleControl instanceof Uint8Array) {
                         host.ScheduleResult(incoming.data.scheduleControl, roles[1]);
                     } else throw new Error('Unsupported Animation master-port message.');
                 } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
@@ -302,14 +323,6 @@ self.onmessage = async event => {
     if (event.data?.scheduleControl instanceof Uint8Array) {
         try { host.ScheduleResult(event.data.scheduleControl, roles[0]); }
         catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
-        return;
-    }
-    const probe = event.data?.clockProbe;
-    if (probe instanceof Uint8Array) {
-        try {
-            const reply = new Uint8Array(host.ClockReply(probe, received));
-            self.postMessage({ clockReply: reply }, [reply.buffer]);
-        } catch (error) { self.postMessage({ failure: true, detail: String(error) }); }
         return;
     }
     if (typeof event.data?.reliableStalled === 'boolean') { if (!disposed) host.SetReliableStall(event.data.reliableStalled); return; }

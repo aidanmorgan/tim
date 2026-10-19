@@ -1,0 +1,35 @@
+(node:3010) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"startupControl":1,"passed":true}
+{"startupControl":2,"passed":true}
+{"canonicalCommandWidth":true,"accepted":[72,1672,5768],"rejected":[71,5769]}
+node:internal/event_target:1152
+  process.nextTick(() => { throw err; });
+                           ^
+
+Error: Scheduler turn 7 was never requested.
+    at Object.ResumeTurn (file:///Users/aidan/dev/personal/tim/tools/workshop-observation.test.mjs:297:73)
+    at resumeTurn (vm:module(3):217:10)
+    at turnChannel.port1.onmessage (vm:module(3):219:37)
+    at MessagePort.eventHandler (node:internal/event_target:1162:12)
+    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:872:20)
+    at MessagePort.<anonymous> (node:internal/per_context/messageport:23:28)
+
+Node.js v26.12.0
+✖ tools/workshop-observation.test.mjs (310.500292ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 313.824167
+
+✖ failing tests:
+
+test at tools/workshop-observation.test.mjs:1:1
+✖ tools/workshop-observation.test.mjs (310.500292ms)
+  'test failed'

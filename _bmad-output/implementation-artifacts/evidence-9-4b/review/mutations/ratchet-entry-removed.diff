@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/ratchet-entry-removed/original	2026-10-19 01:06:52.954976147 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs	2026-10-19 01:06:52.959042323 +0800
+@@ -521,8 +521,6 @@
+             ViolationOwner.Story9R4, "pressure plate recognised by its collider dimensions"),
+         new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs",
+             @"localNorm\.Y >= 0\.7f|loc\.[XYZ] (>=|<=) -?0\.\d+f", 7, ViolationOwner.Story9R4, "pressure plate load window"),
+-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"currentPlateLoad >= 0\.5f", 1,
+-            ViolationOwner.Story9R4, "pressure plate 0.5 kg threshold"),
+         new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\(Half\)0\.09375f", 1, ViolationOwner.Story9R4, "plate-powered gate drag encoding"),
+         new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\bContactLoadSensorDeclaration\b", 0, ViolationOwner.Story9R4,
+             "ContactLoadSensorDeclaration never compiled (zero references)"),

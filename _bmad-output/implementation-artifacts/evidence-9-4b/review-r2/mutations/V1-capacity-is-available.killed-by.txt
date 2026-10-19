@@ -1,0 +1,2 @@
+CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33)
+CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 0.5, pays: False)

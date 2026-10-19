@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/J12-BH3-ring-reply-bytes/original	2026-10-19 05:45:34.991950368 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.web/wwwroot/clock-ring.js	2026-10-19 05:45:34.995460274 +0800
+@@ -10,7 +10,7 @@
+ // derivation correction (milliseconds, as raw bits) the master adds to every stamp.
+ export const ClockRingBytes = 1024;
+ export const ClockRingVersion = 3;
+-export const PeerBytes = 64, ProbeBytes = 80, ReplyBytes = 104;
++export const PeerBytes = 64, ProbeBytes = 80, ReplyBytes = 96;
+ // A requester waits for its reply at most WorkshopClockMapping.ProbeLifetime (250 ms): the mapping expires the probe
+ // then, so the wait is released instead of lingering after a failure or disposal (pinned by WorkerAbiTests).
+ export const ReplyWaitMilliseconds = 250;

@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.Schedule.cs(15,40): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.Schedule.cs(24,57): error IL2026: Using member 'Program.TrimRedProof()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. red proof. [/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.Schedule.cs(15,40): warning CS8669: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. Auto-generated code requires an explicit '#nullable' directive in source. [/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.Schedule.cs(24,57): error IL2026: Using member 'Program.TrimRedProof()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. red proof. [/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+    1 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:03.39

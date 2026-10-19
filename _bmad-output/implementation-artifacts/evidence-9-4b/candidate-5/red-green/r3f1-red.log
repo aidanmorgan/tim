@@ -1,0 +1,84 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.18]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideRenewingExchangeCannotConfirmAMovedClock [FAIL]
+[xUnit.net 00:00:01.18]     CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7) [FAIL]
+[xUnit.net 00:00:01.19]     CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1) [FAIL]
+[xUnit.net 00:00:01.19]     CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(wider: 1, renews: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideRenewingExchangeCannotConfirmAMovedClock [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Accepted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideRenewingExchangeCannotConfirmAMovedClock() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 514
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Accepted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(Int32 wide) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 542
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Accepted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(Int32 wide) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 542
+   at InvokeStub_WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(wider: 1, renews: False) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Accepted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(Int64 wider, Boolean renews) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 603
+   at InvokeStub_WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.21]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AFreshExchangeThatIsNotAcceptedOrNeverAnsweredEndsTheRenewalAsARecalibration [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AFreshExchangeThatIsNotAcceptedOrNeverAnsweredEndsTheRenewalAsARecalibration [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (1, Elapsed, 0)
+Actual:   Tuple (1, MappingLifetime, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AFreshExchangeThatIsNotAcceptedOrNeverAnsweredEndsTheRenewalAsARecalibration() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 645
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.25]     CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalWhoseEveryExchangeIsTooWideExhaustsItsBudgetAsARecalibration [FAIL]
+[xUnit.net 00:00:01.25]     CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(beyond: 0, elapsed: False) [FAIL]
+[xUnit.net 00:00:01.26]     CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(beyond: 1, elapsed: True) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalWhoseEveryExchangeIsTooWideExhaustsItsBudgetAsARecalibration [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Accepted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalWhoseEveryExchangeIsTooWideExhaustsItsBudgetAsARecalibration() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 565
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(beyond: 0, elapsed: False) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Accepted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(Int64 beyond, Boolean elapsed) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 583
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(beyond: 1, elapsed: True) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Accepted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(Int64 beyond, Boolean elapsed) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 583
+   at InvokeStub_WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     8, Passed:    42, Skipped:     0, Total:    50, Duration: 170 ms - CuriousContraptions.tests.dll (net10.0)

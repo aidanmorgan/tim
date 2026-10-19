@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/J13-BH3-nanoseconds-tie-rounding/original	2026-10-19 05:45:49.910554305 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.web/wwwroot/clock-ring.js	2026-10-19 05:45:49.914379381 +0800
+@@ -148,7 +148,7 @@
+     const numerator = significand * 1000000n, denominator = 1n << shift;
+     let quotient = numerator >> shift;
+     const twice = (numerator & (denominator - 1n)) * 2n;
+-    if (twice > denominator || (twice === denominator && (quotient & 1n) !== 0n)) quotient++;
++    if (twice > denominator || (twice === denominator)) quotient++;
+     if (quotient > 0x7fffffffffffffffn) throw new RangeError('Native milliseconds exceed the nanosecond range.');
+     return quotient;
+ }

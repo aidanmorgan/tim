@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-19-retained-drift-unwidened/original	2026-10-19 15:13:48.875187683 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:13:48.880216449 +0800
+@@ -563,7 +563,7 @@
+         {
+             var age = (Int128)now.Value - _slots[i].Receipt;
+             if (age < 0) continue;
+-            var expanded = Expand(Interval(_slots[i]), (long)age);
++            var expanded = Interval(_slots[i]);
+             if (!found || expanded.Width < best.Width) { found = true; best = expanded; }
+         }
+         return found;

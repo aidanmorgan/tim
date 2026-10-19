@@ -1,0 +1,6 @@
+// Review-only anvil control (Murdoch-2, Story 9.4b): an empty catch, a console.log debug line and eval must be reported.
+export function swallow() {
+    try { JSON.parse('{'); } catch (e) {}
+    console.log('debug');
+    return eval('1 + 1');
+}

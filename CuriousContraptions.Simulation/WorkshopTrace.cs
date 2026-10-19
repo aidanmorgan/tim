@@ -4,7 +4,9 @@ using CuriousContraptions.Gpu;
 namespace CuriousContraptions.Simulation;
 
 // Observational only. All methods contain diagnostic failure; none can reject or change a commit.
-internal enum TraceEnd { Complete, Reset, Disposed, DeviceLost, Fault, InvalidRecord, Overflow }
+// 3 was DeviceLost: the worker owns no device since the pure C# engine (Story 9.2b) and Story 9.4b deleted that path.
+// Recorded trace values keep their numbers; 3 is undefined and rejects.
+internal enum TraceEnd { Complete = 0, Reset = 1, Disposed = 2, Fault = 4, InvalidRecord = 5, Overflow = 6 }
 internal enum TraceTimingStatus { Complete, Incomplete }
 internal enum TraceTimingVersion : uint { NativeMilliseconds = 2 }
 internal sealed class WorkshopTrace
@@ -84,6 +86,9 @@ internal sealed class WorkshopTrace
     #endif
     // Host observational milliseconds only. This is the complete critical-path wall span,
     // including awaits and publication, not exclusive CPU time or numerical game state.
+    // Called once per tick on the hot path: fully optimised from its first call, never call-counted or promoted
+    // mid-run (Story 9.4b; WorkshopTraceTests.DurationRetentionHasNoRoutineAllocationInNativeExecution).
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
     internal void RecordTickDuration(SimulationTick tick, double milliseconds)
     {
         if (!_active) return;
@@ -101,6 +106,8 @@ internal sealed class WorkshopTrace
 
     internal void End(TraceEnd reason)
     {
+        // TraceEnd 3 (the retired DeviceLost) and every other undefined value never reach a record header.
+        if (!Enum.IsDefined(reason)) throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undefined trace end reason.");
         if (!_active) return;
         _active = false;
         #if PLAYTEST

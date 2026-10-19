@@ -1,0 +1,2 @@
+a clock reply landing after disposal is never delivered
+a clock reply landing after the client failed is never delivered

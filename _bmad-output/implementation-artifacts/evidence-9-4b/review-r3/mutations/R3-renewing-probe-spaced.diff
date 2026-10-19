@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-renewing-probe-spaced/original	2026-10-19 11:29:01.507491087 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockMapping.cs	2026-10-19 11:29:01.511732483 +0800
+@@ -152,7 +152,7 @@
+         var spacing = State switch
+         {
+             ClockMappingState.Ready => RefreshSpacing,
+-            ClockMappingState.Renewing => 0, // the renewing exchange is taken at once
++            ClockMappingState.Renewing => RefreshSpacing, // the renewing exchange is taken at once
+             _ => StartupSpacing,
+         };
+         if (_sequence != 0 && (Int128)now.Value - _lastSent < spacing) return null;

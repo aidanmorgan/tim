@@ -1,0 +1,22 @@
+served at start: cc25176dcdab 33f45f530d02 93f7d3020c1d a59804abc67e 
+cat-023b load0 run 1: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load0 run 2: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load0 run 3: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load0 run 4: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load0 run 5: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load8 run 1: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load8 run 2: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load8 run 3: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load8 run 4: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load8 run 5: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load32 run 1: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b load32 run 2: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-005 run 1: ℹ tests 7 ℹ pass 7 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-005 run 2: ℹ tests 7 ℹ pass 7 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-005 run 3: ℹ tests 7 ℹ pass 7 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-005 run 4: ℹ tests 7 ℹ pass 7 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-005 run 5: ℹ tests 7 ℹ pass 7 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cumulative run 1: ℹ tests 138 ℹ pass 137 ℹ fail 1 ℹ cancelled 0 ℹ skipped 0  transport=1 unresponsive=2 rejected=0 recal=0
+cumulative run 2: ℹ tests 138 ℹ pass 138 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=1 unresponsive=2 rejected=0 recal=0
+served at end: cc25176dcdab 33f45f530d02 93f7d3020c1d a59804abc67e 
+DONE

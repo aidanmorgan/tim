@@ -73,7 +73,8 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
     d.page.on('console',m=>{const t=m.text();
         if(t.startsWith('CCGPU '))reads.push(decodeWorkshopResponse(Buffer.from(t.slice(6),'base64')));
         if(t.startsWith('CCGPU_RETAINED '))events.push(decodeWorkshopResponse(Buffer.from(t.slice(15),'base64')));
-        if(m.type()==='error'||t.includes('CCGPU_CLOCK_RECOVERY_FAULT'))errors.push(t);
+        // A clock recalibration fails every suite through WorkshopDriver.close (Story 9.4b).
+        if(m.type()==='error')errors.push(t);
     });d.page.on('pageerror',e=>errors.push(e.message));
     try{
         await d.selectLevel(lesson===Lesson.Depth?'bumper_depth':'wall_and_bumper');

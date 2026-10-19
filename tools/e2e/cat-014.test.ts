@@ -11,8 +11,9 @@
 // 4. Self-contained Save / reload / Load: the two-lane construction is built and saved, the page reloads, Load restores both kinds
 //    (behaviour, rest heights and each kind's declared rolling resistance: both balls rest again); after Reset the second Run topples the Bowling lane again
 // The two-lane Chrome outcome uses the two declared materials as they ship, so mass and radius differ together (4 kg at the Basketball
-// radius only rocks the tile in this drop geometry). The mass-only proof is the harness mass-isolation controls in
-// tools/workshop-rigid-body.test.mjs (rolling strike: 4 kg at the Basketball radius topples, 1 kg at the Bowling radius does not).
+// radius only rocks the tile in this drop geometry). The mass-only proof is the native mass-isolation control
+// WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass (rolling strike in the shipped C# engine:
+// 4 kg topples the tile at either radius, 1 kg only rocks it).
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
@@ -181,7 +182,7 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Two lanes in one Run: the Bowling ball topples its Domino past 60 deg, the identically released Basketball leaves its Domino below 20 deg, and both balls come to rest', { timeout: 150000 }, async () => {

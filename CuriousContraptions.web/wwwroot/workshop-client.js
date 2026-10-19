@@ -1,5 +1,14 @@
 import { admitNativeClock, nativeNow, nativeProfile, nativeClockEvidence } from './native-clock.js';
 import { requireIsolation, watchIsolation, isolationQualified, isolationEvidence, stopIsolation } from './workshop-isolation.js';
+import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } from './clock-ring.js';
+
+// The session pose ring layout, owned by WorkshopPoseRing (WorkerAbiTests pins every value against its C# owner).
+const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
+const POSE_BODY_CAPACITY = 16;         // WorkshopPoseRing.BodyCapacity
+const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
+const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
+const POSE_SLOT_BYTES = 1040;          // WorkshopPoseRing.SlotBytes
+const POSE_RING_BYTES = 3120;          // WorkshopPoseRing.TotalBytes
 
 const clients = new Map();
 let nextClient = 1, retiredSession = false, creating = false;
@@ -31,45 +40,10 @@ function sequence(bytes) {
     }
     return view.getBigUint64(0, true);
 }
+// The Simulation posts every physical read as one complete binary response (worker.js extractReadIdentity rejects any
+// other length), so its receipt identity is read at the binary ABI offsets only.
 function extractReadIdentity(bytes, responseAbi) {
-    if (bytes.length >= 12) {
-        const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-        const rootPos = view.getUint32(0, true);
-        if (rootPos >= 4 && rootPos <= bytes.length - 4) {
-            const vtableOffset = view.getInt32(rootPos, true);
-            const vtablePos = rootPos - vtableOffset;
-            if (vtableOffset > 0 && vtablePos >= 0 && vtablePos <= rootPos) {
-                const vtableSize = view.getUint16(vtablePos, true);
-                let publication = 0n;
-                if (vtableSize >= 24) {
-                    const pubFieldOffset = view.getUint16(vtablePos + 22, true);
-                    if (pubFieldOffset > 0 && rootPos + pubFieldOffset + 8 <= bytes.length) {
-                        publication = view.getBigUint64(rootPos + pubFieldOffset, true);
-                    }
-                }
-                let sessionBytes = null;
-                if (vtableSize >= 32) {
-                    const sessFieldOffset = view.getUint16(vtablePos + 30, true);
-                    if (sessFieldOffset > 0 && rootPos + sessFieldOffset + 4 <= bytes.length) {
-                        const vecOffset = view.getInt32(rootPos + sessFieldOffset, true);
-                        const vecPos = rootPos + sessFieldOffset + vecOffset;
-                        if (vecPos >= 0 && vecPos + 4 <= bytes.length) {
-                            const vecLen = view.getUint32(vecPos, true);
-                            if (vecLen === 16 && vecPos + 4 + 16 <= bytes.length) {
-                                sessionBytes = bytes.subarray(vecPos + 4, vecPos + 4 + 16);
-                            }
-                        }
-                    }
-                }
-                if (sessionBytes) {
-                    const id = new Uint8Array(24);
-                    id.set(sessionBytes, 0);
-                    new DataView(id.buffer, id.byteOffset, 24).setBigUint64(16, publication, true);
-                    return id;
-                }
-            }
-        }
-    }
+    if (bytes.length !== responseAbi[0]) throw new Error('A physical read must be one complete binary response.');
     const id = new Uint8Array(24);
     id.set(bytes.subarray(responseAbi[1], responseAbi[1] + 16));
     id.set(bytes.subarray(responseAbi[2], responseAbi[2] + 8), 16);
@@ -100,6 +74,8 @@ function fail(client, error, retiring = false) {
     client.worker.terminate();
     if (client.animation) { client.animation.onmessage = client.animation.onerror = null; client.animation.terminate(); }
     client.animationPort?.close(); client.animationPort = undefined;
+    // The session clock ring is detached with its workers (dispose goes through here): nothing probes or reads it again.
+    client.clock = client.clockRing = undefined;
     for (const pending of client.pending.values()) pending.reject(error);
     client.pending.clear();
     settleMemory(client, error);
@@ -108,12 +84,11 @@ function fail(client, error, retiring = false) {
     if (!retiring) stopIsolation(error);
     client.retirement = setTimeout(() => { client.state = client.states.recoveryBlocked; }, 1000);
 }
-function deliver(client, bytes, received, callback, clockLease = false) {
+function deliver(client, bytes, received, callback) {
     if (client.eventBytes) throw new Error('Reentrant worker delivery is unsupported.');
     client.eventBytes = bytes; client.eventReceived = received;
-    client.eventClock = clockLease; client.clockAccepted = false;
     try { callback(); }
-    finally { client.eventBytes = undefined; client.eventReceived = undefined; client.eventClock = false; client.clockAccepted = false; }
+    finally { client.eventBytes = undefined; client.eventReceived = undefined; }
 }
 async function admitDisplayRate() {
     return await new Promise((resolve, reject) => {
@@ -160,18 +135,19 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
         if (clockProfile !== nativeProfile) throw new Error('Unsupported native clock profile.');
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
-        const poseRing = typeof SharedArrayBuffer !== 'undefined' ? new SharedArrayBuffer(3120) : undefined;
-        const poseSeqView = poseRing ? new BigInt64Array(poseRing) : undefined;
-        const poseDataView = poseRing ? new DataView(poseRing) : undefined;
-        const poseFloatView = poseRing ? new Float32Array(poseRing) : undefined;
-        const eventRing = typeof SharedArrayBuffer !== 'undefined' ? new SharedArrayBuffer(65600) : undefined;
+        // Cross-origin isolation is required before any client exists (requireIsolation), so the shared rings always exist.
+        const poseRing = new SharedArrayBuffer(POSE_RING_BYTES);
+        const poseSeqView = new BigInt64Array(poseRing), poseDataView = new DataView(poseRing);
+        const poseFloatView = new Float32Array(poseRing);
+        const clockRing = createClockRing();
         const client = { displayRate, worker: undefined, pending: new Map(), acknowledgements: new Map(),
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
-            serviceCallback: service, service: undefined,
-            state: ready, lastReply: now(), stalled: false, candidateTimedOut: false,
+            serviceCallback: service, service: undefined, clockReplyCallback: clockReply,
+            clockRing, clock: attachClockRing(clockRing),
+            state: ready, stalled: false, candidateTimedOut: false,
             identity: undefined, clockAbi: { clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
             memory: undefined,
-            poseRing, poseSeqView, poseDataView, poseFloatView, eventRing,
+            poseRing, poseSeqView, poseDataView, poseFloatView,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
             presentations: captureMode === 2 ? new Uint8Array(32 * 352) : undefined, presentationSequence: 0n };
         const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
@@ -190,9 +166,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                 // Download/runtime loading precedes qualification; the same bounded handshake starts once both can participate.
                 client.startup = setTimeout(() => fail(client, new Error('StartupFailed: usable GPU and clock qualification exceeded five seconds.')), 5000);
                 const bootstrap = new Uint8Array(bootstrapBytes);
-                const postData = { bootstrap, captureMode };
-                if (client.poseRing) postData.poseRing = client.poseRing;
-                if (client.eventRing) postData.eventRing = client.eventRing;
+                const postData = { bootstrap, captureMode, clockRing: client.clockRing, poseRing: client.poseRing };
                 worker.postMessage(postData, [bootstrap.buffer]);
             }
             animation.onerror = error => fail(client, new Error(error.message || 'Animation worker failed.'));
@@ -283,7 +257,6 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                         client.animationPort = channel.port2;
                         worker.postMessage({ animationPort: channel.port1 }, [channel.port1]);
                         client.workerProfile = profile;
-                        client.lastReply = received; // Liveness begins when this worker can answer its first probe.
                         readyReceived = true;
                         client.bootstrapReject = null;
                         resolve();
@@ -291,14 +264,12 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                         if (!readyReceived || animationBootstrapped || !animationAwaiting || !client.animationPort)
                             throw new Error('Invalid Animation ownership.');
                         const bootstrap = message.animationPeer;
-                        const clockPort = client.animationPort;
+                        const masterPort = client.animationPort;
                         client.animationPort = undefined;
                         animationBootstrapped = true;
-                        animation.postMessage({ bootstrap, clockPort }, [bootstrap.buffer, clockPort]);
+                        animation.postMessage({ bootstrap, masterPort, clockRing: client.clockRing }, [bootstrap.buffer, masterPort]);
                     } else if (message.scheduleControl instanceof Uint8Array) {
                         deliver(client, message.scheduleControl, received, scheduleControl);
-                    } else if (message.clockReply instanceof Uint8Array) {
-                        deliver(client, message.clockReply, received, clockReply, true);
                     } else if (typeof message.candidateTimedOut === 'boolean') {
                         client.candidateTimedOut = message.candidateTimedOut;
                     } else if (message.acknowledgement instanceof Uint8Array) {
@@ -357,18 +328,38 @@ export function bootstrap(id) {
     if (!client.identity) throw new Error('Master bootstrap is not available.');
     return client.identity;
 }
+// A Simulation whose own event loop has not run for this long is hung, not lapsed: its solver spins or its context died.
+// The dedicated clock master keeps answering in that case, so only the Simulation's ring heartbeat (advanced between its
+// tick turns, worker.js) proves it is alive. The window restarts whenever this service itself was not running (a
+// blocked or throttled Browser), so only the Simulation's silence can expire it.
+const SimulationLivenessMilliseconds = 1000, BrowserServiceGapMilliseconds = 250;
+function checkSimulationLiveness(client, current) {
+    const beats = heartbeat(client.clock);
+    if (beats !== client.liveness.beats || current - client.liveness.serviced > BrowserServiceGapMilliseconds) {
+        client.liveness.beats = beats; client.liveness.since = current;
+    }
+    client.liveness.serviced = current;
+    if (!document.hidden && current - client.liveness.since > SimulationLivenessMilliseconds) {
+        const error = new Error(`The Simulation worker's event loop has not run for ${SimulationLivenessMilliseconds} ms.`);
+        error.name = 'SimulationUnresponsive';
+        throw error;
+    }
+}
 export function activate(id) {
     const client = owner(id);
     if (client.failure) throw client.failure;
     if (!client.workerProfile || client.service !== undefined)
         throw new Error('Workshop service activation requires one ready owner.');
+    const started = now();
+    client.liveness = { beats: heartbeat(client.clock), since: started, serviced: started };
     client.service = setInterval(() => {
         if (client.failure) return;
         try {
             const current = now();
+            // A missing clock reply never faults the session: the C# mapping recalibrates on its lifetime and recovery
+            // bounds as counted telemetry (Story 9.4b, game-grade envelope).
             client.serviceCallback();
-            if (!document.hidden && current - client.lastReply > 1000)
-                throw new Error('Worker fault: matching clock reply missing for 1000ms.');
+            checkSimulationLiveness(client, current);
             const oldest = updateReliableStall(client, current);
             client.state = oldest > 2000 || client.candidateTimedOut ? client.states.timedOut
                 : oldest > 50 ? client.states.backpressure : client.states.ready;
@@ -397,15 +388,16 @@ export function now() {
 export function probe(id, bytes) {
     const client = owner(id);
     if (client.failure) throw client.failure;
-    const clockProbe = new Uint8Array(bytes);
-    client.worker.postMessage({ clockProbe }, [clockProbe.buffer]);
-}
-export function acceptedClockReply(id) {
-    const client = owner(id);
-    if (!client.eventClock || client.clockAccepted || client.eventReceived === undefined)
-        throw new Error('Accepted heartbeat requires one active clock-reply lease.');
-    client.clockAccepted = true;
-    client.lastReply = client.eventReceived;
+    // The Simulation-owned clock master answers through the clock ring, never the Simulation's busy event loop.
+    // The reply is received when the wait resolves and is delivered under the same clock lease as before.
+    requestReply(client.clock, ClockRole.Browser, new Uint8Array(bytes)).then(reply => {
+        if (!reply || client.failure || !clients.has(id)) return;
+        try { deliver(client, reply, now(), client.clockReplyCallback); }
+        catch (error) { fail(client, error); }
+    }, error => {
+        if (client.failure || !clients.has(id)) return;
+        fail(client, error);
+    });
 }
 export function clockObservation(id, bytes) {
     const client = owner(id);
@@ -626,17 +618,18 @@ export async function loadConstruction(expectedBytes) {
 export function readPoseSlot(id, slotIndex) {
     const client = clients.get(id);
     if (!client || !client.poseRing || !client.poseSeqView || !client.poseDataView || !client.poseFloatView) return null;
-    if (client.poseRing.byteLength !== 3120 || !Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= 3) return null;
+    if (client.poseRing.byteLength !== POSE_RING_BYTES || !Number.isInteger(slotIndex) || slotIndex < 0 ||
+        slotIndex >= POSE_SLOT_COUNT) return null;
     const s = slotIndex;
-    const seqIndex = s * 130;
+    const seqIndex = s * (POSE_SLOT_BYTES / 8);
     const seq1 = Atomics.load(client.poseSeqView, seqIndex);
     if ((seq1 & 1n) !== 0n) return null;
-    const slotByteOffset = s * 1040;
+    const slotByteOffset = s * POSE_SLOT_BYTES;
     const timestamp = client.poseDataView.getBigInt64(slotByteOffset + 8, true);
-    const bodyFloatOffset = (slotByteOffset + 16) / 4;
+    const bodyFloatOffset = (slotByteOffset + POSE_HEADER_BYTES) / 4;
     const bodies = [];
-    for (let i = 0; i < 16; i++) {
-        const b = bodyFloatOffset + i * 16;
+    for (let i = 0; i < POSE_BODY_CAPACITY; i++) {
+        const b = bodyFloatOffset + i * (POSE_BODY_BYTES / 4);
         const bodyId = client.poseDataView.getBigUint64((b + 12) * 4, true);
         const flags = client.poseDataView.getUint32((b + 11) * 4, true);
         if (bodyId === 0n || (flags & 1) === 0) continue;
@@ -665,8 +658,8 @@ export function readLatestPoseSlot(id) {
     if (!client || !client.poseRing || !client.poseSeqView) return null;
     let bestSlot = -1;
     let bestSeq = -1n;
-    for (let s = 0; s < 3; s++) {
-        const seq = Atomics.load(client.poseSeqView, s * 130);
+    for (let s = 0; s < POSE_SLOT_COUNT; s++) {
+        const seq = Atomics.load(client.poseSeqView, s * (POSE_SLOT_BYTES / 8));
         if ((seq & 1n) === 0n && seq > bestSeq) {
             bestSeq = seq;
             bestSlot = s;
@@ -677,9 +670,9 @@ export function readLatestPoseSlot(id) {
     if (sample) return sample;
     let altSlot = -1;
     let altSeq = -1n;
-    for (let s = 0; s < 3; s++) {
+    for (let s = 0; s < POSE_SLOT_COUNT; s++) {
         if (s === bestSlot) continue;
-        const seq = Atomics.load(client.poseSeqView, s * 130);
+        const seq = Atomics.load(client.poseSeqView, s * (POSE_SLOT_BYTES / 8));
         if ((seq & 1n) === 0n && seq > altSeq) {
             altSeq = seq;
             altSlot = s;
@@ -731,67 +724,6 @@ export function readAnimationSamplesForTarget(id = 1, targetId = 2) {
     return client.animationSamplesByTarget.get(targetId.toString()) || [];
 }
 
-export function createEventConsumer(id = 1, domainMask = 0xFFFFFFFF) {
-    const client = clients.get(id);
-    let startCursor = 0n;
-    if (client && client.eventRing) {
-        const headerU64 = new BigUint64Array(client.eventRing, 0, 8);
-        startCursor = Atomics.load(headerU64, 1);
-    }
-    return { id, cursor: startCursor, domainMask };
-}
-
-export function readEventRing(id, consumer, maxEvents = 100) {
-    const client = clients.get(id);
-    if (!client || !client.eventRing) return [];
-    const headerU32 = new Uint32Array(client.eventRing, 0, 16);
-    const headerU64 = new BigUint64Array(client.eventRing, 0, 8);
-    const capacity = headerU32[0] || 1024;
-    const writeSeq = Atomics.load(headerU64, 1);
-
-    if (consumer.cursor > writeSeq) consumer.cursor = writeSeq;
-    if (writeSeq - consumer.cursor > BigInt(capacity)) {
-        consumer.cursor = writeSeq - BigInt(capacity);
-    }
-
-    const events = [];
-    const ringDataView = new DataView(client.eventRing);
-    const capMask = BigInt(capacity - 1);
-
-    while (consumer.cursor < writeSeq && events.length < maxEvents) {
-        const nextSeq = consumer.cursor + 1n;
-        const slotIdx = Number((nextSeq - 1n) & capMask);
-        const slotOffset = 64 + slotIdx * 64;
-
-        const slotSeq = ringDataView.getBigUint64(slotOffset, true);
-        if (slotSeq !== nextSeq) break;
-
-        const domain = ringDataView.getUint32(slotOffset + 16, true);
-        if ((domain & consumer.domainMask) !== 0) {
-            events.push({
-                sequence: slotSeq,
-                timestampNs: ringDataView.getBigUint64(slotOffset + 8, true),
-                domain,
-                eventKind: ringDataView.getUint32(slotOffset + 20, true),
-                sourceBodyId: ringDataView.getBigUint64(slotOffset + 24, true).toString(),
-                targetBodyId: ringDataView.getBigUint64(slotOffset + 32, true).toString(),
-                impulse: ringDataView.getFloat32(slotOffset + 40, true),
-                contactX: ringDataView.getFloat32(slotOffset + 44, true),
-                contactY: ringDataView.getFloat32(slotOffset + 48, true),
-                contactZ: ringDataView.getFloat32(slotOffset + 52, true),
-                value: ringDataView.getFloat32(slotOffset + 56, true),
-            });
-        }
-        consumer.cursor = nextSeq;
-    }
-    return events;
-}
-
-export function hasEventRing(id = 1) {
-    const client = clients.get(id);
-    return Boolean(client && client.eventRing);
-}
-
 if (typeof globalThis !== 'undefined') {
     globalThis.WorkshopPoseRing = { readPoseSlot, readLatestPoseSlot, hasPoseRing };
     globalThis.WorkshopAnimation = {
@@ -801,10 +733,5 @@ if (typeof globalThis !== 'undefined') {
         readAllAnimationSamples,
         readAnimationSamplesForTarget,
         decodeFloat16
-    };
-    globalThis.WorkshopEventRing = {
-        createEventConsumer,
-        readEventRing,
-        hasEventRing
     };
 }

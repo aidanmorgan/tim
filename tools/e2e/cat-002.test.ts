@@ -38,7 +38,7 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp', { timeout: 150000 }, async () => {

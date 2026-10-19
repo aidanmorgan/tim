@@ -17,7 +17,7 @@ describe('ENGINE-CORE-2a4: Anti-Tunneling High-Speed Wall Impact via Speculative
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. High-speed vertical wall impact without tunneling', { timeout: 120000 }, async () => {

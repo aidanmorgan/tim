@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/E3-rederived-without-slots/original	2026-10-19 05:32:28.360031852 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/WorkshopClockMapping.cs	2026-10-19 05:32:28.363847085 +0800
+@@ -165,7 +165,7 @@
+         {
+             if (reply.Derivation.Value < installed.Value)
+                 throw new ArgumentException($"Clock reply derivation epoch reversed from {installed.Value} to {reply.Derivation.Value}.");
+-            if (_count != 0) Recalibrate(ClockRecalibrationCause.MasterRederived, reply.RequesterReceived, reply, ClockMappingState.Expired);
++            Recalibrate(ClockRecalibrationCause.MasterRederived, reply.RequesterReceived, reply, ClockMappingState.Expired);
+         }
+         if (outcome == ClockProbeOutcome.Accepted) _derivation = reply.Derivation;
+         var interval = outcome == ClockProbeOutcome.Accepted ? Offset(reply, EndpointUncertainty) : default;

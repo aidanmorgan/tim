@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/il2026-injected/original	2026-10-19 02:28:29.350707414 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/engine/gpu/WorkshopTickLoop.cs	2026-10-19 02:28:29.355299465 +0800
+@@ -36,6 +36,8 @@
+ /// </summary>
+ public static class WorkshopTickLoop
+ {
++    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("review mutant")] private static void Reflective() { }
++    internal static void ReviewMutantCaller() => Reflective();
+     public const int TicksPerTurn = 4;
+ 
+     public static async Task Run(ITickLoopHost host)

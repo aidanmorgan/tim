@@ -5,6 +5,7 @@ namespace CuriousContraptions.CoverageTests;
 
 public class CurrentCapabilityInputsTests
 {
+    private static readonly SourcePath BallResource = new("parts/catalog/ball.tres");
     private static DirectoryInfo Root()
     {
         var root = new DirectoryInfo(AppContext.BaseDirectory);
@@ -62,16 +63,16 @@ public class CurrentCapabilityInputsTests
         var plan = CurrentCatalogue.Read(original);
         var paths = new HashSet<string>(StringComparer.Ordinal)
         {
-            "docs/planning/requirements.md", "content/puzzles.json", "engine/PartRegistry.cs", "docs/physics-puzzle-gap-audit.md"
+            "docs/planning/requirements.md", "content/puzzles.json", CurrentCatalogue.PartIdentityPath.Value, "docs/physics-puzzle-gap-audit.md"
         };
         foreach (var name in new[] { "engine", "gpu-physics", "refinements", "decisions", "scope-corrections", "current-consumers", "campaign" })
             paths.Add("docs/planning/invest/" + name + ".md");
         foreach (var element in plan.Elements) paths.Add(element.Declaration.Path.Value);
         foreach (var path in Directory.EnumerateFiles(Path.Combine(original.FullName, "docs"), "*research.md"))
             paths.Add(Path.GetRelativePath(original.FullName, path));
-        foreach (var key in plan.Admitted)
+        foreach (var resource in plan.Admitted.Values)
         {
-            var closure = CapabilityInputs.ReadResourceClosure(original, key);
+            var closure = CapabilityInputs.ReadResourceClosure(original, resource);
             foreach (var artifact in closure.Artifacts) paths.Add(artifact.Path.Value);
             foreach (var symbol in closure.Symbols) paths.Add(symbol.Path.Value);
         }
@@ -89,8 +90,17 @@ public class CurrentCapabilityInputsTests
             Assert.Equal(1471, sources.Count);
             Assert.Equal(104, prepared.Expectations.Modes.Count);
             Assert.Equal(72, prepared.Expectations.RequiredCapabilities.Keys.Count(key => key.Origin == RequirementOrigin.Catalogue));
+            var springboard = Path.Combine(target.FullName, "parts/catalog/springboard.tres");
+            var springboardText = File.ReadAllText(springboard);
+            File.WriteAllText(springboard, springboardText.Replace("Id = \"spring\"", "Id = \"ball\""));
+            Assert.Contains("'ball' is declared by both", Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
+            File.WriteAllText(springboard, springboardText.Replace("Id = \"spring\"", "Id = \"springboard\""));
+            Assert.Contains("'springboard' is not a declared part identity",
+                Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
+            File.WriteAllText(springboard, springboardText);
+            Assert.Equal(new SourcePath("parts/catalog/springboard.tres"), CurrentCatalogue.Read(target).Admitted[new("spring")]);
             File.Delete(Path.Combine(target.FullName, "parts/catalog/ball.tres"));
-            Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target));
+            Assert.Contains("have no catalogue resource: ball.", Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
         }
         finally { if (target.Exists) target.Delete(true); }
     }
@@ -136,20 +146,20 @@ public class CurrentCapabilityInputsTests
             File.WriteAllText(resource, resourceText);
             File.WriteAllText(scene, sceneText);
             File.WriteAllText(script, "public class BallPart {}");
-            var first = CapabilityInputs.ReadResourceClosure(root, new("ball"));
+            var first = CapabilityInputs.ReadResourceClosure(root, BallResource);
             Assert.Equal(2, first.Artifacts.Length);
             Assert.Single(first.Symbols);
             File.WriteAllText(script, "public class BallPart { public float Mass; }");
-            Assert.NotEqual(first.Symbols[0].FileHash, CapabilityInputs.ReadResourceClosure(root, new("ball")).Symbols[0].FileHash);
+            Assert.NotEqual(first.Symbols[0].FileHash, CapabilityInputs.ReadResourceClosure(root, BallResource).Symbols[0].FileHash);
             File.WriteAllText(scene, sceneText + "\n# authored change");
-            Assert.NotEqual(first.Artifacts[1].Hash, CapabilityInputs.ReadResourceClosure(root, new("ball")).Artifacts[1].Hash);
+            Assert.NotEqual(first.Artifacts[1].Hash, CapabilityInputs.ReadResourceClosure(root, BallResource).Artifacts[1].Hash);
             File.WriteAllText(resource, resourceText + "\n" + resourceText);
-            Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(root, new("ball")));
+            Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(root, BallResource));
             File.WriteAllText(resource, resourceText.Replace("parts/scenes/ball.tscn", "../outside.tscn"));
-            Assert.Throws<ArgumentException>(() => CapabilityInputs.ReadResourceClosure(root, new("ball")));
+            Assert.Throws<ArgumentException>(() => CapabilityInputs.ReadResourceClosure(root, BallResource));
             File.WriteAllText(resource, resourceText);
             File.Delete(scene);
-            Assert.Throws<FileNotFoundException>(() => CapabilityInputs.ReadResourceClosure(root, new("ball")));
+            Assert.Throws<FileNotFoundException>(() => CapabilityInputs.ReadResourceClosure(root, BallResource));
         }
         finally { Directory.Delete(directory, true); }
     }
@@ -177,7 +187,7 @@ public class CurrentCapabilityInputsTests
                 "[ext_resource type=\"Script\" path=\"res://parts/BallPart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]\n" +
                 (sceneBinding ? binding : "script = ExtResource(\"1\")"));
             File.WriteAllText(Path.Combine(directory, "parts/BallPart.cs"), "public class BallPart {}");
-            Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(new(directory), new("ball")));
+            Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(new(directory), BallResource));
         }
         finally { Directory.Delete(directory, true); }
     }

@@ -6,7 +6,7 @@
 // 4. Save / reload / Load restores the wired construction and solves; Reset rearms the sensor and a second Run solves again
 //    (test 4 loads the construction test 1 saved: run the suite serially and in file order)
 import assert from 'node:assert/strict';
-import { after, before, describe, test } from 'node:test';
+import { after, before, beforeEach, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type AnimationSampleRecord, type WorkshopBodyPose } from './workshop-driver.ts';
@@ -114,6 +114,17 @@ async function watchCascade(driver: WorkshopDriver, ids: string[], timeoutMs: nu
 describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', () => {
     let driver: WorkshopDriver;
     const errors: string[] = [];
+    // Typed clock telemetry (Story 9.4b): a clock lapse recalibrates and continues, so it is not an error line; this suite
+    // still requires zero recalibrations, so a regression of the off-thread clock master is caught.
+    const recalibrations: string[] = [];
+    let errorsAtTestStart = 0, recalibrationsAtTestStart = 0;
+    // Each test checks only the console failures of its own slice; the suite total is checked once after the last test,
+    // so one failure reports once and failures logged between tests are still caught.
+    function assertCleanSlice(): void {
+        const own = errors.slice(errorsAtTestStart);
+        assert.equal(own.length, 0, `Zero errors expected in this test, got: ${own.join('; ')}`);
+        assert.deepEqual(recalibrations.slice(recalibrationsAtTestStart), [], 'Zero clock recalibrations in this test');
+    }
     const reads: WorkshopResponse[] = [];
     let authoredEnd: ReturnType<typeof bodyState> | undefined;
     function assertEndRestored(label: string): void {
@@ -140,12 +151,23 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
             const text = msg.text();
             if (text.startsWith('CCGPU ')) reads.push(decodeWorkshopResponse(Buffer.from(text.slice(6), 'base64')));
             if (isWorkshopConsoleFailure(msg.type(), text)) errors.push(text);
+            if (text.startsWith('CCGPU_CLOCK_RECALIBRATED')) recalibrations.push(text);
         });
         driver.page.on('pageerror', (error: Error) => errors.push(error.message));
     });
 
+    beforeEach(() => { errorsAtTestStart = errors.length; recalibrationsAtTestStart = recalibrations.length; });
+
     after(async () => {
-        if (driver) await driver.close();
+        // Both the suite's own checks and its session close findings fail this suite; neither masks the other.
+        const failures: unknown[] = [];
+        try {
+            assert.equal(errors.length, 0, `Zero errors expected across the suite, got: ${errors.join('; ')}`);
+            assert.deepEqual(recalibrations, [], 'Zero clock recalibrations across the suite');
+        } catch (error) { failures.push(error); }
+        try { if (driver) await driver.closeAfterSuite(); } catch (error) { failures.push(error); }
+        if (failures.length === 1) throw failures[0];
+        if (failures.length > 1) throw new AggregateError(failures, 'The suite checks and its session close both failed.');
     });
 
     test('1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once', { timeout: 150000 }, async () => {
@@ -185,7 +207,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         const end = (await bodies(driver)).get(END_ID)!;
         assert.ok(tiltDegrees(end) > 60, `The end Domino lies toppled (${tiltDegrees(end).toFixed(1)} deg)`);
         await driver.reset(500);
-        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+        assertCleanSlice();
     });
 
     test('2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights', { timeout: 150000 }, async () => {
@@ -208,7 +230,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.equal(await driver.readLastAnimationSample(LAMP_TARGET), null, 'The lamp never samples: no orientation occurrence');
         assert.equal(await driver.readCaptured(), 0, 'The goal stays unsolved');
         await driver.reset(500);
-        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+        assertCleanSlice();
     });
 
     test('3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting', { timeout: 150000 }, async () => {
@@ -239,7 +261,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.equal(await driver.readLastAnimationSample('3'), null, 'The wired lamp (node 2 + 2 → target 3) never samples');
         assert.equal((await driver.readAllAnimationSamples()).length, 0, 'No cosmetic target samples at all');
         await driver.reset(500);
-        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+        assertCleanSlice();
     });
 
     test('4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again', { timeout: 150000 }, async () => {
@@ -267,6 +289,6 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.ok((await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length > litSamples, 'The lamp lights again in the new world');
         assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The lamp reaches full glow again');
         await driver.reset(500);
-        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+        assertCleanSlice();
     });
 });

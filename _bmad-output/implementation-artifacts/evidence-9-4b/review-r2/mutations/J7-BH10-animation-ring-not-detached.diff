@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/J7-BH10-animation-ring-not-detached/original	2026-10-19 05:45:31.128496294 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.Animation.Worker/wwwroot/worker.js	2026-10-19 05:45:31.131992117 +0800
+@@ -13,7 +13,6 @@
+     latestSamples.clear(); pendingSample = undefined;
+     clearInterval(service); service = undefined;
+     if (port) { port.onmessage = null; port.close(); port = undefined; }
+-    clock = undefined;
+ }
+ function fail(error) {
+     closeOwned();

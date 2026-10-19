@@ -217,8 +217,11 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(1UL, simulation.Committed.Tick.Value);
     }
 
-    [Fact]
-    public async Task DeviceLossInvalidatesPendingCommitAndRetainsLastRead()
+    // A scheduling fault stop (the former device-loss path's only surviving use, Story 9.4b) supersedes the in-flight
+    // tick and keeps the last committed read.
+    [Theory]
+    [InlineData(WorkshopRejection.Capacity)] [InlineData(WorkshopRejection.ReliableStalled)] [InlineData(WorkshopRejection.Transport)]
+    public async Task AFaultStopInvalidatesPendingCommitAndRetainsLastRead(WorkshopRejection reason)
     {
         var device = new ControlledDevice();
         await using var simulation = Create(device);
@@ -227,11 +230,11 @@ public sealed class WorkshopSimulationTests
         await run;
         var committed = simulation.Committed;
         var advance = simulation.Advance().AsTask();
-        simulation.DeviceLost();
+        simulation.Stop(reason);
         device.CompleteAdvance(0);
         Assert.Equal(WorkshopCommandOutcome.Superseded, (await advance).Outcome);
         Assert.Equal(WorkshopSimulationPhase.Faulted, simulation.Phase);
-        Assert.Equal(WorkshopRejection.DeviceLost, simulation.Fault);
+        Assert.Equal(reason, simulation.Fault);
         Assert.Equal(committed, simulation.Committed);
     }
 

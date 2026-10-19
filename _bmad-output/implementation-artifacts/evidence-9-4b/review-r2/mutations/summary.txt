@@ -1,0 +1,81 @@
+F2a-camelcase-element: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations
+F2b-delete-pinned-entry: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink
+F2-visibility-flip: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations
+D22-outlier-limit-unbounded: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.MoreOutliersThanTheAllowanceRefuseTheSessionAsNoStableOffset
+D22-outlier-limit-zero: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.OneJitteredExchangeAmongTheStartupExchangesIsSetAsideAndTheOffsetComesFromTheRest
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes
+BH11-nan-lane-not-zeroed: KILLED by 6:
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: ∞, y: 0, z: 0, expected: 0)
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 1, y: -∞, z: NaN, expected: 0)
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 1, y: NaN, z: 2, expected: 0)
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: NaN, y: 0, z: 0, expected: 0)
+D20-impossible-not-reported: KILLED by 3:
+    CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: -1)
+    CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33)
+    CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: NaN)
+BH14-impossible-silently-unpaid: KILLED by 11:
+    CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: -1, capacity: 32)
+    CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: ∞, capacity: 32)
+    CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: 32, capacity: -1)
+    CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: 32, capacity: ∞)
+V1-capacity-is-available: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33)
+    CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 0.5, pays: False)
+V2-profilerange-as-disjoint: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARetainedSpanBeyondTheOffsetProfileIsACountedProfileRangeRecalibration
+V3-epoch-range-unchecked: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AReplyDerivationEpochAboveThirtyTwoBitsIsRejected
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.EachMalformedReplyIsExactlyOneCountedTypedRejectionThatLeavesThePendingProbeToExpire(corruption: &quot;epoch beyond
+BH8-epoch-before-classify: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStaleReplyCannotMoveTheDerivationEpochRecalibrateOrFault
+E3-rederived-without-slots: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AnEpochChangeWithNoRetainedSlotsIsNotASecondRecalibration
+BH2-diagnostic-drops-epoch: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.EveryClockDiagnosticRecordKeepsTheExactReplyIncludingItsDerivationEpoch
+V4-deferral-ignores-master-time: KILLED by 1:
+    CuriousContraptions.Tests.AnimationControlDeferralTests.AControlHeldWhileRecalibratingWaitsUnappliedThenTheRequalifiedTurnAppliesItWithoutEvaluating
+V4-deferral-overwrites: KILLED by 1:
+    CuriousContraptions.Tests.AnimationControlDeferralTests.TheDeferralHoldsOneControlAndRejectsAnUnknownCause
+E2-turn-id-overflows: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopTickLoopTests.SchedulerTurnIdentitiesWrapPastIntMaxValueAndSkipOutstandingTurns
+BH4-trace-end-3-defined: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopTraceTests.ATraceRefusesAnUndefinedEndReason(reason: 3)
+BH4-rejection-6-defined: KILLED by 4:
+    CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_RetiredDeviceLossRejectionIsUndefined(reason: 5, admitted: True)
+    CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_RetiredDeviceLossRejectionIsUndefined(reason: 6, admitted: False)
+    CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_RetiredDeviceLossRejectionIsUndefined(reason: 7, admitted: True)
+    CuriousContraptions.Tests.WorkshopWireTests.TheRetiredDeviceLossRejectionIsUndefinedOnTheWire(reason: 6, admitted: False)
+E4-workorder-suffix-unanchored: KILLED by 1:
+    CuriousContraptions.Coverage.Tests.CapabilityTests.ExtensibleWorkOrdersAndPathsRemainValidated
+F2c-growth-new-entry-and-violation: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink
+J1-F1-filter-reverted: KILLED by 3:
+    a typed base64 envelope never fails on a NaN substring of its payload (Murdoch-2 F1)
+    encoded trace bytes containing NaN are not diagnostic text
+    no Chrome suite checks a raw NaN substring of console text; each goes through reportsNaN (whole class of F1)
+J2-E1-requested-slot-not-awaited: KILLED by 1:
+    startup qualification waits out a stalled master instead of burning its attempt budget
+J3-BH10-reply-wait-unbounded: SURVIVED
+J4-BH10-resume-turn-uncaught: KILLED by 1:
+    tools/workshop-observation.test.mjs
+J5-BH10-dispose-leaves-turns: KILLED by 1:
+    tools/workshop-observation.test.mjs
+J6-BH10-browser-ring-not-detached: SURVIVED
+J7-BH10-animation-ring-not-detached: SURVIVED
+J8-BH10res-browser-late-reply-after-fail: SURVIVED
+J9-BH10res-animation-late-reply-after-dispose: SURVIVED
+J10-D19-no-after-each: KILLED by 2:
+    a clean close passes (control), and a finding is raised once, not again for later tests
+    a close finding never replaces the test's own failure, and is still reported
+J11-D19-no-root-after: KILLED by 1:
+    a close in a suite's after hook still fails the file
+J12-BH3-ring-reply-bytes: KILLED by 1:
+    CuriousContraptions.Tests.ClockRingScriptTests.ClockRingScriptAgreesWithTheCSharpClockWireItPorts
+J13-BH3-nanoseconds-tie-rounding: KILLED by 1:
+    CuriousContraptions.Tests.ClockRingScriptTests.ClockRingScriptAgreesWithTheCSharpClockWireItPorts

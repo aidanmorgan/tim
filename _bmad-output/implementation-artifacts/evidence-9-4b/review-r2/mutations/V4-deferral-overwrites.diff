@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/V4-deferral-overwrites/original	2026-10-19 05:33:06.406930882 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/AnimationControlDeferral.cs	2026-10-19 05:33:06.410943449 +0800
+@@ -27,7 +27,6 @@
+     {
+         ArgumentNullException.ThrowIfNull(control);
+         if (!Enum.IsDefined(cause)) throw new ArgumentOutOfRangeException(nameof(cause), cause, "Unknown animation deferral cause.");
+-        if (_held is not null) throw new InvalidOperationException("Deferred animation control capacity exceeded.");
+         if (Deferrals == ulong.MaxValue) throw new InvalidOperationException("Animation deferral count exhausted.");
+         _held = control;
+         Deferrals++;

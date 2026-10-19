@@ -7,9 +7,11 @@ public readonly record struct WorkshopPressurePlate(
     CellOrigin Cell,
     LocalPosition Local,
     CanonicalRotation Rotation,
-    float MinimumMass = 0.5f,
+    float MinimumMass,
     bool Locked = false) : IWorkshopInstance
 {
+    /// <summary>The minimum mass a newly placed plate starts with in the Workshop UI; no decoder or factory defaults to it.</summary>
+    public const float PlacedMinimumMass = 0.5f;
     public PartId PartId => PartId.PressurePlate;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
 
@@ -18,6 +20,6 @@ public readonly record struct WorkshopPressurePlate(
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
         if (!float.IsFinite(MinimumMass) || MinimumMass < 0.1f || MinimumMass > 16.0f)
-            throw new ArgumentException($"Pressure plate minimum mass '{MinimumMass}' is outside admitted range [0.1, 16].");
+            throw new ArgumentException($"Pressure plate {Id.Value} minimum mass '{MinimumMass:R}' is outside admitted range [0.1, 16].");
     }
 }

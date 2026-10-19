@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: CAT-023b: Domino cascade mechanics & orientation-threshold sensor
+    # Subtest: 1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once
+    ok 1 - 1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once
+      ---
+      duration_ms: 9318.868708
+      type: 'test'
+      ...
+    # Subtest: 2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights
+    ok 2 - 2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights
+      ---
+      duration_ms: 9532.267667
+      type: 'test'
+      ...
+    # Subtest: 3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting
+    ok 3 - 3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting
+      ---
+      duration_ms: 10581.6285
+      type: 'test'
+      ...
+    # Subtest: 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again
+    ok 4 - 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again
+      ---
+      duration_ms: 9398.657166
+      type: 'test'
+      ...
+    1..4
+ok 1 - CAT-023b: Domino cascade mechanics & orientation-threshold sensor
+  ---
+  duration_ms: 43148.169417
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 43426.410709

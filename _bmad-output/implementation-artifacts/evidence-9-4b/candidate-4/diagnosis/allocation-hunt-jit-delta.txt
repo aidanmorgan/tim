@@ -1,0 +1,3 @@
+JIT-delta experiment (19 Oct 2026), pre-fix measurement window restored temporarily: test-method and RecordTickDuration AggressiveOptimization removed, Stopwatch timestamps inside the allocation window, plus System.Runtime.JitInfo.GetCompiledMethodCount(currentThread: true) deltas in the failure message.
+Command: 45 x `dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build -nologo`, each output grepped for "allocated by RecordTickDuration"; a failing run appends one "run N:" line below.
+Result: failures 0/45 (no lines appended). The experiment neither confirms nor refutes tier promotion as the cause. The experiment state was then reverted to the fixed form.

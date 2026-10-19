@@ -1,0 +1,201 @@
+2026-10-18T16:49:58Z
+✖ Murdoch clock stress B-sim-duty20 (4542.074375ms)
+✖ Murdoch clock stress B-sim-duty40 (4209.013083ms)
+MURDOCH_CLOCK {"scenario":"B-sim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-sim-block600 (8525.723083ms)
+✖ Murdoch clock stress B-anim-duty20 (4247.847708ms)
+✖ Murdoch clock stress B-anim-duty40 (4224.687667ms)
+MURDOCH_CLOCK {"scenario":"B-anim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":616,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-block600 (8557.011541ms)
+MURDOCH_CLOCK {"scenario":"B-anim-block700","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":716,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-block700 (8653.979583ms)
+✖ Murdoch clock stress B-main-duty20 (4231.733167ms)
+✖ Murdoch clock stress B-main-duty40 (4244.443584ms)
+MURDOCH_CLOCK {"scenario":"B-main-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":607,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-block600 (8553.821417ms)
+MURDOCH_CLOCK {"scenario":"B-main-block700","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":707,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-block700 (8684.597583ms)
+MURDOCH_CLOCK {"scenario":"B-hogs-2x","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js","blob:http://127.0.0.1:8060/51edda51-8f58-4051-9664-6d925cb858ea"],"closedWorkers":[]}
+✔ Murdoch clock stress B-hogs-2x (13754.887959ms)
+✖ Murdoch clock stress R-chain-main-duty20 (7205.382625ms)
+✖ Murdoch clock stress R-chain-main-duty40 (7198.836833ms)
+MURDOCH_CLOCK {"scenario":"R-chain-main-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":606,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-main-block600 (11798.338417ms)
+✖ Murdoch clock stress R-chain-anim-duty20 (7184.503208ms)
+✖ Murdoch clock stress R-chain-anim-duty40 (7200.753875ms)
+MURDOCH_CLOCK {"scenario":"R-chain-anim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":612,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-anim-block600 (11826.758625ms)
+MURDOCH_CLOCK {"scenario":"R-chain-hogs-2x","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[{"at":360,"committedTick":26,"reliableStalled":false}],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js","blob:http://127.0.0.1:8060/19ca1cc2-183c-44fc-89e5-3634fd242fa0"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-hogs-2x (15801.204667ms)
+MURDOCH_CLOCK {"scenario":"B-sim-block800","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-sim-block800 (8745.149917ms)
+MURDOCH_CLOCK {"scenario":"INFO-sim-block1100","masterContextVisible":false,"recalibrationsBeforeLoad":0,"alive":["pose ring / Animation qualification not restored within 3 s of the load ending","Run/Reset after the load failed: placeOnCanvas(720, 485): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command"],"terminations":["960ms CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n    at checkSimulationLiveness (http://127.0.0.1:8","961ms SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n    at checkSimulationLiveness (http://127.0.0.1:8060/workshop-client.js:376"],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":2,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[{"at":960,"url":"http://127.0.0.1:8060/animation/worker.js"},{"at":3109,"url":"http://127.0.0.1:8060/simulation/clock-master.js"},{"at":3111,"url":"http://127.0.0.1:8060/simulation/worker.js"}]}
+✔ Murdoch clock stress INFO-sim-block1100 (25465.565958ms)
+✖ Murdoch clock stress R-ball-sim-duty20-idle20 (5260.202459ms)
+✖ Murdoch clock stress R-chain-sim-duty20 (7191.84825ms)
+MURDOCH_CLOCK {"scenario":"R-ball-sim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[{"at":603,"committedTick":5,"reliableStalled":false}],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-ball-sim-block600 (9174.599708ms)
+MURDOCH_CLOCK {"scenario":"INFO-main-block950","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":958,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-main-block950 (8910.796375ms)
+MURDOCH_CLOCK {"scenario":"INFO-anim-block950","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":966,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-anim-block950 (8931.343917ms)
+MURDOCH_CLOCK {"scenario":"INFO-main-block1100","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":1108,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-main-block1100 (9042.612ms)
+MURDOCH_CLOCK {"scenario":"INFO-anim-block1100","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":1116,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-anim-block1100 (9089.778292ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 16
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 242731.807042
+
+✖ failing tests:
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress B-sim-duty20 (4542.074375ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress B-sim-duty40 (4209.013083ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress B-anim-duty20 (4247.847708ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress B-anim-duty40 (4224.687667ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress B-main-duty20 (4231.733167ms)
+  page.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress B-main-duty40 (4244.443584ms)
+  page.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress R-chain-main-duty20 (7205.382625ms)
+  page.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress R-chain-main-duty40 (7198.836833ms)
+  page.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress R-chain-anim-duty20 (7184.503208ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress R-chain-anim-duty40 (7200.753875ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress R-ball-sim-duty20-idle20 (5260.202459ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+
+test at tools/e2e/murdoch-clock-stress.test.ts:2:5513
+✖ Murdoch clock stress R-chain-sim-duty20 (7191.84825ms)
+  worker.evaluate: ReferenceError: __name is not defined
+      at eval (eval at evaluate (:368:30), <anonymous>:1:127)
+      at UtilityScript.evaluate (<anonymous>:370:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at startDutyCycle (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts:127:37)
+      at applyLoad (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:86:15)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts:128:19) {
+    log: []
+  }
+exit=1
+2026-10-18T16:54:01Z

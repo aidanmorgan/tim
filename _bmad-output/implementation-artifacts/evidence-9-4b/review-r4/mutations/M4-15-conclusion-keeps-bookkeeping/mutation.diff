@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-15-conclusion-keeps-bookkeeping/original	2026-10-19 15:12:59.229909586 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:12:59.233959140 +0800
+@@ -255,7 +255,7 @@
+             candidate.CopyTo(_slots);
+             _anchor = candidateAnchor; _count = checked((byte)candidateCount); _next = checked((byte)candidateNext);
+             // A concluded renewal resumes Ready: its concluding exchange alone covers the refresh horizon (one path).
+-            if (renewed) { State = ClockMappingState.Ready; ClearRecovery(); }
++            if (renewed) { State = ClockMappingState.Ready; }
+             else if (_count == ProbeCapacity && !IsQualified && HasOffsetBudget(reply.RequesterReceived, 0))
+                 State = ClockMappingState.Ready;
+         }

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 import { MessagePort, MessageChannel } from 'node:worker_threads';
+import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
 
 const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/worker.js', 'utf8');
 let imports, closed = false, controls = 0;
@@ -20,8 +21,13 @@ const self = {
     postMessage: (value, transfer = []) => messages.push(structuredClone(value, { transfer })),
     close: () => { closed = true; }
 };
-const context = vm.createContext({ self, Uint8Array, Float64Array, DataView, ArrayBuffer, MessagePort,
+const context = vm.createContext({ self, Uint8Array, Float64Array, DataView, ArrayBuffer, MessagePort, SharedArrayBuffer,
     Number, Error, Map, console, setInterval: () => 1, clearInterval: () => {} });
+const ring = new vm.SyntheticModule(['attachClockRing', 'requestReply', 'ClockRole'], function () {
+    this.setExport('attachClockRing', clockRing.attachClockRing);
+    this.setExport('requestReply', clockRing.requestReply);
+    this.setExport('ClockRole', clockRing.ClockRole);
+}, { context });
 const dotnet = new vm.SyntheticModule(['dotnet'], function () {
     this.setExport('dotnet', { create: async () => runtime });
 }, { context });
@@ -34,11 +40,12 @@ const module = new vm.SourceTextModule(source, { context });
 await module.link(name => {
     if (name === './_framework/dotnet.js') return dotnet;
     if (name === '../native-clock.js') return clock;
+    if (name === '../clock-ring.js') return ring;
     throw Error('Unexpected import');
 });
 await module.evaluate();
 const channel = new MessageChannel();
-self.onmessage({ data: { bootstrap: new Uint8Array(64), clockPort: channel.port1 } });
+self.onmessage({ data: { bootstrap: new Uint8Array(64), masterPort: channel.port1, clockRing: clockRing.createClockRing() } });
 self.onmessage({ data: { animationControl: new Uint8Array(96) } });
 assert.equal(controls, 1, 'current renamed export is callable');
 function sample(target, pulse) {

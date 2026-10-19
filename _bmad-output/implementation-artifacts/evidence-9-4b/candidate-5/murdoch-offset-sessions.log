@@ -1,0 +1,10 @@
+MURDOCH_OFFSET candidate5-load0 sessions=30 refused=0
+✔ Murdoch startup offset over 30 sessions (candidate5-load0) (127722.573208ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 127995.364083

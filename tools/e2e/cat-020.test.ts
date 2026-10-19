@@ -100,7 +100,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Placement and wiring validation', { timeout: 150000 }, async () => {

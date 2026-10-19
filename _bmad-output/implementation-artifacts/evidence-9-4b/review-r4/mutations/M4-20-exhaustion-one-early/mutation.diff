@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-20-exhaustion-one-early/original	2026-10-19 15:14:01.163753709 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:14:01.167672563 +0800
+@@ -197,7 +197,7 @@
+         var retained = default(ClockInterval);
+         var renewed = renewing && outcome == ClockProbeOutcome.Accepted &&
+             TryRetained(reply.RequesterReceived, out retained) && interval.Overlaps(retained);
+-        var exhausted = outcome == ClockProbeOutcome.Inconclusive && _recoverySends == RecoveryProbeLimit;
++        var exhausted = outcome == ClockProbeOutcome.Inconclusive && _recoverySends >= RecoveryProbeLimit - 1;
+         var expired = !renewed && outcome != ClockProbeOutcome.Inconclusive && _count != 0 &&
+             (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
+         if (!expired && outcome == ClockProbeOutcome.Accepted && _count != 0 &&

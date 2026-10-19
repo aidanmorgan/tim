@@ -27,6 +27,9 @@ public static class WorkshopWire
     public const int ResponseHeaderBytes = 128;
     public const int ResponseSessionOffset = 40;
     public const int ResponsePublicationOffset = 56;
+    /// <summary>Response header fields the Simulation worker's pose-ring writer reads (worker.js, pinned by WorkerAbiTests).</summary>
+    public const int ResponseCaptureTimeOffset = 72;
+    public const int ResponseBodyCountOffset = 104;
     public static int[] ResponseAbi() => [ResponseBytes, ResponseSessionOffset, ResponsePublicationOffset];
     public const int ReadBodiesOffset = ResponseHeaderBytes;
     public const int ReadCapturesOffset = ReadBodiesOffset + PhysicsBodyReadSet.Capacity * PhysicsBodyWire.ByteLength;
@@ -154,13 +157,13 @@ public static class WorkshopWire
         BinaryPrimitives.WriteUInt64LittleEndian(data[64..],response.MasterGeneration.Value);
         if (response.Read.Capture is { } capture)
         {
-            BinaryPrimitives.WriteInt64LittleEndian(data[72..],capture.Time.Value);
+            BinaryPrimitives.WriteInt64LittleEndian(data[ResponseCaptureTimeOffset..],capture.Time.Value);
             BinaryPrimitives.WriteUInt64LittleEndian(data[80..],capture.Uncertainty.Value);
             data[110]=checked((byte)capture.Domain); data[111]=1;
         }
         BinaryPrimitives.WriteUInt64LittleEndian(data[88..],response.Cadence.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[96..],response.Projection.Value);
-        data[104]=response.Read.Bodies.Count; data[105]=response.Read.Captures.Count;
+        data[ResponseBodyCountOffset]=response.Read.Bodies.Count; data[105]=response.Read.Captures.Count;
         data[106]=response.Read.Activations.Count; data[107]=response.Read.Timers.Count;
         data[112]=response.Read.Electrical.Count;
         WorkshopElectricalWire.Write(response.Read.Electrical,data[ReadElectricalOffset..]);
@@ -197,13 +200,13 @@ public static class WorkshopWire
             (kind == WorkshopResponseKind.Read) != (publication.Value != 0) || data[111]>1)
             throw new ArgumentException("Invalid response discriminant or publication.");
         WorkshopClockStamp? capture=data[111]==0 ? null :
-            new((WorkshopClockDomain)data[110],master,new(BinaryPrimitives.ReadInt64LittleEndian(data[72..])),
+            new((WorkshopClockDomain)data[110],master,new(BinaryPrimitives.ReadInt64LittleEndian(data[ResponseCaptureTimeOffset..])),
                 new(BinaryPrimitives.ReadUInt64LittleEndian(data[80..])));
         if (capture is null && (data[110]!=0 || !Zero(data[64..88])))
             throw new ArgumentException("Absent capture has a nonzero payload.");
         var epoch=new SimulationEpoch(BinaryPrimitives.ReadUInt64LittleEndian(data[16..]));
         var tick=new SimulationTick(BinaryPrimitives.ReadUInt64LittleEndian(data[24..]));
-        var bodyCount=data[104]; var captureCount=data[105];
+        var bodyCount=data[ResponseBodyCountOffset]; var captureCount=data[105];
         if (bodyCount>PhysicsBodyReadSet.Capacity || captureCount>PhysicsSceneDeclaration.SensorCapacity ||
             !Zero(data[(ReadBodiesOffset+bodyCount*PhysicsBodyWire.ByteLength)..ReadCapturesOffset]) ||
             !Zero(data[(ReadCapturesOffset+captureCount*CaptureBytes)..ReadActivationsOffset]))

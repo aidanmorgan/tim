@@ -1,0 +1,18 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/BH8-epoch-before-classify/original	2026-10-19 05:32:16.311935316 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/WorkshopClockMapping.cs	2026-10-19 05:32:16.315713424 +0800
+@@ -161,13 +161,13 @@
+         var outcome = Classify(reply);
+         // A reply stamped under a newer master derivation cannot be mapped together with intervals from the old one;
+         // with no retained slot there is nothing to discard and no recalibration to report (edge-case E3).
+-        if (outcome == ClockProbeOutcome.Accepted && _derivation is { } installed && reply.Derivation != installed)
++        if (_derivation is { } installed && reply.Derivation != installed)
+         {
+             if (reply.Derivation.Value < installed.Value)
+                 throw new ArgumentException($"Clock reply derivation epoch reversed from {installed.Value} to {reply.Derivation.Value}.");
+             if (_count != 0) Recalibrate(ClockRecalibrationCause.MasterRederived, reply.RequesterReceived, reply, ClockMappingState.Expired);
+         }
+-        if (outcome == ClockProbeOutcome.Accepted) _derivation = reply.Derivation;
++        _derivation = reply.Derivation;
+         var interval = outcome == ClockProbeOutcome.Accepted ? Offset(reply, EndpointUncertainty) : default;
+         var expired = _count != 0 && (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
+         if (!expired && outcome == ClockProbeOutcome.Accepted && _count != 0 &&

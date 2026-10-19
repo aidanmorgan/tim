@@ -5,9 +5,16 @@
     <BuildType Name="Release" />
   </Configurations>
   <Project Path="CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+  <Project Path="CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
   <Project Path="CuriousContraptions.2dog/CuriousContraptions.2dog.csproj" />
   <Project Path="CuriousContraptions.csproj" />
   <Project Path="CuriousContraptions.tests/CuriousContraptions.tests.csproj" />
+  <Project Path="tools/Coverage/Coverage.csproj">
+    <BuildType Solution="Editor|*" Project="Debug" />
+  </Project>
+  <Project Path="tools/Coverage.Tests/Coverage.Tests.csproj">
+    <BuildType Solution="Editor|*" Project="Debug" />
+  </Project>
   <Project Path="CuriousContraptions.web/CuriousContraptions.web.csproj">
     <BuildType Solution="Editor|*" Project="Debug" />
     <Build Project="false" />

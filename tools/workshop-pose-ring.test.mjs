@@ -10,6 +10,7 @@ const module = new vm.SourceTextModule(source + '\nexport { clients };', { conte
 await module.link(async (specifier) => {
     const names = specifier.includes('native-clock') ?
         ['admitNativeClock', 'nativeNow', 'nativeProfile', 'nativeClockEvidence'] :
+        specifier.includes('clock-ring') ? ['createClockRing', 'attachClockRing', 'requestReply', 'heartbeat', 'ClockRole'] :
         ['requireIsolation', 'watchIsolation', 'isolationQualified', 'isolationEvidence', 'stopIsolation'];
     return new vm.SyntheticModule(names, function () {
         for (const name of names) this.setExport(name, () => { throw new Error('Unexpected clock/isolation use'); });
@@ -59,12 +60,22 @@ test('old ring layout rejects rather than truncating secondary identity', () => 
     assert.equal(readPoseSlot(1, 0), null);
 });
 
+// The worker's run-loop yield channel, unreferenced so the harness process can exit once its checks complete.
+class HarnessMessageChannel {
+    constructor() {
+        const channel = new MessageChannel();
+        channel.port2.unref();
+        this.port2 = channel.port2;
+        this.port1 = { set onmessage(handler) { channel.port1.onmessage = handler; channel.port1.unref(); },
+            get onmessage() { return channel.port1.onmessage; } };
+    }
+}
 test('actual worker writer publishes globally newest frames across wraps and shrinking populations', async () => {
     const workerSource = await fs.readFile(new URL('../CuriousContraptions.Simulation/wwwroot/worker.js', import.meta.url), 'utf8');
     const workerContext = vm.createContext({ self: { postMessage() {} }, console, Uint8Array, Uint32Array,
-        Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, DataView, Atomics });
+        Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, DataView, Atomics, MessageChannel: HarnessMessageChannel });
     const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56],
-        OperationAbi: () => [0, 1], StateBytes: () => 157152, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
+        ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
     const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ Program: host }),
         getConfig: () => ({ mainAssemblyName: 'PoseWriterControl' }) };
     const worker = new vm.SourceTextModule(workerSource + `
@@ -77,6 +88,10 @@ export { writePoseRing };
     await worker.link(async name => {
         if (name.includes('dotnet')) return new vm.SyntheticModule(['dotnet'], function () {
             this.setExport('dotnet', { create: async () => runtime });
+        }, { context: workerContext });
+        if (name === '../clock-ring.js') return new vm.SyntheticModule(['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'], function () {
+            for (const name of ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'])
+                this.setExport(name, () => { throw new Error('The pose writer control never bootstraps a clock.'); });
         }, { context: workerContext });
         return new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'], function () {
             this.setExport('admitNativeClock', async () => {});

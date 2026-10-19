@@ -1,0 +1,104 @@
+$ dotnet build CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build CuriousContraptions.Animation/CuriousContraptions.Animation.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/Ball/Ball.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/BallDetector/BallDetector.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/Battery/Battery.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/Bumper/Bumper.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/Counter/Counter.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/Domino/Domino.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/PoweredGate/PoweredGate.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/PressurePlate/PressurePlate.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/Ramp/Ramp.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/SignalLamp/SignalLamp.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/StateLatch/StateLatch.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/SystemClock/SystemClock.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build elements/Wall/Wall.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build tools/BundleElements/BundleElements.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build tools/TraceAllocations/TraceAllocations.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build tools/Preview/Preview.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build tools/LifecycleContract/LifecycleContract.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build tools/WireContract/WireContract.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=
+$ dotnet build tools/Ownership/Ownership.csproj --no-incremental
+    0 Error(s)
+    0 Warning(s)
+exit=

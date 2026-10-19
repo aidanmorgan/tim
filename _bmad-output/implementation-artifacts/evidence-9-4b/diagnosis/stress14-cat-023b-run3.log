@@ -1,0 +1,30 @@
+▶ CAT-023b: Domino cascade mechanics & orientation-threshold sensor
+  ✔ 1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once (9340.114ms)
+  ✔ 2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights (9679.153584ms)
+  ✔ 3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting (10880.642583ms)
+  ✖ 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again (16272.732083ms)
+✖ CAT-023b: Domino cascade mechanics & orientation-threshold sensor (50985.029708ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51351.439125
+
+✖ failing tests:
+
+test at tools/e2e/cat-023b.test.ts:2:12132
+✖ 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again (16272.732083ms)
+  AssertionError [ERR_ASSERTION]: The second Run solves again: the sensor was rearmed by Reset
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:266:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

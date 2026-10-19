@@ -1,10 +1,11 @@
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
+import { attachClockRing, requestReply, ClockRole } from '../clock-ring.js';
 
 await admitNativeClock();
 const runtime = await dotnet.create();
-let host, port, service, disposed = false, bootstrapped = false, qualified = false;
-let lastReply = 0, outputKinds, targetCapacity, pendingSample;
+let host, port, clock, service, disposed = false, bootstrapped = false, qualified = false;
+let outputKinds, targetCapacity, pendingSample;
 const latestSamples = new Map();
 function closeOwned() {
     if (disposed) return;
@@ -12,6 +13,7 @@ function closeOwned() {
     latestSamples.clear(); pendingSample = undefined;
     clearInterval(service); service = undefined;
     if (port) { port.onmessage = null; port.close(); port = undefined; }
+    clock = undefined;
 }
 function fail(error) {
     closeOwned();
@@ -19,8 +21,13 @@ function fail(error) {
     finally { self.close(); }
 }
 function requirePort() {
-    if (disposed || !port) throw new Error('Animation clock port is retired.');
+    if (disposed || !port) throw new Error('Animation master port is retired.');
     return port;
+}
+// The ring is the worker's only clock authority; closeOwned detaches it, so a retired worker can never probe it again.
+function requireClock() {
+    if (!clock) throw new Error('Animation clock ring is retired.');
+    return clock;
 }
 function flushSample() {
     if (pendingSample || latestSamples.size === 0) return;
@@ -32,8 +39,11 @@ function flushSample() {
 runtime.setModuleImports('workshopAnimation', {
     now: nativeNow,
     probe(bytes) {
-        const value = new Uint8Array(bytes);
-        requirePort().postMessage({ clockProbe: value }, [value.buffer]);
+        // The Simulation-owned clock master answers through the clock ring; the reply is received when the wait resolves.
+        requestReply(requireClock(), ClockRole.Animation, new Uint8Array(bytes)).then(reply => {
+            if (!reply || disposed) return;
+            try { host.Reply(reply, nativeNow()); } catch (error) { fail(error); }
+        }, error => { if (!disposed) fail(error); });
     },
     control(bytes) {
         const value = new Uint8Array(bytes);
@@ -55,8 +65,7 @@ runtime.setModuleImports('workshopAnimation', {
     qualified() {
         if (disposed) return;
         if (!qualified) { qualified = true; self.postMessage({ qualified: true }); }
-    },
-    acceptedReply() { lastReply = nativeNow(); }
+    }
 });
 const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
 host = exports.Program;
@@ -68,27 +77,26 @@ self.onmessage = event => {
     try {
         const message = event.data;
         if (message.bootstrap instanceof Uint8Array) {
-            const incomingPort = message.clockPort;
-            if (!(incomingPort instanceof MessagePort)) throw new Error('Animation bootstrap requires its owned clock port.');
+            const incomingPort = message.masterPort;
+            if (!(incomingPort instanceof MessagePort)) throw new Error('Animation bootstrap requires its owned master port.');
             if (bootstrapped) { incomingPort.close(); throw new Error('Duplicate Animation bootstrap.'); }
-            try { host.Bootstrap(message.bootstrap); }
+            let ownedClock;
+            try { ownedClock = attachClockRing(message.clockRing); host.Bootstrap(message.bootstrap); }
             catch (error) { incomingPort.close(); throw error; }
-            port = incomingPort;
+            port = incomingPort; clock = ownedClock;
             port.onmessage = incoming => {
                 if (disposed) return;
                 try {
-                    if (incoming.data?.clockReply instanceof Uint8Array)
-                        host.Reply(incoming.data.clockReply, nativeNow());
-                    else if (incoming.data?.scheduleControl instanceof Uint8Array)
+                    if (incoming.data?.scheduleControl instanceof Uint8Array)
                         host.ScheduleControl(incoming.data.scheduleControl);
                     else throw new Error('Unsupported Animation master-port envelope.');
                 } catch (error) { fail(error); }
             };
-            port.start(); bootstrapped = true; lastReply = nativeNow();
-            // Wakeups only service the absolute master-derived ordinal; they are not a clock authority.
+            port.start(); bootstrapped = true;
+            // Wakeups only service the absolute master-derived ordinal; they are not a clock authority. A missing master
+            // reply never faults the session: the mapping recalibrates as counted telemetry (Story 9.4b).
             service = setInterval(() => {
                 try {
-                    if (nativeNow() - lastReply > 1000) throw new Error('Animation master reply missing for1000ms.');
                     host.Service();
                 } catch (error) { fail(error); }
             }, 1);

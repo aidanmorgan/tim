@@ -1,0 +1,139 @@
+// Murdoch-2 round 4 (Story 9.4b candidate 5) reviewer-only probe; not part of the deliverable.
+// Attacks on the amended D23 renew-and-check: (1) the round-3 wide-exchange probe re-expressed against the fix;
+// (2) the other operand of the overlap test: the retained interval is drift-widened for its age with no bound on the
+// stall, so after a long stall a narrow exchange can confirm a move larger than the mapping's own maximum width;
+// (3) a foreign reply while renewing; (4) one record per lapse across the time bound.
+using System;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class MurdochR4RenewalTests
+{
+    private static readonly ClockDerivationEpoch Initial = new(0);
+    private static readonly WorkshopClockPeer Peer = new(new(11, 23), new(7), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
+    private const long OldOffset = 50_000_000;
+
+    private static WorkshopClockMapping Ready()
+    {
+        var map = new WorkshopClockMapping(Peer);
+        for (var i = 0; i < WorkshopClockMapping.ProbeCapacity; i++)
+        {
+            var sent = i * 10_000_000L;
+            var probe = map.BeginProbe(new(sent))!.Value;
+            map.Receive(new(probe, new(sent + OldOffset), new(sent + OldOffset), new(sent), Initial));
+        }
+        Assert.Equal(ClockMappingState.Ready, map.State);
+        return map;
+    }
+
+    private static WorkshopClockMapping StalledAndRenewing(long resumed)
+    {
+        var map = Ready();
+        map.Observe(new(resumed));
+        Assert.Equal(ClockMappingState.Renewing, map.State);
+        return map;
+    }
+
+    private static ClockObservation Exchange(WorkshopClockMapping map, long sent, long roundTrip, long offset)
+    {
+        var probe = map.BeginProbe(new(sent)) ?? throw new InvalidOperationException($"no probe at {sent}");
+        var master = sent + roundTrip / 2 + offset;
+        return map.Receive(new(probe, new(master), new(master), new(sent + roundTrip), Initial));
+    }
+
+    // (1) Round-3 probe re-expressed as the fixed behaviour: the 200 ms exchange at a 60 ms move is inconclusive (no
+    // renewal, consumers hold); the narrow exchanges that follow see the move and recalibrate exactly once.
+    [Fact]
+    public void R4_1_AWideExchangeAtASixtyMillisecondMoveIsInconclusiveAndTheMoveRecalibratesOnce()
+    {
+        const long resumed = 770_000_000, moved = 110_000_000;
+        var map = StalledAndRenewing(resumed);
+        var epoch = map.DisplayEpoch;
+        Assert.Equal(ClockProbeOutcome.Inconclusive, Exchange(map, resumed, 200_000_000, moved).Outcome);
+        Assert.Equal((ClockMappingState.Renewing, 0UL, 0UL), (map.State, map.LateRenewals, map.Recalibrations));
+        Assert.False(map.TryMasterNow(new(resumed + 200_000_000), out _));
+        long now = resumed + 200_000_000;
+        for (var i = 0; i < 12 && map.State != ClockMappingState.Ready; i++, now += 10_000_000)
+            if (map.BeginProbe(new(now)) is { } p) map.Receive(new(p, new(now + moved), new(now + moved), new(now), Initial));
+        Assert.Equal((0UL, 1UL, epoch + 1), (map.LateRenewals, map.Recalibrations, map.DisplayEpoch));
+        Assert.Equal(ClockRecalibrationCause.MappingLifetime, map.LastRecalibration!.Value.Cause);
+    }
+
+    // (2) Control: after the 700 ms stall of the Chrome proof, a 4 ms move is seen and recalibrates.
+    [Fact]
+    public void R4_2_Control_AfterASevenHundredMillisecondStallAFourMillisecondMoveRecalibrates()
+    {
+        const long resumed = 770_000_000;
+        var map = StalledAndRenewing(resumed);
+        Exchange(map, resumed, 0, OldOffset + 4_000_000);
+        Assert.Equal((0UL, 1UL), (map.LateRenewals, map.Recalibrations));
+    }
+
+    // (2) The vulnerability, asserted as observed: the same narrow exchange after a longer stall renews. The move is
+    // twice MaximumMappedWidth (resp. 25 times), yet the display epoch, derivation and retained slots are kept.
+    [Theory]
+    [InlineData(10_070_000_000L, 4_000_000L)]   // 10 s stall (a 1 Hz-throttled or briefly frozen page is far longer)
+    [InlineData(120_070_000_000L, 50_000_000L)] // 2 min stall (Chrome intensive throttling of a hidden tab: 1/min)
+    public void R4_3_AfterALongStallANarrowExchangeConfirmsAMoveLargerThanTheMappedWidth(long resumed, long move)
+    {
+        Assert.True(move > WorkshopClockMapping.MaximumMappedWidth);
+        var map = StalledAndRenewing(resumed);
+        var epoch = map.DisplayEpoch;
+        var observation = Exchange(map, resumed, 0, OldOffset + move);
+        Assert.Equal(ClockProbeOutcome.Accepted, observation.Outcome);
+        Assert.Equal((ClockMappingState.Ready, 1UL, 0UL, epoch), (map.State, map.LateRenewals, map.Recalibrations, map.DisplayEpoch));
+        Assert.True(map.TryMasterNow(new(resumed), out var interval));
+        Assert.InRange((long)(interval.Midpoint - resumed), OldOffset + move - 500_000, OldOffset + move + 500_000);
+    }
+
+    // (3) A reply that is not the pending probe's answer (WrongIdentity) is ignored in Ready (blind hunter 8) but, while
+    // renewing, ends the renewal as a MappingLifetime recalibration. Asserted as observed.
+    [Fact]
+    public void R4_4_AForeignReplyWhileRenewingRecalibrates_ButIsIgnoredInReady()
+    {
+        var ready = Ready();
+        var refresh = ready.BeginProbe(new(320_000_000))!.Value;
+        var foreignReady = refresh with { Sequence = new(refresh.Sequence.Value + 1) };
+        Assert.Equal(ClockProbeOutcome.WrongIdentity,
+            ready.Receive(new(foreignReady, new(370_000_000), new(370_000_000), new(320_000_000), Initial)).Outcome);
+        Assert.Equal((ClockMappingState.Ready, 0UL), (ready.State, ready.Recalibrations));
+
+        const long resumed = 770_000_000;
+        var map = StalledAndRenewing(resumed);
+        var probe = map.BeginProbe(new(resumed))!.Value;
+        var foreign = probe with { Sequence = new(probe.Sequence.Value + 1) };
+        var outcome = map.Receive(new(foreign, new(resumed + OldOffset), new(resumed + OldOffset), new(resumed), Initial)).Outcome;
+        Assert.Equal(ClockProbeOutcome.WrongIdentity, outcome);
+        Assert.Equal((1UL, ClockRecalibrationCause.MappingLifetime), (map.Recalibrations, map.LastRecalibration!.Value.Cause));
+    }
+
+    // (4) One record per lapse: an inconclusive exchange, then a reply arriving after the renewal's time bound. Exactly
+    // one recalibration (Elapsed); the late accepted reply seeds the fresh calibration and is not a second record.
+    [Fact]
+    public void R4_5_AReplyAfterTheRenewalTimeBoundIsOneElapsedRecalibration()
+    {
+        const long resumed = 770_000_000;
+        var map = StalledAndRenewing(resumed);
+        Assert.Equal(ClockProbeOutcome.Inconclusive, Exchange(map, resumed, 2_000_000, OldOffset).Outcome);
+        var probe = map.BeginProbe(new(resumed + 2_000_000))!.Value;
+        var received = resumed + WorkshopClockMapping.RecoveryLifetime + 1;
+        var observation = map.Receive(new(probe, new(received + OldOffset), new(received + OldOffset), new(received), Initial));
+        Assert.Equal((1UL, ClockRecalibrationCause.Elapsed, 0UL), (map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals));
+        Assert.Equal(ClockMappingState.Expired, map.State);
+        Assert.NotEqual(ClockProbeOutcome.Inconclusive, observation.Outcome);
+    }
+
+    // (5) A Recovering mapping stalled past both bounds is an Elapsed recalibration, never a renewal: RequireRecoveryTime
+    // runs first. This is the duty20 Animation path ("Elapsed", stateBefore Recovering).
+    [Fact]
+    public void R4_6_ARecoveringRequesterStalledPastItsRecoveryLifetimeIsElapsedNotRenewed()
+    {
+        var map = Ready();
+        map.Observe(new(321_000_000));
+        Assert.Equal(ClockMappingState.Recovering, map.State);
+        map.Observe(new(1_021_000_000)); // a 700 ms stall with no probe outstanding
+        Assert.Equal((1UL, ClockRecalibrationCause.Elapsed, 0UL), (map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals));
+    }
+}

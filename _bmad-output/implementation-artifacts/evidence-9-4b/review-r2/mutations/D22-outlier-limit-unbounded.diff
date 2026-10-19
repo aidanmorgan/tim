@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/D22-outlier-limit-unbounded/original	2026-10-19 05:30:36.599032536 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/WorkshopClockDerivation.cs	2026-10-19 05:30:36.603369273 +0800
+@@ -61,7 +61,7 @@
+     private readonly List<(double Lower, double Upper)> _narrow = [];
+     /// <summary>Narrow startup exchanges the qualifying correction may set aside as outliers (one jittered sample must not
+     /// refuse the session; a master that is no stable offset of the Simulation clock still does).</summary>
+-    public const int StartupOutlierLimit = 4;
++    public const int StartupOutlierLimit = 16;
+     public int StartupOutliers { get; private set; }
+     private ClockDerivationOutcome _last = ClockDerivationOutcome.Consistent;
+     public ClockDerivationEpoch Epoch { get; private set; }

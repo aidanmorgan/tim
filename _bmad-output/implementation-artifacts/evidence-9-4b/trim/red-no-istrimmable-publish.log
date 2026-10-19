@@ -1,0 +1,8 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/CuriousContraptions.csproj (in 158 ms).
+  Restored /Users/aidan/dev/personal/tim/CuriousContraptions.web/CuriousContraptions.web.csproj (in 172 ms).
+  3 of 5 projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+CSC : error IL2125: Referenced assembly 'CuriousContraptions.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/CuriousContraptions.csproj]

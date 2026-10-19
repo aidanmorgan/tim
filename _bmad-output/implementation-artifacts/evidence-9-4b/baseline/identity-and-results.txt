@@ -1,0 +1,22 @@
+Story 9.4b baseline (HEAD 8f682f8, clean tree apart from untracked scratch/ and two 9.4 preview logs), Amelia 18 Oct 2026.
+
+Build: dotnet build CuriousContraptions.slnx -> 0 errors, 1 warning:
+  CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [CuriousContraptions.csproj]
+
+Production publish (dotnet publish CuriousContraptions.web, exit 0, publish.log), sha256:
+  godot.pck                                  51b6608c1379b03325d67de7028d0c58f03e15f805cb935fb1f2d50c372ed0b6
+  simulation/_framework/CuriousContraptions.Simulation.wasm 617bc52d1c55d068f89d3b181f2d5c984178b74acee622b3c88e8c4785d16ccb
+  _framework/CuriousContraptions.wasm        01e1c663ab0eeca55dc43ac13183685b184277327e6b25f8d47d9d069134d8b5
+
+Serial isolated runs of the six carried suites on that production preview (one Chrome at a time):
+  cat-015a           1/2  (heavy payload: "Later empty contact must not spend energy" 1.9073486328125e-6)   e2e-cat-015a.log
+  cat-015a-sidekick  2/3  (paid: powered.length>0 && remaining<32)                                    e2e-cat-015a-sidekick.log
+  cat-015b           1/4  (paid.length>0 at :128, x3)                                                  e2e-cat-015b.log
+  cat-062b           2/7  ("Precise Receiver guide is zero" x4 at :164; goal_body 1 != 4 at :257)     e2e-cat-062b.log
+  cat-023b           4/4  (isolated; the transport flake is load dependent, see ../diagnosis)        e2e-cat-023b.log
+  cat-005            2/7  (store credit; budget; null .enabled). NOTE: this run overlapped the
+                          e2e-cat-023b-repeat*.log loop (two Chromes at once), so cat-005's baseline and the four
+                          023b repeats are labelled concurrent and are not cited as evidence.
+
+Root-cause proof for R2 (diagnosis/playtest-*.log): the same unchanged suites on a -p:PlaytestDiagnostics=true bundle
+(CCGPU_RETAINED present): cat-015a-sidekick 3/3, cat-015b 4/4, cat-005 7/7.

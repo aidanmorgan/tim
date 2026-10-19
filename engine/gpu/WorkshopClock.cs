@@ -7,10 +7,11 @@ public readonly record struct WorkshopClock(
     CellOrigin Cell,
     LocalPosition Local,
     CanonicalRotation Rotation,
-    float IntervalSeconds = WorkshopClock.DefaultIntervalSeconds,
+    float IntervalSeconds,
     bool Locked = false) : IWorkshopInstance
 {
-    public const float DefaultIntervalSeconds = 1.0f;
+    /// <summary>The interval a newly placed clock starts with in the Workshop UI; no decoder or factory defaults to it.</summary>
+    public const float PlacedIntervalSeconds = 1.0f;
     public const float MinIntervalSeconds = 0.1f;
     public const float MaxIntervalSeconds = 12.0f;
 
@@ -24,7 +25,7 @@ public readonly record struct WorkshopClock(
         if (float.IsNaN(IntervalSeconds) || float.IsInfinity(IntervalSeconds) ||
             IntervalSeconds < MinIntervalSeconds || IntervalSeconds > MaxIntervalSeconds)
         {
-            throw new ArgumentException($"Clock interval seconds '{IntervalSeconds}' is outside admitted range [{MinIntervalSeconds}, {MaxIntervalSeconds}].");
+            throw new ArgumentException($"Clock {Id.Value} interval seconds '{IntervalSeconds:R}' is outside admitted range [{MinIntervalSeconds}, {MaxIntervalSeconds}].");
         }
     }
 

@@ -1,0 +1,8 @@
+ab-batch4-load8 run 1 (load 8): ℹ pass 3 ℹ fail 1  goals=2 recovery=1 debt=0 tickFailed=0
+ab-batch4-load8 run 2 (load 8): ℹ pass 4 ℹ fail 0  goals=3 recovery=0 debt=0 tickFailed=0
+ab-batch4-load8 run 3 (load 8): ℹ pass 4 ℹ fail 0  goals=3 recovery=0 debt=0 tickFailed=0
+ab-batch4-load8 run 4 (load 8): ℹ pass 1 ℹ fail 3  goals=1 recovery=2 debt=0 tickFailed=0
+ab-batch4-load8 run 5 (load 8): ℹ pass 4 ℹ fail 0  goals=3 recovery=0 debt=0 tickFailed=0
+ab-batch4-load8 run 6 (load 8): ℹ pass 4 ℹ fail 0  goals=3 recovery=0 debt=0 tickFailed=0
+
+[exited with code 1]

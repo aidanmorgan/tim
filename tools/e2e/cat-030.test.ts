@@ -31,7 +31,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Workshop selection: Select funnel from palette, place on canvas', { timeout: 150000 }, async () => {

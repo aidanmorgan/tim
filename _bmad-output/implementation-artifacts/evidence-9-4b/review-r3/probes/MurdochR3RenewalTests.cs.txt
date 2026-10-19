@@ -1,0 +1,78 @@
+// Murdoch-2 round 3 (Story 9.4b candidate 4) reviewer-only probe; not part of the deliverable.
+// D23 renew-and-check: can a genuine offset move be absorbed as a late renewal? The renewal test is overlap of the fresh
+// exchange's admitted interval with the old mapping's drift-widened interval; nothing bounds the fresh interval's width
+// beyond the probe lifetime, so a slow (wide) renewing exchange overlaps the old offset whatever the true offset is.
+using System;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class MurdochR3RenewalTests
+{
+    private static readonly ClockDerivationEpoch Initial = new(0);
+    private static readonly WorkshopClockPeer Peer = new(new(11, 23), new(7), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
+    private const long OldOffset = 50_000_000, Moved = 110_000_000; // a genuine 60 ms move during the stall
+
+    private static WorkshopClockMapping Ready()
+    {
+        var map = new WorkshopClockMapping(Peer);
+        for (var i = 0; i < WorkshopClockMapping.ProbeCapacity; i++)
+        {
+            var sent = i * 10_000_000L;
+            var probe = map.BeginProbe(new(sent))!.Value;
+            map.Receive(new(probe, new(sent + OldOffset), new(sent + OldOffset), new(sent), Initial));
+        }
+        Assert.Equal(ClockMappingState.Ready, map.State);
+        return map;
+    }
+
+    private static WorkshopClockMapping StalledAndRenewing(long resumed)
+    {
+        var map = Ready();
+        map.Observe(new(resumed));
+        Assert.Equal(ClockMappingState.Renewing, map.State);
+        return map;
+    }
+
+    // The renewing exchange takes 200 ms (inside the 250 ms probe lifetime) while the true offset is now +110 ms. Its
+    // admitted interval [~10 ms, ~210 ms] contains the old +50 ms, so it "renews". Then a narrow refresh at the moved
+    // offset is checked only against in-lifetime slots, i.e. the wide renewal slot, so it is not Disjoint either.
+    [Fact]
+    public void AWideRenewingExchangeAbsorbsAGenuineSixtyMillisecondMoveWithoutRecalibrationOrReseed()
+    {
+        const long resumed = 770_000_000;
+        var map = StalledAndRenewing(resumed);
+        var epoch = map.DisplayEpoch;
+        var probe = map.BeginProbe(new(resumed))!.Value;
+        const long received = resumed + 200_000_000;
+        var master = resumed + 100_000_000 + Moved; // the master read at the round trip's midpoint under the moved offset
+        map.Receive(new(probe, new(master), new(master), new(received), Initial));
+        var renewed = map.LateRenewals; var recalibrations = map.Recalibrations;
+        // Recovery continues with narrow exchanges at the moved offset.
+        long now = received;
+        for (var i = 0; i < 12 && map.State != ClockMappingState.Ready; i++)
+        {
+            now += 10_000_000;
+            if (map.BeginProbe(new(now)) is { } p) map.Receive(new(p, new(now + Moved), new(now + Moved), new(now), Initial));
+        }
+        Assert.True(map.TryMasterNow(new(now), out var interval), "the mapping is usable again");
+        var mappedOffset = (interval.Lower + interval.Upper) / 2 - now;
+        // The vulnerability, asserted as observed: renewed once, never recalibrated, the display epoch kept (no reseed),
+        // and the mapping now follows the moved offset.
+        Assert.Equal((1UL, 0UL, epoch), (renewed, map.Recalibrations, map.DisplayEpoch));
+        Assert.Equal(0UL, recalibrations);
+        Assert.InRange((long)mappedOffset, Moved - 1_000_000, Moved + 1_000_000);
+    }
+
+    // Control: the same 60 ms move answered by a narrow (1 ms) renewing exchange is a recalibration, as D23 intends.
+    [Fact]
+    public void ANarrowRenewingExchangeAtTheMovedOffsetRecalibrates()
+    {
+        const long resumed = 770_000_000;
+        var map = StalledAndRenewing(resumed);
+        var probe = map.BeginProbe(new(resumed))!.Value;
+        map.Receive(new(probe, new(resumed + 500_000 + Moved), new(resumed + 500_000 + Moved), new(resumed + 1_000_000), Initial));
+        Assert.Equal((0UL, 1UL), (map.LateRenewals, map.Recalibrations));
+    }
+}

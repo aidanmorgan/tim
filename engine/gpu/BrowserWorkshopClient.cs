@@ -49,8 +49,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private static partial double NativeMilliseconds();
     [JSImport("probe", "workshopClient")]
     private static partial void SendProbe(int client, byte[] probe);
-    [JSImport("acceptedClockReply", "workshopClient")]
-    private static partial void AcceptedClockReply(int client);
     [JSImport("clockObservation", "workshopClient")]
     private static partial void RecordClockObservation(int client, byte[] observation);
     [JSImport("presentationObservation", "workshopClient")]
@@ -244,17 +242,14 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var bytes = EventBytes(_id.Value);
         var milliseconds = EventMilliseconds(_id.Value);
         var received = WorkshopNativeClock.FromMilliseconds(milliseconds);
-        ClockReply reply;
-        try { reply = WorkshopClockWire.DecodeReply(bytes, Peer, received); }
-        catch (ArgumentException)
+        // The requesters' one reply path: a malformed reply is one counted, typed rejection, never applied or dropped.
+        if (Clock.ReceiveEncoded(bytes, received) is not { } observation)
         {
 #if PLAYTEST
             RecordClockObservation(_id.Value, WorkshopClockWire.EncodeRejectedReply(bytes, received));
 #endif
             return;
         }
-        var observation = Clock.Receive(reply);
-        if (observation.Outcome == ClockProbeOutcome.Accepted) AcceptedClockReply(_id.Value);
 #if PLAYTEST
         RecordClockObservation(_id.Value, WorkshopClockWire.EncodeObservation(observation, Peer));
 #endif

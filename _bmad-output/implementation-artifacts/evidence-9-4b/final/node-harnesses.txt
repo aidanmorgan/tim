@@ -1,0 +1,4 @@
+workshop-observation: ℹ pass 1 ℹ fail 0 
+workshop-pose-ring: ℹ pass 4 ℹ fail 0 
+workshop-animation-output: ℹ pass 1 ℹ fail 0 
+workshop-console: ℹ pass 2 ℹ fail 0 

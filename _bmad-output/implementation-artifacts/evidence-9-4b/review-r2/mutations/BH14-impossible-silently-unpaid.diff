@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/BH14-impossible-silently-unpaid/original	2026-10-19 05:31:25.901054736 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/ContactWorkImpulse.cs	2026-10-19 05:31:25.904841677 +0800
+@@ -41,7 +41,7 @@
+         float inverseEffectiveMass, float availableWork, float capacity, Vector128<float> normal)
+     {
+         if (!float.IsFinite(capacity) || capacity < 0 || !float.IsFinite(availableWork) || availableWork < 0 || availableWork > capacity)
+-            return new(availableWork, 0, Vector128<float>.Zero, ContactWorkStore.Impossible);
++            return new(availableWork, 0, Vector128<float>.Zero, ContactWorkStore.BelowMinimum);
+         var minimum = MinimumPayableWork(capacity);
+         if (availableWork == 0 || availableWork < minimum) return new(availableWork, 0, Vector128<float>.Zero, ContactWorkStore.BelowMinimum);
+         var unpaid = new ContactWorkResponse(availableWork, 0, Vector128<float>.Zero, ContactWorkStore.Payable);

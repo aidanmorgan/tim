@@ -1,0 +1,10 @@
+{"solved":1,"lit":true,"failures":0,"recalibrationRoles":[3]}
+✔ A running wired chain survives a 20 ms duty cycle on the Animation worker (Running) (10687.688833ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10960.620417

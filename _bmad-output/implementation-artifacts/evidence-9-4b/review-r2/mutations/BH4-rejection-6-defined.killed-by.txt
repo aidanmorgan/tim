@@ -1,0 +1,4 @@
+CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_RetiredDeviceLossRejectionIsUndefined(reason: 5, admitted: True)
+CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_RetiredDeviceLossRejectionIsUndefined(reason: 6, admitted: False)
+CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_RetiredDeviceLossRejectionIsUndefined(reason: 7, admitted: True)
+CuriousContraptions.Tests.WorkshopWireTests.TheRetiredDeviceLossRejectionIsUndefinedOnTheWire(reason: 6, admitted: False)

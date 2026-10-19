@@ -28,7 +28,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Straight pipe placed in Workshop, ball enters elevated mouth, traverses through hollow bore, and exits safely', { timeout: 150000 }, async () => {

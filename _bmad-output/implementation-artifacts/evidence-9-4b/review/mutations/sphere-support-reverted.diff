@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/sphere-support-reverted/original	2026-10-19 01:06:19.521524989 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs	2026-10-19 01:06:19.525463497 +0800
+@@ -167,7 +167,7 @@
+     /// under the sphere's centre however the sphere turns, so it moves with the centre (whose arm from the centre of mass is the
+     /// collider's substep-start position); any other shape's support is the material contact anchor.</summary>
+     private static Vector3 SupportDisplacement(SimBody b, SimCollider collider, Vector3 anchor) =>
+-        collider.Shape == ShapeKind.Sphere
++        false
+             ? AnchorDisplacement(b, new Vector3(collider.Px, collider.Py, collider.Pz) - b.Cm0)
+             : AnchorDisplacement(b, anchor);
+ 

@@ -1,0 +1,358 @@
+MURDOCH_CLOCK {"scenario":"B-sim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-sim-duty20 (11446.550333ms)
+MURDOCH_CLOCK {"scenario":"B-sim-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-sim-duty40 (11095.322084ms)
+MURDOCH_CLOCK {"scenario":"B-sim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-sim-block600 (8597.825042ms)
+MURDOCH_CLOCK {"scenario":"B-anim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":398,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-duty20 (11387.927292ms)
+MURDOCH_CLOCK {"scenario":"B-anim-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":457,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-duty40 (11114.565125ms)
+MURDOCH_CLOCK {"scenario":"B-anim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":616,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-block600 (8730.496917ms)
+MURDOCH_CLOCK {"scenario":"B-anim-block700","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":715,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-block700 (8864.475333ms)
+MURDOCH_CLOCK {"scenario":"B-main-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":440,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-duty20 (11014.320542ms)
+MURDOCH_CLOCK {"scenario":"B-main-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":463,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-duty40 (11359.714583ms)
+MURDOCH_CLOCK {"scenario":"B-main-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":607,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-block600 (8690.568041ms)
+MURDOCH_CLOCK {"scenario":"B-main-block700","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":707,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-block700 (8652.677292ms)
+MURDOCH_CLOCK {"scenario":"B-hogs-2x","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js","blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"],"closedWorkers":[{"at":7080,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7080,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7083,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7083,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7083,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7083,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7085,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7085,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7085,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7085,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7086,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7087,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7087,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7087,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7087,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7087,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7087,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7087,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7088,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7088,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7088,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7089,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7089,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7089,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7089,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7089,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7089,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7089,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7090,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7090,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7090,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"},{"at":7090,"url":"blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f"}]}
+✖ Murdoch clock stress B-hogs-2x (13876.497208ms)
+MURDOCH_CLOCK {"scenario":"R-chain-main-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":523,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-main-duty20 (14127.669375ms)
+MURDOCH_CLOCK {"scenario":"R-chain-main-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":274,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-main-duty40 (13712.770417ms)
+MURDOCH_CLOCK {"scenario":"R-chain-main-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":615,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-main-block600 (11824.660292ms)
+MURDOCH_CLOCK {"scenario":"R-chain-anim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":475,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-anim-duty20 (13597.633667ms)
+MURDOCH_CLOCK {"scenario":"R-chain-anim-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":535,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-anim-duty40 (13605.752583ms)
+MURDOCH_CLOCK {"scenario":"R-chain-anim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":612,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-anim-block600 (11876.409541ms)
+MURDOCH_CLOCK {"scenario":"R-chain-hogs-2x","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[{"at":318,"committedTick":23,"reliableStalled":false}],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js","blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"],"closedWorkers":[{"at":7831,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7832,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7832,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7832,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7832,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7832,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7832,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7833,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"},{"at":7834,"url":"blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1"}]}
+✖ Murdoch clock stress R-chain-hogs-2x (16989.077042ms)
+MURDOCH_CLOCK {"scenario":"R-ball-sim-duty20-idle20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-ball-sim-duty20-idle20 (11753.360333ms)
+MURDOCH_CLOCK {"scenario":"R-chain-sim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[{"at":464,"committedTick":50,"reliableStalled":false}],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-sim-duty20 (13726.935958ms)
+MURDOCH_CLOCK {"scenario":"R-ball-sim-block600","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[{"at":602,"committedTick":5,"reliableStalled":false}],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-ball-sim-block600 (9429.256333ms)
+MURDOCH_CLOCK {"scenario":"INFO-main-block950","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":957,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-main-block950 (9177.109875ms)
+MURDOCH_CLOCK {"scenario":"INFO-anim-block950","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":966,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-anim-block950 (9265.604541ms)
+MURDOCH_CLOCK {"scenario":"INFO-main-block1100","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":1107,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-main-block1100 (9115.435209ms)
+MURDOCH_CLOCK {"scenario":"INFO-anim-block1100","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"2":1},"firstRecalibrationMs":1115,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress INFO-anim-block1100 (9079.108875ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 24
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 292373.122292
+
+✖ failing tests:
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-clock-stress.test.ts:2:5343
+✖ Murdoch clock stress B-hogs-2x (13876.497208ms)
+  AssertionError [ERR_ASSERTION]: B-hogs-2x: no game worker closed
+  + actual - expected
+  
+  + [
+  +   {
+  +     at: 7080,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7080,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7083,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7083,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7083,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7083,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7085,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7085,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7085,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7085,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7086,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7087,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7087,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7087,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7087,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7087,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7087,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7087,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7088,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7088,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7088,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7089,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7089,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7089,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7089,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7089,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7089,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7089,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7090,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7090,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7090,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   },
+  +   {
+  +     at: 7090,
+  +     url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-clock-stress.test.ts:132:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { at: 7080, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7080, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7083, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7083, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7083, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7083, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7085, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7085, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7085, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7085, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7086, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7087, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7087, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7087, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7087, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7087, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7087, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7087, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7088, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7088, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7088, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7089, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7089, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7089, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7089, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7089, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7089, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7089, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7090, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7090, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7090, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 7090, url: 'blob:http://127.0.0.1:8060/b14b8187-7760-49dc-b2cf-4c8d9b11283f' }, { at: 9325, url: 'http://127.0.0.1:8060/simulation/worker.js' }, { at: 9325, url: 'http://127.0.0.1:8060/animation/worker.js' }, { at: 9325, url: 'http://127.0.0.1:8060/simulation/clock-master.js' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-clock-stress.test.ts:2:5343
+✖ Murdoch clock stress R-chain-hogs-2x (16989.077042ms)
+  AssertionError [ERR_ASSERTION]: R-chain-hogs-2x: no game worker closed
+  + actual - expected
+  
+  + [
+  +   {
+  +     at: 7831,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7832,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7832,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7832,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7832,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7832,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7832,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7833,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   },
+  +   {
+  +     at: 7834,
+  +     url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-clock-stress.test.ts:132:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { at: 7831, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7832, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7832, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7832, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7832, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7832, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7832, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7833, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 7834, url: 'blob:http://127.0.0.1:8060/4d8a80c5-d64f-4a94-af1a-a0e23ccbd7e1' }, { at: 9715, url: 'http://127.0.0.1:8060/simulation/worker.js' }, { at: 9715, url: 'http://127.0.0.1:8060/animation/worker.js' }, { at: 9715, url: 'http://127.0.0.1:8060/simulation/clock-master.js' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

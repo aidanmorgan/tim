@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/BH11-nan-lane-not-zeroed/original	2026-10-19 05:31:02.269275391 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs	2026-10-19 05:31:02.273130125 +0800
+@@ -36,7 +36,6 @@
+     /// (a NaN or infinite vector has no direction to keep).</summary>
+     public static float EnvelopeScale(float x, float y, float z, float limit)
+     {
+-        if (!float.IsFinite(x) || !float.IsFinite(y) || !float.IsFinite(z)) return 0f;
+         var length = MathF.Sqrt(x * x + y * y + z * z);
+         if (!(length > limit)) return 1f;
+         if (float.IsFinite(length)) return limit / length;

@@ -6,8 +6,12 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <!-- The test framework packages pinned to exactly the versions CuriousContraptions.tests pins, so one
+       `dotnet test CuriousContraptions.slnx` run discovers this project and loads one xunit (Story 9.4b). -->
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
     <ProjectReference Include="../Coverage/Coverage.csproj" />
   </ItemGroup>
 </Project>

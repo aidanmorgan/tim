@@ -1,0 +1,20 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj (in 65 ms).
+  Restored /Users/aidan/dev/personal/tim/CuriousContraptions.csproj (in 1.41 sec).
+  Restored /Users/aidan/dev/personal/tim/CuriousContraptions.2dog/CuriousContraptions.2dog.csproj (in 1.42 sec).
+  Restored /Users/aidan/dev/personal/tim/CuriousContraptions.tests/CuriousContraptions.tests.csproj (in 1.42 sec).
+  4 of 8 projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  Coverage -> /Users/aidan/dev/personal/tim/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+CSC : error IL2125: Referenced assembly 'CuriousContraptions.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/CuriousContraptions.csproj]
+
+Build FAILED.
+
+CSC : error IL2125: Referenced assembly 'CuriousContraptions.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/CuriousContraptions.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:06.29

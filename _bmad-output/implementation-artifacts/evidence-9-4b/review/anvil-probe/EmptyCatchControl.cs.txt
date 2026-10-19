@@ -1,0 +1,13 @@
+// Review-only anvil control (Murdoch-2, Story 9.4b): an empty catch and a TODO without an issue number must be reported.
+// This file is not compiled by any project.
+namespace ReviewProbe;
+
+public static class EmptyCatchControl
+{
+    public static void Swallow()
+    {
+        try { System.IO.File.ReadAllText("missing"); }
+        catch { }
+        // TODO fix later
+    }
+}

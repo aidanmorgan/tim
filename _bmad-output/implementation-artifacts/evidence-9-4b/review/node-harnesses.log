@@ -1,0 +1,81 @@
+$ node --experimental-vm-modules --test tools/*.test.mjs
+v26.12.0
+{"passed":true,"targets":10,"controls":["declaredCapacity","heldReceipt","latestReplacement","orderedDrain","overflow","renamedControl","disposedLateOutput"]}
+(node:69956) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ tools/workshop-animation-output.test.mjs (58.917708ms)
+✔ normal publication activates exactly one service and retains startup qualification (3.045916ms)
+✔ delayed managed publication has no callback until explicit activation (0.569375ms)
+✔ default and missing IDs reject without scheduling or changing the ready owner (0.590459ms)
+✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.471791ms)
+✔ duplicate activation preserves the one original timer and owner state (0.428292ms)
+✔ startup timeout before worker readiness rejects creation and activation (0.417042ms)
+✔ startup timeout after JS return remains anchored to both runtime readiness (0.352375ms)
+✔ worker failure rejects activation without invoking managed service (0.554709ms)
+✔ disposal before managed publication prevents later activation (0.488666ms)
+✔ disposal after activation makes a captured late callback inert (0.482541ms)
+✔ failure after activation makes a captured late callback inert (0.364417ms)
+✔ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.420125ms)
+✔ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (2.870791ms)
+✔ a Browser that was itself blocked never mistakes the Simulation for hung (1.32475ms)
+✔ both runtimes must be ready before the one qualification deadline (0,1) (0.478375ms)
+✔ both runtimes must be ready before the one qualification deadline (1,0) (0.349917ms)
+✔ duplicate runtime readiness rejects worker 0 (0.324ms)
+✔ early ready rejects worker 0 (0.312416ms)
+✔ duplicate runtime readiness rejects worker 1 (0.287875ms)
+✔ early ready rejects worker 1 (0.284834ms)
+✔ early Animation qualification rejects before bootstrap (0.296417ms)
+✔ duplicate authoritative Animation peer rejects without a second transfer (0.314708ms)
+✔ disposal during asset loading prevents late readiness from rearming (0.28575ms)
+✔ Animation constructor failure closes the already owned Simulation worker (0.292959ms)
+✔ premature Animation output fails without delivering to the managed consumer (0.30525ms)
+✔ delayed valid ACK clears current stall only after managed validation completion (0.931875ms)
+✔ completing an older ACK cannot clear another aged request or exceed two leases (0.497ms)
+✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.450916ms)
+✔ unmatched or duplicate ACK faults without clearing stall (false) (0.346625ms)
+✔ unmatched or duplicate ACK faults without clearing stall (true) (0.312791ms)
+✔ two animation owners send sequential controls only after managed ACK delivery returns (0.4195ms)
+✔ nanoseconds is the exact round-half-even port of WorkshopNativeClock.FromMilliseconds (0.587666ms)
+✔ a valid probe is answered with itself followed by the two master stamps and their derivation epoch (0.378333ms)
+✔ the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeReply rejects (0.187042ms)
+✔ a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly (8.227084ms)
+✔ a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch (6.720583ms)
+✔ a slew installs the new correction under the same epoch, so requester mappings keep their calibration (6.63475ms)
+✔ the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused (0.124416ms)
+✔ a newer probe of the same requester supersedes an unconsumed answer, which resolves to null (0.269375ms)
+✔ a probe the master has not served is never overwritten: the next probe resolves null and the session continues (0.205667ms)
+✔ an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed (14.883792ms)
+✔ encoded trace bytes containing NaN are not diagnostic text (0.411041ms)
+✔ actual errors survive encoded-looking messages and ordinary diagnostics (0.137834ms)
+✔ established isolation permits delayed runtime loading and records actual usable time (1.823958ms)
+✔ incomplete isolation handshake still fails at the existing deadline (0.578291ms)
+✔ controller replacement retires booting ownership (0.416459ms)
+✔ controller replacement retires qualified ownership (0.344042ms)
+✔ at most one isolation reload remains permitted (1.050334ms)
+✔ manual navigation after slow runtime loading starts a fresh isolation attempt (0.715292ms)
+(node:69961) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"startupControl":1,"passed":true}
+{"startupControl":2,"passed":true}
+{"canonicalCommandWidth":true,"accepted":[72,1672,5768],"rejected":[71,5769]}
+✔ tools/workshop-observation.test.mjs (309.26725ms)
+(node:69962) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ actual pose reader preserves first secondary and full-width IDs without owner alias (0.674125ms)
+✔ actual latest reader ignores in-progress slot and uses new aligned stride (0.125459ms)
+✔ old ring layout rejects rather than truncating secondary identity (0.0455ms)
+✔ actual worker writer publishes globally newest frames across wraps and shrinking populations (2.88275ms)
+✔ request success cannot complete Save; transaction abort preserves prior exact bytes (2.013292ms)
+✔ completed Save owns input bytes and Load returns an exact independent roundtrip (0.509834ms)
+✔ missing save is empty and incompatible width rejects without replacement (0.710125ms)
+ℹ tests 58
+ℹ suites 0
+ℹ pass 58
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 317.522584
+exit=0

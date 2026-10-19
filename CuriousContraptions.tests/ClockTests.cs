@@ -143,8 +143,10 @@ public sealed class ClockTests(NativeSceneFixture godot)
         new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 1.0f).Validate();
         new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 12.0f).Validate();
 
-        Assert.Equal(WorkshopClock.DefaultIntervalSeconds, 1.0f);
-        Assert.Equal(1.0f, new WorkshopClock(new(1), default, default, CanonicalRotation.Identity).IntervalSeconds);
+        // Story 9.4b (D4): the interval is always declared; only a newly placed clock starts from its placement value.
+        Assert.Equal(1.0f, WorkshopClock.PlacedIntervalSeconds);
+        Assert.False(typeof(WorkshopClock).GetConstructors().Single().GetParameters()
+            .Single(parameter => parameter.Name == nameof(WorkshopClock.IntervalSeconds)).HasDefaultValue);
 
         Assert.Throws<ArgumentException>(() =>
             new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());

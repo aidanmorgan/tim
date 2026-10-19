@@ -1,0 +1,25 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.11]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.44]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.55]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationAdmitsLegalPreloads(preload: 200) [6 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationAdmitsLegalPreloads(preload: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationAdmitsLegalPreloads(preload: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(preload: 3.40282347E+38) [1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(preload: -1E-30) [< 1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(preload: -1) [< 1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(preload: 200.000015) [< 1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(preload: NaN) [< 1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(preload: ∞) [< 1 ms]
+[xUnit.net 00:00:00.87]   Finished:    CuriousContraptions.tests (ID = 'c542b040a9b00bf98b8f09c073eb28df46f952d1acea05a7130d903d688cdde7')
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(preload: -∞) [< 1 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.NoNumericalPathTurnsAPossibleStoreImpossible [39 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.ChainedPayoutsFromAnyValidPreloadNeverReachAnImpossibleStore [204 ms]
+  Passed CuriousContraptions.Tests.MurdochR2StoreClosureTests.AnImpossibleInputIsTheOnlyRouteToImpossible [1 ms]
+
+Test Run Successful.
+Total tests: 13
+     Passed: 13
+ Total time: 1.0756 Seconds

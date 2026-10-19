@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/BH4-rejection-6-defined/original	2026-10-19 05:33:44.179820421 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/WorkshopSimulation.cs	2026-10-19 05:33:44.183484736 +0800
+@@ -9,7 +9,7 @@
+ // Wire values are explicit. 6 was DeviceLost: the worker owns no device since the pure C# engine (Story 9.2b) and
+ // Story 9.4b deleted that path; 6 is undefined on the wire and rejects.
+ public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4,
+-    GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11,
++    GpuAdmission = 5, DeviceLost = 6, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11,
+     Capacity = 12, ReliableStalled = 13, Transport = 14 }
+ public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
+ public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,

@@ -1,0 +1,10 @@
+CONFIGURE_THROTTLE {"mode":"frames","rate":1,"results":[120,240,480]}
+✔ configure under CPU throttle 1x (frames) (13340.343542ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13599.8385

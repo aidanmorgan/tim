@@ -1,0 +1,3 @@
+/Users/aidan/dev/personal/tim/engine/gpu/WorkshopClockMapping.cs(370,23): error CS0103: The name 'WorkshopClockWire' does not exist in the current context [/Users/aidan/dev/personal/tim/tools/LifecycleContract/LifecycleContract.csproj]
+
+The build failed. Fix the build errors and run again.

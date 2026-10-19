@@ -1,0 +1,14 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.40]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.79]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.91]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.00]   Finished:    CuriousContraptions.tests (ID = '83a79923b38201570242b8296074738536887e4f8fe96addaf8bb927706a49c0')
+  Passed CuriousContraptions.Tests.MurdochR3RenewalTests.ANarrowRenewingExchangeAtTheMovedOffsetRecalibrates [21 ms]
+  Passed CuriousContraptions.Tests.MurdochR3RenewalTests.AWideRenewingExchangeAbsorbsAGenuineSixtyMillisecondMoveWithoutRecalibrationOrReseed [4 ms]
+
+Test Run Successful.
+Total tests: 2
+     Passed: 2
+ Total time: 1.2529 Seconds

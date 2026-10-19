@@ -129,9 +129,21 @@ async function saved(driver: WorkshopDriver): Promise<Buffer> {
     return Buffer.from(value);
 }
 const authored = (bytes: Buffer) => authoredState(bytes);
+// Frame-settled: wall-clock sleeps raced the Godot frame when the page's main thread was slow (Story 9.4b).
 async function click(driver: WorkshopDriver, x: number, y: number) {
-    await driver.page.mouse.move(x,y); await driver.page.mouse.down(); await driver.page.waitForTimeout(70); await driver.page.mouse.up(); await driver.page.waitForTimeout(180);
+    await driver.clickAt(x,y);
 }
+// The settings panel and its dropdown have no DOM: wait for their rendered state at one pixel of the actual page.
+async function waitForPixel(driver: WorkshopDriver, x: number, y: number, want: (r: number, g: number, b: number) => boolean, what: string) {
+    for (const deadline=Date.now()+10000; Date.now()<deadline; await driver.page.waitForTimeout(50)) {
+        const png=PNG.sync.read(await driver.page.screenshot({clip:{x,y,width:1,height:1}}));
+        if (want(png.data[0],png.data[1],png.data[2])) return;
+    }
+    const shot='.anvil/battery-wait-failure.png';await driver.page.screenshot({path:shot});
+    throw new Error(`The UI never showed ${what} at (${x}, ${y}); page captured in ${shot}`);
+}
+const isSettingsField=(r:number,g:number,b:number)=>Math.abs(r-114)<16 && Math.abs(g-113)<16 && Math.abs(b-109)<16;
+const isDropdownPopup=(r:number,g:number,b:number)=>r<90 && g<90 && b<90;
 async function connect(driver: WorkshopDriver, existing: boolean, targetX = 720) {
     await driver.selectPartAt(920,510);
     await click(driver,130,existing ? 744 : 789);
@@ -269,14 +281,20 @@ test('Battery fans one finite source out to two existing Bumper stores', async (
     finally {await driver.close();}
 });
 
+// Story 9.4b root cause of "3600 !== 120": the Enabled dropdown's keyboard Home/Enter did not always close its popup, so
+// the Apply click landed on a popup item and the settings were never applied. Each step now waits for its rendered state,
+// the item is chosen by clicking it, and Apply is a command acknowledged by the Simulation.
 async function configure(driver:WorkshopDriver,capacity:number,power:number,fraction:number,enabled:boolean) {
     await driver.selectPartAt(920,510);await click(driver,130,744);
+    await waitForPixel(driver,190,586,isSettingsField,'the open Battery settings panel'); // field background, right of its text
     for(const [y,value] of [[586,capacity],[627,power],[668,fraction]]) {
         await click(driver,100,y);await driver.page.keyboard.press('Meta+A');
-        await driver.page.keyboard.type(String(value),{delay:60});await driver.page.keyboard.press('Enter');
+        await driver.page.keyboard.type(String(value),{delay:60});await driver.page.keyboard.press('Enter');await driver.settle();
     }
-    await click(driver,100,709);await driver.page.keyboard.press('Home');if(enabled)await driver.page.keyboard.press('ArrowDown');await driver.page.keyboard.press('Enter');
-    await click(driver,130,746);await driver.page.keyboard.press('Escape');
+    await click(driver,100,709);await waitForPixel(driver,200,770,isDropdownPopup,'the open Enabled dropdown');
+    await click(driver,100,enabled?764:737);
+    await waitForPixel(driver,200,770,(r,g,b)=>!isDropdownPopup(r,g,b),'the closed Enabled dropdown');
+    await driver.commitAt(130,746);await driver.page.keyboard.press('Escape');
 }
 async function indicatorPicture(driver:WorkshopDriver,name:string) {
     const image=await driver.page.screenshot({path:'.anvil/battery-'+name+'.png'});

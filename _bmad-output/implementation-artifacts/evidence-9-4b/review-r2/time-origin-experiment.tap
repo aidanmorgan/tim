@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: Murdoch experiment: worker timeOrigin agreement as a function of the creation gap
+ok 1 - Murdoch experiment: worker timeOrigin agreement as a function of the creation gap
+  ---
+  duration_ms: 65523.32125
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65770.844209

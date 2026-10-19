@@ -1,0 +1,13 @@
+ok  F1 exact acknowledgement (review run 1) -> false
+ok  retained read with NaN in base64 -> false
+ok  trace chunk with NaN -> false
+ok  prose NaN (control) -> true
+ok  NaN after a valid envelope plus prose -> true
+ok  envelope name lowercase -> true
+ok  non-canonical base64 (length%4) -> true
+ok  two-line envelope -> true
+ok  warn-level envelope -> true
+ok  JSON telemetry with string NaN -> false
+ok  JSON telemetry with bare NaN (invalid JSON) -> true
+ok  error type always fails -> true
+mismatches 0

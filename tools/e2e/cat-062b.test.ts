@@ -161,7 +161,8 @@ async function construct(d: WorkshopDriver, route: Route) {
         const rx=savedFb.construction()!.instances(1)!;
         const rxPos: V=[(rx.cell()!.x()+rx.local()!.x())/16,(rx.cell()!.y()+rx.local()!.y())/16,(rx.cell()!.z()+rx.local()!.z())/16];
         assert.ok(rxPos.every((v,i)=>Math.abs(v-[-.7,.55,0][i])<1e-7));
-        assert.equal(rx.supportHeight(),0,'Precise Receiver guide is zero');
+        // The guide is the Receiver force region's maximum acceleration (pre-FlatBuffers save offset +140; cat-015b asserts the same field).
+        assert.equal(rx.maxAcceleration(),0,'Precise Receiver guide is zero');
         const b0=savedFb.construction()!.instances(0)!;
         const b0Pos: V=[(b0.cell()!.x()+b0.local()!.x())/16,(b0.cell()!.y()+b0.local()!.y())/16,(b0.cell()!.z()+b0.local()!.z())/16];
         assert.ok(b0Pos.every((v,i)=>Math.abs(v-[-3,3.6,0][i])<1e-7));
@@ -245,7 +246,12 @@ test('CAT062b Ready Receiver deletion and replacement rebind the saved capture g
     d.page.on('pageerror',e=>errors.push(String(e)));
     try{
         const original=await construct(d,Route.Ready);
-        const oldId=decodeSavedConstruction(original.bytes).construction()!.instances(2)!.id();
+        const originalFb=decodeSavedConstruction(original.bytes).construction()!;
+        const oldId=originalFb.instances(2)!.id();
+        // The captured ball is identified from the UI-built construction (its saved part identity), never assumed to be 1.
+        const ball=Array.from({length:originalFb.instancesLength()},(_,i)=>originalFb.instances(i)!).find(instance=>instance.partId()==='ball');
+        assert.ok(ball,'The Ready lesson construction holds its ball');const ballId=ball.id();
+        assert.equal(originalFb.puzzle()!.goalBody(),ballId,'Before replacement the captured ball is the goal body');
         await d.selectPartAt(837,598);await d.page.keyboard.press('Delete');await d.page.waitForTimeout(300);await d.save();
         assert.equal(decodeSavedConstruction(await saved(d)).construction()!.instancesLength(),2,'Receiver actually removed');
         await d.clickAt(130,155);await d.placeOnCanvas(837,598);await d.page.keyboard.press('Escape');await d.save();
@@ -254,7 +260,9 @@ test('CAT062b Ready Receiver deletion and replacement rebind the saved capture g
         const newId=replacementFb.construction()!.instances(2)!.id();
         assert.ok(newId>oldId,'Replacement owns a new authored identity');
         const expectedSensor=(1n<<32n)+256n+newId*256n+6n;
-        assert.equal(replacementFb.construction()!.puzzle()!.goalBody(),newId);
+        // A Captured goal declares Body = ball and Target = Receiver (SpringboardLessons.WithReceiver); the replacement rebinds the target.
+        assert.equal(replacementFb.construction()!.puzzle()!.goalBody(),ballId,'The captured ball stays the goal body');
+        assert.equal(replacementFb.construction()!.puzzle()!.goalTarget(),newId,'The replacement Receiver becomes the goal target');
         assert.equal(replacementFb.construction()!.puzzle()!.goalEventSource(),expectedSensor);
         await d.load();await d.save();assert.deepEqual(authoredState(await saved(d)),authoredState(replacementBytes));
         const initial=reads.at(-1)!;

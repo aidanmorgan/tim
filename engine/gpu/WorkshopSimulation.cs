@@ -6,7 +6,11 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopSimulationPhase { Uninitialized, Initializing, Building, Admitting, Starting, Running, Paused, Completed, Resetting, Faulted, Disposed }
 public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Cancelled }
-public enum WorkshopRejection { None, Busy, InvalidConstruction, WrongRevision, WrongPhase, GpuAdmission, DeviceLost, InvalidRead, IdentityExhausted, StaleGeneration, Cancelled, AlreadyCommitted, Capacity, ReliableStalled, Transport }
+// Wire values are explicit. 6 was DeviceLost: the worker owns no device since the pure C# engine (Story 9.2b) and
+// Story 9.4b deleted that path; 6 is undefined on the wire and rejects.
+public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, WrongRevision = 3, WrongPhase = 4,
+    GpuAdmission = 5, InvalidRead = 7, IdentityExhausted = 8, StaleGeneration = 9, Cancelled = 10, AlreadyCommitted = 11,
+    Capacity = 12, ReliableStalled = 13, Transport = 14 }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
     PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default);
@@ -342,13 +346,6 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Phase = WorkshopSimulationPhase.Completed;
         }
         finally { _pending--; }
-    }
-
-    public void DeviceLost()
-    {
-        if (_disposed) return;
-        Phase = WorkshopSimulationPhase.Faulted;
-        Fault = WorkshopRejection.DeviceLost;
     }
 
     public async ValueTask DisposeAsync()

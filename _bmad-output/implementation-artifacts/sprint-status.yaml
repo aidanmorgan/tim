@@ -59,7 +59,9 @@ development_status:
   5-2-domino-cascade-orientation-threshold-sensor: done
   epic-5-retrospective: optional
 
-  epic-6: done
+  # Retro-verification 18 Oct 2026 (_bmad-output/planning-artifacts/retro-verification-2026-10-18.md):
+  # invalid Passes reopened; weak Passes stay done and name their repair story (epics.md Epic 9R).
+  epic-6: in-progress
   6-1-bowling-ball-dynamic-sphere: done
   6-1b-engine-drag-application: done
   6-1c-f32-committed-velocity-precision: done
@@ -68,17 +70,29 @@ development_status:
   6-3-bumper-multi-angle-contacts: done
   6-4-prismatic-slider-tgs-soft-spring: done
   6-5-preload-energy-store-springboard-launch: done
-  6-5b-dynamic-part-discovery: done
-  6-5c-gltf-collider-extraction-and-port-locators: done
-  6-5d-existing-parts-balls-obstacles-gltf-conversion: done
-  6-5e-existing-parts-mechanisms-fixtures-gltf-conversion: done
-  6-5f-partart-partkind-legacy-purge: done
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-14, 9a-15)
+  6-5b-dynamic-part-discovery: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-16, 9a-17; .tscn owner amendment)
+  6-5c-gltf-collider-extraction-and-port-locators: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-11..9r-14 element suites and 9r-18 (with 9a-16)
+  6-5d-existing-parts-balls-obstacles-gltf-conversion: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-8, 9r-15..9r-17 element suites and 9r-18 (with 9a-16, 9a-17)
+  6-5e-existing-parts-mechanisms-fixtures-gltf-conversion: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-16, 9a-17, 9a-25, 9a-27..9a-43)
+  6-5f-partart-partkind-legacy-purge: in-progress
+  # weak Pass (retro-verification 18 Oct 2026); repair 9r-1-exact-run-reset-snapshot-assertions, re-verified in 9r-18
   6-6-straight-pipe-compound-cylinder: done
+  # weak Pass (retro-verification 18 Oct 2026); repair 9r-1-exact-run-reset-snapshot-assertions, re-verified in 9r-18
   6-7-hollow-sdf-torus-cap-clear-pipe: done
+  # weak Pass (retro-verification 18 Oct 2026); repair 9r-9-ball-detector-forward-pass-assertion, re-verified in 9r-18
   6-8-generic-aperture-sensor-directional-rearm: done
-  6-9-pipe-bend-45-hollow-torus-segment: done
-  6-9b-unbounded-collider-capacity: done
-  6-10-pipe-bend-90-joined-pipe-route: done
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and 9r-18
+  6-9-pipe-bend-45-hollow-torus-segment: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-2-collider-table-sized-at-run and 9r-18 (with 9a-1)
+  6-9b-unbounded-collider-capacity: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping, 9r-7-joined-pipe-level-playable and 9r-18
+  6-10-pipe-bend-90-joined-pipe-route: in-progress
+  # weak Pass (retro-verification 18 Oct 2026); repair 9r-6-typed-mouth-snapping, re-verified in 9r-18
   6-11-funnel-hollow-frustum-inlet: done
   epic-6-retrospective: optional
 
@@ -98,19 +112,57 @@ development_status:
   7-4-legacy-cpu-physics-unshipped-engine-purge: done
   epic-7-retrospective: optional
 
-  epic-8: done
-  8-1-battery-dc-power-source-network-graph: done
+  epic-8: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9-4b; Motor clause awaits owner case review)
+  8-1-battery-dc-power-source-network-graph: in-progress
+  # weak Pass (retro-verification 18 Oct 2026); repair 9r-3-direct-gate-own-supply-route, re-verified in 9r-18
   8-2-powered-gate-passageway-barrier: done
   epic-8-retrospective: optional
 
   epic-9: in-progress
-  9-1-pressure-plate-surface-contact-load-sensor: done
-  9-2-pulse-counter-event-accumulator: done
-  9-2b-modular-element-isolation-and-wasm-solver-consolidation: done
-  9-3-system-clock-periodic-pulse-generator: done
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-4, 9r-5 and 9r-18
+  9-1-pressure-plate-surface-contact-load-sensor: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-1 and 9r-18 (with 9a-2)
+  9-2-pulse-counter-event-accumulator: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-0 and Epic 9A)
+  9-2b-modular-element-isolation-and-wasm-solver-consolidation: in-progress
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-10-system-clock-pause-reset-chrome-proof and 9r-18
+  9-3-system-clock-periodic-pulse-generator: in-progress
   9-4-state-latch-bistable-memory: done
   # Coordinator 18 Oct 2026: pre-existing cumulative Chrome failures found during 9.4 (see spec-9-4 item 3).
-  9-4b-cumulative-chrome-regression-repair: backlog
+  9-4b-cumulative-chrome-regression-repair: done
+
+  # Coordinator decision under owner delegation 18 Oct 2026 (epics.md Open scheduling item i): Epic 9R,
+  # retro-verification repair, runs after 9-4b and before 9-4c. Keys in delivery order.
+  # Evidence: _bmad-output/planning-artifacts/retro-verification-2026-10-18.md
+  epic-9r: backlog
+  # owner report 19 Oct 2026 (Balloon crash): runs first in 9R, right after 9-4b
+  9r-0c-undelivered-parts-leave-palette: backlog
+  9r-0-csharp-static-analysis-gate: backlog
+  # owner 19 Oct 2026: tiered verification + parallel Chrome for non-timing suites
+  9r-0a-tiered-parallel-e2e-runner: backlog
+  # coordinator 18 Oct 2026: workers are not AOT-compiled (interpreted), so AGENTS.md wasm-simd128 is unmet
+  9r-0b-aot-compiled-wasm-simd-workers: backlog
+  9r-1-exact-run-reset-snapshot-assertions: backlog
+  9r-2-collider-table-sized-at-run: backlog
+  9r-3-direct-gate-own-supply-route: backlog
+  9r-4-pressure-plate-per-instance-load-rows: backlog
+  9r-5-pressure-plate-activation-out-level: backlog
+  9r-6-typed-mouth-snapping: backlog
+  9r-7-joined-pipe-level-playable: backlog
+  9r-8-spring-forward-lesson-chrome-proof: backlog
+  9r-9-ball-detector-forward-pass-assertion: backlog
+  9r-10-system-clock-pause-reset-chrome-proof: backlog
+  9r-11-cat-001-basketball-suite: backlog
+  9r-12-cat-004-receiver-suite: backlog
+  9r-13-cat-054-ramp-suite: backlog
+  9r-14-cat-066-wall-suite: backlog
+  9r-15-cat-063-impact-switch-suite: backlog
+  9r-16-cat-035-signal-lamp-suite: backlog
+  9r-17-cat-022-delay-box-suite: backlog
+  9r-18-retro-reverification-review-addenda: backlog
+  epic-9r-retrospective: optional
+
   # Coordinator 18 Oct 2026 (review-9-4 D1): latch-dependent deferred integrations CAT-005 N19 and
   # CAT-051 supply interruption mid-stroke.
   9-4c-latch-fixture-deferred-integrations: backlog
@@ -227,6 +279,8 @@ development_status:
   epic-14-retrospective: optional
 
   epic-15: backlog
+  # Owner decision 18 Oct 2026: physical placement nudging scheduled before the campaign (closes 6.9/6.10 assistance clauses).
+  15-0-physical-placement-nudging-difficulty-assistance: backlog
   15-1-campaign-chapter-1-levels-1-10: backlog
   15-2-campaign-chapter-1-levels-11-20: backlog
   15-3-campaign-chapter-1-levels-21-30: backlog

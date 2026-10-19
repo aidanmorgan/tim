@@ -1,0 +1,3 @@
+CuriousContraptions.Tests.MurdochR4RenewalTests.R4_3_AfterALongStallANarrowExchangeConfirmsAMoveLargerThanTheMappedWidth(resumed: 10070000000, move: 4000000)
+CuriousContraptions.Tests.MurdochR4RenewalTests.R4_3_AfterALongStallANarrowExchangeConfirmsAMoveLargerThanTheMappedWidth(resumed: 120070000000, move: 50000000)
+CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalBoundaryIsExactlyTheDriftWidenedOverlap(beyond: 0, renewed: True)

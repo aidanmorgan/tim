@@ -102,6 +102,162 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal(ball.Id, decoded.Construction!.Value.Instances[0].Id);
     }
 
+    private static byte[] EncodeConstruction(WorkshopConstruction construction)
+    {
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
+        builder.Finish(WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction).Value);
+        return builder.SizedByteArray();
+    }
+
+    private static WorkshopConstruction DecodeConstruction(byte[] bytes) =>
+        WorkshopWireFlatBuffers.DecodeConstructionRecord(
+            CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(new Google.FlatBuffers.ByteBuffer(bytes)));
+
+    /// <summary>One instance of every encodable kind, each with non-default declared settings where it has any.</summary>
+    public static TheoryData<IWorkshopInstance> EveryInstanceKind() => new()
+    {
+        WorkshopInput.Basketball(new(1), -1.25, 3.5, .5, 0, 0, 0, 1) with { Locked = true },
+        WorkshopInput.Ball(PartId.BowlingBall, new(1), 2, 1, -.5, 0, .7071068, 0, .7071068),
+        WorkshopInput.Receiver(new(1), -.7, .55, 0, 0, 0, 0, 1) with
+            { Capture = new(new((Half).05), new((Half)2.25), new((Half).24), SensorParticipation.Enabled) },
+        WorkshopInput.Ramp(new(1), 1, 2, 0, 0, 0, .258819, .9659258, new(new((Half)4), new((Half)1.5))),
+        WorkshopInput.Wall(new(1), -1, 4, 0, 0, 0, 0, 1, new(new((Half).4), new((Half)6), new((Half)1.5))),
+        WorkshopInput.Switch(new(1), 0, 1, 0, 0, 0, 0, 1, new(new((Half)1.25))),
+        WorkshopInput.Delay(new(1), 0, 1, 0, 0, 0, 0, 1, new(new((Half)2.5))),
+        WorkshopInput.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, new SpringboardSettings(400f, .2f, .2f)),
+        WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, new(new(60f), new(30f), .5f, ElectricalEnable.Disabled)),
+        WorkshopInput.Bumper(new(1), 0, 1, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(6f)),
+        WorkshopInput.Domino(new(1), .1, .09, 0, 0, 0, 0, 1),
+        WorkshopInput.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Latch(new(1), 0, 1, 0, 0, 0, 0, 1, locked: true),
+        WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.PipeBend45(new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.PipeBend90(new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Funnel(new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 1, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(PartId.PoweredGate)),
+        WorkshopInput.BallDetector(new(1), 0, 1, 0, 0, 0, 0, 1),
+        WorkshopInput.PressurePlate(new(1), 0, 1, 0, 0, 0, 0, 1, minimumMass: 2.25f),
+        WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, targetCount: 7),
+        WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
+    };
+
+    // Story 9.4b: every encoded instance field survives the decoder. Re-encoding the decoded construction reproduces the
+    // exact bytes, so a field the decoder dropped, defaulted or re-derived would differ.
+    [Theory]
+    [MemberData(nameof(EveryInstanceKind))]
+    public void Construction_EveryInstanceKind_RoundTripsEveryEncodedField(IWorkshopInstance instance)
+    {
+        var construction = new WorkshopConstruction(new(3), WorkshopCadenceSettings.Default(), new([instance]));
+        var bytes = EncodeConstruction(construction);
+        var decoded = DecodeConstruction(bytes);
+        Assert.Equal(bytes, EncodeConstruction(decoded));
+        var actual = Assert.Single(decoded.Instances);
+        Assert.Equal(instance.GetType(), actual.GetType());
+        Assert.Equal(instance.PartId, actual.PartId);
+        if (instance is not IWorkshopDeclaredColliders) Assert.Equal(instance, actual);
+    }
+
+    public static TheoryData<WorkshopGoalKind> EveryNamedGoalKind() => [.. Enum.GetValues<WorkshopGoalKind>()];
+
+    // Story 9.4b: every declared goal kind keeps each goal field through the save codec.
+    [Theory]
+    [MemberData(nameof(EveryNamedGoalKind))]
+    public void Construction_EveryGoalKind_RoundTripsEveryGoalField(WorkshopGoalKind kind)
+    {
+        var construction = kind switch
+        {
+            WorkshopGoalKind.Captured => SpringboardLessons.Create(WorkshopPuzzleId.SpringForward, new(1),
+                WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new((Half)1)),
+            WorkshopGoalKind.ActivatedAfter => DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(),
+                new(1), new(2), new(3), new((Half).5)),
+            WorkshopGoalKind.None => new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+                new([WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1)])),
+            _ => throw new ArgumentOutOfRangeException(nameof(kind))
+        };
+        Assert.Equal(kind, construction.Puzzle.Goal.Kind);
+        var bytes = EncodeConstruction(construction);
+        var decoded = DecodeConstruction(bytes);
+        Assert.Equal(construction.Puzzle.Goal, decoded.Puzzle.Goal);
+        Assert.Equal(construction.Puzzle.Id, decoded.Puzzle.Id);
+        Assert.Equal(bytes, EncodeConstruction(decoded));
+    }
+
+    public enum DeclaredSetting { PressurePlateMinimumMass, CounterTargetCount, ClockIntervalSeconds }
+
+    private static PartId Owner(DeclaredSetting setting) => setting switch
+    {
+        DeclaredSetting.PressurePlateMinimumMass => PartId.PressurePlate,
+        DeclaredSetting.CounterTargetCount => PartId.Counter,
+        DeclaredSetting.ClockIntervalSeconds => PartId.Clock,
+        _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "Unknown declared setting."),
+    };
+
+    // Story 9.4b: a missing, zero, non-integral or out-of-range declared setting is rejected, never replaced by a default
+    // (AGENTS.md: no fallback), and the rejection names the instance and the field. Admitted values decode (positive controls).
+    [Theory]
+    [InlineData(DeclaredSetting.PressurePlateMinimumMass, .5f, null)]
+    [InlineData(DeclaredSetting.CounterTargetCount, 3f, null)]
+    [InlineData(DeclaredSetting.ClockIntervalSeconds, 1f, null)]
+    [InlineData(DeclaredSetting.PressurePlateMinimumMass, 0f, "Pressure plate 1 minimum mass '0'")]
+    [InlineData(DeclaredSetting.PressurePlateMinimumMass, float.NaN, "Pressure plate 1 minimum mass 'NaN'")]
+    [InlineData(DeclaredSetting.CounterTargetCount, 0f, "Counter 1 target count '0'")]
+    [InlineData(DeclaredSetting.CounterTargetCount, 2.5f, "Counter 1 target count '2.5' must be a whole number")]
+    [InlineData(DeclaredSetting.CounterTargetCount, 2147483648f, "Counter 1 target count '2.1474836E+09' must be a whole number within Int32")]
+    [InlineData(DeclaredSetting.ClockIntervalSeconds, 0f, "Clock 1 interval seconds '0'")]
+    public void Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(DeclaredSetting setting, float threshold, string? rejection)
+    {
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var part = builder.CreateString(Owner(setting).Value); // the record's part identity is a string at the wire boundary
+        CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+        CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
+        CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, part);
+        CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 16, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+        CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, threshold);
+        var instance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+        var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
+        var settings = WorkshopCadenceSettings.Default();
+        CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
+        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
+            builder, (uint)WorkshopSettingsVersion.SharedMaster, (uint)settings.Simulation, (uint)settings.Physical,
+            (uint)settings.Animation, (uint)settings.Presentation, settings.PresentationRate.Numerator, settings.PresentationRate.Denominator));
+        CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
+        builder.Finish(CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder).Value);
+        var bytes = builder.SizedByteArray();
+        if (rejection is null)
+        {
+            Assert.Equal(Owner(setting), Assert.Single(DecodeConstruction(bytes).Instances).PartId);
+            return;
+        }
+        Assert.Contains(rejection, Assert.Throws<ArgumentException>(() => DecodeConstruction(bytes)).Message);
+    }
+
+    // Story 9.4b (review-9-4 F8): a Captured goal is declared (Body = captured ball, Target = goal Receiver, EventSource =
+    // its capture sensor). The saved record keeps that declaration field for field, including after a replacement Receiver.
+    [Fact]
+    public void Construction_CapturedGoal_EncodesDeclaredBodyTargetAndSensor()
+    {
+        var lesson = SpringboardLessons.Create(WorkshopPuzzleId.ReadyToRebound, new(1), WorkshopCadenceSettings.Default(),
+            new(1), new(2), new(3), new((Half)1));
+        var replacement = WorkshopInput.Receiver(new(4), 2, .55, 0, 0, 0, 0, 1);
+        var construction = SpringboardLessons.WithReceiver(lesson, replacement);
+        var goal = construction.Puzzle.Goal;
+        Assert.Equal(new GpuBodyId(1), goal.Body);
+        Assert.Equal(new GpuBodyId(4), goal.Target);
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
+        builder.Finish(WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction).Value);
+        var record = CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
+            new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray()));
+        var puzzle = record.Puzzle!.Value;
+        Assert.Equal((uint)WorkshopGoalKind.Captured, puzzle.GoalKind);
+        Assert.Equal(1UL, puzzle.GoalBody);
+        Assert.Equal(4UL, puzzle.GoalTarget);
+        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor(construction.Receiver!.Value).Value, puzzle.GoalEventSource);
+        Assert.Equal(goal, WorkshopWireFlatBuffers.DecodeConstructionRecord(record).Puzzle.Goal);
+    }
+
     [Fact]
     public void Command_InvalidInputs_Throw()
     {
@@ -115,6 +271,27 @@ public sealed class WorkshopWireFlatBuffersTests
                 Session: Session, Cadence: new(1), Settings: WorkshopCadenceSettings.Default())));
         // Decode corrupt bytes
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeCommand(new byte[16]));
+    }
+
+    // Blind hunter 4 (Story 9.4b final round): the retired DeviceLost rejection (6) is undefined on the FlatBuffers
+    // response too, so a response carrying it rejects; its neighbours remain admitted.
+    [Theory]
+    [InlineData((byte)5, true)]
+    [InlineData((byte)6, false)]
+    [InlineData((byte)7, true)]
+    public void Response_RetiredDeviceLossRejectionIsUndefined(byte reason, bool admitted)
+    {
+        // The encoder refuses an undefined reason, so the wire byte is found by encoding the defined neighbours 5 and 7.
+        byte[] Encoded(WorkshopRejection rejection) => WorkshopWireFlatBuffers.EncodeResponse(new WorkshopResponse(new(10),
+            WorkshopResponseKind.Acknowledgement, new(WorkshopCommandOutcome.Rejected, rejection), WorkshopSimulationPhase.Building,
+            default, Session: Session));
+        var five = Encoded(WorkshopRejection.GpuAdmission);
+        var seven = Encoded(WorkshopRejection.InvalidRead);
+        var at = Assert.Single(Enumerable.Range(0, five.Length), index => five[index] != seven[index]);
+        Assert.Throws<ArgumentException>(() => Encoded((WorkshopRejection)6));
+        five[at] = reason;
+        if (admitted) Assert.Equal((WorkshopRejection)reason, WorkshopWireFlatBuffers.DecodeResponse(five).Result.Reason);
+        else Assert.Contains("discriminant", Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(five)).Message);
     }
 
     [Fact]

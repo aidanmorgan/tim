@@ -23,7 +23,7 @@ public static class CurrentOwnerMembership
             var count = 0;
             foreach (var line in document.Split('\n'))
             {
-                if (!Regex.IsMatch(line, @"^#{2,3} (?:(?:P0|CAT|LAW|ENGINE|OPT|LEVEL|ANIM|MOBILE)-|S[0-9])")) continue;
+                if (!Regex.IsMatch(line, @"^#{2,3} (?:(?:P0|CAT|LAW|ENGINE|OPT|LEVEL|ANIM|MOBILE|LEGACY)-|S[0-9])")) continue;
                 var heading = Regex.Match(line, @"^#{2,3} ([^\s]+)(?:\s|$)");
                 if (!heading.Success) throw new InvalidDataException("Malformed current owner heading.");
                 owners.Add(Identity(heading.Groups[1].Value));
@@ -93,8 +93,10 @@ public static class CurrentOwnerMembership
 
     private static WorkId Identity(string value)
     {
-        if (!Regex.IsMatch(value, @"\A(?:P0-[0-9]{3}|S[0-9]{3}(?:-[A-Z]+)?|CAT-[0-9]{3}-[A-Z]+|LAW-[A-Z]+-[A-Z]+|ENGINE-[A-Z0-9]+(?:-[A-Z0-9]+)*|OPT-[A-Z]+(?:-[A-Z]+)*|ANIM-[0-9]+|MOBILE-[0-9]{2}|LEVEL-[0-9]{3}|FIX-[0-9]{3}-[0-9]{3})\z"))
-            throw new InvalidDataException("Invalid current owner identity.");
+        // Roadmap slice owners (ENGINE, ANIM, LEGACY) may carry one lowercase sub-slice letter with an optional
+        // ordinal, exactly as the ordered roadmap names them (ENGINE-CORE-2d, ENGINE-CORE-2a1, ANIM-1a, LEGACY-0a).
+        if (!Regex.IsMatch(value, @"\A(?:P0-[0-9]{3}|S[0-9]{3}(?:-[A-Z]+)?|CAT-[0-9]{3}-[A-Z]+|LAW-[A-Z]+-[A-Z]+|ENGINE-[A-Z0-9]+(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?|OPT-[A-Z]+(?:-[A-Z]+)*|ANIM-[0-9]+(?:[a-z][0-9]*)?|LEGACY-[0-9]+(?:[a-z][0-9]*)?|MOBILE-[0-9]{2}|LEVEL-[0-9]{3}|FIX-[0-9]{3}-[0-9]{3})\z"))
+            throw new InvalidDataException($"Invalid current owner identity '{value}'.");
         return new(value);
     }
 }

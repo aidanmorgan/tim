@@ -1,0 +1,177 @@
+Build succeeded.
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.54]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [103 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 599)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 719
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.59]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [FAIL]
+[xUnit.net 00:00:01.69]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [FAIL]
+[xUnit.net 00:00:01.72]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [6 ms]
+  Error Message:
+   relative rolling zeroed (0.19266646 vs -0.107333586)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 751
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [24 ms]
+  Error Message:
+   Bowling decelerates 0.019575894 m/s² vs 0.22984147
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 635
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [23 ms]
+  Error Message:
+   Basketball decelerates 0.019575596 m/s² vs 0.26492035
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 635
+   at InvokeStub_WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.78]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest [FAIL]
+[xUnit.net 00:00:01.81]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [FAIL]
+[xUnit.net 00:00:01.86]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest [24 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 599)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 688
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [6 ms]
+  Error Message:
+   Assert.DoesNotMatch() Failure: Match found
+                                     ↓ (pos 46501)
+String: ···"&& MathF.Abs(c.ColA.Ty - 0.03f) < 0.01f && c.B.Mot"···
+RegEx:  "3\\.5f? \\* |2\\.5f? / |(\\|\\||\\?\\?) 0?\\.(34|75|1|3)f?"···
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 512
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (4094.7201000000005 - 4096)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 864
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.87]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [FAIL]
+[xUnit.net 00:00:01.90]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [FAIL]
+[xUnit.net 00:00:01.92]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [5 ms]
+  Error Message:
+   tick 14: spin rises to 58.808326721191406 from 58.80832290649414
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 813
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [21 ms]
+  Error Message:
+   Bowling 60 Hz comes to rest
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 662
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [20 ms]
+  Error Message:
+   Basketball 60 Hz comes to rest
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 662
+   at InvokeStub_WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.08]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [FAIL]
+[xUnit.net 00:00:02.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [FAIL]
+[xUnit.net 00:00:02.17]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [93 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (1 - 4200)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 785
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [23 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 599)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 705
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [57 ms]
+  Error Message:
+   both rest by tick 720
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 770
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.71]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:02.74]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz120) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz60) [20 ms]
+  Error Message:
+   at rest from 6 s (max 0.8424649 m/s)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 353
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz120) [24 ms]
+  Error Message:
+   at rest from 6 s (max 0.8424698 m/s)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 353
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.76]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:02.79]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:02.82]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:02.85]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz120) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz60) [20 ms]
+  Error Message:
+   at rest from 6 s (max 0.8424698 m/s)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 353
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz240) [31 ms]
+  Error Message:
+   at rest from 6 s (max 0.8424649 m/s)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 353
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz240) [31 ms]
+  Error Message:
+   at rest from 6 s (max 0.8424698 m/s)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 353
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz120) [22 ms]
+  Error Message:
+   at rest from 6 s (max 0.8424649 m/s)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 353
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:03.81]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [213 ms]
+  Error Message:
+   Basketball stays below 0.02 m/s from 6 s
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 187
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    20, Passed:    92, Skipped:     0, Total:   112, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

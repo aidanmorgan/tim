@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/R5-06-budget-inherited-from-recovery/original	2026-10-19 15:41:18.996341265 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:41:19.000731821 +0800
+@@ -559,7 +559,6 @@
+     {
+         _renewalLapseAge = checked((long)((Int128)now.Value - NewestReceipt()));
+         State = ClockMappingState.Renewing;
+-        ClearRecovery();
+         _recoveryStarted = now.Value; // the renewal's budget runs from the lapse, as recovery's runs from its start
+     }
+ 

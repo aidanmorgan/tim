@@ -1,0 +1,111 @@
+MUTANT heartbeat disabled, served on :8061
+{"firstFailureMs":549,"failures":2,"recalibrations":0,"derivation":{"startup":{"attempts":17,"inconclusive":1,"unanswered":0},"checkReports":[],"summary":null}}
+✖ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (7464.485667ms)
+✖ A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running) (19935.453417ms)
+✖ A running wired chain survives a 20 ms duty cycle on the Animation worker (Running) (20276.122917ms)
+✖ A Simulation spin beyond the liveness bound faults the session as SimulationUnresponsive; a 600 ms block does not (6302.828541ms)
+✖ A skewed Simulation clock is slewed back under the same epoch; a large skew re-derives and requesters recalibrate (24272.003541ms)
+✖ H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit (20265.215ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 0
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98767.0375
+
+✖ failing tests:
+
+test at tools/e2e/clock-master.test.ts:2:3497
+✖ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (7464.485667ms)
+  AssertionError [ERR_ASSERTION]: No transport failure while the Simulation worker is busy
+  + actual - expected
+  
+  + [
+  +   "CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n" +
+  +     '    at checkSimulationLiveness (http://127.0.0.1:8',
+  +   "SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n" +
+  +     '    at checkSimulationLiveness (http://127.0.0.1:8061/workshop-client.js:376'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:98:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ "CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n    at checkSimulationLiveness (http://127.0.0.1:8", "SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n    at checkSimulationLiveness (http://127.0.0.1:8061/workshop-client.js:376" ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/clock-master.test.ts:2:5133
+✖ A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running) (19935.453417ms)
+  Error: placeOnCanvas(720, 485): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+      at WorkshopDriver.command (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:524:29)
+      at async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:545:9)
+      at async WorkshopDriver.placeOnCanvas (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:880:9)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:127:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/e2e/clock-master.test.ts:2:7046
+✖ A running wired chain survives a 20 ms duty cycle on the Animation worker (Running) (20276.122917ms)
+  Error: placeOnCanvas(459, 676): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+      at WorkshopDriver.command (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:524:29)
+      at async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:545:9)
+      at async WorkshopDriver.placeOnCanvas (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:880:9)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:165:80)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/e2e/clock-master.test.ts:2:9053
+✖ A Simulation spin beyond the liveness bound faults the session as SimulationUnresponsive; a 600 ms block does not (6302.828541ms)
+  AssertionError [ERR_ASSERTION]: a 600 ms Simulation block stays within the liveness bound
+  + actual - expected
+  
+  + [
+  +   "CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n" +
+  +     '    at checkSimulationLiveness (http://127.0.0.1:8',
+  +   "SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n" +
+  +     '    at checkSimulationLiveness (http://127.0.0.1:8061/workshop-client.js:376'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:206:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ "CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n    at checkSimulationLiveness (http://127.0.0.1:8", "SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n    at checkSimulationLiveness (http://127.0.0.1:8061/workshop-client.js:376" ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/clock-master.test.ts:2:11451
+✖ A skewed Simulation clock is slewed back under the same epoch; a large skew re-derives and requesters recalibrate (24272.003541ms)
+  AssertionError [ERR_ASSERTION]: a typed derivation summary arrives within 100 checks
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:255:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/clock-master.test.ts:2:14268
+✖ H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit (20265.215ms)
+  Error: placeOnCanvas(459, 676): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+      at WorkshopDriver.command (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:524:29)
+      at async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:545:9)
+      at async WorkshopDriver.placeOnCanvas (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:880:9)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:294:80)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+exit=1

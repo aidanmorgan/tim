@@ -1,0 +1,43 @@
+# Pre-freeze candidate-4 clock-master run (19 Oct 2026), before the one-renewal-per-lapse fix. Excerpt of lines 16-18 and 45-93
+# (test 7 verbatim; the control's long records abbreviated with "...") of the scratch TAP /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/c4-pre/clock-master-consecutive1.tap
+# (tests 1-6 ok; duty20 still recalibrated the Animation mapping, so its assertions hold under D23).
+# {"solved":1,"lit":true,"failures":0,"recalibrationRoles":[3],"deferrals":[{"cause":2,"causeName":"Recalibrating","count":"1"}]}
+# Subtest: A running wired chain survives a 20 ms duty cycle on the Animation worker (Running)
+ok 3 - A running wired chain survives a 20 ms duty cycle on the Animation worker (Running)
+# {"renewals":["CCGPU_CLOCK_RENEWED_LATE {\\"role\\":1,\\"count\\":\\"1\\",\\"lapseAge\\":\\"741680000\\",\\"renewedAt\\":\\"4865505000\\",\\"oldLower\\":\\"-3112532255\\",\\"oldUpper\\":\\"-3111137745\\",\\"newLower\\":\\"-3113460000\\",\\"newUpper\\":\\"-3111635000\\",\\"derivation\\":\\"0\\",\\"displayEpoch\\":\\"1\\"}","CCGPU_CLOCK_RENEWED_LATE {\\"role\\":1,\\"count\\":\\"2\\",\\"lapseAge\\":\\"741680000\\",\\"renewedAt\\":\\"4870715000\\",\\"oldLower\\":\\"-3112534860\\",\\"oldUpper\\":\\"-3111135140\\",\\"newLower\\":\\"-3112130000\\",\\"newUpper\\":\\"-3111655000\\",\\"derivation\\":\\"0\\",\\"displayEpoch\\":\\"1\\"}"],"recalibrations":0}
+# Session clock late renewals (reported, not a failure): 2; first: CCGPU_CLOCK_RENEWED_LATE {"role":1,"count":"1","lapseAge":"741680000","renewedAt":"4865505000","oldLower":"-3112532255","oldUpper":"-3111137745","newLower":"-3113460000","newUpper":"-3111635000","derivation":"0","displayEpoch":"1"}
+# Subtest: A 700 ms Browser stall after ready renews its mapping late: no recalibration; placement, Run/Reset and Save/Load are unaffected
+not ok 7 - A 700 ms Browser stall after ready renews its mapping late: no recalibration; placement, Run/Reset and Save/Load are unaffected
+  ---
+  duration_ms: 5491.87525
+  type: 'test'
+  location: '/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:2:17931'
+  failureType: 'testCodeFailure'
+  error: |-
+    exactly one late renewal, of the Browser mapping
+    + actual - expected
+
+      [
+        1,
+    +   1
+      ]
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 1
+  actual:
+    0: 1
+    1: 1
+  operator: 'deepStrictEqual'
+  ...
+# (control, abbreviated) CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":2,"causeName":"MappingLifetime","count":"1","stateBefore":6, ... "pending":null, ...}
+# Session close finding (after the suite): The session recalibrated a clock mapping 1 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":2,"causeName":"MappingLifetime","count":"1","stateBefore":6, ...
+# Subtest: The same stall with the Browser clock jumping 5 ms disagrees with the old mapping: one recalibration, and the driver fails the suite
+ok 8 - The same stall with the Browser clock jumping 5 ms disagrees with the old mapping: one recalibration, and the driver fails the suite
+1..8
+# tests 8
+# pass 7
+# fail 1
+# Reading: the first fresh exchange after the 700 ms block was 1.825 ms wide (newUpper - newLower), above the mapped-width
+# budget, so the mapping stayed Renewing, took a second exchange at once and renewed again (count 2, same lapse age).

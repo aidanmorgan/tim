@@ -1,0 +1,9 @@
+served at start: 39e56adc5361 b892a2112aa8 8af6087aa244 9fdea5f87546 1c348f7a332b abf390c35caa 27d8c3980970 699ae97cf52b 
+murdoch-clock-stress exit=0 # tests 28 # pass 28 # fail 0  notok=0
+murdoch-023b-save-load-cycles exit=0 # tests 3 # pass 3 # fail 0  notok=0
+murdoch-bumper-ledger exit=0 # tests 10 # pass 10 # fail 0  notok=0
+murdoch-replay-can-fail exit=0 # tests 1 # pass 1 # fail 0  notok=0
+cumulative run 1: files=33 nonzero=0
+cumulative run 2: files=33 nonzero=0
+served at end: 39e56adc5361 b892a2112aa8 8af6087aa244 9fdea5f87546 1c348f7a332b abf390c35caa 27d8c3980970 699ae97cf52b 
+DONE

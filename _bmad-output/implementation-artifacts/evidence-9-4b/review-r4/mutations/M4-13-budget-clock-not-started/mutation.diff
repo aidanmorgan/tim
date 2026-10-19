@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-13-budget-clock-not-started/original	2026-10-19 15:12:34.324963985 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:12:34.329457629 +0800
+@@ -551,7 +551,7 @@
+         _renewalLapseAge = checked((long)((Int128)now.Value - NewestReceipt()));
+         State = ClockMappingState.Renewing;
+         ClearRecovery();
+-        _recoveryStarted = now.Value; // the renewal's budget runs from the lapse, as recovery's runs from its start
++        // M4-13, as recovery's runs from its start
+     }
+ 
+     /// <summary>The old mapping at <paramref name="now"/>: its narrowest retained interval widened by the 500 ppm drift

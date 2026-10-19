@@ -1,0 +1,13 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/J2-E1-requested-slot-not-awaited/original	2026-10-19 05:35:27.936094168 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.web/wwwroot/clock-ring.js	2026-10-19 05:35:27.940111902 +0800
+@@ -221,10 +221,6 @@
+ export function qualifyDerivation(clock, now, timeoutMilliseconds, host) {
+     const state = stateIndex(ClockRole.Simulation);
+     while (!host.qualified()) {
+-        if (Atomics.load(clock.words, state) === SlotState.Requested) {
+-            if (Atomics.wait(clock.words, state, SlotState.Requested, timeoutMilliseconds) === 'timed-out') host.missed();
+-            continue; // served late: the next exchange consumes that answer unread and posts its own
+-        }
+         const exchange = deriveExchange(clock, now, timeoutMilliseconds);
+         if (exchange) host.qualify(exchange); else host.missed();
+     }

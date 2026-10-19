@@ -1,0 +1,6 @@
+{"session":0,"case":"block700AfterReady","recalibrations":[{"role":1,"causeName":"MappingLifetime","stateBefore":1,"pending":null,"recoverySends":0,"now":"2281285000"}]}
+{"session":0,"case":"block700AtDocumentStart","recalibrations":[]}
+{"session":1,"case":"block700AfterReady","recalibrations":[{"role":1,"causeName":"MappingLifetime","stateBefore":1,"pending":null,"recoverySends":0,"now":"2283315000"}]}
+{"session":1,"case":"block700AtDocumentStart","recalibrations":[]}
+{"session":2,"case":"block700AfterReady","recalibrations":[{"role":1,"causeName":"MappingLifetime","stateBefore":1,"pending":null,"recoverySends":0,"now":"2284160000"}]}
+{"session":2,"case":"block700AtDocumentStart","recalibrations":[]}

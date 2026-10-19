@@ -1,0 +1,10 @@
+{"immediate":{"value":0.396484375,"ordinal":"370"},"firstLit":{"value":0.00020372867584228516,"ordinal":"366"},"full":"376","rampOrdinals":10,"lit":true}
+✔ H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit (10302.498875ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10573.554208

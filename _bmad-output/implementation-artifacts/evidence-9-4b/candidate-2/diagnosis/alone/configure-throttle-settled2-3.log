@@ -1,0 +1,23 @@
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"8055037080205059733","sessionHigh":"8968666916377339275","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"65085000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"6734585000","recoveryStarted":"6479640000","recoverySends":6,"pending":null,"reply":null,"slotsBefore":[{"receipt":"6687250000","sequence":"41","lower":"-3133732520","upper":"-3082462529"},{"receipt":"6702780000","sequence":"42","lower":"-3095882393","upper":"-3081892402"},{"receipt":"6715570000","sequence":"43","lower":"-3094837432","upper":"-3082852441"},{"receipt":"6222865000","sequence":"36","lower":"-3096752549","upper":"-3082852559"},{"receipt":"6224315000","sequence":"37","lower":"-3083347568","upper":"-3082862578"},{"receipt":"6531360000","sequence":"38","lower":"-3101242422","upper":"-3082837549"},{"receipt":"6603190000","sequence":"39","lower":"-3137427402","upper":"-3081672412"},{"receipt":"6620810000","sequence":"40","lower":"-3098582559","upper":"-3081072568"}]}
+✖ configure under CPU throttle 8x (frames) (22730.405083ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22975.320125
+
+✖ failing tests:
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:1:2126
+✖ configure under CPU throttle 8x (frames) (22730.405083ms)
+  Error: commitAt(130, 746): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+      at WorkshopDriver.command (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:519:29)
+      at async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:540:9)
+      at async WorkshopDriver.commitAt (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:636:9)
+      at async configure (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:19:9)
+      at async TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:55:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

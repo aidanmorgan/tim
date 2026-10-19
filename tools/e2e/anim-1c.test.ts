@@ -61,7 +61,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Capture halo and goal label animate through declared bindings; Reset retires them and Save/Load re-animates', { timeout: 150000 }, async () => {

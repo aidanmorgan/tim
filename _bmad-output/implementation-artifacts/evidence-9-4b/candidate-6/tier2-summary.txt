@@ -1,0 +1,5 @@
+cat-017: exit=0 # tests 5 # pass 5 # fail 0 # cancelled 0 # skipped 0  closeFindings=0 transport=0 unresponsive=0 rejected=0 recal=0 renewedLate=0
+cat-023b: exit=0 # tests 4 # pass 4 # fail 0 # cancelled 0 # skipped 0  closeFindings=0 transport=0 unresponsive=0 rejected=0 recal=0 renewedLate=0
+engine-core-2b1: exit=0 # tests 1 # pass 1 # fail 0 # cancelled 0 # skipped 0  closeFindings=0 transport=0 unresponsive=0 rejected=0 recal=0 renewedLate=0
+engine-core-2a1: exit=0 # tests 5 # pass 5 # fail 0 # cancelled 0 # skipped 0  closeFindings=0 transport=0 unresponsive=0 rejected=0 recal=0 renewedLate=0
+murdoch-long-stall: exit=0 # tests 2 # pass 2 # fail 0 

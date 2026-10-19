@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/ratchet-growth-control-no-entry-placeholder/original	2026-10-19 01:07:59.764807408 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/CuriousContraptions.Simulation/WorkshopDynamicBvh.cs	2026-10-19 01:07:59.768633539 +0800
+@@ -17,6 +17,7 @@
+ 
+ public sealed class WorkshopDynamicBvh
+ {
++    internal static bool ReviewGrowthUnowned(SimBody b) => b.Drag > 0.3f;
+     private readonly List<BvhNode> _nodes = new(64);
+     private int _root = -1;
+ 

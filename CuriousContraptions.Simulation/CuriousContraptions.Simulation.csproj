@@ -33,7 +33,7 @@
     <TrimmerRootAssembly Include="$(AssemblyName)" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.FlatBuffers" Version="25.2.10" />
+    <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
   </ItemGroup>
   <!-- Return this project's actual trimmed publish bundle, never an assumed sibling output directory.
        The WebAssembly SDK writes the published bundle to $(OutputPath)AppBundle during Publish. -->

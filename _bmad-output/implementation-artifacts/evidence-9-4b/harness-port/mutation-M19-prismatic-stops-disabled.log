@@ -1,0 +1,182 @@
+Build succeeded.
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.85]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(compression: -0.100000001, initialSpeed: 0) [FAIL]
+[xUnit.net 00:00:00.86]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(compression: -0.239999995, initialSpeed: 0) [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(compression: -0.200000003, initialSpeed: -8) [FAIL]
+[xUnit.net 00:00:00.94]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 0) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(compression: -0.100000001, initialSpeed: 0) [40 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.00738716125
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass12_0.<PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 69
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(Single compression, Single initialSpeed) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 64
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(compression: -0.239999995, initialSpeed: 0) [1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.0177288055
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass12_0.<PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 69
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(Single compression, Single initialSpeed) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 64
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(compression: -0.200000003, initialSpeed: -8) [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: -0.272511005
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass12_0.<PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 69
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(Single compression, Single initialSpeed) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 64
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PrismaticRowsKeepZeroGravityRestAndDissipateAnUnchargedRelease(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 0) [2 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.0121864676
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass25_2.<PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames>b__3(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 393
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.97]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 2) [FAIL]
+[xUnit.net 00:00:00.97]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: True, miss: 2) [FAIL]
+[xUnit.net 00:00:00.97]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: False, miss: 0) [FAIL]
+[xUnit.net 00:00:00.98]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: False, miss: 0) [FAIL]
+[xUnit.net 00:00:01.00]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: True, miss: 0) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 2) [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.0147737656
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass25_2.<PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames>b__3(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 393
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: True, miss: 2) [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.0147744268
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass25_2.<PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames>b__3(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 393
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: False, miss: 0) [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.0147737656
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass25_2.<PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames>b__3(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 393
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: False, miss: 0) [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.0147744268
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass25_2.<PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames>b__3(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 393
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: True, miss: 0) [1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.0121096224
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass25_2.<PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames>b__3(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 393
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 389
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.05]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AGravityFedBallAndPlateContactRespectsCompletePassiveEnergy [FAIL]
+[xUnit.net 00:00:01.06]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AMovingTiltedPairPreservesReactionMomentumAndBoundedTotalEnergy [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AGravityFedBallAndPlateContactRespectsCompletePassiveEnergy [10 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (4.74900007 - 5.00099993)
+Actual: 5.00843954
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass17_0.<AGravityFedBallAndPlateContactRespectsCompletePassiveEnergy>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 183
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AGravityFedBallAndPlateContactRespectsCompletePassiveEnergy() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 179
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AMovingTiltedPairPreservesReactionMomentumAndBoundedTotalEnergy [3 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.250999987 - 0.00100000005)
+Actual: 0.00101387443
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.<>c__DisplayClass14_0.<AMovingTiltedPairPreservesReactionMomentumAndBoundedTotalEnergy>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 104
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AMovingTiltedPairPreservesReactionMomentumAndBoundedTotalEnergy() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 100
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.30]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(offset: -0.5, captures: True) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(offset: -0.5, captures: True) [93 ms]
+  Error Message:
+   offset -0.5 m capture expected True, first capture tick 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(Double offset, Boolean captures) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 303
+   at InvokeStub_WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:03.23]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [FAIL]
+[xUnit.net 00:00:03.28]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [4 ms]
+  Error Message:
+   Assert.DoesNotMatch() Failure: Match found
+                                     ↓ (pos 46501)
+String: ···"&& MathF.Abs(c.ColA.Ty - 0.03f) < 0.01f && c.B.Mot"···
+RegEx:  "3\\.5f? \\* |2\\.5f? / |(\\|\\||\\?\\?) 0?\\.(34|75|1|3)f?"···
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 512
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (4094.7201000000005 - 4096)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 864
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.29]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [5 ms]
+  Error Message:
+   tick 5: spin rises to 58.80833053588867 from 58.808326721191406
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 813
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.55]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [77 ms]
+  Error Message:
+   tick 1: 4.9991665 m/s (previous 5), spin 14.702081680297852 rad/s (previous 14.702081680297852)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 789
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    16, Passed:    96, Skipped:     0, Total:   112, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,24 @@
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"17912592012389964377","sessionHigh":"5425942871342468519","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"66740000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"5276500000","recoveryStarted":"5017675000","recoverySends":5,"pending":null,"reply":null,"slotsBefore":[{"receipt":"5027570000","sequence":"17","lower":"-3102970107","upper":"-3100180117"},{"receipt":"5043665000","sequence":"18","lower":"-3101840010","upper":"-3100180010"},{"receipt":"5193095000","sequence":"19","lower":"-3103235098","upper":"-3098699990"},{"receipt":"5227100000","sequence":"20","lower":"-3103795029","upper":"-3100159912"},{"receipt":"5244410000","sequence":"21","lower":"-3101945117","upper":"-3098765127"},{"receipt":"4457655000","sequence":"14","lower":"-3100739922","upper":"-3100174951"},{"receipt":"4744040000","sequence":"15","lower":"-3102215010","upper":"-3100175137"},{"receipt":"4759540000","sequence":"16","lower":"-3100765059","upper":"-3100090068"}]}
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":1,"causeName":"ProbeLimit","count":"2","stateBefore":5,"sessionLow":"17912592012389964377","sessionHigh":"5425942871342468519","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"66740000","derivation":"0","uncertainty":"100000","displayEpoch":"2","now":"7609275000","recoveryStarted":"7491325000","recoverySends":8,"pending":null,"reply":{"probe":{"sessionLow":"17912592012389964377","sessionHigh":"5425942871342468519","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"62","sent":"7607245000"},"masterReceived":"4506875088","masterSent":"4506889980","requesterReceived":"7609275000"},"slotsBefore":[{"receipt":"7609275000","sequence":"62","lower":"-3102585020","upper":"-3100169912"},{"receipt":"7494065000","sequence":"55","lower":"-3103280049","upper":"-3100154941"},{"receipt":"7510905000","sequence":"56","lower":"-3102835137","upper":"-3100174902"},{"receipt":"7525295000","sequence":"57","lower":"-3102570107","upper":"-3100185117"},{"receipt":"7540735000","sequence":"58","lower":"-3102069922","upper":"-3100170049"},{"receipt":"7558010000","sequence":"59","lower":"-3101084912","upper":"-3098934922"},{"receipt":"7575195000","sequence":"60","lower":"-3102579971","upper":"-3099774980"},{"receipt":"7593420000","sequence":"61","lower":"-3102679971","upper":"-3100154980"}]}
+✖ configure under CPU throttle 8x (frames) (22822.867042ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23067.773458
+
+✖ failing tests:
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:1:2126
+✖ configure under CPU throttle 8x (frames) (22822.867042ms)
+  Error: commitAt(130, 746): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+      at WorkshopDriver.command (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:519:29)
+      at async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:540:9)
+      at async WorkshopDriver.commitAt (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:636:9)
+      at async configure (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:19:9)
+      at async TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:55:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

@@ -1,0 +1,5 @@
+# BH1: literal ABI offsets at the sites the blind hunter named (Story 9.4b candidate 3), rerun after the last replacement. Empty sections mean none remain.
+## PhysicsGpuAbi*.cs header body count / source ordinal: R32(data,12|88)
+## PhysicsGpuAbi*.cs body and contact-work record literals: Rotation(record,104|16), Principal(record,12x/13x), Cell/Local/Rotation(record,16|32|48), contact-work RF/RH/R32 16/20/24/26/32, record[30|31], offset+36
+## WorkshopPhysicsEngine.cs: oOffset+20/26/30/31, wOffset+16/20, world span Slice(88|12, 4), orientation rotation +16..+28, body cell +16/+20
+## Out of scope (other record types without named constants, not named by the finding): electrical-source fields RF(record,16|20|24) in PhysicsGpuAbi.Electrical.cs, the trigger record at PhysicsGpuAbi.cs:292, prismatic record R32(record,88).

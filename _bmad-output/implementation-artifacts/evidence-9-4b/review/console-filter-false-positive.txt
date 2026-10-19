@@ -1,0 +1,2 @@
+$ node -e (isWorkshopConsoleFailure on the exact cumulative-run-1 acknowledgement line)
+{"length":542,"nanAt":93,"context":"AYAAAANhNaN0CAAAAoI","isFailure":true,"control":false}

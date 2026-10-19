@@ -78,7 +78,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Free workshop placement: place powered gate, tilt -15 deg, and place basketball upstream', { timeout: 150000 }, async () => {

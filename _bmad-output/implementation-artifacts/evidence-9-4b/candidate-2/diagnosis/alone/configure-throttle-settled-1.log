@@ -1,0 +1,23 @@
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"15826426504590168475","sessionHigh":"14093135958029583925","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"65495000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"5773095000","recoveryStarted":"5512150000","recoverySends":4,"pending":{"sessionLow":"15826426504590168475","sessionHigh":"14093135958029583925","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"24","sent":"5602835000"},"reply":null,"slotsBefore":[{"receipt":"5062585000","sequence":"17","lower":"-3108374976","upper":"-3095480103"},{"receipt":"5099585000","sequence":"18","lower":"-3109600073","upper":"-3095459956"},{"receipt":"5252810000","sequence":"19","lower":"-3107395142","upper":"-3092549907"},{"receipt":"5255795000","sequence":"20","lower":"-3096755142","upper":"-3095490024"},{"receipt":"5536975000","sequence":"21","lower":"-3108075034","upper":"-3094309917"},{"receipt":"5538905000","sequence":"22","lower":"-3096944976","upper":"-3094699985"},{"receipt":"5553295000","sequence":"23","lower":"-3097209976","upper":"-3095485103"},{"receipt":"4753720000","sequence":"16","lower":"-3095969937","upper":"-3095479946"}]}
+✖ configure under CPU throttle 8x (frames) (22709.654417ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22973.438917
+
+✖ failing tests:
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:1:2126
+✖ configure under CPU throttle 8x (frames) (22709.654417ms)
+  Error: commitAt(130, 746): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+      at WorkshopDriver.command (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:519:29)
+      at async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:540:9)
+      at async WorkshopDriver.commitAt (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:636:9)
+      at async configure (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:19:9)
+      at async TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:55:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

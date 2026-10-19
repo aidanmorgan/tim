@@ -1,0 +1,27 @@
+TAP version 13
+# {"renewals":["CCGPU_CLOCK_RENEWED_LATE {\\"role\\":1,\\"count\\":\\"1\\",\\"lapseAge\\":\\"736435000\\",\\"exchanges\\":2,\\"renewedAt\\":\\"4803860000\\",\\"oldLower\\":\\"-3051844995\\",\\"oldUpper\\":\\"-3050620005\\",\\"newLower\\":\\"-3051470000\\",\\"newUpper\\":\\"-3051010000\\",\\"derivation\\":\\"0\\",\\"displayEpoch\\":\\"1\\"}"],"recalibrations":0}
+# Session clock late renewals (reported, not a failure): 1; first: CCGPU_CLOCK_RENEWED_LATE {"role":1,"count":"1","lapseAge":"736435000","exchanges":2,"renewedAt":"4803860000","oldLower":"-3051844995","oldUpper":"-3050620005","newLower":"-3051470000","newUpper":"-3051010000","derivation":"0","displayEpoch":"1"}
+# Subtest: A 700 ms Browser stall after ready renews its mapping late: no recalibration; placement, Run/Reset and Save/Load are unaffected
+ok 1 - A 700 ms Browser stall after ready renews its mapping late: no recalibration; placement, Run/Reset and Save/Load are unaffected
+  ---
+  duration_ms: 10566.083417
+  type: 'test'
+  ...
+# CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":2,"causeName":"MappingLifetime","count":"1","stateBefore":6,"sessionLow":"16188595318561248863","sessionHigh":"12055166611091586046","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"69335000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"4849345000","recoveryStarted":"4839245000","recoverySends":2,"pending":null,"reply":{"probe":{"sessionLow":"16188595318561248863","sessionHigh":"12055166611091586046","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"13","sent":"4849250000"},"masterReceived":"1792565000","masterSent":"1792575000","requesterReceived":"4849345000"},"slotsBefore":[{"receipt":"3543400000","sequence":"9","lower":"-3051960000","upper":"-3051420000"},{"receipt":"3793735000","sequence":"10","lower":"-3051955000","upper":"-3051405000"},{"receipt":"4044350000","sequence":"11","lower":"-3051955000","upper":"-3051460000"},{"receipt":"3214060000","sequence":"4","lower":"-3053270000","upper":"-3051455000"},{"receipt":"3223225000","sequence":"5","lower":"-3051965000","upper":"-3051465000"},{"receipt":"3242995000","sequence":"6","lower":"-3051965000","upper":"-3051455000"},{"receipt":"3264480000","sequence":"7","lower":"-3052005000","upper":"-3051455000"},{"receipt":"3283395000","sequence":"8","lower":"-3051970000","upper":"-3051455000"}]}
+# {"recalibrations":["CCGPU_CLOCK_RECALIBRATED {\\"role\\":1,\\"cause\\":2,\\"causeName\\":\\"MappingLifetime\\",\\"count\\":\\"1\\",\\"stateBefore\\":6,\\"sessionLow\\":\\"16188595318561248863\\",\\"sessionHigh\\":\\"12055166611091586046\\",\\"masterGeneration\\":\\"1\\",\\"requesterGeneration\\":\\"1\\",\\"masterOrigin\\":\\"69335000\\",\\"derivation\\":\\"0\\",\\"uncertainty\\":\\"100000\\",\\"displayE"],"renewals":0}
+# Session close finding (after the suite): The session recalibrated a clock mapping 1 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":2,"causeName":"MappingLifetime","count":"1","stateBefore":6,"sessionLow":"16188595318561248863","sessionHigh":"12055166611091586046","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"69335000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"4849345000","recoveryStarted":"4839245000","recoverySends":2,"pending":null,"reply"
+# Subtest: The same stall with the Browser clock jumping 5 ms disagrees with the old mapping: one recalibration, and the driver fails the suite
+ok 2 - The same stall with the Browser clock jumping 5 ms disagrees with the old mapping: one recalibration, and the driver fails the suite
+  ---
+  duration_ms: 5972.585125
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16796.178791

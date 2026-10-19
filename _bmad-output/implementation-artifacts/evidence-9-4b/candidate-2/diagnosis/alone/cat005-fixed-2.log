@@ -1,0 +1,20 @@
+✖ Battery disconnected authored settings and rendered charge thresholds restore exactly (17832.396458ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18104.039458
+
+✖ failing tests:
+
+test at tools/e2e/cat-005.test.ts:2:19765
+✖ Battery disconnected authored settings and rendered charge thresholds restore exactly (17832.396458ms)
+  Error: The UI never showed the open Battery settings panel at (100, 586); page captured in .anvil/battery-wait-failure.png
+      at waitForPixel (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:143:11)
+      at async configure (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:289:5)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:325:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

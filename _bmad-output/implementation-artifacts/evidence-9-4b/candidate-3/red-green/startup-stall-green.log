@@ -1,0 +1,19 @@
+✔ nanoseconds is the exact round-half-even port of WorkshopNativeClock.FromMilliseconds (0.528458ms)
+✔ a valid probe is answered with itself followed by the two master stamps and their derivation epoch (0.36725ms)
+✔ the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeReply rejects (0.184167ms)
+✔ a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly (7.232084ms)
+✔ a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch (6.4035ms)
+✔ a slew installs the new correction under the same epoch, so requester mappings keep their calibration (6.35575ms)
+✔ the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused (0.110584ms)
+✔ a newer probe of the same requester supersedes an unconsumed answer, which resolves to null (0.2755ms)
+✔ a probe the master has not served is never overwritten: the next probe resolves null and the session continues (0.1985ms)
+✔ an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed (13.350291ms)
+✔ startup qualification waits out a stalled master instead of burning its attempt budget (47.997792ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 138.652209

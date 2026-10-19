@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/offset-assumed-zero/original	2026-10-19 01:06:07.140232412 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/engine/gpu/WorkshopClockDerivation.cs	2026-10-19 01:06:07.143936916 +0800
+@@ -141,7 +141,7 @@
+     }
+ 
+     /// <summary>The qualified startup correction the ring must install under the initial epoch.</summary>
+-    public double StartupCorrection => IsQualified && Checks == 0 && _pending is { } correction ? correction
++    public double StartupCorrection => IsQualified && Checks == 0 && _pending is { } correction ? 0d
+         : throw new InvalidOperationException("No startup correction awaits installation.");
+ 
+     public void QualificationMissed()

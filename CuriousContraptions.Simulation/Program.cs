@@ -67,7 +67,7 @@ public static partial class Program
         try
         {
             var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-            var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1);
+            var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
             var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
             var ball = WorkshopInput.Basketball(new(4), 0, 2, 0, 0, 0, 0, 1);
             var ramp = WorkshopInput.Ramp(new(5), -1, 1, 0, 0, 0, 0, 1, RampDimensions.Default);
@@ -113,11 +113,6 @@ public static partial class Program
         }
     }
 
-    [JSExport]
-    public static byte[] ClockReply(byte[] bytes, double receivedMilliseconds) =>
-        WorkshopClockWire.EncodeReply(bytes, Peer, WorkshopNativeClock.FromMilliseconds(receivedMilliseconds),
-            WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
-
     [JSImport("publish", "workshopGpu")]
     private static partial void Publish(byte[] read, bool observationPending, bool retainOccurrence);
     [JSImport("reserveOccurrenceRead", "workshopGpu")] private static partial bool ReserveOccurrenceRead();
@@ -157,110 +152,9 @@ public static partial class Program
     }
 
     [JSExport]
-    public static double[] AllocateElectrical(int enabled, double balance, double power, double debit,
-        double[] balances, double[] capacities, double[] credits)
-    {
-        if (enabled is < 0 or > 1 || balances.Length != capacities.Length || balances.Length != credits.Length || balances.Length > ElectricalSupply.LoadCapacity)
-            throw new ArgumentException("Invalid electrical boundary shape.");
-        Span<float> before = stackalloc float[ElectricalSupply.LoadCapacity];
-        Span<float> limits = stackalloc float[ElectricalSupply.LoadCapacity];
-        Span<float> after = stackalloc float[ElectricalSupply.LoadCapacity];
-        for (var i = 0; i < balances.Length; i++) { before[i] = (float)balances[i]; limits[i] = (float)capacities[i]; }
-        var transfer = ElectricalSupply.Allocate((ElectricalEnable)enabled, (float)balance, (float)power,
-            before[..balances.Length], limits[..balances.Length], after[..balances.Length]);
-        var result = new double[2 + 2 * balances.Length];
-        result[0] = transfer.Remaining; result[1] = (float)debit + transfer.Debit;
-        for (var i = 0; i < balances.Length; i++)
-        {
-            result[2 + 2 * i] = after[i];
-            result[3 + 2 * i] = (float)credits[i] + (after[i] - before[i]);
-        }
-        return result;
-    }
-
-    // Explicit JS boundary: the reusable C# law executes f32/SIMD inside this WASM worker.
-    [JSExport]
-    public static double[] PaidContactImpulse(double speed, double target, double inverseMass,
-        double available, double nx, double ny, double nz)
-    {
-        var response = ContactWorkImpulse.FromStore((float)speed, (float)target, (float)inverseMass,
-            (float)available, System.Runtime.Intrinsics.Vector128.Create((float)nx, (float)ny, (float)nz, 0f));
-        return [response.Remaining, response.Debit,
-            response.Impulse.GetElement(0), response.Impulse.GetElement(1), response.Impulse.GetElement(2)];
-    }
-
-    [JSExport]
-    public static int[] PrismaticRowKinds() => [(int)PrismaticRowKind.TransverseX, (int)PrismaticRowKind.TransverseZ,
-        (int)PrismaticRowKind.AngularX, (int)PrismaticRowKind.AngularY, (int)PrismaticRowKind.AngularZ,
-        (int)PrismaticRowKind.Spring, (int)PrismaticRowKind.LowerStop, (int)PrismaticRowKind.UpperStop];
-
-    [JSExport]
-    public static double[] SpringCoefficients(double stiffness, double damping)
-    {
-        var value = SoftConstraintCoefficients.FromSpring((float)stiffness, (float)damping,
-            1f / WorkshopCadenceSettings.PhysicalFrequency);
-        return [value.Gamma, value.BiasRate];
-    }
-
-    [JSExport]
-    public static double[] PrismaticJacobians(double[] input)
-    {
-        if (input.Length != 36) throw new ArgumentException("Invalid prismatic frame boundary.");
-        System.Numerics.Vector3 V(int offset) => new((float)input[offset], (float)input[offset + 1], (float)input[offset + 2]);
-        System.Numerics.Quaternion Q(int offset) => new((float)input[offset], (float)input[offset + 1], (float)input[offset + 2], (float)input[offset + 3]);
-        Span<PrismaticRow> rows = stackalloc PrismaticRow[PrismaticRows.Count];
-        PrismaticRows.Prepare(new(V(0), Q(3), V(7)), new(V(10), Q(13), V(17)),
-            new(V(20), Q(23)), new(V(27), Q(30)), (float)input[34], (float)input[35], rows);
-        var output = new double[PrismaticRows.Count * 13];
-        for (var i = 0; i < rows.Length; i++)
-        {
-            var row = rows[i]; var offset = i * 13;
-            void Write(int start, System.Numerics.Vector3 vector)
-            { output[offset + start] = vector.X; output[offset + start + 1] = vector.Y; output[offset + start + 2] = vector.Z; }
-            Write(0, row.LinearA); Write(3, row.LinearB); Write(6, row.AngularA); Write(9, row.AngularB);
-            output[offset + 12] = row.Error;
-        }
-        return output;
-    }
-
-    // Four independent Jacobian rows, eight SoA vectors at the explicit JS boundary.
-    [JSExport]
-    public static double[] ConstraintRows(double[] input)
-    {
-        if (input.Length != 32) throw new ArgumentException("Invalid constraint batch width.");
-        Vector128<float> Read(int offset) => Vector128.Create((float)input[offset], (float)input[offset + 1],
-            (float)input[offset + 2], (float)input[offset + 3]);
-        var value = SoftConstraint.Solve4(Read(0), Read(4), Read(8), Read(12), Read(16), Read(20), Read(24), Read(28));
-        return [value.Accumulated.GetElement(0), value.Accumulated.GetElement(1),
-            value.Accumulated.GetElement(2), value.Accumulated.GetElement(3),
-            value.Delta.GetElement(0), value.Delta.GetElement(1), value.Delta.GetElement(2), value.Delta.GetElement(3)];
-    }
-
-    [JSExport]
-    public static int[] OperationAbi() => [(int)WorkshopGpuOperation.Admit, (int)WorkshopGpuOperation.Advance];
-    [JSExport]
-    public static int StateBytes() => PhysicsGpuAbi.ByteLength;
-    [JSExport]
     public static int[] CommandAbi() => [16, 65536];
     [JSExport]
     public static int[] ResponseAbi() => WorkshopWire.ResponseAbi();
-    [JSExport]
-    public static int[] AbiOffsets() =>
-    [
-        PhysicsGpuAbi.BodiesOffset,
-        PhysicsGpuAbi.CollidersOffset,
-        PhysicsGpuAbi.MaterialsOffset,
-        PhysicsGpuAbi.SensorsOffset,
-        PhysicsGpuAbi.GuidesOffset,
-        PhysicsGpuAbi.TriggersOffset,
-        PhysicsGpuAbi.ContactWorksOffset,
-        PhysicsGpuAbi.OrientationSensorsOffset,
-        PhysicsGpuAbi.MotionOffset,
-        PhysicsGpuAbi.ElectricalSourcesOffset,
-        PhysicsGpuAbi.ElectricalBindingsOffset,
-        PhysicsGpuAbi.PrismaticsOffset,
-        PhysicsGpuAbi.PrismaticRecordsOffset
-    ];
 
     [JSExport]
     public static async Task Dispatch(byte[] bytes)
@@ -400,44 +294,67 @@ public static partial class Program
         }
     }
 
-    private static async Task RunTicks(ulong owner)
+    private static Task RunTicks(ulong owner) => WorkshopTickLoop.Run(new RunLoopHost(owner));
+
+    // One-hop scheduler turns (Story 9.4b). A Task completed from a JS promise resumes its .NET continuation through a
+    // second runtime macrotask (the background-job timer), so every yield cost two turns of any competing work (measured
+    // under the 20 ms injection: evidence-9-4b/tick-loop). The worker instead calls ResumeTurn from the MessageChannel or
+    // timer task itself, and the awaiting loop continues inline in that same task.
+    private static readonly WorkshopTurnRegistry Turns = new();
+
+    [JSImport("scheduleTurn", "workshopGpu")] private static partial void ScheduleTurn(int turn, int delayMilliseconds);
+
+    /// <summary>Ends this scheduler turn: delay 0 resumes on the next macrotask with no timer clamp; a positive delay
+    /// resumes on the ordinary timer.</summary>
+    private static Task NextTurn(int delayMilliseconds)
     {
-        var batch = 0;
-        while (owner == _loopOwner && Simulation.Phase == WorkshopSimulationPhase.Running)
+        var (turn, resumed) = Turns.Begin();
+        ScheduleTurn(turn, delayMilliseconds);
+        return resumed;
+    }
+
+    [JSExport]
+    public static void ResumeTurn(int turn) => Turns.Resume(turn);
+
+    /// <summary>The worker's side of the run loop (WorkshopTickLoop owns the scheduling and its per-turn bound).</summary>
+    private sealed class RunLoopHost(ulong owner) : ITickLoopHost
+    {
+        private static WorkshopSchedule Schedule => _schedule ?? throw new InvalidOperationException("Missing physical schedule.");
+        public bool Owns => owner == _loopOwner && Simulation.Phase == WorkshopSimulationPhase.Running;
+        public bool Blocked => Simulation.HasPendingGpuOperation || _preparedEndpoint is not null || _pendingCommand is not null;
+        public bool DebtExceeded => _reliableStalled || Schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, MasterNow());
+        public bool AtRunLimit => Simulation.Committed.Tick.Value == Simulation.Profile.RunTickLimit;
+        public bool CaughtUp => Simulation.Committed.Tick.Value >= Schedule.World.DueTick(Schedule.Settings, MasterNow()).Value;
+
+        public ValueTask StopForDebt()
         {
-            if (Simulation.HasPendingGpuOperation || _preparedEndpoint is not null || _pendingCommand is not null)
-            { await Task.Delay(1); continue; }
-            var schedule = _schedule ?? throw new InvalidOperationException("Missing physical schedule.");
-            var now = MasterNow();
-            if (_reliableStalled || schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, now))
-            {
-                Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reliableStalled={_reliableStalled}");
-                Simulation.Stop(_reliableStalled ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity);
-                Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
-                EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
-                return;
-            }
-            if (Simulation.Committed.Tick.Value == Simulation.Profile.RunTickLimit)
-            {
-                _transition = ScheduleTransition.Completed;
-                await Simulation.CompleteRun();
-                await CommitInstallation();
-                Trace.End(CuriousContraptions.Simulation.TraceEnd.Complete);
-                EmitRead(new(WorkshopCommandOutcome.Applied, WorkshopRejection.None));
-                return;
-            }
-            var due = schedule.World.DueTick(schedule.Settings, now);
-            if (Simulation.Committed.Tick.Value >= due.Value)
-            { batch = 0; await Task.Delay(1); continue; }
-            if (!ReserveOccurrenceRead()) { await Task.Delay(1); continue; }
+            Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reliableStalled={_reliableStalled}");
+            Simulation.Stop(_reliableStalled ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity);
+            Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+            EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
+            return ValueTask.CompletedTask;
+        }
+
+        public async ValueTask CompleteRun()
+        {
+            _transition = ScheduleTransition.Completed;
+            await Simulation.CompleteRun();
+            await CommitInstallation();
+            Trace.End(CuriousContraptions.Simulation.TraceEnd.Complete);
+            EmitRead(new(WorkshopCommandOutcome.Applied, WorkshopRejection.None));
+        }
+
+        public async ValueTask<TickAttempt> Advance()
+        {
+            if (!ReserveOccurrenceRead()) return TickAttempt.NotReserved;
             var previousRead = Simulation.Committed;
             var tickStarted = ObservationMilliseconds();
             WorkshopCommandResult result;
             try { result = await Simulation.Advance(); }
             catch { ReleaseOccurrenceRead(); throw; }
-            if (owner != _loopOwner) { ReleaseOccurrenceRead(); return; }
+            if (owner != _loopOwner) { ReleaseOccurrenceRead(); return TickAttempt.Stopped; }
             if (result.Outcome is WorkshopCommandOutcome.Superseded or WorkshopCommandOutcome.Cancelled)
-            { ReleaseOccurrenceRead(); continue; }
+            { ReleaseOccurrenceRead(); return TickAttempt.Superseded; }
 #if PLAYTEST
             if (result.Outcome == WorkshopCommandOutcome.Applied) Trace.Append(Device.DiagnosticCommitted);
 #endif
@@ -447,11 +364,13 @@ public static partial class Program
                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
             }
             EmitRead(result, Simulation.Committed.RequiresReliableRead(previousRead));
-            if (result.Outcome == WorkshopCommandOutcome.Applied)
-                Trace.RecordTickDuration(Simulation.Committed.Tick, ObservationMilliseconds() - tickStarted);
-            if (result.Outcome != WorkshopCommandOutcome.Applied) return;
-            if (++batch == 16) { batch = 0; await Task.Delay(1); }
+            if (result.Outcome != WorkshopCommandOutcome.Applied) return TickAttempt.Stopped;
+            Trace.RecordTickDuration(Simulation.Committed.Tick, ObservationMilliseconds() - tickStarted);
+            return TickAttempt.Committed;
         }
+
+        public async ValueTask YieldTurn() => await NextTurn(0);
+        public async ValueTask AwaitWork() => await NextTurn(1);
     }
     private static void EmitRead(WorkshopCommandResult result, bool retainOccurrence = false)
     {
@@ -465,27 +384,17 @@ public static partial class Program
             SourcePulse: new(Simulation.Committed.Tick.Value));
         var encoded = EncodeResponse(ReadOutput, readResponse);
         _publication++;
-#if PLAYTEST
-        // Existing binary read diagnostics; retained energy/event commits prove finite transfers in UI runs.
+        // Existing read-only observation channel, in the production build every Chrome suite runs against (owner decision
+        // h; Story 9A.24 replaces it with the typed observation port): retained energy/event commits prove finite
+        // transfers in UI runs. Its measured cost (Story 9.4b D1, evidence-9-4b/diagnosis/retained-cost) is flagged to
+        // the owner. The PlaytestDiagnostics variant only adds diagnostic recording and is never a gate.
         if (retainOccurrence)
         {
             Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(WorkshopWireFlatBuffers.EncodeResponse(readResponse)));
         }
-#endif
         Publish(encoded, Trace.CanFlush(Simulation.Phase), retainOccurrence);
     }
 
     [JSExport]
     public static void SetReliableStall(bool stalled) => _reliableStalled = stalled;
-
-    [JSExport]
-    public static void DeviceLost()
-    {
-        _loopOwner++;
-        Trace.End(CuriousContraptions.Simulation.TraceEnd.DeviceLost);
-        Device.MarkLost();
-        if (_simulation is null) throw new InvalidOperationException("GPU device was lost during startup preparation.");
-        Simulation.DeviceLost();
-        EmitRead(new(WorkshopCommandOutcome.Faulted, WorkshopRejection.DeviceLost));
-    }
 }

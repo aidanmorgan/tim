@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
+import { reportsNaN } from '../workshop-console.mjs';
 
 describe('ENGINE-CORE-2b2: Certificate & Directed Rounding Removal (Pure TGS Soft Compliance)', () => {
     let driver: WorkshopDriver;
@@ -19,7 +20,7 @@ describe('ENGINE-CORE-2b2: Certificate & Directed Rounding Removal (Pure TGS Sof
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Real-time ball drop and Workbench resting contact without certificate/directed rounding overhead', { timeout: 120000 }, async () => {
@@ -33,7 +34,7 @@ describe('ENGINE-CORE-2b2: Certificate & Directed Rounding Removal (Pure TGS Sof
                 text.includes('Unhandled exception') ||
                 text.includes('Certificate') ||
                 text.includes('DirectedRounding') ||
-                text.includes('NaN')
+                reportsNaN(msg.type(), text) // never a NaN substring of a base64 envelope (Story 9.4b F1)
             ) {
                 errors.push(text);
             }

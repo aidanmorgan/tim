@@ -4,22 +4,26 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import vm from 'node:vm';
+import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
 
 const path = new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', import.meta.url);
 const source = readFileSync(path, 'utf8');
 const executable = source.replace(/^import .*;\n/gm, '').replace(/^export /gm, '') +
-    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement, animationControl, animationKinds});';
+    // `clients` is read only by the clock-ring detach control (R2-F2); the module never exports it.
+    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement, animationControl, animationKinds, clients});';
 // These integers are the C# WorkshopTransportState values at the JS import boundary.
 const state = Object.freeze({ Ready: 0, Backpressure: 1, TimedOut: 2, Indeterminate: 3, RecoveryBlocked: 4 });
 
 async function clientHarness(loadRuntimes = true, failAnimationConstructor = false) {
     const intervals = new Map(), timers = new Map(), workers = [], errors = [], probes = [], messages = [];
-    let timerId = 0, milliseconds = 0, publishedId = 0, calls = 0, outputCalls = 0, outputCallback, resolveWorker;
+    let timerId = 0, milliseconds = 0, publishedId = 0, calls = 0, outputCalls = 0, clockReplies = 0, outputCallback, resolveWorker, simulationRuns = true;
     const workerCreated = new Promise(resolve => { resolveWorker = resolve; });
     const profile = new Float64Array([2, 1, 1, 0, 0.001, 1, 1]);
     const context = {
         Uint8Array, Float64Array, DataView, URL, Map, Error, Array, Promise, Math,
         SharedArrayBuffer, BigInt64Array, Float32Array, Atomics,
+        createClockRing: clockRing.createClockRing, attachClockRing: clockRing.attachClockRing, requestReply: clockRing.requestReply, ClockRole: clockRing.ClockRole,
+        heartbeat: clockRing.heartbeat,
         document: { baseURI: 'http://127.0.0.1:8060/', hidden: false },
         nativeProfile: 2, nativeNow: () => milliseconds,
         nativeClockEvidence: () => Array.from(profile), admitNativeClock: async () => {},
@@ -47,9 +51,23 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     view.setUint32(0, 2, true); view.setUint32(4, 2, true); peer.set(session, 8);
     view.setBigUint64(24, 1n, true); view.setBigUint64(40, 1n, true); view.setBigUint64(48, 100000n, true);
     view.setUint32(56, 1, true); view.setUint32(60, 2, true);
-    const service = () => { calls++; probes.push(publishedId); api.probe(publishedId, new Uint8Array([1])); };
+    // The managed service sends one owned probe per tick and a stand-in clock master answers it through the ring, as the
+    // Simulation-owned master context does; the reply is delivered to the managed callback when the wait resolves.
+    let probeSequence = 0n;
+    const service = () => {
+        calls++; probes.push(publishedId);
+        const probe = new Uint8Array(clockRing.ProbeBytes), probeView = new DataView(probe.buffer);
+        probe.set(peer, 0); probeView.setBigUint64(64, ++probeSequence, true); probeView.setBigInt64(72, 0n, true);
+        api.probe(publishedId, probe);
+        const ringBuffer = messages.find(message => message.clockRing)?.clockRing;
+        if (!ringBuffer) return;
+        const clock = clockRing.attachClockRing(ringBuffer);
+        clockRing.serveRequests(clock, { [clockRing.ClockRole.Browser]: peer }, () => milliseconds);
+        // A running Simulation beats the ring between its tick turns (worker.js); a hung one stops.
+        if (simulationRuns) clockRing.beat(clock);
+    };
     const creation = api.create(Object.values(state), session, [2, 2, 64, 72, 96, 160, 1, 2], [26640, 40, 56], 1, false,
-        () => {}, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
+        () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
     creation.catch(() => {});
     await workerCreated;
     await Promise.resolve();
@@ -64,8 +82,15 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
         api, creation, intervals, timers, workers, errors, probes, messages, runtimeReady,
         get startup() { return startup(); },
         onOutput: callback => { outputCallback = callback; },
-        calls: () => calls, outputCalls: () => outputCalls, publish: id => { publishedId = id; },
+        calls: () => calls, outputCalls: () => outputCalls, clockReplies: () => clockReplies, publish: id => { publishedId = id; },
+        peer,
+        /** The stand-in master answers whatever is requested in the ring now (a reply that lands late). */
+        serveRing: () => {
+            const ringBuffer = messages.find(message => message.clockRing)?.clockRing;
+            clockRing.serveRequests(clockRing.attachClockRing(ringBuffer), { [clockRing.ClockRole.Browser]: peer }, () => milliseconds);
+        },
         clock: value => { milliseconds = value; },
+        hangSimulation: () => { simulationRuns = false; },
         ready: async () => {
             workers[0].onmessage({ data: { ready: true, captureMode: 1, nativeClock: profile, masterPeer: peer } });
             return await creation;
@@ -83,7 +108,8 @@ test('normal publication activates exactly one service and retains startup quali
     const h = await clientHarness(), id = await h.ready();
     assert.equal(id, 1); h.publish(id); h.api.activate(id); h.tick();
     assert.deepEqual(h.probes, [id]); assert.equal(h.api.status(id), state.Ready);
-    assert.equal(h.errors.length, 0); assert.equal(h.messages.length, 3);
+    assert.equal(h.errors.length, 0);
+    assert.equal(h.messages.length, 2, 'the probe travels through the clock ring, never as a Simulation worker message');
     assert.ok([...h.timers.values()].includes(h.startup));
     h.api.qualified(id);
     assert.ok(![...h.timers.values()].includes(h.startup));
@@ -180,14 +206,93 @@ test('failure after activation makes a captured late callback inert', async () =
     assert.throws(() => h.api.activate(id), /StartupFailed/); h.api.dispose(id);
 });
 
-test('activation does not reset the 1000ms worker liveness boundary', async () => {
+// Murdoch-2 R2-F2 (Story 9.4b): the BH10 cleanup, proved. A failed client holds no clock ring, and a clock reply that the
+// master writes after the failure (the probe was already waiting) is never delivered to the retired managed client.
+const settle = () => new Promise(resolve => setTimeout(resolve, 20));
+function ownedProbe(h, sequence) {
+    const probe = new Uint8Array(clockRing.ProbeBytes), view = new DataView(probe.buffer);
+    probe.set(h.peer, 0); view.setBigUint64(64, BigInt(sequence), true); view.setBigInt64(72, 0n, true);
+    return probe;
+}
+test('a failed client detaches its clock ring', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.publish(id); h.api.activate(id);
+    const client = h.api.clients.get(id);
+    assert.ok(client.clock && client.clockRing, 'control: a live client owns its ring');
+    h.workers[0].onerror({ message: 'controlled worker failure' });
+    assert.equal(h.api.clients.get(id), client, 'a failed client stays registered until disposal');
+    assert.equal(client.clock, undefined);
+    assert.equal(client.clockRing, undefined);
+    h.api.dispose(id);
+});
+test('a clock reply landing after the client failed is never delivered', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.publish(id); h.api.activate(id);
+    h.tick(); await settle();
+    assert.equal(h.clockReplies(), 1, 'control: an answered probe is delivered');
+    h.api.probe(id, ownedProbe(h, 100)); // the master has not answered it yet
+    h.workers[0].onerror({ message: 'controlled worker failure' });
+    h.serveRing(); await settle();       // the master answers the waiting probe after the failure
+    assert.equal(h.clockReplies(), 1);
+    assert.deepEqual(h.errors.filter(([kind]) => kind !== 'CCGPU_TRANSPORT_FAILURE'), []);
+    h.api.dispose(id);
+});
+test('a clock reply landing after disposal is never delivered', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.publish(id); h.api.activate(id);
+    h.api.probe(id, ownedProbe(h, 100));
+    h.api.dispose(id);
+    h.serveRing(); await settle();
+    assert.equal(h.clockReplies(), 0);
+});
+
+// Story 9.4b (game-grade envelope): a clock reply missing for longer than the former 1000 ms liveness bound never faults
+// the session. The C# mapping recalibrates as counted telemetry (WorkshopClockDerivationTests,
+// ALapsedMappingLifetimeIsACountedRecalibration); the service keeps running and keeps probing.
+test('a clock reply missing beyond 1000ms never faults the session and the service keeps probing', async () => {
     const h = await clientHarness(), id = await h.ready();
     h.clock(1000); h.publish(id); h.api.activate(id); h.tick();
     assert.equal(h.api.status(id), state.Ready);
-    h.clock(1000.001); h.tick();
+    const probes = h.probes.length;
+    h.clock(1000.001); h.tick(); h.clock(5000); h.tick();
+    assert.equal(h.api.status(id), state.Ready);
+    assert.deepEqual(h.errors, []);
+    assert.equal(h.intervals.size, 1, 'the service interval still runs');
+    assert.ok(h.probes.length > probes, 'the C# service callback keeps probing');
+    h.api.dispose(id);
+});
+
+// Murdoch-2 H1 (Story 9.4b): a hung Simulation (a spinning solver or a dead context) is not a clock lapse. Its dedicated
+// clock master keeps answering, so only the ring heartbeat proves the Simulation's own event loop runs. Silence for more
+// than 1000 ms of running Browser service faults the session explicitly with a typed SimulationUnresponsive failure.
+function serviceFor(h, from, milliseconds) {
+    for (let at = from; at <= from + milliseconds && h.intervals.size === 1; at += 10) { h.clock(at); h.tick(); }
+}
+test('a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.clock(1000); h.publish(id); h.api.activate(id); h.tick();
+    serviceFor(h, 1010, 2000); // control: a beating Simulation never faults
+    assert.equal(h.api.status(id), state.Ready);
+    assert.deepEqual(h.errors, []);
+    h.hangSimulation();
+    serviceFor(h, 3020, 990);
+    assert.equal(h.api.status(id), state.Ready, 'within the bound the session stays ready');
+    serviceFor(h, 4020, 30);
     assert.equal(h.api.status(id), state.Indeterminate);
-    assert.match(h.errors[0][2].message, /1000ms/);
+    assert.match(String(h.errors[0][2]), /SimulationUnresponsive/);
+    assert.equal(h.errors[0][2].name, 'SimulationUnresponsive');
     assert.equal(h.intervals.size, 0); h.api.dispose(id);
+});
+
+test('a Browser that was itself blocked never mistakes the Simulation for hung', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.clock(1000); h.publish(id); h.api.activate(id); h.tick();
+    h.hangSimulation();
+    h.clock(2500); h.tick(); // the Browser service did not run for 1.5 s: the liveness window restarts
+    serviceFor(h, 2510, 900);
+    assert.equal(h.api.status(id), state.Ready);
+    assert.deepEqual(h.errors, []);
+    h.api.dispose(id);
 });
 
 
@@ -200,7 +305,8 @@ for (const order of [[0, 1], [1, 0]]) {
         assert.equal(h.startup.delay, 5000); assert.equal(h.messages.length, 1);
         const id = await h.ready();
         h.workers[0].onmessage({ data: { animationPeer: new Uint8Array(64) } });
-        assert.ok(h.messages.at(-1).clockPort);
+        assert.ok(h.messages.at(-1).masterPort);
+        assert.ok(h.messages.at(-1).clockRing instanceof SharedArrayBuffer, 'the Animation runtime receives the session clock ring');
         h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
         h.workers[1].onmessage({ data: { qualified: true } });
         assert.equal(h.errors.length, 0); h.api.dispose(id);

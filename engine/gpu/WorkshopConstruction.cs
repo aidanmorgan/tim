@@ -257,7 +257,7 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     public static WorkshopPressurePlate PressurePlate(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, float minimumMass = 0.5f, bool locked = false)
+        double qx, double qy, double qz, double qw, float minimumMass, bool locked = false)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopPressurePlate(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
@@ -265,7 +265,7 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     public static WorkshopCounter Counter(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, int targetCount = WorkshopCounter.DefaultTargetCount, bool locked = false)
+        double qx, double qy, double qz, double qw, int targetCount, bool locked = false)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopCounter(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
@@ -273,7 +273,7 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     public static WorkshopClock Clock(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, float intervalSeconds = WorkshopClock.DefaultIntervalSeconds, bool locked = false)
+        double qx, double qy, double qz, double qw, float intervalSeconds, bool locked = false)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopClock(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),

@@ -1,0 +1,16 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.83]     CuriousContraptions.Tests.ClockRingScriptTests.ClockRingScriptAgreesWithTheCSharpClockWireItPorts [FAIL]
+  Failed CuriousContraptions.Tests.ClockRingScriptTests.ClockRingScriptAgreesWithTheCSharpClockWireItPorts [89 ms]
+  Error Message:
+   nanoseconds(0.0078125, bits 3F80000000000000): C# 7812, clock-ring.js 7813
+  Stack Trace:
+     at CuriousContraptions.Tests.ClockRingScriptTests.ClockRingScriptAgreesWithTheCSharpClockWireItPorts() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/ClockRingScriptTests.cs:line 103
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ Script checked: /Users/aidan/dev/personal/tim/CuriousContraptions.web/wwwroot/clock-ring.js
+
+
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 99 ms - CuriousContraptions.tests.dll (net10.0)

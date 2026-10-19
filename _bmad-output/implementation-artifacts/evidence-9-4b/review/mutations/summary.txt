@@ -1,0 +1,64 @@
+dust-threshold-reverted: KILLED by 9 test(s):
+    CuriousContraptions.Tests.ContactWorkLedgerPropertyTests.ATargetLimitedPayoutNeverLeavesDustThatALaterContactPays(k: 0.200000003)
+    CuriousContraptions.Tests.ContactWorkLedgerPropertyTests.ATargetLimitedPayoutNeverLeavesDustThatALaterContactPays(k: 0.25)
+    CuriousContraptions.Tests.ContactWorkLedgerPropertyTests.ATargetLimitedPayoutNeverLeavesDustThatALaterContactPays(k: 0.5)
+    CuriousContraptions.Tests.ContactWorkLedgerPropertyTests.ATargetLimitedPayoutNeverLeavesDustThatALaterContactPays(k: 0.75)
+    CuriousContraptions.Tests.ContactWorkLedgerPropertyTests.ATargetLimitedPayoutNeverLeavesDustThatALaterContactPays(k: 0.899999976)
+    CuriousContraptions.Tests.WorkshopBumperTests.ARequestAFewUlpsBelowTheStoreSpendsTheWholeStoreAndLeavesNoPayableDust(ulps: 1)
+offset-assumed-zero: KILLED by 3 test(s):
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AConstantOffsetBetweenTheContextsTimeOriginsIsDerivedAtStartupNotRefused
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ADriftingTimeOriginOffsetIsFollowedAfterTheDerivedStartupOffset(driftPerCheck: 0.002, rederives: False)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ADriftingTimeOriginOffsetIsFollowedAfterTheDerivedStartupOffset(driftPerCheck: 0.012, rederives: True)
+sphere-support-reverted: KILLED by 2 test(s):
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzNeverRaisesItsSpin
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryCommittedTick
+velocity-guard-reverted: KILLED by 1 test(s):
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySize
+ratchet-count-edited: KILLED by 1 test(s):
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations
+ratchet-entry-removed: SURVIVED (no baseline-passing test fails)
+ratchet-camelcase-evasion: SURVIVED (no baseline-passing test fails)
+ratchet-wholeword-control: KILLED by 1 test(s):
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations
+1
+ratchet-growth-new-entry: SURVIVED (no baseline-passing test fails)
+ratchet-growth-control-no-entry-placeholder: KILLED by 1 test(s):
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations
+goal-body-target-swapped: KILLED by 18 test(s):
+    CuriousContraptions.Tests.ClearPipeLevelTests.PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(precision: 0, margin: 0.29999999999999999, speed: 3, dwell: 0.14999999999999999, accel: 12)
+    CuriousContraptions.Tests.ClearPipeLevelTests.PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(precision: 0.45000000000000001, margin: 0.17399999999999999, speed: 2.3250000000000002, dwell: 0.23999999999999999, accel: 6.5999999999999996)
+    CuriousContraptions.Tests.ClearPipeLevelTests.PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(precision: 1, margin: 0.02, speed: 1.5, dwell: 0.34999999999999998, accel: 0)
+    CuriousContraptions.Tests.DelayedSignalTests.SourceFixturesInventoryThresholdAndCanonicalRoundtrip(precision: 0, threshold: 0.20000000000000001)
+    CuriousContraptions.Tests.DelayedSignalTests.SourceFixturesInventoryThresholdAndCanonicalRoundtrip(precision: 0.45000000000000001, threshold: 0.46999999999999997)
+    CuriousContraptions.Tests.DelayedSignalTests.SourceFixturesInventoryThresholdAndCanonicalRoundtrip(precision: 1, threshold: 0.80000000000000004)
+decoder-zero-count-defaults: KILLED by 6 test(s):
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: -0)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 0)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.MissingSettingRejectsInEveryFlatBuffersPath(part: Counter)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: -0)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 0)
+    CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(setting: CounterTargetCount, threshold: 0, rejection: &quot;Counter 1 target count '0'&quot;)
+wholecount-fractional-rounded: KILLED by 11 test(s):
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 1.00000012)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 2.5)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 8.99999905)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 9.00000095)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 9.5)
+    CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 1.00000012)
+ticks-per-turn-16: KILLED by 5 test(s):
+    CuriousContraptions.Tests.WorkshopTickLoopTests.AWaitForWorkEndsTheTurnSoTheNextTurnRunsAFullBatch
+    CuriousContraptions.Tests.WorkshopTickLoopTests.NoSchedulerTurnExecutesMoreThanFourCommittedTicks
+    CuriousContraptions.Tests.WorkshopTickLoopTests.SupersededAttemptsCountTowardTheBatchSoARunOfThemStillYields
+    CuriousContraptions.Tests.WorkshopTickLoopTests.UnderTheTwentyMillisecondInjectionAHeavierSceneStopsWithTheContractedCapacityFault(tickCost: 3500000)
+    CuriousContraptions.Tests.WorkshopTickLoopTests.UnderTheTwentyMillisecondInjectionAHeavierSceneStopsWithTheContractedCapacityFault(tickCost: 4300000)
+il2026-injected: BUILD FAILED (killed by the compiler)
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/engine/gpu/WorkshopTickLoop.cs(40,50): error IL2026: Using member 'CuriousContraptions.Gpu.WorkshopTickLoop.Reflective()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. review mutant. [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/CuriousContraptions.csproj]
+error IL2026: Using member 'CuriousContraptions.Gpu.WorkshopTickLoop.Reflective()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. review mutant. 
+== control (unmutated copy)
+ℹ pass 1
+ℹ fail 0
+1
+== heartbeat disabled
+AssertionError [ERR_ASSERTION]: every check turn also beats the Simulation heartbeat the Browser watches
+ℹ pass 0
+ℹ fail 1

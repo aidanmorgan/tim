@@ -1,0 +1,12 @@
+{"firstFailureMs":null,"failures":0,"recalibrations":0}
+✔ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (9393.548042ms)
+{"samples":12,"failures":0,"recalibrations":0,"spanMs":2778.47}
+✔ A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running) (8426.1905ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18093.311166

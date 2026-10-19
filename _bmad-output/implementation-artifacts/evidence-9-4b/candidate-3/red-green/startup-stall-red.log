@@ -1,0 +1,22 @@
+✖ startup qualification waits out a stalled master instead of burning its attempt budget (5.67875ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62.766875
+
+✖ failing tests:
+
+test at tools/workshop-clock-ring.test.mjs:208:1
+✖ startup qualification waits out a stalled master instead of burning its attempt budget (5.67875ms)
+  Error: the attempt budget burned
+      at Object.missed (file:///Users/aidan/dev/personal/tim/tools/workshop-clock-ring.test.mjs:224:55)
+      at Module.qualifyDerivation (file:///Users/aidan/dev/personal/tim/CuriousContraptions.web/wwwroot/clock-ring.js:218:57)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/tools/workshop-clock-ring.test.mjs:221:19)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)

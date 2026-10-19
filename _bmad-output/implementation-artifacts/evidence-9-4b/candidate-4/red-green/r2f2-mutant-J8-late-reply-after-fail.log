@@ -1,0 +1,61 @@
+✔ normal publication activates exactly one service and retains startup qualification (2.8485ms)
+✔ delayed managed publication has no callback until explicit activation (0.43275ms)
+✔ default and missing IDs reject without scheduling or changing the ready owner (0.510417ms)
+✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.391417ms)
+✔ duplicate activation preserves the one original timer and owner state (0.386458ms)
+✔ startup timeout before worker readiness rejects creation and activation (0.384875ms)
+✔ startup timeout after JS return remains anchored to both runtime readiness (0.34175ms)
+✔ worker failure rejects activation without invoking managed service (0.308ms)
+✔ disposal before managed publication prevents later activation (0.365958ms)
+✔ disposal after activation makes a captured late callback inert (0.399ms)
+✔ failure after activation makes a captured late callback inert (0.318416ms)
+✔ a failed client detaches its clock ring (0.3225ms)
+✖ a clock reply landing after the client failed is never delivered (45.657ms)
+✔ a clock reply landing after disposal is never delivered (23.063875ms)
+✔ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.662125ms)
+✔ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (2.550041ms)
+✔ a Browser that was itself blocked never mistakes the Simulation for hung (0.841417ms)
+✔ both runtimes must be ready before the one qualification deadline (0,1) (0.576667ms)
+✔ both runtimes must be ready before the one qualification deadline (1,0) (0.267458ms)
+✔ duplicate runtime readiness rejects worker 0 (0.281ms)
+✔ early ready rejects worker 0 (0.274959ms)
+✔ duplicate runtime readiness rejects worker 1 (0.295042ms)
+✔ early ready rejects worker 1 (0.278333ms)
+✔ early Animation qualification rejects before bootstrap (0.293416ms)
+✔ duplicate authoritative Animation peer rejects without a second transfer (0.326417ms)
+✔ disposal during asset loading prevents late readiness from rearming (0.267458ms)
+✔ Animation constructor failure closes the already owned Simulation worker (0.281458ms)
+✔ premature Animation output fails without delivering to the managed consumer (0.279167ms)
+✔ delayed valid ACK clears current stall only after managed validation completion (0.475375ms)
+✔ completing an older ACK cannot clear another aged request or exceed two leases (0.354083ms)
+✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.396458ms)
+✔ unmatched or duplicate ACK faults without clearing stall (false) (0.356708ms)
+✔ unmatched or duplicate ACK faults without clearing stall (true) (0.348375ms)
+✔ two animation owners send sequential controls only after managed ACK delivery returns (0.386ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 33
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 144.287917
+
+✖ failing tests:
+
+test at tools/workshop-client-lifecycle.test.mjs:228:1
+✖ a clock reply landing after the client failed is never delivered (45.657ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/tools/workshop-client-lifecycle.test.mjs:236:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

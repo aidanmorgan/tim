@@ -1,0 +1,5 @@
+cat-023b-load8 run 1: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b-load8 run 2: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b-load8 run 3: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b-load8 run 4: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0
+cat-023b-load8 run 5: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ cancelled 0 ℹ skipped 0  transport=0 unresponsive=0 rejected=0 recal=0

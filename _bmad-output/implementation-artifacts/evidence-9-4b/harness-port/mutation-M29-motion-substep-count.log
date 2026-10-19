@@ -1,0 +1,261 @@
+Build succeeded.
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.33]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMotionDescriptionIsWrittenAtTheHostDeclaredOffsetAfterTheOrientationSensorTable [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMotionDescriptionIsWrittenAtTheHostDeclaredOffsetAfterTheOrientationSensorTable [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 4
+Actual:   5
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMotionDescriptionIsWrittenAtTheHostDeclaredOffsetAfterTheOrientationSensorTable() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 527
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.63]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [FAIL]
+[xUnit.net 00:00:01.69]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [6 ms]
+  Error Message:
+   Assert.DoesNotMatch() Failure: Match found
+                                     ↓ (pos 46506)
+String: ···"&& MathF.Abs(c.ColA.Ty - 0.03f) < 0.01f && c.B.Mot"···
+RegEx:  "3\\.5f? \\* |2\\.5f? / |(\\|\\||\\?\\?) 0?\\.(34|75|1|3)f?"···
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 512
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (4094.7201000000005 - 4096)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 864
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.70]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [6 ms]
+  Error Message:
+   tick 5: spin rises to 58.80833053588867 from 58.808326721191406
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 813
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.08]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [127 ms]
+  Error Message:
+   tick 1: 4.9991665 m/s (previous 5), spin 14.702081680297852 rad/s (previous 14.702081680297852)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 789
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.13]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.75) [FAIL]
+[xUnit.net 00:00:03.15]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.375) [FAIL]
+[xUnit.net 00:00:03.15]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.75) [FAIL]
+[xUnit.net 00:00:03.16]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.5) [FAIL]
+[xUnit.net 00:00:03.17]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.25) [FAIL]
+[xUnit.net 00:00:03.18]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6) [FAIL]
+[xUnit.net 00:00:03.18]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.75) [FAIL]
+[xUnit.net 00:00:03.21]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5) [FAIL]
+[xUnit.net 00:00:03.28]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.125) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.75) [44 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.375) [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.75) [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.5) [10 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.25) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.75) [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5) [12 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.125) [30 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.29]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.5) [FAIL]
+[xUnit.net 00:00:03.29]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.25) [FAIL]
+[xUnit.net 00:00:03.31]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.5) [FAIL]
+[xUnit.net 00:00:03.32]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [FAIL]
+[xUnit.net 00:00:03.67]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.5) [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.25) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.5) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 102
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 171
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.68]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Basketball) [FAIL]
+[xUnit.net 00:00:03.68]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Bowling) [FAIL]
+[xUnit.net 00:00:03.69]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.UprightDominoAloneStandsStill [FAIL]
+[xUnit.net 00:00:03.69]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TargetLimitedPayoutLeavesTheExactRemainder [FAIL]
+[xUnit.net 00:00:03.69]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Basketball) [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 140
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Bowling) [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(LawBall kind) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 140
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.UprightDominoAloneStandsStill [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.UprightDominoAloneStandsStill() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 412
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TargetLimitedPayoutLeavesTheExactRemainder [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TargetLimitedPayoutLeavesTheExactRemainder() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 124
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    24, Passed:    88, Skipped:     0, Total:   112, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

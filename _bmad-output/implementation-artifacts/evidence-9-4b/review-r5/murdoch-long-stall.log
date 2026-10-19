@@ -1,0 +1,12 @@
+MURDOCH_LONG_STALL {"stallMs":6000,"jumpMs":3,"renewals":0,"tolerance":[],"recalibrations":[{"role":1,"causeName":"MappingLifetime","stateBefore":6,"recoverySends":3}]}
+✔ Browser stall 6000 ms then a 3 ms clock jump (12061.3495ms)
+MURDOCH_LONG_STALL {"stallMs":700,"jumpMs":3,"renewals":0,"tolerance":[],"recalibrations":[{"role":1,"causeName":"MappingLifetime","stateBefore":6,"recoverySends":2}]}
+✔ Browser stall 700 ms then a 3 ms clock jump (6482.694375ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18787.618167

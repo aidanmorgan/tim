@@ -11,6 +11,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
+import { reportsNaN } from '../workshop-console.mjs';
 
 describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupled Sensor Evaluation)', () => {
     let driver: WorkshopDriver;
@@ -20,7 +21,7 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Qualified Receiver Capture with Dwell at <= 1.5 m/s: ball settles in Receiver and triggers capture with visual halo', { timeout: 120000 }, async () => {
@@ -36,7 +37,7 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
                 text.includes('Unhandled exception') ||
                 text.includes('CurveCuts') ||
                 text.includes('RotaryCaptureSweep') ||
-                text.includes('NaN')
+                reportsNaN(msg.type(), text) // never a NaN substring of a base64 envelope (Story 9.4b F1)
             ) {
                 errors.push(text);
             }

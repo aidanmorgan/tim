@@ -1,0 +1,91 @@
+MURDOCH_LEDGER {"label":"basketball/60/run1","paid":[31.866867065429688,0.1331329345703125],"unpaid":5,"final":0,"count":6,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/60/run1 L7 observed 7 unique occurrences but the store counts 6
+MURDOCH_LEDGER {"label":"basketball/60/run2","paid":[31.866867065429688,0.1331329345703125],"unpaid":5,"final":0,"count":6,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/60/run2 L7 observed 7 unique occurrences but the store counts 6
+MURDOCH_LEDGER_DETERMINISM {"kind":"basketball","lift":60,"same":true}
+✔ Murdoch Bumper ledger basketball lift 60px (40420.525625ms)
+MURDOCH_LEDGER {"label":"basketball/110/run1","paid":[29.339963912963867,2.660036087036133],"unpaid":5,"final":0,"count":6,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/110/run1 L7 observed 7 unique occurrences but the store counts 6
+MURDOCH_LEDGER {"label":"basketball/110/run2","paid":[29.339963912963867,2.660036087036133],"unpaid":5,"final":0,"count":6,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/110/run2 L7 observed 7 unique occurrences but the store counts 6
+MURDOCH_LEDGER_DETERMINISM {"kind":"basketball","lift":110,"same":true}
+✔ Murdoch Bumper ledger basketball lift 110px (40551.433166ms)
+MURDOCH_LEDGER {"label":"basketball/150/run1","paid":[27.33171272277832,4.66828727722168],"unpaid":6,"final":0,"count":7,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/150/run1 L7 observed 8 unique occurrences but the store counts 7
+MURDOCH_LEDGER {"label":"basketball/150/run2","paid":[27.33171272277832,4.66828727722168],"unpaid":6,"final":0,"count":7,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/150/run2 L7 observed 8 unique occurrences but the store counts 7
+MURDOCH_LEDGER_DETERMINISM {"kind":"basketball","lift":150,"same":true}
+✔ Murdoch Bumper ledger basketball lift 150px (40566.342084ms)
+MURDOCH_LEDGER {"label":"basketball/200/run1","paid":[24.819931030273438,7.1800689697265625],"unpaid":6,"final":0,"count":7,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/200/run1 L7 observed 8 unique occurrences but the store counts 7
+MURDOCH_LEDGER {"label":"basketball/200/run2","paid":[24.819931030273438,7.1800689697265625],"unpaid":6,"final":0,"count":7,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/200/run2 L7 observed 8 unique occurrences but the store counts 7
+MURDOCH_LEDGER_DETERMINISM {"kind":"basketball","lift":200,"same":true}
+✔ Murdoch Bumper ledger basketball lift 200px (40559.954542ms)
+MURDOCH_LEDGER {"label":"basketball/260/run1","paid":[21.83704376220703,10.162956237792969],"unpaid":6,"final":0,"count":7,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/260/run1 L7 observed 8 unique occurrences but the store counts 7
+MURDOCH_LEDGER {"label":"basketball/260/run2","paid":[21.83704376220703,10.162956237792969],"unpaid":6,"final":0,"count":7,"pulses":2}
+MURDOCH_LEDGER_INCOMPLETE basketball/260/run2 L7 observed 8 unique occurrences but the store counts 7
+MURDOCH_LEDGER_DETERMINISM {"kind":"basketball","lift":260,"same":true}
+✔ Murdoch Bumper ledger basketball lift 260px (40571.374625ms)
+MURDOCH_LEDGER {"label":"bowling/60/run1","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/60/run1 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER {"label":"bowling/60/run2","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/60/run2 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER_DETERMINISM {"kind":"bowling","lift":60,"same":true}
+✔ Murdoch Bumper ledger bowling lift 60px (20429.789458ms)
+MURDOCH_LEDGER {"label":"bowling/110/run1","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/110/run1 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER {"label":"bowling/110/run2","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/110/run2 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER_DETERMINISM {"kind":"bowling","lift":110,"same":true}
+✔ Murdoch Bumper ledger bowling lift 110px (20359.275041ms)
+MURDOCH_LEDGER {"label":"bowling/150/run1","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/150/run1 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER {"label":"bowling/150/run2","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/150/run2 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER_DETERMINISM {"kind":"bowling","lift":150,"same":true}
+✔ Murdoch Bumper ledger bowling lift 150px (20323.916458ms)
+MURDOCH_LEDGER {"label":"bowling/200/run1","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/200/run1 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER {"label":"bowling/200/run2","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/200/run2 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER_DETERMINISM {"kind":"bowling","lift":200,"same":true}
+✔ Murdoch Bumper ledger bowling lift 200px (20344.399792ms)
+MURDOCH_LEDGER {"label":"bowling/260/run1","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/260/run1 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER {"label":"bowling/260/run2","paid":[32],"unpaid":2,"final":0,"count":2,"pulses":1}
+MURDOCH_LEDGER_INCOMPLETE bowling/260/run2 L7 observed 3 unique occurrences but the store counts 2
+MURDOCH_LEDGER_DETERMINISM {"kind":"bowling","lift":260,"same":true}
+MURDOCH_LEDGER_COVERAGE {"maxPaid":2,"exhausting":10,"scenarios":10,"incomplete":["basketball/60/run1: L7 observed 7 unique occurrences but the store counts 6","basketball/60/run2: L7 observed 7 unique occurrences but the store counts 6","basketball/110/run1: L7 observed 7 unique occurrences but the store counts 6","basketball/110/run2: L7 observed 7 unique occurrences but the store counts 6","basketball/150/run1: L7 observed 8 unique occurrences but the store counts 7","basketball/150/run2: L7 observed 8 unique occurrences but the store counts 7","basketball/200/run1: L7 observed 8 unique occurrences but the store counts 7","basketball/200/run2: L7 observed 8 unique occurrences but the store counts 7","basketball/260/run1: L7 observed 8 unique occurrences but the store counts 7","basketball/260/run2: L7 observed 8 unique occurrences but the store counts 7","bowling/60/run1: L7 observed 3 unique occurrences but the store counts 2","bowling/60/run2: L7 observed 3 unique occurrences but the store counts 2","bowling/110/run1: L7 observed 3 unique occurrences but the store counts 2","bowling/110/run2: L7 observed 3 unique occurrences but the store counts 2","bowling/150/run1: L7 observed 3 unique occurrences but the store counts 2","bowling/150/run2: L7 observed 3 unique occurrences but the store counts 2","bowling/200/run1: L7 observed 3 unique occurrences but the store counts 2","bowling/200/run2: L7 observed 3 unique occurrences but the store counts 2","bowling/260/run1: L7 observed 3 unique occurrences but the store counts 2","bowling/260/run2: L7 observed 3 unique occurrences but the store counts 2"]}
+✔ Murdoch Bumper ledger bowling lift 260px (20288.55125ms)
+✖ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-bumper-ledger.test.ts (0.449125ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 304686.730291
+
+✖ failing tests:
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-bumper-ledger.test.ts:2:3703
+✖ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-bumper-ledger.test.ts (0.449125ms)
+  AssertionError [ERR_ASSERTION]: Incomplete: no scenario drove >= 3 paid payouts (max 2)
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/probes/e2e/murdoch-bumper-ledger.test.ts:84:16)
+      at TestHook.runInAsyncScope (node:async_hooks:226:14)
+      at TestHook.run (node:internal/test_runner/test:1402:25)
+      at TestHook.run (node:internal/test_runner/test:1757:18)
+      at TestHook.run (node:internal/util:581:20)
+      at Test.runHook (node:internal/test_runner/test:1289:20)
+      at after (node:internal/test_runner/test:1342:20)
+      at Test.run (node:internal/test_runner/test:1428:13) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

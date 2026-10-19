@@ -1,0 +1,26 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.82]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 0.5, pays: False) [FAIL]
+[xUnit.net 00:00:00.83]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 2, pays: True) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 0.5, pays: False) [56 ms]
+  Error Message:
+   System.InvalidOperationException : Contact work 0 holds an impossible store: 0 J available of a 32 J preload.
+  Stack Trace:
+     at CuriousContraptions.Simulation.WorkshopPhysicsEngine.EmitContactEvents(Span`1 span, SimCollider colStatic, SimBody bDyn, Single approach, Vector3 normalTowardDyn, ContactPoint contact, Int32 substep, UInt32 sourceOrdinal) in /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:line 378
+   at CuriousContraptions.Simulation.WorkshopPhysicsEngine.Advance(Byte[] source, Byte[] candidate, PhysicsTickInputs inputs) in /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:line 980
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 311
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(Single minimums, Boolean pays) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 121
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 2, pays: True) [1 ms]
+  Error Message:
+   System.InvalidOperationException : Contact work 0 holds an impossible store: 0 J available of a 32 J preload.
+  Stack Trace:
+     at CuriousContraptions.Simulation.WorkshopPhysicsEngine.EmitContactEvents(Span`1 span, SimCollider colStatic, SimBody bDyn, Single approach, Vector3 normalTowardDyn, ContactPoint contact, Int32 substep, UInt32 sourceOrdinal) in /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:line 378
+   at CuriousContraptions.Simulation.WorkshopPhysicsEngine.Advance(Byte[] source, Byte[] candidate, PhysicsTickInputs inputs) in /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:line 980
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 311
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(Single minimums, Boolean pays) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 121
+   at InvokeStub_WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 78 ms - CuriousContraptions.tests.dll (net10.0)

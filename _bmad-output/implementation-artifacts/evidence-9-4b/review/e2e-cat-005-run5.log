@@ -1,0 +1,22 @@
+2026-10-18T17:30:37Z
+{"runningTransfer":[{"tick":"181","enabled":1,"source":3557,"debit":1,"store":11,"credit":1},{"tick":"182","enabled":1,"source":3556,"debit":1,"store":12,"credit":1},{"tick":"183","enabled":1,"source":3555,"debit":1,"store":13,"credit":1},{"tick":"184","enabled":1,"source":3554,"debit":1,"store":14,"credit":1},{"tick":"185","enabled":1,"source":3553,"debit":1,"store":15,"credit":1},{"tick":"186","enabled":1,"source":3552,"debit":1,"store":16,"credit":1},{"tick":"187","enabled":1,"source":3551,"debit":1,"store":17,"credit":1},{"tick":"188","enabled":1,"source":3550,"debit":1,"store":18,"credit":1},{"tick":"189","enabled":1,"source":3549,"debit":1,"store":19,"credit":1},{"tick":"190","enabled":1,"source":3548,"debit":1,"store":20,"credit":1},{"tick":"191","enabled":0,"source":3548,"debit":0,"store":20,"credit":0},{"tick":"207","enabled":1,"source":3547,"debit":1,"store":21,"credit":1},{"tick":"208","enabled":1,"source":3546,"debit":1,"store":22,"credit":1},{"tick":"209","enabled":1,"source":3545,"debit":1,"store":23,"credit":1},{"tick":"210","enabled":1,"source":3544,"debit":1,"store":24,"credit":1},{"tick":"211","enabled":1,"source":3543,"debit":1,"store":25,"credit":1},{"tick":"212","enabled":1,"source":3542,"debit":1,"store":26,"credit":1},{"tick":"213","enabled":1,"source":3541,"debit":1,"store":27,"credit":1},{"tick":"214","enabled":1,"source":3540,"debit":1,"store":28,"credit":1},{"tick":"215","enabled":1,"source":3539,"debit":1,"store":29,"credit":1},{"tick":"216","enabled":1,"source":3538,"debit":1,"store":30,"credit":1},{"tick":"217","enabled":1,"source":3537,"debit":1,"store":31,"credit":1},{"tick":"218","enabled":1,"source":3536,"debit":1,"store":32,"credit":1}]}
+{"scenario":"funded-disable","source":3408,"store":32,"hits":6}
+✔ Battery recharge, disable, Save/Load and Reset (26364.69825ms)
+{"scenario":"depleted","source":0,"store":0,"hits":4}
+✔ Battery finite60J source exhausts and retains final credit (18925.7185ms)
+{"scenario":"fanout","source":3216,"hits":[6,6]}
+✔ Battery fans one finite source out to two existing Bumper stores (20591.540167ms)
+✔ Battery disconnected authored settings and rendered charge thresholds restore exactly (55458.496458ms)
+✔ Battery paused intent reverses and Running controls preserve stores across continued ticks (13032.917709ms)
+✔ Battery electrical animation survives same-world cadence downshift through existing protocol boundary (6543.423625ms)
+✔ Battery accounting deduplicates exact commits and rejects mutated or unfunded credits (1.647584ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 141163.428417
+exit=0
+2026-10-18T17:32:58Z

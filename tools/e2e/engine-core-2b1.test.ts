@@ -19,7 +19,7 @@ describe('ENGINE-CORE-2b1: Host Validation & Error Lane Removal (Direct SAB Pose
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Real-time ball drop and Workbench interaction without host validation overhead or errors', { timeout: 120000 }, async () => {

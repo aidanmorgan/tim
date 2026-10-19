@@ -137,7 +137,9 @@ public sealed class WorkshopGpuDeviceTests
     }
 
     [Fact]
-    public async Task PreparedResourcesAloneDoNotPublishAndLaterLossCanRequalify()
+    // The worker owns no device since the pure C# engine (Story 9.2b); Story 9.4b deleted the device-loss path, so
+    // preparation initializes once and admission reuses it.
+    public async Task PreparedResourcesAloneDoNotPublishAndAdmissionReusesThem()
     {
         var transport = new HeldTransport(false);
         transport.Held.SetResult();
@@ -147,9 +149,8 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(0, transport.Stages);
         Assert.Equal(0, transport.Reads);
         Assert.Equal(0, transport.Commits);
-        device.MarkLost();
         var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(2), Profile, new(1));
-        Assert.Equal(2, transport.Initializations);
+        Assert.Equal(1, transport.Initializations);
         device.Commit(admitted.Sequence);
         device.Discard(admitted.Sequence);
         await device.DisposeAsync();

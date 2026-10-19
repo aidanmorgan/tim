@@ -1,0 +1,132 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.10]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "delayTicks") [FAIL]
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "tennisSpin") [FAIL]
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "detectorAperture") [FAIL]
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "balloonLift") [FAIL]
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "springStiffness") [FAIL]
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "funnelMouth") [FAIL]
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "clockPhase") [FAIL]
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "pipeBore") [FAIL]
+[xUnit.net 00:00:01.12]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheScannedElementNamesAreDerivedFromTheCatalogue [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "delayTicks") [9 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "tennisSpin") [< 1 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at InvokeStub_WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "detectorAperture") [< 1 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at InvokeStub_WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "balloonLift") [< 1 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at InvokeStub_WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "springStiffness") [< 1 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at InvokeStub_WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "funnelMouth") [< 1 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at InvokeStub_WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "clockPhase") [< 1 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at InvokeStub_WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "pipeBore") [< 1 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(String identifier) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 659
+   at InvokeStub_WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheScannedElementNamesAreDerivedFromTheCatalogue [4 ms]
+  Error Message:
+   Assert.All() Failure: 14 out of 24 items in the collection did not pass.
+[0]:  Item:  "/Users/aidan/dev/personal/tim/parts/catalog/clock."···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "clock"
+[2]:  Item:  "/Users/aidan/dev/personal/tim/parts/catalog/pipe_b"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "pipe"
+[3]:  Item:  "/Users/aidan/dev/personal/tim/parts/catalog/pipe_b"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "pipe"
+[4]:  Item:  "/Users/aidan/dev/personal/tim/parts/catalog/pressu"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "pressure"
+[5]:  Item:  "/Users/aidan/dev/personal/tim/parts/catalog/spring"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "spring"
+[10]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/ball.t"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "ball"
+[12]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/pipe.t"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "pipe"
+[16]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/powere"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "powered"
+[17]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/tennis"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "tennis"
+[18]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/delay."···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "delay"
+[19]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/funnel"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "funnel"
+[20]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/basket"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "basket"
+[21]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/ball_d"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "ball"
+[23]: Item:  "/Users/aidan/dev/personal/tim/parts/catalog/balloo"···
+      Error: Assert.Contains() Failure: Item not found in collection
+             Collection: ["domino", "basketball", "bowling", "bumper", "ramp", ···]
+             Not found:  "balloon"
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheScannedElementNamesAreDerivedFromTheCatalogue() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 663
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     9, Passed:     0, Skipped:     0, Total:     9, Duration: 42 ms - CuriousContraptions.tests.dll (net10.0)

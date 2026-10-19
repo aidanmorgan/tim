@@ -1,0 +1,66 @@
+M4-01-width-bound-removed: KILLED by 9:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_1_AWideExchangeAtASixtyMillisecondMoveIsInconclusiveAndTheMoveRecalibratesOnce
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_5_AReplyAfterTheRenewalTimeBoundIsOneElapsedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+M4-02-inconclusive-retained: KILLED by 2:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_1_AWideExchangeAtASixtyMillisecondMoveIsInconclusiveAndTheMoveRecalibratesOnce
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideRenewingExchangeCannotConfirmAMovedClock
+M4-03-inconclusive-recalibrates: KILLED by 9:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_1_AWideExchangeAtASixtyMillisecondMoveIsInconclusiveAndTheMoveRecalibratesOnce
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_5_AReplyAfterTheRenewalTimeBoundIsOneElapsedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+M4-04-no-exhaustion: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalWhoseEveryExchangeIsTooWideExhaustsItsBudgetAsARecalibration
+M4-05-renewing-no-time-bound: KILLED by 3:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_5_AReplyAfterTheRenewalTimeBoundIsOneElapsedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AFreshExchangeThatIsNotAcceptedOrNeverAnsweredEndsTheRenewalAsARecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(beyond: 1, elapsed: True)
+M4-06-renewing-no-send-cap: SURVIVED
+M4-07-renewing-sends-uncounted: KILLED by 3:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalWhoseEveryExchangeIsTooWideExhaustsItsBudgetAsARecalibration
+M4-08-record-per-exchange: KILLED by 7:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_1_AWideExchangeAtASixtyMillisecondMoveIsInconclusiveAndTheMoveRecalibratesOnce
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_5_AReplyAfterTheRenewalTimeBoundIsOneElapsedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+M4-09-qualified-while-renewing: KILLED by 13:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AFreshExchangeThatIsNotAcceptedOrNeverAnsweredEndsTheRenewalAsARecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalNotConcludedWithinTheRecoveryLifetimeIsARecalibration(beyond: 0, elapsed: False)
+M4-10-no-pending-guard: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ALapseInRecoveryWithAProbeOutstandingIsACountedRecalibration
+M4-11-renewing-startup-spacing: KILLED by 4:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_5_AReplyAfterTheRenewalTimeBoundIsOneElapsedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalWhoseEveryExchangeIsTooWideExhaustsItsBudgetAsARecalibration
+M4-12-no-overlap: KILLED by 5:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_1_AWideExchangeAtASixtyMillisecondMoveIsInconclusiveAndTheMoveRecalibratesOnce
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_2_Control_AfterASevenHundredMillisecondStallAFourMillisecondMoveRecalibrates
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStalledRequestersLapseThatDisagreesWithTheOldMappingIsACountedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideRenewingExchangeCannotConfirmAMovedClock
+M4-13-budget-clock-not-started: KILLED by 17:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_1_AWideExchangeAtASixtyMillisecondMoveIsInconclusiveAndTheMoveRecalibratesOnce
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_3_AfterALongStallANarrowExchangeConfirmsAMoveLargerThanTheMappedWidth(resumed: 10070000000, move: 4000000)
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_3_AfterALongStallANarrowExchangeConfirmsAMoveLargerThanTheMappedWidth(resumed: 120070000000, move: 50000000)
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_4_AForeignReplyWhileRenewingRecalibrates_ButIsIgnoredInReady
+M4-14-budget-inherited-from-recovery: SURVIVED
+M4-15-conclusion-keeps-bookkeeping: SURVIVED
+M4-16-width-bound-strict: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(wider: 0, renews: True)
+M4-17-exchanges-off-by-one: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 1)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+M4-18-recovery-end-any-width: SURVIVED
+M4-19-retained-drift-unwidened: KILLED by 3:
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_3_AfterALongStallANarrowExchangeConfirmsAMoveLargerThanTheMappedWidth(resumed: 10070000000, move: 4000000)
+    CuriousContraptions.Tests.MurdochR4RenewalTests.R4_3_AfterALongStallANarrowExchangeConfirmsAMoveLargerThanTheMappedWidth(resumed: 120070000000, move: 50000000)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalBoundaryIsExactlyTheDriftWidenedOverlap(beyond: 0, renewed: True)
+M4-20-exhaustion-one-early: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ANarrowConsistentExchangeAfterWideOnesRenewsExactlyOnce(wide: 7)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalWhoseEveryExchangeIsTooWideExhaustsItsBudgetAsARecalibration

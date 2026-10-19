@@ -10,12 +10,16 @@ public sealed record PlannedFixture(WorkOrderId Id, RequirementId Instance, Sour
     bool Locked, WorkOrderId ProofCriterion);
 public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixture[] Fixtures)
 {
-    public IReadOnlySet<RequirementId> Admitted { get; init; } = new HashSet<RequirementId>();
+    /// <summary>Each admitted part identity and the catalogue resource that declares it (keyed by the resource's own Id).</summary>
+    public IReadOnlyDictionary<RequirementId, SourcePath> Admitted { get; init; } = new Dictionary<RequirementId, SourcePath>();
     public SourceArtifact[] AvailableResources { get; init; } = [];
     public static readonly SourcePath ConsumersPath = new("docs/planning/invest/current-consumers.md");
+    public static readonly SourcePath PartIdentityPath = new("engine/PartId.cs");
     private const string DeclarationDirectory = "docs/planning/elements";
     private const string ResourceDirectory = "parts/catalog";
-    private const string RegistryPath = "engine/PartRegistry.cs";
+    // PartRegistry.Discover admits every *.tres resource in parts/catalog; PartId's numeric wire table declares the
+    // closed set of part identities those resources must cover exactly.
+    private const string ResourceSearchPattern = "*.tres";
 
     public static CurrentCatalogue Read(DirectoryInfo root)
     {
@@ -32,19 +36,16 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         });
         result = result.BindAcceptance(requirements);
         result.ValidateFixtures(File.ReadAllText(Path.Combine(root.FullName, "content/puzzles.json")));
-        var registry = File.ReadAllText(Path.Combine(root.FullName, RegistryPath));
-        var admitted = Regex.Matches(registry, "res://parts/catalog/([a-z0-9_]+)\\.tres")
-            .Select(match => new RequirementId(match.Groups[1].Value)).ToArray();
-        if (admitted.Length == 0 || admitted.Distinct().Count() != admitted.Length)
-            throw new InvalidDataException("Missing or duplicate admitted catalogue resource boundary.");
-        var present = Directory.GetFiles(Path.Combine(root.FullName, ResourceDirectory), "*.tres")
-            .Select(path => new RequirementId(Path.GetFileNameWithoutExtension(path)));
-        var artifacts = result.ValidateResources(admitted.Concat(present).Distinct().ToArray(), path =>
+        var declared = DeclaredPartIdentities(File.ReadAllText(Path.Combine(root.FullName, PartIdentityPath.Value)));
+        var resources = Directory.GetFiles(Path.Combine(root.FullName, ResourceDirectory), ResourceSearchPattern)
+            .Select(path => new SourcePath(ResourceDirectory + "/" + Path.GetFileName(path)))
+            .OrderBy(path => path.Value, StringComparer.Ordinal).ToArray();
+        var (artifacts, admitted) = result.ValidateResources(declared, resources, path =>
         {
             var full = Path.Combine(root.FullName, path.Value);
             return File.Exists(full) ? File.ReadAllText(full) : null;
         });
-        return result with { AvailableResources = artifacts, Admitted = admitted.ToHashSet() };
+        return result with { AvailableResources = artifacts, Admitted = admitted };
     }
 
     public static CurrentCatalogue Parse(string text, IReadOnlyCollection<WorkOrderId> required,
@@ -179,22 +180,51 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         if (!seen.SetEquals(expected.Keys)) throw new InvalidDataException("Authored fixture membership differs.");
     }
 
-    public SourceArtifact[] ValidateResources(IReadOnlyCollection<RequirementId> admitted, Func<SourcePath, string?> read)
+    /// <summary>The part identities declared by PartId's numeric wire table (every non-zero arm of ToNumericId).</summary>
+    public static RequirementId[] DeclaredPartIdentities(string source)
     {
-        if (admitted.Count == 0 || admitted.Distinct().Count() != admitted.Count)
-            throw new InvalidDataException("Missing or duplicate admitted resource identity.");
+        var table = Regex.Match(source, @"ToNumericId\(\) => Value switch\s*\{(?<arms>[^}]*)\}");
+        if (!table.Success)
+            throw new InvalidDataException($"'{PartIdentityPath.Value}' has no ToNumericId part identity table.");
+        var arms = Regex.Matches(table.Groups["arms"].Value, "\"([a-z0-9_]+)\" => ([1-9][0-9]*),")
+            .Select(match => new RequirementId(match.Groups[1].Value)).ToArray();
+        if (arms.Length == 0 || arms.Distinct().Count() != arms.Length)
+            throw new InvalidDataException($"'{PartIdentityPath.Value}' declares a missing or duplicate part identity.");
+        return arms;
+    }
+
+    /// <summary>
+    /// Binds every catalogue resource to the part identity its own <c>Id</c> declares. The resources must cover the
+    /// declared identities exactly: an unreadable resource, a resource without exactly one Id, an Id outside the
+    /// declared set or the current catalogue, an Id claimed by two resources and a declared identity without a
+    /// resource each reject, naming the resource and identity.
+    /// </summary>
+    public (SourceArtifact[] Artifacts, IReadOnlyDictionary<RequirementId, SourcePath> Admitted) ValidateResources(
+        IReadOnlyCollection<RequirementId> declared, IReadOnlyCollection<SourcePath> resources, Func<SourcePath, string?> read)
+    {
+        if (declared.Count == 0 || declared.Distinct().Count() != declared.Count)
+            throw new InvalidDataException("Missing or duplicate declared part identity.");
         var known = Elements.Select(element => element.Source.Key.Id).ToHashSet();
+        var admitted = new Dictionary<RequirementId, SourcePath>();
         var artifacts = new List<SourceArtifact>();
-        foreach (var key in admitted)
+        foreach (var path in resources)
         {
-            if (!known.Contains(key)) throw new InvalidDataException("Admitted resource has no declared catalogue identity.");
-            var path = new SourcePath(ResourceDirectory + "/" + key.Value + ".tres");
-            var content = read(path) ?? throw new InvalidDataException("Admitted catalogue resource is missing.");
-            var ids = Regex.Matches(content, "^Id = \"([^\"]+)\"$", RegexOptions.Multiline);
-            if (ids.Count != 1 || ids[0].Groups[1].Value != key.Value)
-                throw new InvalidDataException("Admitted resource identity differs.");
+            var content = read(path) ?? throw new InvalidDataException($"Catalogue resource '{path.Value}' is missing.");
+            var ids = Regex.Matches(content, "^Id = \"([^\"]+)\"\r?$", RegexOptions.Multiline);
+            if (ids.Count != 1)
+                throw new InvalidDataException($"Catalogue resource '{path.Value}' declares {ids.Count} Ids; exactly one is required.");
+            var key = new RequirementId(ids[0].Groups[1].Value);
+            if (!declared.Contains(key))
+                throw new InvalidDataException($"Catalogue resource '{path.Value}' Id '{key.Value}' is not a declared part identity.");
+            if (!known.Contains(key))
+                throw new InvalidDataException($"Catalogue resource '{path.Value}' Id '{key.Value}' has no current catalogue declaration.");
+            if (!admitted.TryAdd(key, path))
+                throw new InvalidDataException($"Part identity '{key.Value}' is declared by both '{admitted[key].Value}' and '{path.Value}'.");
             artifacts.Add(new(path, RequirementDiscovery.Hash(content)));
         }
-        return artifacts.ToArray();
+        var absent = declared.Where(key => !admitted.ContainsKey(key)).Select(key => key.Value).ToArray();
+        if (absent.Length != 0)
+            throw new InvalidDataException($"Declared part identities have no catalogue resource: {string.Join(", ", absent)}.");
+        return (artifacts.ToArray(), admitted);
     }
 }

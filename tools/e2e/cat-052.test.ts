@@ -96,7 +96,7 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Free workshop placement & wiring: place gate, basketball, plate, and battery; wire Battery -> Plate -> Gate', { timeout: 150000 }, async () => {

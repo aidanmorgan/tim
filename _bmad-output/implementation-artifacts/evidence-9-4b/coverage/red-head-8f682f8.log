@@ -1,0 +1,30 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+[37m  Discovering: Coverage.Tests
+[0m[37m  Discovered:  Coverage.Tests
+[0m[37m  Starting:    Coverage.Tests
+[0m[91m    CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [FAIL]
+[0m[37m      System.IO.InvalidDataException : Missing or duplicate admitted catalogue resource boundary.
+[0m[90m      Stack Trace:
+[0m[37m        tools/Coverage/CurrentCatalogue.cs(39,0): at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root)
+[0m[37m        tools/Coverage.Tests/CurrentCatalogueTests.cs(52,0): at CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures()
+[0m[37m           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[0m[37m           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[0m[91m    CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [FAIL]
+[0m[37m      System.IO.InvalidDataException : Missing or duplicate admitted catalogue resource boundary.
+[0m[90m      Stack Trace:
+[0m[37m        tools/Coverage/CurrentCatalogue.cs(39,0): at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root)
+[0m[37m        tools/Coverage.Tests/CurrentCapabilityInputsTests.cs(62,0): at CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes()
+[0m[37m           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[0m[37m           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[0m[91m    CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [FAIL]
+[0m[37m      System.IO.InvalidDataException : Missing or duplicate admitted catalogue resource boundary.
+[0m[90m      Stack Trace:
+[0m[37m        tools/Coverage/CurrentCatalogue.cs(39,0): at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root)
+[0m[37m        tools/Coverage/RequirementDiscovery.cs(24,0): at CuriousContraptions.Coverage.RequirementDiscovery.Discover(DirectoryInfo root)
+[0m[37m        tools/Coverage.Tests/CurrentCapabilityInputsTests.cs(30,0): at CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles()
+[0m[37m           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[0m[37m           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[0m[37m  Finished:    Coverage.Tests (ID = '92a7e09d0afcfc119d0c338f04921f44c3961959fcdc9bddd69e3d2333784dec')
+[0m[37m=== TEST EXECUTION SUMMARY ===
+[0m[37m   Coverage.Tests  Total: 68, Errors: 0, Failed: 3, Skipped: 0, Not Run: 0, Time: 0.206s
+[0m[0m

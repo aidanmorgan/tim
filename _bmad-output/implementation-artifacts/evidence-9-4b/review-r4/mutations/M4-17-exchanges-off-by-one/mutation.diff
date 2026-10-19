@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-17-exchanges-off-by-one/original	2026-10-19 15:13:23.914934979 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:13:23.919538541 +0800
+@@ -587,7 +587,7 @@
+             json.WriteNumber("role", (uint)_peer.RequesterRole);
+             Exact("count", LateRenewals);
+             Exact("lapseAge", _renewalLapseAge);
+-            json.WriteNumber("exchanges", _recoverySends);
++            json.WriteNumber("exchanges", _recoverySends + 1);
+             Exact("renewedAt", reply.RequesterReceived.Value);
+             Exact("oldLower", retained.Lower); Exact("oldUpper", retained.Upper);
+             Exact("newLower", fresh.Lower); Exact("newUpper", fresh.Upper);

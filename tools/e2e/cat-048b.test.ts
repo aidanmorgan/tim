@@ -24,7 +24,7 @@ describe('CAT-048b: Clear Pipe Level E2E (Through the looking tube)', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Select level clear_pipe: verify initial layout (locked ball, locked receiver, 1 pipe in inventory)', { timeout: 150000 }, async () => {

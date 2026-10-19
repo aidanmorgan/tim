@@ -1,0 +1,1 @@
+startup qualification waits out a stalled master instead of burning its attempt budget

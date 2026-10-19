@@ -1,0 +1,10 @@
+{"firstFailureMs":null,"failures":0,"recalibrations":0}
+✔ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (9311.885292ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9552.26475

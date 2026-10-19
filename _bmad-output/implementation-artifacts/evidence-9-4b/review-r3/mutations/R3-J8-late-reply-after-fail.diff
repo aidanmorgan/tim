@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-J8-late-reply-after-fail/original	2026-10-19 11:30:07.039042699 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.web/wwwroot/workshop-client.js	2026-10-19 11:30:07.043865518 +0800
+@@ -391,7 +391,7 @@
+     // The Simulation-owned clock master answers through the clock ring, never the Simulation's busy event loop.
+     // The reply is received when the wait resolves and is delivered under the same clock lease as before.
+     requestReply(client.clock, ClockRole.Browser, new Uint8Array(bytes)).then(reply => {
+-        if (!reply || client.failure || !clients.has(id)) return;
++        if (!reply) return;
+         try { deliver(client, reply, now(), client.clockReplyCallback); }
+         catch (error) { fail(client, error); }
+     }, error => {

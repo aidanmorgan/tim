@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-wide-offset-not-recorded/original	2026-10-19 11:29:14.646757299 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockDerivation.cs	2026-10-19 11:29:14.651583746 +0800
+@@ -144,7 +144,7 @@
+         if (!IsQualified) return ClockDerivationOutcome.Consistent;
+         var correction = (lower + upper) / 2;
+         _pending = correction; _pendingRederives = false;
+-        if (Math.Abs(correction) > WideStartupOffsetMilliseconds) RecordWideOffset(correction);
++        ;
+         Report(ClockDerivationReport.Startup, ClockDerivationOutcome.Consistent, exchange);
+         return ClockDerivationOutcome.Consistent;
+     }

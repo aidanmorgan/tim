@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/R5-04-old-bound-without-sample-allowance/original	2026-10-19 15:40:54.014397548 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:40:54.018935605 +0800
+@@ -200,7 +200,7 @@
+         // R4-F1: the old side is bounded too. Its narrowest retained interval, drift-widened to now, must itself fit the
+         // mapped width, or a long stall would widen it until it swallowed a real move; past that the lapse recalibrates.
+         var renewed = renewing && outcome == ClockProbeOutcome.Accepted &&
+-            TryRetained(reply.RequesterReceived, out retained) && WithinMappedWidth(retained) &&
++            TryRetained(reply.RequesterReceived, out retained) && retained.Width <= MaximumMappedWidth &&
+             interval.Overlaps(retained);
+         var exhausted = outcome == ClockProbeOutcome.Inconclusive && _recoverySends == RecoveryProbeLimit;
+         var expired = !renewed && outcome != ClockProbeOutcome.Inconclusive && _count != 0 &&

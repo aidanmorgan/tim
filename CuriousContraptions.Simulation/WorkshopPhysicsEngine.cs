@@ -48,6 +48,16 @@ public sealed class WorkshopPhysicsEngine
         _touchingBodies.Clear();
     }
 
+    /// <summary>The warm-up world's one contact-work store is a valid full 32 J store with an 8 m/s target, so warming
+    /// exercises the payment path rather than an empty store (Story 9.4b).</summary>
+    private static void WarmupStore(byte[] world)
+    {
+        var store = world.AsSpan(PhysicsGpuAbi.ContactWorksOffset, PhysicsGpuAbi.ContactWorkBytes);
+        BinaryPrimitives.WriteSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkTargetSpeedOffset..], 8f);
+        BinaryPrimitives.WriteSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkPreloadOffset..], 32f);
+        BinaryPrimitives.WriteSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkAvailableOffset..], 32f);
+    }
+
     public void Warmup()
     {
         var dummyBodyA = new SimBody { Mass = 1f, InvMass = 1f, Motion = 1 };
@@ -175,9 +185,10 @@ public sealed class WorkshopPhysicsEngine
         ElectricalSupply.Allocate(ElectricalEnable.Enabled, 50f, 10f, elecBefore, elecLimits, elecAfter);
 
         var mockBuffer = new byte[PhysicsGpuAbi.ByteLength];
-        BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(100, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(104, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(108, 4), 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(PhysicsGpuAbi.HeaderTriggerCountOffset, 4), 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(PhysicsGpuAbi.HeaderContactWorkCountOffset, 4), 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, 4), 1);
+        WarmupStore(mockBuffer);
         if (warmupContacts.Count > 0)
             EmitContactEvents(mockBuffer.AsSpan(), dummyBoxB, dummyBodyA, 2.0f, Vector3.UnitY, warmupContacts[0], 0, 0);
 
@@ -201,15 +212,16 @@ public sealed class WorkshopPhysicsEngine
         var mockSource = new byte[PhysicsGpuAbi.ByteLength];
         var mockCandidate = new byte[PhysicsGpuAbi.ByteLength];
         var mSpan = mockSource.AsSpan();
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(12, 4), 2);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(16, 4), 2);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(28, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(48, 4), 2);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(100, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(104, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(108, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(120, 4), 0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(124, 4), 0);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderBodyCountOffset, 4), 2);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderColliderCountOffset, 4), 2);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderDynamicCountOffset, 4), 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderCadenceOffset, 4), 2);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderTriggerCountOffset, 4), 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderContactWorkCountOffset, 4), 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, 4), 1);
+        WarmupStore(mockSource);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderElectricalSourceCountOffset, 4), 0);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderElectricalBindingCountOffset, 4), 0);
         BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.PrismaticsOffset, 4), 1);
 
         var b0 = PhysicsGpuAbi.BodiesOffset;
@@ -262,7 +274,7 @@ public sealed class WorkshopPhysicsEngine
 
         // Warm-up inputs match the mock document's own tables: every source disabled, no switched supply closed.
         var warmupInputs = new PhysicsTickInputs(
-            new ElectricalEnable[BinaryPrimitives.ReadUInt32LittleEndian(mSpan.Slice(120, 4))],
+            new ElectricalEnable[BinaryPrimitives.ReadUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderElectricalSourceCountOffset, 4))],
             new bool[BinaryPrimitives.ReadUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.PrismaticsOffset, 4))]);
         for (var step = 0; step < 5; step++)
         {
@@ -289,82 +301,86 @@ public sealed class WorkshopPhysicsEngine
     private static void EmitContactEvents(Span<byte> span, SimCollider colStatic, SimBody bDyn, float approach, Vector3 normalTowardDyn, ContactPoint contact, int substep, uint sourceOrdinal)
     {
         var bStatic = colStatic.Body;
-        var tCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(100, 4));
+        var tCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderTriggerCountOffset, 4));
         for (var t = 0; t < tCount; t++)
         {
-            var tOffset = PhysicsGpuAbi.TriggersOffset + t * 64;
-            var owner = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + 8, 4));
+            var tOffset = PhysicsGpuAbi.TriggersOffset + t * PhysicsGpuAbi.TriggerBytes;
+            var owner = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerOwnerOffset, 4));
             if (owner != bStatic.BodySlot) continue;
-            var kind = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + 12, 4));
-            var named = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + 24, 4));
-            if (kind == 1 && named != bDyn.BodySlot) continue;
-            var threshold = ReadF16(span, tOffset + 16);
+            var kind = (BodyTargetKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerTargetKindOffset, 4));
+            var named = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerNamedTargetOffset, 4));
+            if (kind == BodyTargetKind.NamedBody && named != bDyn.BodySlot) continue;
+            var threshold = ReadF16(span, tOffset + PhysicsGpuAbi.TriggerThresholdOffset);
             if (approach >= threshold)
             {
-                var curCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + 32, 4));
+                var curCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerCountOffset, 4));
                 if (curCount == 0)
                 {
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + 32, 4), 1);
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + 36, 4), (uint)colStatic.Index);
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + 40, 4), sourceOrdinal + (uint)substep + 1);
-                    WriteF16(span, tOffset + 44, 0f);
-                    WriteF16(span, tOffset + 46, approach);
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + 48, 4), (uint)bDyn.BodySlot);
+                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerCountOffset, 4), 1);
+                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerColliderOffset, 4), (uint)colStatic.Index);
+                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerOrdinalOffset, 4), sourceOrdinal + (uint)substep + 1);
+                    WriteF16(span, tOffset + PhysicsGpuAbi.TriggerPhaseOffset, 0f);
+                    WriteF16(span, tOffset + PhysicsGpuAbi.TriggerApproachOffset, approach);
+                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerBodyOffset, 4), (uint)bDyn.BodySlot);
                 }
             }
         }
 
-        var cwCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(104, 4));
-        var workOccCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(108, 4));
+        var cwCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderContactWorkCountOffset, 4));
+        var workOccCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, 4));
         for (var w = 0; w < cwCount; w++)
         {
-            var wOffset = PhysicsGpuAbi.ContactWorksOffset + w * 64;
-            var owner = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + 8, 4));
+            var wOffset = PhysicsGpuAbi.ContactWorksOffset + w * PhysicsGpuAbi.ContactWorkBytes;
+            var owner = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkOwnerOffset, 4));
             if (owner != bStatic.BodySlot) continue;
-            var kind = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + 12, 4));
-            var named = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + 28, 4));
-            if (kind == 1 && named != bDyn.BodySlot) continue;
-            var threshold = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + 20, 4));
+            var kind = (BodyTargetKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkTargetKindOffset, 4));
+            var named = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkNamedTargetOffset, 4));
+            if (kind == BodyTargetKind.NamedBody && named != bDyn.BodySlot) continue;
+            var threshold = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkAdmissionSpeedOffset, 4));
             if (approach < threshold) continue;
 
             for (var o = 0; o < workOccCount; o++)
             {
-                var oOffset = PhysicsGpuAbi.WorkOccurrencesOffset + o * 32;
-                var occWork = BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(oOffset, 2));
-                var targetLow = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + 4, 4));
-                var targetHigh = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + 8, 4));
-                if (occWork != w || targetLow != bDyn.BodyIdLow || targetHigh != bDyn.BodyIdHigh) continue;
+                var oOffset = PhysicsGpuAbi.WorkOccurrencesOffset + o * PhysicsGpuAbi.WorkOccurrenceBytes;
+                var occWork = BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceWorkOffset, 2));
+                var target = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceTargetOffset, 8));
+                if (occWork != w || target != ((ulong)bDyn.BodyIdHigh << 32 | bDyn.BodyIdLow)) continue;
 
-                var prevSeq = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + 12, 4));
-                var prevOrd = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + 16, 4));
-                var cooldown = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + 24, 4));
+                var prevSeq = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceSequenceOffset, 4));
+                var prevOrd = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceOrdinalOffset, 4));
+                var cooldown = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkCooldownOffset, 4));
                 var curOrd = sourceOrdinal + (uint)substep + 1;
-                var curCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + 32, 4));
+                var curCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset, 4));
                 var previousInCommit = prevOrd > sourceOrdinal;
 
                 if (!previousInCommit && (prevSeq == 0 || curOrd >= prevOrd + cooldown))
                 {
                     var newCount = curCount + 1;
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(wOffset + 32, 4), newCount);
-                    BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(oOffset + 2, 2), (ushort)colStatic.Index);
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(oOffset + 12, 4), newCount);
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(oOffset + 16, 4), curOrd);
-                    WriteF16(span, oOffset + 20, 0f);
-                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(oOffset + 22, 4), approach);
+                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset, 4), newCount);
+                    BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceColliderOffset, 2), (ushort)colStatic.Index);
+                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceSequenceOffset, 4), newCount);
+                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceOrdinalOffset, 4), curOrd);
+                    WriteF16(span, oOffset + PhysicsGpuAbi.WorkOccurrencePhaseOffset, 0f);
+                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceApproachOffset, 4), approach);
 
                     var invEffectiveMass = 1f / WorkshopConstraintSolver.EffectiveMass(contact, contact.Normal);
                     var relVel = WorkshopConstraintSolver.RelativeVelocity(contact);
                     var speed = Vector3.Dot(relVel, contact.Normal);
 
-                    var targetImp = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + 16, 4));
-                    var avail = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + 48, 4));
+                    var targetImp = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkTargetSpeedOffset, 4));
+                    var avail = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkAvailableOffset, 4));
+                    var capacity = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkPreloadOffset, 4));
                     var normVec = Vector128.Create(normalTowardDyn.X, normalTowardDyn.Y, normalTowardDyn.Z, 0f);
-                    var response = ContactWorkImpulse.FromStore(speed, targetImp, invEffectiveMass, avail, normVec);
+                    var response = ContactWorkImpulse.FromStore(speed, targetImp, invEffectiveMass, avail, capacity, normVec);
+                    // A validated world never holds one; it is a broken ledger, reported rather than paid as empty (blind hunter 14).
+                    if (response.Store == ContactWorkStore.Impossible)
+                        throw new InvalidOperationException(
+                            $"Contact work {w} holds an impossible store: {avail:R} J available of a {capacity:R} J preload.");
 
-                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(wOffset + 48, 4), response.Remaining);
-                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(oOffset + 26, 4), response.Debit);
-                    span[oOffset + 30] = response.Debit > 0 ? (byte)1 : (byte)0;
-                    span.Slice(oOffset + 31, 1).Clear();
+                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkAvailableOffset, 4), response.Remaining);
+                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceDebitOffset, 4), response.Debit);
+                    span[oOffset + PhysicsGpuAbi.WorkOccurrenceEffectOffset] = response.Debit > 0 ? (byte)1 : (byte)0;
+                    span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrencePaddingOffset, 1).Clear();
 
                     var isA = contact.A == bDyn;
                     var r = isA ? new Vector3(contact.RAx, contact.RAy, contact.RAz) : new Vector3(contact.RBx, contact.RBy, contact.RBz);
@@ -388,30 +404,30 @@ public sealed class WorkshopPhysicsEngine
         Span<float> elecLimits = stackalloc float[ElectricalSupply.LoadCapacity];
         Span<float> elecAfter = stackalloc float[ElectricalSupply.LoadCapacity];
 
-        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(4, 4), 0);
-        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(8, 4), 0);
+        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), 0);
+        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), 0);
 
-        var currentTick = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(40, 8));
-        BinaryPrimitives.WriteUInt64LittleEndian(span.Slice(40, 8), currentTick + 1);
+        var currentTick = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(PhysicsGpuAbi.HeaderTickOffset, 8));
+        BinaryPrimitives.WriteUInt64LittleEndian(span.Slice(PhysicsGpuAbi.HeaderTickOffset, 8), currentTick + 1);
 
-        var sourceOrdinal = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(88, 4));
-        var contactWorkCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(104, 4));
+        var sourceOrdinal = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderSourceOrdinalOffset, 4));
+        var contactWorkCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderContactWorkCountOffset, 4));
         for (var work = 0; work < contactWorkCount; work++)
-            BinaryPrimitives.WriteSingleLittleEndian(span.Slice(PhysicsGpuAbi.ContactWorksOffset + work * 64 + 52, 4), 0f);
+            BinaryPrimitives.WriteSingleLittleEndian(span.Slice(PhysicsGpuAbi.ContactWorksOffset + work * PhysicsGpuAbi.ContactWorkBytes + PhysicsGpuAbi.ContactWorkSuppliedOffset, 4), 0f);
 
-        var supplyCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(120, 4));
+        var supplyCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderElectricalSourceCountOffset, 4));
         inputs.Validate((int)supplyCount, (int)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.PrismaticsOffset, 4)));
         for (var supply = 0; supply < supplyCount; supply++)
             BinaryPrimitives.WriteSingleLittleEndian(span.Slice(PhysicsGpuAbi.ElectricalSourcesOffset + supply * PhysicsGpuAbi.ElectricalSourceBytes + 40, 4), 0f);
 
-        var cadence = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(48, 4));
+        var cadence = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderCadenceOffset, 4));
         var steps = cadence == 1 ? 8 : (cadence == 2 ? 4 : 2);
         var nextOrdinal = sourceOrdinal + (uint)steps;
-        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(88, 4), nextOrdinal);
+        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderSourceOrdinalOffset, 4), nextOrdinal);
 
-        var bodyCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(12, 4));
-        var colliderCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(16, 4));
-        var dynamicCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(28, 4));
+        var bodyCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderBodyCountOffset, 4));
+        var colliderCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderColliderCountOffset, 4));
+        var dynamicCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderDynamicCountOffset, 4));
 
         var motionOffset = PhysicsGpuAbi.MotionOffset;
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(motionOffset, 4), (uint)(dynamicCount * (uint)steps));
@@ -419,7 +435,7 @@ public sealed class WorkshopPhysicsEngine
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(motionOffset + 8, 4), sourceOrdinal);
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(motionOffset + 12, 4), nextOrdinal);
 
-        var triggerCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(100, 4));
+        var triggerCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderTriggerCountOffset, 4));
         for (var t = 0; t < triggerCount; t++)
         {
             var tOffset = PhysicsGpuAbi.TriggersOffset + t * 64;
@@ -439,8 +455,8 @@ public sealed class WorkshopPhysicsEngine
             var bodyIdHigh = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(bodyOffset + 4, 4));
             var id = ((ulong)bodyIdHigh << 32) | bodyIdLow;
 
-            var cellX = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(bodyOffset + 16, 4));
-            var cellY = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(bodyOffset + 20, 4));
+            var cellX = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(bodyOffset + PhysicsGpuAbi.BodyCellOffset, 4));
+            var cellY = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(bodyOffset + PhysicsGpuAbi.BodyCellOffset + 4, 4));
             var cellZ = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(bodyOffset + 24, 4));
             var localX = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(bodyOffset + 32, 4));
             var localY = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(bodyOffset + 36, 4));
@@ -689,7 +705,7 @@ public sealed class WorkshopPhysicsEngine
                     _capacities.Clear();
                     _credits.Clear();
 
-                    var bindingCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(124, 4));
+                    var bindingCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderElectricalBindingCountOffset, 4));
                     for (var route = 0; route < bindingCount; route++)
                     {
                         var binding = PhysicsGpuAbi.ElectricalBindingsOffset + route * PhysicsGpuAbi.ElectricalBindingBytes;
@@ -724,7 +740,7 @@ public sealed class WorkshopPhysicsEngine
                 }
             }
 
-            var guideCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(96, 4));
+            var guideCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderGuideCountOffset, 4));
             for (var g = 0; g < guideCount; g++)
             {
                 var offset = PhysicsGpuAbi.GuidesOffset + g * 64;
@@ -930,9 +946,9 @@ public sealed class WorkshopPhysicsEngine
 
             foreach (var joint in _joints)
             {
-                var springError = joint.Rows[(int)PrismaticRowKind.Spring].Error;
+                var softRowError = joint.Rows[(int)PrismaticRowKind.Spring].Error;
                 PrismaticConstraintSolver.PrepareJointRows(joint, dt);
-                joint.Rows[(int)PrismaticRowKind.Spring].Error = springError;
+                joint.Rows[(int)PrismaticRowKind.Spring].Error = softRowError;
             }
 
             for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
@@ -964,7 +980,7 @@ public sealed class WorkshopPhysicsEngine
                 else if (c.B.Motion == 1 && c.A.Motion == 0) EmitContactEvents(span, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal);
             }
 
-            var orientationCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(116, 4));
+            var orientationCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderOrientationSensorCountOffset, 4));
             for (var o = 0; o < orientationCount; o++)
             {
                 var oOffset = PhysicsGpuAbi.OrientationSensorsOffset + o * 64;
@@ -973,10 +989,10 @@ public sealed class WorkshopPhysicsEngine
                 if (!_allBodies.TryGetValue(sensedSlot, out var sensed)) continue;
 
                 var qDeclared = new Quaternion(
-                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + 16, 4)),
-                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + 20, 4)),
-                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + 24, 4)),
-                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + 28, 4)));
+                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset, 4)),
+                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset + 4, 4)),
+                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset + 8, 4)),
+                    BinaryPrimitives.ReadSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.OrientationSensorRotationOffset + 12, 4)));
 
                 var alignment = MathF.Abs(sensed.Qx * qDeclared.X + sensed.Qy * qDeclared.Y + sensed.Qz * qDeclared.Z + sensed.Qw * qDeclared.W);
                 if (alignment <= ReadF16(span, oOffset + 32))
@@ -1027,7 +1043,7 @@ public sealed class WorkshopPhysicsEngine
         }
 
         var totalCaptured = 0u;
-        var sensorCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(24, 4));
+        var sensorCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderSensorCountOffset, 4));
         for (var i = 0; i < sensorCount; i++)
         {
             var offset = PhysicsGpuAbi.SensorsOffset + i * PhysicsGpuAbi.SensorBytes;
@@ -1112,12 +1128,12 @@ public sealed class WorkshopPhysicsEngine
             totalCaptured += occurrenceCount;
         }
 
-        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(92, 4), totalCaptured);
+        BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderCapturedCountOffset, 4), totalCaptured);
 
         foreach (var b in _dynamicBodies)
         {
-            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + 16, 4), b.CellX);
-            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + 20, 4), b.CellY);
+            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset, 4), b.CellX);
+            BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + PhysicsGpuAbi.BodyCellOffset + 4, 4), b.CellY);
             BinaryPrimitives.WriteInt32LittleEndian(span.Slice(b.BodyOffset + 24, 4), b.CellZ);
             BinaryPrimitives.WriteSingleLittleEndian(span.Slice(b.BodyOffset + 32, 4), b.LocalX);
             BinaryPrimitives.WriteSingleLittleEndian(span.Slice(b.BodyOffset + 36, 4), b.LocalY);

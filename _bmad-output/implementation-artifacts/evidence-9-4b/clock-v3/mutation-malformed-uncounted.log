@@ -1,0 +1,38 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.68]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AMalformedReplyIsACountedTypedRejectionThatLeavesThePendingProbeToExpire [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AMalformedReplyIsACountedTypedRejectionThatLeavesThePendingProbeToExpire [20 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (1, ClockProbe { Session = RuntimeSessionId { Low = 11, High = 23 }, Generation = ClockGeneration { Value = 7 }, RequesterGeneration = ClockGeneration { Value = 1 }, RequesterRole = Browser, Sequence = ClockProbeSequence { Value = 9 }, RequesterSent = MonotonicNanoseconds { Value = 320000000 } }, 0, Ready)
+Actual:   Tuple (0, ClockProbe { Session = RuntimeSessionId { Low = 11, High = 23 }, Generation = ClockGeneration { Value = 7 }, RequesterGeneration = ClockGeneration { Value = 1 }, RequesterRole = Browser, Sequence = ClockProbeSequence { Value = 9 }, RequesterSent = MonotonicNanoseconds { Value = 320000000 } }, 0, Ready)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AMalformedReplyIsACountedTypedRejectionThatLeavesThePendingProbeToExpire() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 279
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 32 ms - CuriousContraptions.tests.dll (net10.0)

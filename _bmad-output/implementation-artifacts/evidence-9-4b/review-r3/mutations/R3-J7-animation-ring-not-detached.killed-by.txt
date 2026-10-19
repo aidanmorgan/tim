@@ -1,0 +1,1 @@
+a disposed Animation worker holds no clock ring and refuses to probe it

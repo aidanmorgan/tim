@@ -1,0 +1,25 @@
+TAP version 13
+# MURDOCH_LONG_STALL {"stallMs":6000,"jumpMs":3,"renewals":1,"tolerance":[{"lapseAgeMs":6075.065,"exchanges":2,"oldWidthMs":6.693136,"newWidthMs":0.47,"centreShiftMs":-3.0125}],"recalibrations":[]}
+# Session clock late renewals (reported, not a failure): 1; first: CCGPU_CLOCK_RENEWED_LATE {"role":1,"count":"1","lapseAge":"6075065000","exchanges":2,"renewedAt":"10125035000","oldLower":"-3060376568","oldUpper":"-3053683432","newLower":"-3060277500","newUpper":"-3059807500","derivation":"0","displayEpoch":"1"}
+# Subtest: Browser stall 6000 ms then a 3 ms clock jump
+ok 1 - Browser stall 6000 ms then a 3 ms clock jump
+  ---
+  duration_ms: 11962.994708
+  type: 'test'
+  ...
+# MURDOCH_LONG_STALL {"stallMs":700,"jumpMs":3,"renewals":0,"tolerance":[],"recalibrations":[{"role":1,"causeName":"MappingLifetime","stateBefore":6,"recoverySends":2}]}
+# Subtest: Browser stall 700 ms then a 3 ms clock jump
+ok 2 - Browser stall 700 ms then a 3 ms clock jump
+  ---
+  duration_ms: 6452.158583
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18674.554875

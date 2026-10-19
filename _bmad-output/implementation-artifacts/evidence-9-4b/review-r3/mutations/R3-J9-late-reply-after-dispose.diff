@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-J9-late-reply-after-dispose/original	2026-10-19 11:30:08.138698421 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.Animation.Worker/wwwroot/worker.js	2026-10-19 11:30:08.142927634 +0800
+@@ -41,7 +41,7 @@
+     probe(bytes) {
+         // The Simulation-owned clock master answers through the clock ring; the reply is received when the wait resolves.
+         requestReply(requireClock(), ClockRole.Animation, new Uint8Array(bytes)).then(reply => {
+-            if (!reply || disposed) return;
++            if (!reply) return;
+             try { host.Reply(reply, nativeNow()); } catch (error) { fail(error); }
+         }, error => { if (!disposed) fail(error); });
+     },

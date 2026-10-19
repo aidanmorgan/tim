@@ -1,0 +1,30 @@
+{"firstFailureMs":null,"failures":0,"recalibrations":0}
+✔ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (9461.528333ms)
+{"samples":12,"failures":0,"recalibrations":0,"spanMs":2775.185}
+✔ A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running) (8375.999167ms)
+{"solved":1,"lit":false,"failures":0,"recalibrationRoles":[3]}
+✖ A running wired chain survives a 20 ms duty cycle on the Animation worker (Running) (10187.609916ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28295.879125
+
+✖ failing tests:
+
+test at tools/e2e/clock-master.test.ts:2:5775
+✖ A running wired chain survives a 20 ms duty cycle on the Animation worker (Running) (10187.609916ms)
+  AssertionError [ERR_ASSERTION]: The lamp still lights after the deferred controls applied
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:149:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

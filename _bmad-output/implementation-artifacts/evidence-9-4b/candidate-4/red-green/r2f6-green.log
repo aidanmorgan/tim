@@ -1,0 +1,16 @@
+✔ a close finding fails a test that otherwise passed (109.970958ms)
+✔ a close finding never replaces the test's own failure, and is still reported (107.059916ms)
+✔ several findings of one test are aggregated, not dropped (111.276209ms)
+✔ a recorded finding with no test to fail still fails the file (catch-all) (106.938375ms)
+✔ a finding raised in a suite's after hook is reported against that suite (105.405292ms)
+✔ closeAfterSuite with no findings passes (control) (103.81475ms)
+✔ no Chrome suite closes its driver with close() in a suite after hook (1.832042ms)
+✔ a clean close passes (control), and a finding is raised once, not again for later tests (208.521083ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 913.345541

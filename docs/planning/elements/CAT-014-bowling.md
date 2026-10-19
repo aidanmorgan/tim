@@ -26,7 +26,7 @@
 | Art | Shared `parts/BallPart.cs@a6c914e:L9-L17` reading the declared radius (stripe ring half thickness 0.014); scene `parts/scenes/ball.tscn`. Palette Bowling ball `#45639c` (0.27, 0.39, 0.61) `DESIGN.md@a6c914e:L166-L166`. Icon `ui/WorkshopIcons.cs@a6c914e:L41-L41`. |
 | Catalogue and inventory | `parts/catalog/bowling.tres@a6c914e:L8-L27`: id `bowling`, title Bowling ball, category Motion, same typed material bits. |
 
-Current tests: `CuriousContraptions.tests/WorkshopBowlingTests.cs`, `RigidMassPropertiesTests.cs`, `WorkbenchCapacityTests.cs`, `BasketballResourceTests.cs`; Node harness `tools/workshop-rigid-body.test.mjs` (mass-only controls); Chrome `tools/e2e/cat-014.test.ts` (two-lane Domino strike, bench rest/bounce, Receiver capture, Save/Load).
+Current tests: `CuriousContraptions.tests/WorkshopBowlingTests.cs`, `RigidMassPropertiesTests.cs`, `WorkbenchCapacityTests.cs`, `BasketballResourceTests.cs`, `WorkshopPhysicsEngineTests.cs` (native steps of the shipped C# engine: low rebound and rest at the 0.28 m radius, heavy-payload Bumper ledger; `WorkshopPhysicsLawTests` adds the e²·h rebound and the two-lane strike); Chrome `tools/e2e/cat-014.test.ts` (two-lane Domino strike, bench rest/bounce, Receiver capture, Save/Load). Behaviour change, Story 9.4b: a sphere's contact support now stays under its centre while it rolls (it rotated with the body, so a fast-rolling ball lost support), which changes every ball's rolling; re-proved by the cumulative Chrome run.
 
 ## 3. Engine capabilities
 

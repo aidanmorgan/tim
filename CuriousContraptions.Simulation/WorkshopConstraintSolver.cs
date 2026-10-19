@@ -32,20 +32,28 @@ public static class WorkshopConstraintSolver
     public const int RelaxIterations = 4;
     public const float BlockRegularization = 1e-3f;
 
+    /// <summary>The factor that brings (x, y, z) within <paramref name="limit"/>: 1 inside it, 0 when a lane is not finite
+    /// (a NaN or infinite vector has no direction to keep).</summary>
     public static float EnvelopeScale(float x, float y, float z, float limit)
     {
+        if (!float.IsFinite(x) || !float.IsFinite(y) || !float.IsFinite(z)) return 0f;
         var length = MathF.Sqrt(x * x + y * y + z * z);
         if (!(length > limit)) return 1f;
         if (float.IsFinite(length)) return limit / length;
-        return 0f;
+        // Finite lanes whose squared length overflows f32 still clamp along their direction: measure the length relative to the
+        // largest lane.
+        var largest = MathF.Max(MathF.Abs(x), MathF.Max(MathF.Abs(y), MathF.Abs(z)));
+        x /= largest; y /= largest; z /= largest;
+        return limit / largest / MathF.Sqrt(x * x + y * y + z * z);
     }
 
     public static void ClampVelocity(SimBody b)
     {
+        // A zero scale assigns zero: NaN or infinity times 0 would stay NaN.
         var k = EnvelopeScale(b.Vx, b.Vy, b.Vz, SpeedClamp);
-        if (k != 1f) { b.Vx *= k; b.Vy *= k; b.Vz *= k; }
+        if (k == 0f) { b.Vx = b.Vy = b.Vz = 0f; } else if (k != 1f) { b.Vx *= k; b.Vy *= k; b.Vz *= k; }
         var j = EnvelopeScale(b.Wx, b.Wy, b.Wz, SpinClamp);
-        if (j != 1f) { b.Wx *= j; b.Wy *= j; b.Wz *= j; }
+        if (j == 0f) { b.Wx = b.Wy = b.Wz = 0f; } else if (j != 1f) { b.Wx *= j; b.Wy *= j; b.Wz *= j; }
     }
 
     public static void SettleVelocity(SimBody b)
@@ -158,10 +166,18 @@ public static class WorkshopConstraintSolver
         return (new Vector3(b.Cmx, b.Cmy, b.Cmz) - b.Cm0) + (rRot - r);
     }
 
+    /// <summary>The substep displacement of a contact's support on one body. A sphere's support is not a material point: it stays
+    /// under the sphere's centre however the sphere turns, so it moves with the centre (whose arm from the centre of mass is the
+    /// collider's substep-start position); any other shape's support is the material contact anchor.</summary>
+    private static Vector3 SupportDisplacement(SimBody b, SimCollider collider, Vector3 anchor) =>
+        collider.Shape == ShapeKind.Sphere
+            ? AnchorDisplacement(b, new Vector3(collider.Px, collider.Py, collider.Pz) - b.Cm0)
+            : AnchorDisplacement(b, anchor);
+
     public static float CurrentSeparation(ContactPoint c)
     {
-        var dA = AnchorDisplacement(c.A, new Vector3(c.RAx, c.RAy, c.RAz));
-        var dB = AnchorDisplacement(c.B, new Vector3(c.RBx, c.RBy, c.RBz));
+        var dA = SupportDisplacement(c.A, c.ColA, new Vector3(c.RAx, c.RAy, c.RAz));
+        var dB = SupportDisplacement(c.B, c.ColB, new Vector3(c.RBx, c.RBy, c.RBz));
         var n = new Vector3(c.Nx, c.Ny, c.Nz);
         return c.Gap + Vector3.Dot(dA - dB, n);
     }

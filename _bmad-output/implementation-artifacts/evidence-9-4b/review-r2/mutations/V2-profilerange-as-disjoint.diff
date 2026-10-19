@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/V2-profilerange-as-disjoint/original	2026-10-19 05:31:51.280928703 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/WorkshopClockMapping.cs	2026-10-19 05:31:51.284746811 +0800
+@@ -190,7 +190,7 @@
+                 var prior = Interval(_slots[i]);
+                 lower = Int128.Min(lower, prior.Lower); upper = Int128.Max(upper, prior.Upper);
+             }
+-            if (upper - lower > MaximumOffsetSpan) outcome = ClockProbeOutcome.ProfileRange;
++            if (upper - lower > MaximumOffsetSpan) outcome = ClockProbeOutcome.Disjoint;
+             else
+             {
+                 for (var i = 0; i < candidateCount; i++)

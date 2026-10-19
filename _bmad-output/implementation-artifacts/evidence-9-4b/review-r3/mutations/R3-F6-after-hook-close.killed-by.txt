@@ -1,0 +1,1 @@
+no Chrome suite closes its driver with close() in a suite after hook

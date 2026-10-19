@@ -1,0 +1,5 @@
+murdoch-clock-stress: exit=0 ℹ tests 28 ℹ pass 28 ℹ fail 0 
+murdoch-bumper-ledger: exit=0 ℹ tests 10 ℹ pass 10 ℹ fail 0 
+murdoch-023b-save-load-cycles: exit=0 ℹ tests 3 ℹ pass 3 ℹ fail 0 
+murdoch-replay-can-fail: exit=0 ℹ tests 1 ℹ pass 1 ℹ fail 0 
+murdoch-offset-sessions: exit=0 ℹ tests 1 ℹ pass 1 ℹ fail 0 

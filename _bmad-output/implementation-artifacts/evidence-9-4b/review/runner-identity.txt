@@ -1,0 +1,10 @@
+4aa077bb432540d065b2f97a7301ab65c5f70de98179f80b50af4782af288392  /Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts
+2020a92395ac9533f301aeb3a892bb1e143049f358c289a25b22f7dc19bb8055  /Users/aidan/dev/personal/tim/tools/e2e/workshop-wire.ts
+6652e11eaee3c7a29dc1239d899bb4d682756e76075278213d9fa88c3b71b843  /Users/aidan/dev/personal/tim/tools/workshop-console.mjs
+4aa077bb432540d065b2f97a7301ab65c5f70de98179f80b50af4782af288392  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/workshop-driver.ts
+2020a92395ac9533f301aeb3a892bb1e143049f358c289a25b22f7dc19bb8055  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/workshop-wire.ts
+6652e11eaee3c7a29dc1239d899bb4d682756e76075278213d9fa88c3b71b843  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/workshop-console.mjs
+b76d430a57df566f8f03b1b7947b825b2a943befd0bd3f2f026a86d62c2023c7  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-023b-save-load-cycles.test.ts
+09d551754f609df9fc41ebae460f9e7ed72e5fa5c0e81bd1b0f7eba3fdba0367  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-bumper-ledger.test.ts
+ab448950b3f02cbbde26af4dd737d8d04cfaa6282a827d5e965934942470e911  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-clock-stress.test.ts
+c1a9fc5dfbc20e637c8c6c0272802486d1ac63c68d0eae1ecf4d30b7d5b98581  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/runner/tools/e2e/murdoch-common.ts

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/ratchet-count-edited/original	2026-10-19 01:06:42.740543092 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs	2026-10-19 01:06:42.744452807 +0800
+@@ -517,7 +517,7 @@
+     // this list must be empty (asserted below against sprint-status.yaml).
+     private static readonly KnownViolation[] KnownViolations =
+     [
+-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"MathF\.Abs\(c\.Col[AB]\.(Hx|Hy|Hz|Ty) - 0?\.\d+f\) < 0\.01f", 8,
++        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"MathF\.Abs\(c\.Col[AB]\.(Hx|Hy|Hz|Ty) - 0?\.\d+f\) < 0\.01f", 9,
+             ViolationOwner.Story9R4, "pressure plate recognised by its collider dimensions"),
+         new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs",
+             @"localNorm\.Y >= 0\.7f|loc\.[XYZ] (>=|<=) -?0\.\d+f", 7, ViolationOwner.Story9R4, "pressure plate load window"),

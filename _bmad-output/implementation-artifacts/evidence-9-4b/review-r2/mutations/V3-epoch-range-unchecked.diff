@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/V3-epoch-range-unchecked/original	2026-10-19 05:32:03.960859308 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/WorkshopClockWire.cs	2026-10-19 05:32:03.964960793 +0800
+@@ -98,7 +98,6 @@
+         if (masterReceived.Value < peer.MasterOrigin.Value || masterSent.Value < masterReceived.Value)
+             throw new ArgumentException("Master reply predates its origin or reverses time.");
+         var derivation = BinaryPrimitives.ReadUInt64LittleEndian(data[96..]);
+-        if (derivation > uint.MaxValue) throw new ArgumentException($"Clock reply derivation epoch {derivation} is out of range.");
+         return new(probe, masterReceived, masterSent, received, new((uint)derivation));
+     }
+ 

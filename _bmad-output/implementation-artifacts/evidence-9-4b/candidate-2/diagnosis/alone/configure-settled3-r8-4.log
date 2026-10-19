@@ -1,0 +1,24 @@
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":1,"causeName":"ProbeLimit","count":"1","stateBefore":5,"sessionLow":"9943683688309946601","sessionHigh":"14352573470791873159","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"65470000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"6639805000","recoveryStarted":"6420815000","recoverySends":8,"pending":null,"reply":{"probe":{"sessionLow":"9943683688309946601","sessionHigh":"14352573470791873159","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"39","sent":"6637775000"},"masterReceived":"3524424868","masterSent":"3524434878","requesterReceived":"6639805000"},"slotsBefore":[{"receipt":"6523460000","sequence":"33","lower":"-3142290063","upper":"-3113080200"},{"receipt":"6557325000","sequence":"34","lower":"-3129199985","upper":"-3112044995"},{"receipt":"6571705000","sequence":"35","lower":"-3125714995","upper":"-3111015122"},{"receipt":"6583470000","sequence":"36","lower":"-3125130142","upper":"-3113135151"},{"receipt":"6622950000","sequence":"37","lower":"-3126875034","upper":"-3113130044"},{"receipt":"6637670000","sequence":"38","lower":"-3125940005","upper":"-3113140015"},{"receipt":"6639805000","sequence":"39","lower":"-3115570122","upper":"-3113150132"},{"receipt":"6478290000","sequence":"32","lower":"-3132580024","upper":"-3113115034"}]}
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":1,"causeName":"ProbeLimit","count":"2","stateBefore":5,"sessionLow":"9943683688309946601","sessionHigh":"14352573470791873159","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"65470000","derivation":"0","uncertainty":"100000","displayEpoch":"2","now":"12649165000","recoveryStarted":"12524390000","recoverySends":8,"pending":null,"reply":{"probe":{"sessionLow":"9943683688309946601","sessionHigh":"14352573470791873159","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"111","sent":"12647190000"},"masterReceived":"9535710024","masterSent":"9535729800","requesterReceived":"12649165000"},"slotsBefore":[{"receipt":"12533375000","sequence":"104","lower":"-3113690171","upper":"-3111155181"},{"receipt":"12550865000","sequence":"105","lower":"-3114310054","upper":"-3112310063"},{"receipt":"12567390000","sequence":"106","lower":"-3114520112","upper":"-3112950122"},{"receipt":"12584515000","sequence":"107","lower":"-3115210054","upper":"-3113135063"},{"receipt":"12598905000","sequence":"108","lower":"-3114365190","upper":"-3111685073"},{"receipt":"12617730000","sequence":"109","lower":"-3115709966","upper":"-3113140103"},{"receipt":"12632005000","sequence":"110","lower":"-3115345073","upper":"-3113135083"},{"receipt":"12649165000","sequence":"111","lower":"-3113635200","upper":"-3111279976"}]}
+✖ configure under CPU throttle 8x (frames) (23544.468584ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23786.927209
+
+✖ failing tests:
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:1:2530
+✖ configure under CPU throttle 8x (frames) (23544.468584ms)
+  Error: commitAt(130, 746): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+      at WorkshopDriver.command (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:519:29)
+      at async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:540:9)
+      at async WorkshopDriver.commitAt (/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts:636:9)
+      at async configure (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:25:9)
+      at async TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:61:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

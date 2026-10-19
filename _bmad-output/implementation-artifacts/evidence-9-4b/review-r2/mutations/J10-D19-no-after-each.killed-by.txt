@@ -1,0 +1,2 @@
+a clean close passes (control), and a finding is raised once, not again for later tests
+a close finding never replaces the test's own failure, and is still reported

@@ -1,0 +1,104 @@
+// Murdoch-2 round 2 (Story 9.4b candidate 3), reviewer-only probe; not part of the deliverable.
+// D20 closure: no numerical path through ContactWorkImpulse.FromStore turns a possible store into an Impossible one, and
+// declaration validation rejects every impossible preload before a world is built.
+using System;
+using System.Collections.Generic;
+using System.Runtime.Intrinsics;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class MurdochR2StoreClosureTests
+{
+    private static readonly float[] Specials =
+    [
+        float.NaN, float.PositiveInfinity, float.NegativeInfinity, -0f, 0f, float.Epsilon, -float.Epsilon, 1e-38f, 1.17549435e-38f,
+        1e-30f, 1e-7f, .5f, 1f, 2f, 7.9999995f, 8f, 8.000001f, 20f, 64f, 1e30f, float.MaxValue, -1f, -1e30f, float.MinValue,
+    ];
+    private static readonly float[] Capacities = [0f, float.Epsilon, 1e-38f, 1e-30f, 1e-7f, 1f, 2.5f, 31.999998f, 32f, 128f, 200f];
+
+    private static IEnumerable<float> AvailableFor(float capacity, Random random)
+    {
+        var minimum = ContactWorkImpulse.MinimumPayableWork(capacity);
+        foreach (var value in new[] { 0f, -0f, float.Epsilon, minimum / 2, MathF.BitDecrement(minimum), minimum, MathF.BitIncrement(minimum),
+                     capacity / 2, MathF.BitDecrement(capacity), capacity })
+            if (value >= 0 && value <= capacity && float.IsFinite(value)) yield return value;
+        for (var i = 0; i < 6; i++) yield return (float)(random.NextDouble() * capacity);
+    }
+
+    [Fact]
+    public void NoNumericalPathTurnsAPossibleStoreImpossible()
+    {
+        var random = new Random(9_4_2);
+        var normal = Vector128.Create(0f, 1f, 0f, 0f);
+        var problems = new List<string>();
+        long cases = 0;
+        foreach (var capacity in Capacities)
+        foreach (var available in AvailableFor(capacity, random))
+        foreach (var speed in Specials)
+        foreach (var inverseMass in Specials)
+        foreach (var target in new[] { float.NaN, float.PositiveInfinity, -1f, 0f, 1e-7f, 8f, 20f, float.MaxValue })
+        {
+            cases++;
+            var r = ContactWorkImpulse.FromStore(speed, target, inverseMass, available, capacity, normal);
+            if (r.Store == ContactWorkStore.Impossible || !float.IsFinite(r.Remaining) || r.Remaining < 0 || r.Remaining > available ||
+                !float.IsFinite(r.Debit) || r.Debit < 0 || r.Remaining + r.Debit != available ||
+                !float.IsFinite(r.Impulse.GetElement(1)) || r.Impulse.GetElement(1) < 0)
+                if (problems.Count < 10) problems.Add($"cap={capacity:R} avail={available:R} v={speed:R} k={inverseMass:R} t={target:R} -> {r}");
+        }
+        Assert.True(cases > 100_000, $"only {cases} cases");
+        Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
+    }
+
+    [Fact]
+    public void ChainedPayoutsFromAnyValidPreloadNeverReachAnImpossibleStore()
+    {
+        var random = new Random(4242);
+        var normal = Vector128.Create(0f, 1f, 0f, 0f);
+        for (var trial = 0; trial < 20_000; trial++)
+        {
+            var capacity = Capacities[random.Next(Capacities.Length)];
+            var store = capacity;
+            for (var contact = 0; contact < 60; contact++)
+            {
+                var speed = random.Next(10) == 0 ? Specials[random.Next(Specials.Length)] : (float)(random.NextDouble() * 9);
+                var inverseMass = random.Next(10) == 0 ? Specials[random.Next(Specials.Length)] : (float)(.05 + random.NextDouble() * 3);
+                var r = ContactWorkImpulse.FromStore(speed, 8f, inverseMass, store, capacity, normal);
+                Assert.NotEqual(ContactWorkStore.Impossible, r.Store);
+                Assert.InRange(r.Remaining, 0f, store);
+                store = r.Remaining;
+            }
+        }
+    }
+
+    [Fact]
+    public void AnImpossibleInputIsTheOnlyRouteToImpossible()
+    {
+        var normal = Vector128.Create(0f, 1f, 0f, 0f);
+        foreach (var (available, capacity) in new[] { (float.NaN, 32f), (-1f, 32f), (33f, 32f), (1f, 0f), (1f, float.NaN), (1f, -1f), (float.PositiveInfinity, 32f) })
+            Assert.Equal(ContactWorkStore.Impossible, ContactWorkImpulse.FromStore(1f, 8f, 1f, available, capacity, normal).Store);
+    }
+
+    [Theory]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    [InlineData(float.NegativeInfinity)]
+    [InlineData(-1f)]
+    [InlineData(-1e-30f)]
+    [InlineData(200.00002f)]
+    [InlineData(float.MaxValue)]
+    public void DeclarationValidationRejectsEveryImpossiblePreloadBeforeAWorldExists(float preload)
+    {
+        var declaration = new ContactWorkDeclaration(new(1), new(2), new(BodyTargetKind.AllDynamic, default), new(8f), new(preload), new(.1f), 72);
+        Assert.ThrowsAny<ArgumentException>(declaration.Validate);
+        Assert.ThrowsAny<ArgumentException>(() => new ContactWorkCalibration(new(8f), new(1f), new(preload)).Validate());
+    }
+
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(32f)]
+    [InlineData(200f)]
+    public void DeclarationValidationAdmitsLegalPreloads(float preload) =>
+        new ContactWorkDeclaration(new(1), new(2), new(BodyTargetKind.AllDynamic, default), new(8f), new(preload), new(.1f), 72).Validate();
+}

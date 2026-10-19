@@ -92,7 +92,7 @@ public partial class MachinePart : Node3D, IResizablePart
     public BumperWork CanonicalWork { get; private set; } = BumperWork.Default;
     public void ApplyWork(BumperWork work) { work.Validate(); CanonicalWork = work; }
 
-    public float CanonicalIntervalSeconds { get; private set; } = WorkshopClock.DefaultIntervalSeconds;
+    public float CanonicalIntervalSeconds { get; private set; } = WorkshopClock.PlacedIntervalSeconds;
     public void ApplyIntervalSeconds(float seconds)
     {
         if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)

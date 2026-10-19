@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/F2b-delete-pinned-entry/original	2026-10-19 05:30:14.947797908 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs	2026-10-19 05:30:14.951483140 +0800
+@@ -526,8 +526,6 @@
+             ViolationOwner.Story9R4, ScanVisibility.General, "pressure plate recognised by its collider dimensions"),
+         new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"localNorm\.Y >= 0\.7f|loc\.[XYZ] (>=|<=) -?0\.\d+f", 7,
+             ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "pressure plate load window (numbers only, no element token)"),
+-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"currentPlateLoad >= 0\.5f", 1,
+-            ViolationOwner.Story9R4, ScanVisibility.General, "pressure plate 0.5 kg threshold"),
+         new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"\b(?:_plateLoaded|currentPlateLoad|plateCol)\b", 12,
+             ViolationOwner.Story9R4, ScanVisibility.General, "plate-load state named for the element"),
+         new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"\bbatteryPowered\b", 3,

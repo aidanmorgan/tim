@@ -1,0 +1,20 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-02-inconclusive-retained/original	2026-10-19 15:10:17.236682584 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:10:17.242141324 +0800
+@@ -209,7 +209,7 @@
+         var candidateCount = expired ? 0 : _count;
+         var candidateNext = expired ? 0 : _next;
+         var candidateAnchor = _anchor;
+-        if (outcome == ClockProbeOutcome.Accepted)
++        if (outcome is ClockProbeOutcome.Accepted or ClockProbeOutcome.Inconclusive)
+         {
+             // The interval midpoint lies within I64 for validated nonnegative I64 endpoints.
+             candidateAnchor = interval.Midpoint;
+@@ -250,7 +250,7 @@
+         else if (exhausted)
+             Recalibrate(ClockRecalibrationCause.ProbeLimit, reply.RequesterReceived, reply, ClockMappingState.Expired);
+         if (renewed && outcome == ClockProbeOutcome.Accepted) RecordLateRenewal(reply, retained, interval);
+-        if (outcome == ClockProbeOutcome.Accepted)
++        if (outcome is ClockProbeOutcome.Accepted or ClockProbeOutcome.Inconclusive)
+         {
+             candidate.CopyTo(_slots);
+             _anchor = candidateAnchor; _count = checked((byte)candidateCount); _next = checked((byte)candidateNext);

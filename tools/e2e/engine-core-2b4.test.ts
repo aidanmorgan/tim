@@ -11,6 +11,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
+import { reportsNaN } from '../workshop-console.mjs';
 
 describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarative Spatial Force Regions)', () => {
     let driver: WorkshopDriver;
@@ -20,7 +21,7 @@ describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarat
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. First principles receiver assistance knots evaluated as declared spatial acceleration fields (smooth entrance without moving collider walls)', { timeout: 120000 }, async () => {
@@ -37,7 +38,7 @@ describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarat
                 text.includes('PlanarGuideBoundaryPath') ||
                 text.includes('GuideHorizon') ||
                 text.includes('departure') ||
-                text.includes('NaN')
+                reportsNaN(msg.type(), text) // never a NaN substring of a base64 envelope (Story 9.4b F1)
             ) {
                 errors.push(text);
             }

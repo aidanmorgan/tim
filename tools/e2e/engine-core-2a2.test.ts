@@ -14,7 +14,7 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Stable resting contact: Basketball settles on workbench without bounce jitter or position projection', { timeout: 120000 }, async () => {

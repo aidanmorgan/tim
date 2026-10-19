@@ -1,0 +1,10 @@
+upstream: https://raw.githubusercontent.com/google/flatbuffers/v25.2.10/net/FlatBuffers/<file>, fetched by the reviewer
+f54f9f8643a9aea6 f54f9f8643a9aea6 ByteBuffer.cs identical
+b1f712041443cbcf b1f712041443cbcf ByteBufferUtil.cs identical
+e67577bd1e86154d e67577bd1e86154d FlatBufferBuilder.cs identical
+1df77a108bf9da81 1df77a108bf9da81 FlatBufferConstants.cs identical
+fae566bc8df9d73d 48b5b1325b6bace2 FlatBufferVerify.cs differs; diff after BOM strip + trailing-ws strip: 0 lines
+3741b1769a4b80ba 3741b1769a4b80ba IFlatbufferObject.cs identical
+3ca223869957cd70 3ca223869957cd70 Offset.cs identical
+08ea4836f780dcce 08ea4836f780dcce Struct.cs identical
+27541329485b2d53 27541329485b2d53 Table.cs identical

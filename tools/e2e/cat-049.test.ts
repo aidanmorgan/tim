@@ -24,7 +24,7 @@ describe('CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend 
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Select level gentle_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_45 in inventory)', { timeout: 150000 }, async () => {

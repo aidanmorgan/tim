@@ -1,0 +1,2 @@
+CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 0, renews: True)
+CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(wider: 0, renews: True)

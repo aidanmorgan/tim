@@ -1,0 +1,50 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.79]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000) [9 ms]
+  Error Message:
+   System.InvalidOperationException : Nullable object must have a value.
+  Stack Trace:
+     at System.Nullable`1.get_Value()
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 655
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.79]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000) [FAIL]
+[xUnit.net 00:00:00.79]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0) [FAIL]
+[xUnit.net 00:00:00.79]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 1000000) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000) [< 1 ms]
+  Error Message:
+   System.InvalidOperationException : Nullable object must have a value.
+  Stack Trace:
+     at System.Nullable`1.get_Value()
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 655
+   at InvokeStub_WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0) [< 1 ms]
+  Error Message:
+   System.InvalidOperationException : Nullable object must have a value.
+  Stack Trace:
+     at System.Nullable`1.get_Value()
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 655
+   at InvokeStub_WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 1000000) [< 1 ms]
+  Error Message:
+   System.InvalidOperationException : Nullable object must have a value.
+  Stack Trace:
+     at System.Nullable`1.get_Value()
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 655
+   at InvokeStub_WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.83]     CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 1, renews: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 1, renews: False) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (0, 1)
+Actual:   Tuple (1, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(Int64 beyond, Boolean renews) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 671
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+
+Failed!  - Failed:     5, Passed:   214, Skipped:     0, Total:   219, Duration: 743 ms - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-abi-literal-reintroduced/original	2026-10-19 11:29:27.599585718 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs	2026-10-19 11:29:27.603838545 +0800
+@@ -326,7 +326,7 @@
+             }
+         }
+ 
+-        var cwCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderContactWorkCountOffset, 4));
++        var cwCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(104, 4));
+         var workOccCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, 4));
+         for (var w = 0; w < cwCount; w++)
+         {

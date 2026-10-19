@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-J6-browser-ring-not-detached/original	2026-10-19 11:30:04.822051177 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.web/wwwroot/workshop-client.js	2026-10-19 11:30:04.826202804 +0800
+@@ -75,7 +75,6 @@
+     if (client.animation) { client.animation.onmessage = client.animation.onerror = null; client.animation.terminate(); }
+     client.animationPort?.close(); client.animationPort = undefined;
+     // The session clock ring is detached with its workers (dispose goes through here): nothing probes or reads it again.
+-    client.clock = client.clockRing = undefined;
+     for (const pending of client.pending.values()) pending.reject(error);
+     client.pending.clear();
+     settleMemory(client, error);

@@ -128,6 +128,13 @@ To enforce strict decoupling across thread boundaries, **workers (Simulation Wor
   - **UI & Telemetry:** Reads sensor readouts, objective completions, and diagnostics.
 - **Consumer-Side Filtering:** Consumers evaluate lightweight predicate filters directly against raw event memory (e.g. `FilterByDomain(Mechanical)`, `FilterByKind(CounterReached)`, `FilterByImpulse(> 0.1 Ns)`), processing only relevant events without intermediate object allocations or channel contention.
 
+### 3.4 Session Clock Ring (Typed Clock Queries)
+- Clock time is a query, so it travels on a ringbuffer, not a message: one `SharedArrayBuffer` with one request/reply slot per requester role (Browser, Animation) and one for the Simulation's derivation check, signalled with `Atomics.notify` / `Atomics.waitAsync`. The typed `ClockProbe`/`ClockReply` records (WorkshopClockWire v4) are the query and its receipt. The ring header (layout v3) also carries the derivation epoch and correction the master stamps under and the Simulation heartbeat the Browser's liveness check reads.
+- The answering context is a dedicated clock master context that the Simulation worker spawns and owns (Story 9.4b). It does no other work, so solver ticks on the Simulation's event loop can never delay a clock answer. The Simulation worker's own event loop never answers a probe, and no probe travels over a `MessagePort`.
+- The Animation worker's owned `MessagePort` to the Simulation carries only the reliable schedule-control envelopes (Prepare/Prepared/Commit/Applied/Abort); any other envelope rejects.
+
+**Current implementation status of 3.3 (Story 9.4b):** the discrete Event Ringbuffer is the target design. The never-written JavaScript scaffold for it (a 65,600-byte buffer allocated by the browser, transferred, header-initialized and exported a writer nobody called) was deleted as dead code; committed occurrences reach consumers through the existing read publications until the ring is delivered by its own story.
+
 ---
 
 ## 4. Balanced Coupling Governance (coupling.dev)

@@ -1,0 +1,14 @@
+▶ CAT-023b: Domino cascade mechanics & orientation-threshold sensor
+  ✔ 1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once (9552.685708ms)
+  ✔ 2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights (9772.424542ms)
+  ✔ 3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting (10729.096458ms)
+  ✔ 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again (9524.225833ms)
+✔ CAT-023b: Domino cascade mechanics & orientation-threshold sensor (44545.261458ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44971.393

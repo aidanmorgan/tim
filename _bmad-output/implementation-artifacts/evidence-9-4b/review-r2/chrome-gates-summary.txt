@@ -1,0 +1,31 @@
+served at start: fcf70711fc9b b892a2112aa8 8af6087aa244 9fdea5f87546 1c348f7a332b b5b6cd9b268d 94076e9644f2 
+murdoch-clock-stress exit=0 tests=28 notok=0 # pass 28 # fail 0 
+murdoch-023b-save-load-cycles exit=0 tests=1 notok=0 # pass 3 # fail 0 
+murdoch-bumper-ledger exit=0 tests=10 notok=0 # pass 10 # fail 0 
+offset load0 exit=0 
+offset load8 exit=0 
+offset load32 exit=0 
+clock-master run 1 exit=0 tests=6 notok=0 # pass 6 # fail 0 
+clock-master run 2 exit=0 tests=6 notok=0 # pass 6 # fail 0 
+clock-master run 3 exit=0 tests=6 notok=0 # pass 6 # fail 0 
+clock-master run 4 exit=0 tests=6 notok=0 # pass 6 # fail 0 
+clock-master run 5 exit=0 tests=6 notok=0 # pass 6 # fail 0 
+cat-005 run 1 exit=0 tests=7 notok=0 # pass 7 # fail 0 
+cat-005 run 2 exit=0 tests=7 notok=0 # pass 7 # fail 0 
+cat-005 run 3 exit=0 tests=7 notok=0 # pass 7 # fail 0 
+cat-005 run 4 exit=0 tests=7 notok=0 # pass 7 # fail 0 
+cat-005 run 5 exit=0 tests=7 notok=0 # pass 7 # fail 0 
+cat-023b load0 run 1 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load0 run 2 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load0 run 3 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load0 run 4 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load0 run 5 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load8 run 1 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load8 run 2 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load8 run 3 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load8 run 4 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cat-023b load8 run 5 exit=0 tests=1 notok=0 # pass 4 # fail 0  recal=0 unresponsive=0
+cumulative run 1: files=33 nonzero=1 tests=165 notok=1
+cumulative run 2: files=33 nonzero=0 tests=164 notok=0
+served at end: fcf70711fc9b b892a2112aa8 8af6087aa244 9fdea5f87546 1c348f7a332b b5b6cd9b268d 94076e9644f2 
+DONE

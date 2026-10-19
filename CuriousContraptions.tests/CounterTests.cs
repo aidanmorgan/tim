@@ -159,8 +159,10 @@ public sealed class CounterTests(NativeSceneFixture godot)
             new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, t).Validate();
         }
 
-        Assert.Equal(WorkshopCounter.DefaultTargetCount, 3);
-        Assert.Equal(3, new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity).TargetCount);
+        // Story 9.4b (D4): the target count is always declared; only a newly placed counter starts from its placement value.
+        Assert.Equal(3, WorkshopCounter.PlacedTargetCount);
+        Assert.False(typeof(WorkshopCounter).GetConstructors().Single().GetParameters()
+            .Single(parameter => parameter.Name == nameof(WorkshopCounter.TargetCount)).HasDefaultValue);
 
         Assert.Throws<ArgumentException>(() =>
             new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, 0).Validate());

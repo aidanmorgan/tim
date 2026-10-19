@@ -1,0 +1,3 @@
+a typed base64 envelope never fails on a NaN substring of its payload (Murdoch-2 F1)
+encoded trace bytes containing NaN are not diagnostic text
+no Chrome suite checks a raw NaN substring of console text; each goes through reportsNaN (whole class of F1)

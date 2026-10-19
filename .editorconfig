@@ -1,0 +1,10 @@
+# The repository root: no parent .editorconfig merges in. Story 9R.0 also edits this file (its C# static gate rules and
+# a test that pins every key); merging the two keeps this section unchanged and adds it to 9R.0's pinned copy.
+root = true
+
+# Story 9.4b: the vendored Google FlatBuffers runtime is third-party code kept byte-for-byte (THIRD-PARTY-NOTICES.md).
+# Marking it generated keeps `dotnet format`, IDE formatting and code-style analyzers from rewriting it. Trim analysis
+# still reports in it (an injected RequiresUnreferencedCode call in a generated-marked file fails the build:
+# evidence-9-4b/trim/generated-code-probe-build.log).
+[CuriousContraptions.FlatBuffers/**.cs]
+generated_code = true

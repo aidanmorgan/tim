@@ -4,11 +4,13 @@ namespace Ownership;
 
 internal static class CurrentOwnerMembershipOracles
 {
-    private enum Attack { ReversedRange, OverflowRange, UnknownSyntax, MissingTable, MalformedHeading, MissingCatalogueOwner, MalformedFixture, MissingFixtureAnchor, DuplicateFixtureTable, DuplicateFixture, ConflictingFixture, EmptyDocument }
+    private enum Attack { ReversedRange, OverflowRange, UnknownSyntax, MissingTable, MalformedHeading, MalformedSubSlice, UppercaseSubSlice, UnnumberedSubSlice, MissingCatalogueOwner, MalformedFixture, MissingFixtureAnchor, DuplicateFixtureTable, DuplicateFixture, ConflictingFixture, EmptyDocument }
     public static object Run(string? root = null)
     {
         const string engine = """
             ## ENGINE-CORE-1
+            ### ENGINE-CORE-2d · sub-slice owner
+            ## LEGACY-0 · roadmap owner
             ## Disposition of every P0 ID
             | ID | Staged at | Current disposition |
             | --- | --- | --- |
@@ -25,7 +27,7 @@ internal static class CurrentOwnerMembershipOracles
             """;
         const string scope = "## S269 Current owner\n### LAW-FIELD-I Grouped owner\nGrouped LAW-FIELD-F criterion only.\n## ANIM-1\n## MOBILE-02\n## MOBILE-03\n## MOBILE-05\n## MOBILE-06\n## OPT-SLEEP\n## LEVEL-001\n## ELEMENT-n Generic placeholder";
         var owners = CurrentOwnerMembership.Parse(engine, consumers, [scope, scope]);
-        var expected = new WorkId[] { new("ENGINE-CORE-1"), new("P0-001"), new("P0-002"), new("P0-003"), new("P0-022"), new("P0-023"), new("CAT-001-I"), new("CAT-001-V"), new("FIX-001-001"), new("S269"), new("LAW-FIELD-I"), new("ANIM-1"), new("MOBILE-02"), new("MOBILE-03"), new("MOBILE-05"), new("MOBILE-06"), new("OPT-SLEEP"), new("LEVEL-001") };
+        var expected = new WorkId[] { new("ENGINE-CORE-1"), new("ENGINE-CORE-2d"), new("LEGACY-0"), new("P0-001"), new("P0-002"), new("P0-003"), new("P0-022"), new("P0-023"), new("CAT-001-I"), new("CAT-001-V"), new("FIX-001-001"), new("S269"), new("LAW-FIELD-I"), new("ANIM-1"), new("MOBILE-02"), new("MOBILE-03"), new("MOBILE-05"), new("MOBILE-06"), new("OPT-SLEEP"), new("LEVEL-001") };
         if (!owners.SetEquals(expected)) throw new InvalidOperationException("Current owner membership differs from explicit declarations.");
         var rejected = new List<Attack>();
         foreach (var attack in Enum.GetValues<Attack>())
@@ -40,6 +42,9 @@ internal static class CurrentOwnerMembershipOracles
                 case Attack.UnknownSyntax: engineInput = engine.Replace("001–003", "001..003"); break;
                 case Attack.MissingTable: engineInput = "## ENGINE-CORE-1"; break;
                 case Attack.MalformedHeading: scopeInput = "## S269-? Invalid"; break;
+                case Attack.MalformedSubSlice: scopeInput = "## LEGACY-0aa Two sub-slice letters"; break;
+                case Attack.UppercaseSubSlice: scopeInput = "## LEGACY-0A Uppercase sub-slice"; break;
+                case Attack.UnnumberedSubSlice: scopeInput = "## ENGINE-COREa A sub-slice letter after no numbered slice"; break;
                 case Attack.MissingCatalogueOwner: consumerInput = consumers.Replace("## CAT-001-I Ball", "## CAT-002-I Ball"); break;
                 case Attack.MalformedFixture: consumerInput = consumers.Replace("id=\"fix-001-001\"", "id=\"fix-001-002\""); break;
                 case Attack.MissingFixtureAnchor: consumerInput = consumers.Replace("<a id=\"fix-001-001\"></a>", ""); break;
@@ -74,14 +79,16 @@ internal static class CurrentOwnerMembershipOracles
             foreach (var name in new[] { "engine", "gpu-physics", "refinements", "decisions", "scope-corrections", "current-consumers", "campaign" })
             {
                 var document = File.ReadAllText(Path.Combine(root, "docs/planning/invest", name + ".md"));
-                foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(document, @"(?m)^#{2,3} ([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*)(?=\s|$)"))
+                foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(document, @"(?m)^#{2,3} ([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*(?:[a-z][0-9]*)?)(?=\s|$)"))
                 {
                     if (!match.Groups[1].Value.Any(char.IsDigit) && !match.Groups[1].Value.Contains('-')) continue;
                     if (!actual.Contains(new(match.Groups[1].Value))) throw new InvalidOperationException("Actual declared heading owner omitted: " + match.Groups[1].Value);
                     actualHeadingCount++;
                 }
             }
-            if (actualHeadingCount != 543 || actual.Contains(new("ELEMENT-n")) || actual.Contains(new("S010-D")))
+            // 545 since 8f682f8 added the ENGINE-CORE-2d and LEGACY-0 owner headings to engine.md (543 at 9107148);
+            // the census now also counts lowercase sub-slice owners, which the previous pattern skipped.
+            if (actualHeadingCount != 545 || actual.Contains(new("ELEMENT-n")) || actual.Contains(new("S010-D")))
                 throw new InvalidOperationException("Actual authority heading census or non-owner rejection changed.");
         }
         return new { ActualHeadingCount = actualHeadingCount, Positive = true, RepeatedDeclarationsCoalesced = true, NegativeCount = rejected.Count,

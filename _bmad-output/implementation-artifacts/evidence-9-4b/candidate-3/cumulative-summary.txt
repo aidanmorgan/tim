@@ -1,0 +1,2 @@
+cumulative run 1: run totals: files=33 nonzeroExit=0 tests=138 pass=138 fail=0 notok=0 closeFindings=0
+cumulative run 2: run totals: files=33 nonzeroExit=0 tests=138 pass=138 fail=0 notok=0 closeFindings=0

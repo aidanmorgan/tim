@@ -1,0 +1,120 @@
+Build succeeded.
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.21]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [FAIL]
+[xUnit.net 00:00:03.26]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [FAIL]
+[xUnit.net 00:00:03.27]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [7 ms]
+  Error Message:
+   Assert.DoesNotMatch() Failure: Match found
+                                     ↓ (pos 46501)
+String: ···"&& MathF.Abs(c.ColA.Ty - 0.03f) < 0.01f && c.B.Mot"···
+RegEx:  "3\\.5f? \\* |2\\.5f? / |(\\|\\||\\?\\?) 0?\\.(34|75|1|3)f?"···
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 512
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (4094.7201000000005 - 4096)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 864
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [5 ms]
+  Error Message:
+   tick 5: spin rises to 58.80833053588867 from 58.808326721191406
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 813
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.53]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [77 ms]
+  Error Message:
+   tick 1: 4.9991665 m/s (previous 5), spin 14.702081680297852 rad/s (previous 14.702081680297852)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 789
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.61]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: 1) [FAIL]
+[xUnit.net 00:00:03.61]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: 1) [FAIL]
+[xUnit.net 00:00:03.62]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: -1) [FAIL]
+[xUnit.net 00:00:03.62]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: -1) [FAIL]
+[xUnit.net 00:00:03.66]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires [FAIL]
+[xUnit.net 00:00:03.68]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.TheOrientationThresholdIsDeclaredDataNotAConstantOfTheEngine [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: 1) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Armed, 0)
+Actual:   Tuple (Fired, 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 42
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: 1) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Armed, 0)
+Actual:   Tuple (Fired, 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 42
+   at InvokeStub_WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: -1) [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Armed, 0)
+Actual:   Tuple (Fired, 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 42
+   at InvokeStub_WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: -1) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Armed, 0)
+Actual:   Tuple (Fired, 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 42
+   at InvokeStub_WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires [30 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 82
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.TheOrientationThresholdIsDeclaredDataNotAConstantOfTheEngine [14 ms]
+  Error Message:
+   20 deg fires at tick 1, 80 deg at tick 1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.TheOrientationThresholdIsDeclaredDataNotAConstantOfTheEngine() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 171
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.72]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [FAIL]
+[xUnit.net 00:00:03.74]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATileAdmittedRotatedNinetyDegreesAboutYStandsAndNeverFiresBecauseTheInitialPoseIsTheAdmittedPose [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 70
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 133
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATileAdmittedRotatedNinetyDegreesAboutYStandsAndNeverFiresBecauseTheInitialPoseIsTheAdmittedPose [22 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATileAdmittedRotatedNinetyDegreesAboutYStandsAndNeverFiresBecauseTheInitialPoseIsTheAdmittedPose() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 109
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    12, Passed:   100, Skipped:     0, Total:   112, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

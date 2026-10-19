@@ -1,0 +1,14 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.21]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideConsistentFreshExchangeRenewsOnceAndContinuesInOrdinaryRecovery [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideConsistentFreshExchangeRenewsOnceAndContinuesInOrdinaryRecovery [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Recovering, 1, 0, 1)
+Actual:   Tuple (Renewing, 1, 0, 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideConsistentFreshExchangeRenewsOnceAndContinuesInOrdinaryRecovery() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 504
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    40, Skipped:     0, Total:    41, Duration: 134 ms - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: ENGINE-CORE-2b3: Analytic CCD & Interval Library Removal (Pure Speculative Contacts CCD)
+    # Subtest: 1. [ENGINE-CORE-2a4, ENGINE-CORE-2b3] High-speed ball impact against thin wall resolves via speculative contacts CCD with 0 tunneling across 20 iterations (high-speed impact across 20 iterations never tunnels through thin Wall)
+    ok 1 - 1. [ENGINE-CORE-2a4, ENGINE-CORE-2b3] High-speed ball impact against thin wall resolves via speculative contacts CCD with 0 tunneling across 20 iterations (high-speed impact across 20 iterations never tunnels through thin Wall)
+      ---
+      duration_ms: 33753.324875
+      type: 'test'
+      ...
+    1..1
+ok 1 - ENGINE-CORE-2b3: Analytic CCD & Interval Library Removal (Pure Speculative Contacts CCD)
+  ---
+  duration_ms: 38039.331042
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38279.212459

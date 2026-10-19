@@ -29,8 +29,14 @@ public readonly record struct TimestampUncertainty(ulong Value)
     public void Validate() { if (Value > Maximum) throw new ArgumentOutOfRangeException(nameof(Value)); }
 }
 public enum WorkshopClockDomain : byte { BrowserMonotonic = 1, SimulationMonotonic = 2 }
-public enum ClockMappingState : byte { Calibrating, Ready, Suspect, Expired, Retired, Recovering, Faulted }
-public enum ClockProbeOutcome { Accepted, WrongIdentity, Reversed, NegativeRoundTrip, Disjoint, Expired, ProfileRange, Malformed }
+/// <summary>Renewing: the mapping lapsed because the requester's own event loop did not run (no probe outstanding and
+/// none could be sent); consumers hold, as for any mapping without a current calibration, until a fresh exchange
+/// narrow enough to qualify the mapping renews it (consistent with the old mapping) or recalibrates it (disagreeing),
+/// within ordinary recovery's budget (R2-F1 and R3-F1, coordinator decisions 19 Oct 2026).</summary>
+public enum ClockMappingState : byte { Calibrating, Ready, Suspect, Expired, Retired, Recovering, Renewing }
+/// <summary>Inconclusive (R3-F1): an otherwise acceptable renewing exchange too wide to qualify the mapping; it cannot
+/// see a clock move smaller than its own width, so it neither renews nor recalibrates and is not retained.</summary>
+public enum ClockProbeOutcome { Accepted, WrongIdentity, Reversed, NegativeRoundTrip, Disjoint, Expired, ProfileRange, Malformed, Inconclusive }
 public readonly record struct WorkshopClockStamp(WorkshopClockDomain Domain, ClockGeneration Generation,
     MonotonicNanoseconds Time, TimestampUncertainty Uncertainty)
 {
@@ -42,8 +48,10 @@ public readonly record struct WorkshopClockStamp(WorkshopClockDomain Domain, Clo
 }
 public readonly record struct ClockProbe(RuntimeSessionId Session, ClockGeneration Generation, ClockGeneration RequesterGeneration, WorkshopRuntimeRole RequesterRole,
     ClockProbeSequence Sequence, MonotonicNanoseconds RequesterSent);
+/// <summary>The epoch of the master context's derivation correction; every clock reply carries the epoch it was stamped under.</summary>
+public readonly record struct ClockDerivationEpoch(uint Value);
 public readonly record struct ClockReply(ClockProbe Probe, MonotonicNanoseconds MasterReceived,
-    MonotonicNanoseconds MasterSent, MonotonicNanoseconds RequesterReceived);
+    MonotonicNanoseconds MasterSent, MonotonicNanoseconds RequesterReceived, ClockDerivationEpoch Derivation);
 public readonly record struct ClockInterval(Int128 Lower, Int128 Upper)
 {
     public long Midpoint => checked((long)(((Int128)Lower + Upper) / 2));
@@ -68,14 +76,27 @@ public sealed record WorkshopClockPeer(RuntimeSessionId Session, ClockGeneration
     }
 }
 
-internal enum ClockRecoveryFailure : byte { Elapsed, ProbeLimit }
+/// <summary>
+/// Why a mapping recalibrated (discarded every retained slot under a new display epoch). A recovery or renewal episode's
+/// 250 ms bound elapsed, an unanswered renewing probe included (Elapsed), or its eighth reply settled unqualified or
+/// inconclusive (ProbeLimit); no accepted reply arrived within the 500 ms mapping lifetime (MappingLifetime: the master's
+/// context or the reply path failed, the requester kept running without a usable reply, or, after the requester's own
+/// stall, a renewing reply was not accepted, the concluding exchange disagreed with the old mapping, or the old mapping
+/// had widened past the mapped width; a stalled requester's lapse that a consistent exchange renews is not a
+/// recalibration); a fresh interval was
+/// disjoint from the retained ones (Disjoint) or widened their span past the profile (ProfileRange); or the master
+/// context's derivation correction changed (MasterRederived, WorkshopClockDerivation).
+/// </summary>
+public enum ClockRecalibrationCause : byte { Elapsed, ProbeLimit, MappingLifetime, Disjoint, ProfileRange, MasterRederived }
+public readonly record struct ClockRecalibration(WorkshopRuntimeRole Role, ClockRecalibrationCause Cause, ulong Count,
+    ulong DisplayEpoch, MonotonicNanoseconds At);
 
 [Flags]
 internal enum ClockBookkeepingFlags : byte { None = 0, Pending = 1 }
 
 /// <summary>
 /// Browser-owned mapping of one native worker origin. External-clock arithmetic is integral.
-/// Live payload: eight 24-byte slots plus 80-byte aligned owner fields = 272 bytes. Array/object
+/// Live payload: eight 24-byte slots plus 88-byte aligned owner fields = 280 bytes. Array/object
 /// headers are additional resident memory. Raw diagnostic observations are returned, not retained.
 /// </summary>
 public sealed class WorkshopClockMapping
@@ -87,7 +108,8 @@ public sealed class WorkshopClockMapping
     public const long MaximumMappedWidth = 2_000_000;
     public const long MaximumOffsetSpan = 502_550_000;
     public const int ProbeCapacity = 8;
-    public const int BookkeepingBytes = 272;
+    /// <summary>Eight 24-byte slots plus 88-byte aligned owner fields (the renewal lapse age added 8, Story 9.4b D23).</summary>
+    public const int BookkeepingBytes = 280;
     public const long RecoveryLifetime = RefreshSpacing;
     public const int RecoveryProbeLimit = ProbeCapacity;
     private readonly WorkshopClockPeer _peer;
@@ -95,12 +117,18 @@ public sealed class WorkshopClockMapping
     private long _anchor;
     private ulong _sequence;
     private long _lastRequester, _lastSent, _recoveryStarted;
+    private long _renewalLapseAge;
+    // One budget for both bounded episodes (R3-F1): probes sent in the current recovery or renewal, at most
+    // RecoveryProbeLimit, within RecoveryLifetime of _recoveryStarted.
     private byte _recoverySends;
+    private ClockDerivationEpoch? _derivation;
     private byte _count, _next;
     private ClockBookkeepingFlags _flags;
     public ClockMappingState State { get; private set; } = ClockMappingState.Calibrating;
     public ulong DisplayEpoch { get; private set; } = 1;
     public RuntimeSessionId Session => _peer.Session;
+    /// <summary>The peer this mapping owns; the wire's one reply path decodes against it (WorkshopClockWire.ReceiveEncoded).</summary>
+    internal WorkshopClockPeer Peer => _peer;
     public ClockGeneration Generation => _peer.Generation;
     public TimestampUncertainty EndpointUncertainty => _peer.Uncertainty;
     public int ValidProbeCount => _count;
@@ -119,21 +147,26 @@ public sealed class WorkshopClockMapping
     private void ValidateNow(MonotonicNanoseconds now)
     {
         now.Validate();
-        if (State is ClockMappingState.Retired or ClockMappingState.Faulted || now.Value < _lastRequester)
-            throw new InvalidOperationException("Native browser clock retired, faulted or reversed.");
+        if (State is ClockMappingState.Retired || now.Value < _lastRequester)
+            throw new InvalidOperationException("Native browser clock retired or reversed.");
     }
 
     public ClockProbe? BeginProbe(MonotonicNanoseconds now)
     {
         Observe(now);
-        if (State == ClockMappingState.Recovering && _recoverySends == RecoveryProbeLimit) return null;
+        if (State is ClockMappingState.Recovering or ClockMappingState.Renewing && _recoverySends == RecoveryProbeLimit) return null;
         if (Pending is { } pending && (Int128)now.Value - pending.RequesterSent.Value < ProbeLifetime) return null;
-        var spacing = State == ClockMappingState.Ready ? RefreshSpacing : StartupSpacing;
+        var spacing = State switch
+        {
+            ClockMappingState.Ready => RefreshSpacing,
+            ClockMappingState.Renewing => 0, // the renewing exchange is taken at once
+            _ => StartupSpacing,
+        };
         if (_sequence != 0 && (Int128)now.Value - _lastSent < spacing) return null;
         if (_sequence == ulong.MaxValue) throw new InvalidOperationException("Clock probe sequence exhausted.");
         var probe = new ClockProbe(Session, Generation, _peer.RequesterGeneration, _peer.RequesterRole, new(_sequence + 1), now);
         _sequence++; _flags |= ClockBookkeepingFlags.Pending; _lastSent = now.Value;
-        if (State == ClockMappingState.Recovering) _recoverySends++;
+        if (State is ClockMappingState.Recovering or ClockMappingState.Renewing) _recoverySends++;
         _lastRequester = now.Value;
         return probe;
     }
@@ -142,9 +175,36 @@ public sealed class WorkshopClockMapping
     {
         ValidateNow(reply.RequesterReceived);
         RequireRecoveryTime(reply.RequesterReceived, reply);
+        // Only the pending probe's own answer may say anything about the master derivation: classify first, so a stale or
+        // foreign reply can neither move the epoch nor discard the calibration (Story 9.4b review, blind hunter 8).
         var outcome = Classify(reply);
+        // A reply stamped under a newer master derivation cannot be mapped together with intervals from the old one;
+        // with no retained slot there is nothing to discard and no recalibration to report (edge-case E3).
+        if (outcome == ClockProbeOutcome.Accepted && _derivation is { } installed && reply.Derivation != installed)
+        {
+            if (reply.Derivation.Value < installed.Value)
+                throw new ArgumentException($"Clock reply derivation epoch reversed from {installed.Value} to {reply.Derivation.Value}.");
+            if (_count != 0) Recalibrate(ClockRecalibrationCause.MasterRederived, reply.RequesterReceived, reply, ClockMappingState.Expired);
+        }
+        if (outcome == ClockProbeOutcome.Accepted) _derivation = reply.Derivation;
         var interval = outcome == ClockProbeOutcome.Accepted ? Offset(reply, EndpointUncertainty) : default;
-        var expired = _count != 0 && (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
+        // Renewing (R2-F1, R3-F1): an exchange concludes the renewal only when it alone qualifies the mapping through the
+        // refresh horizon, the width bound that ends ordinary recovery. A wider one cannot see a clock move smaller than
+        // its own width, so it is inconclusive: not retained, consumers keep holding, the renewal keeps probing within
+        // ordinary recovery's budget, and exhausting that budget recalibrates. A concluding exchange renews when its
+        // interval overlaps the old mapping's, widened by the drift allowance for the old interval's age; otherwise the
+        // lapse recalibrates.
+        var renewing = State == ClockMappingState.Renewing && outcome == ClockProbeOutcome.Accepted;
+        if (renewing && !QualifiesThroughRefresh(interval)) outcome = ClockProbeOutcome.Inconclusive;
+        var retained = default(ClockInterval);
+        // R4-F1: the old side is bounded too. Its narrowest retained interval, drift-widened to now, must itself fit the
+        // mapped width, or a long stall would widen it until it swallowed a real move; past that the lapse recalibrates.
+        var renewed = renewing && outcome == ClockProbeOutcome.Accepted &&
+            TryRetained(reply.RequesterReceived, out retained) && WithinMappedWidth(retained) &&
+            interval.Overlaps(retained);
+        var exhausted = outcome == ClockProbeOutcome.Inconclusive && _recoverySends == RecoveryProbeLimit;
+        var expired = !renewed && outcome != ClockProbeOutcome.Inconclusive && _count != 0 &&
+            (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
         if (!expired && outcome == ClockProbeOutcome.Accepted && _count != 0 &&
             TryBest(reply.RequesterReceived, null, out var old, out _) && !interval.Overlaps(old))
             outcome = ClockProbeOutcome.Disjoint;
@@ -182,23 +242,26 @@ public sealed class WorkshopClockMapping
             }
         }
         var suspect = outcome is ClockProbeOutcome.Disjoint or ClockProbeOutcome.ProfileRange;
-        if ((expired || suspect) && DisplayEpoch == ulong.MaxValue)
+        if ((expired || suspect || exhausted) && DisplayEpoch == ulong.MaxValue)
             throw new InvalidOperationException("Display epoch exhausted.");
 
         // All checked arithmetic and the entire replacement layout have passed before mutation.
         _lastRequester = reply.RequesterReceived.Value;
         if (Pending == reply.Probe) _flags &= ~ClockBookkeepingFlags.Pending;
         if (expired || suspect)
-        {
-            _count = _next = 0; DisplayEpoch++;
-            State = suspect ? ClockMappingState.Suspect : ClockMappingState.Expired;
-            ClearRecovery();
-        }
+            Recalibrate(!suspect ? ClockRecalibrationCause.MappingLifetime
+                    : outcome == ClockProbeOutcome.Disjoint ? ClockRecalibrationCause.Disjoint : ClockRecalibrationCause.ProfileRange,
+                reply.RequesterReceived, reply, suspect ? ClockMappingState.Suspect : ClockMappingState.Expired);
+        else if (exhausted)
+            Recalibrate(ClockRecalibrationCause.ProbeLimit, reply.RequesterReceived, reply, ClockMappingState.Expired);
+        if (renewed && outcome == ClockProbeOutcome.Accepted) RecordLateRenewal(reply, retained, interval);
         if (outcome == ClockProbeOutcome.Accepted)
         {
             candidate.CopyTo(_slots);
             _anchor = candidateAnchor; _count = checked((byte)candidateCount); _next = checked((byte)candidateNext);
-            if (_count == ProbeCapacity && !IsQualified && HasOffsetBudget(reply.RequesterReceived, 0))
+            // A concluded renewal resumes Ready: its concluding exchange alone covers the refresh horizon (one path).
+            if (renewed) { State = ClockMappingState.Ready; ClearRecovery(); }
+            else if (_count == ProbeCapacity && !IsQualified && HasOffsetBudget(reply.RequesterReceived, 0))
                 State = ClockMappingState.Ready;
         }
         UpdateAvailability(reply.RequesterReceived, outcome == ClockProbeOutcome.Accepted ? interval : null, reply);
@@ -296,6 +359,17 @@ public sealed class WorkshopClockMapping
         return true;
     }
 
+    /// <summary>The one mapped-width bound: a drift-widened interval plus twice the maximum admitted sample uncertainty
+    /// fits <see cref="MaximumMappedWidth"/>. Every slot used for mapping, the old mapping a renewal is checked against
+    /// (R4-F1) and every qualifying exchange are held to it.</summary>
+    private static bool WithinMappedWidth(ClockInterval widened) =>
+        widened.Width + 2 * TimestampUncertainty.Maximum <= MaximumMappedWidth;
+
+    /// <summary>An accepted interval qualifies the mapping when, drift-widened over the refresh horizon, it is within the
+    /// mapped width (R3-F1): it ends ordinary recovery and is the only exchange that can conclude a renewal.</summary>
+    private static bool QualifiesThroughRefresh(ClockInterval fresh) =>
+        WithinMappedWidth(Expand(fresh, RefreshSpacing));
+
     private bool HasOffsetBudget(MonotonicNanoseconds now, long horizon)
     {
         for (var i = 0; i < _count; i++)
@@ -303,28 +377,73 @@ public sealed class WorkshopClockMapping
             var slot = _slots[i];
             var age = (Int128)now.Value + horizon - slot.Receipt;
             if (age < 0 || age > MappingLifetime) continue;
-            if (Expand(Interval(slot), (long)age).Width + 2 * TimestampUncertainty.Maximum <= MaximumMappedWidth)
-                return true;
+            if (WithinMappedWidth(Expand(Interval(slot), (long)age))) return true;
         }
         return false;
     }
 
     private void ClearRecovery() { _recoveryStarted = 0; _recoverySends = 0; }
 
-    private void FailRecovery(ClockRecoveryFailure cause, MonotonicNanoseconds now, ClockReply? reply)
+    /// <summary>
+    /// Every loss of the retained calibration recalibrates and continues (docs/gpu-f32-physics.md game-grade envelope:
+    /// numerical residuals clamp or continue, never terminate the tick): a recovery episode that cannot re-qualify, a
+    /// lapsed mapping lifetime (except a stalled requester's lapse renewed by a consistent exchange, D23), a disjoint or
+    /// out-of-profile interval and a master re-derivation. Every retained slot is
+    /// discarded, the display epoch advances so no capture is mapped across the gap, and startup calibration requalifies
+    /// it. Nothing is widened, extrapolated or retried into the old episode. Each recalibration is a counted, typed
+    /// telemetry occurrence (CCGPU_CLOCK_RECALIBRATED), which every Chrome suite fails on.
+    /// </summary>
+    private void Recalibrate(ClockRecalibrationCause cause, MonotonicNanoseconds now, ClockReply? reply,
+        ClockMappingState next)
     {
-#if PLAYTEST
-        try { EmitRecoveryFault(cause, now, reply); }
-        catch (Exception) { /* Diagnostic output must never replace the original clock fault. */ }
-#endif
-        State = ClockMappingState.Faulted;
-        _flags &= ~ClockBookkeepingFlags.Pending;
-        throw new InvalidOperationException("Clock mapping recovery exhausted its bounded episode.");
+        if (DisplayEpoch == ulong.MaxValue) throw new InvalidOperationException("Display epoch exhausted.");
+        var record = DescribeRecalibration(cause, now, reply);
+        _count = _next = 0; DisplayEpoch++;
+        State = next;
+        ClearRecovery();
+        Recalibrations++;
+        LastRecalibration = new(_peer.RequesterRole, cause, Recalibrations, DisplayEpoch, now);
+        Console.WriteLine("CCGPU_CLOCK_RECALIBRATED " + record);
     }
 
+    /// <summary>Recalibrations of this mapping so far: the typed telemetry count the browser suites read.</summary>
+    public ulong Recalibrations { get; private set; }
+    public ClockRecalibration? LastRecalibration { get; private set; }
 
-#if PLAYTEST
-    private void EmitRecoveryFault(ClockRecoveryFailure cause, MonotonicNanoseconds now, ClockReply? reply)
+    /// <summary>Replies the wire decoder rejected (<see cref="ClockProbeOutcome.Malformed"/>), counted.</summary>
+    public ulong MalformedReplies { get; private set; }
+
+    /// <summary>
+    /// A reply the wire decoder rejected (WorkshopClockWire.DecodeReply) is never applied and never silently dropped
+    /// (Murdoch-2, Story 9.4b): it is a counted, typed <see cref="ClockProbeOutcome.Malformed"/> occurrence
+    /// (CCGPU_CLOCK_REPLY_REJECTED), which every Chrome suite fails on. The outstanding probe is left to expire, so
+    /// the mapping recovers or recalibrates on its ordinary path. Only the wire's one reply path calls it.
+    /// </summary>
+    internal void RejectMalformedReply(int length, MonotonicNanoseconds received, string detail)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(length);
+        ArgumentException.ThrowIfNullOrEmpty(detail);
+        received.Validate();
+        if (MalformedReplies == ulong.MaxValue) throw new InvalidOperationException("Malformed reply count exhausted.");
+        MalformedReplies++;
+        const ClockProbeOutcome outcome = ClockProbeOutcome.Malformed;
+        using var bytes = new System.IO.MemoryStream();
+        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
+        {
+            json.WriteStartObject();
+            json.WriteNumber("role", (uint)_peer.RequesterRole);
+            json.WriteNumber("outcome", (int)outcome);
+            json.WriteString("outcomeName", outcome.ToString());
+            json.WriteString("count", MalformedReplies.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            json.WriteNumber("length", length);
+            json.WriteString("received", received.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            json.WriteString("detail", detail);
+            json.WriteEndObject();
+        }
+        Console.WriteLine("CCGPU_CLOCK_REPLY_REJECTED " + System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length)));
+    }
+
+    private string DescribeRecalibration(ClockRecalibrationCause cause, MonotonicNanoseconds now, ClockReply? reply)
     {
         using var bytes = new System.IO.MemoryStream();
         using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
@@ -344,11 +463,14 @@ public sealed class WorkshopClockMapping
             json.WriteStartObject();
             json.WriteNumber("role", (uint)_peer.RequesterRole);
             json.WriteNumber("cause", (byte)cause);
-            json.WriteNumber("stateBeforeTeardown", (byte)State);
+            json.WriteString("causeName", cause.ToString());
+            Exact("count", Recalibrations + 1);
+            json.WriteNumber("stateBefore", (byte)State);
             Exact("sessionLow", Session.Low); Exact("sessionHigh", Session.High);
             Exact("masterGeneration", Generation.Value);
             Exact("requesterGeneration", _peer.RequesterGeneration.Value);
             Exact("masterOrigin", _peer.MasterOrigin.Value);
+            if (_derivation is { } derivation) Exact("derivation", derivation.Value); else json.WriteNull("derivation");
             Exact("uncertainty", EndpointUncertainty.Value);
             Exact("displayEpoch", DisplayEpoch); Exact("now", now.Value);
             Exact("recoveryStarted", _recoveryStarted);
@@ -367,7 +489,7 @@ public sealed class WorkshopClockMapping
             }
             else json.WriteNullValue();
             // These slots may already include the triggering accepted reply.
-            json.WriteStartArray("slotsBeforeTeardown");
+            json.WriteStartArray("slotsBefore");
             for (var i = 0; i < _count; i++)
             {
                 var slot = _slots[i]; var interval = Interval(slot);
@@ -378,16 +500,14 @@ public sealed class WorkshopClockMapping
             }
             json.WriteEndArray(); json.WriteEndObject();
         }
-        Console.Error.WriteLine("CCGPU_CLOCK_RECOVERY_FAULT " +
-            System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length)));
+        return System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length));
     }
-#endif
 
     private void RequireRecoveryTime(MonotonicNanoseconds now, ClockReply? reply = null)
     {
         // The reply at the exact endpoint may settle; one nanosecond later cannot.
-        if (State == ClockMappingState.Recovering && (Int128)now.Value - _recoveryStarted > RecoveryLifetime)
-            FailRecovery(ClockRecoveryFailure.Elapsed, now, reply);
+        if (State is ClockMappingState.Recovering or ClockMappingState.Renewing && (Int128)now.Value - _recoveryStarted > RecoveryLifetime)
+            Recalibrate(ClockRecalibrationCause.Elapsed, now, reply, ClockMappingState.Expired);
     }
 
     private void UpdateAvailability(MonotonicNanoseconds now, ClockInterval? acceptedInterval = null, ClockReply? reply = null)
@@ -399,28 +519,92 @@ public sealed class WorkshopClockMapping
             State = ClockMappingState.Recovering;
             _recoveryStarted = now.Value; _recoverySends = 0;
         }
-        else if (State == ClockMappingState.Recovering && acceptedInterval is { } fresh && covered &&
-            Expand(fresh, RefreshSpacing).Width + 2 * TimestampUncertainty.Maximum <= MaximumMappedWidth)
+        else if (State == ClockMappingState.Recovering && acceptedInterval is { } fresh && covered && QualifiesThroughRefresh(fresh))
         {
             State = ClockMappingState.Ready;
             ClearRecovery();
         }
         if (State == ClockMappingState.Recovering && _recoverySends == RecoveryProbeLimit && Pending is null)
-            FailRecovery(ClockRecoveryFailure.ProbeLimit, now, reply);
+            Recalibrate(ClockRecalibrationCause.ProbeLimit, now, reply, ClockMappingState.Expired);
     }
 
     public void Observe(MonotonicNanoseconds now)
     {
         ValidateNow(now);
         RequireRecoveryTime(now);
-        if (_count != 0 && (Int128)now.Value - NewestReceipt() > MappingLifetime)
+        // A renewal's retained slots are past their lifetime by definition; its time bound is RequireRecoveryTime's.
+        if (State != ClockMappingState.Renewing && _count != 0 && (Int128)now.Value - NewestReceipt() > MappingLifetime)
         {
-            if (DisplayEpoch == ulong.MaxValue) throw new InvalidOperationException("Display epoch exhausted.");
-            _count = _next = 0; State = ClockMappingState.Expired; DisplayEpoch++;
-            ClearRecovery();
+            if (LapsedWhileStalled()) BeginRenewal(now);
+            else Recalibrate(ClockRecalibrationCause.MappingLifetime, now, null, ClockMappingState.Expired);
         }
         _lastRequester = now.Value;
         UpdateAvailability(now);
+    }
+
+    /// <summary>
+    /// The one lapse that is renewed and checked rather than recalibrated (R2-F1): the requester's own event loop did not
+    /// run. No probe is outstanding, and the requester last ran before its next probe fell due, which was itself before
+    /// the mapping's lifetime ended, so a requester that was running would have refreshed the mapping in time. A lapse
+    /// with a probe outstanding (the master or the reply path failed) or of a requester that kept running is not covered.
+    /// </summary>
+    private bool LapsedWhileStalled()
+    {
+        if (State is not (ClockMappingState.Ready or ClockMappingState.Recovering) || Pending is not null) return false;
+        var due = (Int128)_lastSent + (State == ClockMappingState.Ready ? RefreshSpacing : StartupSpacing);
+        return due < (Int128)NewestReceipt() + MappingLifetime && _lastRequester < due;
+    }
+
+    private void BeginRenewal(MonotonicNanoseconds now)
+    {
+        _renewalLapseAge = checked((long)((Int128)now.Value - NewestReceipt()));
+        State = ClockMappingState.Renewing;
+        ClearRecovery();
+        _recoveryStarted = now.Value; // the renewal's budget runs from the lapse, as recovery's runs from its start
+    }
+
+    /// <summary>The old mapping at <paramref name="now"/>: its narrowest retained interval widened by the 500 ppm drift
+    /// allowance for its age, the lifetime aside (every retained slot is past it while renewing).</summary>
+    private bool TryRetained(MonotonicNanoseconds now, out ClockInterval best)
+    {
+        best = default; var found = false;
+        for (var i = 0; i < _count; i++)
+        {
+            var age = (Int128)now.Value - _slots[i].Receipt;
+            if (age < 0) continue;
+            var expanded = Expand(Interval(_slots[i]), (long)age);
+            if (!found || expanded.Width < best.Width) { found = true; best = expanded; }
+        }
+        return found;
+    }
+
+    /// <summary>Lapses of a stalled requester renewed by a consistent fresh exchange: counted, typed
+    /// CCGPU_CLOCK_RENEWED_LATE telemetry the Chrome suites report but do not fail on. Not a recalibration: the
+    /// derivation, display epoch and retained calibration are kept.</summary>
+    public ulong LateRenewals { get; private set; }
+
+    private void RecordLateRenewal(ClockReply reply, ClockInterval retained, ClockInterval fresh)
+    {
+        if (LateRenewals == ulong.MaxValue) throw new InvalidOperationException("Late renewal count exhausted.");
+        LateRenewals++;
+        using var bytes = new System.IO.MemoryStream();
+        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
+        {
+            void Exact(string name, Int128 value) =>
+                json.WriteString(name, value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            json.WriteStartObject();
+            json.WriteNumber("role", (uint)_peer.RequesterRole);
+            Exact("count", LateRenewals);
+            Exact("lapseAge", _renewalLapseAge);
+            json.WriteNumber("exchanges", _recoverySends);
+            Exact("renewedAt", reply.RequesterReceived.Value);
+            Exact("oldLower", retained.Lower); Exact("oldUpper", retained.Upper);
+            Exact("newLower", fresh.Lower); Exact("newUpper", fresh.Upper);
+            if (_derivation is { } derivation) Exact("derivation", derivation.Value); else json.WriteNull("derivation");
+            Exact("displayEpoch", DisplayEpoch);
+            json.WriteEndObject();
+        }
+        Console.WriteLine("CCGPU_CLOCK_RENEWED_LATE " + System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length)));
     }
 
     public void Retire()

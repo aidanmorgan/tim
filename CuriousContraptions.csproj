@@ -14,14 +14,14 @@
         <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
         <!-- Keep nested host projects out of the default compile/content globs (their .gdignore hides them
              from the Godot editor) -->
-        <DefaultItemExcludes>$(DefaultItemExcludes);CuriousContraptions.2dog/**;CuriousContraptions.web/**;CuriousContraptions.Simulation/**;CuriousContraptions.Animation/**;CuriousContraptions.Animation.Worker/**;CuriousContraptions.tests/**</DefaultItemExcludes>
+        <DefaultItemExcludes>$(DefaultItemExcludes);CuriousContraptions.2dog/**;CuriousContraptions.web/**;CuriousContraptions.Simulation/**;CuriousContraptions.Animation/**;CuriousContraptions.Animation.Worker/**;CuriousContraptions.FlatBuffers/**;CuriousContraptions.tests/**</DefaultItemExcludes>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="2dog.godotsharp" Version="$(TwoDogVersion)" />
         <PackageReference Include="2dog.godotsharp.editor" Version="$(TwoDogVersion)" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Editor'" />
-        <PackageReference Include="Google.FlatBuffers" Version="25.2.10" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
         <ProjectReference Include="CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
         <ProjectReference Include="CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
     </ItemGroup>

@@ -1,0 +1,8 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/J10-D19-no-after-each/original	2026-10-19 05:45:33.449177812 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-close-findings.mjs	2026-10-19 05:45:33.452778552 +0800
+@@ -21,5 +21,4 @@
+         findings.map(finding => finding.message).join(' | '));
+ }
+ 
+-afterEach(() => raise('after the test'));
+ after(() => raise('after the suites'));

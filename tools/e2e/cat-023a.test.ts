@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
+import { reportsNaN } from '../workshop-console.mjs';
 
 const BENCH_Y = -0.46;
 const HALF_HEIGHT = 0.55;
@@ -77,13 +78,13 @@ describe('CAT-023a: Dynamic box rigid body & upright stability (Domino)', () => 
         driver.page.on('console', (msg: ConsoleMessage) => {
             const text = msg.text();
             if (text.includes('CCGPU_TRANSPORT_FAILURE') || text.includes('CCGPU_STARTUP_EXCEPTION') ||
-                text.includes('Unhandled exception') || text.includes('NaN')) errors.push(text);
+                text.includes('Unhandled exception') || reportsNaN(msg.type(), text)) errors.push(text);
         });
         driver.page.on('pageerror', (error: Error) => errors.push(error.message));
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Negative control: an upright Domino alone on the bench stands still for 3 s within the rest tolerances', { timeout: 120000 }, async () => {

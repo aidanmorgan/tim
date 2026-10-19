@@ -1,0 +1,22 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.12]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33) [FAIL]
+[xUnit.net 00:00:01.14]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: NaN) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33) [59 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.InvalidOperationException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Single available) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 148
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: NaN) [6 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.InvalidOperationException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Single available) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 148
+   at InvokeStub_WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:     2, Skipped:     0, Total:     4, Duration: 106 ms - CuriousContraptions.tests.dll (net10.0)

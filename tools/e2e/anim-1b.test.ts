@@ -55,7 +55,7 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Switch depression ramps to 1 on the declared curve while the unconnected lamp stays neutral', { timeout: 120000 }, async () => {

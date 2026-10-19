@@ -5,7 +5,7 @@ using Godot;
 namespace CuriousContraptions.Tests;
 
 [Collection<NativeSceneCollection>]
-public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutputHelper output)
+public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
 {
 
 
@@ -31,10 +31,9 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
         Assert.Equal((Half)12, construction.Receiver!.Value.ForceRegion.MaximumAcceleration.Value);
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
-        // Supplemental immutable-fixture boundary: the player cannot move this locked Receiver.
-        // Export only when explicitly requested for the matching real-worker/WASM control.
-        if (System.Environment.GetEnvironmentVariable("SPRING_COMPILED_FIXTURES") == "1")
-            output.WriteLine($"SPRING_RECEIVER_FIXTURE {offset:R} {Convert.ToBase64String(bytes)}");
+        // Supplemental immutable-fixture boundary: the player cannot move this locked Receiver, but the compiled scene
+        // admits it at the shifted pose. (The former SPRING_COMPILED_FIXTURES export fed the deleted JS-kernel harness.)
+        Assert.Equal(PhysicsGpuAbi.ByteLength, bytes.Length);
     }
 
 

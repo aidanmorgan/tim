@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: ENGINE-CORE-2a4: Anti-Tunneling High-Speed Wall Impact via Speculative Contacts CCD
+    # Subtest: 1. High-speed vertical wall impact without tunneling
+    ok 1 - 1. High-speed vertical wall impact without tunneling
+      ---
+      duration_ms: 5082.934791
+      type: 'test'
+      ...
+    # Subtest: 2. Exact Reset and Save/Load persistence restoration
+    ok 2 - 2. Exact Reset and Save/Load persistence restoration
+      ---
+      duration_ms: 10383.025417
+      type: 'test'
+      ...
+    1..2
+ok 1 - ENGINE-CORE-2a4: Anti-Tunneling High-Speed Wall Impact via Speculative Contacts CCD
+  ---
+  duration_ms: 19929.653709
+  type: 'suite'
+  ...
+1..1
+# tests 2
+# suites 1
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20166.231542

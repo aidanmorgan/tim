@@ -48,7 +48,7 @@ public static partial class PhysicsGpuAbi
             throw new ArgumentException("Invalid prismatic table.");
         var record = data.Slice(PrismaticRecordsOffset + index * PrismaticBytes, PrismaticBytes);
         var a = R32(record, 8); var b = R32(record, 12);
-        if (a >= R32(data, 12) || b >= R32(data, 12) || R32(record, 88) > (uint)ConnectedCollision.Enabled ||
+        if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) || R32(record, 88) > (uint)ConnectedCollision.Enabled ||
             !AllZero(record[92..96]) || !AllZero(record[128..]))
             throw new ArgumentException("Invalid prismatic record.");
         var result = new PrismaticConstraintDeclaration(new(R64(record, 0)),

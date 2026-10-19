@@ -236,7 +236,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
                 phase == WorkshopSimulationPhase.Faulted ? 0UL : 1UL;
             client.NextRead = new(default, WorkshopResponseKind.Read,
                 new(phase == WorkshopSimulationPhase.Faulted ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
-                    phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.DeviceLost : WorkshopRejection.None),
+                    phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.Capacity : WorkshopRejection.None),
                 phase, new(new(1), new(tick), default, new(tick + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(110_000_000), new(100_000))));
             client.AdmitPendingRead(); // Actual callback admission may precede the next scene frame.
             if (sceneBeforeAck) world._Process(0);
@@ -287,6 +287,60 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             Assert.Empty(world.Parts);
         }
         finally { world.Free(); }
+    }
+
+    // Murdoch-2 H1 (Story 9.4b): a retired worker session is an explicit fault the Workshop already shows; the per-frame
+    // UI bindings stop with it instead of throwing "Worker session is unavailable" into the engine loop every frame.
+    [Theory]
+    [InlineData(WorkshopTransportState.Indeterminate)]
+    [InlineData(WorkshopTransportState.RecoveryBlocked)]
+    public async Task ARetiredTransportStopsUiBindingsWithoutThrowing(WorkshopTransportState retired)
+    {
+        var client = new RetiringUiClient();
+        var world = new MachineWorld();
+        try
+        {
+            await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
+            Assert.True(world.TryUiFrame(WorkshopUiTarget.Hint, out _), "control: a Ready transport samples UI frames");
+            world.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Visibility, true);
+            Assert.Equal((1, 1), (client.Frames, client.Controls));
+            client.TransportState = retired;
+            Assert.False(world.TryUiFrame(WorkshopUiTarget.Hint, out var opacity));
+            Assert.Equal(default, opacity);
+            world.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Visibility, false);
+            Assert.Equal((1, 1), (client.Frames, client.Controls));
+        }
+        finally { world.Free(); }
+    }
+
+    /// <summary>Mirrors BrowserWorkshopClient: UI calls on a retired transport throw.</summary>
+    private sealed class RetiringUiClient : IWorkshopClient
+    {
+        public int Frames { get; private set; }
+        public int Controls { get; private set; }
+        public WorkshopTransportState TransportState { get; set; } = WorkshopTransportState.Ready;
+        private void Retire()
+        {
+            if (TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked)
+                throw new InvalidOperationException("Worker session is unavailable; its unacknowledged operations remain indeterminate.");
+        }
+        public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
+        public SimulationEpoch Epoch => new(1);
+        public AuthorityRevision Revision => new(1);
+        public WorkshopCommandIdentity? Pending => null;
+        public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) { Retire(); Controls++; }
+        public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity)
+        { Retire(); Frames++; opacity = default; return true; }
+        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
+        public bool TryElectricalFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out ElectricalIndicatorSample sample) { sample = default; return false; }
+        public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
+            throw new InvalidOperationException("Commands are outside this UI binding fixture.");
+        public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No cancellable test transport request.");
+        public bool TryRead(out WorkshopResponse response) { response = default; return false; }
+        public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
+        public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     private sealed class HeldWorkshopClient : IWorkshopClient

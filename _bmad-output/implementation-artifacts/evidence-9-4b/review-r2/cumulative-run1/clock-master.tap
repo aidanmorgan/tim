@@ -1,0 +1,53 @@
+TAP version 13
+# {"firstFailureMs":null,"failures":0,"recalibrations":0,"derivation":{"startup":{"attempts":18,"inconclusive":2,"unanswered":0},"checkReports":[],"summary":null}}
+# Subtest: Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build)
+ok 1 - Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build)
+  ---
+  duration_ms: 9294.665167
+  type: 'test'
+  ...
+# {"samples":12,"failures":0,"recalibrations":0,"spanMs":2774.34,"derivation":{"startup":{"attempts":18,"inconclusive":2,"unanswered":0},"checkReports":[],"summary":null}}
+# Subtest: A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running)
+ok 2 - A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running)
+  ---
+  duration_ms: 8405.936875
+  type: 'test'
+  ...
+# {"solved":1,"lit":true,"failures":0,"recalibrationRoles":[3],"deferrals":[{"cause":2,"causeName":"Recalibrating","count":"1"}]}
+# Subtest: A running wired chain survives a 20 ms duty cycle on the Animation worker (Running)
+ok 3 - A running wired chain survives a 20 ms duty cycle on the Animation worker (Running)
+  ---
+  duration_ms: 10596.662125
+  type: 'test'
+  ...
+# {"firstFailureMs":912,"failures":["CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\\n    at checkSimulationLiveness (http://127.0.0.1:8060/workshop-client.js:343:23)\\n    at ht","SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\\n    at checkSimulationLiveness (http://127.0.0.1:8060/workshop-client.js:343:23)\\n    at http://127.0.0.1:8060/worksh"],"derivation":{"startup":{"attempts":19,"inconclusive":3,"unanswered":0},"checkReports":[],"summary":null}}
+# Subtest: A Simulation spin beyond the liveness bound faults the session as SimulationUnresponsive; a 600 ms block does not
+ok 4 - A Simulation spin beyond the liveness bound faults the session as SimulationUnresponsive; a 600 ms block does not
+  ---
+  duration_ms: 9719.126541
+  type: 'test'
+  ...
+# {"slewedRecords":3,"summary":{"report":2,"reportName":"Summary","outcome":0,"outcomeName":"Consistent","epoch":0,"correction":0.02521484971046448,"qualified":16,"startupAttempts":18,"startupOutliers":0,"startupInconclusive":2,"startupUnanswered":0,"checks":100,"slews":6,"rederivations":0,"inconclusive":0,"unanswered":0,"checkRetries":101},"recalibrations":0}
+# {"rederived":[{"epoch":0,"rederivations":1}],"recalibrated":[{"role":1,"cause":5,"causeName":"MasterRederived","count":"1","stateBefore":5,"sessionLow":"7430203250900373154","sessionHigh":"10349555950209618350","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"64500000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"13539660000","recoveryStarted":"13539450000","recoverySends":1,"pending":{"sessionLow":"7430203250900373154","sessionHigh":"10349555950209618350","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"49","sent":"13539450000"},"reply":{"probe":{"sessionLow":"7430203250900373154","sessionHigh":"10349555950209618350","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"49","sent":"13539450000"},"masterReceived":"10440087500","masterSent":"10440112500","requesterReceived":"13539660000"},"slotsBefore":[{"receipt":"11507945000","sequence":"41","lower":"-3100785000","upper":"-3100200000"},{"receipt":"11758530000","sequence":"42","lower":"-3100765000","upper":"-3100225000"},{"receipt":"12008895000","sequence":"43","lower":"-3100765000","upper":"-3100230000"},{"receipt":"12259585000","sequence":"44","lower":"-3100760000","upper":"-3100225000"},{"receipt":"12518375000","sequence":"45","lower":"-3100750000","upper":"-3100240000"},{"receipt":"12768980000","sequence":"46","lower":"-3100765000","upper":"-3100200000"},{"receipt":"13030265000","sequence":"47","lower":"-3100790000","upper":"-3100185000"},{"receipt":"13289060000","sequence":"48","lower":"-3100790000","upper":"-3100140000"}]},{"role":3,"cause":5,"causeName":"MasterRederived","count":"1","stateBefore":5,"sessionLow":"7430203250900373154","sessionHigh":"10349555950209618350","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"64500000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"10501075000","recoveryStarted":"10500960000","recoverySends":1,"pending":{"sessionLow":"7430203250900373154","sessionHigh":"10349555950209618350","masterGeneration":"1","requesterGeneration":"1","role":3,"sequence":"48","sent":"10500960000"},"reply":{"probe":{"sessionLow":"7430203250900373154","sessionHigh":"10349555950209618350","masterGeneration":"1","requesterGeneration":"1","role":3,"sequence":"48","sent":"10500960000"},"masterReceived":"10501907500","masterSent":"10501917500","requesterReceived":"10501075000"},"slotsBefore":[{"receipt":"8737780000","sequence":"41","lower":"-425000","upper":"280000"},{"receipt":"8988875000","sequence":"42","lower":"-400000","upper":"150000"},{"receipt":"9241685000","sequence":"43","lower":"-385000","upper":"115000"},{"receipt":"9493115000","sequence":"44","lower":"-405000","upper":"180000"},{"receipt":"9745190000","sequence":"45","lower":"-430000","upper":"815000"},{"receipt":"9997175000","sequence":"46","lower":"-415000","upper":"535000"},{"receipt":"10249115000","sequence":"47","lower":"-405000","upper":"200000"},{"receipt":"8485690000","sequence":"40","lower":"-400000","upper":"150000"}]}]}
+# Subtest: A skewed Simulation clock is slewed back under the same epoch; a large skew re-derives and requesters recalibrate
+ok 5 - A skewed Simulation clock is slewed back under the same epoch; a large skew re-derives and requesters recalibrate
+  ---
+  duration_ms: 16283.048166
+  type: 'test'
+  ...
+# {"immediate":{"value":0.59326171875,"ordinal":"371"},"firstLit":{"value":0.0002422332763671875,"ordinal":"366"},"full":"376","rampOrdinals":10,"lit":true}
+# Subtest: H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit
+ok 6 - H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit
+  ---
+  duration_ms: 10130.133833
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 64669.463083

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-ratchet-fspring-entry-removed/original	2026-10-19 11:29:52.047097212 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs	2026-10-19 11:29:52.051995227 +0800
+@@ -550,8 +550,6 @@
+             ViolationOwner.Story9A19, ScanVisibility.General, "gate drive parameters named for elements"),
+         // Murdoch-2 R2-F5: found once the scanned names came from the catalogue (the gate drive's return force, named for
+         // the spring family); the drive itself is 9A.19's, like its literals above.
+-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\bfSpring\b", 2,
+-            ViolationOwner.Story9A19, ScanVisibility.General, "gate drive return force named for the spring family"),
+     ];
+ 
+     // Frozen: these change only when an owning story deletes entries (both totals may only fall). Raised once, by the

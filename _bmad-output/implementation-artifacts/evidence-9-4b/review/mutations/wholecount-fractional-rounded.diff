@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/wholecount-fractional-rounded/original	2026-10-19 02:27:54.653506829 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/engine/gpu/WorkshopWireFlatBuffers.cs	2026-10-19 02:27:54.657359128 +0800
+@@ -785,7 +785,7 @@
+ 
+     // A float compares with int.MaxValue as 2^31, so the exclusive f32 bound below is the exact Int32 range (Story 9.4b).
+     private static int WholeCount(float value, GpuBodyId id) =>
+-        float.IsFinite(value) && value == MathF.Round(value) && value >= -2147483648f && value < 2147483648f
++        float.IsFinite(value) && value >= -2147483648f && value < 2147483648f
+             ? (int)value
+             : throw new ArgumentException($"Counter {id.Value} target count '{value:R}' must be a whole number within Int32.");
+ 

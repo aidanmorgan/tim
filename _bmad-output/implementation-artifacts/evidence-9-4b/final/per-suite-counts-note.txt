@@ -1,0 +1,9 @@
+per-suite-counts.txt is derived read-only from e2e-cumulative-run{1,2}.log by matching each ✔/✖ line to the test titles in
+tools/e2e/<suite>.test.ts (scratchpad script per-suite.mjs, copied to ../diagnosis/probes/). The "unmatched" lines are describe-block
+summaries, except two cat-005 tests whose title is a ternary ('Battery recharge, disable, Save/Load and Reset' and 'Battery finite60J
+source exhausts and retains final credit'), both ✔ in both runs. Corrected per-suite result, both runs:
+  31 suites 100%; cat-005 7/7; cat-023b 3/4 (test 4). Totals 131/132 per run (node summary: tests 132, pass 131, fail 1).
+
+anvil (final touched set, 36 files incl. the spec): MCP anvil_check reported nothing. Correction (Murdoch-2 F4, candidate 3):
+this is write validation, not a C# warnings gate. anvil has no C# analysis here (the CLI `--changed` scans only .ts/.js/.mjs);
+the C# gate arrives with Story 9R.0. The only C# warnings evidence is the 0-warning `dotnet build`.

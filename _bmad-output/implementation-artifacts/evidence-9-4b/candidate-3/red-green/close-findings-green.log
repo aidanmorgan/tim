@@ -1,0 +1,13 @@
+✔ a close finding fails a test that otherwise passed (102.76875ms)
+✔ a close finding never replaces the test's own failure, and is still reported (111.407583ms)
+✔ several findings of one test are aggregated, not dropped (104.079958ms)
+✔ a close in a suite's after hook still fails the file (102.847625ms)
+✔ a clean close passes (control), and a finding is raised once, not again for later tests (204.865833ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 681.532

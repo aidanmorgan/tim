@@ -1,0 +1,1 @@
+cumulative run 1: ℹ tests 138 ℹ suites 26 ℹ pass 136 ℹ fail 2 ℹ cancelled 0 ℹ skipped 0 ℹ duration_ms 1807679.367791  unresponsive=2 rejected=0

@@ -122,7 +122,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void Connections_AcceptsElectricalAndRejectsActivation()
     {
-        var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1);
+        var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
         var battery = WorkshopInput.Battery(new(2), 2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
         var switchPart = WorkshopInput.Switch(new(3), -2, 0, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
 
@@ -327,7 +327,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void PhysicsCompiler_CompilesPressurePlateCollidersAndConnectsToPoweredGate()
     {
         var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1);
+        var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
 
         // Wiring: Battery.Supply -> Plate.PowerIn, Plate.Supply -> Gate.PowerIn
@@ -394,7 +394,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(0, fp.ElectricalSources);
         Assert.Equal(0, fp.PrismaticConstraints);
 
-        var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1);
+        var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
         IWorkshopInstance[] instances = [plate];
         WorkbenchCapacity.Validate(instances);
     }

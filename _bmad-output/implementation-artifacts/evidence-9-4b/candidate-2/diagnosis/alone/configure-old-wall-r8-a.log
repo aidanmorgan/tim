@@ -1,0 +1,41 @@
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"66150000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"5833385000","recoveryStarted":"5577845000","recoverySends":3,"pending":{"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"25","sent":"5777215000"},"reply":{"probe":{"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"25","sent":"5777215000"},"masterReceived":"2709124995","masterSent":"2709135005","requesterReceived":"5833385000"},"slotsBefore":[{"receipt":"4788675000","sequence":"17","lower":"-3082439946","upper":"-3068215073"},{"receipt":"4803950000","sequence":"18","lower":"-3079905132","upper":"-3068200142"},{"receipt":"4806725000","sequence":"19","lower":"-3068759966","upper":"-3068219976"},{"receipt":"5069135000","sequence":"20","lower":"-3080014937","upper":"-3068204946"},{"receipt":"5071560000","sequence":"21","lower":"-3068745112","upper":"-3068234995"},{"receipt":"5324430000","sequence":"22","lower":"-3068700073","upper":"-3068219956"},{"receipt":"5746710000","sequence":"23","lower":"-3229435151","upper":"-3068200044"},{"receipt":"5766400000","sequence":"24","lower":"-3085880034","upper":"-3066405161"}]}
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"2","stateBefore":5,"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"66150000","derivation":"0","uncertainty":"100000","displayEpoch":"2","now":"7711375000","recoveryStarted":"7460715000","recoverySends":2,"pending":{"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"45","sent":"7519370000"},"reply":null,"slotsBefore":[{"receipt":"7091795000","sequence":"41","lower":"-3070440073","upper":"-3068195083"},{"receipt":"7106510000","sequence":"42","lower":"-3069899946","upper":"-3068210073"},{"receipt":"7122055000","sequence":"43","lower":"-3068740112","upper":"-3068205122"},{"receipt":"7505960000","sequence":"44","lower":"-3087545015","upper":"-3067840142"},{"receipt":"7040595000","sequence":"37","lower":"-3081815024","upper":"-3068190034"},{"receipt":"7058260000","sequence":"38","lower":"-3081675093","upper":"-3068219976"},{"receipt":"7060750000","sequence":"39","lower":"-3070994927","upper":"-3068220054"},{"receipt":"7076585000","sequence":"40","lower":"-3071720063","upper":"-3068219946"}]}
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":1,"causeName":"ProbeLimit","count":"3","stateBefore":5,"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"66150000","derivation":"0","uncertainty":"100000","displayEpoch":"3","now":"8573400000","recoveryStarted":"8383495000","recoverySends":8,"pending":null,"reply":{"probe":{"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"61","sent":"8569885000"},"masterReceived":"5501474849","masterSent":"5501479976","requesterReceived":"8573400000"},"slotsBefore":[{"receipt":"8573400000","sequence":"61","lower":"-3072120024","upper":"-3068210151"},{"receipt":"8419535000","sequence":"54","lower":"-3083880024","upper":"-3068205034"},{"receipt":"8423770000","sequence":"55","lower":"-3069480015","upper":"-3067035024"},{"receipt":"8438790000","sequence":"56","lower":"-3068784927","upper":"-3066895054"},{"receipt":"8454260000","sequence":"57","lower":"-3068899946","upper":"-3066999956"},{"receipt":"8490395000","sequence":"58","lower":"-3070304966","upper":"-3068200103"},{"receipt":"8507350000","sequence":"59","lower":"-3068775103","upper":"-3066315005"},{"receipt":"8555115000","sequence":"60","lower":"-3098330142","upper":"-3066835024"}]}
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"4","stateBefore":5,"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"66150000","derivation":"0","uncertainty":"100000","displayEpoch":"4","now":"9829765000","recoveryStarted":"9576465000","recoverySends":7,"pending":null,"reply":null,"slotsBefore":[{"receipt":"9654295000","sequence":"78","lower":"-3086789927","upper":"-3068175054"},{"receipt":"9690835000","sequence":"79","lower":"-3083270112","upper":"-3068145122"},{"receipt":"9712135000","sequence":"80","lower":"-3085610151","upper":"-3067105161"},{"receipt":"9730195000","sequence":"81","lower":"-3086580063","upper":"-3068225073"},{"receipt":"9762025000","sequence":"82","lower":"-3085135161","upper":"-3067410044"},{"receipt":"9798785000","sequence":"83","lower":"-3086520161","upper":"-3065624927"},{"receipt":"9371775000","sequence":"76","lower":"-3069569976","upper":"-3068215103"},{"receipt":"9619630000","sequence":"77","lower":"-3083255054","upper":"-3068189946"}]}
+CLOCK RECALIBRATION (fails this suite at close): CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"5","stateBefore":5,"sessionLow":"7303037659615470259","sessionHigh":"7857035466133373470","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"66150000","derivation":"0","uncertainty":"100000","displayEpoch":"5","now":"10444530000","recoveryStarted":"10190485000","recoverySends":6,"pending":null,"reply":null,"slotsBefore":[{"receipt":"10190485000","sequence":"92","lower":"-3068779976","upper":"-3067189985"},{"receipt":"10208880000","sequence":"93","lower":"-3070460132","upper":"-3068190142"},{"receipt":"10238275000","sequence":"94","lower":"-3081194976","upper":"-3068194985"},{"receipt":"10241305000","sequence":"95","lower":"-3070020142","upper":"-3066685151"},{"receipt":"10258605000","sequence":"96","lower":"-3069840161","upper":"-3068200044"},{"receipt":"10300350000","sequence":"97","lower":"-3089825151","upper":"-3064395161"},{"receipt":"10333785000","sequence":"98","lower":"-3087339985","upper":"-3068179995"},{"receipt":"10175735000","sequence":"91","lower":"-3070585151","upper":"-3068230161"}]}
+CONFIGURE_THROTTLE {"mode":"wall","rate":8,"results":[120,120,120]}
+✖ configure under CPU throttle 8x (wall) (15731.786209ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15983.061167
+
+✖ failing tests:
+
+test at ../../../../../private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:1:3531
+✖ configure under CPU throttle 8x (wall) (15731.786209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      120,
+  +   120,
+  +   120
+  -   240,
+  -   480
+    ]
+  
+      at TestContext.<anonymous> (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/diag/configure-throttle.test.mts:86:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 120, 120, 120 ],
+    expected: [ 120, 240, 480 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

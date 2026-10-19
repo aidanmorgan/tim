@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The Google FlatBuffers C# runtime, vendored unmodified from google/flatbuffers tag v25.2.10 (net/FlatBuffers,
+       Apache-2.0, see LICENSE) so the one wire codec is built trim-annotated: the published Google.FlatBuffers
+       package is not, which made every trimmable consumer report IL2125 (Story 9.4b). The generated wire code
+       asserts this exact runtime version (FLATBUFFERS_25_2_10). Upgrade by replacing every source file from a
+       newer tag together with the regenerated wire code; never edit the vendored sources in place. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>CuriousContraptions.FlatBuffers</AssemblyName>
+    <RootNamespace>Google.FlatBuffers</RootNamespace>
+    <IsTrimmable>true</IsTrimmable>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+</Project>

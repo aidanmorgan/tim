@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
+    # Subtest: 1. Select level quarter_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_90 in inventory)
+    ok 1 - 1. Select level quarter_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_90 in inventory)
+      ---
+      duration_ms: 2039.730083
+      type: 'test'
+      ...
+    # Subtest: 2. Negative control: without placing pipe_bend_90, ball falls straight to floor, missing receiver (goal not solved)
+    ok 2 - 2. Negative control: without placing pipe_bend_90, ball falls straight to floor, missing receiver (goal not solved)
+      ---
+      duration_ms: 2659.25125
+      type: 'test'
+      ...
+    # Subtest: 3. Solved run: pipe_bend_90 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
+    ok 3 - 3. Solved run: pipe_bend_90 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
+      ---
+      duration_ms: 7516.603625
+      type: 'test'
+      ...
+    # Subtest: 4. Reset restoration: Reset restores ball and pipe bend; second Run replays bit-for-bit and solves again
+    ok 4 - 4. Reset restoration: Reset restores ball and pipe bend; second Run replays bit-for-bit and solves again
+      ---
+      duration_ms: 2533.136416
+      type: 'test'
+      ...
+    # Subtest: 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+    ok 5 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+      ---
+      duration_ms: 5183.682166
+      type: 'test'
+      ...
+    1..5
+ok 1 - CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
+  ---
+  duration_ms: 24390.385083
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 24648.027959

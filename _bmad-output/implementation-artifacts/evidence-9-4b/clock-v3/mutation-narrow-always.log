@@ -1,0 +1,70 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.39]     CuriousContraptions.Tests.WorkshopClockDerivationTests.StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes [FAIL]
+[xUnit.net 00:00:01.44]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideBracketWithTheMasterInsideIsInconclusiveNotConsistent [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes [14 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Consistent
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 47
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideBracketWithTheMasterInsideIsInconclusiveNotConsistent [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Inconclusive
+Actual:   Consistent
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideBracketWithTheMasterInsideIsInconclusiveNotConsistent() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 107
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.47]     CuriousContraptions.Tests.WorkshopClockDerivationTests.InconclusiveAndUnansweredChecksAreCountedReportingTheFirstOfEachRunAndASummaryEveryHundredChecks [FAIL]
+[xUnit.net 00:00:01.48]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AnExhaustedStartupBudgetRefusesTheSessionNamingEveryCounter [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.InconclusiveAndUnansweredChecksAreCountedReportingTheFirstOfEachRunAndASummaryEveryHundredChecks [1 ms]
+  Error Message:
+   System.InvalidOperationException : A derivation correction awaits its installation.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopClockDerivation.RequireEpoch(ClockDerivationExchange exchange) in /Users/aidan/dev/personal/tim/engine/gpu/WorkshopClockDerivation.cs:line 82
+   at CuriousContraptions.Gpu.WorkshopClockDerivation.Check(ClockDerivationExchange exchange, Double& correction) in /Users/aidan/dev/personal/tim/engine/gpu/WorkshopClockDerivation.cs:line 124
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.<>c__DisplayClass12_0.<InconclusiveAndUnansweredChecksAreCountedReportingTheFirstOfEachRunAndASummaryEveryHundredChecks>b__0() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 169
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.Capture[T](Func`1 action) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 23
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.InconclusiveAndUnansweredChecksAreCountedReportingTheFirstOfEachRunAndASummaryEveryHundredChecks() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 169
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AnExhaustedStartupBudgetRefusesTheSessionNamingEveryCounter [1 ms]
+  Error Message:
+   System.InvalidOperationException : The clock derivation is already qualified.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopClockDerivation.StartupAttempt() in /Users/aidan/dev/personal/tim/engine/gpu/WorkshopClockDerivation.cs:line 89
+   at CuriousContraptions.Gpu.WorkshopClockDerivation.QualificationMissed() in /Users/aidan/dev/personal/tim/engine/gpu/WorkshopClockDerivation.cs:line 114
+   at CuriousContraptions.Tests.WorkshopClockDerivationTests.AnExhaustedStartupBudgetRefusesTheSessionNamingEveryCounter() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 75
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:    13, Skipped:     0, Total:    17, Duration: 121 ms - CuriousContraptions.tests.dll (net10.0)

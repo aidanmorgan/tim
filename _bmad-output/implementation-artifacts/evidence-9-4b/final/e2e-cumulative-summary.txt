@@ -1,0 +1,4 @@
+cumulative run 1: ℹ tests 132 ℹ suites 26 ℹ pass 131 ℹ fail 1 ℹ cancelled 0 ℹ skipped 0 ℹ duration_ms 1525399.771167 
+cumulative run 2: ℹ tests 132 ℹ suites 26 ℹ pass 131 ℹ fail 1 ℹ cancelled 0 ℹ skipped 0 ℹ duration_ms 1516998.782041 
+
+[exited with code 0]

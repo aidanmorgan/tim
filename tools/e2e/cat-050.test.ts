@@ -24,7 +24,7 @@ describe('CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Select level quarter_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_90 in inventory)', { timeout: 150000 }, async () => {

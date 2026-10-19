@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-06-renewing-no-send-cap/original	2026-10-19 15:11:08.263431110 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:11:08.267550582 +0800
+@@ -152,7 +152,7 @@
+     public ClockProbe? BeginProbe(MonotonicNanoseconds now)
+     {
+         Observe(now);
+-        if (State is ClockMappingState.Recovering or ClockMappingState.Renewing && _recoverySends == RecoveryProbeLimit) return null;
++        if (State == ClockMappingState.Recovering && _recoverySends == RecoveryProbeLimit) return null;
+         if (Pending is { } pending && (Int128)now.Value - pending.RequesterSent.Value < ProbeLifetime) return null;
+         var spacing = State switch
+         {

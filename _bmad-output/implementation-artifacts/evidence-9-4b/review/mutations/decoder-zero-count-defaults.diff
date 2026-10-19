@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/decoder-zero-count-defaults/original	2026-10-19 02:27:42.493354876 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/engine/gpu/WorkshopWireFlatBuffers.cs	2026-10-19 02:27:42.497159800 +0800
+@@ -901,7 +901,7 @@
+                 // Declared settings are decoded as written; construction validation rejects a missing (zero) or
+                 // out-of-range value, and a target count must be a whole number. No default replaces saved data.
+                 "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
+-                "counter" => new WorkshopCounter(id, cell, local, rotation, WholeCount(inst.Threshold, id), locked),
++                "counter" => new WorkshopCounter(id, cell, local, rotation, (inst.Threshold == 0 ? 3 : WholeCount(inst.Threshold, id)), locked),
+                 "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
+                 _ => throw new ArgumentException("Unsupported instance kind or parameters.")
+             };

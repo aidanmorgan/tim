@@ -1,0 +1,928 @@
+Build succeeded.
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.63]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [FAIL]
+[xUnit.net 00:00:03.68]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial [6 ms]
+  Error Message:
+   Assert.DoesNotMatch() Failure: Match found
+                                     ↓ (pos 46501)
+String: ···"&& MathF.Abs(c.ColA.Ty - 0.03f) < 0.01f && c.B.Mot"···
+RegEx:  "3\\.5f? \\* |2\\.5f? / |(\\|\\||\\?\\?) 0?\\.(34|75|1|3)f?"···
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 512
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (4094.7201000000005 - 4096)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySizeAndDropsOnlyANonFiniteOne() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 864
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.69]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises [5 ms]
+  Error Message:
+   tick 5: spin rises to 58.80833053588867 from 58.808326721191406
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondDeceleratesAtTheRollingLawAndItsSpinNeverRises() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 813
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.96]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [FAIL]
+[xUnit.net 00:00:04.04]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: 1) [FAIL]
+[xUnit.net 00:00:04.05]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: 1) [FAIL]
+[xUnit.net 00:00:04.05]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: -1) [FAIL]
+[xUnit.net 00:00:04.05]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: -1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest [80 ms]
+  Error Message:
+   tick 1: 4.9991665 m/s (previous 5), spin 14.702081680297852 rad/s (previous 14.702081680297852)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryTickAndComesToRest() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 789
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: 1) [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 88
+Actual:   92
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.<>c__DisplayClass8_0.<ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 57
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 46
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: 1) [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 88
+Actual:   92
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.<>c__DisplayClass8_0.<ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 57
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 46
+   at InvokeStub_WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: 30, sign: -1) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 88
+Actual:   92
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.<>c__DisplayClass8_0.<ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 57
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 46
+   at InvokeStub_WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(degrees: -30, sign: -1) [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 88
+Actual:   92
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.<>c__DisplayClass8_0.<ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 57
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 268
+   at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Int32 degrees, Int32 sign) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 46
+   at InvokeStub_WorkshopPhysicsLawSensorWorkTests.ANonzeroAdmittedZAndEitherQuaternionSignPreserveTheRelativeThreshold(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:04.07]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission [FAIL]
+[xUnit.net 00:00:04.21]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission [11 ms]
+  Error Message:
+   Assert.All() Failure: 205 out of 206 items in the collection did not pass.
+[1]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 144, EventPhase = 0 }, 0.907777309)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 144)
+[2]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 148, EventPhase = 0 }, 0.897313118)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 148)
+[3]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 152, EventPhase = 0 }, 0.88603735)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 152)
+[4]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 156, EventPhase = 0 }, 0.874169827)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 156)
+[5]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 160, EventPhase = 0 }, 0.861771584)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 160)
+[6]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 164, EventPhase = 0 }, 0.848852277)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 164)
+[7]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 168, EventPhase = 0 }, 0.835422039)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 168)
+[8]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 172, EventPhase = 0 }, 0.821491063)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 172)
+[9]:   Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 176, EventPhase = 0 }, 0.807069957)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 176)
+[10]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 180, EventPhase = 0 }, 0.792169452)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 180)
+[11]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 184, EventPhase = 0 }, 0.776800573)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 184)
+[12]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 188, EventPhase = 0 }, 0.760974526)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 188)
+[13]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 192, EventPhase = 0 }, 0.744702816)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 192)
+[14]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 196, EventPhase = 0 }, 0.727997065)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 196)
+[15]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 200, EventPhase = 0 }, 0.710869193)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 200)
+[16]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 204, EventPhase = 0 }, 0.693331242)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 204)
+[17]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 208, EventPhase = 0 }, 0.675395489)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 208)
+[18]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 212, EventPhase = 0 }, 0.657074273)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 212)
+[19]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 216, EventPhase = 0 }, 0.638380229)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 216)
+[20]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 220, EventPhase = 0 }, 0.619325936)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 220)
+[21]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 224, EventPhase = 0 }, 0.599924505)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 224)
+[22]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 228, EventPhase = 0 }, 0.580188811)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 228)
+[23]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 232, EventPhase = 0 }, 0.560131848)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 232)
+[24]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 236, EventPhase = 0 }, 0.539767027)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 236)
+[25]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 240, EventPhase = 0 }, 0.51910764)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 240)
+[26]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 244, EventPhase = 0 }, 0.498167187)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 244)
+[27]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 248, EventPhase = 0 }, 0.47695908)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 248)
+[28]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 252, EventPhase = 0 }, 0.455496907)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 252)
+[29]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 256, EventPhase = 0 }, 0.433794439)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 256)
+[30]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 260, EventPhase = 0 }, 0.411865383)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 260)
+[31]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 264, EventPhase = 0 }, 0.38972348)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 264)
+[32]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 268, EventPhase = 0 }, 0.367382556)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 268)
+[33]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 272, EventPhase = 0 }, 0.34485662)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 272)
+[34]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 276, EventPhase = 0 }, 0.32215935)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 276)
+[35]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 280, EventPhase = 0 }, 0.299304724)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 280)
+[36]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 284, EventPhase = 0 }, 0.276306659)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 284)
+[37]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 288, EventPhase = 0 }, 0.253178984)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 288)
+[38]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 292, EventPhase = 0 }, 0.229935616)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 292)
+[39]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 296, EventPhase = 0 }, 0.206590369)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 296)
+[40]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 300, EventPhase = 0 }, 0.183157131)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 300)
+[41]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 304, EventPhase = 0 }, 0.1596497)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 304)
+[42]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 308, EventPhase = 0 }, 0.136081815)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 308)
+[43]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 312, EventPhase = 0 }, 0.112467147)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 312)
+[44]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 316, EventPhase = 0 }, 0.0888193697)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 316)
+[45]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 320, EventPhase = 0 }, 0.0651520491)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 320)
+[46]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 324, EventPhase = 0 }, 0.0414786786)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 324)
+[47]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 328, EventPhase = 0 }, 0.017812686)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 328)
+[48]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 332, EventPhase = 0 }, 0.00583261298)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 332)
+[49]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 336, EventPhase = 0 }, 0.0294439867)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 336)
+[50]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 340, EventPhase = 0 }, 0.0530083179)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 340)
+[51]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 344, EventPhase = 0 }, 0.0765125901)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 344)
+[52]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 348, EventPhase = 0 }, 0.099943921)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 348)
+[53]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 352, EventPhase = 0 }, 0.123289548)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 352)
+[54]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 356, EventPhase = 0 }, 0.146536857)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 356)
+[55]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 360, EventPhase = 0 }, 0.169673279)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 360)
+[56]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 364, EventPhase = 0 }, 0.192686498)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 364)
+[57]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 368, EventPhase = 0 }, 0.215564325)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 368)
+[58]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 372, EventPhase = 0 }, 0.238294691)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 372)
+[59]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 376, EventPhase = 0 }, 0.260865718)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 376)
+[60]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 380, EventPhase = 0 }, 0.28326568)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 380)
+[61]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 384, EventPhase = 0 }, 0.305483013)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 384)
+[62]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 388, EventPhase = 0 }, 0.327506363)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 388)
+[63]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 392, EventPhase = 0 }, 0.349324554)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 392)
+[64]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 396, EventPhase = 0 }, 0.370926559)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 396)
+[65]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 400, EventPhase = 0 }, 0.3923015)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 400)
+[66]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 404, EventPhase = 0 }, 0.413438857)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 404)
+[67]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 408, EventPhase = 0 }, 0.434328198)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 408)
+[68]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 412, EventPhase = 0 }, 0.454959303)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 412)
+[69]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 416, EventPhase = 0 }, 0.475322187)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 416)
+[70]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 420, EventPhase = 0 }, 0.495407045)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 420)
+[71]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 424, EventPhase = 0 }, 0.51520431)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 424)
+[72]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 428, EventPhase = 0 }, 0.534704685)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 428)
+[73]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 432, EventPhase = 0 }, 0.55389899)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 432)
+[74]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 436, EventPhase = 0 }, 0.572778225)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 436)
+[75]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 440, EventPhase = 0 }, 0.591333807)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 440)
+[76]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 444, EventPhase = 0 }, 0.609557271)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 444)
+[77]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 448, EventPhase = 0 }, 0.627440512)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 448)
+[78]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 452, EventPhase = 0 }, 0.644975424)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 452)
+[79]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 456, EventPhase = 0 }, 0.662154257)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 456)
+[80]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 460, EventPhase = 0 }, 0.678969681)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 460)
+[81]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 464, EventPhase = 0 }, 0.695414245)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 464)
+[82]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 468, EventPhase = 0 }, 0.711481154)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 468)
+[83]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 472, EventPhase = 0 }, 0.727163494)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 472)
+[84]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 476, EventPhase = 0 }, 0.742454767)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 476)
+[85]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 480, EventPhase = 0 }, 0.757348895)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 480)
+[86]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 484, EventPhase = 0 }, 0.771839619)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 484)
+[87]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 488, EventPhase = 0 }, 0.785921335)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 488)
+[88]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 492, EventPhase = 0 }, 0.799588561)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 492)
+[89]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 496, EventPhase = 0 }, 0.812836051)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 496)
+[90]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 500, EventPhase = 0 }, 0.825658679)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 500)
+[91]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 504, EventPhase = 0 }, 0.838051915)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 504)
+[92]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 508, EventPhase = 0 }, 0.85001111)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 508)
+[93]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 512, EventPhase = 0 }, 0.861532092)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 512)
+[94]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 516, EventPhase = 0 }, 0.872610807)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 516)
+[95]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 520, EventPhase = 0 }, 0.88324362)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 520)
+[96]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 524, EventPhase = 0 }, 0.893426955)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 524)
+[97]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 528, EventPhase = 0 }, 0.903157711)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 528)
+[98]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 532, EventPhase = 0 }, 0.912433028)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 532)
+[99]:  Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 536, EventPhase = 0 }, 0.921249926)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 536)
+[100]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.92960614)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[101]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.937499464)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[102]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.944927752)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[103]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.951889515)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[104]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.958383203)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[105]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.964407504)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[106]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.969961524)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[107]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.975044608)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[108]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.9796561)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[109]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.983795822)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[110]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.987463713)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[111]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.990660131)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[112]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.993385315)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[113]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.99563998)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[114]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.997425139)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[115]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.998741746)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[116]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.999591231)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[117]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.999975145)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[118]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.999895394)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[119]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.999353647)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[120]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.998352289)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[121]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.996893823)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[122]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.994980633)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[123]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.99261564)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[124]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.989801824)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[125]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.986542463)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[126]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.982840657)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[127]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.97870034)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[128]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.974125028)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[129]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.969118714)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[130]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.963685453)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[131]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.957829595)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[132]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.95155555)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[133]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.944867849)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[134]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.93777144)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[135]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 537, EventPhase = 0 }, 0.930271029)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 537)
+[136]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 684, EventPhase = 0 }, 0.922371924)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 684)
+[137]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 688, EventPhase = 0 }, 0.91407913)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 688)
+[138]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 692, EventPhase = 0 }, 0.90539819)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 692)
+[139]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 696, EventPhase = 0 }, 0.89633441)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 696)
+[140]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 700, EventPhase = 0 }, 0.88689363)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 700)
+[141]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 704, EventPhase = 0 }, 0.877081513)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 704)
+[142]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 708, EventPhase = 0 }, 0.866903961)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 708)
+[143]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 712, EventPhase = 0 }, 0.856367171)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 712)
+[144]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 716, EventPhase = 0 }, 0.845477045)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 716)
+[145]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 720, EventPhase = 0 }, 0.83423996)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 720)
+[146]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 724, EventPhase = 0 }, 0.822662354)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 724)
+[147]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 728, EventPhase = 0 }, 0.810750663)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 728)
+[148]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 732, EventPhase = 0 }, 0.798511326)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 732)
+[149]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 736, EventPhase = 0 }, 0.785951316)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 736)
+[150]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 740, EventPhase = 0 }, 0.77307719)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 740)
+[151]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 744, EventPhase = 0 }, 0.759895921)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 744)
+[152]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 748, EventPhase = 0 }, 0.746414542)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 748)
+[153]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 752, EventPhase = 0 }, 0.732640028)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 752)
+[154]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 756, EventPhase = 0 }, 0.718579352)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 756)
+[155]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 760, EventPhase = 0 }, 0.704239845)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 760)
+[156]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 764, EventPhase = 0 }, 0.689628839)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 764)
+[157]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 768, EventPhase = 0 }, 0.674753547)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 768)
+[158]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 772, EventPhase = 0 }, 0.659621537)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 772)
+[159]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 776, EventPhase = 0 }, 0.644240022)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 776)
+[160]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 780, EventPhase = 0 }, 0.628616631)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 780)
+[161]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 784, EventPhase = 0 }, 0.612758994)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 784)
+[162]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 788, EventPhase = 0 }, 0.596674681)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 788)
+[163]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 792, EventPhase = 0 }, 0.58037132)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 792)
+[164]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 796, EventPhase = 0 }, 0.563856483)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 796)
+[165]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 800, EventPhase = 0 }, 0.547138035)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 800)
+[166]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 804, EventPhase = 0 }, 0.530223668)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 804)
+[167]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 808, EventPhase = 0 }, 0.513121128)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 808)
+[168]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 812, EventPhase = 0 }, 0.495838314)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 812)
+[169]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 816, EventPhase = 0 }, 0.478383034)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 816)
+[170]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 820, EventPhase = 0 }, 0.460763186)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 820)
+[171]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 824, EventPhase = 0 }, 0.442986429)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 824)
+[172]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 828, EventPhase = 0 }, 0.42506063)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 828)
+[173]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 832, EventPhase = 0 }, 0.406993896)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 832)
+[174]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 836, EventPhase = 0 }, 0.388793916)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 836)
+[175]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 840, EventPhase = 0 }, 0.370468557)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 840)
+[176]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 844, EventPhase = 0 }, 0.352025688)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 844)
+[177]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 848, EventPhase = 0 }, 0.333473176)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 848)
+[178]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 852, EventPhase = 0 }, 0.314818829)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 852)
+[179]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 856, EventPhase = 0 }, 0.296070486)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 856)
+[180]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 860, EventPhase = 0 }, 0.277235866)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 860)
+[181]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 864, EventPhase = 0 }, 0.258322865)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 864)
+[182]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 868, EventPhase = 0 }, 0.239339143)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 868)
+[183]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 872, EventPhase = 0 }, 0.220292419)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 872)
+[184]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 876, EventPhase = 0 }, 0.201190442)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 876)
+[185]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 880, EventPhase = 0 }, 0.182040855)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 880)
+[186]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 884, EventPhase = 0 }, 0.162851259)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 884)
+[187]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 888, EventPhase = 0 }, 0.143629223)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 888)
+[188]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 892, EventPhase = 0 }, 0.124382287)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 892)
+[189]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 896, EventPhase = 0 }, 0.105117939)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 896)
+[190]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 900, EventPhase = 0 }, 0.0858436078)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 900)
+[191]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 904, EventPhase = 0 }, 0.0665666685)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 904)
+[192]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 908, EventPhase = 0 }, 0.047294464)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 908)
+[193]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 912, EventPhase = 0 }, 0.0280342586)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 912)
+[194]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 916, EventPhase = 0 }, 0.0087932758)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 916)
+[195]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 920, EventPhase = 0 }, 0.0104213431)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 920)
+[196]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 924, EventPhase = 0 }, 0.0296025071)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 924)
+[197]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 928, EventPhase = 0 }, 0.048743207)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 928)
+[198]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 932, EventPhase = 0 }, 0.0678364858)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 932)
+[199]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 936, EventPhase = 0 }, 0.0868754536)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 936)
+[200]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 940, EventPhase = 0 }, 0.105853334)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 940)
+[201]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 944, EventPhase = 0 }, 0.124763377)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 944)
+[202]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 948, EventPhase = 0 }, 0.143598929)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 948)
+[203]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 952, EventPhase = 0 }, 0.162353426)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 952)
+[204]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 956, EventPhase = 0 }, 0.181020394)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 956)
+[205]: Item:  Tuple (OrientationSensorRead { Id = GpuOrientationSensorId { Value = 7 }, Body = GpuBodyId { Value = 4 }, Collider = GpuColliderId { Value = 6 }, Phase = Fired, EventOrdinal = 960, EventPhase = 0 }, 0.19959341)
+       Error: Assert.Equal() Failure: Values differ
+              Expected: Tuple (Fired, 140)
+              Actual:   Tuple (Fired, 960)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 152
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Fired, 280, 0)
+Actual:   Tuple (Fired, 1920, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 136
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    10, Passed:   102, Skipped:     0, Total:   112, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

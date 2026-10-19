@@ -1,0 +1,6 @@
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: -0)
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 0)
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.MissingSettingRejectsInEveryFlatBuffersPath(part: Counter)
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: -0)
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 0)
+CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(setting: CounterTargetCount, threshold: 0, rejection: &quot;Counter 1 target count '0'&quot;)

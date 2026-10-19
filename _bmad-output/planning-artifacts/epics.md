@@ -77,6 +77,7 @@ Every single story across all epics must formally satisfy the following mandator
 7. **Epic 7: Legacy Code Purge & Zero-Remnant Clean Architecture** (LEGACY-0a Historical Archives, LEGACY-0b Probe Tools, LEGACY-0c Dead Tests, LEGACY-0d Legacy CPU Physics, Procedural PartArt & Unshipped Engine Purge) — *[In-Progress]*
 8. **Epic 8: Supplied Electrical Power** (Battery Power Source, Powered Gate) — *[Backlog]*
 9. **Epic 9: Activation, Timing & Electrical Logic** (Pressure Plate, Pulse Counter, System Clock, State Latch, Hold Timer, Dual-Supply Both, Electrical Logic Gates Nand/Nor/Or/Xor) — *[Backlog]*
+   - **Epic 9R: Retro-Verification Repair** (Stories 9R.0–9R.18: real C# static gate, exact Run/Reset snapshots, collider table sized at Run, own-supply gate routes, per-plate load rows, plate ActivationOut, typed mouth snapping, `joined_pipe` and `spring_forward` playable, cat-002 and cat-017 proofs, seven missing element suites, independent re-verification with dated review addenda). Delivered after Story 9.4b and before Story 9.4c (coordinator decision under owner delegation, 18 Oct 2026). Its section precedes Epic 9A. — *[Backlog]*
    - **Epic 9A: Sole Architecture Conformance (Project-per-Element, Command/Query, Event Disruptor)** (Stories 9A.0–9A.45: authority docs, legacy purge, single codec, typed transport controls, lossless bundle, nine missing element packages, bundle as the sole catalogue/collider/port/icon source, declared drive and load sensor, event ring producer and consumers, typed observation port, package presentation bindings, lessons as data, one generic-instance conversion per element, f32 lane completion, compile-time isolation gate). Delivered after Stories 9.4 and 9.4b and before Story 9.5 (owner decision, 18 Oct 2026); Story 9.4c precedes it by coordinator placement. Its section follows Epic 9. — *[Backlog]*
 10. **Epic 10: Constrained Mechanics & Elastic Fixtures** (Solid Cylinder Collider & Inertia, Pulley, Rope Anchor, Impact Lever, Counterweight, Trampoline) — *[Backlog]*
 11. **Epic 11: Rotary Drive & Mechanical Actuators** (Electric Motor, Conveyor Belt, Mechanical Clutch, Reverse Transmission, Linear Pusher, Wound Spring Motor, Toy Cannon) — *[Backlog]*
@@ -88,9 +89,18 @@ Every single story across all epics must formally satisfy the following mandator
 
 Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each story comes after what it needs, except the open scheduling items listed in epics.md (below). Every moved story carries a "Depends on" line naming its former number. The old-to-new mapping is in [vertical-delivery.md](../../docs/planning/invest/vertical-delivery.md#owner-reordering-dependencies).
 
+### End-to-end scope rule (owner decision, 19 Oct 2026)
+
+This rule governs every acceptance criterion below that reads "every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview", and every spec that asks for cumulative runs:
+- A full serial cumulative Chrome run, at 100% and run once, is required only when a story makes a material engine change: the solver, the physics or animation workers, the clock, the pose ring, the wire/ABI, the compiler, or shared driver/test infrastructure.
+- Any other story runs the e2e suites selected by its actual impact: its own element's suite, the suites of its direct consumers and integrations, and any suite that exercises changed shared code. The selection and its justification are recorded in the review.
+- The reviewer reuses the implementer's identity-verified runs and does not repeat a full run.
+- The full tier definitions are in the [autonomous development guide, Verification tiers](autonomous-development-guide.md#verification-tiers). They also cover the background checkpoint full run after every 5 element stories and at each epic end, parallel Chrome workers for non-timing suites, review lenses on the first candidate only, and Low findings not blocking.
+- Owner's words: "55 minutes is too long to wait - we want to be making progress adding more puzzle elements once we are sure the core engine changes have landed and the old code has been removed".
+
 ### Open scheduling items
 
-All items are decided and applied below. The owner decided items (b), (c), (e), (f) and (g) on 18 Oct 2026. The coordinator decided items (a), (d) and (h) on 18 Oct 2026 under the owner's delegation that day: "make the decisions based on the intent of the game, it's a physics puzzle game — if there are missing definitions that make the game more playable then you can feel free to add them". Each delegated decision carries a one-line playability rationale. The Battery acceptance that names the Electric Motor in Story 8.1's acceptance (Motor delivery: Story 11.1) is an acceptance conflict for the owner's case-by-case review, not a scheduling item.
+All items are decided and applied below. The owner decided items (b), (c), (e), (f) and (g), and the asset-format decision in item (i), on 18 Oct 2026. The coordinator decided items (a), (d), (h) and the rest of (i) on 18 Oct 2026 under the owner's delegation that day: "make the decisions based on the intent of the game, it's a physics puzzle game — if there are missing definitions that make the game more playable then you can feel free to add them". Each delegated decision carries a one-line playability rationale. The Battery acceptance that names the Electric Motor in Story 8.1's acceptance (Motor delivery: Story 11.1) is an acceptance conflict for the owner's case-by-case review, not a scheduling item.
 
 - **(a) RGB lasers (EL-176–178) — decided 18 Oct 2026 by coordinator under owner delegation (playability).** They fold into Epic 13 as three new stories, one element each (AGENTS.md): 13.1b Red Laser Emitter (EL-176), 13.1c Green Laser Emitter (EL-177) and 13.1d Blue Laser Emitter (EL-178). They come after Story 13.1 and before Story 13.2. Rationale: players get legible coloured beams before they need to sort colours, and every colour receiver has a direct, teachable source.
 - **(b) Switch electrical mode — decided 18 Oct 2026.** Story 9.7 (Electrical NAND & NOR, formerly 9.3) wires its gates to input power switches, which needs the CAT-063 Switch `PowerIn`→`Supply` mode. The CAT-013, CAT-026, CAT-027 and CAT-039 specs cite the same need. Owner decision: a new Story 9.5b (Switch Electrical Mode) after the Hold Timer (9.5) and before the Both Gate (9.6).
@@ -118,6 +128,47 @@ All items are decided and applied below. The owner decided items (b), (c), (e), 
   - **Pressure Plate threshold.** The CAT-052 §2 parameter governs: `minimum_mass` f32 kg, range 0.1–16, default 0.5. Story 9.1's "> 0.2 kg" wording is superseded (Story 9A.20). Rationale: as shipped, one light ball is too light and a heavy ball triggers it, which is a clear lesson.
   - **Collider source (Story 9A.16).** `BundleElements` extracts each package's colliders from that package's own scene or glTF at build time, using the Story 6.5c extraction, and bakes them into the bundle. The runtime loads only the bundle. A package with both data-declared and scene colliders fails the build. Rationale: colliders always match the art the player sees.
   - **Saves from before a format bump are rejected** with a visible message, never migrated (Stories 9A.2, 9A.15, 9A.44; AGENTS.md).
+- **(i) Retro-verification repair, 18 Oct 2026.** Evidence: the [retro-verification report](retro-verification-2026-10-18.md). It found invalid Passes for 6.5b, 6.5c, 6.5d, 6.5e, 6.5f, 6.9, 6.9b, 6.10, 8.1, 9.1, 9.2, 9.2b and 9.3, and weak Passes for 6.6, 6.7, 6.8, 6.11 and 8.2.
+  - **Owner decision.** The authored asset format is the element's own Godot `.tscn` scene, not `.glb`. Stories 6.5c, 6.5d and 6.5e and the autonomous-development guide DoD are amended (report #9).
+  - **Coordinator decisions under the owner's playability and "be aggressive about correctness" delegation:**
+    - **CAT-052 Q2.** The Pressure Plate gains an ActivationOut level output that drives Signal lamps, as the latch's does (Story 9R.5). Rationale: Story 9.1's headline AC becomes achievable, and the player sees the plate state.
+    - **CAT-052 Q3.** Superseded by the coordinator override below: activation is immediate and release is held for 0.1 s (Story 9R.5).
+    - **CAT-048 wrong-bore control.** The Funnel's wide inlet (Story 9R.6). Rationale: a real, visible part.
+    - **Player-visible bugs are fixed before Epic 9A** in Epic 9R, using compiled Run-time tables and no new heuristics (report #1, #2, #3, #4, #6, #8, #10, #14, #15). Stories 9A.19 and 9A.20 only convert those tables to declarations.
+    - **Review evidence (report #7)** is re-verified independently, with dated addenda, in Story 9R.18; history is never rewritten.
+    - **A real C# static gate (report #18)** is Story 9R.0, first in Epic 9R.
+    - **Story 9.4b startup clock, 19 Oct 2026** (Murdoch-2 round 2):
+      - D14 is amended. A derived startup offset above 0.1 ms no longer refuses the session. It becomes a typed, counted `CCGPU_CLOCK_OFFSET_WIDE` record, and the mapping applies the offset. Only a derivation with no admissible exchange is refused. Rationale: each worker's time origin has its own host-clock reference, so a host clock step could lock a player out of a valid session, and the measured offset is corrected anyway.
+      - **Superseded the same day:** "derive the Browser mapping only after Godot's first frame". Amelia showed the mapping already qualifies after Godot's first frame, that Initialize, Commit and every presentation frame read it, and that Murdoch's lapse came from a main-thread stall after ready.
+      - **Decision: a lapse is renewed and checked, not recalibrated.** When a requester's mapping lapses because its own event loop stalled, with no probe outstanding, consumers hold until a fresh probe renews the mapping.
+        - If the fresh exchange agrees with the old mapping within the uncertainty already admitted, the lapse is a typed, counted `CCGPU_CLOCK_RENEWED_LATE` record, not a recalibration, and suites don't fail on it.
+        - If the fresh exchange disagrees, it is a recalibration and suites still fail on it.
+        - Rationale: browser main-thread hitches are ordinary for players; a recalibration should mean the clocks actually moved; and a randomly failing baseline hides real regressions. The driver's zero-recalibration policy stays.
+        - **Amended after Murdoch-2 round 3:** a renewal concludes only on an exchange admissible under the same width bound that ordinary mapping checks use.
+          - A wider exchange is inconclusive. Consumers keep holding while the renewal keeps probing, within a bounded budget.
+          - An exhausted budget is a recalibration.
+          - Exactly one `CCGPU_CLOCK_RENEWED_LATE` record is emitted per lapse, when the renewal concludes.
+          - Rationale: a wide exchange cannot see a clock move smaller than its own width, so it must never confirm one.
+        - **Amended after Murdoch-2 round 4:** a renewal may also conclude only if the old mapping's interval, widened by drift to now, still fits that width bound. A longer stall is a recalibration; with the current constants that renews stalls up to about 1.2 s. Rationale: long stalls are what players get from hidden-tab throttling or a frozen tab, and after those a recalibration is the honest, graceful outcome that keeps the record of any move.
+    - **The remaining defects go to their 9A owners:**
+      - #11 → 9A.16;
+      - #12 → 9A.14, 9A.15 and 9A.17;
+      - #13 → 9A.2, 9A.40 and 9A.41;
+      - #17 → 9A.44;
+      - #19 (9.2b MNA) → 9A.0.
+    - **Delivery order:** 9.4b → Epic 9R → 9.4c → Epic 9A → 9.5.
+  - **Story 8.1's Motor clause, decided by the owner on 18 Oct 2026:** the clause moved to Story 11.1 as an integration check. Story 8.1 is proven with the Powered Gate and the Bumper store.
+  - **9R spec readings, coordinator, 18 Oct 2026:**
+    - 9R.2 tests the largest instance count Build admits for each element, excluding Tennis and Balloon (they can't be placed until Story 12.1).
+    - 9R.6: "locked part" means the part being moved; snapping onto a locked fixture is allowed, which `joined_pipe` (9R.7) needs.
+    - 9R.1 adds the engine work to publish counter count and clock phase in the committed read; 9R.10 reuses it.
+    - 9R.4 and 9R.5 apply the 0.1 s release hold to both the plate's contact and its ActivationOut.
+    - **Resize at a limit clamps, for every resizable part.** A drag past a declared minimum or maximum stops at the limit and keeps the gesture alive. No out-of-range value is ever saved. 9R.13 changes the Ramp from cancel-the-gesture to clamp, and 9R.14 proves the Wall clamp. Rationale: a handle that stops at its limit is legible; a gesture that silently cancels feels broken.
+    - **9R.10 owns the Clock's pendulum swing and per-pulse flash presentation,** driven from the committed clock phase and pulse occurrences through the declared cosmetic bindings. Rationale: visible pulses are how players read a clock.
+    - **9R.15 adds a player-facing trigger-threshold editor for the Impact Switch,** with typed range 0–64 m/s and default 0.8, Run/Reset and Save/Load. Rationale: a declared parameter with no editor cannot be taught.
+    - **9R.7:** the pipe gains a typed `length` (1–8 m) with a resize handle that clamps per the rule above. The save-format version bump rejects old saves with a visible message and no migration (AGENTS.md).
+    - **9R.9:** "one more" means the detector's committed passage count goes from 1 to 2 while a first-input lamp stays at 1. The indicator re-pulse belongs to 9A.23.
+  - **CAT-052 Q3, coordinator override on 18 Oct 2026:** activation is immediate on the first qualifying contact tick, and release is held for 0.1 s (12 ticks at 120 Hz) after the last qualifying contact. Rationale: a ball bouncing on the plate would otherwise flicker the lamp and chatter downstream logic; a short release hold keeps the signal legible without adding lag at activation. This replaces the "no dwell" choice above.
 
 ---
 
@@ -472,6 +523,8 @@ So that new parts can be authored as declarative resources without modifying clo
 
 *Depends on: Story 6.5b (extensible PartId discovery).*
 
+*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. Each `.glb` / glTF reference in this story's acceptance below reads as "the element's `.tscn` scene" (with `col_*` proxy nodes and `Loc_Port_<Id>` locators). The extraction logic stays. Under Story 9A.16 it runs at build time, and its output is baked into the bundle. Reopened by the retro-verification; closes via Stories 9R.18, 9A.16 and 9A.17.*
+
 As an engine developer,  
 I want `WorkshopPhysicsCompiler` to extract collision shapes and socket anchors directly from glTF 2.0 (`.glb`) scene hierarchies,  
 So that physical geometry and connection ports are defined purely by 3D artist assets without hardcoded C# tables.
@@ -491,6 +544,8 @@ So that physical geometry and connection ports are defined purely by 3D artist a
 
 *Depends on: Stories 6.5b and 6.5c.*
 
+*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The "self-contained `.glb` binary asset in `parts/models/`" clause below reads as "the element's own `.tscn` scene, with PBR materials and co-located `col_*` proxy nodes". The scene moves into its `elements/<Name>` package under Epic 9A. The AC-named suites that never existed are added by Stories 9R.11–9R.14 (`cat-001`, `cat-004`, `cat-054`, `cat-066`). `cat-064` and `cat-003` move to Story 12.1, because Story 9A.14 removes Tennis and Balloon from the palette. Reopened by the retro-verification; closes via Stories 9R.11–9R.14, 9R.18 and 9A.16.*
+
 As a player and developer,  
 I want the existing balls, walls, ramps, and receiver converted from procedural C# code to declarative glTF 2.0 (`.glb`) assets,  
 So that core simulation primitives follow the data-driven architecture with zero backwards compatibility shims.
@@ -509,6 +564,8 @@ So that core simulation primitives follow the data-driven architecture with zero
 *Status: Backlog*
 
 *Depends on: Story 6.5d.*
+
+*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The `.glb` clauses below read as "the element's own `.tscn` scene, with `col_*` proxies, `Loc_Port_<Id>` locators named exactly by the typed socket (Story 9A.17), and moving sub-assemblies as child branches". The AC-named suites that never existed are added by Stories 9R.15–9R.17 (`cat-063`, `cat-035`, `cat-022`), and `spring_forward` gains its Chrome proof in Story 9R.8. Reopened by the retro-verification; closes via Stories 9R.8, 9R.15–9R.17, 9R.18, 9A.16 and 9A.17.*
 
 As a player and developer,  
 I want all existing interactive mechanisms, sensors, and timers converted to declarative glTF 2.0 (`.glb`) assets,  
@@ -607,7 +664,7 @@ So that level `gentle_bend` can be solved by turning a falling ball through a ge
 - **When** the ball enters the upper mouth and travels the 1.3-unit bore around the fixed-radius curve,
 - **Then** it exits the lower mouth without added speed and reaches the receiver; straight-to-bend and bend-to-bend rotated passages succeed through typed mouth snapping.
 - **And** rim, oversize, sidewall and missed-connection controls deliver nothing, and an actual valid Precise alternative route is proven.
-- **And** the authored assistance controls depend on physical placement nudging, which is not scheduled (owner decision; `docs/planning/invest/vertical-delivery.md` reports physical nudging unsupported in the current playable mode); they are proven when nudging lands, and CAT-049 stays open until then.
+- **And** the authored assistance controls depend on physical placement nudging, which is scheduled as Story 15.0 (owner decision, 18 Oct 2026). They are proven there, and CAT-049 stays open until then.
 - **And** the bend keeps its own icon, rails and collars; no 90-degree proof substitutes for it.
 - **And** the element is built from its declaration spec `docs/planning/elements/CAT-049-pipe_bend_45.md`, with exact Reset and Save/Load.
 - **And** `tools/e2e/cat-049.test.ts` passes 100% in Chrome serially.
@@ -624,7 +681,7 @@ So that levels `quarter_bend` and `joined_pipe` can be solved.
 - **When** the ball falls into the bend's upper mouth, or through a resized straight pipe snapped to the fixed bend,
 - **Then** it follows the continuous turned passage and reaches the receiver.
 - **And** straight/bend joins succeed, and rotated, oversize, rim and missing-connection controls deliver nothing.
-- **And** the declared depth-error result (Forgiving and Balanced succeed where Precise fails) depends on physical placement nudging, which is not scheduled (owner decision; `docs/planning/invest/vertical-delivery.md` reports physical nudging unsupported in the current playable mode); it is proven when nudging lands, and CAT-050 stays open until then.
+- **And** the declared depth-error result (Forgiving and Balanced succeed where Precise fails) depends on physical placement nudging, which is scheduled as Story 15.0 (owner decision, 18 Oct 2026). It is proven there, and CAT-050 stays open until then.
 - **And** the bend shares the common bore and typed mouth geometry with matching collars, rails and icon; no 45-degree proof stands in for it.
 - **And** the element is built from its declaration spec `docs/planning/elements/CAT-050-pipe_bend_90.md`, with exact Reset and Save/Load.
 - **And** `tools/e2e/cat-050.test.ts` passes 100% in Chrome serially.
@@ -727,10 +784,13 @@ I want Batteries to supply power to connected electrical elements,
 So that powered mechanisms like motors and lamps can operate.
 
 **Acceptance Criteria:**
-- **Given** a Battery connected to an Electric Motor via an electrical cable,
+
+*Owner decision, 18 Oct 2026: the Battery-drives-Motor clause moved to Story 11.1 as an integration check. Story 8.1 is proven with its delivered consumers, the Powered Gate and the Bumper store.*
+
+- **Given** a Battery connected to a supplied consumer (a Powered Gate, or a Bumper work store) via an electrical cable,
 - **When** the simulation runs,
-- **Then** the motor receives continuous 12V supply and spins its axle.
-- **And** disconnecting the cable stops the motor immediately.
+- **Then** the consumer receives continuous 12V supply and actuates: the gate opens, or the store is credited.
+- **And** losing supply through a switched contact, or a wire edit between Runs, stops supplying the consumer immediately.
 - **And** `tools/e2e/cat-005.test.ts` passes 100% in Chrome serially.
 
 ### Story 8.2: Powered Gate Passageway Barrier (CAT-051)
@@ -849,7 +909,7 @@ So that machine state can toggle and persist across dynamic events.
 - **And** `tools/e2e/cat-037.test.ts` passes 100% in Chrome serially.
 
 ### Story 9.4b: Cumulative Chrome Regression Repair
-*Status: Backlog*
+*Status: Done (19 Oct 2026). Murdoch-2's round-5 terminal scoped Pass on candidate 6: source `d7536a1c…`, bundle `102e9f12…` ([review](../implementation-artifacts/review-9-4b-cumulative-regression-repair.md)).*
 
 *Depends on: Story 9.4. New story (coordinator, 18 Oct 2026): during Story 9.4 the full serial run of every `tools/e2e/*.test.ts` suite found failures that predate 9.4. Stories 6.9–9.3 ran only a subset of suites. Classification and first failing assertions are in `_bmad-output/implementation-artifacts/spec-9-4-state-latch.md` (item 3 table).*
 
@@ -868,11 +928,16 @@ So that the catalogue I build with stays trustworthy.
 - **And** fixes here keep to the current channels. The `CCGPU` console acknowledgement and the `globalThis.Workshop*` hooks that `cat-015a`, `cat-015a-sidekick`, `cat-015b`, `cat-062b`, `cat-005` and `cat-023b` read stay as they are; Story 9A.24 migrates every suite to the typed observation port.
 - **And** the retained JS-worker harness `tools/workshop-rigid-body.test.mjs` (50 of 61 tests fail at module load since `worker.js` stopped exporting its imports on 17 Oct 2026; review-9-4 R2-F2, `tools/workshop-rigid-body.test.mjs:42,858`) is either repaired against the current C# WASM engine boundary or deleted together with its references in `tools/e2e/README.md:20` and `docs/simulation-presentation-bridge.md:105`, with the coverage it uniquely provided named and moved to native or Chrome tests.
 - **And** every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run, recorded as the new cumulative baseline that every Epic 9A story must keep.
+- **And** (coordinator, 18 Oct 2026, aggressive-correctness mandate) every other test in the repository passes:
+  - All eight `tools/*.test.mjs` Node harnesses pass. On `8f682f8`, 51 of 107 tests failed, including the clock-ring, client-lifecycle, isolation and save-storage harnesses. Each failure is fixed against the shipped boundary, and harnesses that asserted deliberately deleted paths are rewritten for the new design.
+  - `tools/Coverage` passes. On `8f682f8`, 3 of 68 failed on stale catalogue paths.
+  - Every test project in the repository is part of `CuriousContraptions.slnx`, so `dotnet test CuriousContraptions.slnx` runs all of them.
+- **And** the cat-023b clock-recovery fault is fixed structurally. Clock probes are answered by a context the solver never blocks. A recovery lapse recalibrates as counted telemetry and never terminates the session (game-grade envelope). A permanent injected-load Chrome test fails 100% before the fix and passes after it. cat-023b passes five consecutive serial runs.
 
 ### Story 9.4c: Latch-Fixture Deferred Integrations (CAT-005 N19, CAT-051 Supply Interruption Mid-Stroke)
 *Status: Backlog*
 
-*Depends on: Story 9.4 (the State Latch and its switched supply contact), Story 9.4b (the cumulative baseline), and Stories 8.1 and 8.2. New story (coordinator, 18 Oct 2026): review-9-4 D1 found both latch-dependent integrations due but unscheduled. Sources: [CAT-005](../../docs/planning/elements/CAT-005-battery.md) §4 N17 and N19 and §5 "Integrations"; [CAT-051](../../docs/planning/elements/CAT-051-powered_gate.md) §2 (return spring and drive law), §5 "Boundaries" (supply interruption mid-stroke; fact 14, closing stops at a ball without crushing it); [CAT-037](../../docs/planning/elements/CAT-037-latch.md) T21 (the supply-switching fixture recipe). The coordinator placed it before Epic 9A (18 Oct 2026). The owner's timing decision names Stories 9.4 and 9.4b; this story adds no new element, and its two suites guard Epic 9A's drive and supply refactors.*
+*Depends on: Story 9.4 (the State Latch and its switched supply contact), Story 9.4b (the cumulative baseline), Epic 9R (retro-verification repair, delivered between 9.4b and 9.4c; Open scheduling item i), and Stories 8.1 and 8.2. New story (coordinator, 18 Oct 2026): review-9-4 D1 found both latch-dependent integrations due but unscheduled. Sources: [CAT-005](../../docs/planning/elements/CAT-005-battery.md) §4 N17 and N19 and §5 "Integrations"; [CAT-051](../../docs/planning/elements/CAT-051-powered_gate.md) §2 (return spring and drive law), §5 "Boundaries" (supply interruption mid-stroke; fact 14, closing stops at a ball without crushing it); [CAT-037](../../docs/planning/elements/CAT-037-latch.md) T21 (the supply-switching fixture recipe). The coordinator placed it before Epic 9A (18 Oct 2026). The owner's timing decision names Stories 9.4 and 9.4b; this story adds no new element, and its two suites guard Epic 9A's drive and supply refactors.*
 
 *Definitions decided by the coordinator under owner delegation (18 Oct 2026, playability):*
 - *CAT-051 open question 1. The return spring (14 N/m at rest 0, damping 4 N·s/m, acting whether or not the gate is powered) is the gate's fail-closed law. When supply drops, the drive stops and the spring closes the blade. Rationale: a gate that falls shut when power is lost is predictable and easy to teach.*
@@ -988,6 +1053,522 @@ So that branching circuits and toggle mechanisms can be built.
 
 ---
 
+## Epic 9R: Retro-Verification Repair
+
+**Goal:** Make every reopened Pass true. Player-visible bugs found by the 18 Oct 2026 retro-verification are fixed here; the missing Chrome proofs are added; and every story whose Pass was invalid or weak is independently re-verified on fresh evidence, with dated addenda to its review record.
+
+**Delivery order (coordinator decision under owner delegation, 18 Oct 2026; Open scheduling item i).** After Story 9.4b and before Story 9.4c and Epic 9A. Stories run in number order, 9R.0 to 9R.18, except that Story 9R.0c runs first: it fixes a player-visible crash (coordinator, 19 Oct 2026). Story 9R.0 (the C# static gate) comes next because it strengthens every later gate.
+
+**Evidence.** [Retro-verification report, 18 Oct 2026](retro-verification-2026-10-18.md). Defect numbers (#1–#20) are the report's §G numbering. Its line numbers come from HEAD `8f682f8`; the symbol named with each line is authoritative.
+
+**Rules for every 9R story.**
+- Repairs use compiled Run-time tables built at Run from the construction (the Story 9.4 `SwitchedSupplyRouteDeclaration` pattern). No new heuristic (size, drag, joint limit or element-id detection) and no shim is added.
+- Epic 9A later converts these tables to package declarations without changing behaviour.
+- Each story names the reopened original story it repairs. Story 9R.18 closes the reopened records.
+- Chrome proof uses actual UI controls: no setters, imported solutions or numeric placement.
+- Exact Run/Reset is asserted against the pre-Run snapshot helper from Story 9R.1.
+
+### Story 9R.0: Real C# Static Analysis Gate
+*Status: Backlog*
+
+*Depends on: Story 9.4b (the IL2125 warning is removed there). Closes report #18 and X1: `anvil check --changed` scans no `.cs` (review-9-4 matrix row A2, `anvil-csharp-control`: a probe `.cs` file with two empty catch blocks returned 0 warnings). Every recorded "anvil 0 warnings" claim on C# was vacuous; this story makes the C# gate real for every story, reopened or new.*
+
+*Deletes: the DoD claim that `anvil check --changed` covers C#, in `_bmad-output/planning-artifacts/autonomous-development-guide.md` (DoD item 2; pre-commit and reviewer steps) and in this file's Global DoD item 2.*
+
+As the owner,  
+I want C# defects such as swallowed exceptions to fail the build,  
+So that "0 warnings" means something for the engine code.
+
+**Acceptance Criteria:**
+- **Given** every production and test C# project (including `elements/*`, the Abstractions, the Simulation and Animation workers, `tools/BundleElements` and `CuriousContraptions.tests`), **When** it builds, **Then** .NET analyzers are enabled with `AnalysisLevel` latest-recommended plus `TreatWarningsAsErrors` (via `Directory.Build.props`) or an equivalent Roslyn gate. Any rule left disabled is listed with a one-line justification.
+- **And** every warning this exposes is fixed at its source, not suppressed (any unavoidable suppression is justified inline and listed).
+- **And** the repository pre-commit hook runs `dotnet build CuriousContraptions.slnx` with the gate, and a commit with a C# warning is refused.
+- **And** both DoD texts (the guide and this file's Global DoD) state that anvil does not analyse C#, and that the C# gate is `dotnet build` with analyzers and warnings as errors.
+- **And** a negative control proves the gate fires: a temporary `.cs` file with an empty `catch {}` and an unused variable fails the build with both diagnostics and is removed; the unchanged tree builds clean (native proof).
+- **And** `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview (the Story 9.4b baseline), since warning fixes touch shipped code.
+
+### Story 9R.0c: Undelivered Parts Leave the Palette and Bench Placement Never Throws
+*Status: Backlog. Runs first in Epic 9R, straight after Story 9.4b.*
+
+*Origin: the owner reported on 19 Oct 2026 that the Balloon looks like a basketball and the game crashes the moment it is added. Investigation notes are in the session scratchpad, `balloon-investigation/notes.md`.*
+
+*Root causes:*
+- *Commit `8f682f8` (Story 6.5d) removed the `Parameters` lines from `parts/catalog/balloon.tres` and `tennis.tres`. That defeated the text check in `engine/PartRegistry.cs:30-38` that excluded them, so both entered the Free palette through `WorkshopInventory.GenerateFree`.*
+- *Both resources use `parts/scenes/ball.tscn`, the basketball scene.*
+- *Clicking the bench calls `World.CaptureInstance` in `private async void Click` (`ui/Workshop.cs:521`). That call sits outside `SubmitConstruction`'s try/catch, so it throws an untyped `ArgumentException` (`engine/MachineWorld.Gpu.cs:138`) from an `async void` method, after `PushUndo` has already run.*
+
+*Coordinator decision under owner delegation, 19 Oct 2026: pull forward the palette-removal part of Story 9A.14, which was the owner's decision of 18 Oct (Open scheduling item h). Deleting the resources and `PartId` members stays in 9A.14, and Story 12.1 returns both parts as real packages.*
+
+*Deletes:*
+- *the text-match admission check (`content.Contains("Parameters = {")`) in `PartRegistry`;*
+- *the three test assertions that lock Tennis and Balloon into the registry (`PartRegistryTests.cs:17,23-24`, `BasketballResourceTests.cs:34`, `WorkbenchCapacityTests.cs:168`).*
+
+As a player,  
+I want every part in the palette to be placeable, and a part that can't be placed to be refused with a message,  
+So that the Workshop never crashes when I add a part.
+
+**Acceptance Criteria:**
+- **Given** the Free Workshop palette, **When** it is built, **Then** it offers only parts with a constructible instance path. Tennis and Balloon are absent.
+  - Admission comes from an explicit, typed, checked-in set of undelivered parts, owned by 9A.14 and 12.1, not a text match on resource contents.
+  - A test fails if any palette part has no `CaptureInstance`, `BallMaterial`, `WorkbenchFootprint` or save-decode path.
+- **And** placing a part on the bench never throws past the UI.
+  - `CaptureInstance` in `Click` is moved inside the same typed rejection path `CommitSelected` uses.
+  - `PushUndo` runs only after a successful capture.
+  - An unsupported part produces one typed rejection with a visible status message, and leaves no undo entry.
+  - A native negative control proves it: force an unsupported id through `Click`'s capture path.
+- **And** a Chrome e2e suite `tools/e2e/palette-placement.test.ts`, using actual UI controls, places every Free palette part on the bench once and verifies that each appears with no console or worker error. It asserts Tennis and Balloon are absent from the palette.
+- **And** e2e scope: Tier 2, meaning this suite plus the smoke pair, because no engine code changes. Tier 1 passes 100%.
+
+### Story 9R.0a: Tiered and Parallel E2E Runner
+*Status: Backlog*
+
+*Depends on: Story 9R.0. Owner decisions, 19 Oct 2026 ([Verification tiers](autonomous-development-guide.md#verification-tiers)):*
+- *a full run only for material engine changes, otherwise impact-selected suites;*
+- *a background checkpoint after every 5 element stories;*
+- *parallel Chrome workers for suites that don't depend on timing.*
+
+*Deletes: the hand-rolled per-candidate gate scripts in scratch and evidence folders that serialise all 33 files, and every remaining "all suites serially" or "cumulative twice" wording in active docs.*
+
+As the owner,  
+I want the full Chrome run to take minutes, and each story to run only the suites its change affects,  
+So that element delivery isn't gated on a 26-minute serial run.
+
+**Acceptance Criteria:**
+- **Given** `tools/e2e/`, **When** a full run is requested, **Then** one checked-in runner (C# or TypeScript, the same tooling the repo already uses) runs every `tools/e2e/*.test.ts` file in its own process with per-file TAP, exit code and close findings, and writes one summary.
+  - Suites marked timing-sensitive run serially, with no other Chrome running: clock-master, cat-017, cat-023b, and any stall, load or time-measuring suite.
+  - The rest run on N parallel Chrome workers.
+  - N is chosen from measurement and recorded.
+- **And** the timing-sensitive set is a typed, checked-in declaration, not a filename heuristic. A test fails if a suite that measures time or injects stalls or load isn't in it.
+- **And** the runner can be given a changed-file set and emits the Tier 2 selection: the changed element's suite, its connected and integration suites from the catalogue or bundle port declarations, suites touching changed shared code, and the smoke pair `engine-core-2b1` and `engine-core-2a1`. Each selected suite carries a one-line reason. An unknown or shared change selects the full run.
+- **And** the runner records the served bundle identity before and after, and refuses to start if the identity changes mid-run.
+- **And** the parallel full run passes 100% on two consecutive invocations (proof of the runner itself, not a per-story rule). Its wall time and the serial baseline (about 26 min) are recorded.
+  - **And** a seeded failure in one parallel suite is reported against that suite, with all other suites unaffected.
+- **And** the Tier 3 checkpoint can run against a committed HEAD in a separate worktree and preview port, so it can run in the background while the next story proceeds.
+- **And** `dotnet build` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and the Node harnesses pass.
+
+### Story 9R.0b: AOT-Compiled WASM SIMD Workers
+*Status: Backlog*
+
+*Depends on: Story 9.4b. New story (coordinator, 18 Oct 2026). It restores a stated requirement: AGENTS.md and `docs/gpu-f32-physics.md` require WebAssembly 128-bit SIMD physics on a dedicated worker. Neither `CuriousContraptions.Simulation.csproj` nor `CuriousContraptions.Animation.Worker.csproj` sets `RunAOTCompilation`, so both workers run .NET IL in the WebAssembly interpreter, where `WasmEnableSIMD` cannot vectorise managed code. Story 9.4b measured physics ticks at 3–4 ms in Chrome against about 0.08 ms native.*
+
+As a player,  
+I want the physics and animation workers to run as compiled WebAssembly SIMD code,  
+So that machines run smoothly and stay responsive as I add more parts.
+
+**Acceptance Criteria:**
+- **Given** the production publish of `CuriousContraptions.web`, **When** the Simulation and Animation workers are built, **Then** both are AOT-compiled to WebAssembly with SIMD enabled (`RunAOTCompilation`, `WasmEnableSIMD`). The published bundle contains no interpreter-only managed execution path for the engine. This is proven by build output and a bundle inspection test.
+- **And** the build fails explicitly if the AOT toolchain (wasm-tools workload) is missing. It never silently falls back to the interpreter, and there is no CPU or interpreter fallback.
+- **And** tick time for the cat-023b wired-chain scene and the largest current Free-workshop fixture is recorded in Chrome as telemetry before and after. This is advisory per the game-grade envelope; formal qualification stays at P0-034.
+- **And** `dotnet test` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in two back-to-back serial Chrome runs against the AOT production preview.
+- **And** published bundle size and first-load time are recorded, and DESIGN.md or the release notes state any change in first-load behaviour.
+
+### Story 9R.1: Exact Run/Reset Snapshot Assertions in Every Listed Suite
+*Status: Backlog*
+
+*Depends on: Story 9R.0. Closes report #14 and the §D last row. No suite captures a pre-Run state and compares against it in cat-048a (`:100`), cat-048b (`:88`), cat-049, cat-050, cat-030, cat-051 (`driver.reset()` with no assertion), cat-052, cat-017 (`:278`), cat-002 or cat-020 (`:435`). The pipe suites also reuse state left by the previous test. Re-verifies the lifecycle claims of Stories 6.6, 6.7, 6.8, 6.9, 6.10, 6.11, 8.2, 9.1, 9.2 and 9.3.*
+
+*Deletes: the range-only Reset checks in those suites, and the test-order dependence (each test now builds its own bench).*
+
+As a player,  
+I want Reset to put my machine back exactly as I built it,  
+So that every retry starts from the same place.
+
+**Acceptance Criteria:**
+- **Given** a shared `tools/e2e/workshop-driver.ts` helper that captures the committed construction before Run (every body pose as f32 bits, part parameters, connections and goal state) through the existing committed-read channel, **When** a suite runs, resets and re-reads, **Then** the helper asserts bit-equality with the pre-Run snapshot and reports the first differing field.
+- **And** the helper's negative control passes: a unit check over a snapshot with one perturbed f32 bit fails and names that field.
+- **And** each listed suite asserts the snapshot after Reset, and after a second Run then Reset.
+- **And** each test in cat-048a, cat-048b, cat-049 and cat-050 builds its own bench, and each passes when run alone.
+- **And** cat-051 asserts the blade's closed pose after Reset; cat-017 asserts clock phase 0; cat-020 asserts count 0 and an open contact.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings (Story 9R.0 gate), `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.2: Collider Table Sized at Run (Reopened Story 6.9b)
+*Status: Backlog*
+
+*Depends on: Story 9R.0. Closes report #6: `ColliderCapacity = 2048` (`engine/gpu/PhysicsDeclarations.cs:168`) while 32 × `pipe_bend_90` or 32 × `funnel` = 32 × 72 + 1 = 2,305 colliders. Build admits the construction because `WorkbenchCapacity.Validate` (`WorkbenchCapacity.cs:68-106`) no longer counts colliders; the `PhysicsSceneDeclaration` constructor then throws "Invalid physics document or capacity" at Run (`PhysicsDeclarations.cs:211`). Repairs Story 6.9b AC2 ("any construction within the 32-instance budget is admitted").*
+
+*Deletes: the fixed 2,048 `ColliderCapacity` ceiling and the Run-time throw it causes for admitted constructions.*
+
+As a player,  
+I want any bench the Workshop lets me build to run,  
+So that a full bench of bends never crashes when I press Run.
+
+**Acceptance Criteria:**
+- **Given** a construction within the 32-instance budget, **When** Run compiles it, **Then** the collider table is sized from the compiled construction's actual collider count, so every Build-admitted construction compiles.
+- **And** a native property test builds 32 instances of each catalogue element (including `pipe_bend_90` and `funnel`, 2,305 colliders) and the 30-instance mixed case, and each compiles and steps.
+- **And** a construction over the 32-instance budget is still rejected at Build with the existing message (negative control).
+- **And** in actual Chrome, the new `tools/e2e/capacity-9r.test.ts` places 32 `pipe_bend_90` through the real drawer, runs, resets (snapshot exact) and save/loads with no worker fault.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.3: Each Directly Wired Gate Follows Its Own Battery (Story 8.2 Repair)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Closes report #2:*
+- *Direct-mode gates are compiled from the battery's **authored** enable (`WorkshopPhysicsCompiler.cs:190-206`, blade drag 0.0625).*
+- *The in-run toggle only updates `_electricalControls` and never reaches the gate (`WorkshopSimulation.cs:52-65`).*
+- *`batteryPowered` becomes true when **any** source is enabled (`WorkshopPhysicsEngine.cs:767-776`).*
+- *`PoweredGateTests.cs:198` pins the drag code.*
+
+*Repairs Story 8.2's functional contradiction (Story 8.2 stays `done`, marked weak).*
+
+*Deletes:*
+- *the global `batteryPowered` flag;*
+- *the direct-mode authored-enable compile and its drag band (the 0.03–0.08 band in `PrismaticConstraintSolver.cs:247` and the 0.0625 encoding);*
+- *the 9R.3 entry in the Story 9.4b element-scan ratchet's known-violations list;*
+- *the pinning assertion in `PoweredGateTests.cs:198`.*
+
+As a player,  
+I want a gate to open and close with its own battery's switch during a run,  
+So that two gates on two batteries behave as two separate circuits.
+
+**Acceptance Criteria:**
+- **Given** a Battery wired directly to a Powered Gate through real UI, **When** Run compiles the construction, **Then** a direct supply route row (battery source → gate consumer, the same compiled route table as the Story 9.4 `SwitchedSupplyRouteDeclaration`) is emitted. Its powered state is the committed electrical state that the typed `ConfigureElectrical` command updates.
+- **And** a battery authored Disabled opens its gate when the player presses in-run **Enable supply**, and an Enabled battery closes its gate on in-run Disable.
+- **And** two batteries each wired to their own gate are independent: disabling one leaves the other gate open (negative control for the global flag).
+- **And** an unpowered gate still blocks the ball (control).
+- **And** Run/Reset matches the pre-Run snapshot (authored enable restored, blade closed), and Save/Load preserves both wires.
+- **And** `cat-051` and the new `tools/e2e/cat-051-own-supply.test.ts` pass 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.4: Each Pressure Plate Honours Its Own Minimum Mass (Reopened Story 9.1)
+*Status: Backlog*
+
+*Depends on: Story 9R.3. Closes report #1:*
+- *`_plateLoaded = currentPlateLoad >= 0.5f` ignores the instance's `MinimumMass` (`WorkshopPhysicsEngine.cs:856`).*
+- *The plate is found by half-extents 0.9/0.05/0.9 (`:834`, `:838`).*
+- *One global `_plateLoaded` drives every plate-switched gate (`PrismaticConstraintSolver.cs:248`; compiler drag 0.09375), so plates cross-talk.*
+- *`ContactLoadSensorTracker` has no production caller, so the native tests `PressurePlateTests.cs:193-305` prove dead code.*
+
+*Deletes:*
+- *the global `_plateLoaded` flag and its 0.5 kg literal;*
+- *the half-extent plate detection;*
+- *the plate drag band and its 0.09375 encoding;*
+- *the 9R.4 entries in the Story 9.4b element-scan ratchet's known-violations list. Removing them must leave the scan green.*
+
+As a player,  
+I want each Pressure Plate to respond to the weight on it and only to that,  
+So that two plates switch two gates independently.
+
+**Acceptance Criteria:**
+- **Given** Pressure Plates built through real UI, **When** Run compiles the construction, **Then** each plate emits its own compiled contact-load row (owner body, region, normal, alignment, and `minimum_mass` from that instance; CAT-052 §2). `ContactLoadSensorTracker` evaluates those rows at runtime, so its native tests now prove the live path.
+- **And** each plate's supplied contact is a switch in the compiled switched-supply route table (Battery → plate contact → gate).
+- **And** a domino (0.4 kg) leaves the plate Underweight and the gate closed; a basketball (1 kg) closes it; mass exactly at the minimum closes it (inclusive ≥, CAT-052 §2); two bodies sum.
+- **And** removing the body opens the contact on the first tick after the 0.1 s (12-tick) release hold, the same hold that governs the plate's ActivationOut level (Story 9R.5; coordinator decision, 18 Oct 2026).
+- **And** two plates wired to two gates are independent: loading one opens only its own gate (negative control for cross-talk).
+- **And** a static box with the plate's exact half-extents but no plate declaration never switches a gate (negative control for size detection).
+- **And** a native test with a non-default `minimum_mass` (2.0 kg, saved and loaded) proves the instance value governs. The UI editor for it arrives with the generic parameter editor (Story 9A.40).
+- **And** Run/Reset matches the snapshot (Empty, gate closed), and Save/Load preserves `minimum_mass`.
+- **And** `cat-052` and the new `tools/e2e/cat-052-two-plates.test.ts` pass 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.5: Pressure Plate ActivationOut Lights a Signal Lamp (Reopened Story 9.1)
+*Status: Backlog*
+
+*Depends on: Story 9R.4. Closes report #5: the plate declares only `PowerIn`/`Supply` and the lamp only `ActivationIn` (`WorkshopConnections.cs:62-66`, `:87-90`), so Story 9.1's headline AC ("plate wired to a Signal lamp") was impossible.*
+
+*Coordinator decisions under owner delegation (18 Oct 2026; Open scheduling item i):*
+- *CAT-052 Q2: the plate gains an ActivationOut **level** output, high while Loaded and low otherwise. Like the latch's output, it drives Signal lamps only. Rationale: the player sees at a glance whether the plate is pressed, and 9.1's AC becomes achievable.*
+- *CAT-052 Q3 (coordinator override, 18 Oct 2026): activation is immediate on the first qualifying contact tick, and release is held for 0.1 s (12 ticks at 120 Hz) after the last qualifying contact. A ball bouncing on the plate therefore keeps the lamp steadily lit through the bounce and goes dark 0.1 s after it leaves. Rationale: without the hold, the lamp flickers and downstream logic chatters on every bounce; the hold adds no lag at activation.*
+
+*Deletes: the element-keyed rule `source.PartId == PartId.Latch && target.PartId != PartId.SignalLamp` and the follow-the-latch check in `WorkshopConnections.Validate` (`engine/gpu/WorkshopConnections.cs:172-178`). They are replaced by a rule on the source port's declared output kind ("level" output), shared by the latch and the plate.*
+
+As a player,  
+I want to wire a Pressure Plate to a Signal lamp,  
+So that the lamp shows when something heavy enough rests on the plate.
+
+**Acceptance Criteria:**
+- **Given** a Pressure Plate whose ActivationOut is wired to a Signal lamp through the real wiring UI (the icon-only socket choice where ambiguous), **When** a basketball comes to rest on it, **Then** the lamp lights.
+- **And** when the ball rolls off or is lifted, the lamp goes dark on the first tick after the 0.1 s (12-tick) release hold (coordinator decision, 18 Oct 2026).
+- **And** a domino below the minimum leaves the lamp dark. A ball that bounces on the plate keeps the lamp steadily lit between contacts closer together than 0.1 s, and leaves the lamp dark 0.1 s (12 ticks) after its last contact (controls; boundary at 11 / 12 / 13 ticks).
+- **And** wiring the plate's ActivationOut to a Counter, Delay or latch input is refused with "A level output can only light a Signal lamp.", and the latch's existing refusal behaves identically (negative control and regression).
+- **And** the plate's supplied contact still switches a gate at the same time, so both domains work on one plate.
+- **And** Run/Reset matches the snapshot (lamp Slate), and Save/Load preserves the `activation_out` wire.
+- **And** the new `tools/e2e/cat-052-lamp.test.ts`, `cat-052` and `cat-037` pass 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.6: Typed Mouth Snapping for Tubes (Reopened Stories 6.9 and 6.10; Story 6.11 Repair)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Closes report #3: no snapping implementation exists (`git grep -i 'snap\|mouth' HEAD -- engine ui` returns only description strings), yet Stories 6.9, 6.10 and 6.11 and the CAT-051 recipe require typed mouth snapping. Sources:*
+- *[CAT-048](../../docs/planning/elements/CAT-048-pipe.md) §4 facts 9–11 and 21, and §5 "Snapping" (0.45 m and 20° thresholds per DESIGN.md);*
+- *[CAT-049](../../docs/planning/elements/CAT-049-pipe_bend_45.md) fact 2 (mouths coincide within 1e−4 m);*
+- *[CAT-030](../../docs/planning/elements/CAT-030-funnel.md) fact 5 (the outlet snaps; the wide inlet does not).*
+
+*Coordinator decision under owner delegation (CAT-048 open question on the wrong-bore control): the Funnel's wide inlet (radius 1.3) is the wrong-bore control. Rationale: it is a real part the player sees, so the refusal is teachable.*
+
+*Deletes: the click-only placement path for tube parts with no mouth check (`cat-030.test.ts:218` asserts no snap today).*
+
+As a player,  
+I want a pipe, bend or funnel outlet to snap onto a matching open mouth when I place it nearby,  
+So that I can join tubes into a sealed route without fiddly alignment.
+
+**Acceptance Criteria:**
+- **Given** declared mouth sockets (position, outward axis, bore radius) on the Pipe, both bends, the Funnel outlet and the Powered Gate, **When** the player places a tube part with a mouth within 0.45 m and 20° of a free compatible mouth (equal bore, opposing axes), **Then**:
+  - the preview shows the snap without mutating any body;
+  - on release the mouths coincide within 1e−4 m and face opposite (dot < −0.9999);
+  - one Undo removes only the new part.
+- **And** these are refused (negative controls), each proven:
+  - a mouth 0.72 m away or 40° off;
+  - an occupied mouth;
+  - a locked part;
+  - the Funnel's wide inlet (wrong bore).
+- **And** snapping is unavailable while Running or Paused and returns after Reset.
+- **And** a ball crosses a straight→45°, a 45°→45° and a straight→90° joint, and a Funnel outlet→pipe joint, continuously, with no snag (positive, per CAT-048 fact 9).
+- **And** the joined placement survives Reset (snapshot) and Save/Load.
+- **And** the new `tools/e2e/tube-snapping.test.ts`, `cat-049`, `cat-050` and `cat-030` pass 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.7: `joined_pipe` Level Is Playable (Reopened Story 6.10)
+*Status: Backlog*
+
+*Depends on: Story 9R.6. Closes report #4: `joined_pipe` exists only in `content/puzzles.json:7930`. It has no `WorkshopPuzzleId` member (`engine/gpu/WorkshopPuzzle.cs:5`), no driver level in `tools/e2e/workshop-driver.ts`, and no test.*
+
+*Deletes: nothing beyond the gap. The new puzzle id joins the existing closed `WorkshopPuzzleId` enum until Story 9A.26 converts every lesson to content data.*
+
+As a player,  
+I want to play the Joined Pipe lesson,  
+So that I learn to build a route from straight pipes and bends.
+
+**Acceptance Criteria:**
+- **Given** the `joined_pipe` lesson selected from the real puzzle menu, **When** I place its granted pipe and bend through the drawer, snapping them into one route (Story 9R.6), and press Run, **Then** the ball travels the joined route and the goal is solved.
+- **And** leaving one joint unsnapped leaves the goal unsolved (negative control).
+- **And** the lesson's locked fixtures and inventory match `content/puzzles.json`, and placing more than the granted parts is refused.
+- **And** Run/Reset matches the snapshot, and Save/Load preserves the route.
+- **And** `tools/e2e/cat-050-joined.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.8: `spring_forward` Lesson Chrome Proof (Reopened Story 6.5e)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Closes the 6.5e W row: `spring_forward` is in no e2e suite and not in the driver's `WorkshopLevel` union (`tools/e2e/workshop-driver.ts:310`), although Story 6.5e's AC says it solves identically in Chrome.*
+
+*Deletes: nothing.*
+
+As a player,  
+I want the Spring Forward lesson to work as taught,  
+So that the Springboard lesson can be completed.
+
+**Acceptance Criteria:**
+- **Given** `spring_forward` selected from the real puzzle menu, **When** I place the granted Springboard through the drawer, set its preload with the existing control and press Run, **Then** the ball is launched and the goal is solved.
+- **And** zero preload or a misplaced board leaves the goal unsolved (negative control).
+- **And** Run/Reset matches the snapshot, and Save/Load preserves the board and its settings.
+- **And** `tools/e2e/spring-forward.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.9: Ball Detector Forward Pass Lights the Lamp Exactly Once (Story 6.8 Repair)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Closes report #15: `cat-002.test.ts:81-84` scans **all** animation targets, so the detector's own pulse satisfies "lamp lights", and "once" is not counted (`driver.readAnimationSamplesForTarget` exists but is unused). The reverse and glancing checks (`:93`, `:132`) never prove a crossing occurred. The second forward crossing (`:171`) uses Reset rather than an in-run clearance.*
+
+*Deletes: the any-target predicate in `cat-002.test.ts`.*
+
+As a player,  
+I want the lamp wired to a Ball Detector to flash once per forward pass,  
+So that I can trust it to count.
+
+**Acceptance Criteria:**
+- **Given** a Ball Detector wired to a Signal lamp through real UI, **When** a ball passes forward, **Then** the lamp target (and only it) shows exactly one activation, counted with `readAnimationSamplesForTarget`.
+- **And** a reverse and a glancing crossing are each proven to have physically crossed the aperture (body positions on both sides) and produce zero lamp activations (negative controls).
+- **And** a second forward crossing in the same run, after full clearance, produces exactly one more.
+- **And** Run/Reset matches the snapshot.
+- **And** `cat-002` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.10: System Clock Pulses, Pause and Reset Proven in Chrome (Reopened Story 9.3)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Closes report #10: Story 9.3's 5-pulse AC has native proof only (`ClockTests.cs:189`). Pause (`cat-017.test.ts:267`) checks a ball, not the clock. Reset (`:278`) checks the blade only. There are no native pause or reset tests.*
+
+*Deletes: the ball-only pause check and the blade-only reset check in `cat-017.test.ts`.*
+
+As a player,  
+I want a 1-second Clock to tick exactly five times in five seconds, stop when paused, and restart from zero on Reset,  
+So that timed machines behave predictably.
+
+**Acceptance Criteria:**
+- **Given** a supplied System Clock (interval 1.0 s, the default) built through real UI, **When** the run advances 5.0 simulated seconds, **Then** exactly 5 clock pulses are observed from committed activation reads, at 1.0 s spacing within one tick.
+- **And** pausing for 2.0 s wall time adds no pulse and no phase advance; resuming continues the spacing.
+- **And** after Reset and a new Run, the first pulse arrives at 1.0 s (phase 0), and the snapshot matches.
+- **And** native `ClockTests` gain pause and reset facts.
+- **And** an unsupplied clock emits nothing (control).
+- **And** (coordinator decision, 18 Oct 2026) the Clock's pendulum swings, and its face flashes once per pulse. Both are driven from the committed clock phase and pulse occurrences through declared cosmetic bindings, held still while paused, and restored to rest by Reset. They are proven in Chrome by pixel and binding reads at known pulse ticks.
+- **And** `cat-017` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Stories 9R.11–9R.17: the AC-named element suites that never existed
+
+These close report #8. Story 6.5d named `cat-001`, `cat-004`, `cat-054` and `cat-066` (also `cat-064` and `cat-003`, which go to Story 12.1 because Story 9A.14 removes Tennis and Balloon from the palette). Story 6.5e named `cat-063`, `cat-035` and `cat-022`. None exists in any commit. Each story adds one suite for one element, following that element's spec §5. Each suite has:
+- actual-UI construction;
+- verified placed configuration and typed connections;
+- the intended behaviour;
+- a negative/control;
+- exact Run/Reset against the Story 9R.1 snapshot;
+- Save/Load.
+
+A suite that finds a behaviour defect stops the story, and the defect is fixed in the same story, under the same rules.
+
+### Story 9R.11: Basketball Suite `cat-001` (Reopened Story 6.5d)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Source: [CAT-001](../../docs/planning/elements/CAT-001-ball.md) §5. Deletes: nothing (gap only).*
+
+As a player,  
+I want the Basketball proven to roll and bounce as declared,  
+So that the first part I learn behaves as the lesson says.
+
+**Acceptance Criteria:**
+- **Given** a Basketball placed through the real drawer on a Ramp, **When** run, **Then** it rolls down and reaches the Receiver in `first_principles`.
+- **And** a ball resting on the flat bench stays at rest with no drift (control).
+- **And** Run/Reset matches the snapshot, and Save/Load preserves pose and material.
+- **And** `tools/e2e/cat-001.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.12: Receiver Suite `cat-004` (Reopened Story 6.5d)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Source: [CAT-004](../../docs/planning/elements/CAT-004-basket.md) §5. Deletes: nothing (gap only).*
+
+As a player,  
+I want the Receiver proven to capture a ball that enters its mouth,  
+So that goals are fair.
+
+**Acceptance Criteria:**
+- **Given** a Receiver placed through the real drawer, **When** a ball enters its mouth, **Then** it is captured and the goal is solved.
+- **And** a ball passing outside the mouth is not captured (negative control).
+- **And** Run/Reset matches the snapshot, and Save/Load preserves pose and settings.
+- **And** `tools/e2e/cat-004.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.13: Ramp Suite `cat-054` (Reopened Story 6.5d)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Source: [CAT-054](../../docs/planning/elements/CAT-054-ramp.md) §5. Deletes: nothing (gap only).*
+
+As a player,  
+I want the Ramp proven to guide a ball and to resize as declared,  
+So that I can shape a ball's path.
+
+**Acceptance Criteria:**
+- **Given** a Ramp placed and resized through the real resize control, **When** a ball is released on it, **Then** it rolls down, and a longer ramp gives a longer run-out.
+- **And** a ball dropped beside the ramp falls straight (control), and an out-of-range resize is refused (negative).
+- **And** Run/Reset matches the snapshot, and Save/Load preserves length and width.
+- **And** (coordinator decision, 18 Oct 2026) dragging a Ramp resize handle past a declared limit clamps at that limit and keeps the gesture alive, instead of cancelling it. The declared 0.125 m minimum is reachable by hand, and no out-of-range value is ever saved.
+- **And** `tools/e2e/cat-054.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.14: Wall Suite `cat-066` (Reopened Story 6.5d)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Source: [CAT-066](../../docs/planning/elements/CAT-066-wall.md) §5. Deletes: nothing (gap only).*
+
+As a player,  
+I want the Wall proven to stop a rolling ball and to resize as declared,  
+So that I can block paths reliably.
+
+**Acceptance Criteria:**
+- **Given** a Wall placed and resized through the real UI across a ball's path, **When** run, **Then** the ball is stopped or rebounds and never passes through.
+- **And** the same path with no Wall lets the ball continue (control), and an out-of-range resize is refused (negative).
+- **And** Run/Reset matches the snapshot, and Save/Load preserves dimensions.
+- **And** `tools/e2e/cat-066.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.15: Impact Switch Suite `cat-063` (Reopened Story 6.5e)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Source: [CAT-063](../../docs/planning/elements/CAT-063-switch.md) §5 (activation mode only; the electrical mode is Story 9.5b). Deletes: nothing (gap only).*
+
+As a player,  
+I want the Impact Switch proven to latch on a qualifying hit,  
+So that I can trigger machines with a ball.
+
+**Acceptance Criteria:**
+- **Given** an Impact Switch wired to a Signal lamp through the real wiring UI, **When** a ball strikes the button at or above the threshold, **Then** the switch latches once and the lamp lights.
+- **And** a below-threshold or missed ball leaves the switch unlatched and the lamp dark (negative control).
+- **And** Run/Reset matches the snapshot (button raised), and Save/Load preserves the wire and the threshold.
+- **And** (coordinator decision, 18 Oct 2026) the Impact Switch has a player-facing trigger-threshold editor:
+  - typed linear speed, range 0–64 m/s, default 0.8 m/s;
+  - out-of-range input clamps;
+  - the value is used by the compiled trigger, restored by Run/Reset and persisted by Save/Load;
+  - proven through the actual UI with below, equal and above threshold drops.
+- **And** `tools/e2e/cat-063.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.16: Signal Lamp Suite `cat-035` (Reopened Story 6.5e)
+*Status: Backlog*
+
+*Depends on: Story 9R.5 (level outputs). Source: [CAT-035](../../docs/planning/elements/CAT-035-lamp.md) §5. Deletes: nothing (gap only).*
+
+As a player,  
+I want the Signal lamp proven to light on its input,  
+So that I can see that my machine fired.
+
+**Acceptance Criteria:**
+- **Given** a Signal lamp wired from an Impact Switch through real UI, **When** the switch fires, **Then** the lamp lights on that first input and stays lit.
+- **And** a lamp wired from a State Latch or a Pressure Plate level output follows that level on and off.
+- **And** an unwired lamp stays dark (control), and a lamp that follows a level output refuses a second signal (negative).
+- **And** Run/Reset matches the snapshot (Slate), and Save/Load preserves wires.
+- **And** `tools/e2e/cat-035.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.17: Delay Box Suite `cat-022` (Reopened Story 6.5e)
+*Status: Backlog*
+
+*Depends on: Story 9R.1. Source: [CAT-022](../../docs/planning/elements/CAT-022-delay.md) §5. Deletes: nothing (gap only).*
+
+As a player,  
+I want the Delay Box proven to hold a signal for its set duration,  
+So that I can time my machines.
+
+**Acceptance Criteria:**
+- **Given** a Delay Box between an Impact Switch and a Signal lamp, wired through real UI with its duration set by the existing Delay control, **When** the switch fires, **Then** the lamp lights after exactly the declared duration, within one tick.
+- **And** the lamp does not light before the duration elapses (negative control), and a Delay link to a Powered Gate is refused (control).
+- **And** Run/Reset matches the snapshot, and Save/Load preserves the duration and wires.
+- **And** `tools/e2e/cat-022.test.ts` passes 100% in Chrome serially.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.18: Independent Re-Verification and Dated Review Addenda
+*Status: Backlog*
+
+*Depends on: Stories 9R.0–9R.17. Closes report #7 and §D: review evidence is not credible.*
+- *The raw cat-062 output in review-6-5e, 6-5f, 6-6, 6-7 and 6-8 is presented as fresh runs, yet its first three test timings are identical to the nanosecond (`14729.544167ms`, `11075.602542ms`, `12073.702125ms`).*
+- *review-9-1 links nine source files that don't exist, and review-9-3 links four.*
+- *review-9-2b marked contradicted ACs as PASS (G8).*
+- *review-6-9 reports 851/851 despite 12 new tests; review-6-5b claims 12 parts where its test asserts 24; review-6-9b quotes a grep that doesn't match the file; review-6-6 and review-6-10 claim a bit-for-bit Reset that no assertion checks.*
+
+*Also records report #20 (done stories with open clauses).*
+
+*Deletes: no historical text. Review records are never rewritten.*
+
+As the owner,  
+I want every reopened or weak Pass re-checked on fresh, real evidence by someone who did not produce it,  
+So that `done` means proven.
+
+**Acceptance Criteria:**
+- **Given** each story whose Pass was invalid (6.5b, 6.5c, 6.5d, 6.5e, 6.5f, 6.9, 6.9b, 6.10, 8.1, 9.1, 9.2, 9.2b, 9.3) or weak (6.6, 6.7, 6.8, 6.11, 8.2), **When** its repair story has landed, **Then** a reviewer who is neither its implementer nor its original reviewer independently re-runs its acceptance against the current tree.
+  - Raw logs come from that run and are saved as files referenced by path.
+  - Each log carries the commit, the bundle identity and the run's own timestamps.
+  - Any output quoted in the record matches its file exactly.
+  - Every file cited in the record exists.
+- **And** each `review-<story>.md` receives a dated addendum ("Addendum 18 Oct 2026+, retro-verification"). The addendum:
+  - lists each false or unsupported claim from the report's §D and the per-story tables;
+  - gives the corrected result with fresh evidence;
+  - states the new verdict.
+  
+  The original text is left unchanged (negative control: `git diff` of each record shows additions only).
+- **And** where an AC is owned by a later story, the addendum names that story and the original stays `in-progress` until that story's terminal review appends a closing addendum:
+  - **6.5b:** palette from discovery → 9A.14; extensible `PartId` → 9A.15.
+  - **6.5c:** colliders → 9A.16; locators → 9A.17.
+  - **6.5d, 6.5e:** fallbacks → 9A.16.
+  - **6.5f:** switch tables → 9A.16, 9A.17, 9A.25, 9A.27–9A.43.
+  - **6.9b:** `AbiOffsets` → 9A.1.
+  - **9.2:** decode default → 9A.2.
+  - **9.2b:** → 9A.0 and Epic 9A.
+- **And** Story 8.1 is re-verified against its amended acceptance: Powered Gate and Bumper store consumers, with the Motor clause moved to Story 11.1 by owner decision on 18 Oct 2026.
+- **And** each done story with an open clause (6.9 and 6.10 nudging, 6.11 integrations, 8.2 CAT-051 Q6) is recorded with its owning later story.
+- **And** the re-runs include every story's AC-named suite plus one full serial Chrome run of every `tools/e2e/*.test.ts` suite against the production preview, and `dotnet build` (Story 9R.0 gate) plus `dotnet test`, all passing 100%.
+- **And** `sprint-status.yaml` marks each reopened story `done` only when its addendum records a fresh terminal Pass.
+
+---
+
 ## Epic 9A: Sole Architecture Conformance (Project-per-Element, Command/Query, Event Disruptor)
 
 **Goal:** Retire every parallel path so that the only design available in the tree is: one project per puzzle element, the bundle built from those projects as the single declaration source, typed commands and queries, and the event ring for discrete occurrences. After this epic, element-specific code outside `elements/` fails the build.
@@ -1002,6 +1583,8 @@ So that branching circuits and toggle mechanisms can be built.
 - Every existing element keeps working.
 - Any lane the story rewrites lands as IEEE-754 f32; no story adds a `Half`.
 - Review-9-4 F6 (audit A8: the per-tick `Program.SwitchedSupplies`/`ElectricalState` walk of the authoring graph, `SwitchedSupplyRoutes` in `engine/gpu/WorkshopLatch.cs`) is fixed inside Story 9.4 (owner decision, 18 Oct 2026), so no 9A story owns it. If any part of it remains when 9A starts, Story 9A.19 deletes that remainder.
+- Epic 9R runs first and fixes the player-visible defects with compiled Run-time tables. Each 9A story converts those tables to declarations and does not re-implement the fixes.
+- Where a 9A story closes an acceptance clause reopened by the 18 Oct 2026 retro-verification (the mapping is in Story 9R.18), its terminal review appends a dated closing addendum to the original story's review record, and `sprint-status.yaml` then marks that story `done`.
 
 ### Story 9A.0: Architecture Authority Records the Sole Design
 *Status: Backlog*
@@ -1036,7 +1619,12 @@ So that nobody builds on an end state that is described as if it already exists.
 - **And** `docs/engine-contracts.md` and `docs/general-engine-design.md` describe bundle loading and the bundle schema contract (G10): versioned; f32 vectors as `[x, y, z]` and quaternions as `[x, y, z, w]`; mechanical, electrical and signal payloads; a typed parameter schema with key, unit, enum kind, f32 range and default or enum options; and an enum category.
 - **And** the f32 table in `docs/gpu-f32-physics.md` names Story 9A.44 as the owner of every remaining binary16 lane.
 - **And** `AGENTS.md` links the isolation doc as the sole design authority from its engineering requirements, in one line.
-- **And** the Current status section records that review-9-2b's PASS for AC1, AC3, AC4 and AC5 is not supported by the tree (G8). The review file is historical evidence and is not edited.
+- **And** the Current status section records that review-9-2b's PASS for AC1, AC3, AC4 and AC5 is not supported by the tree (G8), including:
+  - the MNA clause: no Modified Nodal Analysis exists, since `git grep -i 'nodal\|MNA'` returns 0 and the electrical domain is graph reachability with compiled supply routes;
+  - the "~50–80 line `worker.js`" clause (347 lines).
+  
+  The docs state the electrical model that actually exists (compiled supply routes over a reachability graph) as the current design. MNA becomes a named later capability, delivered only when an element first needs it (retro-verification #19). The review file is historical evidence and is not edited; Story 9R.18 appends its dated addendum.
+- **And** the docs correct two stale text items found by the retro-verification. The Story 6.4 suite name `cat-062a.test.ts` becomes the actual `cat-062.test.ts` (§E). The spec-9-4 AC2 example "pressure plate wired to `SetIn`" is recorded as superseded: the plate's ActivationOut is a level that drives Signal lamps only (Story 9R.5).
 - **And** the new `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs` asserts that:
   - `AGENTS.md` links the isolation doc;
   - none of `AGENTS.md`, `architecture.md`, `engine-contracts.md`, `general-engine-design.md` or `gpu-f32-physics.md` presents `res://parts/catalog` / `.tres` discovery, `pose-ring.js`, `CuriousContraptions.Engine` or `getF16` as current.
@@ -1078,7 +1666,8 @@ So that agents cannot copy or revive a dead pattern.
 *Deletes:*
 - *the legacy binary codec `engine/gpu/WorkshopWire.cs` (command, response, construction and decode-per-id arms from `:400`);*
 - *the swallowing `catch { WorkshopWire.Decode* }` fallbacks in `engine/gpu/WorkshopCommandRouter.cs:17-25` and `engine/gpu/BrowserWorkshopClient.cs:268-275`;*
-- *in `worker.js:138-175`: the hand-written vtable decode in `extractReadIdentity` and its fixed-offset `responseAbi` fallback.*
+- *in `worker.js:138-175`: the hand-written vtable decode in `extractReadIdentity` and its fixed-offset `responseAbi` fallback;*
+- *the Counter decode's silent default and float→int coercion, `inst.Threshold == 0 ? DefaultTargetCount : (int)Math.Round(inst.Threshold)` (`engine/gpu/WorkshopWireFlatBuffers.cs:896` at HEAD `8f682f8`; retro-verification #13). The target count becomes an integer field, and a missing or out-of-range value is rejected.*
 
 As a player,  
 I want every message between the game and its workers to use one checked format,  
@@ -1090,6 +1679,17 @@ So that a malformed message fails visibly instead of being silently reinterprete
   - `engine/gpu/WorkshopTrace.cs:41`;
   - `engine/gpu/WorkshopSaveCodec.cs` (`ByteLength = 24 + WorkshopWire.ConstructionBytes`).
 - **And** `tools/e2e/workshop-wire.ts` decodes the FlatBuffers format only.
+- **And** (coordinator decision, 18 Oct 2026; from the Story 9R.0 review) saved-construction decoding does complete structural pre-validation before any domain construction runs. The checks:
+  - buffer verifier, version and root identifier;
+  - every enum is defined;
+  - every numeric value is finite and within its declared range;
+  - instance ids are unique and every reference resolves;
+  - every connection is type-valid.
+  
+  Any violation throws a typed `WorkshopSaveRejectedException` carrying a closed `WorkshopSaveRejection` reason, and the player sees the refusal. Domain argument guards stay as programmer-error faults. An `ArgumentException` that escapes after pre-validation is a stderr fault, never an "Unsupported construction save" refusal. Tests cover:
+  - every rejection reason;
+  - a fuzz corpus of truncated, bit-flipped and oversized inputs;
+  - a duplicate-key defect injected after validation, which must surface as a fault.
 - **And** a truncated, unknown-tag or trailing-byte buffer is rejected with a typed fault naming the reason. The input is never retried through another codec (negative control in a unit test for commands, responses and saves).
 - **And** the save and trace versions are bumped. An older save is rejected explicitly with a player-visible message and the current bench is kept (no migration).
 - **And** `rg "WorkshopWire\."` returns 0 hits outside the FlatBuffers codec.
@@ -1366,7 +1966,7 @@ Story 12.1 creates their packages and returns them to the palette.
 
 *Depends on: Story 9A.14. Audit: A2 (numeric switches).*
 
-*Deletes: `PartId.ToNumericId` (`engine/PartId.cs:46-70`) and `PartId.FromNumericId` (`:72-99`), and every numeric part-id field in the FlatBuffers schemas and the save codec.*
+*Deletes: `PartId.ToNumericId` (`engine/PartId.cs:46-70`), including its silent `_ => 0` default for unknown ids (`:72`; retro-verification #12), and `PartId.FromNumericId` (`:72-99`), and every numeric part-id field in the FlatBuffers schemas and the save codec.*
 
 As a player,  
 I want my saved machines to name each part by the same id the game loads it by,  
@@ -1388,7 +1988,8 @@ So that adding a new element never renumbers existing ones.
 - *`engine/gpu/WorkshopCanonicalColliders.cs` (whole file: the 10-arm `For` switch at `:20-33`, every per-element table including `CreateLatchColliders`, and 295 `Half` tokens);*
 - *the fallbacks `def.Colliders.Count > 0 ? def.Colliders : WorkshopCanonicalColliders.For(id)` at `engine/MachineWorld.Gpu.cs:118` and `:120`, and `colliders ?? WorkshopCanonicalColliders.For(...)` at `engine/gpu/WorkshopConstruction.cs:256, 304, 307, 310, 313`;*
 - *the collider re-derivation in decode (`WorkshopWireFlatBuffers.cs:892`);*
-- *the inline latch collider loops in `WorkshopPhysicsCompiler.cs:245-300`;*
+- *the inline latch collider loops in `WorkshopPhysicsCompiler.cs:245-300`, and the compiler's read of `WorkshopCanonicalColliders.LatchColliders` in place of extraction (`WorkshopPhysicsCompiler.cs:281` at HEAD `8f682f8`; retro-verification #11);*
+- *the silent empty return of `PartDefinition.EnsureExtracted` when the scene is missing or not a `Node3D` (`engine/PartDefinition.cs:73-96`; retro-verification X4 and #11). At build time a missing or non-`Node3D` scene now fails the bundle build, naming the package;*
 - *the runtime call sites of collider extraction from scene nodes (`engine/gpu/GltfPhysicsBodyExtractor.cs` callers on the main thread and in the compiler). The Story 6.5c extraction logic itself moves to build time in `tools/BundleElements` and is not reversed.*
 
 As a player,  
@@ -1414,7 +2015,8 @@ So that a part never behaves differently because a fallback table was used.
 *Deletes:*
 - *`WorkshopPorts.For` (`engine/gpu/WorkshopConnections.cs:19-34`, 12 arms) and the per-(id, socket) `LocalPosition` lookup (`:97`);*
 - *`WorkbenchFootprint.Of` (`engine/gpu/WorkbenchCapacity.cs:35-56`, 18 arms);*
-- *any other runtime port-position source found, such as scene `Loc_Port_<Id>` lookups in `engine/MachinePart.cs`.*
+- *any other runtime port-position source found, such as scene `Loc_Port_<Id>` lookups in `engine/MachinePart.cs`;*
+- *the string alias chain in `MachinePart.TryGetPortTransform` (`"PowerIn"`→`"power_in"`→`"in"`, `"Supply"`→`"out"`; `engine/MachinePart.cs:560-568`; retro-verification #12). Any locator a scene keeps is named by the typed socket exactly, and a mismatched name fails the bundle build.*
 
 As a player,  
 I want wires to snap to the sockets each part declares, and parts to occupy the space they declare,  
@@ -1447,44 +2049,43 @@ So that new elements bring their own icon without engine edits.
 ### Story 9A.19: Declared Prismatic Drive for the Powered Gate
 *Status: Backlog*
 
-*Depends on: Stories 9A.17 and 9.4 (review-9-4 F6 fixed there). Audit: A7 (gate part).*
+*Depends on: Stories 9A.17, 9.4 (review-9-4 F6) and 9R.3/9R.4. Those stories already fixed the behaviour with compiled Run-time supply routes: per-gate own-battery routes, per-plate routes, latch and counter routes. This story only converts the gate drive into a package declaration and does not repeat those fixes. Audit: A7 (gate part).*
 
-*Deletes whatever of the following Story 9.4 has not already deleted (the implementer lists which are present at start):*
+*Deletes whatever of the following Stories 9.4, 9R.3 and 9R.4 have not already deleted (the implementer lists which are present at start):*
 - *gate detection by joint limit (`joint.Upper ≈ 1.55`, `CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:241`);*
-- *the drag bands (`:247-249`, 0.03–0.08 = battery gate, 0.08–0.11 = plate gate) and the `ActuatorSliderDrive` heuristics;*
-- *the gate mode encoded as blade drag 0.0625 / 0.09375 (`engine/gpu/WorkshopPhysicsCompiler.cs:186-213`);*
-- *the `batteryPowered` flag (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:764-776`, where the first supply found powers all gates);*
-- *`SimJoint.SwitchedSupplyClosed` (`PrismaticConstraintSolver.cs:35`);*
-- *any remainder of `SwitchedSupplyRoutes` and `Program.SwitchedSupplies`/`Program.ElectricalState` (`Program.cs:160-171`).*
+- *any drag band left in `:247-249` and the `ActuatorSliderDrive` heuristics;*
+- *the record-type and `PartId.PoweredGate` selection of the drive in `engine/gpu/WorkshopPhysicsCompiler.cs` (`:186`, `:288` at HEAD `8f682f8`);*
+- *`SimJoint.SwitchedSupplyClosed` (`PrismaticConstraintSolver.cs:35`) if it is no longer read from the compiled route table.*
 
-As a player,  
-I want each Powered Gate to open only from its own supply,  
-So that two gates on separate circuits never move together by accident.
+As an element author,  
+I want the Powered Gate's drive declared in its package,  
+So that any slider element can declare a drive and the solver never recognises a gate.
 
 **Acceptance Criteria:**
 - **Given** the Powered Gate package, **When** it is compiled, **Then** it declares a prismatic drive capability: the target opening 1.55 m, the speed law sign(d)·min(2.8, √(2·14·|d|)), effort ≤ 60 N, power ≤ 120 W, and the return spring 14 N/m with damping 4 N·s/m (CAT-051 §2).
-- **And** the drive is enabled only by its compiled electrical consumer row, including the plate-switched route, which is a compiled supply route through the plate's declared switch contact.
-- **And** two gates on two separate batteries, built through real UI, open independently: disabling one battery leaves the other gate open (negative control for the first-supply heuristic).
-- **And** a box body with the gate's dimensions and drag but no declared drive never actuates (negative control for the heuristics).
+- **And** the drive is enabled only by the compiled supply route rows from Stories 9.4, 9R.3 and 9R.4, unchanged. Golden route and drive rows are identical before and after.
+- **And** a box body with the gate's dimensions and joint limit but no declared drive never actuates (negative control for the heuristics).
+- **And** the Story 9R.3 own-supply and two-battery checks still pass (regression, not re-implementation).
 - **And** `cat-051`, `cat-052`, `cat-037`, `cat-005-n19` and `cat-051-interrupt` pass.
+- **And** the element-scan ratchet test introduced in Story 9.4b (`WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial`) has an empty known-violations list. 9R.3 and 9R.4 each remove their own entries, and this story removes the last (gate travel-limit recognition and the literal drive constants). The list then stays empty permanently (coordinator decision, 18 Oct 2026).
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.20: Declared Contact-Load Sensor for the Pressure Plate
 *Status: Backlog*
 
-*Depends on: Story 9A.19. Audit: A7 (plate part).*
+*Depends on: Stories 9A.19 and 9R.4/9R.5. Story 9R.4 already replaced size detection and the global `_plateLoaded` flag with per-plate compiled contact-load rows that honour `minimum_mass`, and 9R.5 added the ActivationOut level. This story only moves the source of those rows into the package declaration. Audit: A7 (plate part).*
 
-*Deletes whatever of the following Story 9.4 has not already deleted (the implementer lists which are present at start): Pressure Plate detection by collider half-extents 0.9/0.05/0.9 and Ty 0.03 (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:831`, `:835`), the `_plateLoaded` flag and the hard-coded 0.5 kg literal (`:853`).*
+*Deletes whatever Stories 9R.4 and 9R.5 have not already deleted: plate detection by half-extents, `_plateLoaded`, the 0.5 kg literal and the plate drag band. It also deletes the compiler's record-type selection of the plate row (`OfType<WorkshopPressurePlate>` emitting the contact-load row), which is replaced by the package's declared contact-load sensor.*
 
-As a player,  
-I want the Pressure Plate to respond to resting weight because it declares a load sensor, not because of its size,  
-So that any element can declare a load sensor and none is triggered by accident.
+As an element author,  
+I want the Pressure Plate's load sensor declared in its package,  
+So that any element can declare a load sensor and the compiler never recognises a plate.
 
 **Acceptance Criteria:**
-- **Given** a Pressure Plate, **When** it is compiled, **Then** it emits a `ContactLoadSensorDeclaration` row whose threshold is the instance's declared `minimum_mass` parameter (f32 kg, range 0.1–16, default 0.5; [CAT-052](../../docs/planning/elements/CAT-052-pressure_plate.md) §2; Open scheduling item h).
-- **And** a ball resting on the plate activates it, removing the ball deactivates it, and a bounce without resting weight does not sustain activation (Story 9.1 behaviour).
+- **Given** the Pressure Plate package, **When** a plate is compiled, **Then** its `ContactLoadSensorDeclaration` row (region, normal, alignment, and the `minimum_mass` parameter: f32 kg, range 0.1–16, default 0.5, inclusive ≥; [CAT-052](../../docs/planning/elements/CAT-052-pressure_plate.md) §2) comes from the package. The golden rows are identical to Story 9R.4's.
 - **And** a static box with the plate's exact half-extents and offset but no declared sensor never activates (negative control).
-- **And** `cat-052` passes.
+- **And** the Story 9R.4 and 9R.5 checks still pass: threshold, two-plate independence, lamp level, and no lit lamp after a bounce (regression).
+- **And** `cat-052`, `cat-052-two-plates` and `cat-052-lamp` pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.21: Declaration-Free Worker Warm-Up
@@ -1898,7 +2499,7 @@ I want the plate's minimum mass set through the generic editor,
 So that the load sensor is fully declared.
 
 **Acceptance Criteria:**
-- **Given** a plate with a declared minimum mass, **When** a heavier ball rests on it, **Then** the plate activates. A lighter ball does not (negative control).
+- **Given** a plate whose `minimum_mass` is set to 2.0 kg through the generic editor in actual Chrome (retro-verification #13: there was no editor), **When** a 4 kg Bowling Ball rests on it, **Then** the plate activates. A 1 kg Basketball does not (negative control), and values outside 0.1–16 kg are refused by the editor.
 - **And** Run/Reset and Save/Load are exact.
 - **And** `cat-052` passes.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
@@ -1916,6 +2517,7 @@ So that counting is selected by declaration.
 
 **Acceptance Criteria:**
 - **Given** a Counter with target N = 3, **When** three balls cross its detector, **Then** it emits once on the third (a `ThresholdReached` ring record). Two crossings emit nothing (negative control).
+- **And** in actual Chrome, the generic editor sets the target to 1 and to 9 (the boundaries) and refuses 0 and 10 (retro-verification #13: there was no editor). A target of 1 emits on the first crossing.
 - **And** Reset clears the count.
 - **And** Save/Load is exact.
 - **And** `cat-020` passes.
@@ -1966,7 +2568,7 @@ So that the last element record leaves the engine.
 ### Story 9A.44: f32 Lane Completion — Remove Every binary16 Lane
 *Status: Backlog*
 
-*Depends on: Story 9A.43. It is placed after the stories that delete the largest `Half` holdings (`WorkshopCanonicalColliders` in 9A.16, `MachinePart` bindings and `CosmeticCurves` in 9A.25, the puzzle lanes in 9A.26) so that no lane is migrated and then deleted. Owner decision, 18 Oct 2026. Audit: B6. Resolves CAT-037 open question 2.*
+*Depends on: Story 9A.43. Retro-verification X2 and #17 found 675 `Half` lines added since baseline `9107148` (458 production, 217 test) by Stories 6.6–9.4; all of them are in scope. It is placed after the stories that delete the largest `Half` holdings (`WorkshopCanonicalColliders` in 9A.16, `MachinePart` bindings and `CosmeticCurves` in 9A.25, the puzzle lanes in 9A.26) so that no lane is migrated and then deleted. Owner decision, 18 Oct 2026. Audit: B6. Resolves CAT-037 open question 2.*
 
 *Deletes every binary16 lane, with no conversion shim:*
 - *`System.Half` in every production and test `.cs` file (69 production files at audit time). This includes:*
@@ -1988,6 +2590,7 @@ So that sizes, masses, timings and animations behave identically everywhere.
 - **And** the schema, save and trace versions are bumped, and older saves are rejected explicitly with no migration.
 - **And** the `docs/gpu-f32-physics.md` "f32 Migration Status" table records no remaining lane, and the envelope statements that depended on binary16 are restated for f32.
 - **And** golden tests show every element's outcomes stay inside the [game-grade envelope](../../docs/gpu-f32-physics.md#game-grade-envelope).
+- **And** every compiled record field touched by the f32 relayout (bodies, colliders, sensors, prismatics, electrical, motion and cache) is read and written only through named `PhysicsGpuAbi` offset constants. `WorkshopAbiLiteralScanTests` is extended from Story 9.4b's header, contact-work, occurrence and trigger records to every record type, and fails on any literal ABI offset in production. Coordinator decision, 19 Oct 2026, Story 9.4b R2-F4: the offsets change in this story anyway, so naming them here migrates each one exactly once.
 - **And** an injected non-finite value is rejected at the boundary (negative control).
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
@@ -2138,6 +2741,7 @@ So that resting objects are transported horizontally across the workbench.
 - **When** a Basketball lands on the conveyor surface,
 - **Then** tangential friction accelerates the ball along the belt travel direction.
 - **And** cutting motor power decelerates the belt to a halt under friction.
+- **And** (integration moved from Story 8.1, owner decision 18 Oct 2026) a Battery connected to the Motor by an electrical cable supplies continuous 12V and spins its axle, and losing that supply stops the motor drive immediately.
 - **And** `tools/e2e/cat-042-019.test.ts` passes 100% in Chrome serially.
 
 ### Story 11.2: Mechanical Clutch & Reverse Transmission (CAT-018, CAT-057)
@@ -2203,6 +2807,7 @@ So that aerodynamic and buoyant contraptions are possible.
 - **When** released,
 - **Then** buoyant forces overcome gravity and the balloon rises vertically until contacting a ceiling or wall.
 - **And** a Tennis Ball rebounds with high restitution ($e = 0.85$) and decelerates under aerodynamic drag.
+- **And** each part has its own authored `.tscn` scene. The Balloon is a pink gas envelope with a tied neck and a string, and the Tennis Ball is a felt-yellow ball with a seam curve. Neither uses `parts/scenes/ball.tscn`. The palette icon and the 3D model match (owner report, 19 Oct 2026: the Balloon looked like a basketball).
 - **And** `tools/e2e/cat-064-003.test.ts` passes 100% in Chrome serially.
 
 ### Story 12.2: Electric Fan Aerodynamic Airflow Jet (CAT-028)
@@ -2525,6 +3130,26 @@ So that wind-driven musical contraptions can be solved.
 ## Epic 15: 150 Progressively Taught Campaign Levels
 
 **Goal:** Deliver all 150 progressive challenge levels across Chapters 1 to 5 in structured 10-level increments, each verified with real UI solutions, negative controls, and bit-for-bit Reset in actual Chrome.
+
+### Story 15.0: Physical Placement Nudging & Difficulty Assistance
+*Status: Backlog*
+
+*Depends on: Epic 9A (declared element packages and parameters) and Story 9R.6 (typed mouth snapping). New story (owner decision, 18 Oct 2026), replacing the earlier "not scheduled" decision. It closes the open assistance clauses of Stories 6.9 (CAT-049) and 6.10 (CAT-050).*
+
+As a player,  
+I want parts I place near a working position to be eased into it at the difficulty I chose,  
+So that easier difficulties forgive small placement errors and Precise rewards exact building.
+
+**Acceptance Criteria:**
+- **Given** a level with a declared difficulty tier (Forgiving, Balanced or Precise) and per-part authored assistance controls, **When** the player releases a dragged part within that tier's declared position and angle tolerance of a declared working pose, **Then** the part is physically nudged into that pose, and the nudge is visible to the player.
+  - The nudge is a bounded authoring-time correction of the placed transform. It is not a solver force, and it never applies during Run.
+- **And** the tolerances are declaration data per tier and per part. No element identifier appears in the nudging code.
+- **And** CAT-049 and CAT-050 prove their declared depth-error results through the actual UI:
+  - Forgiving and Balanced succeed where Precise fails, at the same placement error;
+  - the boundary is tested at just inside, exactly at, and just outside each tolerance.
+- **And** nudging never moves a locked part. It never overlaps another part's collider: an overlap leaves the part where the player put it. Undo restores the pre-nudge pose.
+- **And** Run/Reset and Save/Load preserve the nudged pose exactly.
+- **And** `tools/e2e/nudging.test.ts` passes 100%, the `cat-049` and `cat-050` assistance cases pass, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run.
 
 ### Story 15.1: Campaign Levels 1–10 (Chapter 1: "On a Roll", Part 1)
 *Status: Backlog*

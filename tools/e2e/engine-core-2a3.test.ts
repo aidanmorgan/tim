@@ -19,7 +19,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Ramp contact & rolling: Ball contacts inclined ramp and rolls along surface', { timeout: 120000 }, async () => {

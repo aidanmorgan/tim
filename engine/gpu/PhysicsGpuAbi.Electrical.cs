@@ -15,8 +15,8 @@ public static partial class PhysicsGpuAbi
 
     private static void WriteElectricalAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
     {
-        U32(data, 120, (uint)scene.Electrical.Sources.Length);
-        U32(data, 124, (uint)scene.Electrical.Bindings.Length);
+        U32(data, HeaderElectricalSourceCountOffset, (uint)scene.Electrical.Sources.Length);
+        U32(data, HeaderElectricalBindingCountOffset, (uint)scene.Electrical.Bindings.Length);
         for (var i = 0; i < scene.Electrical.Sources.Length; i++)
         {
             var source = scene.Electrical.Sources[i];
@@ -38,13 +38,13 @@ public static partial class PhysicsGpuAbi
     public static PhysicsElectricalRead ReadElectrical(ReadOnlySpan<byte> data)
     {
         Header(data);
-        var count = (int)R32(data, 120);
+        var count = (int)R32(data, HeaderElectricalSourceCountOffset);
         Span<ElectricalSourceRead> values = stackalloc ElectricalSourceRead[ElectricalSupplyPlan.SourceCapacity];
         for (var i = 0; i < count; i++)
         {
             var record = data.Slice(ElectricalSourcesOffset + i * ElectricalSourceBytes, ElectricalSourceBytes);
             var owner = R32(record, 8);
-            if (owner >= R32(data, 12) || !AllZero(record[28..32]) || !AllZero(record[44..]) ||
+            if (owner >= R32(data, HeaderBodyCountOffset) || !AllZero(record[28..32]) || !AllZero(record[44..]) ||
                 R32(record, 12) > (uint)ElectricalEnable.Enabled || R32(record, 36) > (uint)ElectricalEnable.Enabled)
                 throw new ArgumentException("Invalid electrical source record.");
             new ElectricalSourceSettings(new(RF(record, 16)), new(RF(record, 20)),
@@ -58,12 +58,12 @@ public static partial class PhysicsGpuAbi
         if (!AllZero(data[(ElectricalSourcesOffset + count * ElectricalSourceBytes)..ElectricalBindingsOffset]))
             throw new ArgumentException("Unused electrical source slot changed.");
         Span<bool> seen = stackalloc bool[PhysicsSceneDeclaration.ContactWorkCapacity];
-        var routes = (int)R32(data, 124);
+        var routes = (int)R32(data, HeaderElectricalBindingCountOffset);
         for (var i = 0; i < routes; i++)
         {
             var record = data.Slice(ElectricalBindingsOffset + i * ElectricalBindingBytes, ElectricalBindingBytes);
             var source = R32(record, 0); var storage = R32(record, 4);
-            if (source >= count || storage >= R32(data, 104) || seen[(int)storage] || !AllZero(record[8..]))
+            if (source >= count || storage >= R32(data, HeaderContactWorkCountOffset) || seen[(int)storage] || !AllZero(record[8..]))
                 throw new ArgumentException("Invalid or ambiguous electrical storage route.");
             seen[(int)storage] = true;
         }
@@ -78,7 +78,7 @@ public static partial class PhysicsGpuAbi
         after.ValidateAdvance(before);
         if (!candidate[ElectricalBindingsOffset..PrismaticsOffset].SequenceEqual(previous[ElectricalBindingsOffset..PrismaticsOffset]))
             throw new ArgumentException("Electrical routes changed during a Run.");
-        var phaseCount = (R32(candidate,88) + 3) / 4 - (R32(previous,88) + 3) / 4;
+        var phaseCount = (R32(candidate,HeaderSourceOrdinalOffset) + 3) / 4 - (R32(previous,HeaderSourceOrdinalOffset) + 3) / 4;
         var works = ReadContactWorks(candidate);
         Span<bool> supplied = stackalloc bool[PhysicsSceneDeclaration.ContactWorkCapacity];
         for (var i = 0; i < after.Count; i++)
@@ -90,7 +90,7 @@ public static partial class PhysicsGpuAbi
             if (after[i].Debit.Value > limit + PhysicsElectricalRead.Residual(limit))
                 throw new ArgumentException("Electrical source exceeded its phase power allowance.");
             double credit = 0, tolerance = PhysicsElectricalRead.Residual(before[i].Remaining.Value);
-            for (var route = 0; route < R32(candidate,124); route++)
+            for (var route = 0; route < R32(candidate,HeaderElectricalBindingCountOffset); route++)
             {
                 var binding = ElectricalBindingsOffset + route * ElectricalBindingBytes;
                 if (R32(candidate,binding) != i) continue;

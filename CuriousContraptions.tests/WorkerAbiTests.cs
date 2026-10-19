@@ -4,59 +4,60 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>The simulation worker reads and writes records whose layouts the C# ABI owns. Each layout constant the worker declares must
-/// equal its C# source, so a change on either side fails here instead of silently misreading committed bodies, motion or responses.</summary>
+/// <summary>The browser scripts read and write records whose layouts the C# ABI owns. Every layout constant a script
+/// declares must equal its C# owner and must be used, so a change on either side fails here instead of silently
+/// misreading committed bodies or poses, and no declared-but-dead layout survives (Story 9.4b deleted twenty).</summary>
 public sealed class WorkerAbiTests(ITestOutputHelper output)
 {
-    private static readonly IReadOnlyDictionary<string, int> Owned = new Dictionary<string, int>
+    public enum Script { SimulationWorker, WorkshopClient }
+
+    private static readonly IReadOnlyDictionary<string, int> PoseRing = new Dictionary<string, int>
     {
-        ["PRISMATIC_BYTES"] = PhysicsGpuAbi.PrismaticBytes,
-        ["ELECTRICAL_SOURCE_BYTES"] = PhysicsGpuAbi.ElectricalSourceBytes,
-        ["ELECTRICAL_BINDING_BYTES"] = PhysicsGpuAbi.ElectricalBindingBytes,
-        ["BODY_BYTES"] = PhysicsGpuAbi.BodyBytes,
-        ["BODY_VELOCITY"] = PhysicsGpuAbi.BodyVelocityOffset,
-        ["BODY_ANGULAR_VELOCITY"] = PhysicsGpuAbi.BodyAngularVelocityOffset,
-        ["BODY_MASS"] = PhysicsGpuAbi.BodyMassOffset,
-        ["BODY_DRAG"] = PhysicsGpuAbi.BodyDragOffset,
-        ["BODY_GRAVITY"] = PhysicsGpuAbi.BodyGravityOffset,
-        ["BODY_CENTRE_OF_MASS"] = PhysicsGpuAbi.BodyCentreOfMassOffset,
-        ["MOTION_HEADER_BYTES"] = PhysicsMotionRead.HeaderBytes,
-        ["MOTION_PIECE_BYTES"] = PhysicsMotionRead.PieceBytes,
-        ["MOTION_DRAG_RATE"] = PhysicsMotionRead.DragRateOffset,
-        ["MOTION_VELOCITY"] = PhysicsMotionRead.VelocityOffset,
-        ["MOTION_ANGULAR_VELOCITY"] = PhysicsMotionRead.AngularVelocityOffset,
-        ["MOTION_GRAVITY"] = PhysicsMotionRead.GravityOffset,
-        ["READ_BODIES_OFFSET"] = WorkshopWire.ReadBodiesOffset,
-        ["BODY_WIRE_BYTES"] = PhysicsBodyWire.ByteLength,
-        ["BODY_WIRE_VELOCITY"] = PhysicsBodyWire.VelocityOffset,
+        ["POSE_SLOT_COUNT"] = WorkshopPoseRing.SlotCount,
+        ["POSE_BODY_CAPACITY"] = WorkshopPoseRing.BodyCapacity,
+        ["POSE_HEADER_BYTES"] = WorkshopPoseRing.HeaderBytes,
+        ["POSE_BODY_BYTES"] = WorkshopPoseRing.BodyBytes,
+        ["POSE_SLOT_BYTES"] = WorkshopPoseRing.SlotBytes,
+        ["POSE_RING_BYTES"] = WorkshopPoseRing.TotalBytes,
     };
 
-    [Fact]
-    public void EveryWorkerLayoutConstantEqualsItsCSharpOwner()
+    private static IReadOnlyDictionary<string, int> Owned(Script script) => script switch
     {
-        // The normal suite always checks the real worker. A candidate copy (WORKER_SOURCE, as the Node rigid-body harness uses) is
-        // checked only on the explicit opt-in WORKER_ABI_CANDIDATE=1, and the resolved path is always reported.
-        var candidate = Environment.GetEnvironmentVariable("WORKER_ABI_CANDIDATE") == "1";
-        var path = candidate
-            ? Environment.GetEnvironmentVariable("WORKER_SOURCE") ?? throw new InvalidOperationException("WORKER_ABI_CANDIDATE=1 requires WORKER_SOURCE.")
-            : Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.Simulation/wwwroot/worker.js");
-        output.WriteLine($"Worker source checked: {path}");
-        // A duplicated declaration throws in ToDictionary; a missing or drifted one fails the comparison.
-        var declared = Regex.Matches(File.ReadAllText(path), @"^const ([A-Z_]+) = (\d+);", RegexOptions.Multiline)
-            .Where(match => Owned.ContainsKey(match.Groups[1].Value))
-            .ToDictionary(match => match.Groups[1].Value, match => int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture));
-        Assert.Equal(Owned.OrderBy(entry => entry.Key), declared.OrderBy(entry => entry.Key));
-    }
+        Script.SimulationWorker => new Dictionary<string, int>(PoseRing)
+        {
+            ["READ_CAPTURE_TIME"] = WorkshopWire.ResponseCaptureTimeOffset,
+            ["READ_BODY_COUNT"] = WorkshopWire.ResponseBodyCountOffset,
+            ["READ_BODIES_OFFSET"] = WorkshopWire.ReadBodiesOffset,
+            ["BODY_WIRE_BYTES"] = PhysicsBodyWire.ByteLength,
+            ["BODY_WIRE_CELL"] = PhysicsBodyWire.CellOffset,
+            ["BODY_WIRE_LOCAL"] = PhysicsBodyWire.LocalOffset,
+            ["BODY_WIRE_ROTATION"] = PhysicsBodyWire.RotationOffset,
+            ["BODY_WIRE_VELOCITY"] = PhysicsBodyWire.VelocityOffset,
+        },
+        Script.WorkshopClient => PoseRing,
+        _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),
+    };
 
-    [Fact]
-    public void WorkerDynamicOffsetFallbacksDeclareValidTableOffsets()
+    private static string Path(Script script) => System.IO.Path.Combine(twodog.Engine.ResolveProjectDir(), script switch
     {
-        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.Simulation/wwwroot/worker.js");
-        var letDeclared = Regex.Matches(File.ReadAllText(path), @"^let ([A-Z_]+) = (\d+);", RegexOptions.Multiline)
+        Script.SimulationWorker => "CuriousContraptions.Simulation/wwwroot/worker.js",
+        Script.WorkshopClient => "CuriousContraptions.web/wwwroot/workshop-client.js",
+        _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),
+    });
+
+    [Theory]
+    [InlineData(Script.SimulationWorker)]
+    [InlineData(Script.WorkshopClient)]
+    public void EveryScriptLayoutConstantEqualsItsCSharpOwnerAndIsUsed(Script script)
+    {
+        var path = Path(script);
+        output.WriteLine($"Script checked: {path}");
+        var source = File.ReadAllText(path);
+        // Every upper-case numeric layout constant the script declares, so an unpinned or dead one fails too.
+        var declared = Regex.Matches(source, @"^(?:const|let) ([A-Z][A-Z0-9_]+) = (\d+);", RegexOptions.Multiline)
             .ToDictionary(match => match.Groups[1].Value, match => int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture));
-        Assert.Contains("COLLIDERS_OFFSET", letDeclared.Keys);
-        Assert.Contains("MATERIALS_OFFSET", letDeclared.Keys);
-        Assert.Contains("TRIGGERS_OFFSET", letDeclared.Keys);
-        Assert.Contains("CONTACT_WORKS_OFFSET", letDeclared.Keys);
+        Assert.Equal(Owned(script).OrderBy(entry => entry.Key), declared.OrderBy(entry => entry.Key));
+        foreach (var name in declared.Keys)
+            Assert.True(Regex.Matches(source, $@"\b{name}\b").Count > 1, $"{name} is declared but never used in {path}.");
     }
 }

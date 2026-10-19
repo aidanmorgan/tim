@@ -1,0 +1,5 @@
++8848ms [log] CCDIAG_TICKS n=662 advance[mean=4.302ms p50=4.420 p95=5.610 max=31.415] emit[mean=0.095ms p50=0.080 p95=0.135 max=2.525] encodeMean=0.062ms alloc[mean=45078B p95=48008 max=48816] gen0=4
++18375ms [log] CCDIAG_TICKS n=653 advance[mean=3.099ms p50=2.850 p95=4.315 max=16.205] emit[mean=0.091ms p50=0.075 p95=0.135 max=2.350] encodeMean=0.055ms alloc[mean=39977B p95=40400 max=42912] gen0=3
++29013ms [log] CCDIAG_TICKS n=497 advance[mean=1.145ms p50=0.940 p95=2.060 max=12.515] emit[mean=0.095ms p50=0.080 p95=0.160 max=2.285] encodeMean=0.054ms alloc[mean=29651B p95=30568 max=34184] gen0=1
++34672ms [log] CCDIAG_TICKS n=355 advance[mean=4.003ms p50=3.655 p95=6.370 max=16.490] emit[mean=0.110ms p50=0.085 p95=0.210 max=2.270] encodeMean=0.073ms alloc[mean=43082B p95=47544 max=48816] gen0=2
++38453ms [log] CCDIAG_TICKS n=357 advance[mean=3.398ms p50=2.910 p95=5.060 max=29.705] emit[mean=0.073ms p50=0.070 p95=0.095 max=0.335] encodeMean=0.042ms alloc[mean=42907B p95=47464 max=48744] gen0=2

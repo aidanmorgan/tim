@@ -8,7 +8,7 @@ internal enum RuntimeClockCase
     ExactNormativeInterval, DriftRounding, ExpiryAndFreshStartup, DisjointRequiresFreshEight,
     CausalCapture, HalfwidthBoundary, ReplacementRebase, RecoveryKeepsCurrentMappings,
     HorizonBoundary, MaximumSampleReservation, RecoveryRejectsUnrelatedCaptureTriggers,
-    RecoveryEighthReplyFailure, RecoveryEighthReplySuccess, RecoveryDeadline,
+    RecoveryEighthReplyRecalibration, RecoveryEighthReplySuccess, RecoveryDeadline,
     RecoveryDisjointRequalification, HorizonOverflow
 }
 
@@ -18,6 +18,8 @@ internal sealed record RuntimeClockResult(RuntimeClockCase Case, bool Passed, st
 internal static class RuntimeClockControls
 {
     private static readonly WorkshopClockPeer Peer = new(new(11, 23), new(7), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
+    // The installed master derivation epoch; these controls never re-derive the master.
+    private static readonly ClockDerivationEpoch Derived = new(0);
 
     public static IReadOnlyList<RuntimeClockResult> Run()
     {
@@ -46,7 +48,7 @@ internal static class RuntimeClockControls
             var type = typeof(WorkshopClockMapping);
             var slot = type.GetNestedType("ClockSlot", System.Reflection.BindingFlags.NonPublic)!;
             Require(System.Runtime.InteropServices.Marshal.SizeOf(slot) == 24);
-            Require(WorkshopClockMapping.BookkeepingBytes == 272);
+            Require(WorkshopClockMapping.BookkeepingBytes == 280);
             Require(WorkshopClockMapping.ProbeCapacity * 24 + 80 == 272);
             Require(type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .Count(field => field.FieldType.IsArray) == 1);
@@ -56,7 +58,7 @@ internal static class RuntimeClockControls
             var map = new WorkshopClockMapping(Peer);
             var probe = map.BeginProbe(new(0))!.Value;
             Require(map.BeginProbe(new(1)) is null);
-            var reply = new ClockReply(probe, new(50_000_000), new(50_000_000), new(1));
+            var reply = new ClockReply(probe, new(50_000_000), new(50_000_000), new(1), Derived);
             Fault(() => map.Receive(reply with { RequesterReceived = new(0) }));
             Require(map.Pending == probe && map.ValidProbeCount == 0);
             Require(map.Receive(reply with { Probe = probe with { Sequence = new(2) } }).Outcome == ClockProbeOutcome.WrongIdentity);
@@ -70,7 +72,7 @@ internal static class RuntimeClockControls
         Check(RuntimeClockCase.ExactNormativeInterval, () =>
         {
             var reply = new ClockReply(new(Peer.Session, Peer.Generation, Peer.RequesterGeneration, Peer.RequesterRole, new(1), new(100_000_000)),
-                new(150_200_000), new(150_300_000), new(100_700_000));
+                new(150_200_000), new(150_300_000), new(100_700_000), Derived);
             var interval = WorkshopClockMapping.Offset(reply, new(10_000));
             Require(interval == new CuriousContraptions.Gpu.ClockInterval(49_580_000, 50_220_000));
             Require(WorkshopClockMapping.Expand(interval, 250_000_000) ==
@@ -92,6 +94,8 @@ internal static class RuntimeClockControls
             Require(map.State == ClockMappingState.Recovering && map.IsQualified);
             map.Observe(new(570_000_001));
             Require(map.State == ClockMappingState.Expired && map.DisplayEpoch == epoch + 1 && map.ValidProbeCount == 0);
+            // Story 9.4b: a lapsed mapping lifetime is a counted, typed recalibration, never a silent expiry.
+            Require(map.Recalibrations == 1 && map.LastRecalibration?.Cause == ClockRecalibrationCause.MappingLifetime);
             for (var i = 0; i < 7; i++) Accept(map, 580_000_000 + i * 10_000_000);
             Require(map.State != ClockMappingState.Ready);
             Accept(map, 650_000_000);
@@ -101,8 +105,9 @@ internal static class RuntimeClockControls
         {
             var map = Ready();
             var probe = map.BeginProbe(new(320_000_000))!.Value;
-            var outcome = map.Receive(new(probe, new(380_000_000), new(380_000_000), new(320_000_000)));
+            var outcome = map.Receive(new(probe, new(380_000_000), new(380_000_000), new(320_000_000), Derived));
             Require(outcome.Outcome == ClockProbeOutcome.Disjoint && map.State == ClockMappingState.Suspect && map.ValidProbeCount == 0);
+            Require(map.Recalibrations == 1 && map.LastRecalibration?.Cause == ClockRecalibrationCause.Disjoint);
             for (var i = 0; i < 8; i++) Accept(map, 330_000_000 + i * 10_000_000, 60_000_000);
             Require(map.State == ClockMappingState.Ready);
         });
@@ -126,7 +131,7 @@ internal static class RuntimeClockControls
                 new(130_000_000), new(100_000));
             Require(!map.TryMap(capture, new(80_000_000), out _));
             // Exact accepted boundary is tested independently by interval arithmetic: 1.4ms RTT + 4q + 2qs = 2ms.
-            var reply = new ClockReply(new(Peer.Session, Peer.Generation, Peer.RequesterGeneration, Peer.RequesterRole, new(1), new(0)), new(50_000_000), new(50_000_000), new(1_400_000));
+            var reply = new ClockReply(new(Peer.Session, Peer.Generation, Peer.RequesterGeneration, Peer.RequesterRole, new(1), new(0)), new(50_000_000), new(50_000_000), new(1_400_000), Derived);
             Require(WorkshopClockMapping.Offset(reply, Peer.Uncertainty).Width + 2 * Peer.Uncertainty.Value == WorkshopClockMapping.MaximumMappedWidth);
         });
         Check(RuntimeClockCase.ReplacementRebase, () =>
@@ -176,20 +181,22 @@ internal static class RuntimeClockControls
             Reject(() => map.TryMap(capture with { Generation = new(8) }, new(80_000_000), out _));
             Require(map.State == ClockMappingState.Ready && map.Pending is null);
         });
-        Check(RuntimeClockCase.RecoveryEighthReplyFailure, () =>
+        // Story 9.4b: an unqualified eighth reply recalibrates and continues (game-grade envelope); it never faults.
+        Check(RuntimeClockCase.RecoveryEighthReplyRecalibration, () =>
         {
             var map = Recovering();
             for (var i = 0; i < 7; i++) Accept(map, 330_000_000 + i * 10_000_000, roundtrip: 1_295_000);
             var eighth = map.BeginProbe(new(400_000_000))!.Value;
-            var reply = new ClockReply(eighth, new(450_000_000), new(450_000_000), new(401_295_000));
+            var reply = new ClockReply(eighth, new(450_000_000), new(450_000_000), new(401_295_000), Derived);
             Require(map.Receive(reply with { Probe = eighth with { Sequence = new(eighth.Sequence.Value + 1) } })
                 .Outcome == ClockProbeOutcome.WrongIdentity);
             Require(map.Pending == eighth && map.State == ClockMappingState.Recovering);
             Require(map.BeginProbe(new(410_000_000)) is null);
-            Fault(() => map.Receive(reply with { RequesterReceived = new(410_000_000) }));
-            Require(map.State == ClockMappingState.Faulted && map.Pending is null);
-            Fault(() => map.BeginProbe(new(411_000_000)));
-            Fault(() => map.Observe(new(1_000_000_000)));
+            var epoch = map.DisplayEpoch;
+            map.Receive(reply with { RequesterReceived = new(410_000_000) });
+            Require(map.State == ClockMappingState.Expired && map.Pending is null && !map.IsQualified);
+            Require(map.Recalibrations == 1 && map.DisplayEpoch == epoch + 1 && map.ValidProbeCount == 0);
+            Require(map.BeginProbe(new(411_000_000)) is not null);
             map.Retire();
             Require(map.State == ClockMappingState.Retired);
         });
@@ -211,16 +218,17 @@ internal static class RuntimeClockControls
             Accept(exact, deadline);
             Require(exact.State == ClockMappingState.Ready);
             var late = Recovering();
-            Fault(() => late.Observe(new(deadline + 1)));
-            Require(late.State == ClockMappingState.Faulted);
+            late.Observe(new(deadline + 1));
+            Require(late.State == ClockMappingState.Expired && late.Recalibrations == 1);
         });
         Check(RuntimeClockCase.RecoveryDisjointRequalification, () =>
         {
             var map = Recovering(); var epoch = map.DisplayEpoch;
             var probe = map.BeginProbe(new(330_000_000))!.Value;
-            Require(map.Receive(new(probe, new(390_000_000), new(390_000_000), new(330_000_000)))
+            Require(map.Receive(new(probe, new(390_000_000), new(390_000_000), new(330_000_000), Derived))
                 .Outcome == ClockProbeOutcome.Disjoint);
             Require(map.State == ClockMappingState.Suspect && !map.IsQualified && map.DisplayEpoch == epoch + 1);
+            Require(map.Recalibrations == 1 && map.LastRecalibration?.Cause == ClockRecalibrationCause.Disjoint);
             for (var i = 0; i < 7; i++) Accept(map, 340_000_000 + i * 10_000_000, 60_000_000);
             Require(!map.IsQualified);
             Accept(map, 410_000_000, 60_000_000);
@@ -260,7 +268,7 @@ internal static class RuntimeClockControls
     private static void Accept(WorkshopClockMapping map, long sent, long offset = 50_000_000, long roundtrip = 0)
     {
         var probe = map.BeginProbe(new(sent)) ?? throw new InvalidOperationException("Probe unexpectedly suppressed.");
-        Require(map.Receive(new(probe, new(sent + offset), new(sent + offset), new(sent + roundtrip))).Outcome == ClockProbeOutcome.Accepted);
+        Require(map.Receive(new(probe, new(sent + offset), new(sent + offset), new(sent + roundtrip), Derived)).Outcome == ClockProbeOutcome.Accepted);
     }
 
     private static void Require(bool value) { if (!value) throw new InvalidOperationException("Source-linked clock oracle mismatch."); }

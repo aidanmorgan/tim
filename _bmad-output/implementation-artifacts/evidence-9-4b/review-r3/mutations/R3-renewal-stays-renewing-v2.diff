@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-renewal-stays-renewing-v2/original	2026-10-19 11:30:24.273219276 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockMapping.cs	2026-10-19 11:30:24.278367933 +0800
+@@ -242,7 +242,7 @@
+             // The one consistent exchange ends the renewal (one renewal per lapse). It resumes as Ready; when that exchange
+             // alone does not cover the refresh horizon (a slow round trip), UpdateAvailability below continues in the
+             // ordinary bounded recovery, as for any Ready mapping whose budget erodes.
+-            if (renewed) State = ClockMappingState.Ready;
++            if (renewed) { }
+             else if (_count == ProbeCapacity && !IsQualified && HasOffsetBudget(reply.RequesterReceived, 0))
+                 State = ClockMappingState.Ready;
+         }

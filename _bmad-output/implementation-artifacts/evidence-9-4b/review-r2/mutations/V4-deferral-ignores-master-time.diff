@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/V4-deferral-ignores-master-time/original	2026-10-19 05:32:53.721445032 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/engine/gpu/AnimationControlDeferral.cs	2026-10-19 05:32:53.724958138 +0800
+@@ -46,7 +46,7 @@
+     /// <summary>A turn waits without an installation, while one is prepared, or without master time; otherwise it applies
+     /// the held control and returns, or evaluates when nothing is held.</summary>
+     public AnimationServiceTurn Turn(bool installed, bool preparing, bool masterTimeAvailable) =>
+-        !installed || preparing || !masterTimeAvailable ? AnimationServiceTurn.Wait
++        !installed || preparing ? AnimationServiceTurn.Wait
+         : _held is not null ? AnimationServiceTurn.ApplyDeferred : AnimationServiceTurn.Evaluate;
+ 
+     public byte[]? Release()

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/J1-F1-filter-reverted/original	2026-10-19 05:35:27.104454383 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-console.mjs	2026-10-19 05:35:27.108879662 +0800
+@@ -22,7 +22,7 @@
+ 
+ /** A "NaN" in diagnostic prose, never a substring of a typed envelope's payload (Murdoch-2 F1, Story 9.4b). */
+ export function reportsNaN(type, text) {
+-    return text.includes('NaN') && !(type === 'log' && isTypedEnvelope(text));
++    return text.includes('NaN');
+ }
+ 
+ export function isWorkshopConsoleFailure(type, text) {

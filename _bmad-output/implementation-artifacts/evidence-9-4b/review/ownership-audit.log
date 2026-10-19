@@ -1,0 +1,3 @@
+$ dotnet run --project tools/Ownership -- --audit . docs/work-orders/P0-004/ownership/index.json
+Source membership differs.
+exit=0

@@ -3,6 +3,8 @@
 // Waits are condition waits on signals the page already exposes (read-only observation, never control): rendered animation frames,
 // the CCGPU command acknowledgement console line, pose-ring publications, the IndexedDB save slot and the CCGOAL_SOLVED console line.
 import { createRequire } from 'node:module';
+import { appendFileSync } from 'node:fs';
+import { raiseCloseFindings, recordCloseFinding } from '../workshop-close-findings.mjs';
 import type { Browser, BrowserContext, ConsoleMessage, Page, Worker } from 'playwright';
 import { decodeWorkshopResponse, decodeSavedConstruction, ResponseKind } from './workshop-wire.ts';
 
@@ -46,6 +48,12 @@ export interface AnimationSampleRecord {
 export interface WorkshopDriverOptions {
     baseUrl?: string;
     viewport?: { width: number; height: number };
+    /**
+     * Every suite fails when a clock mapping recalibrates (Story 9.4b): a recalibration is the counted continue path of
+     * a clock lapse, never normal operation. Only a probe that deliberately starves a requester context sets this, and
+     * then reads the typed records from `clockRecalibrations` itself.
+     */
+    allowClockRecalibrations?: boolean;
 }
 
 // Telemetry globals installed by workshop-client.js; read inside page.evaluate only (type-only, erased at runtime).
@@ -73,7 +81,8 @@ const SimulationPhase = {
 } as const;
 type SimulationPhase = typeof SimulationPhase[keyof typeof SimulationPhase];
 const CommandRejection = {
-    None: 0, Busy: 1, InvalidConstruction: 2, WrongRevision: 3, WrongPhase: 4, GpuAdmission: 5, DeviceLost: 6, InvalidRead: 7,
+    // 6 is the retired DeviceLost rejection (Story 9.4b): undefined on the wire.
+    None: 0, Busy: 1, InvalidConstruction: 2, WrongRevision: 3, WrongPhase: 4, GpuAdmission: 5, InvalidRead: 7,
     IdentityExhausted: 8, StaleGeneration: 9, Cancelled: 10, AlreadyCommitted: 11, Capacity: 12, ReliableStalled: 13, Transport: 14,
 } as const;
 type CommandRejection = typeof CommandRejection[keyof typeof CommandRejection];
@@ -323,12 +332,25 @@ export class WorkshopDriver {
     private lastAcknowledged: WorkshopAcknowledgement | undefined; // the newest acknowledgement a command consumed on this page
     private phase: SimulationPhase = SimulationPhase.Building; // the phase the last consumed acknowledgement reported
     private readonly consoleWaiters = new Set<() => void>();
+    /** Every CCGPU_CLOCK_RECALIBRATED record this page printed, in arrival order. */
+    readonly clockRecalibrations: string[] = [];
+    /** Every CCGPU_CLOCK_REPLY_REJECTED record (a malformed clock reply): always fails the suite at close. */
+    readonly clockReplyRejections: string[] = [];
+    /** Every CCGPU_CLOCK_DERIVATION record: the Simulation's typed startup, per-check and summary derivation counters. */
+    readonly clockDerivations: string[] = [];
+    /** Typed CCGPU_CLOCK_RENEWED_LATE records: a stalled requester's lapse renewed by a consistent exchange (R2-F1).
+     *  Counted and reported at close, never a failure. */
+    readonly clockLateRenewals: string[] = [];
+    /** The last console lines other than per-read CCGPU records, for a diagnosable readiness failure. */
+    private readonly recentConsole: string[] = [];
+    private readonly allowClockRecalibrations: boolean;
 
-    private constructor(browser: Browser, context: BrowserContext, page: Page, baseUrl: string) {
+    private constructor(browser: Browser, context: BrowserContext, page: Page, baseUrl: string, allowClockRecalibrations: boolean) {
         this.browser = browser;
         this.context = context;
         this.page = page;
         this.baseUrl = baseUrl;
+        this.allowClockRecalibrations = allowClockRecalibrations;
     }
 
     static async launch(options: WorkshopDriverOptions = {}): Promise<WorkshopDriver> {
@@ -354,7 +376,7 @@ export class WorkshopDriver {
             worker.on('close', () => undefined);
         });
 
-        const driver = new WorkshopDriver(browser, context, page, baseUrl);
+        const driver = new WorkshopDriver(browser, context, page, baseUrl, options.allowClockRecalibrations === true);
         page.on('console', (msg: ConsoleMessage) => driver.observeConsole(msg.text()));
 
         await page.goto(baseUrl);
@@ -363,7 +385,19 @@ export class WorkshopDriver {
     }
 
     private observeConsole(text: string): void {
+        if (!text.startsWith('CCGPU ') && !text.startsWith('CCGPU_TICK_TIMES') && !text.startsWith('CCGPU_RETAINED '))
+            { this.recentConsole.push(text.slice(0, 300)); if (this.recentConsole.length > 40) this.recentConsole.shift(); }
         if (text.includes('CCGOAL_SOLVED')) this.capturedCount++;
+        if (text.startsWith('CCGPU_CLOCK_RECALIBRATED ')) {
+            this.clockRecalibrations.push(text);
+            if (!this.allowClockRecalibrations) console.error('CLOCK RECALIBRATION (fails this suite at close): ' + text);
+        }
+        if (text.startsWith('CCGPU_CLOCK_REPLY_REJECTED ')) {
+            this.clockReplyRejections.push(text);
+            console.error('MALFORMED CLOCK REPLY (fails this suite at close): ' + text);
+        }
+        if (text.startsWith('CCGPU_CLOCK_DERIVATION ')) this.clockDerivations.push(text);
+        if (text.startsWith('CCGPU_CLOCK_RENEWED_LATE ')) this.clockLateRenewals.push(text);
         if (text.startsWith(ACK_PREFIX)) {
             try {
                 this.acknowledgements.push({ ack: decodeAcknowledgement(text) });
@@ -392,8 +426,37 @@ export class WorkshopDriver {
         });
     }
 
+    // Closing the page is where every suite proves its session never recalibrated a clock mapping. Suites close in
+    // `finally`, so close() never throws (blind hunter 13): each finding is recorded and fails the test from a root
+    // hook without replacing a failure the test already threw (tools/workshop-close-findings.mjs).
     async close(): Promise<void> {
-        await this.browser.close();
+        for (const finding of await this.shutdown()) recordCloseFinding(finding);
+    }
+
+    /** For a suite's `after` hook only: nothing is in flight there to mask, so the findings fail this suite at once and
+     *  node reports them against it (Murdoch-2 R2-F6), not against the file-level catch-all. */
+    async closeAfterSuite(): Promise<void> {
+        raiseCloseFindings(await this.shutdown(), 'after the suite');
+    }
+
+    private async shutdown(): Promise<Error[]> {
+        const findings: Error[] = [];
+        try { await this.browser.close(); }
+        catch (error) { findings.push(error instanceof Error ? error : new Error(`The browser did not close: ${String(error)}`)); }
+        // Evidence only: CLOCK_DERIVATION_LOG names a JSONL file that receives every session's typed startup derivation
+        // record (Story 9.4b D14: the per-session time-origin offset distribution).
+        const log = process.env.CLOCK_DERIVATION_LOG;
+        if (log) for (const line of this.clockDerivations) if (line.includes('"reportName":"Startup"')) appendFileSync(log, line.slice('CCGPU_CLOCK_DERIVATION '.length) + '\n');
+        if (this.clockLateRenewals.length > 0)
+            console.log(`Session clock late renewals (reported, not a failure): ${this.clockLateRenewals.length}; first: ` +
+                this.clockLateRenewals[0].slice(0, 400));
+        if (this.clockReplyRejections.length > 0)
+            findings.push(new Error(`The session rejected ${this.clockReplyRejections.length} malformed clock reply(ies); first: ` +
+                this.clockReplyRejections[0].slice(0, 400)));
+        if (!this.allowClockRecalibrations && this.clockRecalibrations.length > 0)
+            findings.push(new Error(`The session recalibrated a clock mapping ${this.clockRecalibrations.length} time(s); first: ` +
+                this.clockRecalibrations[0].slice(0, 400)));
+        return findings;
     }
 
     async reload(): Promise<void> {
@@ -410,15 +473,28 @@ export class WorkshopDriver {
     }
 
     async waitForReady(timeoutMs: number = 120000): Promise<void> {
-        await this.page.waitForFunction(() => {
-            const globals = globalThis;
-            return globals.crossOriginIsolated === true &&
-                !document.getElementById('status') &&
-                globals.WorkshopPoseRing !== undefined &&
-                globals.WorkshopPoseRing.hasPoseRing(1) &&
-                globals.WorkshopAnimation !== undefined &&
-                globals.WorkshopAnimation.isAnimationQualified(1);
-        }, undefined, { timeout: timeoutMs });
+        try {
+            await this.page.waitForFunction(() => {
+                const globals = globalThis;
+                return globals.crossOriginIsolated === true &&
+                    !document.getElementById('status') &&
+                    globals.WorkshopPoseRing !== undefined &&
+                    globals.WorkshopPoseRing.hasPoseRing(1) &&
+                    globals.WorkshopAnimation !== undefined &&
+                    globals.WorkshopAnimation.isAnimationQualified(1);
+            }, undefined, { timeout: timeoutMs });
+        } catch (error) {
+            // Name the readiness condition that never held, and what the player sees, so a stuck start is diagnosable.
+            const state = await this.page.evaluate(() => ({
+                isolated: globalThis.crossOriginIsolated === true,
+                status: document.getElementById('status')?.textContent?.slice(0, 300) ?? null,
+                notice: document.getElementById('status-notice')?.textContent?.slice(0, 300) ?? null,
+                poseRing: globalThis.WorkshopPoseRing?.hasPoseRing(1) ?? null,
+                animationQualified: globalThis.WorkshopAnimation?.isAnimationQualified(1) ?? null,
+            })).catch(stateError => ({ unavailable: String(stateError).slice(0, 200) }));
+            throw new Error(`Workshop never became ready: ${JSON.stringify(state)}; recent console:\n${this.recentConsole.join('\n')}`,
+                { cause: error });
+        }
         // The overlay is removed once the client is qualified; Godot then enables the Build UI on its next process frame.
         await this.frames(READY_SETTLE_FRAMES);
     }
@@ -580,6 +656,18 @@ export class WorkshopDriver {
         await this.pressKey('Escape');
         await this.frames(UI_SETTLE_FRAMES);
         await this.clickAt(x, y);
+    }
+
+    // Press the control at (x, y) that commits an edit, and return only once its Construct is acknowledged: the edit is
+    // installed, not merely clicked. Wall-clock sleeps race the Godot frame when the page's main thread is slow
+    // (Story 9.4b, cat-005 "3600 !== 120").
+    async commitAt(x: number, y: number): Promise<void> {
+        await this.construct(`commitAt(${x}, ${y})`, () => this.press(x, y));
+    }
+
+    // Wait until Godot has rendered and applied the inputs so far (a UI-only step has no acknowledgement to wait for).
+    async settle(): Promise<void> {
+        await this.frames(UI_SETTLE_FRAMES);
     }
 
     // signalRows: connection rows the selected part shows above its dock (a Domino shows "Connect ActivationOut"; a wired part adds "Disconnect signal").

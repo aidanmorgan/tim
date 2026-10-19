@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-01-width-bound-removed/original	2026-10-19 15:10:02.739725888 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:10:02.743850111 +0800
+@@ -193,7 +193,7 @@
+         // interval overlaps the old mapping's, widened by the drift allowance for the old interval's age; otherwise the
+         // lapse recalibrates.
+         var renewing = State == ClockMappingState.Renewing && outcome == ClockProbeOutcome.Accepted;
+-        if (renewing && !QualifiesThroughRefresh(interval)) outcome = ClockProbeOutcome.Inconclusive;
++        ;
+         var retained = default(ClockInterval);
+         var renewed = renewing && outcome == ClockProbeOutcome.Accepted &&
+             TryRetained(reply.RequesterReceived, out retained) && interval.Overlaps(retained);

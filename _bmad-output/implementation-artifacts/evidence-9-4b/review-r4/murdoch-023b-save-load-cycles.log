@@ -1,0 +1,14 @@
+▶ Murdoch cat-023b Save/Load/Run cycling
+  ✔ load 1: reload, Load, 3 Runs with Reset (20078.183625ms)
+  ✔ load 2: reload, Load, 3 Runs with Reset (20064.795416ms)
+MURDOCH_CYCLES {"perRun":[{"load":1,"run":1,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":1,"run":2,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":1,"run":3,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":2,"run":1,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":2,"run":2,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":2,"run":3,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":3,"run":1,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":3,"run":2,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]},{"load":3,"run":3,"errors":[],"recalibrations":[],"terminations":[],"order":["4","5","6","7","2"]}],"total":{"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":9,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[{"at":3327,"url":"http://127.0.0.1:8060/animation/worker.js"},{"at":3328,"url":"http://127.0.0.1:8060/simulation/clock-master.js"},{"at":3328,"url":"http://127.0.0.1:8060/simulation/worker.js"},{"at":23407,"url":"http://127.0.0.1:8060/simulation/clock-master.js"},{"at":23407,"url":"http://127.0.0.1:8060/simulation/worker.js"},{"at":23407,"url":"http://127.0.0.1:8060/animation/worker.js"},{"at":43473,"url":"http://127.0.0.1:8060/animation/worker.js"},{"at":43473,"url":"http://127.0.0.1:8060/simulation/clock-master.js"},{"at":43473,"url":"http://127.0.0.1:8060/simulation/worker.js"}]}}
+  ✔ load 3: reload, Load, 3 Runs with Reset (20099.364958ms)
+✔ Murdoch cat-023b Save/Load/Run cycling (67779.289833ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 68027.272791

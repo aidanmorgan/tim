@@ -1,0 +1,24 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Coverage -> /Users/aidan/dev/personal/tim/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.CatalogueResourceRejectionNamesTheResourceAndIdentity(rejection: DeclaredWithoutResource, message: "have no catalogue resource: bowling.") [4 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.IO.InvalidDataException)
+  Stack Trace:
+     at CuriousContraptions.CoverageTests.CurrentCatalogueTests.CatalogueResourceRejectionNamesTheResourceAndIdentity(ResourceRejection rejection, String message) in /Users/aidan/dev/personal/tim/tools/Coverage.Tests/CurrentCatalogueTests.cs:line 146
+   at InvokeStub_CurrentCatalogueTests.CatalogueResourceRejectionNamesTheResourceAndIdentity(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [370 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.IO.InvalidDataException)
+  Stack Trace:
+     at CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes() in /Users/aidan/dev/personal/tim/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs:line 103
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    76, Skipped:     0, Total:    78, Duration: 663 ms - Coverage.Tests.dll (net10.0)

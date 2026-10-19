@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
+import { reportsNaN } from '../workshop-console.mjs';
 
 describe('ENGINE-CORE-2b3: Analytic CCD & Interval Library Removal (Pure Speculative Contacts CCD)', () => {
     let driver: WorkshopDriver;
@@ -19,7 +20,7 @@ describe('ENGINE-CORE-2b3: Analytic CCD & Interval Library Removal (Pure Specula
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. [ENGINE-CORE-2a4, ENGINE-CORE-2b3] High-speed ball impact against thin wall resolves via speculative contacts CCD with 0 tunneling across 20 iterations (high-speed impact across 20 iterations never tunnels through thin Wall)', { timeout: 150000 }, async () => {
@@ -33,7 +34,7 @@ describe('ENGINE-CORE-2b3: Analytic CCD & Interval Library Removal (Pure Specula
                 text.includes('Unhandled exception') ||
                 text.includes('ScalarBoundarySweep') ||
                 text.includes('ConvexSweep') ||
-                text.includes('NaN')
+                reportsNaN(msg.type(), text) // never a NaN substring of a base64 envelope (Story 9.4b F1)
             ) {
                 errors.push(text);
             }

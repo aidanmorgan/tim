@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/dust-threshold-reverted/original	2026-10-19 01:05:53.806794761 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/engine/gpu/ContactWorkImpulse.cs	2026-10-19 01:05:53.811318859 +0800
+@@ -22,7 +22,7 @@
+     /// far below any visible launch. A store below it never pays, and a payout that would leave less than it spends the
+     /// whole store, so f32 rounding can never leave dust that a later contact pays from.
+     /// </summary>
+-    public const float MinimumPayableFraction = 1f / (1 << 18);
++    public const float MinimumPayableFraction = 0f;
+ 
+     public static float MinimumPayableWork(float capacity) => capacity * MinimumPayableFraction;
+ 

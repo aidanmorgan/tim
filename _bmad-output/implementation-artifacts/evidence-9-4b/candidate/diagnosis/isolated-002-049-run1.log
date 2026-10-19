@@ -1,0 +1,22 @@
+▶ CAT-002: Ball Detector Aperture Passage Sensor
+  ✔ 1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp (10482.776875ms)
+  ✔ 2. Negative control (reverse passage): Traversal in -X does NOT trigger sensor or lamp (11449.970416ms)
+  ✔ 3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp (11263.511292ms)
+  ✔ 4. Directional rearm and reset: Reset restores upstream state and second Run replays forward trigger bit-for-bit (10933.409791ms)
+  ✔ 5. Persistence: Save / reload / Load IndexedDB persistence roundtrip reproduces forward passage and lamp activation (12116.184916ms)
+✔ CAT-002: Ball Detector Aperture Passage Sensor (60730.0795ms)
+▶ CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+  ✔ 1. Select level gentle_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_45 in inventory) (2022.578ms)
+  ✔ 2. Negative control: without placing pipe_bend_45, ball falls straight to floor, missing receiver (goal not solved) (2660.275ms)
+  ✔ 3. Solved run: pipe_bend_45 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED (7100.398708ms)
+  ✔ 4. Reset restoration: Reset restores ball and pipe bend; second Run replays bit-for-bit and solves again (1832.035958ms)
+  ✔ 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again (4432.474583ms)
+✔ CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E (22408.176083ms)
+ℹ tests 10
+ℹ suites 2
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83638.597959

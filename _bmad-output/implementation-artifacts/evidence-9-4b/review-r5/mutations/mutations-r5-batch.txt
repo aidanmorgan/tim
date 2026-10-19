@@ -1,0 +1,18 @@
+R5-01-old-bound-dropped: KILLED by 5:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 1000000)
+R5-02-bound-one-ns-loose: SURVIVED
+R5-03-bound-strict: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 0, renews: True)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(wider: 0, renews: True)
+R5-04-old-bound-without-sample-allowance: KILLED by 3:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 1000000)
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 1, renews: False)
+R5-05-old-bound-over-refresh-horizon: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 0, renews: True)
+R5-06-budget-inherited-from-recovery: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ARenewalAfterRecoveryStartsAFreshBudget
+R5-NATIVE-DONE

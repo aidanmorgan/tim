@@ -1,0 +1,25 @@
+# Subtest: a newer probe of the same requester supersedes an unconsumed answer, which resolves to null
+ok 40 - a newer probe of the same requester supersedes an unconsumed answer, which resolves to null
+  ---
+  duration_ms: 0.31125
+  type: 'test'
+  ...
+# Subtest: a probe the master has not served is never overwritten: the next probe resolves null and the session continues
+ok 41 - a probe the master has not served is never overwritten: the next probe resolves null and the session continues
+  ---
+  duration_ms: 0.215792
+  type: 'test'
+  ...
+# Subtest: an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed
+ok 42 - an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed
+  ---
+  duration_ms: 14.737042
+  type: 'test'
+  ...
+# Interrupted while running: tools/workshop-clock-ring.test.mjs at /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-clock-ring.test.mjs:1:1
+# Interrupted while running: tools/workshop-close-findings.test.mjs at /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-close-findings.test.mjs:1:1
+# Interrupted while running: tools/workshop-console.test.mjs at /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-console.test.mjs:1:1
+# Interrupted while running: tools/workshop-isolation.test.mjs at /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-isolation.test.mjs:1:1
+# Interrupted while running: tools/workshop-observation.test.mjs at /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-observation.test.mjs:1:1
+# Interrupted while running: tools/workshop-pose-ring.test.mjs at /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-pose-ring.test.mjs:1:1
+# Interrupted while running: tools/workshop-save-storage.test.mjs at /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/tools/workshop-save-storage.test.mjs:1:1

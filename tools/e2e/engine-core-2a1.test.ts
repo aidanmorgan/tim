@@ -13,7 +13,7 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Clean boot: cross-origin isolation and WorkshopPoseRing initialized', { timeout: 120000 }, async () => {

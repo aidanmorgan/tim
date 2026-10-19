@@ -783,6 +783,12 @@ public static class WorkshopWireFlatBuffers
         return CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
     }
 
+    // A float compares with int.MaxValue as 2^31, so the exclusive f32 bound below is the exact Int32 range (Story 9.4b).
+    private static int WholeCount(float value, GpuBodyId id) =>
+        float.IsFinite(value) && value == MathF.Round(value) && value >= -2147483648f && value < 2147483648f
+            ? (int)value
+            : throw new ArgumentException($"Counter {id.Value} target count '{value:R}' must be a whole number within Int32.");
+
     public static WorkshopConstruction DecodeConstructionRecord(CuriousContraptions.Wire.ConstructionRecord cr)
     {
         var revision = new ConstructionRevision(cr.Revision);
@@ -892,9 +898,11 @@ public static class WorkshopWireFlatBuffers
                     WorkshopCanonicalColliders.For(partId), locked),
                 "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation,
                     WorkshopCanonicalColliders.BallDetectorColliders, locked),
-                "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold == 0 ? 0.5f : inst.Threshold, locked),
-                "counter" => new WorkshopCounter(id, cell, local, rotation, inst.Threshold == 0 ? WorkshopCounter.DefaultTargetCount : (int)Math.Round(inst.Threshold), locked),
-                "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold == 0 ? WorkshopClock.DefaultIntervalSeconds : inst.Threshold, locked),
+                // Declared settings are decoded as written; construction validation rejects a missing (zero) or
+                // out-of-range value, and a target count must be a whole number. No default replaces saved data.
+                "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
+                "counter" => new WorkshopCounter(id, cell, local, rotation, WholeCount(inst.Threshold, id), locked),
+                "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
                 _ => throw new ArgumentException("Unsupported instance kind or parameters.")
             };
         }

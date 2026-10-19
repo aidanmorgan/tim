@@ -254,7 +254,7 @@ describe('CAT-037: State Latch bistable memory E2E', () => {
     });
 
     after(async () => {
-        await driver?.close();
+        await driver?.closeAfterSuite();
     });
 
     test('1. Negative control (SetIn unwired: supplied gate closed 6.5 s, latch Off), then typed SetIn wiring through the UI', { timeout: 150000 }, async () => {

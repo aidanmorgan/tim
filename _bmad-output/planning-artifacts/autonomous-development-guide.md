@@ -31,7 +31,7 @@ flowchart LR
 - **Rules of Engagement:**
   - Preserves Tri-Graph Decoupling: C# Machine Graph $\to$ WASM SIMD flat SoA Physics Graph $\to$ Lock-free SAB triple pose ring $\to$ WebGL 2 / WebGPU instanced rendering.
   - Guarantees **strictly zero external physics dependencies** (no Box2D, no Jolt, no Rapier, no PhysX).
-  - Enforces **Universal glTF 2.0 (`.glb`) Geometry Authority**: elements define visual meshes (PBR materials per DESIGN.md) and co-located collision proxies (`col_*`) in self-contained `.glb` files; socket anchors resolve dynamically from `Loc_Port_<Id>` locators.
+  - Enforces **Element Scene Geometry Authority** (owner decision, 18 Oct 2026: the authored format is the element's own Godot `.tscn` scene, not `.glb`): elements define visual meshes (PBR materials per DESIGN.md) and co-located collision proxies (`col_*`) in their own `.tscn` scene; socket anchors use `Loc_Port_<Id>` locators.
   - Enforces **Dynamic Part Discovery & Extensible `PartId`**: parts are discovered via `res://parts/catalog/*.tres`; no closed enums (`WorkshopPartKind`) are permitted for puzzle elements.
   - Specifies math and algorithms conforming to Jolt patterns: Quad-BVH broadphase, 4-point area-maximizing contact manifold reduction, Box2D v3 TGS Soft compliance ($\gamma, \beta, M_{\text{eff}}$), and speculative contacts anti-tunneling ($v_{\text{target}} = -g/h$).
   - Mandates **Forward-Only Refactoring & Zero Backwards Compatibility**: explicitly specifies the deletion of superseded classes, methods, procedural mesh builders (`PartArt.cs`), hardcoded shape tables, or closed enums in the exact same slice. Strictly zero compatibility shims, adapters, or fallback loaders.
@@ -40,15 +40,15 @@ flowchart LR
 - **Primary Responsibility:** Dedicated implementation subagent that writes production code, converts existing implementations, deletes legacy assets, and authors automated tests.
 - **Rules of Engagement:**
   - Follows strict test-first discipline (red, green, refactor).
-  - Authors declarative `.glb` assets and `.tres` catalog resources; never creates procedural mesh building routines in C# (`PartArt.cs`) or adds members to closed enums like `WorkshopPartKind`.
+  - Authors each element's own `.tscn` scene (owner decision, 18 Oct 2026; not `.glb`) and its declarative catalogue resource; never creates procedural mesh building routines in C# (`PartArt.cs`) or adds members to closed enums like `WorkshopPartKind`.
   - Authors C# (.NET 10 / Mono) for machine authoring and WASM SIMD, and TypeScript for browser worker integration.
-  - Converts existing implementations forward into `.glb` assets and generic `MachinePart` instances, immediately deleting procedural code with zero backwards compatibility shims.
+  - Converts existing implementations forward into each element's own `.tscn` scene and generic `MachinePart` instances, immediately deleting procedural code with zero backwards compatibility shims.
   - Authors reusable, pure TypeScript Playwright E2E tests in `tools/e2e/<suite>.test.ts`.
   - Runs pre-commit checks:
     1. `anvil check --changed` $\implies$ must have **0 warnings**.
     2. `dotnet test CuriousContraptions.slnx` $\implies$ must pass **100%** (557+ tests).
-    3. Browser-based E2E verification in Chrome: executes `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts` AND executes all prior cumulative regression suites serially (`node --test --test-concurrency=1 --test-timeout=150000`) with a **100% pass rate**.
-  - **A story CANNOT be marked complete or handed off without authoring and running the corresponding browser-based E2E test in Chrome (`tools/e2e/<suite>.test.ts`) AND running all prior regression E2E test suites serially (`node --test --test-concurrency=1 --test-timeout=150000`).**
+    3. Browser-based E2E verification in Chrome at the tier the story requires (see [Verification tiers](#verification-tiers)), with a **100% pass rate**.
+  - **A story CANNOT be marked complete or handed off without authoring and running its own browser-based E2E test in Chrome (`tools/e2e/<suite>.test.ts`) and the Tier 2 impact-selected suites, plus the Tier 3 full run when the story makes a material engine change.**
   - Hands off completed snapshot to the independent reviewer.
 
 ### Role 4: BMAD Adversarial QA / Reviewer (Murdoch)
@@ -57,9 +57,9 @@ flowchart LR
   - Independently inspects the git diff against all Acceptance Criteria in `_bmad-output/planning-artifacts/epics.md`.
   - Proves zero legacy remnants via codebase grep: confirms complete deletion of procedural mesh routines (`PartArt.cs`), hardcoded collider tables, closed part enums (`WorkshopPartKind`), bespoke per-part scripts, and backwards-compatibility shims.
   - Independently executes `anvil check --changed` and `dotnet test CuriousContraptions.slnx`.
-  - Executes pure TypeScript Playwright E2E tests in actual Chrome browser via the Playwright connector: runs both the slice's dedicated E2E test (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`) and all preceding cumulative E2E regression suites serially (`node --test --test-concurrency=1 --test-timeout=150000`).
+  - Reuses the implementer's Chrome runs after independently verifying they ran on the exact source and bundle identity under review, with per-file results. Independently runs only the probes and mutants for the changed behaviour; never repeats a full run (see [Verification tiers](#verification-tiers)).
   - Tests exact authoring Reset restoration and Save/Load persistence in Chrome.
-  - **Enforces mandatory 100% pass rate across both the slice's E2E test and all cumulative E2E regression suites in Chrome before granting Pass. Any browser failure, timeout, or regression strictly blocks completion.**
+  - **Enforces a 100% pass rate on every required tier before granting Pass. Any browser failure, timeout or regression blocks completion.**
   - Issues terminal scoped verdict:
     - **Fail:** Known regression, test failure, browser crash, or broken invariant $\to$ returns findings to Amelia.
     - **Incomplete:** Stale, missing, or unverified proof $\to$ requests required evidence.
@@ -74,11 +74,39 @@ No story can be marked complete (`done`) in `_bmad-output/implementation-artifac
 1. **C# Unit Tests Pass 100%:** `dotnet test CuriousContraptions.slnx` passes 100% with 0 failures (557+ tests).
 2. **Anvil Static Analysis Clean:** `anvil check --changed` passes with **0 warnings**.
 3. **Browser-Based Playwright E2E Suite Passes 100%:** The story's dedicated browser-based E2E test (`tools/e2e/<suite>.test.ts`) is authored and executed in actual Chrome via the Playwright browser connector with a **100% pass rate**.
-4. **Cumulative E2E Regression Suites Pass 100% Serially:** All prior cumulative browser-based E2E regression suites are executed serially in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000`) and pass 100%. A 100% pass rate across both the slice's E2E test and all cumulative E2E regression suites is mandatory before any story can be marked 'done'. Any browser failure or regression strictly blocks completion.
+4. **Required E2E Tiers Pass 100%:** The Tier 2 impact-selected suites pass 100%, and the Tier 3 full run passes 100% when the story makes a material engine change ([Verification tiers](#verification-tiers)). Any browser failure or regression blocks completion.
 5. **Exact Reset and Save/Load Persistence Roundtrip:** Exact initial state restoration before Run and after Reset, as well as JSON Save/Load roundtrip, is verified in Chrome.
-6. **Declarative Asset & Extensible Identity Verification:** Elements are authored via `.glb` assets and `.tres` catalog resources keyed by `PartId`. Zero procedural mesh generation in C# and zero closed part enums.
+6. **Declarative Asset & Extensible Identity Verification:** Each element is authored as its own Godot `.tscn` scene, with visual nodes, `col_*` collision proxies and `Loc_Port_<Id>` locators (owner decision, 18 Oct 2026: the `.tscn` scene, not `.glb`, is the authored asset format; `epics.md` Open scheduling item i). It is declared in its catalogue resource keyed by `PartId`; once Epic 9A Story 9A.14 lands, the only declaration is its `elements/<Name>` package in the generated bundle. Zero procedural mesh generation in C# and zero closed part enums.
 7. **Zero Legacy Remnants & Zero Compatibility Shims:** Active tree grep confirms complete deletion of superseded classes, compute shaders, procedural geometry tables, or compatibility bridges.
 8. **Terminal Scoped Pass from Independent Reviewer (Murdoch):** Independent adversarial review subagent verifies all criteria and issues an unambiguous scoped `Pass`. Self-review never qualifies.
+
+---
+
+## Verification tiers
+
+Owner decision, 19 Oct 2026. This section replaces the earlier rule that every story runs every cumulative suite serially, and the 18 Oct "full run twice" rule.
+
+- **Tier 1, every candidate, always (under 5 minutes):**
+  - `dotnet build CuriousContraptions.slnx` with 0 warnings and the C# static gate;
+  - `dotnet test CuriousContraptions.slnx` at 100%;
+  - the `tools/*.test.mjs` Node harnesses and the lifecycle, wire and ownership contract checks;
+  - `anvil check --changed` with 0 warnings.
+- **Tier 2, every story (Chrome, usually 2–6 minutes):**
+  - the story's own `tools/e2e/<suite>.test.ts`;
+  - the suites of the elements it connects to, and its integrations;
+  - every suite that exercises changed shared code;
+  - the smoke pair `engine-core-2b1` and `engine-core-2a1` (boot, place, Run, Reset, Save/Load).
+  The selection and its justification are recorded in the review.
+- **Tier 3, the full run (all `tools/e2e/*.test.ts`, 100%, once), only:**
+  - for a story with a material engine change: the solver, the physics or animation workers, the clock, the pose ring, the wire/ABI, the compiler, or shared driver/test infrastructure;
+  - as a checkpoint on the committed tree after every 5 element stories and at each epic end. The checkpoint runs in the background while the next story proceeds. A checkpoint failure stops new work until it is fixed.
+- **Parallelism:** timing-sensitive suites run serially and alone: clock-master, cat-017, cat-023b, any stall or load proof, and any suite that measures time. All other suites may run on parallel Chrome workers (owner waiver of the one-Chrome rule, 19 Oct 2026).
+- **Repeats:** 5 consecutive runs only for a suite that has failed randomly or whose timing code changed. Never retry into green.
+- **Review:**
+  - The three BMAD lenses run on the first candidate only. Later rounds re-review the fixes and their impact.
+  - Only High and Medium findings block. A Low finding is fixed in the same round if trivial; otherwise it is recorded against an owning story and does not trigger a new round.
+  - Mutation proof is required for new decision logic, not for declaration data or binding changes.
+  - The reviewer begins static review while the implementer's Chrome gates run, and reuses the implementer's identity-verified runs.
 
 ---
 
@@ -145,8 +173,8 @@ sequenceDiagram
 4. Execute `anvil check --changed`. Fix all warnings until **0 warnings** remain.
 5. Execute `dotnet test CuriousContraptions.slnx`. Ensure all tests pass **100%** (557+ tests).
 6. Execute the browser-based Playwright E2E test in actual Chrome via the Playwright connector: `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`.
-7. Execute all prior cumulative regression E2E test suites serially in actual Chrome: `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/*.test.ts`.
-8. **Enforce DoD requirement:** A story CANNOT be marked complete or handed off to review without authoring and running the corresponding browser-based E2E test in Chrome (`tools/e2e/<suite>.test.ts`) AND running all prior regression E2E test suites serially (`node --test --test-concurrency=1 --test-timeout=150000`). A **100% pass rate** across both the slice's E2E test and all cumulative E2E regression suites is mandatory before any story can be marked 'done'.
+7. Execute the Tier 2 impact-selected suites, plus the Tier 3 full run for a material engine change ([Verification tiers](#verification-tiers)).
+8. **Enforce DoD requirement:** a story cannot be handed to review until every required tier passes 100%.
 9. Commit changes to git with a clear, concise commit message.
 
 ### Phase 4: Independent Adversarial Review (Murdoch)
@@ -156,16 +184,16 @@ sequenceDiagram
    - `anvil check --changed` (0 warnings required)
    - `dotnet test CuriousContraptions.slnx` (100% pass required)
 4. Murdoch runs active grep searches to ensure zero legacy references remain.
-5. Murdoch runs browser-based E2E verification in actual Chrome via the Playwright browser connector:
-   - Runs the slice's dedicated E2E test: `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`.
-   - Runs all prior cumulative regression E2E test suites serially: `node --test --test-concurrency=1 --test-timeout=150000`.
+5. Murdoch verifies the browser-based E2E evidence in actual Chrome via the Playwright browser connector:
+   - Verifies that the implementer's Tier 2 and Tier 3 runs ran on the exact identity under review, and reuses them ([Verification tiers](#verification-tiers)).
+   - Runs his own probes and mutants for the changed behaviour.
    - Verifies visual behavior, dynamic stability, anti-tunneling, and negative controls.
    - Verifies that pressing Reset restores the original configuration bit-for-bit, and Save/Load roundtrip preserves state.
-   - **Enforces DoD requirement:** A story CANNOT be marked complete without authoring and running the corresponding browser-based E2E test in Chrome AND running all prior regression E2E test suites serially. A **100% pass rate** across both the slice's E2E test and all cumulative E2E regression suites is mandatory before any story can be marked 'done'. Any browser failure or regression strictly blocks completion and triggers a `Fail` verdict.
+   - **Enforces DoD requirement:** any failure on a required tier triggers a `Fail` verdict.
 6. Murdoch renders the final verdict: `Pass`, `Fail`, or `Incomplete`.
 
 ### Phase 5: Sprint Sync & Completion
-1. **Enforce DoD check:** A story CANNOT be marked complete without authoring and running the corresponding browser-based E2E test in Chrome (`tools/e2e/<suite>.test.ts`) AND running all prior regression E2E test suites serially (`node --test --test-concurrency=1 --test-timeout=150000`), with a 100% pass rate across both the slice's E2E test and all cumulative regression suites, alongside Murdoch's terminal scoped `Pass`.
+1. **Enforce DoD check:** a story cannot be marked complete until every required verification tier passes 100% and Murdoch has issued a terminal scoped `Pass`.
 2. Upon receiving `Pass`, update `_bmad-output/implementation-artifacts/sprint-status.yaml`:
    - Set the completed story to `done`.
    - Set the next story in the epic to `ready-for-dev`.

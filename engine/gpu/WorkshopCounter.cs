@@ -7,10 +7,11 @@ public readonly record struct WorkshopCounter(
     CellOrigin Cell,
     LocalPosition Local,
     CanonicalRotation Rotation,
-    int TargetCount = WorkshopCounter.DefaultTargetCount,
+    int TargetCount,
     bool Locked = false) : IWorkshopInstance
 {
-    public const int DefaultTargetCount = 3;
+    /// <summary>The target count a newly placed counter starts with in the Workshop UI; no decoder or factory defaults to it.</summary>
+    public const int PlacedTargetCount = 3;
     public PartId PartId => PartId.Counter;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
 
@@ -19,6 +20,6 @@ public readonly record struct WorkshopCounter(
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
         if (TargetCount < 1 || TargetCount > 9)
-            throw new ArgumentException($"Counter target count '{TargetCount}' is outside admitted range [1, 9].");
+            throw new ArgumentException($"Counter {Id.Value} target count '{TargetCount}' is outside admitted range [1, 9].");
     }
 }

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-05-renewing-no-time-bound/original	2026-10-19 15:10:55.732982573 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:10:55.737478134 +0800
+@@ -497,7 +497,7 @@
+     private void RequireRecoveryTime(MonotonicNanoseconds now, ClockReply? reply = null)
+     {
+         // The reply at the exact endpoint may settle; one nanosecond later cannot.
+-        if (State is ClockMappingState.Recovering or ClockMappingState.Renewing && (Int128)now.Value - _recoveryStarted > RecoveryLifetime)
++        if (State == ClockMappingState.Recovering && (Int128)now.Value - _recoveryStarted > RecoveryLifetime)
+             Recalibrate(ClockRecalibrationCause.Elapsed, now, reply, ClockMappingState.Expired);
+     }
+ 

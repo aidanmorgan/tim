@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-renew-a-running-requester/original	2026-10-19 11:28:21.721632739 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockMapping.cs	2026-10-19 11:28:21.726058305 +0800
+@@ -530,7 +530,7 @@
+     {
+         if (State is not (ClockMappingState.Ready or ClockMappingState.Recovering) || Pending is not null) return false;
+         var due = (Int128)_lastSent + (State == ClockMappingState.Ready ? RefreshSpacing : StartupSpacing);
+-        return due < (Int128)NewestReceipt() + MappingLifetime && _lastRequester < due;
++        return due < (Int128)NewestReceipt() + MappingLifetime;
+     }
+ 
+     private void BeginRenewal(MonotonicNanoseconds now)

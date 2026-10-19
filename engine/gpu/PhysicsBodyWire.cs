@@ -8,6 +8,10 @@ namespace CuriousContraptions.Gpu;
 public static class PhysicsBodyWire
 {
     public const int ByteLength = 80;
+    // Fields the Simulation worker's pose-ring writer reads (worker.js, pinned by WorkerAbiTests).
+    public const int CellOffset = 8;
+    public const int LocalOffset = 20;
+    public const int RotationOffset = 32;
     public const int VelocityOffset = 56;
     public const int AngularVelocityOffset = 68;
     public static void Write(PhysicsBodyRead value, Span<byte> bytes)
@@ -15,11 +19,12 @@ public static class PhysicsBodyWire
         if (bytes.Length != ByteLength) throw new ArgumentException("Invalid body payload width.");
         value.Validate(); bytes.Clear();
         BinaryPrimitives.WriteUInt64LittleEndian(bytes, value.Body.Id.Value);
-        BinaryPrimitives.WriteInt32LittleEndian(bytes[8..], value.Body.Cell.X);
-        BinaryPrimitives.WriteInt32LittleEndian(bytes[12..], value.Body.Cell.Y);
-        BinaryPrimitives.WriteInt32LittleEndian(bytes[16..], value.Body.Cell.Z);
-        F(bytes,20,value.Body.Local.X); F(bytes,24,value.Body.Local.Y); F(bytes,28,value.Body.Local.Z);
-        F(bytes,32,value.Rotation.X); F(bytes,36,value.Rotation.Y); F(bytes,40,value.Rotation.Z); F(bytes,44,value.Rotation.W);
+        BinaryPrimitives.WriteInt32LittleEndian(bytes[CellOffset..], value.Body.Cell.X);
+        BinaryPrimitives.WriteInt32LittleEndian(bytes[(CellOffset + 4)..], value.Body.Cell.Y);
+        BinaryPrimitives.WriteInt32LittleEndian(bytes[(CellOffset + 8)..], value.Body.Cell.Z);
+        F(bytes,LocalOffset,value.Body.Local.X); F(bytes,LocalOffset+4,value.Body.Local.Y); F(bytes,LocalOffset+8,value.Body.Local.Z);
+        F(bytes,RotationOffset,value.Rotation.X); F(bytes,RotationOffset+4,value.Rotation.Y);
+        F(bytes,RotationOffset+8,value.Rotation.Z); F(bytes,RotationOffset+12,value.Rotation.W);
         H(bytes,48,value.LocalCentreOfMass.X); H(bytes,50,value.LocalCentreOfMass.Y); H(bytes,52,value.LocalCentreOfMass.Z);
         F(bytes,VelocityOffset,value.Body.Velocity.X); F(bytes,VelocityOffset+4,value.Body.Velocity.Y); F(bytes,VelocityOffset+8,value.Body.Velocity.Z);
         F(bytes,AngularVelocityOffset,value.AngularVelocity.X); F(bytes,AngularVelocityOffset+4,value.AngularVelocity.Y);

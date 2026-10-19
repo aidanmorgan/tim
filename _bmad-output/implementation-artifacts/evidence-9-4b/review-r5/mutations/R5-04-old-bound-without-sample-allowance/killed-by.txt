@@ -1,0 +1,3 @@
+CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0)
+CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 1000000)
+CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 1, renews: False)

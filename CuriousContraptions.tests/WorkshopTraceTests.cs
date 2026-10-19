@@ -26,6 +26,19 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
                 BinaryPrimitives.ReadUInt32LittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 32 + index * 4)));
     }
 
+    // Blind hunter 4 (Story 9.4b final round): the retired DeviceLost end (3) is undefined, and a trace refuses to seal
+    // with an undefined reason rather than writing it into the record header.
+    [Theory]
+    [InlineData(3)]
+    [InlineData(7)]
+    public void ATraceRefusesAnUndefinedEndReason(int reason)
+    {
+        Assert.False(Enum.IsDefined((TraceEnd)reason));
+        var trace = new WorkshopTrace();
+        Assert.Throws<ArgumentOutOfRangeException>(() => trace.End((TraceEnd)reason));
+        trace.End(TraceEnd.Complete); // control: a defined reason is accepted
+    }
+
     [Theory]
     [InlineData(0u)]
     [InlineData(2u)] // the retired schema whose bodies were 56-byte binary16-velocity records
@@ -235,7 +248,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         {
             WorkshopSimulationPhase.Building => TraceEnd.Reset,
             WorkshopSimulationPhase.Disposed => TraceEnd.Disposed,
-            WorkshopSimulationPhase.Faulted => TraceEnd.DeviceLost,
+            WorkshopSimulationPhase.Faulted => TraceEnd.Fault,
             _ => throw new ArgumentOutOfRangeException(nameof(phase))
         };
         using var output = new CapturedConsole();
@@ -418,11 +431,10 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         }
     }
 
-    public enum TimingTerminal { Reset, Disposed, DeviceLost, Fault }
+    public enum TimingTerminal { Reset, Disposed, Fault }
     [Theory]
     [InlineData(TimingTerminal.Reset)]
     [InlineData(TimingTerminal.Disposed)]
-    [InlineData(TimingTerminal.DeviceLost)]
     [InlineData(TimingTerminal.Fault)]
     public void EarlyTerminalTimingIsIncompleteAndFlushesOnce(TimingTerminal terminal)
     {
@@ -430,7 +442,6 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         {
             TimingTerminal.Reset => TraceEnd.Reset,
             TimingTerminal.Disposed => TraceEnd.Disposed,
-            TimingTerminal.DeviceLost => TraceEnd.DeviceLost,
             TimingTerminal.Fault => TraceEnd.Fault,
             _ => throw new ArgumentOutOfRangeException(nameof(terminal))
         };
@@ -499,6 +510,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     }
 
     [Fact]
+    // The measuring loop is fully optimised too, so no on-stack replacement or tier promotion runs on this thread mid-run.
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
     public void DurationRetentionHasNoRoutineAllocationInNativeExecution()
     {
         using var output = new CapturedConsole();
@@ -506,6 +519,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var profile = Profile with { Cadence = SimulationCadence.Hz240 };
         var construction = Construction with { Settings = Settings with { Simulation = SimulationCadence.Hz240 } };
         long allocated = 0, elapsed = 0;
+        var allocatingCalls = new List<string>(4); // diagnosis: which call allocated, and whether a GC ran inside it
         for (ulong epoch = 9; epoch <= 10; epoch++)
         {
             var record = Record(construction, new(epoch), profile);
@@ -514,17 +528,26 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             {
                 BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
                 Append(trace, record);
-                var beforeBytes = GC.GetAllocatedBytesForCurrentThread();
+                // Only the call itself is inside the allocation window: the timestamps (CoreLib methods that tiered JIT
+                // may promote, with runtime bookkeeping on this thread) are outside it, and RecordTickDuration is fully
+                // optimised from its first call (no call counting or promotion of its own). See Story 9.4b §11.
                 var beforeTime = System.Diagnostics.Stopwatch.GetTimestamp();
+                var beforeCollections = GC.CollectionCount(0);
+                var beforeJit = System.Runtime.JitInfo.GetCompiledMethodCount(currentThread: true);
+                var beforeBytes = GC.GetAllocatedBytesForCurrentThread();
                 trace.RecordTickDuration(new(tick), .75);
-                var afterTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 var afterBytes = GC.GetAllocatedBytesForCurrentThread();
-                if (epoch == 10) { allocated += afterBytes - beforeBytes; elapsed += afterTime - beforeTime; }
+                var afterJit = System.Runtime.JitInfo.GetCompiledMethodCount(currentThread: true);
+                var afterTime = System.Diagnostics.Stopwatch.GetTimestamp();
+                if (epoch != 10) continue;
+                allocated += afterBytes - beforeBytes; elapsed += afterTime - beforeTime;
+                if (afterBytes != beforeBytes && allocatingCalls.Count < 4)
+                    allocatingCalls.Add($"tick {tick}: {afterBytes - beforeBytes} B, gen0 collections {GC.CollectionCount(0) - beforeCollections}, methods jitted on this thread {afterJit - beforeJit}");
             }
             trace.End(TraceEnd.Complete);
             trace.Flush(WorkshopSimulationPhase.Completed);
         }
-        Assert.Equal(0, allocated);
+        Assert.True(allocated == 0, $"{allocated} B allocated by RecordTickDuration: {string.Join("; ", allocatingCalls)}");
         testOutput.WriteLine($"Native retention: {profile.RunTickLimit} calls, {allocated} allocated bytes, {elapsed * 1000d / System.Diagnostics.Stopwatch.Frequency:R} total observed milliseconds including timestamp overhead. Not a WASM timing bound.");
     }
 

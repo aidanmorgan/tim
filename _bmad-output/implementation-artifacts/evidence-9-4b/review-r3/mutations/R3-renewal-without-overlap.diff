@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-renewal-without-overlap/original	2026-10-19 11:27:55.956842271 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockMapping.cs	2026-10-19 11:27:55.963293700 +0800
+@@ -185,7 +185,7 @@
+         // old mapping's, widened by the drift allowance for the old interval's age. Anything else recalibrates as a lapse.
+         var retained = default(ClockInterval);
+         var renewed = State == ClockMappingState.Renewing && outcome == ClockProbeOutcome.Accepted &&
+-            TryRetained(reply.RequesterReceived, out retained) && interval.Overlaps(retained);
++            TryRetained(reply.RequesterReceived, out retained);
+         var expired = !renewed && _count != 0 && (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
+         if (!expired && outcome == ClockProbeOutcome.Accepted && _count != 0 &&
+             TryBest(reply.RequesterReceived, null, out var old, out _) && !interval.Overlaps(old))

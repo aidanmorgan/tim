@@ -26,10 +26,45 @@ public static partial class Program
     [JSExport]
     public static byte[] AnimationPeer() => WorkshopClockWire.EncodePeer(Peer with { RequesterRole = WorkshopRuntimeRole.Animation });
 
+    // The Simulation's continuous check of the clock master context's derived domain (worker.js startClockMaster).
+    private static readonly WorkshopClockDerivation ClockDerivation = new();
+
     [JSExport]
-    public static byte[] AnimationClockReply(byte[] bytes, double receivedMilliseconds) =>
-        WorkshopClockWire.EncodeReply(bytes, Peer with { RequesterRole = WorkshopRuntimeRole.Animation },
-            WorkshopNativeClock.FromMilliseconds(receivedMilliseconds), WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
+    public static int[] ClockDerivationProfile() =>
+        [WorkshopClockDerivation.ExchangeTimeoutMilliseconds, WorkshopClockDerivation.CheckIntervalMilliseconds,
+            WorkshopClockDerivation.CheckExchangeLimit];
+
+    [JSExport] public static bool ClockDerivationQualified() => ClockDerivation.IsQualified;
+
+    [JSExport]
+    public static void QualifyClockDerivation(double before, double master, double after, int epoch) =>
+        ClockDerivation.Qualify(new(before, master, after, DerivationEpoch(epoch)));
+
+    [JSExport] public static void ClockDerivationQualificationMissed() => ClockDerivation.QualificationMissed();
+    /// <summary>The derived startup correction the ring installs under the initial epoch before the session is admitted.</summary>
+    [JSExport] public static double ClockDerivationStartupCorrection() => ClockDerivation.StartupCorrection;
+
+    /// <summary>Returns nothing when the derivation stands, or [correction, 1 to re-derive under a new epoch / 0 to slew].</summary>
+    [JSExport]
+    public static double[] CheckClockDerivation(double before, double master, double after, int epoch) =>
+        ClockDerivation.Check(new(before, master, after, DerivationEpoch(epoch)), out var correction) switch
+        {
+            ClockDerivationOutcome.Rederived => [correction, 1],
+            ClockDerivationOutcome.Slewed => [correction, 0],
+            ClockDerivationOutcome.Consistent or ClockDerivationOutcome.Inconclusive => [],
+            var outcome => throw new InvalidOperationException($"Unexpected clock derivation check outcome {outcome}."),
+        };
+
+    [JSExport] public static void AdoptClockDerivation(int epoch) => ClockDerivation.Adopt(DerivationEpoch(epoch));
+    [JSExport] public static void ClockDerivationMissed() => ClockDerivation.Missed();
+    /// <summary>Whether a running check's exchange is narrow enough to be evidence; a wide one is retried within the check.</summary>
+    [JSExport]
+    public static bool ClockDerivationExchangeNarrow(double before, double master, double after, int epoch) =>
+        WorkshopClockDerivation.IsNarrow(new(before, master, after, DerivationEpoch(epoch)));
+    [JSExport] public static void ClockDerivationRetried() => ClockDerivation.Retried();
+
+    private static ClockDerivationEpoch DerivationEpoch(int epoch) => epoch >= 0 ? new((uint)epoch)
+        : throw new ArgumentOutOfRangeException(nameof(epoch), epoch, "A clock derivation epoch is nonnegative.");
 
     private sealed class Installation : IWorkshopInstallation
     {

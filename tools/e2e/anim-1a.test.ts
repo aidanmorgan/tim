@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
+import { reportsNaN } from '../workshop-console.mjs';
 
 // ANIM-1c moved the Receiver halo onto the declared Capture cosmetic path: target 3·2^32 + receiver body (First principles
 // authors ball 1, receiver 2), ColourBlend (property 5) ramping over the declared 0.5 s SmoothStep curve to Half 1.0.
@@ -33,7 +34,7 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
     });
 
     after(async () => {
-        if (driver) await driver.close();
+        if (driver) await driver.closeAfterSuite();
     });
 
     test('1. Animation worker qualification & Receiver capture halo ramp upon goal solve', { timeout: 120000 }, async () => {
@@ -51,7 +52,7 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
                 text.includes('CCGPU_TRANSPORT_FAILURE') ||
                 text.includes('CCGPU_STARTUP_EXCEPTION') ||
                 text.includes('Unhandled exception') ||
-                text.includes('NaN')
+                reportsNaN(msg.type(), text) // never a NaN substring of a base64 envelope (Story 9.4b F1)
             ) {
                 errors.push(text);
             }

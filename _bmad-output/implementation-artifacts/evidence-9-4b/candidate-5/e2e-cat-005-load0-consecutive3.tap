@@ -1,0 +1,56 @@
+TAP version 13
+# {"runningTransfer":[{"tick":"181","enabled":1,"source":3557,"debit":1,"store":11,"credit":1},{"tick":"182","enabled":1,"source":3556,"debit":1,"store":12,"credit":1},{"tick":"183","enabled":1,"source":3555,"debit":1,"store":13,"credit":1},{"tick":"184","enabled":1,"source":3554,"debit":1,"store":14,"credit":1},{"tick":"185","enabled":1,"source":3553,"debit":1,"store":15,"credit":1},{"tick":"186","enabled":1,"source":3552,"debit":1,"store":16,"credit":1},{"tick":"187","enabled":1,"source":3551,"debit":1,"store":17,"credit":1},{"tick":"188","enabled":1,"source":3550,"debit":1,"store":18,"credit":1},{"tick":"189","enabled":1,"source":3549,"debit":1,"store":19,"credit":1},{"tick":"190","enabled":1,"source":3548,"debit":1,"store":20,"credit":1},{"tick":"191","enabled":0,"source":3548,"debit":0,"store":20,"credit":0},{"tick":"207","enabled":1,"source":3547,"debit":1,"store":21,"credit":1},{"tick":"208","enabled":1,"source":3546,"debit":1,"store":22,"credit":1},{"tick":"209","enabled":1,"source":3545,"debit":1,"store":23,"credit":1},{"tick":"210","enabled":1,"source":3544,"debit":1,"store":24,"credit":1},{"tick":"211","enabled":1,"source":3543,"debit":1,"store":25,"credit":1},{"tick":"212","enabled":1,"source":3542,"debit":1,"store":26,"credit":1},{"tick":"213","enabled":1,"source":3541,"debit":1,"store":27,"credit":1},{"tick":"214","enabled":1,"source":3540,"debit":1,"store":28,"credit":1},{"tick":"215","enabled":1,"source":3539,"debit":1,"store":29,"credit":1},{"tick":"216","enabled":1,"source":3538,"debit":1,"store":30,"credit":1},{"tick":"217","enabled":1,"source":3537,"debit":1,"store":31,"credit":1},{"tick":"218","enabled":1,"source":3536,"debit":1,"store":32,"credit":1}]}
+# {"scenario":"funded-disable","source":3408,"store":32,"hits":6}
+# Subtest: Battery recharge, disable, Save/Load and Reset
+ok 1 - Battery recharge, disable, Save/Load and Reset
+  ---
+  duration_ms: 26205.898584
+  type: 'test'
+  ...
+# {"scenario":"depleted","source":0,"store":0,"hits":4}
+# Subtest: Battery finite60J source exhausts and retains final credit
+ok 2 - Battery finite60J source exhausts and retains final credit
+  ---
+  duration_ms: 18686.8755
+  type: 'test'
+  ...
+# {"scenario":"fanout","source":3216,"hits":[6,6]}
+# Subtest: Battery fans one finite source out to two existing Bumper stores
+ok 3 - Battery fans one finite source out to two existing Bumper stores
+  ---
+  duration_ms: 20321.413417
+  type: 'test'
+  ...
+# Subtest: Battery disconnected authored settings and rendered charge thresholds restore exactly
+ok 4 - Battery disconnected authored settings and rendered charge thresholds restore exactly
+  ---
+  duration_ms: 54990.528417
+  type: 'test'
+  ...
+# Subtest: Battery paused intent reverses and Running controls preserve stores across continued ticks
+ok 5 - Battery paused intent reverses and Running controls preserve stores across continued ticks
+  ---
+  duration_ms: 12905.568542
+  type: 'test'
+  ...
+# Subtest: Battery electrical animation survives same-world cadence downshift through existing protocol boundary
+ok 6 - Battery electrical animation survives same-world cadence downshift through existing protocol boundary
+  ---
+  duration_ms: 6434.811208
+  type: 'test'
+  ...
+# Subtest: Battery accounting deduplicates exact commits and rejects mutated or unfunded credits
+ok 7 - Battery accounting deduplicates exact commits and rejects mutated or unfunded credits
+  ---
+  duration_ms: 1.622334
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 139791.033208

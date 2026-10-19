@@ -191,6 +191,11 @@ public sealed class WorkshopBumperTests
         }
     }
 
+    private const float Preload = 32f;
+    private static readonly Vector128<float> Up = Vector128.Create(0f, 1f, 0f, 0f);
+    // One f32 ULP just below the 32 J preload: the spacing of every request in [16, 32).
+    private static readonly float UlpBelowPreload = Preload - MathF.BitDecrement(Preload);
+
     [Theory]
     [InlineData(32f)]
     [InlineData(2.5f)]
@@ -199,7 +204,8 @@ public sealed class WorkshopBumperTests
     public void StorePaymentUsesOneF32BudgetAndSimdNormalProjection(float budget)
     {
         var normal = Vector128.Create(.6f, .8f, 0f, 0f);
-        var result = ContactWorkImpulse.FromStore(4f, 8f, 1f, budget, normal);
+        // A store full to its own capacity: even the 1e-6 J store is above its minimum payable work.
+        var result = ContactWorkImpulse.FromStore(4f, 8f, 1f, budget, budget == 0 ? Preload : budget, normal);
         Assert.InRange(result.Remaining, 0f, budget);
         Assert.Equal(budget - result.Remaining, result.Debit);
         var x = result.Impulse.GetElement(0);
@@ -213,6 +219,153 @@ public sealed class WorkshopBumperTests
         Assert.InRange(4 + impulse, 4, 8.000001);
         if (budget == 0) Assert.Equal(Vector128<float>.Zero, result.Impulse);
         else Assert.True(result.Debit > 0 && impulse > 0);
+    }
+
+    // Story 9.4b (CAT-015 ledger): a payout capped by the finite store spends the whole store, so f32 rounding of the
+    // affordable impulse cannot leave a residual that a later empty contact would then spend.
+    [Theory]
+    [InlineData(4f, .25f, 32f)]
+    [InlineData(3f, .25f, 32f)]
+    [InlineData(2.5f, .25f, 32f)]
+    [InlineData(1.7f, .25f, 32f)]
+    [InlineData(5.123f, .2f, 32f)]
+    [InlineData(4f, 1f, 2.5f)]
+    public void StoreLimitedPayoutExhaustsTheStoreAndALaterContactIsUnpaid(float speed, float inverseMass, float budget) =>
+        AssertStoreLimitedPayoutExhausts(speed, inverseMass, budget);
+
+    // Deterministic sweep of contact-space speeds and inverse effective masses (rotational arms included), so the
+    // f32 rounding cases the Chrome heavy-payload route hit are covered rather than one hand-picked value.
+    [Fact]
+    public void EveryStoreLimitedPayoutInTheContactSweepExhaustsTheStore()
+    {
+        for (var s = 0; s < 160; s++)
+        for (var m = 0; m < 160; m++)
+        {
+            var speed = .05f + s * .0371f;
+            var inverseMass = .2f + m * .00731f;
+            var requested = (8f - speed) / inverseMass * (speed + .5f * inverseMass * ((8f - speed) / inverseMass));
+            // Over the store, or so close below it that the remainder would be under the minimum payable work.
+            if (requested > 32f || 32f - requested < .5f * ContactWorkImpulse.MinimumPayableWork(32f))
+                AssertStoreLimitedPayoutExhausts(speed, inverseMass, 32f);
+        }
+    }
+
+    private static void AssertStoreLimitedPayoutExhausts(float speed, float inverseMass, float budget)
+    {
+        var normal = Vector128.Create(0f, 1f, 0f, 0f);
+        var paid = ContactWorkImpulse.FromStore(speed, 8f, inverseMass, budget, budget, normal);
+        Assert.Equal(0f, paid.Remaining);
+        Assert.Equal(budget, paid.Debit);
+        Assert.True(paid.Impulse.GetElement(1) > 0f);
+        AssertDebitIsTheDeliveredWork(speed, inverseMass, paid);
+        var later = ContactWorkImpulse.FromStore(speed, 8f, inverseMass, paid.Remaining, budget, normal);
+        Assert.Equal(0f, later.Debit);
+        Assert.Equal(0f, later.Remaining);
+        Assert.Equal(Vector128<float>.Zero, later.Impulse);
+    }
+
+    /// <summary>A Bumper contact speed whose f32 target request lies exactly <paramref name="ulps"/> ULPs below the 32 J
+    /// preload, searched over the contact-space inverse masses that can afford a request near the whole store.</summary>
+    private static (float Speed, float InverseMass) RequestBelowPreload(int ulps)
+    {
+        foreach (var inverseMass in new[] { .2f, .25f, .3f, .4f, .5f, .6f, .75f, .9f })
+        {
+            var speed = MathF.Sqrt(64f - 2f * inverseMass * Preload);
+            for (var step = 0; step < 8192; step++, speed = MathF.BitIncrement(speed))
+            {
+                var impulse = (8f - speed) / inverseMass;
+                var requested = impulse * (speed + .5f * inverseMass * impulse);
+                if (Preload - requested == ulps * UlpBelowPreload) return (speed, inverseMass);
+            }
+        }
+        throw new InvalidOperationException($"No contact speed requests exactly {ulps} ULPs below the preload.");
+    }
+
+    // Edge-case review (Story 9.4b): a target-limited request 1, 2, 4 or 16 ULPs below the store would leave rounding dust
+    // (Murdoch-2: 2^-19 J at k = 0.9, v = 2.529823 m/s) that a later contact pays from. It is store-limited: the payout
+    // takes the whole store and the later contact, given the real leftover, is unpaid.
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(4)]
+    [InlineData(16)]
+    public void ARequestAFewUlpsBelowTheStoreSpendsTheWholeStoreAndLeavesNoPayableDust(int ulps)
+    {
+        var (speed, inverseMass) = RequestBelowPreload(ulps);
+        // Control: the bare target law leaves exactly the dust the ledger must not keep, and that dust alone would pay.
+        var target = ContactWorkImpulse.TowardTarget(speed, 8f, inverseMass, Preload);
+        Assert.Equal(ContactWorkLimit.Target, target.Limit);
+        var dust = Preload - target.Debit;
+        Assert.InRange(dust, UlpBelowPreload, 32 * UlpBelowPreload);
+        Assert.True(ContactWorkImpulse.FromAuthorizedWork(.5f, inverseMass, dust, ContactWorkLimit.Budget).Debit > 0f);
+
+        var paid = ContactWorkImpulse.FromStore(speed, 8f, inverseMass, Preload, Preload, Up);
+        Assert.Equal(0f, paid.Remaining);
+        Assert.Equal(Preload, paid.Debit);
+        AssertDebitIsTheDeliveredWork(speed, inverseMass, paid);
+        var later = ContactWorkImpulse.FromStore(.5f, 8f, inverseMass, paid.Remaining, Preload, Up);
+        Assert.Equal(new ContactWorkResponse(0f, 0f, Vector128<float>.Zero, ContactWorkStore.BelowMinimum), later);
+        // The dust a pre-9.4b ledger kept is itself below the minimum payable work.
+        Assert.Equal(new ContactWorkResponse(dust, 0f, Vector128<float>.Zero, ContactWorkStore.BelowMinimum),
+            ContactWorkImpulse.FromStore(.5f, 8f, inverseMass, dust, Preload, Up));
+    }
+
+    // Positive control: a target payout that leaves at least the minimum payable work keeps the exact remainder, and a
+    // later contact is paid from it.
+    [Fact]
+    public void ATargetPayoutLeavingPayableWorkKeepsTheExactRemainderForALaterContact()
+    {
+        var paid = ContactWorkImpulse.FromStore(4f, 8f, 1f, Preload, Preload, Up);
+        Assert.Equal(Preload, paid.Remaining + paid.Debit);
+        Assert.InRange(paid.Remaining, 8f - 1e-5f, 8f + 1e-5f);
+        AssertDebitIsTheDeliveredWork(4f, 1f, paid);
+        var later = ContactWorkImpulse.FromStore(4f, 8f, 1f, paid.Remaining, Preload, Up);
+        Assert.Equal(0f, later.Remaining);
+        Assert.Equal(paid.Remaining, later.Debit);
+    }
+
+    [Fact]
+    public void AStoreBelowItsMinimumPayableWorkNeverPays()
+    {
+        var available = .5f * ContactWorkImpulse.MinimumPayableWork(Preload);
+        Assert.Equal(new ContactWorkResponse(available, 0f, Vector128<float>.Zero, ContactWorkStore.BelowMinimum),
+            ContactWorkImpulse.FromStore(0f, 8f, 1f, available, Preload, Up));
+    }
+
+    // D20 control: a 0 J capacity (a strength-0 Bumper) is a legal empty store, never an impossible one.
+    [Fact]
+    public void AZeroCapacityStoreIsALegalEmptyStoreThatNeverPays()
+    {
+        Assert.Equal(new ContactWorkResponse(0f, 0f, Vector128<float>.Zero, ContactWorkStore.BelowMinimum),
+            ContactWorkImpulse.FromStore(0f, 8f, 1f, 0f, 0f, Up));
+    }
+
+    [Theory]
+    [InlineData(33f, 32f)] // above its declared capacity
+    [InlineData(-1f, 32f)]
+    [InlineData(32f, 0f)]
+    [InlineData(32f, -1f)]
+    [InlineData(32f, float.NaN)]
+    [InlineData(32f, float.PositiveInfinity)]
+    [InlineData(float.NaN, 32f)]
+    [InlineData(float.PositiveInfinity, 32f)]
+    public void AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(float available, float capacity)
+    {
+        var result = ContactWorkImpulse.FromStore(0f, 8f, 1f, available, capacity, Up);
+        Assert.Equal(ContactWorkStore.Impossible, result.Store);
+        Assert.Equal(0f, result.Debit);
+        Assert.Equal(Vector128<float>.Zero, result.Impulse);
+        Assert.Equal(available, result.Remaining);
+    }
+
+    // Every paid response debits the work its impulse delivers: never less beyond f32 rounding of the same expression (the
+    // store never funds work it did not hold) and more only by the four-step f32 impulse rounding.
+    private static void AssertDebitIsTheDeliveredWork(float speed, float inverseMass, ContactWorkResponse paid)
+    {
+        var impulse = (double)paid.Impulse.GetElement(1);
+        var delivered = impulse * (speed + .5 * inverseMass * impulse);
+        var ulp = (double)(MathF.BitIncrement(paid.Debit) - paid.Debit);
+        Assert.InRange(delivered, paid.Debit - 8 * ulp, paid.Debit + 2 * ulp);
     }
 
     [Fact]
@@ -270,7 +423,7 @@ public sealed class WorkshopBumperTests
     public void AuthorizedNormalWorkPaysTheContactSpaceKineticIncrease(
         float outgoingSpeed, float inverseEffectiveMass, float work, float expectedImpulse)
     {
-        var payment = ContactWorkImpulse.FromAuthorizedWork(outgoingSpeed, inverseEffectiveMass, work);
+        var payment = ContactWorkImpulse.FromAuthorizedWork(outgoingSpeed, inverseEffectiveMass, work, ContactWorkLimit.Budget);
         Assert.InRange(payment.NormalImpulse, expectedImpulse - 1e-5f, expectedImpulse + 1e-5f);
         Assert.InRange(payment.Debit, work - 1e-4f, work);
         var after = outgoingSpeed + inverseEffectiveMass * payment.NormalImpulse;
@@ -284,12 +437,12 @@ public sealed class WorkshopBumperTests
     [InlineData(float.NaN)]
     [InlineData(float.PositiveInfinity)]
     public void NoAuthorizedWorkNeverProducesAnImpulse(float work) =>
-        Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(4f, 1f, work));
+        Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(4f, 1f, work, ContactWorkLimit.Budget));
 
     [Fact]
     public void TinyWorkAtHighOutgoingSpeedSurvivesWithoutSubtractingNearlyEqualRoots()
     {
-        var payment = ContactWorkImpulse.FromAuthorizedWork(64f, 1f, 1e-6f);
+        var payment = ContactWorkImpulse.FromAuthorizedWork(64f, 1f, 1e-6f, ContactWorkLimit.Budget);
         Assert.True(payment.NormalImpulse > 0f);
         Assert.InRange(payment.Debit, 0.999e-6f, 1e-6f);
     }
@@ -301,7 +454,11 @@ public sealed class WorkshopBumperTests
     [InlineData(1f, -1f)]
     [InlineData(1f, float.PositiveInfinity)]
     public void InvalidContactResidualContinuesWithoutPaidImpulse(float speed, float inverseMass) =>
-        Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(speed, inverseMass, 32f));
+        Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(speed, inverseMass, 32f, ContactWorkLimit.Budget));
+
+    [Fact]
+    public void AnUndefinedPaymentLimitNeverProducesAnImpulse() =>
+        Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(4f, 1f, 24f, (ContactWorkLimit)7));
 
     private static WorkshopConstruction Construction(Half strength) => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),

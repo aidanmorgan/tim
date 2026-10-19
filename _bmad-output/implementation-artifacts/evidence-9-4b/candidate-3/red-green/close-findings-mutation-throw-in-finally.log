@@ -1,0 +1,118 @@
+✔ a close finding fails a test that otherwise passed (107.91975ms)
+✖ a close finding never replaces the test's own failure, and is still reported (107.886417ms)
+✖ several findings of one test are aggregated, not dropped (106.98275ms)
+✔ a close in a suite's after hook still fails the file (107.942625ms)
+✖ a clean close passes (control), and a finding is raised once, not again for later tests (212.4395ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 706.880458
+
+✖ failing tests:
+
+test at tools/workshop-close-findings.test.mjs:32:1
+✖ a close finding never replaces the test's own failure, and is still reported (107.886417ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /the primary failure/. Input:
+  
+  '✖ fails (0.743167ms)\n' +
+    'ℹ tests 1\n' +
+    'ℹ suites 0\n' +
+    'ℹ pass 0\n' +
+    'ℹ fail 1\n' +
+    'ℹ cancelled 0\n' +
+    'ℹ skipped 0\n' +
+    'ℹ todo 0\n' +
+    'ℹ duration_ms 61.324625\n' +
+    '\n' +
+    '✖ failing tests:\n' +
+    '\n' +
+    'test at ../../../../../private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-5ln0hI/fixture.test.mjs:5:1\n' +
+    '✖ fails (0.743167ms)\n' +
+    '  Error: rejected a clock reply\n' +
+    '      at close (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-5ln0hI/fixture.test.mjs:4:45)\n' +
+    '      at TestContext.<anonymous> (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-5ln0hI/fixture.test.mjs:5:84)\n' +
+    '      at Test.runInAsyncScope (node:async_hooks:226:14)\n' +
+    '      at Test.run (node:internal/test_runner/test:1402:25)\n' +
+    '      at Test.start (node:internal/test_runner/test:1262:17)\n' +
+    '      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n'
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/tools/workshop-close-findings.test.mjs:35:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '✖ fails (0.743167ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 61.324625\n\n✖ failing tests:\n\ntest at ../../../../../private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-5ln0hI/fixture.test.mjs:5:1\n✖ fails (0.743167ms)\n  Error: rejected a clock reply\n      at close (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-5ln0hI/fixture.test.mjs:4:45)\n      at TestContext.<anonymous> (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-5ln0hI/fixture.test.mjs:5:84)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n',
+    expected: /the primary failure/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tools/workshop-close-findings.test.mjs:39:1
+✖ several findings of one test are aggregated, not dropped (106.98275ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /2 session close findings/. Input:
+  
+  '✖ two (0.424833ms)\n' +
+    'ℹ tests 1\n' +
+    'ℹ suites 0\n' +
+    'ℹ pass 0\n' +
+    'ℹ fail 1\n' +
+    'ℹ cancelled 0\n' +
+    'ℹ skipped 0\n' +
+    'ℹ todo 0\n' +
+    'ℹ duration_ms 59.241291\n' +
+    '\n' +
+    '✖ failing tests:\n' +
+    '\n' +
+    'test at ../../../../../private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-JC39BW/fixture.test.mjs:5:1\n' +
+    '✖ two (0.424833ms)\n' +
+    '  Error: first finding\n' +
+    '      at close (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-JC39BW/fixture.test.mjs:4:45)\n' +
+    '      at TestContext.<anonymous> (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-JC39BW/fixture.test.mjs:5:21)\n' +
+    '      at Test.runInAsyncScope (node:async_hooks:226:14)\n' +
+    '      at Test.run (node:internal/test_runner/test:1402:25)\n' +
+    '      at Test.start (node:internal/test_runner/test:1262:17)\n' +
+    '      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n'
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/tools/workshop-close-findings.test.mjs:42:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '✖ two (0.424833ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 59.241291\n\n✖ failing tests:\n\ntest at ../../../../../private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-JC39BW/fixture.test.mjs:5:1\n✖ two (0.424833ms)\n  Error: first finding\n      at close (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-JC39BW/fixture.test.mjs:4:45)\n      at TestContext.<anonymous> (file:///private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/close-findings-JC39BW/fixture.test.mjs:5:21)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n',
+    expected: /2 session close findings/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tools/workshop-close-findings.test.mjs:53:1
+✖ a clean close passes (control), and a finding is raised once, not again for later tests (212.4395ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 1
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/tools/workshop-close-findings.test.mjs:56:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

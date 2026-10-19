@@ -41,11 +41,19 @@ public partial class MachineWorld
     public WorkshopGoalPhase GoalPhase => _workshopClient is null ? WorkshopGoalPhase.NotApplicable :
         WorkshopGoalEvaluator.Evaluate(Construction.Puzzle.Goal, WorkshopRead, _workshopClient.Epoch);
 
-    public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) => _workshopClient?.ControlUi(target, kind, visible);
+    // A retired worker session (Indeterminate or RecoveryBlocked) is already an explicit, player-visible fault: its
+    // failure overlay and Workshop state are shown and the presentation path stops (PresentWorkshopRead). UI animation
+    // bindings stop with it rather than throwing from every frame into the engine loop.
+    private bool TransportRetired => TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked;
+    public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible)
+    {
+        if (!TransportRetired) _workshopClient?.ControlUi(target, kind, visible);
+    }
     public bool TryUiFrame(WorkshopUiTarget target, out AnimationOpacity opacity)
     {
         opacity = default;
-        return _workshopClient is not null && _workshopClient.TryUiFrame(Engine.GetProcessFrames(), _workshopPresentation, target, out opacity);
+        return _workshopClient is not null && !TransportRetired &&
+            _workshopClient.TryUiFrame(Engine.GetProcessFrames(), _workshopPresentation, target, out opacity);
     }
     public Task InitializeWorkshop() => InitializeWorkshop(async () => await BrowserWorkshopClient.Create());
 
@@ -118,12 +126,14 @@ public partial class MachineWorld
                 Registry.Definitions.TryGetValue(id, out var detectorDef) && detectorDef.Colliders.Count > 0 ? detectorDef.Colliders : WorkshopCanonicalColliders.For(id)),
             "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Registry.Definitions.TryGetValue(id, out var def) && def.Colliders.Count > 0 ? def.Colliders : WorkshopCanonicalColliders.For(id)),
+            // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
+            // placement value (Story 9.4b: no factory or decoder default substitutes for either).
             "pressure_plate" => WorkshopInput.PressurePlate(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPressurePlate plate ? plate.MinimumMass : 0.5f),
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPressurePlate plate ? plate.MinimumMass : WorkshopPressurePlate.PlacedMinimumMass),
             "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.DefaultTargetCount),
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.PlacedTargetCount),
             "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.DefaultIntervalSeconds),
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.PlacedIntervalSeconds),
             "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             _ => throw new ArgumentException($"Unsupported instance part id '{id}'.")
         };

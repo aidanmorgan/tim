@@ -1,0 +1,1 @@
+run 34:    2232 B allocated by RecordTickDuration: tick 4901: 2232 B, gen0 collections 0 Failed!  - Failed:     1, Passed:  1505, Skipped:     0, Total:  1506, Duration: 6 s - CuriousContraptions.tests.dll (net10.0) 

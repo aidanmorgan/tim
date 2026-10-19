@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/BH4-trace-end-3-defined/original	2026-10-19 05:33:31.351664434 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.Simulation/WorkshopTrace.cs	2026-10-19 05:33:31.355137498 +0800
+@@ -6,7 +6,7 @@
+ // Observational only. All methods contain diagnostic failure; none can reject or change a commit.
+ // 3 was DeviceLost: the worker owns no device since the pure C# engine (Story 9.2b) and Story 9.4b deleted that path.
+ // Recorded trace values keep their numbers; 3 is undefined and rejects.
+-internal enum TraceEnd { Complete = 0, Reset = 1, Disposed = 2, Fault = 4, InvalidRecord = 5, Overflow = 6 }
++internal enum TraceEnd { Complete = 0, Reset = 1, Disposed = 2, DeviceLost = 3, Fault = 4, InvalidRecord = 5, Overflow = 6 }
+ internal enum TraceTimingStatus { Complete, Incomplete }
+ internal enum TraceTimingVersion : uint { NativeMilliseconds = 2 }
+ internal sealed class WorkshopTrace

@@ -1,0 +1,35 @@
+{"firstFailureMs":null,"failures":0,"recalibrations":0}
+✔ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (9537.329417ms)
+{"samples":12,"failures":1,"recalibrations":0,"spanMs":42.805}
+✖ A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running) (8262.571542ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18090.54575
+
+✖ failing tests:
+
+test at tools/e2e/clock-master.test.ts:2:3565
+✖ A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running) (8262.571542ms)
+  AssertionError [ERR_ASSERTION]: No debt stop, tick failure or transport failure while Running under the injected load
+  + actual - expected
+  
+  + [
+  +   'CCGPU_DEBT_FAULT: committedTick=29 reliableStalled=False'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:104:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'CCGPU_DEBT_FAULT: committedTick=29 reliableStalled=False' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,2 @@
+CuriousContraptions.Tests.WorkshopClockDerivationTests.AReplyDerivationEpochAboveThirtyTwoBitsIsRejected
+CuriousContraptions.Tests.WorkshopClockDerivationTests.EachMalformedReplyIsExactlyOneCountedTypedRejectionThatLeavesThePendingProbeToExpire(corruption: &quot;epoch beyond 32 bits&quot;)

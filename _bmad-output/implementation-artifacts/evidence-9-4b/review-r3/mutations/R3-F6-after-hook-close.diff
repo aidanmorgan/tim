@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r3/R3-F6-after-hook-close/original	2026-10-19 11:30:03.713438568 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/tools/e2e/cat-037.test.ts	2026-10-19 11:30:03.717735594 +0800
+@@ -254,7 +254,7 @@
+     });
+ 
+     after(async () => {
+-        await driver?.closeAfterSuite();
++        await driver?.close();
+     });
+ 
+     test('1. Negative control (SetIn unwired: supplied gate closed 6.5 s, latch Off), then typed SetIn wiring through the UI', { timeout: 150000 }, async () => {

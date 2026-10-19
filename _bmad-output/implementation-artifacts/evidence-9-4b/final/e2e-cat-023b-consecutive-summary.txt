@@ -1,0 +1,7 @@
+cat-023b consecutive run 1: ℹ tests 4 ℹ pass 0 ℹ fail 4 ℹ skipped 0  transportFailures=3
+cat-023b consecutive run 2: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ skipped 0  transportFailures=0
+cat-023b consecutive run 3: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ skipped 0  transportFailures=0
+cat-023b consecutive run 4: ℹ tests 4 ℹ pass 0 ℹ fail 4 ℹ skipped 0  transportFailures=3
+cat-023b consecutive run 5: ℹ tests 4 ℹ pass 4 ℹ fail 0 ℹ skipped 0  transportFailures=0
+
+[exited with code 0]

@@ -1,0 +1,51 @@
+2026-10-18T16:55:02Z
+MURDOCH_CLOCK {"scenario":"B-sim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-sim-duty20 (11122.018833ms)
+MURDOCH_CLOCK {"scenario":"B-sim-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-sim-duty40 (10951.345292ms)
+﹣ Murdoch clock stress B-sim-block600 (0.10725ms) # SKIP
+MURDOCH_CLOCK {"scenario":"B-anim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":400,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-duty20 (10964.104458ms)
+MURDOCH_CLOCK {"scenario":"B-anim-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":458,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-anim-duty40 (11000.279083ms)
+﹣ Murdoch clock stress B-anim-block600 (0.104875ms) # SKIP
+﹣ Murdoch clock stress B-anim-block700 (0.041583ms) # SKIP
+MURDOCH_CLOCK {"scenario":"B-main-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":438,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-duty20 (10971.200709ms)
+MURDOCH_CLOCK {"scenario":"B-main-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":464,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress B-main-duty40 (10999.254417ms)
+﹣ Murdoch clock stress B-main-block600 (0.118125ms) # SKIP
+﹣ Murdoch clock stress B-main-block700 (0.034667ms) # SKIP
+﹣ Murdoch clock stress B-hogs-2x (0.021459ms) # SKIP
+MURDOCH_CLOCK {"scenario":"R-chain-main-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":331,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-main-duty20 (13612.655ms)
+MURDOCH_CLOCK {"scenario":"R-chain-main-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"1":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":352,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-main-duty40 (13626.135125ms)
+﹣ Murdoch clock stress R-chain-main-block600 (0.073833ms) # SKIP
+MURDOCH_CLOCK {"scenario":"R-chain-anim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":477,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-anim-duty20 (13649.056916ms)
+MURDOCH_CLOCK {"scenario":"R-chain-anim-duty40","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":1,"recalibrationByRole":{"3":1},"recalibrationByCause":{"0":1},"firstRecalibrationMs":534,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":1,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-anim-duty40 (13615.707792ms)
+﹣ Murdoch clock stress R-chain-anim-block600 (0.080541ms) # SKIP
+﹣ Murdoch clock stress R-chain-hogs-2x (0.022458ms) # SKIP
+﹣ Murdoch clock stress B-sim-block800 (0.017292ms) # SKIP
+﹣ Murdoch clock stress INFO-sim-block1100 (0.014125ms) # SKIP
+MURDOCH_CLOCK {"scenario":"R-ball-sim-duty20-idle20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-ball-sim-duty20-idle20 (11561.621208ms)
+MURDOCH_CLOCK {"scenario":"R-chain-sim-duty20","masterContextVisible":true,"recalibrationsBeforeLoad":0,"alive":[],"terminations":[],"recalibrations":0,"recalibrationByRole":{},"recalibrationByCause":{},"firstRecalibrationMs":null,"unparsableRecalibrations":0,"legacyClockFaults":0,"debtFaults":[{"at":489,"committedTick":54,"reliableStalled":false}],"tickFailures":0,"errors":0,"solved":0,"workers":["http://127.0.0.1:8060/animation/worker.js","http://127.0.0.1:8060/simulation/worker.js","http://127.0.0.1:8060/simulation/clock-master.js"],"closedWorkers":[]}
+✔ Murdoch clock stress R-chain-sim-duty20 (13691.203042ms)
+﹣ Murdoch clock stress R-ball-sim-block600 (0.083ms) # SKIP
+﹣ Murdoch clock stress INFO-main-block950 (0.020958ms) # SKIP
+﹣ Murdoch clock stress INFO-anim-block950 (0.015375ms) # SKIP
+﹣ Murdoch clock stress INFO-main-block1100 (0.014083ms) # SKIP
+﹣ Murdoch clock stress INFO-anim-block1100 (0.014084ms) # SKIP
+ℹ tests 28
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 16
+ℹ todo 0
+ℹ duration_ms 146021.747833
+exit=0
+2026-10-18T16:57:28Z

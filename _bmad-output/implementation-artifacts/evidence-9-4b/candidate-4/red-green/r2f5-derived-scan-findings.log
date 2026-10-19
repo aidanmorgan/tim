@@ -1,0 +1,23 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.89]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [23 ms]
+  Error Message:
+   CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:201: unowned element-specific code 'FromSpring'
+CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:616: unowned element-specific code 'FromSpring'
+CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:949: unowned element-specific code 'springError'
+CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:949: unowned element-specific code 'Spring'
+CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:951: unowned element-specific code 'Spring'
+CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:951: unowned element-specific code 'springError'
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:57: unowned element-specific code 'Spring'
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:58: unowned element-specific code 'Spring'
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:136: unowned element-specific code 'Spring'
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:198: unowned element-specific code 'Spring'
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:264: unowned element-specific code 'fSpring'
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:266: unowned element-specific code 'fSpring'
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 647
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    63, Skipped:     0, Total:    64, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

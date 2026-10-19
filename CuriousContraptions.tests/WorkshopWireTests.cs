@@ -3,11 +3,16 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-// Console.Error controls are serialized by xunit.runner.json: parallelizeTestCollections=false.
+// Console.Out controls are serialized by xunit.runner.json: parallelizeTestCollections=false.
 public sealed class WorkshopWireTests
 {
+    // The installed master derivation epoch of every reply below that does not exercise a re-derivation.
+    private static readonly ClockDerivationEpoch Derived = new(0);
     public enum FaultTrigger { ProbeLimitReply, ElapsedReply, ElapsedService }
 
+    // Story 9.4b (game-grade envelope): a recovery episode that cannot re-qualify recalibrates and continues. It never
+    // throws or terminates the session; the lapse is a counted, typed CCGPU_CLOCK_RECALIBRATED occurrence in the single
+    // production build, and fresh calibration re-qualifies the mapping.
     [Theory]
     [InlineData(WorkshopRuntimeRole.Browser, FaultTrigger.ProbeLimitReply)]
     [InlineData(WorkshopRuntimeRole.Animation, FaultTrigger.ProbeLimitReply)]
@@ -15,36 +20,59 @@ public sealed class WorkshopWireTests
     [InlineData(WorkshopRuntimeRole.Animation, FaultTrigger.ElapsedReply)]
     [InlineData(WorkshopRuntimeRole.Browser, FaultTrigger.ElapsedService)]
     [InlineData(WorkshopRuntimeRole.Animation, FaultTrigger.ElapsedService)]
-    public void RecoveryFaultDiagnosticPreservesFailureAndExactContext(WorkshopRuntimeRole role, FaultTrigger trigger)
+    public void RecoveryLapseRecalibratesContinuesAndReportsExactContext(WorkshopRuntimeRole role, FaultTrigger trigger)
     {
         using var output = new System.IO.StringWriter(System.Globalization.CultureInfo.InvariantCulture);
-        var previous = Console.Error;
+        var previous = Console.Out;
         try
         {
-            Console.SetError(output);
-            var (clock, fail, now) = RecoveryFaultScenario(role, trigger);
-            var failure = Assert.Throws<InvalidOperationException>(fail);
-            Assert.Equal("Clock mapping recovery exhausted its bounded episode.", failure.Message);
-            Assert.Equal(ClockMappingState.Faulted, clock.State);
-            Assert.Null(clock.Pending);
+            Console.SetOut(output);
+            var (clock, lapse, now) = RecoveryFaultScenario(role, trigger);
+            Assert.Equal(0UL, clock.Recalibrations);
+            lapse();
+            Assert.Equal(ClockMappingState.Expired, clock.State);
+            Assert.False(clock.IsQualified);
+            // A reply that settles the lapsed episode is still a genuine accepted interval: it seeds fresh calibration.
+            Assert.Equal(trigger == FaultTrigger.ElapsedReply ? 1 : 0, clock.ValidProbeCount);
+            Assert.Equal(2UL, clock.DisplayEpoch);
+            Assert.Equal(1UL, clock.Recalibrations);
+            var cause = trigger == FaultTrigger.ProbeLimitReply ? ClockRecalibrationCause.ProbeLimit : ClockRecalibrationCause.Elapsed;
+            Assert.Equal(new ClockRecalibration(role, cause, 1, 2, new(now)), clock.LastRecalibration);
             var text = output.ToString();
-            Assert.Throws<InvalidOperationException>(() => clock.Observe(new(now)));
+            clock.Observe(new(now));
             Assert.Equal(text, output.ToString());
-#if PLAYTEST
+            Assert.Equal(1UL, clock.Recalibrations);
+
+            // Startup calibration re-qualifies the mapping in the same session (after any expired probe's lifetime).
+            var restart = now + WorkshopClockMapping.ProbeLifetime + 1;
+            var probes = 0;
+            for (; clock.State != ClockMappingState.Ready; probes++)
+            {
+                Assert.True(probes < WorkshopClockMapping.ProbeCapacity, "requalifies within one full calibration");
+                var sent = restart + probes * WorkshopClockMapping.StartupSpacing;
+                var probe = clock.BeginProbe(new(sent))!.Value;
+                Assert.Equal(ClockProbeOutcome.Accepted, clock.Receive(new(probe,
+                    new(sent + 50_000_000), new(sent + 50_000_000), new(sent + 100_000), Derived)).Outcome);
+            }
+            Assert.True(clock.TryMasterNow(new(restart + probes * WorkshopClockMapping.StartupSpacing), out _));
+            Assert.Equal(1UL, clock.Recalibrations);
+
             var line = Assert.Single(text.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-            Assert.StartsWith("CCGPU_CLOCK_RECOVERY_FAULT ", line);
-            using var document = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_RECOVERY_FAULT ".Length..]);
+            Assert.StartsWith("CCGPU_CLOCK_RECALIBRATED ", line);
+            using var document = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_RECALIBRATED ".Length..]);
             var root = document.RootElement;
             Assert.Equal((uint)role, root.GetProperty("role").GetUInt32());
-            Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? 1 : 0, root.GetProperty("cause").GetInt32());
-            Assert.Equal((int)ClockMappingState.Recovering, root.GetProperty("stateBeforeTeardown").GetInt32());
+            Assert.Equal((int)cause, root.GetProperty("cause").GetInt32());
+            Assert.Equal(cause.ToString(), root.GetProperty("causeName").GetString());
+            Assert.Equal("1", root.GetProperty("count").GetString());
+            Assert.Equal((int)ClockMappingState.Recovering, root.GetProperty("stateBefore").GetInt32());
             Assert.Equal("18446744073709551615", root.GetProperty("sessionLow").GetString());
             Assert.Equal("9007199254740993", root.GetProperty("sessionHigh").GetString());
             Assert.Equal("9007199254740995", root.GetProperty("masterGeneration").GetString());
             Assert.Equal("9007199254740997", root.GetProperty("requesterGeneration").GetString());
             Assert.Equal(now.ToString(System.Globalization.CultureInfo.InvariantCulture), root.GetProperty("now").GetString());
             Assert.Equal("1", root.GetProperty("displayEpoch").GetString());
-            Assert.Equal(8, root.GetProperty("slotsBeforeTeardown").GetArrayLength());
+            Assert.Equal(8, root.GetProperty("slotsBefore").GetArrayLength());
             Assert.Equal(trigger == FaultTrigger.ElapsedService, root.GetProperty("reply").ValueKind == System.Text.Json.JsonValueKind.Null);
             Assert.Equal(trigger == FaultTrigger.ProbeLimitReply, root.GetProperty("pending").ValueKind == System.Text.Json.JsonValueKind.Null);
 
@@ -52,7 +80,7 @@ public sealed class WorkshopWireTests
             string Exact(long value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
             Assert.Equal(Exact(origin + 321_295_000), root.GetProperty("recoveryStarted").GetString());
             Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? 8 : 1, root.GetProperty("recoverySends").GetInt32());
-            var slot = root.GetProperty("slotsBeforeTeardown").EnumerateArray()
+            var slot = root.GetProperty("slotsBefore").EnumerateArray()
                 .Single(value => value.GetProperty("sequence").GetString() ==
                     (trigger == FaultTrigger.ProbeLimitReply ? "17" : "9"));
             Assert.Equal(Exact(origin + (trigger == FaultTrigger.ProbeLimitReply ? 401_295_000 : 321_295_000)),
@@ -79,32 +107,28 @@ public sealed class WorkshopWireTests
                 Assert.Equal("10", root.GetProperty("pending").GetProperty("sequence").GetString());
                 Assert.Equal(Exact(origin + 330_000_000), root.GetProperty("pending").GetProperty("sent").GetString());
             }
-#else
-            Assert.Empty(text);
-            Assert.Null(typeof(WorkshopClockMapping).GetMethod("EmitRecoveryFault",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
-#endif
         }
-        finally { Console.SetError(previous); }
+        finally { Console.SetOut(previous); }
     }
 
+    // The mapping has fully recalibrated before its telemetry is written, so a failing telemetry writer surfaces its own
+    // error (nothing is swallowed) and cannot leave the mapping half-recovered.
     [Theory]
     [InlineData(WorkshopRuntimeRole.Browser)]
     [InlineData(WorkshopRuntimeRole.Animation)]
-    public void RecoveryFaultDiagnosticWriterFailureCannotReplaceOriginalFault(WorkshopRuntimeRole role)
+    public void RecalibrationTelemetryWriterFailureSurfacesAfterTheMappingRecalibrated(WorkshopRuntimeRole role)
     {
-        var previous = Console.Error;
+        var previous = Console.Out;
         using var writer = new FailingClockDiagnosticWriter();
         try
         {
-            Console.SetError(writer);
-            var (clock, fail, _) = RecoveryFaultScenario(role, FaultTrigger.ElapsedService);
-            Assert.Equal("Clock mapping recovery exhausted its bounded episode.",
-                Assert.Throws<InvalidOperationException>(fail).Message);
-            Assert.Equal(ClockMappingState.Faulted, clock.State);
-            Assert.Null(clock.Pending);
+            Console.SetOut(writer);
+            var (clock, lapse, _) = RecoveryFaultScenario(role, FaultTrigger.ElapsedService);
+            Assert.Throws<System.IO.IOException>(lapse);
+            Assert.Equal(ClockMappingState.Expired, clock.State);
+            Assert.Equal(1UL, clock.Recalibrations);
         }
-        finally { Console.SetError(previous); }
+        finally { Console.SetOut(previous); }
     }
 
     private sealed class FailingClockDiagnosticWriter : System.IO.StringWriter
@@ -112,7 +136,7 @@ public sealed class WorkshopWireTests
         public override void WriteLine(string? value) => throw new System.IO.IOException("Controlled diagnostic writer failure.");
     }
 
-    private static (WorkshopClockMapping Clock, Action Fail, long Now) RecoveryFaultScenario(
+    private static (WorkshopClockMapping Clock, Action Lapse, long Now) RecoveryFaultScenario(
         WorkshopRuntimeRole role, FaultTrigger trigger)
     {
         const long origin = 9_007_199_254_740_993;
@@ -123,7 +147,7 @@ public sealed class WorkshopWireTests
             var sent = origin + offset;
             var probe = clock.BeginProbe(new(sent))!.Value;
             Assert.Equal(ClockProbeOutcome.Accepted, clock.Receive(new(probe,
-                new(sent + 50_000_000), new(sent + 50_000_000), new(sent + roundtrip))).Outcome);
+                new(sent + 50_000_000), new(sent + 50_000_000), new(sent + roundtrip), Derived)).Outcome);
         }
         for (var i = 0; i < 8; i++) Probe(i * 10_000_000);
         Probe(320_000_000, 1_295_000);
@@ -134,14 +158,14 @@ public sealed class WorkshopWireTests
             var probe = clock.BeginProbe(new(origin + 400_000_000))!.Value;
             var now = origin + 401_295_000;
             return (clock, () => clock.Receive(new(probe, new(origin + 450_000_000),
-                new(origin + 450_000_000), new(now))), now);
+                new(origin + 450_000_000), new(now), Derived)), now);
         }
         var pending = clock.BeginProbe(new(origin + 330_000_000))!.Value;
         var expired = origin + 321_295_000 + WorkshopClockMapping.RecoveryLifetime + 1;
         return (clock, trigger == FaultTrigger.ElapsedService
             ? () => clock.Observe(new(expired))
             : () => clock.Receive(new(pending, new(origin + 380_000_000),
-                new(origin + 380_000_000), new(expired))), expired);
+                new(origin + 380_000_000), new(expired), Derived)), expired);
     }
 
     [Fact]
@@ -170,7 +194,7 @@ public sealed class WorkshopWireTests
             var sent = i * 10_000_000L;
             var probe = clock.BeginProbe(new(sent))!.Value;
             Assert.Equal(ClockProbeOutcome.Accepted,
-                clock.Receive(new(probe, new(sent + 50_000_000), new(sent + 50_000_000), new(sent + 500_000))).Outcome);
+                clock.Receive(new(probe, new(sent + 50_000_000), new(sent + 50_000_000), new(sent + 500_000), Derived)).Outcome);
         }
         Assert.True(clock.TryMasterNow(new(74_800_000), out var master));
         Assert.Equal((Int128)98_997_850, master.Lower);
@@ -194,8 +218,8 @@ public sealed class WorkshopWireTests
             var corrupt = (byte[])bytes.Clone(); corrupt[offset] ^= 1;
             Assert.ThrowsAny<ArgumentException>(() => WorkshopClockWire.DecodeProbe(corrupt, peer));
         }
-        var reply = WorkshopClockWire.EncodeReply(bytes, peer, new(150_000_000), new(150_000_000));
-        Assert.Throws<ArgumentException>(() => WorkshopClockWire.EncodeReply(bytes, peer, new(49_999_999), new(50_000_000)));
+        var reply = WorkshopClockWire.EncodeReply(bytes, peer, new(150_000_000), new(150_000_000), new(7));
+        Assert.Throws<ArgumentException>(() => WorkshopClockWire.EncodeReply(bytes, peer, new(49_999_999), new(50_000_000), new(7)));
         var preOrigin = (byte[])reply.Clone();
         BinaryPrimitives.WriteInt64LittleEndian(preOrigin.AsSpan(80), 49_999_999);
         Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodeReply(preOrigin, peer, new(100_000_000)));
@@ -207,8 +231,8 @@ public sealed class WorkshopWireTests
         Assert.Equal(ClockProbeOutcome.Accepted,
             mapping.Receive(WorkshopClockWire.DecodeReply(reply, peer, new(100_000_000))).Outcome);
         Assert.Equal(1, mapping.ValidProbeCount);
-        Assert.Equal(96, reply.Length);
-        Assert.Equal(new ClockReply(probe, new(150_000_000), new(150_000_000), new(100_000_000)),
+        Assert.Equal(104, reply.Length);
+        Assert.Equal(new ClockReply(probe, new(150_000_000), new(150_000_000), new(100_000_000), new(7)),
             WorkshopClockWire.DecodeReply(reply, peer, new(100_000_000)));
         Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(new byte[40]));
         var oldVersion = WorkshopClockWire.EncodePeer(peer);
@@ -516,11 +540,14 @@ public sealed class WorkshopWireTests
         var peer = new WorkshopClockPeer(Session, new(ulong.MaxValue), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
         var bytes = WorkshopClockWire.EncodePeer(peer);
         Assert.Equal(peer, WorkshopClockWire.DecodePeer(bytes));
-        Assert.Equal(3U, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        Assert.Equal(4U, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
         Assert.Equal(NativeClockProfile.IsolatedWitnessedPerformanceNow,
             (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)));
         var oldVersion = (byte[])bytes.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(oldVersion, 1);
+        Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(oldVersion));
+        // v3 replies carried no derivation epoch; they are unsupported current input (no migration).
+        BinaryPrimitives.WriteUInt32LittleEndian(oldVersion, 3);
         Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(oldVersion));
         var oldProfile = (byte[])bytes.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(oldProfile.AsSpan(4), 1);
@@ -540,7 +567,7 @@ public sealed class WorkshopWireTests
         {
             var probe = clock.BeginProbe(new(sent))!.Value;
             Assert.Equal(ClockProbeOutcome.Accepted,
-                clock.Receive(new(probe, new(sent + 50_000_000), new(sent + 50_000_000), new(sent + roundtrip))).Outcome);
+                clock.Receive(new(probe, new(sent + 50_000_000), new(sent + 50_000_000), new(sent + roundtrip), Derived)).Outcome);
         }
         for (var i = 0; i < 8; i++) Probe(i * 10_000_000);
         var history = new WorkshopPoseHistory();
@@ -590,14 +617,14 @@ public sealed class WorkshopWireTests
         {
             var time = new MonotonicNanoseconds(i * 10_000_000);
             var probe = clock.BeginProbe(time)!.Value;
-            clock.Receive(new(probe, time, time, time));
+            clock.Receive(new(probe, time, time, time, Derived));
         }
         var history = new WorkshopPoseHistory();
         var cursor = new WorkshopClientCursor(peer.Session);
         WorkshopResponse Response(ulong sequence, WorkshopResponseKind kind, ulong tick, ulong revision,
             long captured, WorkshopSimulationPhase phase, ulong publication = 0) =>
             new(new(sequence), kind, new(phase == WorkshopSimulationPhase.Faulted ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
-                phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.DeviceLost : WorkshopRejection.None), phase,
+                phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.Capacity : WorkshopRejection.None), phase,
                 Described(new(new(1), new(tick), Bodies(new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default)),
                     new(revision), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(captured), new(0)))),
                 peer.Session, new(publication), new(1), new(1), new(phase == WorkshopSimulationPhase.Building ? 1UL : 2UL));
@@ -683,6 +710,23 @@ public sealed class WorkshopWireTests
         Assert.Equal(ball.Cell, read.Bodies[0].Body.Cell);
     }
 
+    // Story 9.4b deleted the device-loss path: its retired wire value 6 is undefined and rejects in both response
+    // decoders, while the faults that remain decode (positive control).
+    [Theory]
+    [InlineData((byte)6, false)]
+    [InlineData((byte)WorkshopRejection.Capacity, true)]
+    [InlineData((byte)WorkshopRejection.Transport, true)]
+    public void TheRetiredDeviceLossRejectionIsUndefinedOnTheWire(byte reason, bool admitted)
+    {
+        var faulted = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
+            new(WorkshopCommandOutcome.Faulted, WorkshopRejection.Capacity), WorkshopSimulationPhase.Faulted,
+            Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+        var binary = WorkshopWire.Encode(faulted);
+        binary[10] = reason;
+        Assert.Equal(admitted, Record.Exception(() => WorkshopWire.DecodeResponse(binary)) is null);
+        if (!admitted) Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(binary));
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -696,7 +740,7 @@ public sealed class WorkshopWireTests
         var original = WorkshopWire.Encode(ack);
         var later = new WorkshopResponse(default, WorkshopResponseKind.Read,
             new(sameRevisionFault ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
-                sameRevisionFault ? WorkshopRejection.DeviceLost : WorkshopRejection.None),
+                sameRevisionFault ? WorkshopRejection.Capacity : WorkshopRejection.None),
             sameRevisionFault ? WorkshopSimulationPhase.Faulted : WorkshopSimulationPhase.Running, Stamped(new(new(1), new(sameRevisionFault ? 0UL : 1UL), default, new(sameRevisionFault ? 1UL : 2UL))), Session, new(1), new(1), new(1), new(1));
         Assert.True(AdmitRead(cursor, later));
         var delivery = AdmitAcknowledgement(cursor, command, ack, dispatched, false);

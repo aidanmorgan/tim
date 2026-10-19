@@ -1,0 +1,12 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/J4-BH10-resume-turn-uncaught/original	2026-10-19 05:45:28.817309694 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.Simulation/wwwroot/worker.js	2026-10-19 05:45:28.822732659 +0800
+@@ -216,8 +216,7 @@
+ // A turn that fails to resume is a worker fault reported through the failure envelope, never an uncaught error.
+ function resumeTurn(turn) {
+     if (disposed) return;
+-    try { host.ResumeTurn(turn); }
+-    catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: 'Scheduler turn failed: ' + String(error) }); }
++    host.ResumeTurn(turn);
+ }
+ turnChannel.port1.onmessage = () => resumeTurn(queuedTurns.shift());
+ 

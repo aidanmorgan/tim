@@ -1,0 +1,15 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.17]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 29
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 32
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults() in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 159
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     3, Skipped:     0, Total:     4, Duration: 112 ms - CuriousContraptions.tests.dll (net10.0)

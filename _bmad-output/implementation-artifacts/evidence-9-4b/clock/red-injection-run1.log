@@ -1,0 +1,61 @@
+{"firstFailureMs":245,"failures":27,"recalibrations":0}
+✖ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (7459.814333ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7764.97875
+
+✖ failing tests:
+
+test at tools/e2e/clock-master.test.ts:2:1967
+✖ Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build) (7459.814333ms)
+  AssertionError [ERR_ASSERTION]: No transport failure while the Simulation worker is busy
+  + actual - expected
+  
+  + [
+  +   'CCGPU_TRANSPORT_FAILURE 3 Error: Error: Clock mapping recovery exhausted its bounded episode.\n' +
+  +     '    at animation.onmessage (http://127.0.0.1:8060/workshop-client.',
+  +   'Error: Error: Clock mapping recovery exhausted its bounded episode.\n' +
+  +     '    at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34)',
+  +   'While attempting to print an error, another error was printed:',
+  +   'ERROR: System.InvalidOperationException: Failed to resize vector. Error code is: 95779901004578816',
+  +   '   at Godot.DebuggingUtils.godot_stack_info_vector.Resize(Int32 size)',
+  +   '   at Godot.DebuggingUtils.GetCurrentStackInfo(Void* destVector)',
+  +   '   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)',
+  +   'ERROR: System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.',
+  +   '   at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed()',
+  +   '   at CuriousContraptions.Gpu.BrowserWorkshopClient.TryUiFrame(UInt64 frame, WorkshopPresentationSample physical, WorkshopUiTarget target, AnimationOpacity& opa',
+  +   '   at CuriousContraptions.MachineWorld.TryUiFrame(WorkshopUiTarget target, AnimationOpacity& opacity)',
+  +   '   at CuriousContraptions.Workshop.ApplyUiBindings(Double delta)',
+  +   '   at CuriousContraptions.Workshop._Process(Double delta)',
+  +   '   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)',
+  +   '   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)',
+  +   '   at CuriousContraptions.Workshop.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)',
+  +   '   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_err',
+  +   '   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)',
+  +   '   C# backtrace (most recent call first):',
+  +   '       [0] void Godot.NativeInterop.NativeFuncs.godotsharp_err_print_error(Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_string&, int, Godot.Nati',
+  +   '       [1] void Godot.GD.PushError(string)',
+  +   '       [2] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception)',
+  +   '       [3] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant',
+  +   '       [4] bool twodog.WebHost.Iteration()',
+  +   '       [5] bool twodog.Engine.IterateCore()',
+  +   '       [6] void twodog.WebHost.RunFrame()',
+  +   '       [7] void twodog.WebHost.MainLoopCallback()'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/clock-master.test.ts:60:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'CCGPU_TRANSPORT_FAILURE 3 Error: Error: Clock mapping recovery exhausted its bounded episode.\n    at animation.onmessage (http://127.0.0.1:8060/workshop-client.', 'Error: Error: Clock mapping recovery exhausted its bounded episode.\n    at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34)', 'While attempting to print an error, another error was printed:', 'ERROR: System.InvalidOperationException: Failed to resize vector. Error code is: 95779901004578816', '   at Godot.DebuggingUtils.godot_stack_info_vector.Resize(Int32 size)', '   at Godot.DebuggingUtils.GetCurrentStackInfo(Void* destVector)', '   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)', 'ERROR: System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.', '   at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed()', '   at CuriousContraptions.Gpu.BrowserWorkshopClient.TryUiFrame(UInt64 frame, WorkshopPresentationSample physical, WorkshopUiTarget target, AnimationOpacity& opa', '   at CuriousContraptions.MachineWorld.TryUiFrame(WorkshopUiTarget target, AnimationOpacity& opacity)', '   at CuriousContraptions.Workshop.ApplyUiBindings(Double delta)', '   at CuriousContraptions.Workshop._Process(Double delta)', '   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)', '   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)', '   at CuriousContraptions.Workshop.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)', '   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_err', '   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)', '   C# backtrace (most recent call first):', '       [0] void Godot.NativeInterop.NativeFuncs.godotsharp_err_print_error(Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_string&, int, Godot.Nati', '       [1] void Godot.GD.PushError(string)', '       [2] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception)', '       [3] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant', '       [4] bool twodog.WebHost.Iteration()', '       [5] bool twodog.Engine.IterateCore()', '       [6] void twodog.WebHost.RunFrame()', '       [7] void twodog.WebHost.MainLoopCallback()' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

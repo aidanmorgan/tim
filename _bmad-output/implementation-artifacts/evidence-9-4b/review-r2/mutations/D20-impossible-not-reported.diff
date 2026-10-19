@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r2/D20-impossible-not-reported/original	2026-10-19 05:31:14.974614537 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut3/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs	2026-10-19 05:31:14.978303519 +0800
+@@ -374,7 +374,7 @@
+                     var normVec = Vector128.Create(normalTowardDyn.X, normalTowardDyn.Y, normalTowardDyn.Z, 0f);
+                     var response = ContactWorkImpulse.FromStore(speed, targetImp, invEffectiveMass, avail, capacity, normVec);
+                     // A validated world never holds one; it is a broken ledger, reported rather than paid as empty (blind hunter 14).
+-                    if (response.Store == ContactWorkStore.Impossible)
++                    if (false)
+                         throw new InvalidOperationException(
+                             $"Contact work {w} holds an impossible store: {avail:R} J available of a {capacity:R} J preload.");
+ 

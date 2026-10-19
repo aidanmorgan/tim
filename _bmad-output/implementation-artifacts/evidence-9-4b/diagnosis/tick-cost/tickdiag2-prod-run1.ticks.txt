@@ -1,0 +1,5 @@
++7993ms [error] CCGPU_TRANSPORT_FAILURE 3 Error: Error: Clock mapping recovery exhausted its bounded episode.
++17739ms [log] CCDIAG_TICKS n=651 advance[mean=3.068ms p50=2.820 p95=4.265 max=16.190] emit[mean=0.092ms p50=0.080 p95=0.130 max=2.355] encodeMean=0.054ms engineMean=2.648ms alloc[mean=39976B p95=40400 max=42912] gen0=3
++28361ms [log] CCDIAG_TICKS n=497 advance[mean=1.132ms p50=0.930 p95=2.020 max=13.195] emit[mean=0.094ms p50=0.080 p95=0.150 max=2.345] encodeMean=0.054ms engineMean=0.774ms alloc[mean=29651B p95=30568 max=34184] gen0=1
++34057ms [log] CCDIAG_TICKS n=355 advance[mean=4.003ms p50=3.655 p95=6.200 max=16.820] emit[mean=0.109ms p50=0.085 p95=0.200 max=2.410] encodeMean=0.073ms engineMean=3.488ms alloc[mean=43082B p95=47544 max=48816] gen0=2
++37842ms [log] CCDIAG_TICKS n=358 advance[mean=3.392ms p50=2.910 p95=5.145 max=30.355] emit[mean=0.076ms p50=0.070 p95=0.100 max=0.325] encodeMean=0.042ms engineMean=3.051ms alloc[mean=42915B p95=47464 max=48744] gen0=2

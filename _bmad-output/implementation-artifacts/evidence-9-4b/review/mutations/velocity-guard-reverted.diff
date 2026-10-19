@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations/velocity-guard-reverted/original	2026-10-19 01:06:32.090418278 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs	2026-10-19 01:06:32.094279368 +0800
+@@ -42,7 +42,7 @@
+         var largest = MathF.Max(MathF.Abs(x), MathF.Max(MathF.Abs(y), MathF.Abs(z)));
+         if (!float.IsFinite(largest)) return 0f;
+         x /= largest; y /= largest; z /= largest;
+-        return limit / largest / MathF.Sqrt(x * x + y * y + z * z);
++        return 0f;
+     }
+ 
+     public static void ClampVelocity(SimBody b)

@@ -1,0 +1,30 @@
+Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.93]     CuriousContraptions.Tests.WorkshopAbiLiteralScanTests.NoLiteralAbiOffsetRemains(rule: WorldHeader) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopAbiLiteralScanTests.NoLiteralAbiOffsetRemains(rule: WorldHeader) [2 ms]
+  Error Message:
+   Literal ABI offsets (WorldHeader):
+engine/gpu/PhysicsGpuAbi.cs:338: if (expectedTick.Value > profile.RunTickLimit || R64(candidate, 40) != expectedTick.Value ||
+engine/gpu/PhysicsGpuAbi.cs:339: R32(candidate, 88) != checked((uint)(expectedTick.Value * profile.Substeps)) ||
+engine/gpu/PhysicsGpuAbi.cs:345: var bodyCount=checked((int)R32(source,12)); var dynamicCount=0;
+engine/gpu/PhysicsGpuAbi.cs:350: var motion=(RigidMotionKind)R32(previous,8);
+engine/gpu/PhysicsGpuAbi.cs:363: if (dynamicCount!=R32(source,28) || dynamicCount>PhysicsBodyReadSet.Capacity ||
+engine/gpu/PhysicsGpuAbi.cs:369: var sensorCount = checked((int)R32(source, 24));
+engine/gpu/PhysicsGpuAbi.cs:379: var sourceOrdinal = R32(source, 88);
+engine/gpu/PhysicsGpuAbi.cs:395: if (R32(candidate, 92) != captured ||
+engine/gpu/PhysicsGpuAbi.cs:400: var triggerCount = checked((int)R32(source, 100));
+engine/gpu/PhysicsGpuAbi.cs:408: Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, 88), (Half)0)))
+engine/gpu/PhysicsGpuAbi.cs:414: var orientationCount = checked((int)R32(source, 116));
+engine/gpu/PhysicsGpuAbi.cs:431: else if (current.Phase == OrientationSensorPhase.Fired && (expectedTick.Value == 0 || current.EventOrdinal <= R32(source, 88)))
+engine/gpu/PhysicsGpuAbi.cs:437: R32(candidate, MotionOffset + 12) != R32(candidate, 88)))
+engine/gpu/PhysicsGpuAbi.cs:465: var count=checked((int)R32(source,112));
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopAbiLiteralScanTests.NoLiteralAbiOffsetRemains(Rule rule) in /Users/aidan/dev/personal/tim/CuriousContraptions.tests/WorkshopAbiLiteralScanTests.cs:line 65
+   at InvokeStub_WorkshopAbiLiteralScanTests.NoLiteralAbiOffsetRemains(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ WorldHeader: 7 sources scanned
+
+
+
+Failed!  - Failed:     1, Passed:    10, Skipped:     0, Total:    11, Duration: 48 ms - CuriousContraptions.tests.dll (net10.0)

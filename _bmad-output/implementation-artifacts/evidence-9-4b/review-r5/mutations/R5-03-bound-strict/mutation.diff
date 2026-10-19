@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/R5-03-bound-strict/original	2026-10-19 15:40:41.678968672 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:40:41.683797897 +0800
+@@ -363,7 +363,7 @@
+     /// fits <see cref="MaximumMappedWidth"/>. Every slot used for mapping, the old mapping a renewal is checked against
+     /// (R4-F1) and every qualifying exchange are held to it.</summary>
+     private static bool WithinMappedWidth(ClockInterval widened) =>
+-        widened.Width + 2 * TimestampUncertainty.Maximum <= MaximumMappedWidth;
++        widened.Width + 2 * TimestampUncertainty.Maximum < MaximumMappedWidth;
+ 
+     /// <summary>An accepted interval qualifies the mapping when, drift-widened over the refresh horizon, it is within the
+     /// mapped width (R3-F1): it ends ordinary recovery and is the only exchange that can conclude a renewal.</summary>

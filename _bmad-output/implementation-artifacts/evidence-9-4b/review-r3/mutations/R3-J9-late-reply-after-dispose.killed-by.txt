@@ -1,0 +1,1 @@
+a clock reply landing after the Animation worker was disposed never reaches the host

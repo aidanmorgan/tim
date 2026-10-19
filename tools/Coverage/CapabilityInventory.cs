@@ -36,8 +36,10 @@ public readonly record struct WorkOrderId
     public string Value { get; }
     public WorkOrderId(string value)
     {
-        if(value is null || !Regex.IsMatch(value,@"\A[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*\z"))
-            throw new ArgumentException("Invalid work-order identity.");
+        // An optional lowercase roadmap sub-slice letter and ordinal, as the ordered roadmap names its slices
+        // (ENGINE-CORE-2d, ENGINE-CORE-2a1, LEGACY-0a).
+        if(value is null || !Regex.IsMatch(value,@"\A[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?\z"))
+            throw new ArgumentException($"Invalid work-order identity '{value}'.");
         Value=value;
     }
 }

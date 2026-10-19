@@ -203,6 +203,14 @@ public sealed class CapabilityTests
         Assert.Equal("FIX-001-001",new WorkOrderId("FIX-001-001").Value);
         Assert.Equal("ENGINE-DEVICE-01",new WorkOrderId("ENGINE-DEVICE-01").Value);
         Assert.Equal("CLEAN-CONTEXT",new WorkOrderId("CLEAN-CONTEXT").Value);
+        Assert.Equal("ENGINE-CORE-2d",new WorkOrderId("ENGINE-CORE-2d").Value);
+        Assert.Equal("ENGINE-CORE-2a1",new WorkOrderId("ENGINE-CORE-2a1").Value);
+        Assert.Throws<ArgumentException>(()=>new WorkOrderId("LEGACY-0aa"));
+        // Edge-case E4 (Story 9.4b): a lowercase sub-slice letter only follows a numbered slice.
+        Assert.Throws<ArgumentException>(()=>new WorkOrderId("CLEAN-CONTEXTa"));
+        Assert.Throws<ArgumentException>(()=>new WorkOrderId("Ea"));
+        Assert.Throws<ArgumentException>(()=>new WorkOrderId("ENGINE-COREa1"));
+        Assert.Throws<ArgumentException>(()=>new WorkOrderId("ENGINE-core-2"));
         Assert.Throws<ArgumentException>(()=>new WorkOrderId("p0-001"));
         Assert.Throws<ArgumentException>(()=>new SourcePath("../outside.json"));
         Assert.Throws<ArgumentException>(()=>new SourcePath("/outside.json"));

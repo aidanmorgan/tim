@@ -15,7 +15,6 @@
          collection definitions as compile-in source) -->
     <ItemGroup>
         <PackageReference Include="2dog.xunit" Version="$(TwoDogVersion)" />
-        <PackageReference Include="Google.FlatBuffers" Version="25.2.10" />
     </ItemGroup>
 
     <!-- Native library packages arrive transitively: 2dog pins the platform packages it was built against and
@@ -23,10 +22,11 @@
 
     <!-- Test framework packages -->
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="10.*" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.*" />
-        <PackageReference Include="xunit.v3" Version="3.*" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.*" />
+        <!-- Pinned exactly, and identically in tools/Coverage.Tests, so one solution run loads one xunit (Story 9.4b). -->
+        <PackageReference Include="coverlet.collector" Version="10.1.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
     </ItemGroup>
 
     <ItemGroup>
@@ -40,6 +40,7 @@
     <ItemGroup>
         <ProjectReference Include="../CuriousContraptions.csproj" />
         <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+        <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
     </ItemGroup>
 
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
@@ -66,6 +67,7 @@
         <Compile Include="DelayedSignalTests.cs" />
         <Compile Include="ActivationTimerTests.cs" />
         <Compile Include="WorkshopWireTests.cs" />
+        <Compile Include="CompiledMemoryLayoutTests.cs" />
         <Compile Include="WorkshopReadTests.cs" />
         <Compile Include="WorkshopWireFlatBuffersTests.cs" />
         <Compile Include="NativeSceneFixture.cs" />
@@ -89,8 +91,27 @@
         <Compile Include="WorkshopTraceTests.cs" />
         <Compile Include="WorkshopPoseRingTests.cs" />
         <Compile Include="WorkerAbiTests.cs" />
+        <Compile Include="ClockRingScriptTests.cs" />
+        <Compile Include="AnimationControlDeferralTests.cs" />
+        <Compile Include="WorkshopAbiLiteralScanTests.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopTrace.cs" Link="WorkshopTrace.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
+        <!-- The shipped worker's physics engine and transport, stepped natively (Story 9.4b). -->
+        <Compile Include="WorkshopPhysicsEngineTests.cs" />
+        <Compile Include="WorkshopPhysicsLawTests.cs" />
+        <Compile Include="WorkshopPhysicsLawSensorWorkTests.cs" />
+        <Compile Include="WorkshopPhysicsLawPrismaticTests.cs" />
+        <Compile Include="WorkshopTickLoopTests.cs" />
+        <Compile Include="WorkshopClockDerivationTests.cs" />
+        <Compile Include="ContactWorkLedgerPropertyTests.cs" />
+        <Compile Include="ConstructionDecodeBoundaryTests.cs" />
+        <Compile Include="VendoredFlatBuffersIdentityTests.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/BrowserGpuTransport.cs" Link="Simulation/BrowserGpuTransport.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs" Link="Simulation/WorkshopPhysicsEngine.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WorkshopCollisionKernels.cs" Link="Simulation/WorkshopCollisionKernels.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WorkshopConstraintSolver.cs" Link="Simulation/WorkshopConstraintSolver.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WorkshopDynamicBvh.cs" Link="Simulation/WorkshopDynamicBvh.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/PrismaticConstraintSolver.cs" Link="Simulation/PrismaticConstraintSolver.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

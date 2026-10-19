@@ -1,0 +1,3 @@
+Tiering-worker experiment (19 Oct 2026), pre-fix measurement window: DOTNET_TC_BackgroundWorkerTimeoutMs=1.
+Command: 12 x `DOTNET_TC_BackgroundWorkerTimeoutMs=1 dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build -nologo`, each output grepped for "allocated by RecordTickDuration"; a failing run appends one "run N:" line below.
+Result: worker timeout 1 ms: 0/12 failed (no lines appended). Forcing the tiering-worker knob did not reproduce the failure.

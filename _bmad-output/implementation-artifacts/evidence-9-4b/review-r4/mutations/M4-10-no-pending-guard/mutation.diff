@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mutations-r4/M4-10-no-pending-guard/original	2026-10-19 15:11:57.426614113 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut5/engine/gpu/WorkshopClockMapping.cs	2026-10-19 15:11:57.430932963 +0800
+@@ -541,7 +541,7 @@
+     /// </summary>
+     private bool LapsedWhileStalled()
+     {
+-        if (State is not (ClockMappingState.Ready or ClockMappingState.Recovering) || Pending is not null) return false;
++        if (State is not (ClockMappingState.Ready or ClockMappingState.Recovering) ) return false;
+         var due = (Int128)_lastSent + (State == ClockMappingState.Ready ? RefreshSpacing : StartupSpacing);
+         return due < (Int128)NewestReceipt() + MappingLifetime && _lastRequester < due;
+     }

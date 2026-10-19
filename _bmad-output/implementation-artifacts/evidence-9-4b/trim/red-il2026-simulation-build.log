@@ -1,0 +1,15 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj (in 109 ms).
+  3 of 4 projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.Schedule.cs(24,57): error IL2026: Using member 'Program.TrimRedProof()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. red proof. [/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.Schedule.cs(24,57): error IL2026: Using member 'Program.TrimRedProof()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. red proof. [/Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:04.31

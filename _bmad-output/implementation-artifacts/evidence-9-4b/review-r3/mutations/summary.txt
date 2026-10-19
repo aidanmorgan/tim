@@ -1,0 +1,44 @@
+R3-renewal-without-overlap: KILLED by 3:
+    CuriousContraptions.Tests.MurdochR3RenewalTests.ANarrowRenewingExchangeAtTheMovedOffsetRecalibrates
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStalledRequestersLapseThatDisagreesWithTheOldMappingIsACountedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalBoundaryIsExactlyTheDriftWidenedOverlap(beyond: 1, renewed: False)
+R3-renew-with-probe-outstanding: SURVIVED
+R3-renew-a-running-requester: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.ALapseOfARequesterThatKeptRunningIsACountedRecalibration
+R3-renewal-stays-renewing: BUILD FAILED (killed by the compiler)
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockMapping.cs(241,117): error CS1002: ; expected [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.csproj]
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/engine/gpu/WorkshopClockMapping.cs(241,117): error CS1003: Syntax error, '(' expected [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch2-9-4b/mut4/CuriousContraptions.csproj]
+R3-consumers-read-while-renewing: KILLED by 6:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AFreshExchangeThatIsNotAcceptedOrNeverAnsweredEndsTheRenewalAsARecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStalledRequestersLapseConsistentWithTheOldMappingIsRenewedLateWithoutARecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStalledRequestersLapseThatDisagreesWithTheOldMappingIsACountedRecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideConsistentFreshExchangeRenewsOnceAndContinuesInOrdinaryRecovery
+R3-renewal-discards-calibration: KILLED by 4:
+    CuriousContraptions.Tests.MurdochR3RenewalTests.AWideRenewingExchangeAbsorbsAGenuineSixtyMillisecondMoveWithoutRecalibrationOrReseed
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStalledRequestersLapseConsistentWithTheOldMappingIsRenewedLateWithoutARecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideConsistentFreshExchangeRenewsOnceAndContinuesInOrdinaryRecovery
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalBoundaryIsExactlyTheDriftWidenedOverlap(beyond: 0, renewed: True)
+R3-renewing-probe-spaced: SURVIVED
+R3-wide-offset-not-recorded: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStartupOffsetBeyondTheDeclaredUncertaintyIsAcceptedRecordedOnceAndApplied
+R3-abi-literal-reintroduced: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopAbiLiteralScanTests.NoLiteralAbiOffsetRemains(rule: WorldHeader)
+R3-ratchet-catalogue-word: KILLED by 1:
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations
+R3-ratchet-fspring-entry-removed: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink
+    CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations
+R3-F6-after-hook-close: KILLED by 1:
+    no Chrome suite closes its driver with close() in a suite after hook
+R3-J6-browser-ring-not-detached: KILLED by 1:
+    a failed client detaches its clock ring
+R3-J7-animation-ring-not-detached: KILLED by 1:
+    a disposed Animation worker holds no clock ring and refuses to probe it
+R3-J8-late-reply-after-fail: KILLED by 2:
+    a clock reply landing after disposal is never delivered
+    a clock reply landing after the client failed is never delivered
+R3-J9-late-reply-after-dispose: KILLED by 1:
+    a clock reply landing after the Animation worker was disposed never reaches the host
+R3-renewal-stays-renewing-v2: KILLED by 2:
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AStalledRequestersLapseConsistentWithTheOldMappingIsRenewedLateWithoutARecalibration
+    CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideConsistentFreshExchangeRenewsOnceAndContinuesInOrdinaryRecovery
