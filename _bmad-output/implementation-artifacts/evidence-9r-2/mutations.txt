@@ -6,6 +6,11 @@ Green (candidate, before commit):
   anvil check (every changed file, explicit list)        No warnings found ("--changed" reports no files in a worktree with unstaged edits)
   Chrome, tools/E2eRunner run --changed capacity-9r     Pass: capacity-9r 3/3 debtFaults=0 closeFindings=0; engine-core-2a1 5/5; engine-core-2b1 1/1 (evidence: chrome-capacity-9r/)
 
+Tier 3 full run on committed HEAD 1f755119 (tools/E2eRunner full, run 20261019T210623Z-47887, full-run/summary.txt):
+  verdict=Pass, 35/35 files, 169/169 tests, wall 1427 s. The run-total counters (closeFindings 1, debtFaults 1, recal 4,
+  renewedLate 1, wideOffset 1) all belong to clock-master, whose tests inject those faults and declare them; it passed 9/9.
+  capacity-9r Pass 3/3 (Parallel slot 0, 114.7 s) with every counter 0.
+
 Each mutant was applied alone to the candidate, the native suite run (dotnet test CuriousContraptions.tests), then reverted.
 
 M1 (AC1/AC2) re-add a 2,048 collider ceiling: PhysicsSceneDeclaration ctor `colliders.Length > 2048 ||`
