@@ -1,0 +1,16 @@
+## R2-edit-pinned-entry
+--- CuriousContraptions.tests/WorkshopPhysicsLawTests.cs.orig	2026-10-20 07:13:10.633619651 +0800
++++ CuriousContraptions.tests/WorkshopPhysicsLawTests.cs	2026-10-20 07:13:10.637377132 +0800
+@@ -530,7 +530,7 @@
+         new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"\b(?:_plateLoaded|currentPlateLoad|plateCol)\b", 12,
+             ViolationOwner.Story9R4, ScanVisibility.General, "plate-load state named for the element"),
+         new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\(Half\)0\.09375f", 1,
+-            ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "plate-powered gate drag encoding (compiler, not scanned)"),
++            ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "plate-powered gate drag encoding (compiler, unscanned)"),
+         new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\bContactLoadSensorDeclaration\b", 0,
+             ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "ContactLoadSensorDeclaration never compiled (zero references)"),
+         new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"b\.Drag >= 0\.08f && b\.Drag < 0\.11f", 1,
+
+filter: FullyQualifiedName~WorkshopPhysicsLawTests
+[xUnit.net 00:00:01.36]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink [FAIL]
+Failed!  - Failed:     1, Passed:    66, Skipped:     0, Total:    67, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

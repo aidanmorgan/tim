@@ -1,0 +1,40 @@
+run 20261019T230446Z-49396 verb=Run verdict=Fail
+started=2026-10-19T23:04:46.5162060+00:00 finished=2026-10-19T23:05:34.6924020+00:00 wallSeconds=48.2
+runnerSourceDigest: b15b9b4392e8d46e5b4db734b0af165d344fe14d33d305e5b24be86b0e810b3a
+sourceHead: 3414f836741b6c0bb93db8717520c816e252b259
+sourceStatusDigest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+publish: dotnet publish CuriousContraptions.web: exit 0 in 107.9 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.82
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 2
+runId: 20261019T230446Z-49396
+workers: 2
+evidenceRoot: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/wt/.anvil/e2e-runs/20261019T230446Z-49396
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: 3eeb61c5330be853cf25fa0654eb9f651b655b8abddbef45a7c9d48db63a4a9b
+bundleIdentity.start: 9ea67b7ec035cbaf0f63fd52b34eefe245325c3bc726474d9428d7ebd5c8636b
+bundleFiles: 285 (3 NotServed dot-files)
+preview: http://127.0.0.1:52845/
+servedCheck.start: pass (282 files)
+bundleIdentity.end: 9ea67b7ec035cbaf0f63fd52b34eefe245325c3bc726474d9428d7ebd5c8636b
+servedCheck.end: pass
+suiteSourceDigest.end: 3eeb61c5330be853cf25fa0654eb9f651b655b8abddbef45a7c9d48db63a4a9b
+peakRssBytes: 96796672
+selection: Mode: Selected
+selection: Tier 3 required: no
+selection: path	tools/e2e/cat-051-own-supply.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-051-own-supply
+selection: path	tools/e2e/cat-051.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-051
+selection: path	tools/e2e/cat-062.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-062
+selection: cat-062	suite: tools/e2e/cat-062.test.ts changed
+selection: cat-051-own-supply	suite: tools/e2e/cat-051-own-supply.test.ts changed
+selection: cat-051	suite: tools/e2e/cat-051.test.ts changed
+selection: engine-core-2a1	smoke pair
+selection: engine-core-2b1	smoke pair
+cat-062 outcome=Fail exit=1 tests=0 pass=0 fail=1 cancelled=0 skipped=0 todo=0 notok=1 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=212 phase=SerialAlone slot=- start=2026-10-19T23:05:33.2896460+00:00 end=2026-10-19T23:05:33.5015880+00:00 observation=Clean failures=NonZeroExit,NoTests,FailedTests,NotOkLine
+cat-051-own-supply outcome=Fail exit=1 tests=0 pass=0 fail=1 cancelled=0 skipped=0 todo=0 notok=1 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=185 phase=SerialAlone slot=- start=2026-10-19T23:05:33.6777830+00:00 end=2026-10-19T23:05:33.8629130+00:00 observation=Clean failures=NonZeroExit,NoTests,FailedTests,NotOkLine
+cat-051 outcome=Fail exit=1 tests=0 pass=0 fail=1 cancelled=0 skipped=0 todo=0 notok=1 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=181 phase=Parallel slot=0 start=2026-10-19T23:05:33.9722980+00:00 end=2026-10-19T23:05:34.1534680+00:00 observation=Clean failures=NonZeroExit,NoTests,FailedTests,NotOkLine
+engine-core-2a1 outcome=Fail exit=1 tests=0 pass=0 fail=1 cancelled=0 skipped=0 todo=0 notok=1 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=178 phase=Parallel slot=1 start=2026-10-19T23:05:34.0462500+00:00 end=2026-10-19T23:05:34.2240750+00:00 observation=Clean failures=NonZeroExit,NoTests,FailedTests,NotOkLine
+engine-core-2b1 outcome=Fail exit=1 tests=0 pass=0 fail=1 cancelled=0 skipped=0 todo=0 notok=1 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=175 phase=Parallel slot=0 start=2026-10-19T23:05:34.2476400+00:00 end=2026-10-19T23:05:34.4230110+00:00 observation=Clean failures=NonZeroExit,NoTests,FailedTests,NotOkLine
+run totals: files=5 pass=0 nonzeroExit=5 tests=0 testsPassed=0 fail=5 notok=5 closeFindings=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0

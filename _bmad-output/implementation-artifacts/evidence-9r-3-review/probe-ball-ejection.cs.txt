@@ -1,0 +1,68 @@
+    // ---- Murdoch-9 probe (Story 9R.3 review, S1). Not a deliverable: pasted into a scratch copy of WorkshopPhysicsEngineTests,
+    // inserted before `internal sealed class StepClock`, on base 9b9d26e5 and on candidate bcc83118. Records ball/blade outcomes to
+    // the file named by PROBE_OUT. Bench mirrors cat-051: gate (id 1) at (0, 3, 0) tilted 15 deg about Z (both signs tried),
+    // basketball (id 2) at (-0.08, 3, 0), battery (id 3) at (3, 3, 0) wired Supply -> gate PowerIn.
+    private static async Task<List<List<WorkshopRead>>> ProbePhases(WorkshopConstruction construction,
+        params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
+    {
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
+            GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var result = new List<List<WorkshopRead>>();
+        foreach (var (controls, ticks) in phases)
+        {
+            foreach (var control in controls) Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(control).Outcome);
+            var reads = new List<WorkshopRead>(ticks);
+            for (var tick = 0; tick < ticks; tick++)
+            {
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+                reads.Add(simulation.Committed);
+            }
+            result.Add(reads);
+        }
+        return result;
+    }
+
+    [Theory]
+    [InlineData(-1, "enabled-disable-enable")]
+    [InlineData(1, "enabled-disable-enable")]
+    [InlineData(-1, "disabled-enable")]
+    [InlineData(1, "disabled-enable")]
+    [InlineData(-1, "enabled-from-start")]
+    [InlineData(1, "enabled-from-start")]
+    public async Task Murdoch9_Probe_HeldBallOnEnable(int sign, string scenario)
+    {
+        var half = sign * 7.5 * Math.PI / 180;
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, Math.Sin(half), Math.Cos(half),
+            WorkshopCanonicalColliders.PoweredGateColliders);
+        var ball = WorkshopInput.Basketball(new(2), -0.08, 3, 0, 0, 0, 0, 1);
+        var authored = scenario == "disabled-enable" ? ElectricalEnable.Disabled : ElectricalEnable.Enabled;
+        var battery = WorkshopInput.Battery(new(3), 3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = authored });
+        var construction = Free(gate, ball, battery) with
+        {
+            Connections = new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn,
+                WorkshopConnectionDomain.Electrical))
+        };
+        var phases = scenario switch
+        {
+            "enabled-disable-enable" => await ProbePhases(construction,
+                ([new(battery.Id, ElectricalEnable.Disabled)], 180), ([new(battery.Id, ElectricalEnable.Enabled)], 300)),
+            "disabled-enable" => await ProbePhases(construction, ([], 180), ([new(battery.Id, ElectricalEnable.Enabled)], 300)),
+            _ => await ProbePhases(construction, ([], 180), ([], 300)),
+        };
+        var blade = WorkshopPhysicsCompiler.GateBlade(gate.Id);
+        string Row(WorkshopRead read)
+        {
+            var b = Find(read.Bodies, ball.Id); var g = Find(read.Bodies, blade);
+            return $"ball=({Horizontal(b):F3},{Height(b):F3}) bladeY={Height(g):F3}";
+        }
+        var held = phases[0][^1];
+        var released = phases[1];
+        var xs = released.Select(read => Horizontal(Find(read.Bodies, ball.Id))).ToArray();
+        var line = $"{Environment.GetEnvironmentVariable("PROBE_LABEL")} sign={sign} {scenario}: endPhase0 {Row(held)} | " +
+            $"endPhase1 {Row(released[^1])} | phase1 ballX min={xs.Min():F3} max={xs.Max():F3}";
+        await File.AppendAllTextAsync(Environment.GetEnvironmentVariable("PROBE_OUT") ?? "/tmp/probe.txt", line + Environment.NewLine, TestContext.Current.CancellationToken);
+    }

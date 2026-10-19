@@ -1,0 +1,16 @@
+## M5-skip-d4
+--- engine/gpu/WorkshopSimulation.cs.orig	2026-10-20 07:13:14.890575266 +0800
++++ engine/gpu/WorkshopSimulation.cs	2026-10-20 07:13:14.893540284 +0800
+@@ -321,7 +321,7 @@
+             if (!Owns(owner)) return Superseded(owner);
+             _device.Commit(new(owner));
+             // Reset alone restores the authored enable: in-run supply controls end with the run they changed.
+-            _electricalControls.Clear();
++            // MUTANT _electricalControls.Clear();
+             Committed = read;
+             _epoch = epoch.Value;
+             Phase = WorkshopSimulationPhase.Building;
+
+filter: FullyQualifiedName~WorkshopSimulationTests|FullyQualifiedName~WorkshopPhysicsEngineTests
+[xUnit.net 00:00:03.00]     CuriousContraptions.Tests.WorkshopSimulationTests.ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem [FAIL]
+Failed!  - Failed:     1, Passed:    94, Skipped:     0, Total:    95, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -145,7 +145,7 @@ development_status:
   9r-0b-aot-compiled-wasm-simd-workers: done
   9r-1-exact-run-reset-snapshot-assertions: done
   9r-2-collider-table-sized-at-run: done
-  9r-3-direct-gate-own-supply-route: backlog
+  9r-3-direct-gate-own-supply-route: done
   9r-4-pressure-plate-per-instance-load-rows: backlog
   9r-5-pressure-plate-activation-out-level: backlog
   9r-6-typed-mouth-snapping: backlog
@@ -315,5 +315,6 @@ development_status:
   f-2-aot-guard-hardening: backlog
   f-3-run-reset-snapshot-hardening: backlog
   f-4-collider-table-follow-ups: backlog
+  f-5-supply-route-follow-ups: backlog
 
 action_items: []

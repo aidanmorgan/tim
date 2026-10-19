@@ -1,0 +1,12 @@
+base sign=1 disabled-enable: endPhase0 ball=(-2.169,0.663) bladeY=3.000 | endPhase1 ball=(-4.719,-0.120) bladeY=3.000 | phase1 ballX min=-4.719 max=-2.179
+base sign=-1 enabled-from-start: endPhase0 ball=(-1.117,1.764) bladeY=4.497 | endPhase1 ball=(-2.748,-0.120) bladeY=4.497 | phase1 ballX min=-2.748 max=-1.124
+base sign=-1 enabled-disable-enable: endPhase0 ball=(-0.466,2.804) bladeY=3.000 | endPhase1 ball=(2.009,0.644) bladeY=4.497 | phase1 ballX min=-0.466 max=2.009
+base sign=1 enabled-disable-enable: endPhase0 ball=(-2.169,0.663) bladeY=3.000 | endPhase1 ball=(-4.719,-0.120) bladeY=4.497 | phase1 ballX min=-4.719 max=-2.179
+base sign=-1 disabled-enable: endPhase0 ball=(-0.466,2.804) bladeY=3.000 | endPhase1 ball=(-0.466,2.804) bladeY=3.000 | phase1 ballX min=-0.466 max=-0.466
+base sign=1 enabled-from-start: endPhase0 ball=(-2.311,0.656) bladeY=4.497 | endPhase1 ball=(-5.190,-0.120) bladeY=4.497 | phase1 ballX min=-5.190 max=-2.323
+cand sign=-1 disabled-enable: endPhase0 ball=(-0.466,2.804) bladeY=3.000 | endPhase1 ball=(2.012,0.643) bladeY=4.497 | phase1 ballX min=-0.466 max=2.012
+cand sign=1 disabled-enable: endPhase0 ball=(-2.169,0.663) bladeY=3.000 | endPhase1 ball=(-4.719,-0.120) bladeY=4.497 | phase1 ballX min=-4.719 max=-2.179
+cand sign=1 enabled-disable-enable: endPhase0 ball=(-2.169,0.663) bladeY=3.000 | endPhase1 ball=(-4.719,-0.120) bladeY=4.497 | phase1 ballX min=-4.719 max=-2.179
+cand sign=-1 enabled-from-start: endPhase0 ball=(-1.118,1.758) bladeY=4.497 | endPhase1 ball=(-2.749,-0.120) bladeY=4.497 | phase1 ballX min=-2.749 max=-1.126
+cand sign=1 enabled-from-start: endPhase0 ball=(-2.311,0.656) bladeY=4.497 | endPhase1 ball=(-5.190,-0.120) bladeY=4.497 | phase1 ballX min=-5.190 max=-2.323
+cand sign=-1 enabled-disable-enable: endPhase0 ball=(-0.466,2.804) bladeY=3.000 | endPhase1 ball=(2.012,0.643) bladeY=4.497 | phase1 ballX min=-0.466 max=2.012

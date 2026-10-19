@@ -1,0 +1,26 @@
+#!/bin/zsh
+# Murdoch-9 mutants for Story 9R.3. Each is applied alone to the scratch candidate copy (git archive of bcc83118, which also
+# carried the S1 probe's 6 theory cases, so filtered totals include them), tested natively, then reverted.
+# M7 first ran as `var gatePowered = true;`, which failed to compile (IDE0060, unused plateLoaded); it was re-run as below.
+C=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/cand
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-3-review/mutants
+mkdir -p $E
+SOLVER=CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+SIM=engine/gpu/WorkshopSimulation.cs
+LAW=CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+cd $C
+run() { # name file sed-expr filter
+  local name=$1 file=$2 expr=$3 filter=$4
+  cp $file $file.orig
+  sed -i '' "$expr" $file
+  { echo "## $name"; diff -u $file.orig $file; echo; echo "filter: $filter"; } > $E/$name.log
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --filter "$filter" 2>&1 | grep -E "\[FAIL\]|Passed!|Failed!|error " >> $E/$name.log
+  mv $file.orig $file
+  echo "== $name"; grep -E "\[FAIL\]|Passed!|Failed!|error " $E/$name.log | head -12
+}
+ENGINE="FullyQualifiedName~WorkshopPhysicsEngineTests|FullyQualifiedName~WorkshopSpringboardTests|FullyQualifiedName~PoweredGateTests|FullyQualifiedName~PressurePlateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~CounterTests|FullyQualifiedName~WorkshopPhysicsLawTests|FullyQualifiedName~ElectricalSupplyTests"
+run M4-no-supply-check $SOLVER 's/            if (joint.SupplyClosed)$/            if (true)/' "$ENGINE"
+run M7-drop-plate-band $SOLVER 's/var gatePowered = !(b.Drag >= 0.08f \&\& b.Drag < 0.11f) || plateLoaded;/var gatePowered = plateLoaded || !plateLoaded;/' "$ENGINE"
+run R1-readd-direct-band $SOLVER 's/var gatePowered = !(b.Drag >= 0.08f \&\& b.Drag < 0.11f) || plateLoaded;/var gatePowered = !(b.Drag >= 0.08f \&\& b.Drag < 0.11f) || plateLoaded || (b.Drag > 0.03f \&\& b.Drag < 0.08f \&\& plateLoaded);/' "FullyQualifiedName~WorkshopPhysicsLawTests"
+run R2-edit-pinned-entry $LAW 's/plate-powered gate drag encoding (compiler, not scanned)/plate-powered gate drag encoding (compiler, unscanned)/' "FullyQualifiedName~WorkshopPhysicsLawTests"
+run M5-skip-d4 $SIM '324s/            _electricalControls.Clear();/            \/\/ MUTANT _electricalControls.Clear();/' "FullyQualifiedName~WorkshopSimulationTests|FullyQualifiedName~WorkshopPhysicsEngineTests"

@@ -1234,7 +1234,11 @@ So that a full bench of bends never crashes when I press Run.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.3: Each Directly Wired Gate Follows Its Own Battery (Story 8.2 Repair)
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-9 gave a scoped Pass on `3414f836` ([review](../implementation-artifacts/review-9r-3-direct-gate-own-supply-route.md)).*
+- *Gates now open and close with their own battery's in-run Enable or Disable, including on two separate circuits.*
+- *Coordinator decision, 20 Oct 2026, on the spec row "Authored Disabled, enabled in run → the ball passes": the gate opens and releases the ball, which meets the epics AC.*
+- *A ball already resting against the closed, tilted blade is thrown back upstream when the blade rises. That behaviour exists on base too, and Story 9A.19 now owns it.*
+- *Findings are filed to Story F.5.*
 
 *Depends on: Story 9R.1. Closes report #2:*
 - *Direct-mode gates are compiled from the battery's **authored** enable (`WorkshopPhysicsCompiler.cs:190-206`, blade drag 0.0625).*
@@ -2158,6 +2162,7 @@ So that any slider element can declare a drive and the solver never recognises a
 - **And** the drive is enabled only by the compiled supply route rows from Stories 9.4, 9R.3 and 9R.4, unchanged. Golden route and drive rows are identical before and after.
 - **And** a box body with the gate's dimensions and joint limit but no declared drive never actuates (negative control for the heuristics).
 - **And** the Story 9R.3 own-supply and two-battery checks still pass (regression, not re-implementation).
+- **And** when a gate is enabled during Run with a ball resting against its closed, tilted blade, the ball passes through and is not thrown back out of the entry mouth. A Chrome check asserts that the ball ends downstream. This behaviour predates Story 9R.3 (base matches candidate in Murdoch-9's probe) and was filed here by the coordinator on 20 Oct 2026.
 - **And** `cat-051`, `cat-052`, `cat-037`, `cat-005-n19` and `cat-051-interrupt` pass.
 - **And** the element-scan ratchet test introduced in Story 9.4b (`WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial`) has an empty known-violations list. 9R.3 and 9R.4 each remove their own entries, and this story removes the last (gate travel-limit recognition and the literal drive constants). The list then stays empty permanently (coordinator decision, 18 Oct 2026).
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
@@ -3502,6 +3507,20 @@ So that Curious Contraptions is ready for public release.
 ## Filed Follow-ups (back of the queue)
 
 *Owner decision, 19 Oct 2026, evening: review findings beyond a story's own acceptance criteria are filed here, after every other queued story, unless they are a player-visible crash. See the [verification tiers](autonomous-development-guide.md#verification-tiers).*
+
+### Story F.5: Supply Route Follow-ups
+*Status: Backlog. Filed from the Story 9R.3 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-3-direct-gate-own-supply-route.md)).*
+
+**Acceptance Criteria:**
+- **Plate drag band:** the plate drag-band ratchet owner and the code comments agree (F3), and a native test covers the plate interim's behaviour (F4).
+- **Docs and comments:**
+  - the CAT-051 doc states the decided binary enable (F5);
+  - the D4 comment in Chrome is accurate (F6);
+  - the two "SwitchedSupply" test names are renamed (F9).
+- **Mutant coverage:** `WorkshopSpringboardTests` kills the "drop `SupplyClosed`" mutant, or the spec is amended (F2).
+- **Declaration:** `PoweredGateElementDeclaration` drag 0.05 is reconciled (F7).
+- **Supply:** supply comes from remaining battery charge, not enable alone (deferred by the coordinator).
+- **Scheduling:** cat-051-own-supply is requalified as Parallel only through calibration (F8).
 
 ### Story F.4: Collider Table Follow-ups
 *Status: Backlog. Filed from the Story 9R.2 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-2-collider-table-sized-at-run.md)).*

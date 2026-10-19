@@ -1,0 +1,19 @@
+## M4-no-supply-check
+--- CuriousContraptions.Simulation/PrismaticConstraintSolver.cs.orig	2026-10-20 07:12:55.818848906 +0800
++++ CuriousContraptions.Simulation/PrismaticConstraintSolver.cs	2026-10-20 07:12:55.822679804 +0800
+@@ -241,7 +241,7 @@
+     {
+         foreach (var joint in joints)
+         {
+-            if (joint.SupplyClosed)
++            if (true)
+             {
+                 var b = joint.B;
+                 var frame = joint.A;
+
+filter: FullyQualifiedName~WorkshopPhysicsEngineTests|FullyQualifiedName~WorkshopSpringboardTests|FullyQualifiedName~PoweredGateTests|FullyQualifiedName~PressurePlateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~CounterTests|FullyQualifiedName~WorkshopPhysicsLawTests|FullyQualifiedName~ElectricalSupplyTests
+[xUnit.net 00:00:05.69]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnUnpoweredGateStaysClosed [FAIL]
+[xUnit.net 00:00:06.22]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TwoCircuitsAreIndependent [FAIL]
+[xUnit.net 00:00:06.32]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun [FAIL]
+[xUnit.net 00:00:06.38]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnEnabledBatteryClosesItsGateWhenDisabledInRun [FAIL]
+Failed!  - Failed:     4, Passed:   224, Skipped:     0, Total:   228, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

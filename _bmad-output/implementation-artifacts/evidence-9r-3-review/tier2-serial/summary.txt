@@ -1,0 +1,40 @@
+run 20261019T231737Z-70937 verb=Run verdict=Pass
+started=2026-10-19T23:17:37.1139870+00:00 finished=2026-10-19T23:22:47.5649850+00:00 wallSeconds=310.5
+runnerSourceDigest: b15b9b4392e8d46e5b4db734b0af165d344fe14d33d305e5b24be86b0e810b3a
+sourceHead: 3414f836741b6c0bb93db8717520c816e252b259
+sourceStatusDigest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+publish: dotnet publish CuriousContraptions.web: exit 0 in 110.0 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.82
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 1
+runId: 20261019T231737Z-70937
+workers: 1
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch9-9r3/.anvil/e2e-runs/20261019T231737Z-70937
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: 3eeb61c5330be853cf25fa0654eb9f651b655b8abddbef45a7c9d48db63a4a9b
+bundleIdentity.start: 85684620d8da4e40e058ecdb4522e341616fb73e96e4755b7e6e7be30d284cff
+bundleFiles: 285 (3 NotServed dot-files)
+preview: http://127.0.0.1:53565/
+servedCheck.start: pass (282 files)
+bundleIdentity.end: 85684620d8da4e40e058ecdb4522e341616fb73e96e4755b7e6e7be30d284cff
+servedCheck.end: pass
+suiteSourceDigest.end: 3eeb61c5330be853cf25fa0654eb9f651b655b8abddbef45a7c9d48db63a4a9b
+peakRssBytes: 3503947776
+selection: Mode: Selected
+selection: Tier 3 required: no
+selection: path	tools/e2e/cat-051-own-supply.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-051-own-supply
+selection: path	tools/e2e/cat-051.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-051
+selection: path	tools/e2e/cat-062.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-062
+selection: cat-062	suite: tools/e2e/cat-062.test.ts changed
+selection: cat-051-own-supply	suite: tools/e2e/cat-051-own-supply.test.ts changed
+selection: cat-051	suite: tools/e2e/cat-051.test.ts changed
+selection: engine-core-2a1	smoke pair
+selection: engine-core-2b1	smoke pair
+cat-062 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=2 debtFaults=0 durationMs=129465 phase=SerialAlone slot=- start=2026-10-19T23:17:39.2907590+00:00 end=2026-10-19T23:19:48.7557180+00:00 observation=Clean
+cat-051-own-supply outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=92466 phase=SerialAlone slot=- start=2026-10-19T23:19:48.9355250+00:00 end=2026-10-19T23:21:21.4010730+00:00 observation=Clean
+cat-051 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=57986 phase=Parallel slot=0 start=2026-10-19T23:21:21.5100290+00:00 end=2026-10-19T23:22:19.4962070+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18770 phase=Parallel slot=0 start=2026-10-19T23:22:19.5889800+00:00 end=2026-10-19T23:22:38.3588560+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8852 phase=Parallel slot=0 start=2026-10-19T23:22:38.4511980+00:00 end=2026-10-19T23:22:47.3033390+00:00 observation=Clean
+run totals: files=5 pass=5 nonzeroExit=0 tests=24 testsPassed=24 fail=0 notok=0 closeFindings=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=2 debtFaults=0

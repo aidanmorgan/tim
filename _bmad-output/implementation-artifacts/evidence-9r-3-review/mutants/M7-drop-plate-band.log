@@ -1,0 +1,16 @@
+## M7-drop-plate-band
+--- CuriousContraptions.Simulation/PrismaticConstraintSolver.cs.orig	2026-10-20 07:13:30.915049992 +0800
++++ CuriousContraptions.Simulation/PrismaticConstraintSolver.cs	2026-10-20 07:13:30.918661973 +0800
+@@ -249,7 +249,7 @@
+ 
+                 // Story 9R.3 D3 interim (Story 9R.4 replaces it with a per-plate switched row): a plate-fed gate's supplied route
+                 // drives only while the plate is loaded.
+-                var gatePowered = !(b.Drag >= 0.08f && b.Drag < 0.11f) || plateLoaded;
++                var gatePowered = plateLoaded || !plateLoaded;
+ 
+                 if (gatePowered)
+                 {
+
+filter: FullyQualifiedName~WorkshopPhysicsEngineTests|FullyQualifiedName~WorkshopSpringboardTests|FullyQualifiedName~PoweredGateTests|FullyQualifiedName~PressurePlateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~CounterTests|FullyQualifiedName~WorkshopPhysicsLawTests|FullyQualifiedName~ElectricalSupplyTests
+[xUnit.net 00:00:01.34]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [FAIL]
+Failed!  - Failed:     1, Passed:   227, Skipped:     0, Total:   228, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

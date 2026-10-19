@@ -1,0 +1,3 @@
+tools/e2e/cat-051.test.ts
+tools/e2e/cat-051-own-supply.test.ts
+tools/e2e/cat-062.test.ts

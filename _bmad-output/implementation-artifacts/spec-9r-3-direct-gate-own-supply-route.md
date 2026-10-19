@@ -2,7 +2,7 @@
 title: 'Story 9R.3: Each Directly Wired Gate Follows Its Own Battery (Story 8.2 Repair)'
 type: 'bugfix'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
