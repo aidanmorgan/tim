@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj (in 112 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj (in 112 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Animation/CuriousContraptions.Animation.csproj (in 112 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj (in 112 ms).
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  Optimizing assemblies for size. This process might take a while.
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.web/WorkerAot.targets(39,5): error : WorkerAot (a): the worker must publish with RunAOTCompilation, WasmEnableSIMD and WasmStripILAfterAOT true and AOTMode LLVMOnly (got false, true, true, LLVMOnly). [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]

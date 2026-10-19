@@ -1166,7 +1166,11 @@ So that element delivery isn't gated on a 26-minute serial run.
 - **And** `dotnet build` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and the Node harnesses pass.
 
 ### Story 9R.0b: AOT-Compiled WASM SIMD Workers
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-6 gave a scoped Pass on `7a8a48e4` ([review](../implementation-artifacts/review-9r-0b-aot-compiled-wasm-simd-workers.md)).*
+- *Both workers now ship as LLVMOnly AOT wasm-simd128 code, behind a publish guard.*
+- *Physics tick p50 fell from 3.91 ms to 0.54 ms on cat-023b, and the solver uses 66 f32x4 operations.*
+- *The full run passed 166/166.*
+- *Findings F1–F12 are filed to Story F.2.*
 
 *Depends on: Story 9.4b. New story (coordinator, 18 Oct 2026). It restores a stated requirement: AGENTS.md and `docs/gpu-f32-physics.md` require WebAssembly 128-bit SIMD physics on a dedicated worker. Neither `CuriousContraptions.Simulation.csproj` nor `CuriousContraptions.Animation.Worker.csproj` sets `RunAOTCompilation`, so both workers run .NET IL in the WebAssembly interpreter, where `WasmEnableSIMD` cannot vectorise managed code. Story 9.4b measured physics ticks at 3–4 ms in Chrome against about 0.08 ms native.*
 
@@ -3487,6 +3491,26 @@ So that Curious Contraptions is ready for public release.
 ## Filed Follow-ups (back of the queue)
 
 *Owner decision, 19 Oct 2026, evening: review findings beyond a story's own acceptance criteria are filed here, after every other queued story, unless they are a player-visible crash. See the [verification tiers](autonomous-development-guide.md#verification-tiers).*
+
+### Story F.2: AOT Publish Guard Hardening
+*Status: Backlog. Filed from the Story 9R.0b review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-0b-aot-compiled-wasm-simd-workers.md)). Amelia-5's partly finished work is on branch `story-f2-aot-guard-hardening`.*
+
+**Acceptance Criteria:**
+- **Guard checks:**
+  - the guard fails on any skipped engine or FlatBuffers method, or on a missing `aot_instances` symbol;
+  - the outer guard fails when a nested report is missing;
+  - the guard's tests run in the hook and in CI;
+  - a missing wasm-tools workload or AOT cross-compiler produces an explicit error.
+- **SIMD proof:** each hot solver function has a minimum f32x4 count, and the Animation worker's `.o` is counted too.
+- **Cross-thread audit:** the audit is corrected (`MachineWorld.Gpu.cs:311-318`, which bit-compares the main thread's results with the worker's), and a property test covers the reachable rotations.
+- **Coverage and measurements:**
+  - a suite throws and catches an exception inside the worker under LLVMOnly;
+  - the CI publish time is measured;
+  - the size and publish-time evidence is committed.
+- **Lows:**
+  - stale extra files in the host folders;
+  - the namespace shape;
+  - the largest-fixture claim.
 
 ### Story F.1: E2E Runner Hardening
 *Status: Backlog. Cut from Story 9R.0a on 19 Oct 2026.*

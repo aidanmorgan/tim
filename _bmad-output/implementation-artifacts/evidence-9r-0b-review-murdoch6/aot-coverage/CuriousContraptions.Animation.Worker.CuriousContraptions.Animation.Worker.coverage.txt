@@ -1,0 +1,1 @@
+CuriousContraptions.Animation.Worker.dll: withBody=4951 tokenListed=4875 notListedButSymbol=76 genericNoSymbol=0 unresolved=0

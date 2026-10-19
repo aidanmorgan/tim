@@ -1,0 +1,59 @@
+000a3231 <corlib_System_Numerics_Quaternion_op_Multiply_System_Numerics_Quaternion_System_Numerics_Quaternion>:
+        .local v128, v128, v128, v128
+   a3236: 20 00        	local.get	0
+   a3238: 20 01        	local.get	1
+   a323a: fd 00 04 00  	v128.load	0
+   a323e: 22 04        	local.tee	4
+   a3240: 20 04        	local.get	4
+   a3242: fd 0d 08 09 0a 0b 08 09 0a 0b 08 09 0a 0b 08 09 0a 0b	i8x16.shuffle	8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11
+   a3254: 20 02        	local.get	2
+   a3256: fd 00 04 00  	v128.load	0
+   a325a: 22 05        	local.tee	5
+   a325c: fd 0c 04 00 00 00 00 00 00 00 0c 00 00 00 08 00 00 00	v128.const	4, 0, 12, 8
+   a326e: fd 0c 00 00 00 00 04 04 04 04 08 08 08 08 0c 0c 0c 0c	v128.const	0, 67372036, 134744072, 202116108
+   a3280: 22 06        	local.tee	6
+   a3282: fd 0e        	i8x16.swizzle
+   a3284: fd 0c 00 01 02 03 00 01 02 03 00 01 02 03 00 01 02 03	v128.const	50462976, 50462976, 50462976, 50462976
+   a3296: 22 07        	local.tee	7
+   a3298: fd 6e        	i8x16.add
+   a329a: fd 0e        	i8x16.swizzle
+   a329c: fd e6 01     	f32x4.mul
+   a329f: fd 0c 00 00 80 bf 00 00 80 3f 00 00 80 3f 00 00 80 bf	v128.const	3212836864, 1065353216, 1065353216, 3212836864
+   a32b1: fd e6 01     	f32x4.mul
+   a32b4: 20 04        	local.get	4
+   a32b6: 20 04        	local.get	4
+   a32b8: fd 0d 04 05 06 07 04 05 06 07 04 05 06 07 04 05 06 07	i8x16.shuffle	4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7
+   a32ca: 20 05        	local.get	5
+   a32cc: fd 0c 08 00 00 00 0c 00 00 00 00 00 00 00 04 00 00 00	v128.const	8, 12, 0, 4
+   a32de: 20 06        	local.get	6
+   a32e0: fd 0e        	i8x16.swizzle
+   a32e2: 20 07        	local.get	7
+   a32e4: fd 6e        	i8x16.add
+   a32e6: fd 0e        	i8x16.swizzle
+   a32e8: fd e6 01     	f32x4.mul
+   a32eb: fd 0c 00 00 80 3f 00 00 80 3f 00 00 80 bf 00 00 80 bf	v128.const	1065353216, 1065353216, 3212836864, 3212836864
+   a32fd: fd e6 01     	f32x4.mul
+   a3300: 20 05        	local.get	5
+   a3302: 20 04        	local.get	4
+   a3304: 20 04        	local.get	4
+   a3306: fd 0d 0c 0d 0e 0f 0c 0d 0e 0f 0c 0d 0e 0f 0c 0d 0e 0f	i8x16.shuffle	12, 13, 14, 15, 12, 13, 14, 15, 12, 13, 14, 15, 12, 13, 14, 15
+   a3318: fd e6 01     	f32x4.mul
+   a331b: 20 04        	local.get	4
+   a331d: 20 04        	local.get	4
+   a331f: fd 0d 00 01 02 03 00 01 02 03 00 01 02 03 00 01 02 03	i8x16.shuffle	0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3
+   a3331: 20 05        	local.get	5
+   a3333: fd 0c 0c 00 00 00 08 00 00 00 04 00 00 00 00 00 00 00	v128.const	12, 8, 4, 0
+   a3345: 20 06        	local.get	6
+   a3347: fd 0e        	i8x16.swizzle
+   a3349: 20 07        	local.get	7
+   a334b: fd 6e        	i8x16.add
+   a334d: fd 0e        	i8x16.swizzle
+   a334f: fd e6 01     	f32x4.mul
+   a3352: fd 0c 00 00 80 3f 00 00 80 bf 00 00 80 3f 00 00 80 bf	v128.const	1065353216, 3212836864, 1065353216, 3212836864
+   a3364: fd e6 01     	f32x4.mul
+   a3367: fd e4 01     	f32x4.add
+   a336a: fd e4 01     	f32x4.add
+   a336d: fd e4 01     	f32x4.add
+   a3370: fd 0b 00 00  	v128.store	0:p2align=0
+   a3374: 0b           	end
+

@@ -1,0 +1,43 @@
+// Murdoch-6 probe: for every method with an IL body in an engine assembly, is there a compiled symbol?
+// Args: <aot-in assembly> <compiled_methods token file> <nm symbol list file>...
+// A method in the token file is compiled (Mono wrote it as trimmable after compiling it). For the rest, look for a
+// defined symbol whose alphanumeric form contains TypeChain+Method (alphanumeric), in any of the given symbol lists.
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
+using System.Text;
+
+static string Alnum(string s) { var b = new StringBuilder(); foreach (var c in s) if (char.IsLetterOrDigit(c)) b.Append(c); return b.ToString(); }
+
+var assembly = args[0];
+var tokens = File.ReadAllLines(args[1]).Skip(2).Where(l => l.Length > 0).Select(l => Convert.ToInt32(l, 16)).ToHashSet();
+var symbols = args.Skip(2).SelectMany(File.ReadAllLines).Select(l => l.Split(' ').Last()).Select(Alnum).ToArray();
+var symbolText = string.Join("\n", symbols);
+using var stream = File.OpenRead(assembly);
+using var pe = new PEReader(stream);
+var md = pe.GetMetadataReader();
+int withBody = 0, listed = 0, foundBySymbol = 0, genericMissing = 0, unresolved = 0;
+foreach (var handle in md.MethodDefinitions)
+{
+    var method = md.GetMethodDefinition(handle);
+    if (method.RelativeVirtualAddress == 0) continue;
+    withBody++;
+    if (tokens.Contains(MetadataTokens.GetToken(handle))) { listed++; continue; }
+    var typeHandle = method.GetDeclaringType();
+    var chain = new List<string>();
+    var generic = method.GetGenericParameters().Count > 0;
+    for (var t = typeHandle; !t.IsNil;)
+    {
+        var td = md.GetTypeDefinition(t);
+        generic |= td.GetGenericParameters().Count > 0;
+        chain.Insert(0, md.GetString(td.Name));
+        t = td.GetDeclaringType();
+    }
+    var name = md.GetString(method.Name);
+    var needle = Alnum(string.Join("", chain) + name);
+    if (symbolText.Contains(needle, StringComparison.Ordinal)) { foundBySymbol++; continue; }
+    if (generic) { genericMissing++; Console.WriteLine($"GENERIC-NO-SYMBOL {MetadataTokens.GetToken(handle):X8} {string.Join("/", chain)}::{name}"); continue; }
+    unresolved++;
+    Console.WriteLine($"UNRESOLVED {MetadataTokens.GetToken(handle):X8} {string.Join("/", chain)}::{name}");
+}
+Console.WriteLine($"{Path.GetFileName(assembly)}: withBody={withBody} tokenListed={listed} notListedButSymbol={foundBySymbol} genericNoSymbol={genericMissing} unresolved={unresolved}");

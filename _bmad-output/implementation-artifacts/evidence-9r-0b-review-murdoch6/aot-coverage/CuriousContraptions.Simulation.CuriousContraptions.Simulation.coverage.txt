@@ -1,0 +1,1 @@
+CuriousContraptions.Simulation.dll: withBody=5200 tokenListed=5082 notListedButSymbol=118 genericNoSymbol=0 unresolved=0

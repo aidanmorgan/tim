@@ -142,7 +142,7 @@ development_status:
   # owner 19 Oct 2026: tiered verification + parallel Chrome for non-timing suites
   9r-0a-tiered-parallel-e2e-runner: done
   # coordinator 18 Oct 2026: workers are not AOT-compiled (interpreted), so AGENTS.md wasm-simd128 is unmet
-  9r-0b-aot-compiled-wasm-simd-workers: backlog
+  9r-0b-aot-compiled-wasm-simd-workers: done
   9r-1-exact-run-reset-snapshot-assertions: backlog
   9r-2-collider-table-sized-at-run: backlog
   9r-3-direct-gate-own-supply-route: backlog
@@ -312,5 +312,6 @@ development_status:
 
   # Filed follow-ups (owner 19 Oct 2026: findings beyond a story's ACs go to the back of the queue)
   f-1-e2e-runner-hardening: backlog
+  f-2-aot-guard-hardening: backlog
 
 action_items: []

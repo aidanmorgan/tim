@@ -1,0 +1,3 @@
+label=r2-aoff-runaot-false args=-p:RunAOTCompilation=false exit=1 seconds=6 head=7a8a48e4 targets_sha256=7bf6a91f26a4d4e0
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.web/WorkerAot.targets(47,5): error : WorkerAot (b): this publish did not AOT-compile the worker (RunAOTCompilation=false). [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]

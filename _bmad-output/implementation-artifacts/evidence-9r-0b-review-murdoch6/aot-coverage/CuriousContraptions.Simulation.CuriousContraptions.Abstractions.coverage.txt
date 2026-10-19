@@ -1,0 +1,1 @@
+CuriousContraptions.Abstractions.dll: withBody=24 tokenListed=23 notListedButSymbol=1 genericNoSymbol=0 unresolved=0

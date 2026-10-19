@@ -1,0 +1,54 @@
+// Murdoch-6 probe: lists the call targets in the IL of <Type>::<Method> overloads of an assembly.
+// Args: <assembly> <type full name> <method name>
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
+
+using var stream = File.OpenRead(args[0]);
+using var pe = new PEReader(stream);
+var md = pe.GetMetadataReader();
+string TypeName(EntityHandle h) => h.Kind switch
+{
+    HandleKind.TypeDefinition => md.GetString(md.GetTypeDefinition((TypeDefinitionHandle)h).Namespace) + "." + md.GetString(md.GetTypeDefinition((TypeDefinitionHandle)h).Name),
+    HandleKind.TypeReference => md.GetString(md.GetTypeReference((TypeReferenceHandle)h).Namespace) + "." + md.GetString(md.GetTypeReference((TypeReferenceHandle)h).Name),
+    HandleKind.TypeSpecification => "typespec",
+    _ => h.Kind.ToString(),
+};
+string Member(int token)
+{
+    var h = MetadataTokens.EntityHandle(token);
+    switch (h.Kind)
+    {
+        case HandleKind.MethodDefinition:
+            var m = md.GetMethodDefinition((MethodDefinitionHandle)h);
+            return TypeName(m.GetDeclaringType()) + "::" + md.GetString(m.Name);
+        case HandleKind.MemberReference:
+            var r = md.GetMemberReference((MemberReferenceHandle)h);
+            return TypeName(r.Parent) + "::" + md.GetString(r.Name);
+        case HandleKind.MethodSpecification:
+            var s = md.GetMethodSpecification((MethodSpecificationHandle)h);
+            return "spec " + Member(MetadataTokens.GetToken(s.Method));
+        default: return h.Kind.ToString();
+    }
+}
+foreach (var th in md.TypeDefinitions)
+{
+    var td = md.GetTypeDefinition(th);
+    if (md.GetString(td.Namespace) + "." + md.GetString(td.Name) != args[1]) continue;
+    foreach (var mh in td.GetMethods())
+    {
+        var m = md.GetMethodDefinition(mh);
+        if (md.GetString(m.Name) != args[2] || m.RelativeVirtualAddress == 0) continue;
+        var body = pe.GetMethodBody(m.RelativeVirtualAddress);
+        var il = body.GetILBytes()!;
+        Console.WriteLine($"== {args[1]}::{args[2]} token {MetadataTokens.GetToken(mh):X8} il={il.Length} bytes");
+        // Scan for call (0x28), callvirt (0x6F), newobj (0x73) followed by a 4-byte token (heuristic decode).
+        for (var i = 0; i + 4 < il.Length; i++)
+            if (il[i] is 0x28 or 0x6F or 0x73)
+            {
+                var token = BitConverter.ToInt32(il, i + 1);
+                var table = token >> 24;
+                if (table is 0x06 or 0x0A or 0x2B) { try { Console.WriteLine($"  {il[i]:X2} {Member(token)}"); } catch (BadImageFormatException) { } }
+            }
+    }
+}

@@ -1,0 +1,5 @@
+label=r0-green args= exit=0 seconds=24 head=7a8a48e4 targets_sha256=4c91373b93294055
+WORKER_AOT_SIMD_INSTRUCTIONS[PrismaticConstraintSolver]=55
+WORKER_AOT_SIMD_INSTRUCTIONS[SoftConstraint]=8
+WORKER_AOT_SIMD_INSTRUCTIONS[WorkshopPhysicsEngine]=3
+WORKER_AOT_SIMD_INSTRUCTIONS=66 (per function: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-red/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/worker-aot-simd.txt)

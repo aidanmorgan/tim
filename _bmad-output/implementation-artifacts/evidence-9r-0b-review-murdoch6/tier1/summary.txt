@@ -1,0 +1,10 @@
+head=7a8a48e44ea3696604544719c4ab66d570aa0e73 status=       0
+build exit=0 secs=15
+build-playtest exit=0 secs=8
+test exit=0 secs=30
+node-harnesses exit=0 secs=1
+lifecycle-contract exit=0 secs=1
+wire-contract exit=0 secs=2
+ownership exit=0 (rerun with --oracles; first call had no operation argument)
+anvil exit=0 secs=0
+status-after=       0

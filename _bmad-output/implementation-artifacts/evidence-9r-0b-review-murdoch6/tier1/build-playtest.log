@@ -1,0 +1,45 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/Ball/bin/Debug/net10.0/Ball.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/Counter/bin/Debug/net10.0/Counter.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch6-9r0b/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.00
