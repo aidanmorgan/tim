@@ -1,0 +1,18 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:06.23]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled [4 s]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["44229 /opt/homebrew/Cellar/node/26.12.0/bin/node -"···, "44244 sleep 600"]
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 87
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    12, Skipped:     0, Total:    13, Duration: 5 s - E2eRunner.Tests.dll (net10.0)

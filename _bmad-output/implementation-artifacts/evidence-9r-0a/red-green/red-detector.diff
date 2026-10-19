@@ -1,0 +1,4 @@
+--- a/tools/E2eRunner/TimingDetector.cs
++++ b/tools/E2eRunner/TimingDetector.cs
+@@ -214,0 +215 @@
++        if (Environment.ProcessorCount > 0) return [];

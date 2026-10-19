@@ -48,7 +48,7 @@ Every story is an INVEST vertical slice: delivering one player-observable behavi
 - **NFR-03 (Forward-Only Refactoring):** Zero backwards-compatibility shims, legacy flags, or CPU fallback paths. Superseded code is deleted in the slice that replaces it.
 - **NFR-04 (Game-Grade Numerical Envelope):** Clamp-or-continue numerical policy. Residuals clamp; non-finite states preserve prior poses; ticks never fault.
 - **NFR-05 (Strict Type Safety):** Closed sets are enums end-to-end; extensible identities use strongly typed IDs; string conversions exist only at external boundaries.
-- **NFR-06 (Automated Verification Rigor):** Every slice must pass the C# static gate (`dotnet build CuriousContraptions.slnx` with analyzers and warnings as errors, 0 warnings; anvil does not analyse C#), `anvil check --changed` with 0 warnings for non-C# files, `dotnet test CuriousContraptions.slnx` 100% (557+ tests), and serial Playwright E2E tests in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts` plus all cumulative regression suites).
+- **NFR-06 (Automated Verification Rigor):** Every slice must pass the C# static gate (`dotnet build CuriousContraptions.slnx` with analyzers and warnings as errors, 0 warnings; anvil does not analyse C#), `anvil check --changed` with 0 warnings for non-C# files, `dotnet test CuriousContraptions.slnx` 100% (557+ tests), and the Playwright E2E suites its verification tiers require in actual Chrome, run by `tools/E2eRunner` (the Tier 2 impact selection, plus the Tier 3 full run by `tools/E2eRunner` when required; [Verification tiers](autonomous-development-guide.md#verification-tiers)).
 
 ---
 
@@ -59,7 +59,7 @@ Every single story across all epics must formally satisfy the following mandator
 1. **C# Unit Tests Pass 100%:** `dotnet test CuriousContraptions.slnx` passes 100% with 0 failures (557+ tests).
 2. **C# Static Gate Clean:** `dotnet build CuriousContraptions.slnx` reports **0 warnings and 0 errors** with the .NET analyzers and warnings as errors (`Directory.Build.props`, Story 9R.0), in the default configuration and with `-p:PlaytestDiagnostics=true`, and the web host's own sources compile clean. `CSharpStaticGateTests` passes (no suppression, no widened exemption, no swallowed exception). The repository pre-commit hook checks all of this on a from-scratch snapshot of the staged index and refuses a commit that fails; CI repeats the builds. Until the Story 9.4b rebase, the one expected warning is IL2125. Anvil does not analyse C#: `anvil check --changed` with 0 warnings applies to non-C# files only and is never evidence for C# code.
 3. **Browser-Based Playwright E2E Suite Passes 100%:** The story's dedicated browser-based Playwright E2E test suite (`tools/e2e/<suite>.test.ts`) executed in actual Chrome via the Playwright browser connector passes 100%.
-4. **Cumulative E2E Regression Suites Pass 100% Serially in Chrome:** All prior cumulative browser-based E2E regression suites (`tools/e2e/*.test.ts`) execute serially in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000`) and pass 100%. A 100% pass rate across both the slice's E2E test and all cumulative E2E regression suites is mandatory before any story can be marked complete. Any browser failure or regression strictly blocks completion.
+4. **Required E2E Tiers Pass 100% in Chrome:** The story's Tier 2 impact selection (`dotnet run --project tools/E2eRunner -- run --diff <base> --out <D>`), and the Tier 3 full run by `tools/E2eRunner` when the story makes a material engine change, pass 100% in actual Chrome: timing-sensitive suites run alone, the rest on N measured parallel workers ([Verification tiers](autonomous-development-guide.md#verification-tiers)). A 100% pass rate across both the slice's E2E test and every required suite is mandatory before any story can be marked complete. Any browser failure or regression strictly blocks completion.
 5. **Exact Reset and Save/Load Persistence Roundtrip:** Exact state restoration before Run and after Reset, as well as JSON Save/Load persistence roundtrip, is verified in Chrome.
 6. **Zero Legacy Remnants or Compatibility Bridges:** Active tree grep confirms complete absence of backwards-compatibility shims, legacy flags, or deprecated code remnants.
 7. **Terminal Scoped Pass from Independent Adversarial Reviewer (Murdoch):** Independent adversarial review subagent verifies all criteria and issues an unambiguous terminal scoped `Pass`. Self-review never qualifies.
@@ -92,7 +92,7 @@ Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each sto
 ### End-to-end scope rule (owner decision, 19 Oct 2026)
 
 This rule governs every acceptance criterion below that reads "every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview", and every spec that asks for cumulative runs:
-- A full serial cumulative Chrome run, at 100% and run once, is required only when a story makes a material engine change: the solver, the physics or animation workers, the clock, the pose ring, the wire/ABI, the compiler, or shared driver/test infrastructure.
+- A Tier 3 full run by `tools/E2eRunner`, at 100% and run once, is required only when a story makes a material engine change: the solver, the physics or animation workers, the clock, the pose ring, the wire/ABI, the compiler, or shared driver/test infrastructure.
 - Any other story runs the e2e suites selected by its actual impact: its own element's suite, the suites of its direct consumers and integrations, and any suite that exercises changed shared code. The selection and its justification are recorded in the review.
 - The reviewer reuses the implementer's identity-verified runs and does not repeat a full run.
 - The full tier definitions are in the [autonomous development guide, Verification tiers](autonomous-development-guide.md#verification-tiers). They also cover the background checkpoint full run after every 5 element stories and at each epic end, parallel Chrome workers for non-timing suites, review lenses on the first candidate only, and Low findings not blocking.
@@ -1125,7 +1125,11 @@ So that the Workshop never crashes when I add a part.
 - **And** e2e scope: Tier 2, meaning this suite plus the smoke pair, because no engine code changes. Tier 1 passes 100%.
 
 ### Story 9R.0a: Tiered and Parallel E2E Runner
-*Status: Backlog*
+*Status: Done (19 Oct 2026). Murdoch-5 gave a scoped Pass on `d8e071f9` ([review](../implementation-artifacts/review-9r-0a-tiered-parallel-e2e-runner.md)).*
+- *The runner is `tools/E2eRunner`. Calibration settled on N = 2, and the parallel full run passed 34 files and 166/166 in 1085 s, against about 26 min serially.*
+- *A debt fault now fails a suite.*
+- *Tier 2 selection includes the parts that a suite's levels pre-place.*
+- *Cut-scope items and review findings F1–F14 are filed to Story F.1.*
 
 *Depends on: Story 9R.0. Owner decisions, 19 Oct 2026 ([Verification tiers](autonomous-development-guide.md#verification-tiers)):*
 - *a full run only for material engine changes, otherwise impact-selected suites;*
@@ -1141,6 +1145,8 @@ So that the Workshop never crashes when I add a part.
 - *the background checkpoint is proven against a local, unpushed candidate commit that contains the runner;*
 - *the full run is selected for the guide's engine list plus a small set of central UI and world files; other `engine/` and `ui/` files select suites through the typed area table;*
 - *Story 9R.0b's "two back-to-back serial runs" becomes one full runner run.*
+
+*Coordinator scope cut, 19 Oct 2026 (during implementation): this story delivers the typed runner (serial by default, Parallel only where the catalogue marks it), the `CCGPU_DEBT_FAULT` close finding with the typed expected-fault assertion, the Tier 2 selection (unknown changes select Full; a changed element with no Primary suite is a typed error), the calibration and one parallel full run, skipped and todo tests failing the run, and the runner publishing the bundle itself. The second proof run, the background checkpoint (the AC below), signal handling and the cross-worktree slot lock (one runner lock instead) move to one follow-up story at the back of the queue.*
 
 As the owner,  
 I want the full Chrome run to take minutes, and each story to run only the suites its change affects,  
@@ -3500,4 +3506,10 @@ So that Curious Contraptions is ready for public release.
   - committed level and bundle edits under `--changed`;
   - silent partners that have no Primary suite;
   - `tools/e2e/unit/**` selection;
-  - live skip and todo fixtures.
+  - live skip and todo fixtures;
+  - and from the final round:
+    - removal of the kept lexical `TimingDetector` (F2);
+    - superseded spec text (F11);
+    - a parse guard for the level-parts reader (F12);
+    - a check that Node modules resolve (F13);
+    - deterministic bundle hashes across publishes of one commit (F14).

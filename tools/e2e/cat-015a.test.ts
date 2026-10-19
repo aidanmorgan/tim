@@ -4,7 +4,6 @@ import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
 import { decodeWorkshopResponse, authoredState, decodeSavedConstruction, type BodyRead, type WorkshopResponse, type InstanceRecord } from './workshop-wire.ts';
 
-const BASE_URL = process.env.BUMPER_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
 
 function bodyState(b: BodyRead) {
     return {
@@ -33,7 +32,7 @@ async function savedBytes(driver: WorkshopDriver): Promise<Buffer> {
 }
 
 async function scenario(kind: 'basketball' | 'bowling', duration: number) {
-    const driver = await WorkshopDriver.launch({ baseUrl: BASE_URL });
+    const driver = await WorkshopDriver.launch();
     const errors: string[] = [];
     const observations: WorkshopResponse[] = [];
     driver.page.on('console', message => {
@@ -78,11 +77,11 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         const built = bodyState(loaded.bodies(0)!);
         assert.deepEqual(built, authored, 'Save/Load restores the exact placed payload');
         await driver.run();
-        const samples: { time: number; y: number; vy: number }[] = [];
+        const samples: { y: number; vy: number }[] = [];
         const started = Date.now();
         while (Date.now() - started < duration) {
             const pose = await driver.readLatestPose();
-            if (pose?.bodies[0]) samples.push({ time: Date.now() - started, y: pose.bodies[0].py, vy: pose.bodies[0].vy });
+            if (pose?.bodies[0]) samples.push({ y: pose.bodies[0].py, vy: pose.bodies[0].vy });
             await driver.page.waitForTimeout(20);
         }
         await driver.pauseSimulation();

@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/RunnerLock.cs
++++ b/tools/E2eRunner/RunnerLock.cs
+@@ -28 +28 @@
+-        try { return new RunnerLock(new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None), path); }
++        try { return new RunnerLock(new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite), path); }

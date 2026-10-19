@@ -4,6 +4,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'n
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { SessionFault, sessionFaultFindings } from './workshop-close-findings.mjs';
 
 // Blind hunter 13 (Story 9.4b): WorkshopDriver.close() threw from each suite's `finally`, replacing the test's own failure.
 // Its findings now go through workshop-close-findings.mjs; these fixtures run under a real node:test runner.
@@ -98,4 +99,37 @@ test('a clean close passes (control), and a finding is raised once, not again fo
     const { output } = run(`test('first', () => close('only once')); test('second', () => {});`);
     assert.equal(output.match(/Session close finding \(after the test\): only once/g)?.length, 1);
     assert.match(output, /✔ second/);
+});
+
+// OD7 (Story 9R.0a): a test that deliberately provokes one session fault declares it (WorkshopDriver.closeExpecting). The declared
+// fault must occur and is then the only fault that is not a finding; every other fault, and an undeclared one, still fails.
+const observed = (debt, recalibrations = [], rejections = []) => new Map([[SessionFault.DebtFault, debt],
+    [SessionFault.ClockRecalibration, recalibrations], [SessionFault.ClockReplyRejected, rejections]]);
+test('a declared session fault that occurred is not a finding', () => {
+    assert.deepEqual(sessionFaultFindings(observed(['CCGPU_DEBT_FAULT: committedTick=9']), SessionFault.DebtFault), []);
+});
+test('a declared session fault that did not occur is a finding', () => {
+    const findings = sessionFaultFindings(observed([]), SessionFault.DebtFault);
+    assert.deepEqual(findings.map(finding => finding.message), ['The session was expected to raise DebtFault, but it did not']);
+});
+test('a different fault than the declared one is a finding, and the declared one is still required', () => {
+    const findings = sessionFaultFindings(observed([], ['CCGPU_CLOCK_RECALIBRATED {}']), SessionFault.DebtFault).map(finding => finding.message);
+    assert.equal(findings.length, 2);
+    assert.match(findings[0], /recalibrated a clock mapping 1 time/);
+    assert.match(findings[1], /expected to raise DebtFault, but it did not/);
+});
+test('a declared fault does not excuse another fault that also occurred', () => {
+    const findings = sessionFaultFindings(observed(['CCGPU_DEBT_FAULT: x'], [], ['CCGPU_CLOCK_REPLY_REJECTED {}']), SessionFault.DebtFault);
+    assert.deepEqual(findings.map(finding => finding.message), ['The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}']);
+});
+test('an undeclared debt fault is a finding', () => {
+    const findings = sessionFaultFindings(observed(['CCGPU_DEBT_FAULT: committedTick=9 reliableStalled=False']));
+    assert.deepEqual(findings.map(finding => finding.message),
+        ['The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=9 reliableStalled=False']);
+    assert.deepEqual(sessionFaultFindings(observed([])), [], 'no fault, nothing declared: no finding (control)');
+});
+test('unknown session faults are rejected', () => {
+    assert.throws(() => sessionFaultFindings(observed([]), 99), TypeError);
+    assert.throws(() => sessionFaultFindings(new Map([[99, ['x']]])), TypeError);
+    assert.throws(() => sessionFaultFindings({}), TypeError);
 });

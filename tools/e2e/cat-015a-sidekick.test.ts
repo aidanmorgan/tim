@@ -3,7 +3,6 @@ import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
 import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, type WorkshopResponse } from './workshop-wire.ts';
 
-const URL=process.env.BUMPER_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
 type Scenario='paid'|'unpaid'|'miss';
 async function press(driver:WorkshopDriver,x:number,y:number){
     await driver.page.mouse.move(x,y);await driver.page.mouse.down();await driver.page.waitForTimeout(70);
@@ -23,7 +22,7 @@ async function saved(driver:WorkshopDriver):Promise<Buffer>{
 }
 
 for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+scenario+' route uses actual UI and restores authored state',async()=>{
-    const driver=await WorkshopDriver.launch({baseUrl:URL}),reads:WorkshopResponse[]=[],events:WorkshopResponse[]=[],errors:string[]=[];
+    const driver=await WorkshopDriver.launch(),reads:WorkshopResponse[]=[],events:WorkshopResponse[]=[],errors:string[]=[];
     driver.page.on('console',message=>{const text=message.text();
         if(text.startsWith('CCGPU '))reads.push(decodeWorkshopResponse(Buffer.from(text.slice(6),'base64')));
         if(text.startsWith('CCGPU_RETAINED '))events.push(decodeWorkshopResponse(Buffer.from(text.slice(15),'base64')));

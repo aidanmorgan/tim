@@ -1,0 +1,45 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.39]     CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "parts/catalog/basket.tres", part: "basket") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "parts/catalog/basket.tres", part: "basket") [145 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.E2eRunner.RunnerException)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(String path, String part) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 39
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.53]     CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "elements/SignalLamp/SignalLampElementDeclaration.c"···, part: "lamp") [FAIL]
+[xUnit.net 00:00:01.68]     CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "parts/scenes/ball.tscn", part: "ball") [FAIL]
+[xUnit.net 00:00:01.83]     CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "parts/catalog/ball.tres", part: "ball") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "elements/SignalLamp/SignalLampElementDeclaration.c"···, part: "lamp") [145 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.E2eRunner.RunnerException)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(String path, String part) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 39
+   at InvokeStub_SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "parts/scenes/ball.tscn", part: "ball") [145 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.E2eRunner.RunnerException)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(String path, String part) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 39
+   at InvokeStub_SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(path: "parts/catalog/ball.tres", part: "ball") [146 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.E2eRunner.RunnerException)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(String path, String part) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 39
+   at InvokeStub_SelectionTests.ElementWithoutAPrimarySuiteIsATypedError(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     4, Passed:    39, Skipped:     0, Total:    43, Duration: 5 s - E2eRunner.Tests.dll (net10.0)

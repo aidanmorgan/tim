@@ -1,0 +1,26 @@
+diff --git a/tools/E2eRunner/TapResult.cs b/tools/E2eRunner/TapResult.cs
+index f6e3a065..624779e2 100644
+--- a/tools/E2eRunner/TapResult.cs
++++ b/tools/E2eRunner/TapResult.cs
+@@ -66,7 +66,7 @@ internal sealed partial record TapResult(
+         if (tap.Tests <= 0) failures.Add(FileFailure.NoTests);
+         if (tap.Fail > 0) failures.Add(FileFailure.FailedTests);
+         if (tap.Cancelled > 0) failures.Add(FileFailure.CancelledTests);
+-        if (tap.Skipped > 0) failures.Add(FileFailure.SkippedTests);
++        // MUTANT M5-skip: skipped tests no longer fail the file
+         if (tap.Todo > 0) failures.Add(FileFailure.TodoTests);
+         if (tap.NotOk > 0) failures.Add(FileFailure.NotOkLine);
+         return failures;
+diff --git a/tools/workshop-close-findings.mjs b/tools/workshop-close-findings.mjs
+index 644f1874..6666ab31 100644
+--- a/tools/workshop-close-findings.mjs
++++ b/tools/workshop-close-findings.mjs
+@@ -31,7 +31,7 @@ export function sessionFaultFindings(observed, expected) {
+     const findings = [];
+     for (const [fault, records] of observed) {
+         if (!FaultName.has(fault) || !Array.isArray(records)) throw new TypeError(`Unknown session fault ${fault}.`);
+-        if (records.length > 0 && fault !== expected) findings.push(faultFinding(fault, records));
++        if (records.length > 0 && expected === undefined) findings.push(faultFinding(fault, records)); // MUTANT M5-O1: a declared fault silences every fault
+     }
+     if (expected !== undefined && !(observed.get(expected)?.length > 0))
+         findings.push(new Error(`The session was expected to raise ${FaultName.get(expected)}, but it did not`));

@@ -1,0 +1,4 @@
+--- a/tools/e2e/cat-048b.test.ts
++++ b/tools/e2e/cat-048b.test.ts
+@@ -43,0 +44 @@
++        for (;;) { /* SEEDED HANG (Story 9R.0a AC5): a synchronous hang node's per-test timeout cannot cancel; reverted after */ }

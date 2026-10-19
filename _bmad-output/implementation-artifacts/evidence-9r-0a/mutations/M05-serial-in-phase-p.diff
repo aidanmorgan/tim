@@ -1,0 +1,8 @@
+--- a/tools/E2eRunner/Scheduler.cs
++++ b/tools/E2eRunner/Scheduler.cs
+@@ -16 +16 @@
+-        [.. files.Where(file => file.Timing == SuiteTiming.SerialAlone)];
++        [.. files.Take(0)];
+@@ -21 +21 @@
+-        [.. files.Where(file => file.Timing == SuiteTiming.Parallel)
++        [.. files.Where(file => file.Timing is SuiteTiming.Parallel or SuiteTiming.SerialAlone)

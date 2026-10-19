@@ -51,7 +51,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
         // 4. Run and observe traversal
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 3500) {
@@ -60,7 +60,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
                 previousSeq = BigInt(slot.sequence);
                 const ball = slot.bodies.find(b => b.id === '2');
                 if (ball) {
-                    samples.push({ t: Date.now() - started, ball });
+                    samples.push({ ball });
                 }
             }
             await driver.page.waitForTimeout(25);
@@ -104,7 +104,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
         // Second Run replays traversal
         await driver.run();
         const started = Date.now();
-        const replaySamples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const replaySamples: { ball: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 3500) {
@@ -112,7 +112,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
             if (currentSlot && currentSlot.sequence && BigInt(currentSlot.sequence) !== previousSeq) {
                 previousSeq = BigInt(currentSlot.sequence);
                 const ball = currentSlot.bodies.find(b => b.id === '2');
-                if (ball) replaySamples.push({ t: Date.now() - started, ball });
+                if (ball) replaySamples.push({ ball });
             }
             await driver.page.waitForTimeout(25);
         }
@@ -158,7 +158,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
         // Run loaded construction
         await driver.run();
         const started = Date.now();
-        const loadedSamples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const loadedSamples: { ball: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 3500) {
@@ -166,7 +166,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
             if (currentSlot && currentSlot.sequence && BigInt(currentSlot.sequence) !== previousSeq) {
                 previousSeq = BigInt(currentSlot.sequence);
                 const ball = currentSlot.bodies.find(b => b.id === '2');
-                if (ball) loadedSamples.push({ t: Date.now() - started, ball });
+                if (ball) loadedSamples.push({ ball });
             }
             await driver.page.waitForTimeout(25);
         }
@@ -199,7 +199,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
         // 3. Run simulation
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 2500) {
@@ -207,7 +207,7 @@ describe('CAT-048a: Straight Pipe Compound Cylindrical Collider', () => {
             if (slot && slot.sequence && BigInt(slot.sequence) !== previousSeq) {
                 previousSeq = BigInt(slot.sequence);
                 const ball = slot.bodies.find(b => b.id === '2');
-                if (ball) samples.push({ t: Date.now() - started, ball });
+                if (ball) samples.push({ ball });
             }
             await driver.page.waitForTimeout(25);
         }

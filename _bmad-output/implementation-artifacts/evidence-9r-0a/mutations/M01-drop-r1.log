@@ -1,0 +1,57 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.SharedModuleHitIsAttributedToEveryImportingSuite [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.SharedModuleHitIsAttributedToEveryImportingSuite [6 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.SharedModuleHitIsAttributedToEveryImportingSuite() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 120
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "let n = 0; do { n++; } while (performance.now() < "···) [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "const end = performance.now() + 20; while (perform"···) [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "while (Date.now() < end) n++;") [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "for (const end = Date.now() + 5; Date.now() < end;"···) [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "let n = 0; do { n++; } while (performance.now() < "···) [1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "const end = performance.now() + 20; while (perform"···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at InvokeStub_TimingDetectorTests.BusyWaitLoopIsAStall(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "while (Date.now() < end) n++;") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at InvokeStub_TimingDetectorTests.BusyWaitLoopIsAStall(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "for (const end = Date.now() + 5; Date.now() < end;"···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at InvokeStub_TimingDetectorTests.BusyWaitLoopIsAStall(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     5, Passed:    46, Skipped:     0, Total:    51, Duration: 61 ms - E2eRunner.Tests.dll (net10.0)

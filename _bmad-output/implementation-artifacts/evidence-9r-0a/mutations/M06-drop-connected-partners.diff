@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Selection.cs
++++ b/tools/E2eRunner/Selection.cs
+@@ -262 +262 @@
+-            if (pair == default) continue;
++            if (pair == default || bundle.Count > 0) continue;

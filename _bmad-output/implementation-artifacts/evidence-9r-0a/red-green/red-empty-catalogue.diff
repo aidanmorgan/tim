@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/SuiteCatalogue.cs
++++ b/tools/E2eRunner/SuiteCatalogue.cs
+@@ -126 +126 @@
+-    public static readonly IReadOnlyList<SuiteDeclaration> All =
++    public static readonly IReadOnlyList<SuiteDeclaration> All = Environment.ProcessorCount > 0 ? [] :

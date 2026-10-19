@@ -1,0 +1,147 @@
+TAP version 13
+# Subtest: CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E
+    # Subtest: 1. Workshop selection: Select funnel from palette, place on canvas
+    ok 1 - 1. Workshop selection: Select funnel from palette, place on canvas
+      ---
+      duration_ms: 2655.902042
+      type: 'test'
+      ...
+    # Subtest: 2. Negative control: Ball dropped on outer shell deflects/bounces without entering bore
+    ok 2 - 2. Negative control: Ball dropped on outer shell deflects/bounces without entering bore
+      ---
+      duration_ms: 15318.661875
+      type: 'test'
+      ...
+# E2E_OBSERVED DebtFault CCGPU_DEBT_FAULT: committedTick=10 reliableStalled=False
+    # Subtest: 3. Centered drop: Ball dropped into wide 2.6 m inlet descends smoothly, guided by tapered walls, exits 1.3 m outlet into receiver below
+    not ok 3 - 3. Centered drop: Ball dropped into wide 2.6 m inlet descends smoothly, guided by tapered walls, exits 1.3 m outlet into receiver below
+      ---
+      duration_ms: 17224.720375
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-030.test.ts:2:3368'
+      failureType: 'testCodeFailure'
+      error: 'pauseSimulation: command Rejected (WrongPhase) in phase Faulted'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        WorkshopDriver.command (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:577:19)
+        async WorkshopDriver.pauseSimulation (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:850:9)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-030.test.ts:132:9)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+      ...
+# E2E_OBSERVED SimulationUnresponsive CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.
+#     at checkSimulationLiveness (http://127.0.0.1:62971/workshop-client.js:343:23)
+#     at http://127.0.0.1:62971/workshop-client.js:362:13
+    # Subtest: 4. Off-center drop: Ball dropped at +0.70 m off-axis gathers into funnel without snagging and exits outlet
+    not ok 4 - 4. Off-center drop: Ball dropped at +0.70 m off-axis gathers into funnel without snagging and exits outlet
+      ---
+      duration_ms: 120055.186292
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-030.test.ts:2:5675'
+      failureType: 'testCodeFailure'
+      error: |-
+        Workshop never became ready: {"isolated":true,"status":"\n        \n        \n            \n                \n                \n                \n                \n                \n                \n                \n                \n            \n        \n        \n        The Simulation worker's event loop has not run for 1000 ms.\n    ","notice":"The Simulation worker's event loop has not run for 1000 ms.","poseRing":false,"animationQualified":false}; recent console:
+        CCGPU_CLOCK_DERIVATION {"report":2,"reportName":"Summary","outcome":0,"outcomeName":"Consistent","epoch":0,"correction":-9.766221046447754E-05,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusive":33,"startupUnanswered":0,"checks":100,"slews":0,"rederivations":0,"inconclusive
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":10940.180000007153,"master":10940.194999992847,"after":10940.215000003576,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":11640.889999985695,"master":11640.905000001192,"after":11640.930000007153,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":11841.745000004768,"master":11841.769999980927,"after":11841.794999986887,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_DEBT_FAULT: committedTick=10 reliableStalled=False
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":12238.655000001192,"master":12238.694999992847,"after":12238.710000008345,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":12436.085000008345,"master":12436.109999984503,"after":12436.125,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusive":33,"s
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":12939.560000002384,"master":12939.590000003576,"after":12939.604999989271,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":13536.655000001192,"master":13536.674999982119,"after":13536.694999992847,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":14037.620000004768,"master":14037.639999985695,"after":14037.655000001192,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":14439.245000004768,"master":14439.269999980927,"after":14439.284999996424,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusi
+        CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":-9.766221046447754E-05,"before":14840.70499998331,"master":14840.734999984503,"after":14840.754999995232,"qualified":16,"startupAttempts":49,"startupOutliers":0,"startupInconclusiv
+        CuriousContraptions (web) starting...
+        Engine: 2dog 4.7.2.91, starting Godot instance...
+        Build configuration: Emscripten 3.1.56, single-threaded, no GDExtension support.
+        Engine: Godot instance created successfully!
+        Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+        OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL
+        Engine: Godot started successfully!
+        2dog is running in the browser!
+        Scene Root: Workshop
+        Native clock source: macOS: Google Chrome 155.0.8059.82, Chromium 155.0.8059.82, Not(A:Brand 24.0.0.0
+        Native clock source: macOS: Google Chrome 155.0.8059.82, Chromium 155.0.8059.82, Not(A:Brand 24.0.0.0
+        Native clock source: macOS: Google Chrome 155.0.8059.82, Chromium 155.0.8059.82, Not(A:Brand 24.0.0.0
+        Native clock source: macOS: Google Chrome 155.0.8059.82, Chromium 155.0.8059.82, Not(A:Brand 24.0.0.0
+        CCGPU_CLOCK_DERIVATION {"report":1,"reportName":"Startup","outcome":0,"outcomeName":"Consistent","epoch":0,"correction":0,"pendingCorrection":9.745359420776367E-06,"startupOffset":9.745359420776367E-06,"admittedLower":-0.020790249872207643,"admittedUpper":0.020809740591049196,"admittedWidth":0.04159
+        WARMUP: init=Applied None
+        WARMUP: construct=Applied None
+        WARMUP: run=Applied None
+        WARMUP: step 0 Applied None in 586.00ms
+        WARMUP: step 1 Applied None in 19.46ms
+        WARMUP: step 2 Applied None in 25.47ms
+        WARMUP: step 3 Applied None in 32.42ms
+        CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.
+            at checkSimulationLiveness (http://127.0.0.1:62971/workshop-client.js:343:23)
+            at http://127.0.0.1:62971/workshop-client.js:362:13
+        SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.
+            at checkSimulationLiveness (http://127.0.0.1:62971/workshop-client.js:343:23)
+            at http://127.0.0.1:62971/workshop-client.js:362:13
+        WARMUP: step 4 Applied None in 19.46ms
+        CCGPU_STARTUP_EXCEPTION System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.
+           at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed()
+           at CuriousContraptions.Gpu.BrowserWorkshopClient.Create()
+        Engine: Godot instance destroyed.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        checkSimulationLiveness (http://127.0.0.1:62971/workshop-client.js:343:23)
+        http://127.0.0.1:62971/workshop-client.js:362:13
+        checkSimulationLiveness (http://127.0.0.1:62971/workshop-client.js:343:23)
+        http://127.0.0.1:62971/workshop-client.js:362:13
+        WorkshopDriver.waitForReady (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:519:19)
+        async WorkshopDriver.reload (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:496:9)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-030.test.ts:157:9)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+      ...
+    # Subtest: 5. Joined pipe route: Funnel outlet positioned above straight pipe, ball smoothly transitions from funnel into tube
+    ok 5 - 5. Joined pipe route: Funnel outlet positioned above straight pipe, ball smoothly transitions from funnel into tube
+      ---
+      duration_ms: 19887.316292
+      type: 'test'
+      ...
+    # Subtest: 6. Reset restoration: Reset restores initial poses; second Run replays bit-for-bit
+    ok 6 - 6. Reset restoration: Reset restores initial poses; second Run replays bit-for-bit
+      ---
+      duration_ms: 18698.302166
+      type: 'test'
+      ...
+    # Subtest: 7. Save / Load persistence roundtrip: Save, reload, Load restores construction, re-run reproduces traversal
+    ok 7 - 7. Save / Load persistence roundtrip: Save, reload, Load restores construction, re-run reproduces traversal
+      ---
+      duration_ms: 15267.4665
+      type: 'test'
+      ...
+# Session close finding (after the suite): The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=10 reliableStalled=False
+    1..7
+not ok 1 - CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E
+  ---
+  duration_ms: 215039.349041
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-030.test.ts:2:1180'
+  failureType: 'hookFailed'
+  error: 'The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=10 reliableStalled=False'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    faultFinding (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:19:45)
+    sessionFaultFindings (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:34:69)
+    WorkshopDriver.shutdown (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:478:26)
+    async WorkshopDriver.closeAfterSuite (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:456:28)
+    async SuiteContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-030.test.ts:34:9)
+    async TestHook.run (node:internal/test_runner/test:1409:7)
+    async Suite.runHook (node:internal/test_runner/test:1289:9)
+    async Suite.run (node:internal/test_runner/test:1906:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+1..1
+# tests 7
+# suites 1
+# pass 5
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 215317.216625

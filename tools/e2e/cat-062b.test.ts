@@ -10,7 +10,6 @@ enum Lesson { SpringForward = 7, ReadyToRebound = 8 }
 enum Route { Passive, Charged, Zero, Away, Ready, MissingReceiver }
 enum CapturePhase { Clear, Latched }
 enum AuthoredLock { Editable, Locked }
-const preview = process.env.PRELOAD_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
 const evidence = process.env.PRELOAD_EVIDENCE_DIR ?? '.anvil/preload-ui-' + Date.now();
 assert.ok(resolve(evidence).startsWith(resolve('.anvil')+sep),'Evidence stays inside tim/.anvil');
 const evidenceReady=mkdir(evidence); // Exclusive once: a prior attempt directory is never overwritten.
@@ -196,7 +195,7 @@ async function construct(d: WorkshopDriver, route: Route) {
 for(const route of [Route.Passive,Route.Charged,Route.Zero,Route.Away,Route.Ready,Route.MissingReceiver]){
     test('CAT062b route '+Route[route]+' preserves construction and repeats after Reset/Load',async()=>{
         await evidenceReady;
-        const d=await WorkshopDriver.launch({baseUrl:preview}),reads:WorkshopResponse[]=[],errors:string[]=[];
+        const d=await WorkshopDriver.launch(),reads:WorkshopResponse[]=[],errors:string[]=[];
         d.page.on('console',m=>{if(m.text().startsWith('CCGPU '))reads.push(decodeWorkshopResponse(Buffer.from(m.text().slice(6),'base64')));if(m.type()==='error')errors.push(m.text());});
         d.page.on('pageerror',e=>errors.push(String(e)));
         try{
@@ -241,7 +240,7 @@ for(const route of [Route.Passive,Route.Charged,Route.Zero,Route.Away,Route.Read
 
 test('CAT062b Ready Receiver deletion and replacement rebind the saved capture goal',async()=>{
     await evidenceReady;
-    const d=await WorkshopDriver.launch({baseUrl:preview}),reads:WorkshopResponse[]=[],errors:string[]=[];
+    const d=await WorkshopDriver.launch(),reads:WorkshopResponse[]=[],errors:string[]=[];
     d.page.on('console',m=>{if(m.text().startsWith('CCGPU '))reads.push(decodeWorkshopResponse(Buffer.from(m.text().slice(6),'base64')));if(m.type()==='error')errors.push(m.text());});
     d.page.on('pageerror',e=>errors.push(String(e)));
     try{

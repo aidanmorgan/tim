@@ -1,0 +1,327 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.58]     CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedBundleElementSelectsThatElement [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.E2eRunner.Tests.SelectionTests.EmptySetSelectsTheSmokePair [FAIL]
+[xUnit.net 00:00:00.89]     CuriousContraptions.E2eRunner.Tests.SelectionTests.WorkshopAreaFileSelectsTheAreaSuitesAndSmoke [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedBundleElementSelectsThatElement [176 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedBundleElementSelectsThatElement() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 72
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.EmptySetSelectsTheSmokePair [163 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["engine-core-2a1", "engine-core-2b1"]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.EmptySetSelectsTheSmokePair() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 145
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.WorkshopAreaFileSelectsTheAreaSuitesAndSmoke [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["engine-core-2a1", "engine-core-2b1", "palette-placement"]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.WorkshopAreaFileSelectsTheAreaSuitesAndSmoke() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 127
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.06]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/Workshop.cs.uid") [FAIL]
+[xUnit.net 00:00:01.21]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/cat-099.test.ts") [FAIL]
+[xUnit.net 00:00:01.36]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/workshop-driver.ts") [FAIL]
+[xUnit.net 00:00:01.51]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/Preview/Program.cs") [FAIL]
+[xUnit.net 00:00:01.66]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "CuriousContraptions.Simulation/Program.cs") [FAIL]
+[xUnit.net 00:00:01.80]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/workshop-close-findings.mjs") [FAIL]
+[xUnit.net 00:00:01.95]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/Workshop.cs") [FAIL]
+[xUnit.net 00:00:02.10]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "CuriousContraptions.web/wwwroot/workshop-client.js") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/Workshop.cs.uid") [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/cat-099.test.ts") [147 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/workshop-driver.ts") [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/Preview/Program.cs") [147 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "CuriousContraptions.Simulation/Program.cs") [148 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/workshop-close-findings.mjs") [148 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/Workshop.cs") [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "CuriousContraptions.web/wwwroot/workshop-client.js") [146 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.24]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/WorkshopNewPanel.cs") [FAIL]
+[xUnit.net 00:00:02.39]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "elements/Counter/Counter.csproj") [FAIL]
+[xUnit.net 00:00:02.54]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/E2eRunner/Scheduler.cs") [FAIL]
+[xUnit.net 00:00:02.68]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/workshop-wire.ts") [FAIL]
+[xUnit.net 00:00:02.83]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "notes.txt") [FAIL]
+[xUnit.net 00:00:02.97]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "engine/gpu/NewSolverStage.cs") [FAIL]
+[xUnit.net 00:00:03.12]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "engine/gpu/WorkshopSimulation.cs") [FAIL]
+[xUnit.net 00:00:03.31]     CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "parts/catalog/springboard.tres", part: "spring") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/WorkshopNewPanel.cs") [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "elements/Counter/Counter.csproj") [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/E2eRunner/Scheduler.cs") [147 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/workshop-wire.ts") [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "notes.txt") [143 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "engine/gpu/NewSolverStage.cs") [143 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "engine/gpu/WorkshopSimulation.cs") [144 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 116
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "parts/catalog/springboard.tres", part: "spring") [143 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(String path, String part) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 165
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.46]     CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "parts/scenes/springboard.tscn", part: "spring") [FAIL]
+[xUnit.net 00:00:03.61]     CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "parts/catalog/ball.tres", part: "ball") [FAIL]
+[xUnit.net 00:00:03.76]     CuriousContraptions.E2eRunner.Tests.SelectionTests.RenameOutOfElementsIsFull [FAIL]
+[xUnit.net 00:00:03.90]     CuriousContraptions.E2eRunner.Tests.SelectionTests.CounterDeclarationSelectsOwnIntegrationConnectedAndSmoke [FAIL]
+[xUnit.net 00:00:04.05]     CuriousContraptions.E2eRunner.Tests.SelectionTests.UnparsableBundleIsFull [FAIL]
+[xUnit.net 00:00:04.20]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedBallSceneSelectsEverySuitePlacingAReferencingPart [FAIL]
+[xUnit.net 00:00:04.34]     CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedSuiteSelectsItself [FAIL]
+[xUnit.net 00:00:04.49]     CuriousContraptions.E2eRunner.Tests.SelectionTests.GeneratedAtOnlyBundleChangeHasNoBrowserImpact [FAIL]
+[xUnit.net 00:00:04.64]     CuriousContraptions.E2eRunner.Tests.SelectionTests.DocsOnlySelectsTheSmokePair [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "parts/scenes/springboard.tscn", part: "spring") [145 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(String path, String part) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 165
+   at InvokeStub_SelectionTests.CatalogueAndScenesMapByContent(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "parts/catalog/ball.tres", part: "ball") [154 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(String path, String part) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 165
+   at InvokeStub_SelectionTests.CatalogueAndScenesMapByContent(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.RenameOutOfElementsIsFull [144 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.RenameOutOfElementsIsFull() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 152
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CounterDeclarationSelectsOwnIntegrationConnectedAndSmoke [144 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["cat-002", "cat-005", "cat-015a", "cat-017", "cat-020", ···]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.CounterDeclarationSelectsOwnIntegrationConnectedAndSmoke() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 21
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.UnparsableBundleIsFull [146 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.UnparsableBundleIsFull() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 78
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedBallSceneSelectsEverySuitePlacingAReferencingPart [147 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedBallSceneSelectsEverySuitePlacingAReferencingPart() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 37
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedSuiteSelectsItself [147 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["cat-049", "engine-core-2a1", "engine-core-2b1"]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedSuiteSelectsItself() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 158
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.GeneratedAtOnlyBundleChangeHasNoBrowserImpact [144 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["engine-core-2a1", "engine-core-2b1"]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.GeneratedAtOnlyBundleChangeHasNoBrowserImpact() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 61
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.DocsOnlySelectsTheSmokePair [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["engine-core-2a1", "engine-core-2b1"]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.DocsOnlySelectsTheSmokePair() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 136
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:04.78]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedConsoleModuleSelectsItsImporters [FAIL]
+[xUnit.net 00:00:04.93]     CuriousContraptions.E2eRunner.Tests.SelectionTests.OneChangedLevelSelectsTheSuitesDeclaringIt [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedConsoleModuleSelectsItsImporters [143 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["anim-1a", "cat-002", "cat-014", "cat-017", "cat-020", ···]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedConsoleModuleSelectsItsImporters() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 84
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.OneChangedLevelSelectsTheSuitesDeclaringIt [144 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["cat-048b", "engine-core-2a1", "engine-core-2b1"]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.OneChangedLevelSelectsTheSuitesDeclaringIt() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 50
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    30, Passed:     9, Skipped:     0, Total:    39, Duration: 4 s - E2eRunner.Tests.dll (net10.0)

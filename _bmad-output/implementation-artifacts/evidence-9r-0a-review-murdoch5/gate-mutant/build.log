@@ -1,0 +1,19 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj (in 50 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj (in 89 ms).
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(58,24): error CS0169: The field 'RunSummary._gateMutantUnused' is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(59,75): error CA1031: Modify 'GateMutantCatchAll' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(58,24): error CA1823: Unused field '_gateMutantUnused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1823) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(58,24): error IDE0051: Private member 'RunSummary._gateMutantUnused' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(58,24): error CS0169: The field 'RunSummary._gateMutantUnused' is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(59,75): error CA1031: Modify 'GateMutantCatchAll' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(58,24): error CA1823: Unused field '_gateMutantUnused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1823) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/RunSummary.cs(58,24): error IDE0051: Private member 'RunSummary._gateMutantUnused' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch5-gate/tools/E2eRunner/E2eRunner.csproj]
+    0 Warning(s)
+    4 Error(s)
+
+Time Elapsed 00:00:01.00

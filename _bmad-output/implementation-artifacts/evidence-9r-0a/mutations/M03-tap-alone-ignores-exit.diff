@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/TapResult.cs
++++ b/tools/E2eRunner/TapResult.cs
+@@ -63 +63 @@
+-        if (exitCode != 0) failures.Add(FileFailure.NonZeroExit);
++        if (exitCode != 0 && tap is null) failures.Add(FileFailure.NonZeroExit);

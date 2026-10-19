@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: CAT-048a: Straight Pipe Compound Cylindrical Collider
+    # Subtest: 1. Straight pipe placed in Workshop, ball enters elevated mouth, traverses through hollow bore, and exits safely
+    ok 1 - 1. Straight pipe placed in Workshop, ball enters elevated mouth, traverses through hollow bore, and exits safely
+      ---
+      duration_ms: 9832.579042
+      type: 'test'
+      ...
+    # Subtest: 2. Reset restores the ball and pipe to exact initial poses; second Run replays bit-for-bit
+    ok 2 - 2. Reset restores the ball and pipe to exact initial poses; second Run replays bit-for-bit
+      ---
+      duration_ms: 4364.947458
+      type: 'test'
+      ...
+    # Subtest: 3. Save / reload / Load roundtrip via IndexedDB restores the pipe and ball; subsequent Run reproduces the traversal
+    ok 3 - 3. Save / reload / Load roundtrip via IndexedDB restores the pipe and ball; subsequent Run reproduces the traversal
+      ---
+      duration_ms: 13001.846709
+      type: 'test'
+      ...
+    # Subtest: 4. Negative control & mouth entrance containment: Ball placed outside mouth does not enter bore
+    ok 4 - 4. Negative control & mouth entrance containment: Ball placed outside mouth does not enter bore
+      ---
+      duration_ms: 9249.870208
+      type: 'test'
+      ...
+    1..4
+ok 1 - CAT-048a: Straight Pipe Compound Cylindrical Collider
+  ---
+  duration_ms: 41827.026667
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 42201.840875

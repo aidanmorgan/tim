@@ -1,0 +1,41 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.29]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/cat-099.test.ts") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/cat-099.test.ts") [147 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 124
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:03.87]     CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "notes.txt") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "notes.txt") [140 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 124
+   at InvokeStub_SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:04.50]     CuriousContraptions.E2eRunner.Tests.SelectionTests.RenameOutOfElementsIsFull [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.RenameOutOfElementsIsFull [144 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Full
+Actual:   Selected
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.RenameOutOfElementsIsFull() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SelectionTests.cs:line 160
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     3, Passed:    40, Skipped:     0, Total:    43, Duration: 5 s - E2eRunner.Tests.dll (net10.0)

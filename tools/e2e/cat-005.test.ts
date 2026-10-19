@@ -6,7 +6,6 @@ const requireMcp=createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/p
 const {PNG}=requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 import { WorkshopDriver } from './workshop-driver.ts';
 import { decodeWorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, WorkEffect, encodeWorkshopCommand, CommandKind } from './workshop-wire.ts';
-const URL = process.env.BATTERY_PREVIEW_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:8060/';
 const ElectricalEnable={Disabled:0,Enabled:1} as const;
 type ElectricalEnable=typeof ElectricalEnable[keyof typeof ElectricalEnable];
 const WorkshopCommand={ConfigureCadence:6} as const;
@@ -152,7 +151,7 @@ async function connect(driver: WorkshopDriver, existing: boolean, targetX = 720)
     await driver.page.keyboard.press('Escape'); await driver.page.waitForTimeout(200);
 }
 for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source exhausts and retains final credit' : 'Battery recharge, disable, Save/Load and Reset', async () => {
-    const driver = await WorkshopDriver.launch({baseUrl:URL});
+    const driver = await WorkshopDriver.launch();
     const reads: Buffer[] = [], retained: Buffer[] = [], errors: string[] = [];
     driver.page.on('console', m => {
         const text=m.text();
@@ -250,7 +249,7 @@ for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source e
 });
 
 test('Battery fans one finite source out to two existing Bumper stores', async () => {
-    const driver=await WorkshopDriver.launch({baseUrl:URL}), reads:Buffer[]=[], retained:Buffer[]=[], errors:string[]=[];
+    const driver=await WorkshopDriver.launch(), reads:Buffer[]=[], retained:Buffer[]=[], errors:string[]=[];
     driver.page.on('console',m=>{const text=m.text();if(text.startsWith('CCGPU_RETAINED '))retained.push(Buffer.from(text.slice(15),'base64'));if(text.startsWith('CCGPU '))reads.push(Buffer.from(text.slice(6),'base64'));if(/CCGPU_TRANSPORT_FAILURE|CCGPU_STARTUP_EXCEPTION|Unhandled exception/.test(text))errors.push(text);});
     driver.page.on('pageerror',error=>errors.push(error.message));
     try {
@@ -313,7 +312,7 @@ async function indicatorPicture(driver:WorkshopDriver,name:string) {
 }
 
 test('Battery disconnected authored settings and rendered charge thresholds restore exactly',async()=>{
-    const driver=await WorkshopDriver.launch({baseUrl:URL}),reads:Buffer[]=[],errors:string[]=[];
+    const driver=await WorkshopDriver.launch(),reads:Buffer[]=[],errors:string[]=[];
     driver.page.on('console',m=>{const text=m.text();if(text.startsWith('CCGPU '))reads.push(Buffer.from(text.slice(6),'base64'));if(m.type()==='error')errors.push(text);});
     driver.page.on('pageerror',e=>errors.push(e.message));
     try {
@@ -370,7 +369,7 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
 });
 
 test('Battery paused intent reverses and Running controls preserve stores across continued ticks',async()=>{
-    const driver=await WorkshopDriver.launch({baseUrl:URL}),reads:Buffer[]=[],errors:string[]=[];
+    const driver=await WorkshopDriver.launch(),reads:Buffer[]=[],errors:string[]=[];
     driver.page.on('console',m=>{const text=m.text();if(text.startsWith('CCGPU_RETAINED '))reads.push(Buffer.from(text.slice(15),'base64'));if(text.startsWith('CCGPU '))reads.push(Buffer.from(text.slice(6),'base64'));if(m.type()==='error')errors.push(text);});
     driver.page.on('pageerror',e=>errors.push(e.message));
     try{
@@ -407,7 +406,7 @@ test('Battery paused intent reverses and Running controls preserve stores across
 });
 
 test('Battery electrical animation survives same-world cadence downshift through existing protocol boundary',async()=>{
-    const driver=await WorkshopDriver.launch({baseUrl:URL}),reads:Buffer[]=[],errors:string[]=[];
+    const driver=await WorkshopDriver.launch(),reads:Buffer[]=[],errors:string[]=[];
     driver.page.on('console',m=>{const text=m.text();if(text.startsWith('CCGPU '))reads.push(Buffer.from(text.slice(6),'base64'));if(m.type()==='error')errors.push(text);});
     driver.page.on('pageerror',e=>errors.push(e.message));
     try{

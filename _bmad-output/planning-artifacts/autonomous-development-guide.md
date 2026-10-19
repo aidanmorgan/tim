@@ -63,7 +63,7 @@ flowchart LR
   - Issues terminal scoped verdict:
     - **Fail:** Known regression, test failure, browser crash, or broken invariant $\to$ returns findings to Amelia.
     - **Incomplete:** Stale, missing, or unverified proof $\to$ requests required evidence.
-    - **Pass:** 100% verified with zero unresolved regressions across unit tests, the C# static gate, non-C# Anvil checks, slice E2E test, and all cumulative regression E2E suites in Chrome $\to$ updates `sprint-status.yaml` and signs off.
+    - **Pass:** 100% verified with zero unresolved regressions across unit tests, the C# static gate, non-C# Anvil checks, slice E2E test, and the Chrome suites its verification tiers require, run by `tools/E2eRunner` (the Tier 2 selection, plus the Tier 3 full run when required) $\to$ updates `sprint-status.yaml` and signs off.
 
 ---
 
@@ -144,7 +144,7 @@ sequenceDiagram
     Dev->>Dev: Green (Implement WASM SIMD / C# changes)
     Dev->>Dev: Refactor (Delete legacy classes / shims)
     Dev->>Dev: Pre-commit: Anvil 0 warnings & dotnet test 100%
-    Dev->>Dev: Run slice E2E & all cumulative E2E suites serially in Chrome (100% pass)
+    Dev->>Dev: Run the Tier 2 selection (and the Tier 3 full run when required) with tools/E2eRunner in Chrome (100% pass)
     Dev-->>Coord: Handoff diff & local test evidence
     deactivate Dev
     Coord->>QA: Invoke Independent Review Subagent with diff
@@ -152,7 +152,7 @@ sequenceDiagram
     QA->>QA: Grep for zero legacy remnants
     QA->>QA: Run dotnet build CuriousContraptions.slnx (C# gate) and anvil check --changed (non-C# only)
     QA->>QA: Run dotnet test CuriousContraptions.slnx
-    QA->>QA: Run slice & cumulative E2E regression tests in Chrome (100% pass)
+    QA->>QA: Reuse the identity-verified tools/E2eRunner runs; run the changed-behaviour probes in Chrome (100% pass)
     QA->>QA: Validate exact Reset & Save/Load in Chrome
     alt Findings or Regression
         QA-->>Coord: Return Defect Matrix (Status: Fail)
@@ -224,6 +224,6 @@ sequenceDiagram
 | **C# Static Gate** | `dotnet build CuriousContraptions.slnx` (.NET analyzers, warnings as errors; run by the pre-commit hook) | **0 warnings, 0 errors** | Any C# warning fails the build and refuses the commit |
 | **Non-C# Static Quality** | `anvil check --changed` (anvil does not analyse C#) | **0 warnings** | Any warning blocks review |
 | **Unit & Regression** | `dotnet test CuriousContraptions.slnx` | **100% Pass** (0 failed, 557+ passed) | Any test failure blocks review |
-| **Browser-Based E2E Gate** | `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts` (and all prior cumulative regression suites) | **100% Pass across all tests in Chrome** (serial runs) | Any browser failure or regression strictly blocks completion |
+| **Browser-Based E2E Gate** | `dotnet run --project tools/E2eRunner -- run --diff <base> --out <D>` (Tier 2), and `dotnet run --project tools/E2eRunner -- full --out <D>` (the Tier 3 full run by `tools/E2eRunner`) when required | **100% Pass across every selected file in Chrome** (timing-sensitive suites alone, the rest on N measured workers) | Any browser failure or regression strictly blocks completion |
 | **Zero Legacy Verification**| `git grep "<superseded_symbol>"` | **0 matches** in active code | Any active reference blocks review |
 | **Exact State Reset** | Browser E2E Playwright assertion in Chrome | Bitwise / coordinate match before Run and after Reset | Pose drift or dirty state blocks review |

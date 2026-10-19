@@ -1,0 +1,30 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.58]     CuriousContraptions.E2eRunner.Tests.SchedulerTests.ParallelPhaseRunsLongestFirstAndUnknownFilesFirst [FAIL]
+[xUnit.net 00:00:00.69]     CuriousContraptions.E2eRunner.Tests.SchedulerTests.SerialAloneRunsAloneAndConcurrencyNeverExceedsN [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SchedulerTests.ParallelPhaseRunsLongestFirstAndUnknownFilesFirst [16 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ at index 1
+           ↓ (pos 0)
+Expected: "b"
+Actual:   "s"
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SchedulerTests.ParallelPhaseRunsLongestFirstAndUnknownFilesFirst() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SchedulerTests.cs:line 55
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SchedulerTests.SerialAloneRunsAloneAndConcurrencyNeverExceedsN [105 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: SerialAlone
+Actual:   Parallel
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SchedulerTests.SerialAloneRunsAloneAndConcurrencyNeverExceedsN() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SchedulerTests.cs:line 42
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     2, Passed:     1, Skipped:     0, Total:     3, Duration: 141 ms - E2eRunner.Tests.dll (net10.0)

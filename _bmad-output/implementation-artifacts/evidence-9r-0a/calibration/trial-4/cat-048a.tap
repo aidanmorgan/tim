@@ -1,0 +1,58 @@
+TAP version 13
+# E2E_OBSERVED ClockOffsetWide CCGPU_CLOCK_OFFSET_WIDE {"offset":0.11985349655151367,"admittedLower":0.09905350131988525,"admittedUpper":0.1406534917831421,"admittedWidth":0.04159999046325685,"declaredUncertainty":0.1,"count":"1"}
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"5063289659031690830","sessionHigh":"2453588281017518952","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"85305000","derivation":"0","uncertainty":"100000","displayEpoch":"1",
+# Subtest: CAT-048a: Straight Pipe Compound Cylindrical Collider
+    # Subtest: 1. Straight pipe placed in Workshop, ball enters elevated mouth, traverses through hollow bore, and exits safely
+    ok 1 - 1. Straight pipe placed in Workshop, ball enters elevated mouth, traverses through hollow bore, and exits safely
+      ---
+      duration_ms: 9433.9385
+      type: 'test'
+      ...
+    # Subtest: 2. Reset restores the ball and pipe to exact initial poses; second Run replays bit-for-bit
+    ok 2 - 2. Reset restores the ball and pipe to exact initial poses; second Run replays bit-for-bit
+      ---
+      duration_ms: 4381.363375
+      type: 'test'
+      ...
+    # Subtest: 3. Save / reload / Load roundtrip via IndexedDB restores the pipe and ball; subsequent Run reproduces the traversal
+    ok 3 - 3. Save / reload / Load roundtrip via IndexedDB restores the pipe and ball; subsequent Run reproduces the traversal
+      ---
+      duration_ms: 11617.108542
+      type: 'test'
+      ...
+    # Subtest: 4. Negative control & mouth entrance containment: Ball placed outside mouth does not enter bore
+    ok 4 - 4. Negative control & mouth entrance containment: Ball placed outside mouth does not enter bore
+      ---
+      duration_ms: 8431.869417
+      type: 'test'
+      ...
+# Session close finding (after the suite): The session recalibrated a clock mapping 1 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"5063289659031690830","sessionHigh":"2453588281017518952","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"85305000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"2317535000","recoveryStarted":"2045560000","recoverySends":1,"pending":null,"reply":null,"slo
+    1..4
+not ok 1 - CAT-048a: Straight Pipe Compound Cylindrical Collider
+  ---
+  duration_ms: 38924.769292
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-048a.test.ts:2:1180'
+  failureType: 'hookFailed'
+  error: 'The session recalibrated a clock mapping 1 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"5063289659031690830","sessionHigh":"2453588281017518952","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"85305000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"2317535000","recoveryStarted":"2045560000","recoverySends":1,"pending":null,"reply":null,"slo'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    faultFinding (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:20:54)
+    sessionFaultFindings (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:34:69)
+    WorkshopDriver.shutdown (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:478:26)
+    async WorkshopDriver.closeAfterSuite (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:456:28)
+    async SuiteContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-048a.test.ts:31:9)
+    async TestHook.run (node:internal/test_runner/test:1409:7)
+    async Suite.runHook (node:internal/test_runner/test:1289:9)
+    async Suite.run (node:internal/test_runner/test:1906:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 39291.654084

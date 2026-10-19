@@ -1,0 +1,20 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rv2/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rv2/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rv2/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rv2/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:04.75]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.SkippedOrTodoTestFailsTheFile(counter: "skipped", failure: "SkippedTests") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.SkippedOrTodoTestFailsTheFile(counter: "skipped", failure: "SkippedTests") [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                                   ↓ (pos 0)
+Expected: <generated>                             ["SkippedTests"]
+Actual:   ListSelectIterator<FileFailure, string> []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.SkippedOrTodoTestFailsTheFile(String counter, String failure) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rv2/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 119
+   at InvokeStub_SuiteProcessTests.SkippedOrTodoTestFailsTheFile(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     1, Passed:   155, Skipped:     0, Total:   156, Duration: 23 s - E2eRunner.Tests.dll (net10.0)

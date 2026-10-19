@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/SuiteProcess.cs
++++ b/tools/E2eRunner/SuiteProcess.cs
+@@ -31 +31 @@
+-        foreach (var name in Inherited)
++        foreach (var name in parent.Keys.Cast<string>())

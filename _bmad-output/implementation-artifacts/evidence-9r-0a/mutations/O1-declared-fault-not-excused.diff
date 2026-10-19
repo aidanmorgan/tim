@@ -1,0 +1,5 @@
+--- a/tools/workshop-close-findings.mjs
++++ b/tools/workshop-close-findings.mjs
+@@ -34 +34 @@
+-        if (records.length > 0 && fault !== expected) findings.push(faultFinding(fault, records));
++        if (records.length > 0) findings.push(faultFinding(fault, records));

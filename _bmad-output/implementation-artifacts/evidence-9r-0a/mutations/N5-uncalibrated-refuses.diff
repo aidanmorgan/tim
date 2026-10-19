@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/MeasuredWorkers.cs
++++ b/tools/E2eRunner/MeasuredWorkers.cs
+@@ -33 +33 @@
+-            if (requested is null) return 1;
++            if (requested is null && cpus < 0) return 1;

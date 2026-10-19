@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/TimingDetector.cs
++++ b/tools/E2eRunner/TimingDetector.cs
+@@ -330 +330 @@
+-            if (IsRelationalAfter(code, SkipSpace(code, position)) || IsRelationalBefore(code, read.Index)) continue;
++            if (IsRelationalAfter(code, SkipSpace(code, position)) && IsRelationalBefore(code, read.Index)) continue;

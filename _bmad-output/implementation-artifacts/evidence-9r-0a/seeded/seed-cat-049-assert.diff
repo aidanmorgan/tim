@@ -1,0 +1,4 @@
+--- a/tools/e2e/cat-049.test.ts
++++ b/tools/e2e/cat-049.test.ts
+@@ -43,0 +44 @@
++        assert.equal(1, 2); // SEEDED FAILURE (Story 9R.0a AC5): reverted after the seeded run

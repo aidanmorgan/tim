@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Selection.cs
++++ b/tools/E2eRunner/Selection.cs
+@@ -248 +248 @@
+-        if (!SuiteCatalogue.All.Any(declaration => declaration.Primary == part))
++        if (!SuiteCatalogue.All.Any(declaration => declaration.Primary == part) && part.Value.Length < 0)

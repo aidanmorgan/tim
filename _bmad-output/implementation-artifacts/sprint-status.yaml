@@ -140,7 +140,7 @@ development_status:
   9r-0c-undelivered-parts-leave-palette: done
   9r-0-csharp-static-analysis-gate: done
   # owner 19 Oct 2026: tiered verification + parallel Chrome for non-timing suites
-  9r-0a-tiered-parallel-e2e-runner: backlog
+  9r-0a-tiered-parallel-e2e-runner: done
   # coordinator 18 Oct 2026: workers are not AOT-compiled (interpreted), so AGENTS.md wasm-simd128 is unmet
   9r-0b-aot-compiled-wasm-simd-workers: backlog
   9r-1-exact-run-reset-snapshot-assertions: backlog

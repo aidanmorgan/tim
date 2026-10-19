@@ -1,0 +1,48 @@
+TAP version 13
+# E2E_OBSERVED ClockOffsetWide CCGPU_CLOCK_OFFSET_WIDE {"offset":0.1176464855670929,"admittedLower":0.09934648795127868,"admittedUpper":0.1359464831829071,"admittedWidth":0.036599995231628435,"declaredUncertainty":0.1,"count":"1"}
+# Subtest: ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics Core
+    # Subtest: 1. Ramp contact & rolling: Ball contacts inclined ramp and rolls along surface
+    ok 1 - 1. Ramp contact & rolling: Ball contacts inclined ramp and rolls along surface
+      ---
+      duration_ms: 4148.575292
+      type: 'test'
+      ...
+    # Subtest: 2. Wall collision & deflection: Ball strikes Wall, rebounds via TGS Soft restitution
+    ok 2 - 2. Wall collision & deflection: Ball strikes Wall, rebounds via TGS Soft restitution
+      ---
+      duration_ms: 6433.414959
+      type: 'test'
+      ...
+    # Subtest: 3. Local-axis Wall resizing: Resized wall deflects ball at updated collision extents
+    ok 3 - 3. Local-axis Wall resizing: Resized wall deflects ball at updated collision extents
+      ---
+      duration_ms: 9482.237666
+      type: 'test'
+      ...
+    # Subtest: 4. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3] First principles 2-ramp solve: Ball rolls down both ramps into Receiver and achieves captured (direct pose ring publishing, pure TGS Soft compliance, speculative contacts without analytic interval sweeps)
+    ok 4 - 4. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3] First principles 2-ramp solve: Ball rolls down both ramps into Receiver and achieves captured (direct pose ring publishing, pure TGS Soft compliance, speculative contacts without analytic interval sweeps)
+      ---
+      duration_ms: 6583.263833
+      type: 'test'
+      ...
+    # Subtest: 5. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3, ENGINE-CORE-2b4, ENGINE-CORE-2c] Exact Reset and Save/Load persistence roundtrip in Chrome
+    ok 5 - 5. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3, ENGINE-CORE-2b4, ENGINE-CORE-2c] Exact Reset and Save/Load persistence roundtrip in Chrome
+      ---
+      duration_ms: 13049.404417
+      type: 'test'
+      ...
+    1..5
+ok 1 - ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics Core
+  ---
+  duration_ms: 44709.114292
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 45050.070458

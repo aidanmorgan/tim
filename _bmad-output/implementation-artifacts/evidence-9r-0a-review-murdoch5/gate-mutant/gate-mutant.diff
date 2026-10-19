@@ -1,0 +1,14 @@
+diff --git a/tools/E2eRunner/RunSummary.cs b/tools/E2eRunner/RunSummary.cs
+index ba998373..e6239371 100644
+--- a/tools/E2eRunner/RunSummary.cs
++++ b/tools/E2eRunner/RunSummary.cs
+@@ -55,6 +55,9 @@ internal sealed record RunSummary(
+     IReadOnlyDictionary<string, string> Header, IReadOnlyList<string> Selection, IReadOnlyList<FileResult> Files,
+     DateTimeOffset Started, DateTimeOffset Finished)
+ {
++    private static int _gateMutantUnused; // MUTANT G1: an unused field (compiler/analyzer warning)
++    internal static void GateMutantCatchAll() { try { File.Delete("x"); } catch (Exception) { } } // MUTANT G2: a catch-all
++
+     public static int ExitCode(Verdict verdict) => verdict switch
+     {
+         Verdict.Pass => 0,

@@ -1,0 +1,45 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:07.90]     CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged [3 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: IdentityChanged
+Actual:   Fail
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/IdentityTests.cs:line 143
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.18]     CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged [3 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: IdentityChanged
+Actual:   Pass
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/IdentityTests.cs:line 158
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.69]     CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed [3 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: IdentityChanged
+Actual:   Pass
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/IdentityTests.cs:line 172
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:24.61]     CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged [3 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: IdentityChanged
+Actual:   Pass
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/IdentityTests.cs:line 186
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     4, Passed:     5, Skipped:     0, Total:     9, Duration: 24 s - E2eRunner.Tests.dll (net10.0)

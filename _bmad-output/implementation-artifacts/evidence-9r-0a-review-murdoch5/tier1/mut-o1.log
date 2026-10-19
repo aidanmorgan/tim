@@ -1,0 +1,70 @@
+✔ a close finding fails a test that otherwise passed (115.232667ms)
+✔ a close finding never replaces the test's own failure, and is still reported (113.185208ms)
+✔ several findings of one test are aggregated, not dropped (114.738958ms)
+✔ a recorded finding with no test to fail still fails the file (catch-all) (111.147958ms)
+✔ a finding raised in a suite's after hook is reported against that suite (113.9805ms)
+✔ closeAfterSuite with no findings passes (control) (115.408583ms)
+✔ no Chrome suite closes its driver with close() in a suite after hook (1.775625ms)
+✔ a clean close passes (control), and a finding is raised once, not again for later tests (224.942084ms)
+✔ a declared session fault that occurred is not a finding (0.164792ms)
+✔ a declared session fault that did not occur is a finding (0.150417ms)
+✖ a different fault than the declared one is a finding, and the declared one is still required (0.466417ms)
+✖ a declared fault does not excuse another fault that also occurred (0.264791ms)
+✔ an undeclared debt fault is a finding (0.067208ms)
+✔ unknown session faults are rejected (0.156959ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 12
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 974.840334
+
+✖ failing tests:
+
+test at tools/workshop-close-findings.test.mjs:115:1
+✖ a different fault than the declared one is a finding, and the declared one is still required (0.466417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rv2/tools/workshop-close-findings.test.mjs:117:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-close-findings.test.mjs:121:1
+✖ a declared fault does not excuse another fault that also occurred (0.264791ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}'
+  - ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rv2/tools/workshop-close-findings.test.mjs:123:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

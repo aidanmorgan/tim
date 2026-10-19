@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/TapResult.cs
++++ b/tools/E2eRunner/TapResult.cs
+@@ -69 +69 @@
+-        if (tap.Skipped > 0) failures.Add(FileFailure.SkippedTests);
++        if (tap.Skipped < 0) failures.Add(FileFailure.SkippedTests);

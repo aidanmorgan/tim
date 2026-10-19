@@ -1,0 +1,167 @@
+TAP version 13
+# Subtest: Story 9R.0c: every Free palette part places on the bench; undelivered parts are absent
+    # Subtest: Basketball places on the bench with no console or worker error
+    ok 1 - Basketball places on the bench with no console or worker error
+      ---
+      duration_ms: 2486.038125
+      type: 'test'
+      ...
+    # Subtest: Receiver places on the bench with no console or worker error
+    ok 2 - Receiver places on the bench with no console or worker error
+      ---
+      duration_ms: 2415.045959
+      type: 'test'
+      ...
+    # Subtest: Impact switch places on the bench with no console or worker error
+    ok 3 - Impact switch places on the bench with no console or worker error
+      ---
+      duration_ms: 2450.752833
+      type: 'test'
+      ...
+    # Subtest: Signal lamp places on the bench with no console or worker error
+    ok 4 - Signal lamp places on the bench with no console or worker error
+      ---
+      duration_ms: 2533.48425
+      type: 'test'
+      ...
+    # Subtest: Wall places on the bench with no console or worker error
+    ok 5 - Wall places on the bench with no console or worker error
+      ---
+      duration_ms: 2382.723709
+      type: 'test'
+      ...
+    # Subtest: Delay places on the bench with no console or worker error
+    ok 6 - Delay places on the bench with no console or worker error
+      ---
+      duration_ms: 2416.249125
+      type: 'test'
+      ...
+    # Subtest: Pinball bumper places on the bench with no console or worker error
+    ok 7 - Pinball bumper places on the bench with no console or worker error
+      ---
+      duration_ms: 2417.618125
+      type: 'test'
+      ...
+    # Subtest: Ramp places on the bench with no console or worker error
+    ok 8 - Ramp places on the bench with no console or worker error
+      ---
+      duration_ms: 2417.839541
+      type: 'test'
+      ...
+    # Subtest: Domino places on the bench with no console or worker error
+    ok 9 - Domino places on the bench with no console or worker error
+      ---
+      duration_ms: 2397.783834
+      type: 'test'
+      ...
+    # Subtest: Bowling ball places on the bench with no console or worker error
+    ok 10 - Bowling ball places on the bench with no console or worker error
+      ---
+      duration_ms: 2382.611916
+      type: 'test'
+      ...
+    # Subtest: Battery places on the bench with no console or worker error
+    ok 11 - Battery places on the bench with no console or worker error
+      ---
+      duration_ms: 2387.52675
+      type: 'test'
+      ...
+    # Subtest: Springboard places on the bench with no console or worker error
+    ok 12 - Springboard places on the bench with no console or worker error
+      ---
+      duration_ms: 1929.099417
+      type: 'test'
+      ...
+    # Subtest: Pipe places on the bench with no console or worker error
+    ok 13 - Pipe places on the bench with no console or worker error
+      ---
+      duration_ms: 2449.568125
+      type: 'test'
+      ...
+    # Subtest: Ball detector places on the bench with no console or worker error
+    ok 14 - Ball detector places on the bench with no console or worker error
+      ---
+      duration_ms: 2415.993584
+      type: 'test'
+      ...
+    # Subtest: Pipe bend 45 places on the bench with no console or worker error
+    ok 15 - Pipe bend 45 places on the bench with no console or worker error
+      ---
+      duration_ms: 2456.387292
+      type: 'test'
+      ...
+    # Subtest: Pipe bend 90 places on the bench with no console or worker error
+    ok 16 - Pipe bend 90 places on the bench with no console or worker error
+      ---
+      duration_ms: 2426.149833
+      type: 'test'
+      ...
+    # Subtest: Funnel places on the bench with no console or worker error
+    ok 17 - Funnel places on the bench with no console or worker error
+      ---
+      duration_ms: 2450.033208
+      type: 'test'
+      ...
+    # Subtest: Powered gate places on the bench with no console or worker error
+    ok 18 - Powered gate places on the bench with no console or worker error
+      ---
+      duration_ms: 2417.727167
+      type: 'test'
+      ...
+    # Subtest: Pressure plate places on the bench with no console or worker error
+    ok 19 - Pressure plate places on the bench with no console or worker error
+      ---
+      duration_ms: 2397.754625
+      type: 'test'
+      ...
+    # Subtest: Counter places on the bench with no console or worker error
+    ok 20 - Counter places on the bench with no console or worker error
+      ---
+      duration_ms: 2400.493875
+      type: 'test'
+      ...
+    # Subtest: Clock places on the bench with no console or worker error
+    ok 21 - Clock places on the bench with no console or worker error
+      ---
+      duration_ms: 2400.401667
+      type: 'test'
+      ...
+    # Subtest: State latch places on the bench with no console or worker error
+    ok 22 - State latch places on the bench with no console or worker error
+      ---
+      duration_ms: 2383.121125
+      type: 'test'
+      ...
+    # Subtest: Tennis ball and Balloon are absent: the row after Springboard is Pipe
+    ok 23 - Tennis ball and Balloon are absent: the row after Springboard is Pipe
+      ---
+      duration_ms: 1982.697083
+      type: 'test'
+      ...
+    # Subtest: Tennis ball and Balloon are absent: the row before Pipe is Springboard
+    ok 24 - Tennis ball and Balloon are absent: the row before Pipe is Springboard
+      ---
+      duration_ms: 2517.172667
+      type: 'test'
+      ...
+    # Subtest: the whole run logged no console or worker error
+    ok 25 - the whole run logged no console or worker error
+      ---
+      duration_ms: 0.166
+      type: 'test'
+      ...
+    1..25
+ok 1 - Story 9R.0c: every Free palette part places on the bench; undelivered parts are absent
+  ---
+  duration_ms: 61737.451166
+  type: 'suite'
+  ...
+1..1
+# tests 25
+# suites 1
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 62015.564917

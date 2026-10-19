@@ -1,0 +1,63 @@
+TAP version 13
+# Subtest: CAT-002: Ball Detector Aperture Passage Sensor
+    # Subtest: 1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp
+    ok 1 - 1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp
+      ---
+      duration_ms: 10849.973959
+      type: 'test'
+      ...
+    # Subtest: 2. Negative control (reverse passage): Traversal in -X does NOT trigger sensor or lamp
+    ok 2 - 2. Negative control (reverse passage): Traversal in -X does NOT trigger sensor or lamp
+      ---
+      duration_ms: 12337.258334
+      type: 'test'
+      ...
+    # Subtest: 3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp
+    ok 3 - 3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp
+      ---
+      duration_ms: 12194.777167
+      type: 'test'
+      ...
+    # Subtest: 4. Directional rearm and reset: Reset restores upstream state and second Run replays forward trigger bit-for-bit
+    ok 4 - 4. Directional rearm and reset: Reset restores upstream state and second Run replays forward trigger bit-for-bit
+      ---
+      duration_ms: 12015.277417
+      type: 'test'
+      ...
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"4646881448634605867","sessionHigh":"6655357031852158138","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"146130000","derivation":"0","uncertainty":"100000","displayEpoch":"1"
+    # Subtest: 5. Persistence: Save / reload / Load IndexedDB persistence roundtrip reproduces forward passage and lamp activation
+    ok 5 - 5. Persistence: Save / reload / Load IndexedDB persistence roundtrip reproduces forward passage and lamp activation
+      ---
+      duration_ms: 14051.652417
+      type: 'test'
+      ...
+# Session close finding (after the suite): The session recalibrated a clock mapping 1 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"4646881448634605867","sessionHigh":"6655357031852158138","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"146130000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"2693900000","recoveryStarted":"2422190000","recoverySends":1,"pending":null,"reply":null,"sl
+    1..5
+not ok 1 - CAT-002: Ball Detector Aperture Passage Sensor
+  ---
+  duration_ms: 66401.003667
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-002.test.ts:2:1386'
+  failureType: 'hookFailed'
+  error: 'The session recalibrated a clock mapping 1 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"4646881448634605867","sessionHigh":"6655357031852158138","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"146130000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"2693900000","recoveryStarted":"2422190000","recoverySends":1,"pending":null,"reply":null,"sl'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    faultFinding (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:20:54)
+    sessionFaultFindings (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:34:69)
+    WorkshopDriver.shutdown (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:478:26)
+    async WorkshopDriver.closeAfterSuite (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:456:28)
+    async SuiteContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/cat-002.test.ts:41:9)
+    async TestHook.run (node:internal/test_runner/test:1409:7)
+    async Suite.runHook (node:internal/test_runner/test:1289:9)
+    async Suite.run (node:internal/test_runner/test:1906:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 66816.015167

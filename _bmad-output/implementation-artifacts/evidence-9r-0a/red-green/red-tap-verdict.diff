@@ -1,0 +1,4 @@
+--- a/tools/E2eRunner/TapResult.cs
++++ b/tools/E2eRunner/TapResult.cs
+@@ -61,0 +62 @@
++        if (Environment.ProcessorCount > 0) return failures;
