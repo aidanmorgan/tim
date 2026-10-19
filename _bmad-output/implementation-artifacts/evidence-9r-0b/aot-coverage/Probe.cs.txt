@@ -1,0 +1,24 @@
+// Scratch probe: lists methods with IL bodies in an assembly that are absent from a Mono AOT compiled-methods token file.
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
+
+var assembly = args[0];
+var tokens = File.ReadAllLines(args[1]).Skip(2).Select(line => Convert.ToInt32(line, 16)).ToHashSet();
+using var stream = File.OpenRead(assembly);
+using var pe = new PEReader(stream);
+var md = pe.GetMetadataReader();
+int withBody = 0, missing = 0;
+foreach (var handle in md.MethodDefinitions)
+{
+    var method = md.GetMethodDefinition(handle);
+    if (method.RelativeVirtualAddress == 0) continue;
+    withBody++;
+    var token = MetadataTokens.GetToken(handle);
+    if (tokens.Contains(token)) continue;
+    missing++;
+    var type = md.GetTypeDefinition(method.GetDeclaringType());
+    var generic = type.GetGenericParameters().Count > 0 || method.GetGenericParameters().Count > 0;
+    if (missing <= 40) Console.WriteLine($"MISSING {token:X8} {md.GetString(type.Namespace)}.{md.GetString(type.Name)}::{md.GetString(method.Name)} generic={generic}");
+}
+Console.WriteLine($"withBody={withBody} listed={tokens.Count} missing={missing}");

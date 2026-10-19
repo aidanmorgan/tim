@@ -3513,3 +3513,4 @@ So that Curious Contraptions is ready for public release.
     - a parse guard for the level-parts reader (F12);
     - a check that Node modules resolve (F13);
     - deterministic bundle hashes across publishes of one commit (F14).
+- Recalibrate the runner's measured N and per-suite durations under the AOT workers. Both were measured under the interpreter (Story 9R.0b design review item 8, 19 Oct 2026); the 9R.0b full run passed with them unchanged.
