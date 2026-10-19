@@ -28,6 +28,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private PhysicsCaptureRead _candidateCaptures;
     private PhysicsActivationRead _committedActivations, _candidateActivations;
     private PhysicsTimerRead _committedTimers, _candidateTimers;
+    private PhysicsMemoryRead _committedMemory, _candidateMemory;
     private ActivationNetwork? _committedNetwork, _candidateNetwork;
     // Switched supplies compiled once at Admit: routes as indices into the admitted prismatic and source tables.
     private sealed record CompiledSupply(SwitchedSupplyRoute[] Routes, int Prismatics, int Sources);
@@ -148,15 +149,15 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 _candidatePassageTracker = _committedPassageTracker.Advance(expectedTick, bodies, validated.Motion, passages, out passageCount);
             }
             var electrical = PhysicsGpuAbi.ReadElectrical(bytes);
-            var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers()) :
-                network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical);
-            _candidateActivations = logical.Activations; _candidateTimers = logical.Timers;
-            _candidateNetwork = network; _candidateSupply = supply;
+            var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory()) :
+                network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical,
+                    memory: _committedMemory);
+            _candidateActivations = logical.Activations; _candidateTimers = logical.Timers; _candidateMemory = logical.Memory;            _candidateNetwork = network; _candidateSupply = supply;
             var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),
                 expectedTick, bodies,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
-                Motion: validated.Motion, ContactWorks: contactWorks, Electrical: electrical);
+                Motion: validated.Motion, ContactWorks: contactWorks, Electrical: electrical, Memory: _candidateMemory);
             _candidateWorld = bytes;
             _candidateProfile = profile;
 #if PLAYTEST
@@ -171,7 +172,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _initialized = !_disposed && transport.DeviceReady();
             _active = default;
             _candidateWorld = []; _candidateCaptures = default;
-            _candidateActivations = default; _candidateTimers = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
+            _candidateActivations = default; _candidateTimers = default; _candidateMemory = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
             transport.Discard();
             ReleaseGate();
             throw;
@@ -184,7 +185,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         transport.Commit();
         _committedProfile = _candidateProfile;
         _committedWorld = _candidateWorld; _committedCaptures = _candidateCaptures;
-        _committedActivations = _candidateActivations; _committedTimers = _candidateTimers; _committedNetwork = _candidateNetwork; _committedSupply = _candidateSupply; _committedPassageTracker = _candidatePassageTracker;
+        _committedActivations = _candidateActivations; _committedTimers = _candidateTimers; _committedMemory = _candidateMemory; _committedNetwork = _candidateNetwork; _committedSupply = _candidateSupply; _committedPassageTracker = _candidatePassageTracker;
 #if PLAYTEST
         DiagnosticCommitted = _diagnosticCandidate;
 #endif
@@ -194,7 +195,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         if (_active != sequence || sequence.Value == 0) return;
         _active = default;
         _candidateWorld = []; _candidateCaptures = default;
-        _candidateActivations = default; _candidateTimers = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
+        _candidateActivations = default; _candidateTimers = default; _candidateMemory = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
 #if PLAYTEST
         _diagnosticCandidate = [];
 #endif
@@ -223,6 +224,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _committedCaptures = default; _candidateCaptures = default;
         _committedActivations = default; _candidateActivations = default;
         _committedTimers = default; _candidateTimers = default;
+        _committedMemory = default; _candidateMemory = default;
         _committedNetwork = null; _candidateNetwork = null; _committedSupply = null; _candidateSupply = null; _committedPassageTracker = PassageSensorTracker.Empty; _candidatePassageTracker = PassageSensorTracker.Empty;
         transport.Dispose();
         return ValueTask.CompletedTask;

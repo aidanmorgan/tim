@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
+    # Subtest: 2. Negative control: without placing pipe_bend_90, ball falls straight to floor, missing receiver (goal not solved)
+    ok 1 - 2. Negative control: without placing pipe_bend_90, ball falls straight to floor, missing receiver (goal not solved)
+      ---
+      duration_ms: 9166.659
+      type: 'test'
+      ...
+    1..1
+ok 1 - CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
+  ---
+  duration_ms: 13445.059542
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13702.723459

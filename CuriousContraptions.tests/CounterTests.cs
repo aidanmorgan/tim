@@ -254,10 +254,11 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var network = WorkshopActivationCompiler.Compile(construction);
         var activations = network.Clear();
         var timers = network.ClearTimers();
+        var memory = network.ClearMemory();
 
-        Assert.Equal(0, network.GetCounterCount(counter.Id));
+        Assert.Equal(0U, network.Memory(memory, counter.Id).Count);
         Assert.Equal(3, network.GetCounterTarget(counter.Id));
-        Assert.False(network.IsCounterReached(counter.Id));
+        Assert.False(network.ContactClosed(activations, counter.Id));
 
         var sensorId = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
         var ballBodyId = new GpuBodyId(10);
@@ -265,33 +266,33 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         // Tick 1: passage 1
         var passageRead1 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 1, (Half)0, new((Half)2f));
-        var cp1 = network.Consume(activations, timers, [], new(1), [], [passageRead1]);
-        activations = cp1.Activations; timers = cp1.Timers;
+        var cp1 = network.Consume(activations, timers, [], new(1), [], [passageRead1], memory: memory);
+        activations = cp1.Activations; timers = cp1.Timers; memory = cp1.Memory;
 
-        Assert.Equal(1, network.GetCounterCount(counter.Id));
-        Assert.False(network.IsCounterReached(counter.Id));
+        Assert.Equal(1U, network.Memory(memory, counter.Id).Count);
+        Assert.False(network.ContactClosed(activations, counter.Id));
         var lampSlot = network.Nodes.ToArray().ToList().FindIndex(n => n.Id.Value == lamp.Id.Value);
         Assert.Equal(ActivationPhase.Clear, activations[lampSlot].Phase);
 
         // Same timestamp passage in next tick should be ignored (held / duplicate occurrence)
-        var cpHeld = network.Consume(activations, timers, [], new(2), [], [passageRead1]);
-        Assert.Equal(1, network.GetCounterCount(counter.Id));
+        var cpHeld = network.Consume(activations, timers, [], new(2), [], [passageRead1], memory: memory);
+        Assert.Equal(1U, network.Memory(cpHeld.Memory, counter.Id).Count);
 
         // Tick 2: passage 2 (distinct time: ordinal 2)
         var passageRead2 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 2, (Half)0, new((Half)2f));
-        var cp2 = network.Consume(activations, timers, [], new(2), [], [passageRead2]);
-        activations = cp2.Activations; timers = cp2.Timers;
+        var cp2 = network.Consume(activations, timers, [], new(2), [], [passageRead2], memory: memory);
+        activations = cp2.Activations; timers = cp2.Timers; memory = cp2.Memory;
 
-        Assert.Equal(2, network.GetCounterCount(counter.Id));
-        Assert.False(network.IsCounterReached(counter.Id));
+        Assert.Equal(2U, network.Memory(memory, counter.Id).Count);
+        Assert.False(network.ContactClosed(activations, counter.Id));
 
         // Tick 3: passage 3 (target reached!)
         var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, (Half)0, new((Half)2f));
-        var cp3 = network.Consume(activations, timers, [], new(3), [], [passageRead3]);
-        activations = cp3.Activations; timers = cp3.Timers;
+        var cp3 = network.Consume(activations, timers, [], new(3), [], [passageRead3], memory: memory);
+        activations = cp3.Activations; timers = cp3.Timers; memory = cp3.Memory;
 
-        Assert.Equal(3, network.GetCounterCount(counter.Id));
-        Assert.True(network.IsCounterReached(counter.Id));
+        Assert.Equal(3U, network.Memory(memory, counter.Id).Count);
+        Assert.True(network.ContactClosed(activations, counter.Id));
 
         // Lamp must be latched now!
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
@@ -301,20 +302,60 @@ public sealed class CounterTests(NativeSceneFixture godot)
         for (uint i = 4; i < 24; i++)
         {
             var passageReadExtra = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, i, (Half)0, new((Half)2f));
-            var cpExtra = network.Consume(activations, timers, [], new(i), [], [passageReadExtra]);
-            activations = cpExtra.Activations; timers = cpExtra.Timers;
+            var cpExtra = network.Consume(activations, timers, [], new(i), [], [passageReadExtra], memory: memory);
+            activations = cpExtra.Activations; timers = cpExtra.Timers; memory = cpExtra.Memory;
         }
 
         // Remains reached and saturated
-        Assert.True(network.IsCounterReached(counter.Id));
+        Assert.True(network.ContactClosed(activations, counter.Id));
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
 
-        // Clear() restores counter to 0 and lamp to Clear
+        // Clearing (admission) restores counter to 0 and lamp to Clear
         activations = network.Clear();
-        timers = network.ClearTimers();
-        Assert.Equal(0, network.GetCounterCount(counter.Id));
-        Assert.False(network.IsCounterReached(counter.Id));
+        memory = network.ClearMemory();
+        Assert.Equal(0U, network.Memory(memory, counter.Id).Count);
+        Assert.False(network.ContactClosed(activations, counter.Id));
         Assert.Equal(ActivationPhase.Clear, activations[lampSlot].Phase);
+    }
+
+    // Story 9R.1 D3: the count is committed discrete state. A candidate's count is visible only in its own checkpoint, so a
+    // superseded (discarded) candidate cannot advance the committed count, and admission (Reset) starts from 0.
+    [Fact]
+    public void CounterCount_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetClearsIt()
+    {
+        var detector = WorkshopInput.BallDetector(new(1), -2, 0, 0, 0, 0, 0, 1);
+        var counter = WorkshopInput.Counter(new(2), 0, 0, 0, 0, 0, 0, 1, 3);
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([detector, counter]),
+            Connections: new([new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn,
+                WorkshopConnectionDomain.Activation)]));
+        var network = WorkshopActivationCompiler.Compile(construction);
+        var sensor = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
+        PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, (Half)0, new((Half)2f));
+
+        var committed = network.Consume(network.Clear(), network.ClearTimers(), [], new(1), [], [Pass(4)], memory: network.ClearMemory());
+        committed = network.Consume(committed.Activations, committed.Timers, [], new(2), [], [Pass(8)], memory: committed.Memory);
+        var row = network.Memory(committed.Memory, counter.Id);
+        Assert.Equal(2U, row.Count); // target - 1
+        Assert.Equal(new ActivationTime(8, (Half)0), row.Last);
+        Assert.Equal(ActivationNodeKind.Counter, row.Kind);
+
+        // A candidate that counts the third passage is superseded: the committed checkpoint still holds count 2.
+        var superseded = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
+        Assert.Equal(3U, network.Memory(superseded.Memory, counter.Id).Count);
+        Assert.Equal(2U, network.Memory(committed.Memory, counter.Id).Count);
+        var retried = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
+        Assert.Equal(3U, network.Memory(retried.Memory, counter.Id).Count);
+        Assert.True(network.ContactClosed(retried.Activations, counter.Id));
+
+        // Admission (Reset) recompiles the network and clears the row: count 0, no last input, contact open.
+        var reset = WorkshopActivationCompiler.Compile(construction);
+        var cleared = network.Memory(reset.ClearMemory(), counter.Id);
+        Assert.Equal(ActivationMemory.Clear(reset.Nodes.ToArray().Single(node => node.Owner == counter.Id)), cleared);
+        Assert.Equal(0U, cleared.Count);
+        Assert.False(reset.ContactClosed(reset.Clear(), counter.Id));
+
+        // A checkpoint without the counter's row is rejected rather than counted from an implicit zero.
+        Assert.Throws<ArgumentException>(() => network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)]));
     }
 
     [Fact]

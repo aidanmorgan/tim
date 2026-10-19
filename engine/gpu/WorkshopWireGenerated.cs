@@ -8,6 +8,35 @@ using global::System;
 using global::System.Collections.Generic;
 using global::Google.FlatBuffers;
 
+public struct ActivationMemoryRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public ActivationMemoryRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Node { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public uint Kind { get { return __p.bb.GetUint(__p.bb_pos + 8); } }
+  public uint Count { get { return __p.bb.GetUint(__p.bb_pos + 12); } }
+  public uint LastOrdinal { get { return __p.bb.GetUint(__p.bb_pos + 16); } }
+  public float LastPhase { get { return __p.bb.GetFloat(__p.bb_pos + 20); } }
+  public uint Phase { get { return __p.bb.GetUint(__p.bb_pos + 24); } }
+  public ulong DueTick { get { return __p.bb.GetUlong(__p.bb_pos + 32); } }
+
+  public static Offset<CuriousContraptions.Wire.ActivationMemoryRecord> CreateActivationMemoryRecord(FlatBufferBuilder builder, ulong Node, uint Kind, uint Count, uint LastOrdinal, float LastPhase, uint Phase, ulong DueTick) {
+    builder.Prep(8, 40);
+    builder.PutUlong(DueTick);
+    builder.Pad(4);
+    builder.PutUint(Phase);
+    builder.PutFloat(LastPhase);
+    builder.PutUint(LastOrdinal);
+    builder.PutUint(Count);
+    builder.PutUint(Kind);
+    builder.PutUlong(Node);
+    return new Offset<CuriousContraptions.Wire.ActivationMemoryRecord>(builder.Offset);
+  }
+}
+
 public struct ActivationRecord : IFlatbufferObject
 {
   private Struct __p;
@@ -985,8 +1014,10 @@ public struct WorkshopResponse : IFlatbufferObject
   public int OccurrencesLength { get { int o = __p.__offset(44); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.ElectricalSourceRecord? Electrical(int j) { int o = __p.__offset(46); return o != 0 ? (CuriousContraptions.Wire.ElectricalSourceRecord?)(new CuriousContraptions.Wire.ElectricalSourceRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
   public int ElectricalLength { get { int o = __p.__offset(46); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.ActivationMemoryRecord? ActivationMemory(int j) { int o = __p.__offset(48); return o != 0 ? (CuriousContraptions.Wire.ActivationMemoryRecord?)(new CuriousContraptions.Wire.ActivationMemoryRecord()).__assign(__p.__vector(o) + j * 40, __p.bb) : null; }
+  public int ActivationMemoryLength { get { int o = __p.__offset(48); return o != 0 ? __p.__vector_len(o) : 0; } }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(22); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(23); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -1021,6 +1052,8 @@ public struct WorkshopResponse : IFlatbufferObject
   public static void StartOccurrencesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(40, numElems, 8); }
   public static void AddElectrical(FlatBufferBuilder builder, VectorOffset electricalOffset) { builder.AddOffset(21, electricalOffset.Value, 0); }
   public static void StartElectricalVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
+  public static void AddActivationMemory(FlatBufferBuilder builder, VectorOffset activationMemoryOffset) { builder.AddOffset(22, activationMemoryOffset.Value, 0); }
+  public static void StartActivationMemoryVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(40, numElems, 8); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -1057,6 +1090,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfData(tablePos, 42 /*ContactWorks*/, 32 /*CuriousContraptions.Wire.ContactWorkStoreRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 44 /*Occurrences*/, 40 /*CuriousContraptions.Wire.ContactWorkOccurrenceRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 46 /*Electrical*/, 32 /*CuriousContraptions.Wire.ElectricalSourceRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 48 /*ActivationMemory*/, 40 /*CuriousContraptions.Wire.ActivationMemoryRecord*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

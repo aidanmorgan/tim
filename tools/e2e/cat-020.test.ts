@@ -1,4 +1,4 @@
-// Pure TypeScript Playwright-driven E2E acceptance test suite for slice CAT-020 (Story 9.2).
+// Pure TypeScript Playwright-driven E2E acceptance test suite for slice CAT-020 (Story 9.2; lifecycle re-verified by Story 9R.1).
 // Verifies Pulse Counter Event Accumulator:
 // 1. Placement and wiring validation: Counter (target 3), Powered Gate (tilt -15 deg), Ball Detector (tilt -90 deg),
 //    Upstream Basketball inside gate mouth, Battery, and Lamp.
@@ -7,12 +7,16 @@
 // 3. Positive trigger: 3rd ball crossing reaches target count 3, illuminates lamp, retracts gate blade, and ball traverses downstream.
 // 4. Saturation: 4th ball crossing does not glitch or re-trigger, saturated state maintains gate open.
 // 5. State persistence & reset: Save / reload / Load preserves counter, gate, detector, lamp, and wiring; simulation replay triggers traversal.
+// Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
+// (driver.expectResetMatches) against the snapshot taken before the first Run, with the committed counter at count 0 and its
+// activation Clear (contact open); each Run cycle first proves it advanced.
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
-import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
+import { MemoryKind, activationMemoryRows, assertLoadRestores, snapshotEntries, snapshotValue, type ActivationMemoryRow } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;
 const Socket = { ActivationOut: 1, ActivationIn: 4, Supply: 7, PowerIn: 8 } as const;
@@ -22,6 +26,9 @@ const LAMP_TARGET = '5'; // Animation target of the Signal lamp's activation nod
 // (spec-6-8). One lift pixel is 1/57.9 m, so every ball is lifted at least 28 px (0.48 m). The former 18 px ball (0.31 m)
 // started inside the clearance and was never counted; the recipe only passed through the deleted in-engine crossing shortcut.
 const ARMED_LIFTS = [28, 42, 56, 70] as const;
+// The negative control's two balls (the original recipe's lifts).
+const TWO_CROSSING_LIFTS = [50, 100] as const;
+const ActivationPhase = { Clear: '0' } as const;
 
 const screen = (x: number, z: number) => ({
     x: Math.round(720 + 53.8 * x - 36.8 * z),
@@ -81,6 +88,27 @@ function assertCounterWiring(bytes: Buffer, gateSlot: number, ballSlot: number, 
     assert.equal(counterInst.threshold(), 3);
 }
 
+function counterRow(snapshot: RunResetSnapshot): ActivationMemoryRow {
+    const rows = activationMemoryRows(snapshot).filter(row => row.kind === MemoryKind.Counter);
+    assert.equal(rows.length, 1, `Expected one committed counter row, got ${rows.length}`);
+    return rows[0];
+}
+
+// The committed activation of the counter node (its switched contact): the activations entry with the counter's node id.
+function counterActivationPhase(snapshot: RunResetSnapshot): string {
+    const node = counterRow(snapshot).node;
+    const length = Number(snapshotValue(snapshot, 'read.activations.length'));
+    for (let i = 0; i < length; i++)
+        if (snapshotValue(snapshot, `read.activations[${i}].node`) === node) return snapshotValue(snapshot, `read.activations[${i}].phase`);
+    assert.fail(`No committed activation for counter node ${node}`);
+}
+
+// Story 9R.1 AC: after Reset the counter's count is 0 and its activation is Clear (contact open).
+function assertCounterCleared(snapshot: RunResetSnapshot): void {
+    assert.equal(counterRow(snapshot).count, '0', 'Reset: counter count 0');
+    assert.equal(counterActivationPhase(snapshot), ActivationPhase.Clear, 'Reset: counter activation Clear (contact open)');
+}
+
 describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
     let driver: WorkshopDriver;
     const errors: string[] = [];
@@ -103,38 +131,27 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         await driver?.closeAfterSuite();
     });
 
-    test('1. Placement and wiring validation', { timeout: 150000 }, async () => {
+    // Gate, upstream ball, lamp, battery, detector (tilt -90 deg) and counter, wired through the connection buttons, then one
+    // basketball above the detector per lift; captureSnapshot saves the construction.
+    // Instance slots: 0=Gate, 1=Ball, 2=Lamp, 3=Battery, 4=Detector, 5=Counter, then the detector balls.
+    async function buildCounterBench(lifts: readonly number[]): Promise<RunResetSnapshot> {
         errors.length = 0;
         await driver.reload();
-
-        // 1. Powered gate at (720, 485), tilt -3 steps (-15 deg)
         await driver.selectTool('powered_gate');
         await driver.placeOnCanvas(720, 485);
         await driver.selectPartAt(720, 485);
         await driver.tiltSelectedByFineRotate(-3);
-
-        // Top-row parts:
-        // 2. Upstream basketball inside mouth
         const ballScreen = screen(-0.08, 0);
         await driver.selectTool('basketball');
         await driver.placeOnCanvas(ballScreen.x, ballScreen.y);
-
-        // 3. Lamp at (1000, 600)
         await driver.selectTool('lamp');
         await driver.placeOnCanvas(1000, 600);
-
-        // 4. Battery at (1080, 510)
         await driver.selectTool('battery');
         await driver.placeOnCanvas(1080, 510);
-
-        // Bottom-row parts:
-        // 5. Ball detector at (450, 485), tilt -18 steps (-90 deg)
         await driver.selectTool('ball_detector');
         await driver.placeOnCanvas(450, 485);
         await driver.selectPartAt(450, 485);
         await driver.tiltSelectedByFineRotate(-18);
-
-        // 6. Counter at (920, 510)
         await driver.selectTool('counter');
         await driver.placeOnCanvas(920, 510);
 
@@ -143,299 +160,146 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         await click(driver, 100, 745); // "Connect ActivationOut"
         await click(driver, 1000, 600); // Click Lamp
         await click(driver, 133, 736); // Choice "ActivationOut → ActivationIn"
-
         // Wire Link 2: Counter Supply -> Powered Gate PowerIn (Counter now has 3 buttons, row 1 is at 745)
         await driver.selectPartAt(920, 510);
         await click(driver, 100, 745); // "Connect Supply"
         await click(driver, 720, 485); // Click Gate
         await click(driver, 133, 736); // Choice "Supply → PowerIn"
-
         // Wire Link 3: Battery Supply -> Counter PowerIn (Battery row 1 is at 789)
         await driver.selectPartAt(1080, 510);
         await click(driver, 130, 789); // "Connect Supply" on battery
         await click(driver, 920, 510); // Click Counter
         await click(driver, 133, 736); // Choice "Supply → PowerIn"
-
         // Wire Link 4: Detector ActivationOut -> Counter ActivationIn (Detector row 0 is at 792)
         await driver.selectPartAt(450, 485);
         await click(driver, 133, 792); // "Connect ActivationOut" on detector
         await click(driver, 920, 510); // Click Counter
         await click(driver, 133, 736); // Choice "ActivationOut → ActivationIn"
-
         await driver.page.keyboard.press('Escape');
         await driver.page.waitForTimeout(200);
 
-        // Verify save binary records all 4 links
-        await driver.save();
-        const savedBytes = await saved(driver);
-        // Instance slots: 0=Gate, 1=Ball, 2=Lamp, 3=Battery, 4=Detector, 5=Counter
-        assertCounterWiring(savedBytes, 0, 1, 2, 3, 4, 5);
+        for (const lift of lifts) {
+            await driver.selectTool('basketball');
+            await driver.placeOnCanvas(450, 485);
+            await driver.setPartMode('move');
+            await driver.liftSelectedPart(lift, 450, 485);
+        }
+        await driver.page.keyboard.press('Escape');
+        await driver.page.waitForTimeout(200);
+
+        // The committed (dynamic) bodies: the upstream ball, the gate blade and each detector ball.
+        const s0 = await driver.captureSnapshot({ bodies: 2 + lifts.length });
+        assertCounterCleared(s0);
+        return s0;
+    }
+
+    async function runAndSample(s0: RunResetSnapshot, windowMs: number, pollMs: number):
+        Promise<{ samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[]; paused: RunResetSnapshot }> {
+        await driver.run();
+        const started = Date.now();
+        const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+        let previousSeq = -1n;
+        while (Date.now() - started < windowMs) {
+            const slot = await driver.readLatestPose();
+            if (slot && slot.sequence && BigInt(slot.sequence) !== previousSeq) {
+                previousSeq = BigInt(slot.sequence);
+                const ball = slot.bodies.find(b => b.id === '2');
+                const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
+                if (ball) samples.push({ ball, blade });
+            }
+            await driver.page.waitForTimeout(pollMs);
+        }
+        const paused = await driver.expectRunAdvanced(s0);
+        assert.ok(samples.length >= 20, `Expected >=20 distinct pose publications, got ${samples.length}`);
+        return { samples, paused };
+    }
+
+    async function resetMatches(s0: RunResetSnapshot): Promise<void> {
+        await driver.reset();
+        assertCounterCleared(await driver.expectResetMatches(s0));
+    }
+
+    // At or past the target: the blade retracts, the lamp lights, and the upstream ball passes downstream.
+    async function runReachesTarget(s0: RunResetSnapshot, label: string): Promise<RunResetSnapshot> {
+        const lampBefore = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
+        const { samples, paused } = await runAndSample(s0, 3500, 15);
+        const bladeSamples = samples.map(s => s.blade).filter((b): b is WorkshopBodyPose => b !== undefined);
+        assert.ok(bladeSamples.length > 0, `${label}: blade body poses should be observed`);
+        const maxBladeY = Math.max(...bladeSamples.map(b => b.py));
+        assert.ok(maxBladeY > 4.2, `${label}: blade must retract open when counter reaches 3, max py=${maxBladeY}`);
+        const lampSamples = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
+        assert.ok(lampSamples.length > lampBefore && lampSamples[lampSamples.length - 1].value > 0.99, `${label}: counter → lamp lights at target`);
+        const finalBall = samples[samples.length - 1].ball;
+        assert.ok(finalBall.px > 2.0, `${label}: ball must traverse through gate bore downstream, got px=${finalBall.px}`);
+        assert.ok(finalBall.vx > 0.2, `${label}: ball should exit with positive velocity down slope, got vx=${finalBall.vx}`);
+        assert.notEqual(counterActivationPhase(paused), ActivationPhase.Clear, `${label}: committed counter activation is Latched (contact closed)`);
+        return paused;
+    }
+
+    test('1. Placement and wiring validation', { timeout: 150000 }, async () => {
+        await buildCounterBench([]);
+        assertCounterWiring(await saved(driver), 0, 1, 2, 3, 4, 5);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('2. Negative control: 2 ball crossings do not emit, gate closed, lamp unlit, upstream ball stopped', { timeout: 150000 }, async () => {
-        errors.length = 0;
-
-        // Place 2 basketballs above ball detector at (450, 485)
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(50, 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(100, 450, 485);
-
-        await driver.page.keyboard.press('Escape');
-        await driver.page.waitForTimeout(200);
+        const s0 = await buildCounterBench(TWO_CROSSING_LIFTS);
 
         // Run simulation: 2 balls fall through detector
-        await driver.run();
-        try {
-            const started = Date.now();
-            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
-            let previousSeq = -1n;
-
-            while (Date.now() - started < 1500) {
-                const slot = await driver.readLatestPose();
-                if (slot && slot.sequence && BigInt(slot.sequence) !== previousSeq) {
-                    previousSeq = BigInt(slot.sequence);
-                    const ball = slot.bodies.find(b => b.id === '2');
-                    const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
-                    if (ball) {
-                        samples.push({ ball, blade });
-                    }
-                }
-                await driver.page.waitForTimeout(25);
-            }
-
-            assert.ok(samples.length >= 20, `Expected >=20 distinct pose publications, got ${samples.length}`);
-
-            assert.equal((await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length, 0, 'Counter below target never lights its lamp');
-
-            // Gate blade remains closed (py < 3.2)
-            const bladeSamples = samples.map(s => s.blade).filter((b): b is WorkshopBodyPose => b !== undefined);
-            if (bladeSamples.length > 0) {
-                const maxBladeY = Math.max(...bladeSamples.map(b => b.py));
-                assert.ok(maxBladeY < 3.2, `Gate blade must remain closed after 2 ball crossings, got max py=${maxBladeY}`);
-            }
-
-            // Upstream ball remains stopped by gate (px < 0.2, py > 2.8)
-            const finalBall = samples[samples.length - 1].ball;
-            assert.ok(finalBall.px < 0.2, `Upstream ball must remain stopped upstream, got px=${finalBall.px}`);
-            assert.ok(finalBall.py > 2.8, `Upstream ball must remain stopped upstream at height, got py=${finalBall.py}`);
-        } finally {
-            await driver.reset();
-            await driver.load();
+        const { samples, paused } = await runAndSample(s0, 1500, 25);
+        assert.equal((await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length, 0, 'Counter below target never lights its lamp');
+        // Gate blade remains closed (py < 3.2)
+        const bladeSamples = samples.map(s => s.blade).filter((b): b is WorkshopBodyPose => b !== undefined);
+        if (bladeSamples.length > 0) {
+            const maxBladeY = Math.max(...bladeSamples.map(b => b.py));
+            assert.ok(maxBladeY < 3.2, `Gate blade must remain closed after 2 ball crossings, got max py=${maxBladeY}`);
         }
+        // Upstream ball remains stopped by gate (px < 0.2, py > 2.8)
+        const finalBall = samples[samples.length - 1].ball;
+        assert.ok(finalBall.px < 0.2, `Upstream ball must remain stopped upstream, got px=${finalBall.px}`);
+        assert.ok(finalBall.py > 2.8, `Upstream ball must remain stopped upstream at height, got py=${finalBall.py}`);
+        // Boundary: the committed counter is at target - 1 with its contact open before the Reset.
+        assert.equal(counterRow(paused).count, '2', 'Counter at target - 1 (2 of 3) before Reset');
+        assert.equal(counterActivationPhase(paused), ActivationPhase.Clear, 'Counter contact still open below target');
+
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('3. Positive trigger: 3rd ball crossing reaches target count 3, illuminates lamp, retracts gate blade, and ball traverses downstream', { timeout: 150000 }, async () => {
-        errors.length = 0;
-
-        // Place 3 basketballs above ball detector at (450, 485)
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[0], 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[1], 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[2], 450, 485);
-
-        await driver.page.keyboard.press('Escape');
-        await driver.page.waitForTimeout(200);
-
-        // Run simulation: 3 balls fall through detector
-        const lampBefore = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
-        await driver.run();
-        try {
-            const started = Date.now();
-            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
-            let previousSeq = -1n;
-            let distinctSeqCount = 0;
-            let ballMissingCount = 0;
-
-            while (Date.now() - started < 3500) {
-                const slot = await driver.readLatestPose();
-                if (slot && slot.sequence && BigInt(slot.sequence) !== previousSeq) {
-                    previousSeq = BigInt(slot.sequence);
-                    distinctSeqCount++;
-                    const ball = slot.bodies.find(b => b.id === '2');
-                    const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
-                    if (ball) {
-                        samples.push({ ball, blade });
-                    } else ballMissingCount++;
-                }
-                await driver.page.waitForTimeout(15);
-            }
-
-            assert.ok(samples.length >= 20, `Expected >=20 distinct pose publications, got ${samples.length}`);
-            // Blade must have retracted upward under power from counter contact (py > 4.2)
-            const bladeSamples = samples.map(s => s.blade).filter((b): b is WorkshopBodyPose => b !== undefined);
-            assert.ok(bladeSamples.length > 0, 'Blade body poses should be observed');
-            const maxBladeY = Math.max(...bladeSamples.map(b => b.py));
-            assert.ok(maxBladeY > 4.2, `Blade must retract open when counter reaches 3, max py=${maxBladeY}`);
-            const lampSamples = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
-            assert.ok(lampSamples.length > lampBefore && lampSamples[lampSamples.length - 1].value > 0.99, 'Counter → lamp lights at target');
-
-            // Upstream ball must pass through open gate downstream (px > 2.0, vx > 0.2)
-            const finalBall = samples[samples.length - 1].ball;
-            assert.ok(finalBall.px > 2.0, `Ball must traverse through gate bore downstream, got px=${finalBall.px}`);
-            assert.ok(finalBall.vx > 0.2, `Ball should exit with positive velocity down slope, got vx=${finalBall.vx}`);
-        } finally {
-            await driver.reset();
-            await driver.load();
+        const s0 = await buildCounterBench(ARMED_LIFTS.slice(0, 3));
+        for (const cycle of ['first run', 'second run']) {
+            const paused = await runReachesTarget(s0, cycle);
+            assert.equal(counterRow(paused).count, '3', `${cycle}: committed counter count 3`);
+            await resetMatches(s0);
         }
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('4. Saturation: 4th ball crossing does not glitch or re-trigger, saturated state maintains gate open', { timeout: 150000 }, async () => {
-        errors.length = 0;
-
-        // Place 4 basketballs above ball detector at (450, 485)
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[0], 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[1], 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[2], 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[3], 450, 485);
-
-        await driver.page.keyboard.press('Escape');
-        await driver.page.waitForTimeout(200);
-
-        const lampBefore = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
-        await driver.run();
-        try {
-            const started = Date.now();
-            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
-            let previousSeq = -1n;
-
-            while (Date.now() - started < 3500) {
-                const slot = await driver.readLatestPose();
-                if (slot && slot.sequence && BigInt(slot.sequence) !== previousSeq) {
-                    previousSeq = BigInt(slot.sequence);
-                    const ball = slot.bodies.find(b => b.id === '2');
-                    const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
-                    if (ball) {
-                        samples.push({ ball, blade });
-                    }
-                }
-                await driver.page.waitForTimeout(15);
-            }
-
-            assert.ok(samples.length >= 20, `Expected >=20 distinct pose publications, got ${samples.length}`);
-
-            const bladeSamples = samples.map(s => s.blade).filter((b): b is WorkshopBodyPose => b !== undefined);
-            assert.ok(bladeSamples.length > 0, 'Blade body poses should be observed');
-            const maxBladeY = Math.max(...bladeSamples.map(b => b.py));
-            assert.ok(maxBladeY > 4.2, `Blade must retract and stay open in saturation, max py=${maxBladeY}`);
-            const lampSamples = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
-            assert.ok(lampSamples.length > lampBefore && lampSamples[lampSamples.length - 1].value > 0.99, 'Saturated counter keeps its lamp lit');
-
-            const finalBall = samples[samples.length - 1].ball;
-            assert.ok(finalBall.px > 2.0, `Ball must traverse through gate bore downstream in saturation, got px=${finalBall.px}`);
-            assert.ok(finalBall.vx > 0.2, `Ball should exit with positive velocity down slope, got vx=${finalBall.vx}`);
-        } finally {
-            await driver.reset();
-            await driver.load();
-        }
+        const s0 = await buildCounterBench(ARMED_LIFTS);
+        const paused = await runReachesTarget(s0, 'saturated run');
+        assert.ok(Number(counterRow(paused).count) >= 3, 'Saturated counter stays at or past its target without re-triggering');
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('5. State persistence & reset: Save / reload / Load preserves counter, gate, detector, lamp, and wiring; simulation replay triggers traversal', { timeout: 150000 }, async () => {
-        errors.length = 0;
+        // captureSnapshot saves the wired bench with its three detector balls.
+        const s0 = await buildCounterBench(ARMED_LIFTS.slice(0, 3));
+        assertCounterWiring(await saved(driver), 0, 1, 2, 3, 4, 5);
 
-        await driver.page.keyboard.press('Escape');
-        await driver.page.waitForTimeout(200);
-
-        // Verify base save bytes
-        await driver.save();
-        const savedBytesBefore = await saved(driver);
-        assertCounterWiring(savedBytesBefore, 0, 1, 2, 3, 4, 5);
-
-        // Reload browser page from scratch
+        // Reload browser page from scratch, then Load construction from IndexedDB
         await driver.reload();
-
-        // Load construction from IndexedDB
         await driver.load();
-        const loadedBytes = await saved(driver);
-        assertCounterWiring(loadedBytes, 0, 1, 2, 3, 4, 5);
+        const loaded = await driver.captureSnapshot({ bodies: s0.bodies });
+        assertLoadRestores(s0, loaded);
+        assertCounterWiring(await saved(driver), 0, 1, 2, 3, 4, 5);
+        assert.ok(snapshotEntries(loaded, 'read.activation_memory').length > 0, 'The loaded read publishes the counter memory row');
 
-        // Place 3 basketballs to replay trigger
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[0], 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[1], 450, 485);
-
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(450, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(ARMED_LIFTS[2], 450, 485);
-
-        await driver.page.keyboard.press('Escape');
-        await driver.page.waitForTimeout(200);
-
-        const lampBefore = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
-        await driver.run();
-        try {
-            const started = Date.now();
-            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
-            let previousSeq = -1n;
-
-            while (Date.now() - started < 3500) {
-                const slot = await driver.readLatestPose();
-                if (slot && slot.sequence && BigInt(slot.sequence) !== previousSeq) {
-                    previousSeq = BigInt(slot.sequence);
-                    const ball = slot.bodies.find(b => b.id === '2');
-                    const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
-                    if (ball) {
-                        samples.push({ ball, blade });
-                    }
-                }
-                await driver.page.waitForTimeout(15);
-            }
-
-            assert.ok(samples.length >= 20, `Expected >=20 distinct pose publications, got ${samples.length}`);
-            const bladeSamples = samples.map(s => s.blade).filter((b): b is WorkshopBodyPose => b !== undefined);
-            const maxBladeY = Math.max(...bladeSamples.map(b => b.py));
-            assert.ok(maxBladeY > 4.2, `Replay after reload must retract blade open, max py=${maxBladeY}`);
-            const lampSamples = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
-            assert.ok(lampSamples.length > lampBefore && lampSamples[lampSamples.length - 1].value > 0.99, 'Replay lights the Counter → lamp output');
-
-            const finalBall = samples[samples.length - 1].ball;
-            assert.ok(finalBall.px > 2.0, `Replay after reload must traverse downstream, got px=${finalBall.px}`);
-        } finally {
-            // Reset must restore to authored state without residual runtime contact
-            await driver.reset();
-            await driver.load();
-        }
+        await runReachesTarget(loaded, 'replay after reload');
+        // Reset must restore to authored state without residual runtime contact
+        await resetMatches(loaded);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

@@ -13,7 +13,8 @@ public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, Wro
     Capacity = 12, ReliableStalled = 13, Transport = 14 }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
-    PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default);
+    PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
+    PhysicsMemoryRead Memory = default);
 public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, WorkshopRead Read);
 
 /// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>
@@ -463,6 +464,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (read.Timers.Count != timers.Count) throw new ArgumentException("Admission timer population changed.");
         for (var i = 0; i < timers.Count; i++)
             if (read.Timers[i] != timers[i]) throw new ArgumentException("Admission retained timer state.");
+        if (!read.Memory.HasSameBits(network.ClearMemory())) throw new ArgumentException("Admission retained counter or clock memory.");
         if (read.Activations.Count != initial.Count) throw new ArgumentException("Admission activation population changed.");
         for (var i = 0; i < initial.Count; i++)
             if (read.Activations[i] != initial[i]) throw new ArgumentException("Admission retained activation state.");
@@ -480,8 +482,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
             throw new ArgumentException("GPU tick read does not match the active transaction.");
         if (read.Captures.Count != source.Captures.Count ||
-            read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count)
+            read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count ||
+            read.Memory.Count != source.Memory.Count)
             throw new ArgumentException("Physical read population changed.");
+        for (var i = 0; i < read.Memory.Count; i++)
+            if (read.Memory[i].Node != source.Memory[i].Node || read.Memory[i].Kind != source.Memory[i].Kind)
+                throw new ArgumentException("Committed counter or clock memory identity changed.");
         read.ContactWorks.ValidateAdvance(source.ContactWorks);
         read.Electrical.ValidateAdvance(source.Electrical);
         if (read.Motion is { } motion)

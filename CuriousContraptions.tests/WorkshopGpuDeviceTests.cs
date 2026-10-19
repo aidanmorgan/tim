@@ -287,6 +287,47 @@ public sealed class WorkshopGpuDeviceTests
         device.Commit(reset.Sequence); device.Discard(reset.Sequence); await device.DisposeAsync();
     }
 
+    // Story 9R.1 D3: the committed read publishes the Counter and System Clock rows; a discarded (superseded) Advance candidate
+    // leaves the committed rows unchanged, and a fresh admission (Reset) publishes them cleared.
+    [Fact]
+    public async Task CommittedReadPublishesClockAndCounterMemory_SupersededCandidateLeavesItUnchanged()
+    {
+        var transport = new HeldTransport(false); transport.Held.SetResult();
+        var device = new WorkshopGpuDevice(transport, Document);
+        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+        var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+        var construction = new WorkshopConstruction(new(1), Settings, new(battery, clock, counter), Connections: new(
+            new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+            new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+        var network = WorkshopActivationCompiler.Compile(construction);
+        var admitted = await device.Admit(construction, new(1), Profile, new(1));
+        Assert.Equal(network.ClearMemory().Count, admitted.Read.Memory.Count);
+        Assert.Equal(OscillatorPhase.Stopped, network.Memory(admitted.Read.Memory, clock.Id).Phase);
+        Assert.Equal(0U, network.Memory(admitted.Read.Memory, counter.Id).Count);
+        device.Commit(admitted.Sequence); device.Discard(admitted.Sequence);
+
+        var controls = WorkshopTickControls.For(admitted.Read.Electrical, (_, enable) => enable);
+        var committedWorld = (byte[])transport.Record.Clone();
+        var superseded = await device.Advance(admitted.Read, new(2), controls);
+        Assert.Equal(OscillatorPhase.Running, network.Memory(superseded.Read.Memory, clock.Id).Phase);
+        device.Discard(superseded.Sequence);
+        transport.Record = committedWorld; // the discarded GPU candidate leaves the committed world in place
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var committedMemory = (PhysicsMemoryRead)typeof(WorkshopGpuDevice).GetField("_committedMemory", flags)!.GetValue(device)!;
+        Assert.Equal(OscillatorPhase.Stopped, network.Memory(committedMemory, clock.Id).Phase);
+
+        var advanced = await device.Advance(admitted.Read, new(3), controls);
+        device.Commit(advanced.Sequence); device.Discard(advanced.Sequence);
+        var running = network.Memory(advanced.Read.Memory, clock.Id);
+        Assert.Equal((OscillatorPhase.Running, 120UL), (running.Phase, running.DueTick));
+
+        var reset = await device.Admit(construction, new(2), Profile, new(4));
+        Assert.Equal(network.ClearMemory()[0], reset.Read.Memory[0]);
+        Assert.Equal(network.ClearMemory()[1], reset.Read.Memory[1]);
+        device.Commit(reset.Sequence); device.Discard(reset.Sequence); await device.DisposeAsync();
+    }
+
     // ----- Story 9R.0: device ownership and the gate's disposal -----
 
     private static readonly System.Reflection.FieldInfo GateField =
@@ -367,7 +408,7 @@ public sealed class WorkshopGpuDeviceTests
     private sealed class HeldTransport(bool holdInitialization) : IWorkshopGpuTransport
     {
         public TaskCompletionSource Held { get; } = new();
-        public byte[] Record { get; private set; } = [];
+        public byte[] Record { get; set; } = [];
         public int Initializations, Stages, Reads, Commits, Disposals, Discards;
         public Action<byte[]>? ReadMutation;
         public Task Initialize(string preamble)

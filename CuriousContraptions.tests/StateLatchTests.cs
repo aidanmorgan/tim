@@ -152,7 +152,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var nodes = network.Nodes.ToArray();
         Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);
         Assert.Equal(ActivationNodeKind.StickyFirstInput, nodes.Single(node => node.Owner == sticky.Id).Kind);
-        var activations = network.Clear(); var timers = network.ClearTimers();
+        var activations = network.Clear(); var timers = network.ClearTimers(); var memory = network.ClearMemory();
         var electrical = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
         bool Lit(GpuBodyId owner)
         {
@@ -161,8 +161,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         }
         for (ulong tick = 1; tick <= 200; tick++)
         {
-            var checkpoint = network.Consume(activations, timers, [], new(tick), [], [], electrical);
-            activations = checkpoint.Activations; timers = checkpoint.Timers;
+            var checkpoint = network.Consume(activations, timers, [], new(tick), [], [], electrical, memory: memory);
+            activations = checkpoint.Activations; timers = checkpoint.Timers; memory = checkpoint.Memory;
             var on = network.StateLatchPhase(activations, latch.Id) == SimulationLatchPhase.On;
             Assert.Equal(on, Lit(lamp.Id)); // the level indicator mirrors the latch every tick
             if (tick == 150) { Assert.True(on); }
@@ -439,13 +439,13 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, WorkshopSocket.SetIn),
                 Signal(clock.Id, counter.Id, WorkshopSocket.ActivationIn)));
         var network = WorkshopActivationCompiler.Compile(construction);
-        var activations = network.Clear(); var timers = network.ClearTimers();
+        var activations = network.Clear(); var timers = network.ClearTimers(); var memory = network.ClearMemory();
         var electrical = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery.Id, new Joules(3600f), default, ElectricalEnable.Enabled)]);
         var latchClosedAt = 0; var counterClosedAt = 0;
         for (var tick = 1; tick <= 300; tick++)
         {
-            var checkpoint = network.Consume(activations, timers, [], new((ulong)tick), [], [], electrical);
-            activations = checkpoint.Activations; timers = checkpoint.Timers;
+            var checkpoint = network.Consume(activations, timers, [], new((ulong)tick), [], [], electrical, memory: memory);
+            activations = checkpoint.Activations; timers = checkpoint.Timers; memory = checkpoint.Memory;
             if (latchClosedAt == 0 && network.ContactClosed(activations, latch.Id)) latchClosedAt = tick;
             if (counterClosedAt == 0 && network.ContactClosed(activations, counter.Id)) counterClosedAt = tick;
         }
@@ -514,12 +514,13 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var latchOwner = network.Nodes.ToArray().Single(node => node.Kind == ActivationNodeKind.StateLatch).Owner;
         var activations = network.Clear();
         var timers = network.ClearTimers();
+        var memory = network.ClearMemory();
         var electrical = new PhysicsElectricalRead([new ElectricalSourceRead(new(1), battery, new Joules(3600f), default, ElectricalEnable.Enabled)]);
         var phases = new SimulationLatchPhase[ticks];
         for (var tick = 1; tick <= ticks; tick++)
         {
-            var checkpoint = network.Consume(activations, timers, [], new((ulong)tick), [], [], electrical, events);
-            activations = checkpoint.Activations; timers = checkpoint.Timers;
+            var checkpoint = network.Consume(activations, timers, [], new((ulong)tick), [], [], electrical, events, memory);
+            activations = checkpoint.Activations; timers = checkpoint.Timers; memory = checkpoint.Memory;
             phases[tick - 1] = network.StateLatchPhase(activations, latchOwner);
         }
         return phases;

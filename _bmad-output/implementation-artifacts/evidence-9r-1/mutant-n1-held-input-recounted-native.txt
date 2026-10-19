@@ -1,0 +1,1 @@
+Passed!  - Failed:     0, Passed:    43, Skipped:     0, Total:    43, Duration: 546 ms - CuriousContraptions.tests.dll (net10.0)

@@ -51,8 +51,15 @@ The runner gives every suite an explicit environment: `PATH`, `HOME` and `TMPDIR
 | cat-037 | measures wall time (`s.t < 2200`, `s.t < 400`) |
 | cat-014 | measures wall time (paces by elapsed wall time) |
 | anim-1a, anim-1b, anim-1c, cat-023a | assert a wall-clock sample rate |
+| cat-020 | owner-named (coordinator, 20 Oct 2026): a boot-time clock recalibration under N=2 AOT workers (`_bmad-output/implementation-artifacts/evidence-9r-1/full-run-parallel`); Parallel returns only through Story F.1's recalibration |
 
 Every other suite is Parallel. Rewriting a SerialAlone suite to measure simulated time instead belongs to the story that owns it.
+
+## Exact Run/Reset snapshots (Story 9R.1)
+
+`tools/e2e/run-reset-snapshot.ts` is the one comparison authority for Reset restoration. `driver.captureSnapshot({ bodies })` saves through the Workshop menu in Build mode and flattens the committed read of the Save acknowledgement the driver consumed, plus the authored construction in the IndexedDB slot, into an ordered `path → value` list: every f32 is its raw IEEE-754 bit pattern, so −0 and every NaN payload are distinct. Only the advancing identity paths `read.sequence`, `read.revision`, `read.publication`, `read.epoch`, `read.capture`, `read.session`, `read.master_generation`, `read.cadence` and `read.projection` are excluded. `bodies` is the bench's committed (dynamic) body count. `driver.expectRunAdvanced(s0)` pauses through the menu and requires the Pause acknowledgement's committed read to be past tick 0 and to differ from S0; `driver.expectResetMatches(s0)` re-snapshots after `reset()`, asserts bit-equality (naming the first differing path and both values) and that no goal solved since the Reset. A Load leg compares with `assertLoadRestores`, which also ignores the reloaded page's restarted `saved.construction.revision`.
+
+Its browserless unit checks live in `tools/e2e/unit/` (outside the runner's `tools/e2e/*.test.ts` catalogue): `node --import <tsx 4.23.15>/dist/loader.mjs --test tools/e2e/unit/run-reset-snapshot.test.ts`.
 
 ## Session faults and close findings
 

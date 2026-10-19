@@ -816,9 +816,11 @@ public sealed class WorkshopWireTests
         var sourceBytes = WorkshopWire.Encode(sourceResponse);
         var sourceRoundTrip = WorkshopWire.DecodeResponse(sourceBytes);
         Assert.True(sourceResponse.Read.Electrical.HasSameBits(sourceRoundTrip.Read.Electrical));
-        sourceBytes[113] = 1;
+        sourceBytes[114] = 1; // header padding after the electrical (112) and activation memory (113) counts
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
-        Assert.Equal(26640, bytes.Length);
+        sourceBytes[114] = 0; sourceBytes[113] = 1; // a memory row count with no row
+        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
+        Assert.Equal(26960, bytes.Length);
         Assert.Equal(80, PhysicsBodyWire.ByteLength);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
         bytes[112] = 1;

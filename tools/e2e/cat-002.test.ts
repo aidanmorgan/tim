@@ -1,20 +1,25 @@
-// Pure TypeScript Playwright-driven E2E acceptance test suite for slice CAT-002 (Story 6.8).
+// Pure TypeScript Playwright-driven E2E acceptance test suite for slice CAT-002 (Story 6.8; lifecycle re-verified by Story 9R.1).
 // Verifies Generic Aperture Sensor with Directional Rearm (Ball Detector):
 // 1. Placement, wiring, and forward passage: Ball detector placed and wired to Signal lamp in Free Workshop.
 //    Ball traverses forward (+X) through aperture; detector pulses gold indicator and connected lamp illuminates.
 // 2. Negative control (reverse passage): Reverse traversal (-X) does NOT trigger sensor or lamp.
 // 3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp.
-// 4. Directional rearm and reset: Reset restores upstream state and second Run replays forward trigger bit-for-bit.
-// 5. Persistence: Save / reload / Load IndexedDB roundtrip reproduces forward passage and lamp activation.
+// 4. Directional rearm and reset: Reset restores the exact pre-Run snapshot and a second Run triggers forward again.
+// 5. Persistence: Save / reload / Load IndexedDB roundtrip restores the exact construction and reproduces forward passage.
+// Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
+// (driver.expectResetMatches) against the snapshot taken before the first Run; each Run cycle first proves it advanced.
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
-import { WorkshopDriver, type AnimationSampleRecord } from './workshop-driver.ts';
+import { WorkshopDriver, type AnimationSampleRecord, type RunResetSnapshot } from './workshop-driver.ts';
+import { assertLoadRestores } from './run-reset-snapshot.ts';
 
 const detPos = { x: 720, y: 485 };
 const lampPos = { x: 900, y: 420 };
 const outsidePos = { x: 655, y: 465 };
+// The committed (dynamic) bodies of every bench: the basketball; the detector and lamp are static.
+const BENCH = { bodies: 1 } as const;
 
 async function waitFor(fn: () => Promise<boolean>, timeoutMs: number, stepMs = 50): Promise<boolean> {
     const start = Date.now();
@@ -41,228 +46,117 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
         await driver?.closeAfterSuite();
     });
 
-    test('1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp', { timeout: 150000 }, async () => {
+    // Detector at the centre wired to a lamp, tilted by `steps` fine-rotate steps (-18: local +X down, +18: local +X up), and a
+    // basketball placed at `ballAt` and lifted 120 px.
+    async function buildDetectorBench(steps: number, ballAt: { x: number; y: number }): Promise<RunResetSnapshot> {
         errors.length = 0;
         await driver.reload();
-
-        // 1. Place Ball detector at center
         await driver.selectTool('ball_detector');
         await driver.placeOnCanvas(detPos.x, detPos.y);
         await driver.page.keyboard.press('Escape');
-
-        // 2. Place Signal lamp at (900, 420)
         await driver.selectTool('lamp');
         await driver.placeOnCanvas(lampPos.x, lampPos.y);
-
-        // 3. Connect detector ActivationOut -> lamp ActivationIn
         await driver.connectActivation({ ...detPos, panel: 'detector' }, lampPos);
-
-        // 4. Orient detector: tilt -18 steps (-90 deg about Z) so local +X points straight DOWN (-Y)
         await driver.selectPartAt(detPos.x, detPos.y);
-        await driver.tiltSelectedByFineRotate(-18);
-
-        // 5. Place Basketball directly above the aperture and lift
+        await driver.tiltSelectedByFineRotate(steps);
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
+        await driver.placeOnCanvas(ballAt.x, ballAt.y);
         await driver.setPartMode('move');
-        await driver.liftSelectedPart(120, detPos.x, detPos.y);
+        await driver.liftSelectedPart(120, ballAt.x, ballAt.y);
+        return driver.captureSnapshot(BENCH);
+    }
+
+    async function lights(): Promise<boolean> {
+        return waitFor(async () => {
+            const all = await driver.readAllAnimationSamples();
+            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
+        }, 5000);
+    }
+
+    async function resetMatches(s0: RunResetSnapshot, holdMs = 0): Promise<void> {
+        await driver.expectRunAdvanced(s0);
+        await driver.reset(holdMs);
+        await driver.expectResetMatches(s0);
+    }
+
+    test('1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp', { timeout: 150000 }, async () => {
+        const s0 = await buildDetectorBench(-18, detPos);
 
         // Verify no premature animation samples prior to run
         const preRunSamples = await driver.readAllAnimationSamples();
         assert.equal(preRunSamples.length, 0, 'No animation samples before run');
 
-        // 6. Run simulation: ball drops under gravity straight down through the detector
+        // Run simulation: ball drops under gravity straight down through the detector
         await driver.run();
-
-        // 7. Verify both detector and lamp emit cosmetic activation feedback
         // Detector indicator (SmoothStep 0.35s) and Lamp glow (SmoothStep 0.16s)
-        const lit = await waitFor(async () => {
-            const all = await driver.readAllAnimationSamples();
-            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
-        }, 5000);
-
-        assert.ok(lit, 'Both ball detector indicator and connected lamp must illuminate upon forward passage');
-
+        assert.ok(await lights(), 'Both ball detector indicator and connected lamp must illuminate upon forward passage');
         const allSamples = await driver.readAllAnimationSamples();
         assert.ok(allSamples.length >= 2, 'Detector indicator and lamp must publish samples');
 
-        await driver.reset();
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('2. Negative control (reverse passage): Traversal in -X does NOT trigger sensor or lamp', { timeout: 150000 }, async () => {
-        errors.length = 0;
-        await driver.reload();
-
-        // 1. Place Ball detector
-        await driver.selectTool('ball_detector');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
-        await driver.page.keyboard.press('Escape');
-
-        // 2. Place Signal lamp
-        await driver.selectTool('lamp');
-        await driver.placeOnCanvas(lampPos.x, lampPos.y);
-
-        // 3. Connect detector -> lamp
-        await driver.connectActivation({ ...detPos, panel: 'detector' }, lampPos);
-
-        // 4. Rotate detector +90 deg: local +X points UP
-        await driver.selectPartAt(detPos.x, detPos.y);
-        await driver.tiltSelectedByFineRotate(18);
-
-        // 5. Place ball above detector and lift
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(120, detPos.x, detPos.y);
+        // Rotate detector +90 deg: local +X points UP
+        const s0 = await buildDetectorBench(18, detPos);
 
         await driver.run();
-
         // Allow ball to fall completely through the collar
         await driver.page.waitForTimeout(2000);
-
         // Reverse passage must NOT trigger either detector or lamp
         const reverseSamples = await driver.readAllAnimationSamples();
         assert.equal(reverseSamples.length, 0, `Reverse passage must not emit animation samples, got: ${reverseSamples.length}`);
 
-        await driver.reset();
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp', { timeout: 150000 }, async () => {
-        errors.length = 0;
-        await driver.reload();
-
-        // 1. Place Ball detector
-        await driver.selectTool('ball_detector');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
-        await driver.page.keyboard.press('Escape');
-
-        // 2. Place Signal lamp
-        await driver.selectTool('lamp');
-        await driver.placeOnCanvas(lampPos.x, lampPos.y);
-
-        // 3. Connect detector -> lamp
-        await driver.connectActivation({ ...detPos, panel: 'detector' }, lampPos);
-
-        // 4. Orient detector -90 deg: local +X down
-        await driver.selectPartAt(detPos.x, detPos.y);
-        await driver.tiltSelectedByFineRotate(-18);
-
-        // 5. Drop ball at outside glancing position (R > 0.65m)
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(outsidePos.x, outsidePos.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(120, outsidePos.x, outsidePos.y);
+        // Drop ball at outside glancing position (R > 0.65m), detector local +X down
+        const s0 = await buildDetectorBench(-18, outsidePos);
 
         await driver.run();
-
         // Allow ball to fall past the detector level
         await driver.page.waitForTimeout(2000);
-
         // Outside trajectory must NOT trigger either detector or lamp
         const outsideSamples = await driver.readAllAnimationSamples();
         assert.equal(outsideSamples.length, 0, `Outside glancing trajectory must not emit animation samples, got: ${outsideSamples.length}`);
 
-        await driver.reset();
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
-    test('4. Directional rearm and reset: Reset restores upstream state and second Run replays forward trigger bit-for-bit', { timeout: 150000 }, async () => {
-        errors.length = 0;
-        await driver.reload();
-
-        // 1. Place Ball detector
-        await driver.selectTool('ball_detector');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
-        await driver.page.keyboard.press('Escape');
-
-        // 2. Place Signal lamp
-        await driver.selectTool('lamp');
-        await driver.placeOnCanvas(lampPos.x, lampPos.y);
-
-        // 3. Connect detector -> lamp
-        await driver.connectActivation({ ...detPos, panel: 'detector' }, lampPos);
-
-        // 4. Orient detector: tilt -18 steps (-90 deg about Z) so local +X points straight DOWN (-Y)
-        await driver.selectPartAt(detPos.x, detPos.y);
-        await driver.tiltSelectedByFineRotate(-18);
-
-        // 5. Place ball above detector
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(120, detPos.x, detPos.y);
+    test('4. Directional rearm and reset: Reset restores the exact pre-Run snapshot and a second Run triggers forward again', { timeout: 150000 }, async () => {
+        const s0 = await buildDetectorBench(-18, detPos);
 
         // First run: triggers lamp
         await driver.run();
-        const firstLit = await waitFor(async () => {
-            const all = await driver.readAllAnimationSamples();
-            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
-        }, 5000);
-        assert.ok(firstLit, 'First run must illuminate lamp');
-
-        // Reset: restores upstream starting arrangement
-        await driver.reset(500);
+        assert.ok(await lights(), 'First run must illuminate lamp');
+        // Reset (draining the retired world's cosmetic pulses): restores the upstream starting arrangement exactly
+        await resetMatches(s0, 500);
 
         // Second run: ball clears upstream by definition and triggers sensor again
         await driver.run();
-        const secondLit = await waitFor(async () => {
-            const all = await driver.readAllAnimationSamples();
-            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
-        }, 5000);
-        assert.ok(secondLit, 'Second run after Reset must illuminate lamp again');
-
-        await driver.reset();
+        assert.ok(await lights(), 'Second run after Reset must illuminate lamp again');
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('5. Persistence: Save / reload / Load IndexedDB persistence roundtrip reproduces forward passage and lamp activation', { timeout: 150000 }, async () => {
-        errors.length = 0;
+        // captureSnapshot saves the construction to IndexedDB through the Workshop menu.
+        const s0 = await buildDetectorBench(-18, detPos);
+
+        // Fresh page reload (wipes volatile memory and canvas state), then Load construction back from IndexedDB
         await driver.reload();
-
-        // 1. Place Ball detector
-        await driver.selectTool('ball_detector');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
-        await driver.page.keyboard.press('Escape');
-
-        // 2. Place Signal lamp
-        await driver.selectTool('lamp');
-        await driver.placeOnCanvas(lampPos.x, lampPos.y);
-
-        // 3. Connect detector -> lamp
-        await driver.connectActivation({ ...detPos, panel: 'detector' }, lampPos);
-
-        // 4. Orient detector: tilt -18 steps (-90 deg about Z) so local +X points straight DOWN (-Y)
-        await driver.selectPartAt(detPos.x, detPos.y);
-        await driver.tiltSelectedByFineRotate(-18);
-
-        // 5. Place ball above detector
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(detPos.x, detPos.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(120, detPos.x, detPos.y);
-
-        // Save construction to IndexedDB
-        await driver.save();
-
-        // Fresh page reload (wipes volatile memory and canvas state)
-        await driver.reload();
-
-        // Load construction back from IndexedDB
         await driver.load();
+        const loaded = await driver.captureSnapshot(BENCH);
+        assertLoadRestores(s0, loaded);
 
         // Run the restored construction
         await driver.run();
-
-        const loadedLit = await waitFor(async () => {
-            const all = await driver.readAllAnimationSamples();
-            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
-        }, 5000);
-
-        assert.ok(loadedLit, 'Loaded construction must detect passage and illuminate connected lamp');
-
-        await driver.reset();
+        assert.ok(await lights(), 'Loaded construction must detect passage and illuminate connected lamp');
+        await resetMatches(loaded);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

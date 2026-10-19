@@ -27,7 +27,8 @@ public readonly partial record struct WorkshopRead
     {
         if (!first.Bodies.HasSameBits(second.Bodies) ||
             first.Captures.Count != second.Captures.Count || first.Activations.Count != second.Activations.Count ||
-            first.Timers.Count != second.Timers.Count || !first.ContactWorks.HasSameBits(second.ContactWorks) || !first.Electrical.HasSameBits(second.Electrical)) return false;
+            first.Timers.Count != second.Timers.Count || !first.ContactWorks.HasSameBits(second.ContactWorks) || !first.Electrical.HasSameBits(second.Electrical) ||
+            !first.Memory.HasSameBits(second.Memory)) return false;
         if (first.Motion is { } m1 && second.Motion is { } m2)
         {
             if (!m1.Bytes.SequenceEqual(m2.Bytes)) return false;

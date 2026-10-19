@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright E2E
+    # Subtest: 1. Clean boot: cross-origin isolation and WorkshopPoseRing initialized
+    ok 1 - 1. Clean boot: cross-origin isolation and WorkshopPoseRing initialized
+      ---
+      duration_ms: 4.051583
+      type: 'test'
+      ...
+    # Subtest: 2. Empty-construction control: Run advances sequence with 0 bodies, Reset restores Build Mode
+    ok 2 - 2. Empty-construction control: Run advances sequence with 0 bodies, Reset restores Build Mode
+      ---
+      duration_ms: 1162.51375
+      type: 'test'
+      ...
+    # Subtest: 3. Single-ball control: Place 1 Basketball via UI, Run observes gravitational motion, Reset restores elevation
+    ok 3 - 3. Single-ball control: Place 1 Basketball via UI, Run observes gravitational motion, Reset restores elevation
+      ---
+      duration_ms: 3265.857791
+      type: 'test'
+      ...
+    # Subtest: 4. Dual-sphere multi-body simulation: Place 2 Basketballs, Run observes independent trajectories
+    ok 4 - 4. Dual-sphere multi-body simulation: Place 2 Basketballs, Run observes independent trajectories
+      ---
+      duration_ms: 3966.689333
+      type: 'test'
+      ...
+    # Subtest: 5. Save & Load persistence roundtrip: Save via driver, reload page, Load restores both balls
+    ok 5 - 5. Save & Load persistence roundtrip: Save via driver, reload page, Load restores both balls
+      ---
+      duration_ms: 5632.684
+      type: 'test'
+      ...
+    1..5
+ok 1 - ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright E2E
+  ---
+  duration_ms: 18284.899417
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18556.551459

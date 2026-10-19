@@ -1,0 +1,104 @@
+Mode: Full
+Tier 3 required: yes
+path	CuriousContraptions.Simulation/WorkshopGpuDevice.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.tests/ClockTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/CounterTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/StateLatchTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopGpuDeviceTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopWireTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/index.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-m1-reset-keeps-velocity-cat-049.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-m1b-reset-keeps-velocity-guard-bypassed-cat-049.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-m2-counter-memory-survives-reset-cat-020.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-m3-oscillator-due-tick-survives-reset-cat-017.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-m4-blade-last-pose-guard-bypassed-cat-051.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-m5-skip-last-path.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-m6-cat-049-test-2-shared-bench.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-n1-held-input-recounted-native.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/mutant-n2-candidate-memory-published-before-commit-native.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/native-red-build.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048a-test-1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048a-test-2.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048a-test-3.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048a-test-4.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048b-test-1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048b-test-2.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048b-test-3.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048b-test-4.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-048b-test-5.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-049-test-1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-049-test-2.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-049-test-3.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-049-test-4.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-049-test-5.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-050-test-1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-050-test-2.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-050-test-3.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-050-test-4.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/run-alone/cat-050-test-5.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/tier1/lifecycle.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/tier1/ownership.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/tier1/wire.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/unit-green.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/unit-red-schema-drift.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-1/unit-red.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/spec-9r-1-exact-run-reset-snapshot-assertions.md	NoBrowserImpact	_bmad-output/**
+path	engine/gpu/ActivationMemory.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/ActivationMemory.cs.uid	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/ActivationNetwork.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopRead.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopSimulation.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopWire.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopWireFlatBuffers.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopWireGenerated.cs	Full(MaterialEngine)	engine/gpu/**
+path	schemas/workshop_wire.fbs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	tools/E2eRunner/SuiteCatalogue.cs	Full(RunnerItself)	tools/E2eRunner*/**
+path	tools/e2e/README.md	NoBrowserImpact	tools/e2e/README.md
+path	tools/e2e/cat-002.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-002
+path	tools/e2e/cat-017.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-017
+path	tools/e2e/cat-020.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-020
+path	tools/e2e/cat-030.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-030
+path	tools/e2e/cat-048a.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-048a
+path	tools/e2e/cat-048b.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-048b
+path	tools/e2e/cat-049.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-049
+path	tools/e2e/cat-050.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-050
+path	tools/e2e/cat-051.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-051
+path	tools/e2e/cat-052.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052
+path	tools/e2e/run-reset-snapshot.ts	Full(SharedDriverInfrastructure)	tools/e2e/*.ts (shared module): imported by every suite
+path	tools/e2e/unit/run-reset-snapshot.test.ts	Full(Unknown)	unmatched path
+path	tools/e2e/workshop-driver.ts	Full(SharedDriverInfrastructure)	tools/e2e/*.ts (shared module): imported by every suite
+path	tools/e2e/workshop-wire.ts	Full(SharedDriverInfrastructure)	tools/e2e/*.ts (shared module): imported by every suite
+clock-master	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-017	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-023b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-037	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-014	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1c	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-023a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-002	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-005	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015a-sidekick	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-020	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-030	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-048a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-048b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-049	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-050	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-051	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-052	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-062	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-062b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a1	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a2	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a3	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a4	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b1	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b2	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b3	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b4	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2c	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+palette-placement	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)

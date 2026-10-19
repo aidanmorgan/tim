@@ -1,22 +1,28 @@
-// Pure TypeScript Playwright-driven E2E acceptance test suite for slice CAT-030 (Story 6.11).
+// Pure TypeScript Playwright-driven E2E acceptance test suite for slice CAT-030 (Story 6.11; lifecycle re-verified by Story 9R.1).
 // Verifies Funnel hollow frustum inlet to standard bore:
 // 1. Workshop selection: Select funnel from palette, place on canvas.
 // 2. Negative control: Ball dropped on outer shell deflects/bounces without entering bore.
 // 3. Centered drop: Ball dropped into wide 2.6 m inlet descends smoothly, guided by tapered walls, exits 1.3 m outlet into receiver below.
 // 4. Off-center drop: Ball dropped at +0.70 m off-axis gathers into funnel without snagging and exits outlet.
 // 5. Joined pipe route: Funnel outlet positioned above straight pipe, ball smoothly transitions from funnel into tube.
-// 6. Reset restoration: Reset restores initial poses; second Run replays bit-for-bit.
-// 7. Save / Load persistence roundtrip: Save, reload, Load restores construction, re-run reproduces traversal.
+// 6. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run settles again and its Reset restores it again.
+// 7. Save / Load persistence roundtrip: Save, reload, Load restores the exact construction, re-run reproduces traversal.
+// Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
+// (driver.expectResetMatches) against the snapshot taken before the first Run; each Run cycle first proves it advanced.
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
-import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+import { assertLoadRestores } from './run-reset-snapshot.ts';
 
 const screen = (x: number, z: number) => ({
     x: Math.round(720 + 53.8 * x - 36.8 * z),
     y: Math.round(485 + 17.0 * x + 24.8 * z)
 });
+
+// The committed (dynamic) bodies of every bench: the basketball; the funnel, pipe and receiver are static.
+const BENCH = { bodies: 1 } as const;
 
 describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
     let driver: WorkshopDriver;
@@ -34,6 +40,68 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         await driver?.closeAfterSuite();
     });
 
+    // A basketball at x = ballX lifted liftPx, then a funnel at the centre tilted -90 deg and lifted 80 px, and a receiver beneath.
+    async function buildFunnelDrop(ballX: number, liftPx: number): Promise<RunResetSnapshot> {
+        await driver.reload();
+        errors.length = 0;
+        const ballPt = screen(ballX, 0);
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(ballPt.x, ballPt.y);
+        await driver.selectPartAt(ballPt.x, ballPt.y);
+        await driver.setPartMode('move');
+        await driver.liftSelectedPart(liftPx, ballPt.x, ballPt.y);
+        await driver.pressKey('Escape');
+
+        await driver.selectTool('funnel');
+        await driver.placeOnCanvas(720, 485);
+        await driver.selectPartAt(720, 485);
+        await driver.tiltSelectedByFineRotate(-18);
+        await driver.selectPartAt(720, 485);
+        await driver.setPartMode('move');
+        await driver.liftSelectedPart(80, 720, 485, 130);
+        await driver.pressKey('Escape');
+
+        await driver.selectTool('receiver');
+        await driver.placeOnCanvas(720, 485);
+        await driver.pressKey('Escape');
+        return driver.captureSnapshot(BENCH);
+    }
+
+    // Runs, samples the ball's distinct pose publications for 3.5 s, then pauses through the menu and proves the run advanced.
+    async function runAndSample(s0: RunResetSnapshot, ballId: string): Promise<{ ball: WorkshopBodyPose }[]> {
+        await driver.run();
+        const started = Date.now();
+        const samples: { ball: WorkshopBodyPose }[] = [];
+        let prevSeq = -1n;
+        while (Date.now() - started < 3500) {
+            const slot = await driver.readLatestPose();
+            if (slot && slot.sequence && BigInt(slot.sequence) !== prevSeq) {
+                prevSeq = BigInt(slot.sequence);
+                const ball = slot.bodies.find(b => b.id === ballId);
+                if (ball) samples.push({ ball });
+            }
+            await driver.page.waitForTimeout(25);
+        }
+        await driver.expectRunAdvanced(s0);
+        return samples;
+    }
+
+    async function resetMatches(s0: RunResetSnapshot): Promise<void> {
+        await driver.reset();
+        await driver.expectResetMatches(s0);
+    }
+
+    // A 3 s run of the centred funnel drop: the ball settles in the receiver basket.
+    async function runSettlesInReceiver(s0: RunResetSnapshot, label: string): Promise<void> {
+        await driver.run(3000);
+        await driver.expectRunAdvanced(s0);
+        const slot = await driver.readLatestPose();
+        const ball = slot?.bodies.find(b => b.id === '1');
+        assert.ok(ball, `${label}: ball body must be present`);
+        assert.ok(ball.py > 2.8 && ball.py < 3.2, `${label}: ball must settle in receiver, py=${ball.py}`);
+        assert.ok(Math.abs(ball.px) < 0.2 && Math.abs(ball.pz) < 0.2, `${label}: ball must settle centered in receiver`);
+    }
+
     test('1. Workshop selection: Select funnel from palette, place on canvas', { timeout: 150000 }, async () => {
         await driver.reload();
         errors.length = 0;
@@ -46,36 +114,11 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
     });
 
     test('2. Negative control: Ball dropped on outer shell deflects/bounces without entering bore', { timeout: 150000 }, async () => {
-        await driver.reload();
-        errors.length = 0;
+        // Basketball offset at x = 1.8m (strikes outer shell/rim), lifted 160 px
+        const s0 = await buildFunnelDrop(1.8, 160);
 
-        // Place basketball offset at x = 1.8m (strikes outer shell/rim)
-        const ballPt = screen(1.8, 0);
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(ballPt.x, ballPt.y);
-        await driver.selectPartAt(ballPt.x, ballPt.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(160, ballPt.x, ballPt.y);
-        await driver.pressKey('Escape');
-
-        // Place funnel at center, tilt -90 deg, lift by 80 px
-        await driver.selectTool('funnel');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.tiltSelectedByFineRotate(-18);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(80, 720, 485, 130);
-        await driver.pressKey('Escape');
-
-        // Place receiver directly beneath funnel
-        await driver.selectTool('receiver');
-        await driver.placeOnCanvas(720, 485);
-        await driver.pressKey('Escape');
-
-        // Run simulation
         await driver.run(3500);
-        await driver.pauseSimulation();
+        await driver.expectRunAdvanced(s0);
 
         const slot = await driver.readLatestPose();
         const ball = slot?.bodies.find(b => b.id === '1');
@@ -84,52 +127,13 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         assert.ok(ball.px > 3.0, `Ball must deflect outward past x=3.0, got px=${ball.px}`);
         assert.ok(ball.py < 1.0, `Ball must land on workbench floor, not in receiver, got py=${ball.py}`);
 
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('3. Centered drop: Ball dropped into wide 2.6 m inlet descends smoothly, guided by tapered walls, exits 1.3 m outlet into receiver below', { timeout: 150000 }, async () => {
-        await driver.reload();
-        errors.length = 0;
-
-        // 1. Basketball placed at center and lifted 160 px
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(160, 720, 485);
-        await driver.pressKey('Escape');
-
-        // 2. Funnel placed at center, tilted -90 deg, lifted 80 px
-        await driver.selectTool('funnel');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.tiltSelectedByFineRotate(-18);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(80, 720, 485, 130);
-        await driver.pressKey('Escape');
-
-        // 3. Receiver placed beneath funnel
-        await driver.selectTool('receiver');
-        await driver.placeOnCanvas(720, 485);
-        await driver.pressKey('Escape');
-
-        // 4. Run and record trajectory samples
-        await driver.run();
-        const started = Date.now();
-        const samples: { ball: WorkshopBodyPose }[] = [];
-        let prevSeq = -1n;
-
-        while (Date.now() - started < 3500) {
-            const slot = await driver.readLatestPose();
-            if (slot && slot.sequence && BigInt(slot.sequence) !== prevSeq) {
-                prevSeq = BigInt(slot.sequence);
-                const ball = slot.bodies.find(b => b.id === '1');
-                if (ball) samples.push({ ball });
-            }
-            await driver.page.waitForTimeout(25);
-        }
-        await driver.pauseSimulation();
+        const s0 = await buildFunnelDrop(0, 160);
+        const samples = await runAndSample(s0, '1');
 
         assert.ok(samples.length > 30, `Expected >30 distinct pose publications, got ${samples.length}`);
 
@@ -150,53 +154,14 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         assert.ok(final.py > 2.8 && final.py < 3.2, `Final py ${final.py} should rest inside receiver basket (~2.96m)`);
         assert.ok(Math.abs(final.vy) < 0.1, `Ball must come to rest vertically, vy=${final.vy}`);
 
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('4. Off-center drop: Ball dropped at +0.70 m off-axis gathers into funnel without snagging and exits outlet', { timeout: 150000 }, async () => {
-        await driver.reload();
-        errors.length = 0;
-
-        // 1. Basketball placed at offset x = 0.7m, lifted 190 px
-        const ballPt = screen(0.7, 0);
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(ballPt.x, ballPt.y);
-        await driver.selectPartAt(ballPt.x, ballPt.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(190, ballPt.x, ballPt.y);
-        await driver.pressKey('Escape');
-
-        // 2. Funnel placed at center, tilted -90 deg, lifted 80 px
-        await driver.selectTool('funnel');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.tiltSelectedByFineRotate(-18);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(80, 720, 485, 130);
-        await driver.pressKey('Escape');
-
-        // 3. Receiver placed beneath funnel
-        await driver.selectTool('receiver');
-        await driver.placeOnCanvas(720, 485);
-        await driver.pressKey('Escape');
-
-        // 4. Run and record trajectory samples
-        await driver.run();
-        const started = Date.now();
-        const samples: { ball: WorkshopBodyPose }[] = [];
-        let prevSeq = -1n;
-
-        while (Date.now() - started < 3500) {
-            const slot = await driver.readLatestPose();
-            if (slot && slot.sequence && BigInt(slot.sequence) !== prevSeq) {
-                prevSeq = BigInt(slot.sequence);
-                const ball = slot.bodies.find(b => b.id === '1');
-                if (ball) samples.push({ ball });
-            }
-            await driver.page.waitForTimeout(25);
-        }
-        await driver.pauseSimulation();
+        // Basketball at offset x = 0.7m, lifted 190 px
+        const s0 = await buildFunnelDrop(0.7, 190);
+        const samples = await runAndSample(s0, '1');
 
         assert.ok(samples.length > 30, `Expected >30 distinct pose publications, got ${samples.length}`);
 
@@ -212,6 +177,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         assert.ok(final.py > 2.8 && final.py < 3.2, `Final py ${final.py} must rest inside receiver basket (~2.96m)`);
         assert.ok(Math.abs(final.vy) < 0.1, `Ball must come to rest vertically, vy=${final.vy}`);
 
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -244,23 +210,10 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         await driver.setPartMode('move');
         await driver.liftSelectedPart(210, ballPt.x, ballPt.y);
         await driver.pressKey('Escape');
+        const s0 = await driver.captureSnapshot(BENCH);
 
         // 4. Run and record trajectory
-        await driver.run();
-        const started = Date.now();
-        const samples: { ball: WorkshopBodyPose }[] = [];
-        let prevSeq = -1n;
-
-        while (Date.now() - started < 3500) {
-            const slot = await driver.readLatestPose();
-            if (slot && slot.sequence && BigInt(slot.sequence) !== prevSeq) {
-                prevSeq = BigInt(slot.sequence);
-                const ball = slot.bodies.find(b => b.id === '3');
-                if (ball) samples.push({ ball });
-            }
-            await driver.page.waitForTimeout(25);
-        }
-        await driver.pauseSimulation();
+        const samples = await runAndSample(s0, '3');
 
         assert.ok(samples.length > 30, `Expected >30 distinct pose publications, got ${samples.length}`);
 
@@ -284,105 +237,34 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
             }
         }
 
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
-    test('6. Reset restoration: Reset restores initial poses; second Run replays bit-for-bit', { timeout: 150000 }, async () => {
-        await driver.reload();
-        errors.length = 0;
+    test('6. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run settles again and Reset restores it again', { timeout: 150000 }, async () => {
+        const s0 = await buildFunnelDrop(0, 160);
 
-        // Setup funnel drop into receiver
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(160, 720, 485);
-        await driver.pressKey('Escape');
-
-        await driver.selectTool('funnel');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.tiltSelectedByFineRotate(-18);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(80, 720, 485, 130);
-        await driver.pressKey('Escape');
-
-        await driver.selectTool('receiver');
-        await driver.placeOnCanvas(720, 485);
-        await driver.pressKey('Escape');
-
-        // First Run
-        await driver.run(3000);
-        await driver.pauseSimulation();
-
-        const firstSlot = await driver.readLatestPose();
-        const firstBall = firstSlot?.bodies.find(b => b.id === '1');
-        assert.ok(firstBall, 'Ball body must be present after first run');
-        assert.ok(firstBall.py > 2.8 && firstBall.py < 3.2, `First run ball in receiver, py=${firstBall.py}`);
-
-        // Reset
-        await driver.reset();
-
-        // Second Run
-        await driver.run(3000);
-        await driver.pauseSimulation();
-
-        const replaySlot = await driver.readLatestPose();
-        const replayBall = replaySlot?.bodies.find(b => b.id === '1');
-        assert.ok(replayBall, 'Ball body must be present after replay');
-        assert.ok(Math.abs(replayBall.px - firstBall.px) < 0.01, `Replay px ${replayBall.px} must match first run ${firstBall.px}`);
-        assert.ok(Math.abs(replayBall.py - firstBall.py) < 0.01, `Replay py ${replayBall.py} must match first run ${firstBall.py}`);
-        assert.ok(Math.abs(replayBall.pz - firstBall.pz) < 0.01, `Replay pz ${replayBall.pz} must match first run ${firstBall.pz}`);
+        await runSettlesInReceiver(s0, 'first run');
+        await resetMatches(s0);
+        await runSettlesInReceiver(s0, 'second run');
+        await resetMatches(s0);
 
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('7. Save / Load persistence roundtrip: Save, reload, Load restores construction, re-run reproduces traversal', { timeout: 150000 }, async () => {
+        // captureSnapshot saves the construction through the Workshop menu.
+        const s0 = await buildFunnelDrop(0, 160);
+
+        // Reload page, then Load via menu
         await driver.reload();
         errors.length = 0;
-
-        // Setup funnel drop into receiver
-        await driver.selectTool('basketball');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(160, 720, 485);
-        await driver.pressKey('Escape');
-
-        await driver.selectTool('funnel');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.tiltSelectedByFineRotate(-18);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(80, 720, 485, 130);
-        await driver.pressKey('Escape');
-
-        await driver.selectTool('receiver');
-        await driver.placeOnCanvas(720, 485);
-        await driver.pressKey('Escape');
-
-        // Save via menu
-        await driver.save();
-
-        // Reload page
-        await driver.reload();
-        errors.length = 0;
-
-        // Load via menu
         await driver.load();
+        const loaded = await driver.captureSnapshot(BENCH);
+        assertLoadRestores(s0, loaded);
 
-        // Run simulation
-        await driver.run(3000);
-        await driver.pauseSimulation();
-
-        const loadedSlot = await driver.readLatestPose();
-        const loadedBall = loadedSlot?.bodies.find(b => b.id === '1');
-        assert.ok(loadedBall, 'Ball body must be present after load');
-        assert.ok(loadedBall.py > 2.8 && loadedBall.py < 3.2, `Loaded run ball must settle in receiver, py=${loadedBall.py}`);
-        assert.ok(Math.abs(loadedBall.px) < 0.2 && Math.abs(loadedBall.pz) < 0.2, 'Loaded run ball must settle centered in receiver');
-
+        await runSettlesInReceiver(loaded, 'loaded run');
+        await resetMatches(loaded);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

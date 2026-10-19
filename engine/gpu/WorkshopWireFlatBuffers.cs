@@ -389,6 +389,20 @@ public static class WorkshopWireFlatBuffers
             timersOffset = builder.EndVector();
         }
 
+        // 9. Committed counter and clock memory rows (Story 9R.1 D3)
+        VectorOffset? memoryOffset = null;
+        if (response.Read.Memory.Count > 0)
+        {
+            CuriousContraptions.Wire.WorkshopResponse.StartActivationMemoryVector(builder, response.Read.Memory.Count);
+            for (var i = response.Read.Memory.Count - 1; i >= 0; i--)
+            {
+                var m = response.Read.Memory[i];
+                CuriousContraptions.Wire.ActivationMemoryRecord.CreateActivationMemoryRecord(builder, m.Node.Value, (uint)m.Kind, m.Count,
+                    m.Last.Ordinal, (float)m.Last.Phase, (uint)m.Phase, m.DueTick);
+            }
+            memoryOffset = builder.EndVector();
+        }
+
         // Start WorkshopResponse
         CuriousContraptions.Wire.WorkshopResponse.StartWorkshopResponse(builder);
         CuriousContraptions.Wire.WorkshopResponse.AddSequence(builder, response.Sequence.Value);
@@ -423,6 +437,7 @@ public static class WorkshopWireFlatBuffers
         if (contactWorksOffset.HasValue) CuriousContraptions.Wire.WorkshopResponse.AddContactWorks(builder, contactWorksOffset.Value);
         if (occurrencesOffset.HasValue) CuriousContraptions.Wire.WorkshopResponse.AddOccurrences(builder, occurrencesOffset.Value);
         if (electricalOffset.HasValue) CuriousContraptions.Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
+        if (memoryOffset.HasValue) CuriousContraptions.Wire.WorkshopResponse.AddActivationMemory(builder, memoryOffset.Value);
 
         var end = CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder);
         CuriousContraptions.Wire.WorkshopResponse.FinishWorkshopResponseBuffer(builder, end);
@@ -602,6 +617,16 @@ public static class WorkshopWireFlatBuffers
         }
         var electrical = new PhysicsElectricalRead(sources);
 
+        var memoryCount = fb.ActivationMemoryLength;
+        var memoryValues = new ActivationMemory[memoryCount];
+        for (var i = 0; i < memoryCount; i++)
+        {
+            var m = fb.ActivationMemory(i)!.Value;
+            memoryValues[i] = new ActivationMemory(new ActivationNodeId(m.Node), (ActivationNodeKind)m.Kind, m.Count,
+                new ActivationTime(m.LastOrdinal, (Half)m.LastPhase), (OscillatorPhase)m.Phase, m.DueTick);
+        }
+        var memory = new PhysicsMemoryRead(memoryValues);
+
         PhysicsMotionRead? motion = tick.Value == 0
             ? PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength], bodies, tick)
             : null;
@@ -616,7 +641,8 @@ public static class WorkshopWireFlatBuffers
             activations,
             timers,
             contactWorks,
-            electrical);
+            electrical,
+            memory);
 
         WorkshopWire.ValidatePhysicalRead(read, requireMotion: false);
         WorkshopWire.ValidateCapture(read);

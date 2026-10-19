@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: CAT-048a: Straight Pipe Compound Cylindrical Collider
+    # Subtest: 4. Negative control & mouth entrance containment: Ball placed outside mouth does not enter bore
+    ok 1 - 4. Negative control & mouth entrance containment: Ball placed outside mouth does not enter bore
+      ---
+      duration_ms: 9033.308666
+      type: 'test'
+      ...
+    1..1
+ok 1 - CAT-048a: Straight Pipe Compound Cylindrical Collider
+  ---
+  duration_ms: 13290.27875
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13556.470292

@@ -1,0 +1,42 @@
+TAP version 13
+# Subtest: CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+    # Subtest: 3. Solved run: pipe_bend_45 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
+    not ok 1 - 3. Solved run: pipe_bend_45 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
+      ---
+      duration_ms: 24555.779208
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/cat-049.test.ts:2:4149'
+      failureType: 'testCodeFailure'
+      error: 'save: no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        WorkshopDriver.command (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/workshop-driver.ts:582:29)
+        async WorkshopDriver.save (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/workshop-driver.ts:814:33)
+        async WorkshopDriver.captureSnapshot (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/workshop-driver.ts:825:43)
+        async WorkshopDriver.expectResetMatches (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/workshop-driver.ts:847:20)
+        async resetMatches (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/cat-049.test.ts:66:9)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/cat-049.test.ts:98:9)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Promise.all (index 2)
+        async Suite.run (node:internal/test_runner/test:1905:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+      ...
+    1..1
+not ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+  ---
+  duration_ms: 28957.928208
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/cat-049.test.ts:2:1165'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 29214.259791

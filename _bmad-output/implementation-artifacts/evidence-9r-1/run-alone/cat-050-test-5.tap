@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
+    # Subtest: 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+    ok 1 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+      ---
+      duration_ms: 12932.93575
+      type: 'test'
+      ...
+    1..1
+ok 1 - CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
+  ---
+  duration_ms: 17199.583209
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17462.667084

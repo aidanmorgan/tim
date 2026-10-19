@@ -74,7 +74,9 @@ public readonly struct PhysicsActivationRead
     public ActivationLatch this[int index] => index >= 0 && index < Count ? _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
 }
 
-public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activations, PhysicsTimerRead Timers);
+/// <summary>The committed discrete checkpoint: activations, timers and the Counter/Clock memory rows (Story 9R.1 D3).</summary>
+public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activations, PhysicsTimerRead Timers,
+    PhysicsMemoryRead Memory = default);
 
 /// <summary>One bounded C# discrete network. Catalogue parts declare nodes; none owns a clock or callback.</summary>
 public sealed class ActivationNetwork
@@ -85,13 +87,9 @@ public sealed class ActivationNetwork
     private readonly ActivationTimerDeclaration[] _timers;
     private readonly PassageSensorDeclaration[] _passageSensors;
     private readonly uint _substeps;
-    private readonly int[] _counterCounts;
-    private readonly ActivationTime[] _counterLastTimes;
-    private readonly bool[] _counterEmitted;
-    private readonly int[] _oscillatorPhases;
-    private readonly long[] _oscillatorDueTicks;
-    private readonly int[] _oscillatorPulseCounts;
-    private readonly long[] _oscillatorLastPulseTicks;
+    // Declaration data only: the memory-row index of each node (-1 for a node without Counter/Clock memory).
+    private readonly int[] _memorySlots;
+    private readonly ActivationNodeDeclaration[] _memoryNodes;
     public ReadOnlySpan<ActivationNodeDeclaration> Nodes => _nodes;
     public ReadOnlySpan<ActivationEdge> Edges => _edges;
     public ReadOnlySpan<PassageSensorDeclaration> PassageSensors => _passageSensors;
@@ -105,15 +103,14 @@ public sealed class ActivationNetwork
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
         _passageSensors = passageSensors.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
-        _counterCounts = new int[_nodes.Length];
-        _counterLastTimes = new ActivationTime[_nodes.Length];
-        _counterEmitted = new bool[_nodes.Length];
-        _oscillatorPhases = new int[_nodes.Length];
-        _oscillatorDueTicks = new long[_nodes.Length];
-        Array.Fill(_oscillatorDueTicks, -1);
-        _oscillatorPulseCounts = new int[_nodes.Length];
-        _oscillatorLastPulseTicks = new long[_nodes.Length];
-        Array.Fill(_oscillatorLastPulseTicks, -1);
+        _memorySlots = new int[_nodes.Length];
+        var memoryNodes = new List<ActivationNodeDeclaration>();
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            _memorySlots[i] = ActivationMemory.Holds(_nodes[i].Kind) ? memoryNodes.Count : -1;
+            if (_memorySlots[i] >= 0) memoryNodes.Add(_nodes[i]);
+        }
+        _memoryNodes = memoryNodes.ToArray();
         var owners = new HashSet<GpuBodyId>(); var triggers = new HashSet<GpuContactTriggerId>();
         var sensors = new HashSet<GpuOrientationSensorId>();
         var passages = new HashSet<GpuPassageSensorId>();
@@ -157,13 +154,6 @@ public sealed class ActivationNetwork
     }
     public PhysicsActivationRead Clear()
     {
-        Array.Clear(_counterCounts);
-        Array.Clear(_counterLastTimes);
-        Array.Clear(_counterEmitted);
-        Array.Clear(_oscillatorPhases);
-        Array.Fill(_oscillatorDueTicks, -1);
-        Array.Clear(_oscillatorPulseCounts);
-        Array.Fill(_oscillatorLastPulseTicks, -1);
         Span<ActivationLatch> values = stackalloc ActivationLatch[Capacity];
         for (var i = 0; i < _nodes.Length; i++) values[i] = ActivationLatch.Clear(_nodes[i]);
         return new(values[.._nodes.Length]);
@@ -174,25 +164,26 @@ public sealed class ActivationNetwork
         for (var i = 0; i < _timers.Length; i++) values[i] = ActivationTimerState.Ready(_timers[i].Node);
         return new(values[.._timers.Length]);
     }
-    public int GetCounterCount(GpuBodyId owner)
+    /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every Clock Stopped with no due tick.</summary>
+    public PhysicsMemoryRead ClearMemory()
     {
-        for (var i = 0; i < _nodes.Length; i++)
-            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Counter)
-                return _counterCounts[i];
-        throw new ArgumentException("Counter not found for owner.");
+        Span<ActivationMemory> values = stackalloc ActivationMemory[Capacity];
+        for (var i = 0; i < _memoryNodes.Length; i++) values[i] = ActivationMemory.Clear(_memoryNodes[i]);
+        return new(values[.._memoryNodes.Length]);
+    }
+    /// <summary>The committed Counter or Clock memory row of one owner (a query over the checkpoint; the network holds none).</summary>
+    public ActivationMemory Memory(PhysicsMemoryRead values, GpuBodyId owner)
+    {
+        ValidateMemory(values);
+        for (var i = 0; i < _memoryNodes.Length; i++)
+            if (_memoryNodes[i].Owner == owner) return values[i];
+        throw new ArgumentException("Counter or clock not found for owner.");
     }
     public int GetCounterTarget(GpuBodyId owner)
     {
         for (var i = 0; i < _nodes.Length; i++)
             if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Counter)
                 return (int)_nodes[i].TargetCount;
-        throw new ArgumentException("Counter not found for owner.");
-    }
-    public bool IsCounterReached(GpuBodyId owner)
-    {
-        for (var i = 0; i < _nodes.Length; i++)
-            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Counter)
-                return _counterCounts[i] >= (int)_nodes[i].TargetCount;
         throw new ArgumentException("Counter not found for owner.");
     }
     /// <summary>State Latch memory lives in the committed checkpoint: On is Latched with the Set occurrence, Off is Clear.</summary>
@@ -213,43 +204,18 @@ public sealed class ActivationNetwork
                 return values[i].Phase == ActivationPhase.Latched;
         throw new ArgumentException("Switched contact not found for owner.");
     }
-    public int GetOscillatorPulseCount(GpuBodyId owner)
-    {
-        for (var i = 0; i < _nodes.Length; i++)
-            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Oscillator)
-                return _oscillatorPulseCounts[i];
-        throw new ArgumentException("Oscillator not found for owner.");
-    }
-    public bool IsOscillatorRunning(GpuBodyId owner)
-    {
-        for (var i = 0; i < _nodes.Length; i++)
-            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Oscillator)
-                return _oscillatorPhases[i] == 1;
-        throw new ArgumentException("Oscillator not found for owner.");
-    }
-    public float GetOscillatorProgress(GpuBodyId owner, SimulationTick tick)
-    {
-        for (var i = 0; i < _nodes.Length; i++)
-        {
-            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Oscillator)
-            {
-                if (_oscillatorPhases[i] == 0) return 0f;
-                var startTick = _oscillatorDueTicks[i] - (long)_nodes[i].IntervalTicks;
-                var elapsed = (long)tick.Value - startTick;
-                if (elapsed < 0) return 0f;
-                var fraction = (float)elapsed / _nodes[i].IntervalTicks;
-                return Math.Clamp(fraction, 0f, 1f);
-            }
-        }
-        throw new ArgumentException("Oscillator not found for owner.");
-    }
-
+    /// <summary>Evaluates one candidate tick from the committed checkpoint. The committed memory rows are read, never written: the
+    /// candidate's rows are returned in the checkpoint, so only a committed candidate changes the published Counter and Clock state.
+    /// A network with Counter or Clock nodes requires their committed rows (an empty population is rejected).</summary>
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
         ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
-        Span<byte> eventBuffer = default)
+        Span<byte> eventBuffer = default, PhysicsMemoryRead memory = default)
     {
         ValidatePopulation(committed, committedTimers);
+        ValidateMemory(memory);
+        Span<ActivationMemory> rows = stackalloc ActivationMemory[Capacity];
+        for (var i = 0; i < memory.Count; i++) rows[i] = memory[i];
         if (events.Length > PhysicsSceneDeclaration.TriggerCapacity) throw new ArgumentException("Contact capacity exceeded.");
         if (orientations.Length > PhysicsSceneDeclaration.OrientationSensorCapacity) throw new ArgumentException("Orientation capacity exceeded.");
         var end = ActivationTime.Boundary(boundary, _substeps);
@@ -367,24 +333,20 @@ public sealed class ActivationNetwork
                 }
             }
 
+            var slot = _memorySlots[i];
             if (!isPowered)
             {
-                _oscillatorPhases[i] = 0;
-                _oscillatorDueTicks[i] = -1;
+                rows[slot] = rows[slot] with { Phase = OscillatorPhase.Stopped, DueTick = 0 };
                 continue;
             }
 
-            if (_oscillatorPhases[i] == 0)
-            {
-                _oscillatorPhases[i] = 1;
-                _oscillatorDueTicks[i] = (long)(boundary.Value <= 1 ? 0 : boundary.Value) + node.IntervalTicks;
-            }
+            if (rows[slot].Phase == OscillatorPhase.Stopped)
+                rows[slot] = rows[slot] with { Phase = OscillatorPhase.Running,
+                    DueTick = checked((boundary.Value <= 1 ? 0 : boundary.Value) + node.IntervalTicks) };
 
-            if (_oscillatorPhases[i] == 1 && (long)boundary.Value == _oscillatorDueTicks[i])
+            if (boundary.Value == rows[slot].DueTick)
             {
-                _oscillatorPulseCounts[i]++;
-                _oscillatorLastPulseTicks[i] = (long)boundary.Value;
-                _oscillatorDueTicks[i] += node.IntervalTicks;
+                rows[slot] = rows[slot] with { Count = checked(rows[slot].Count + 1), DueTick = checked(rows[slot].DueTick + node.IntervalTicks) };
 
                 var time = ActivationTime.Boundary(boundary, _substeps);
                 var colliderId = node.Collider.Value != 0 ? node.Collider : new(node.Id.Value);
@@ -404,7 +366,7 @@ public sealed class ActivationNetwork
                         CuriousContraptions.Abstractions.SimulationEventKind.TriggerActivated,
                         node.Owner.Value,
                         0,
-                        P0: (float)_oscillatorPulseCounts[i],
+                        P0: (float)rows[slot].Count,
                         P1: (float)node.IntervalTicks / (float)_substeps);
                     CuriousContraptions.Abstractions.EventRingBuffer.Publish(eventBuffer, record);
                 }
@@ -453,15 +415,14 @@ public sealed class ActivationNetwork
                 }
                 else if (_nodes[target].Kind == ActivationNodeKind.Counter)
                 {
-                    var targetCount = (int)_nodes[target].TargetCount;
-                    var isNewTrigger = _counterLastTimes[target] == default || occurrence.Time.CompareTo(_counterLastTimes[target]) > 0;
+                    var slot = _memorySlots[target];
+                    var isNewTrigger = rows[slot].Last == default || occurrence.Time.CompareTo(rows[slot].Last) > 0;
                     if (isNewTrigger)
                     {
-                        _counterLastTimes[target] = occurrence.Time;
-                        _counterCounts[target]++;
-                        if (_counterCounts[target] == targetCount && !_counterEmitted[target])
+                        rows[slot] = rows[slot] with { Last = occurrence.Time, Count = checked(rows[slot].Count + 1) };
+                        // The counter emits once per world: its emission is its Latched activation.
+                        if (rows[slot].Count == _nodes[target].TargetCount && values[target].Phase == ActivationPhase.Clear)
                         {
-                            _counterEmitted[target] = true;
                             var reached = new ActivationOccurrence(ActivationOccurrenceKind.CounterReached, _nodes[target].Id, occurrence.Time, occurrence.Cause);
                             values[target] = ActivationLatch.From(_nodes[target], reached);
                             if (count == pending.Length) throw new ArgumentException("Activation fanout capacity exceeded.");
@@ -506,7 +467,19 @@ public sealed class ActivationNetwork
             values[target] = values[source].Phase == ActivationPhase.Latched
                 ? ActivationLatch.From(_nodes[target], values[source].Occurrence) : ActivationLatch.Clear(_nodes[target]);
         }
-        return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]));
+        return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]));
+    }
+
+    /// <summary>The memory rows belong to exactly this network's Counter and Clock nodes, in node order.</summary>
+    public void ValidateMemory(PhysicsMemoryRead memory)
+    {
+        if (memory.Count != _memoryNodes.Length) throw new ArgumentException("Activation memory population changed.");
+        for (var i = 0; i < _memoryNodes.Length; i++)
+        {
+            memory[i].Validate();
+            if (memory[i].Node != _memoryNodes[i].Id || memory[i].Kind != _memoryNodes[i].Kind)
+                throw new ArgumentException("Activation memory identity changed.");
+        }
     }
 
     private void ValidatePopulation(PhysicsActivationRead activations, PhysicsTimerRead timers)

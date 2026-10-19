@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+    # Subtest: 1. Select level gentle_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_45 in inventory)
+    ok 1 - 1. Select level gentle_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_45 in inventory)
+      ---
+      duration_ms: 1888.648292
+      type: 'test'
+      ...
+    1..1
+ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+  ---
+  duration_ms: 6148.252041
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6407.461625
