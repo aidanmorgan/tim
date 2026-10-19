@@ -1,0 +1,22 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.39]     CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder [FAIL]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                 ↓ (pos 12)
+Expected: [···, battery, spring, pipe, ball_detector, pipe_bend_45, ···]
+Actual:   [···, battery, spring, tennis, balloon, pipe, ···]
+                                 ↑ (pos 12)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 169
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   967, Skipped:     0, Total:   968, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

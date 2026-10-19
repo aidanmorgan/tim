@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopPuzzle.cs	2026-10-19 17:42:29.773929347 +0800
++++ ui/WorkshopPuzzle.cs	2026-10-19 17:48:12.057520659 +0800
+@@ -13,7 +13,7 @@
+     private async void SelectModeFromPicker(int index)
+     {
+         try { await SelectModeFromPickerAsync(index); }
+-        catch (Exception error) { HandlerFailed(nameof(SelectModeFromPicker), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(SelectModeFromPicker), error); }
+     }
+     private async Task SelectModeFromPickerAsync(int index)
+     {

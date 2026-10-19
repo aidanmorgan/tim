@@ -1,0 +1,40 @@
+Anvil snapshot 0.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+Anvil snapshot 1.ts: CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
+Anvil snapshot 2.ts: ui/Workshop.cs
+Anvil snapshot 3.ts: ui/WorkshopBattery.cs
+Anvil snapshot 4.ts: ui/WorkshopBenchPlacement.cs
+Anvil snapshot 5.ts: ui/WorkshopConfiguration.cs
+Anvil snapshot 6.ts: ui/WorkshopConnections.cs
+Anvil snapshot 7.ts: ui/WorkshopGpu.cs
+Anvil snapshot 8.ts: ui/WorkshopPuzzle.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-19T09:10:32.244597+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 15,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+

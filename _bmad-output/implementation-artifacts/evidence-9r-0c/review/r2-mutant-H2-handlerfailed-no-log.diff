@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopGpu.cs	2026-10-19 17:42:29.773300885 +0800
++++ ui/WorkshopGpu.cs	2026-10-19 17:44:22.505680823 +0800
+@@ -46,7 +46,6 @@
+     /// pool, where it terminates the .NET runtime (Story 9R.0c F1), so it is logged with its handler and shown, never rethrown.</summary>
+     private void HandlerFailed(string handler, Exception error)
+     {
+-        GD.PushError($"Workshop handler '{handler}' failed: {error}");
+         if (_workshopUiRemoved) return;
+         try { _status.Text = $"That action failed and was logged: {error.Message}"; }
+         catch (Exception statusError) { GD.PushError($"Workshop handler '{handler}' could not show its failure: {statusError}"); }

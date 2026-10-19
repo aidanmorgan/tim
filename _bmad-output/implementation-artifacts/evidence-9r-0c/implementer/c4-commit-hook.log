@@ -1,0 +1,24 @@
+Anvil snapshot 0.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-19T09:41:18.589979+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+

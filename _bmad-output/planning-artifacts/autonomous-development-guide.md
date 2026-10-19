@@ -103,7 +103,10 @@ Owner decision, 19 Oct 2026. This section replaces the earlier rule that every s
 - **Parallelism:** timing-sensitive suites run serially and alone: clock-master, cat-017, cat-023b, any stall or load proof, and any suite that measures time. All other suites may run on parallel Chrome workers (owner waiver of the one-Chrome rule, 19 Oct 2026).
 - **Repeats:** 5 consecutive runs only for a suite that has failed randomly or whose timing code changed. Never retry into green.
 - **Review:**
-  - The three BMAD lenses run on the first candidate only. Later rounds re-review the fixes and their impact.
+  - **Design review first:** before implementation starts, the reviewer and the edge-case lens attack the spec and design for about 15 minutes. Design flaws are fixed in the spec, not found in later candidates.
+  - **Review depth matches risk:** engine, clock, solver, wire and decision-logic stories get the three BMAD lenses plus the reviewer. Stories that add only declaration data or art, or only a test suite, get the reviewer alone.
+  - The three BMAD lenses, where they apply, run on the first candidate only. Later rounds re-review the fixes and their impact.
+  - **Owner decision, 19 Oct 2026:** keep the current story order (all of Epic 9R and Epic 9A before new elements), and run one story at a time.
   - Only High and Medium findings block. A Low finding is fixed in the same round if trivial; otherwise it is recorded against an owning story and does not trigger a new round.
   - Mutation proof is required for new decision logic, not for declaration data or binding changes.
   - The reviewer begins static review while the implementer's Chrome gates run, and reuses the implementer's identity-verified runs.

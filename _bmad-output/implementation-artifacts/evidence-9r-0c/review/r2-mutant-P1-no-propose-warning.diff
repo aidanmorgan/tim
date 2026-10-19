@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopBenchPlacement.cs	2026-10-19 17:42:29.772713006 +0800
++++ ui/WorkshopBenchPlacement.cs	2026-10-19 17:44:48.637196914 +0800
+@@ -27,7 +27,6 @@
+         {
+             // A part that cannot be captured or composed is refused here, before any undo entry exists. The warning carries the
+             // exception, so a programming defect reaches the console rather than only the status label.
+-            GD.PushWarning($"Bench placement of '{part}' as body {body.Value} was refused: {error}");
+             return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {error.Message}");
+         }
+         pushUndo();

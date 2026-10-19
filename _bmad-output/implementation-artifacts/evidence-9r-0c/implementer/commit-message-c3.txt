@@ -1,0 +1,21 @@
+fix: Story 9R.0c review round 2 (no exception escapes an async void UI handler)
+
+Murdoch-4 F1, proven in Chrome: rethrowing from async void Click posts the
+exception to the browser thread pool, which terminates the .NET runtime.
+
+- A presentation failure after the worker admits a part is logged once
+  with its context and never rethrown. The Workshop leaves placement mode
+  (tool and preview cleared, palette and layers refreshed, not dragging),
+  shows a visible status, and accepts the next placement.
+- Every async void handler under ui/ (19) is now a boundary over its Task
+  method whose catch logs the handler and exception with GD.PushError and
+  shows a status. Success paths are unchanged. MachineWorld._ExitTree stays
+  as audited: its disposal already catches.
+- WorkshopHandlerBoundaryTests scans ui/ and engine/ so a new async void
+  without the boundary fails the build's tests.
+- The native Click tests run under a recording synchronization context and
+  assert nothing escapes, exactly one logged error, and a working second
+  placement; this kills the deleted-rethrow mutant M6.
+- L1: Propose logs each refusal with GD.PushWarning and its exception.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

@@ -1,0 +1,22 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.83]     CuriousContraptions.Tests.PartRegistryTests.WorkshopInventoryPolicy_Free_PopulatesFromDiscoveredDefinitions [FAIL]
+[xUnit.net 00:00:01.83]     CuriousContraptions.Tests.PartRegistryTests.Create_InstantiatesAndConfiguresEachDiscoveredPart [FAIL]
+  Failed CuriousContraptions.Tests.PartRegistryTests.WorkshopInventoryPolicy_Free_PopulatesFromDiscoveredDefinitions [1 ms]
+  Error Message:
+   System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+  Stack Trace:
+     at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PartRegistryTests.WorkshopInventoryPolicy_Free_PopulatesFromDiscoveredDefinitions() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PartRegistryTests.cs:line 130
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PartRegistryTests.Create_InstantiatesAndConfiguresEachDiscoveredPart [< 1 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 1 error(s) before this test started (engine startup, or deferred work of an earlier test):
+Error: FATAL: Condition "gchandle.is_released()" is true.
+   at mono_object_disposed_baseref (./modules/mono/csharp_script.cpp:1791)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.Before(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 20
+
+Failed!  - Failed:     2, Passed:   966, Skipped:     0, Total:   968, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

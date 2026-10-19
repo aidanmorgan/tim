@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "lib": ["es2022", "dom"]
+  },
+  "files": ["tools/e2e/palette-placement.test.ts", "tools/e2e/engine-core-2a1.test.ts"]
+}

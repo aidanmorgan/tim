@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.85

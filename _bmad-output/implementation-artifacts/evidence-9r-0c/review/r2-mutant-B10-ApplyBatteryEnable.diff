@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopBattery.cs	2026-10-19 17:42:29.772514004 +0800
++++ ui/WorkshopBattery.cs	2026-10-19 17:46:47.139433706 +0800
+@@ -125,7 +125,7 @@
+     private async void ApplyBatteryEnable(GpuBodyId owner, ElectricalEnable enabled)
+     {
+         try { await ApplyBatteryEnableAsync(owner, enabled); }
+-        catch (Exception error) { HandlerFailed(nameof(ApplyBatteryEnable), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(ApplyBatteryEnable), error); }
+     }
+     private async Task ApplyBatteryEnableAsync(GpuBodyId owner, ElectricalEnable enabled)
+     {

@@ -1088,7 +1088,7 @@ So that "0 warnings" means something for the engine code.
 - **And** `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview (the Story 9.4b baseline), since warning fixes touch shipped code.
 
 ### Story 9R.0c: Undelivered Parts Leave the Palette and Bench Placement Never Throws
-*Status: Backlog. Runs first in Epic 9R, straight after Story 9.4b.*
+*Status: Done (19 Oct 2026). Murdoch-4 gave a scoped Pass on candidate 4, `8de7f259` ([review](../implementation-artifacts/review-9r-0c-undelivered-parts-palette.md), [evidence](../implementation-artifacts/evidence-9r-0c/)). Scope grew from a defect-class audit: all 19 `async void` UI handlers now catch at a boundary that logs, shows a status and never rethrows. Before, an exception that escaped one of them killed the browser .NET runtime (proven in Chrome). Open Lows owned by Epic 9A: `_gpuPending` is set before the try in Run, Reset, Save and Load; the guard test is a regex scan; palette-placement hard-codes its rows.*
 
 *Origin: the owner reported on 19 Oct 2026 that the Balloon looks like a basketball and the game crashes the moment it is added. Investigation notes are in the session scratchpad, `balloon-investigation/notes.md`.*
 
@@ -1127,7 +1127,15 @@ So that the Workshop never crashes when I add a part.
 - *a background checkpoint after every 5 element stories;*
 - *parallel Chrome workers for suites that don't depend on timing.*
 
-*Deletes: the hand-rolled per-candidate gate scripts in scratch and evidence folders that serialise all 33 files, and every remaining "all suites serially" or "cumulative twice" wording in active docs.*
+*Deletes: the hand-rolled scratch gate scripts that serialise all suites, and every remaining "all suites serially" or "cumulative twice" wording in active docs. Tracked evidence scripts stay unchanged as historical evidence (AGENTS.md).*
+
+*Coordinator decisions on the spec, 19 Oct 2026 ([spec](../implementation-artifacts/spec-9r-0a-tiered-parallel-e2e-runner.md)):*
+- *the runner is C# (`tools/E2eRunner`), as AGENTS.md says to use C# wherever possible;*
+- *`E2E_PREVIEW_URL` is required, and the :8060 defaults are dropped;*
+- *Story 9R.1's Node unit test moves to `tools/e2e/unit/`, so the runner doesn't treat it as a Chrome suite;*
+- *the background checkpoint is proven against a local, unpushed candidate commit that contains the runner;*
+- *the full run is selected for the guide's engine list plus a small set of central UI and world files; other `engine/` and `ui/` files select suites through the typed area table;*
+- *Story 9R.0b's "two back-to-back serial runs" becomes one full runner run.*
 
 As the owner,  
 I want the full Chrome run to take minutes, and each story to run only the suites its change affects,  
@@ -1159,7 +1167,7 @@ So that machines run smoothly and stay responsive as I add more parts.
 - **Given** the production publish of `CuriousContraptions.web`, **When** the Simulation and Animation workers are built, **Then** both are AOT-compiled to WebAssembly with SIMD enabled (`RunAOTCompilation`, `WasmEnableSIMD`). The published bundle contains no interpreter-only managed execution path for the engine. This is proven by build output and a bundle inspection test.
 - **And** the build fails explicitly if the AOT toolchain (wasm-tools workload) is missing. It never silently falls back to the interpreter, and there is no CPU or interpreter fallback.
 - **And** tick time for the cat-023b wired-chain scene and the largest current Free-workshop fixture is recorded in Chrome as telemetry before and after. This is advisory per the game-grade envelope; formal qualification stays at P0-034.
-- **And** `dotnet test` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in two back-to-back serial Chrome runs against the AOT production preview.
+- **And** `dotnet test` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one full run of the Story 9R.0a runner against the AOT production preview. This replaces "two back-to-back serial runs" under the owner's verification tiers of 19 Oct 2026.
 - **And** published bundle size and first-load time are recorded, and DESIGN.md or the release notes state any change in first-load behaviour.
 
 ### Story 9R.1: Exact Run/Reset Snapshot Assertions in Every Listed Suite

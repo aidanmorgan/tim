@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine/PartRegistry.cs	2026-10-19 16:47:29.554592744 +0800
++++ engine/PartRegistry.cs	2026-10-19 16:51:45.818089637 +0800
+@@ -70,8 +70,6 @@
+             return PartAdmission.Undelivered;
+         if (definition.Scene is null)
+             throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
+-        if (definition.Parameters.Count != 0 && id != PartId.Clock)
+-            throw new ArgumentException($"Canonical resource '{path}' declares untyped Parameters.");
+         return PartAdmission.Registered;
+     }
+ 

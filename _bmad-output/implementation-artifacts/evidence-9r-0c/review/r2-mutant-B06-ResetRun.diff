@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/Workshop.cs	2026-10-19 17:42:29.771897625 +0800
++++ ui/Workshop.cs	2026-10-19 17:46:00.338471472 +0800
+@@ -687,7 +687,7 @@
+     private async void ResetRun()
+     {
+         try { await ResetRunAsync(); }
+-        catch (Exception error) { HandlerFailed(nameof(ResetRun), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(ResetRun), error); }
+     }
+     private async Task ResetRunAsync()
+     {

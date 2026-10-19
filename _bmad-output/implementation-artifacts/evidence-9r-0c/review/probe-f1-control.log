@@ -1,0 +1,103 @@
+ERRORS AFTER RAMP:
+page: ERROR: System.InvalidOperationException: Bench placement of 'ramp' as body 1 was admitted, but presenting it failed.
+page:  ---> System.InvalidOperationException: murdoch-4 F1 probe: injected presentation failure
+page:    at CuriousContraptions.Workshop.Click(Vector2 screen)
+page:    Exception_EndOfInnerExceptionStack
+page:    at: void CuriousContraptions.Workshop+<Click>d__87.MoveNext() (:0)
+page:    C# backtrace (most recent call first):
+page:        [0] void Godot.NativeInterop.NativeFuncs.godotsharp_err_print_error(Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_string&, int, Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_bool, Godot.NativeInterop.godot_error_handler_type)
+page:        [1] void Godot.GD.PushError(string)
+page:        [2] void CuriousContraptions.Workshop+<Click>d__87.MoveNext()
+page:        [3] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Threading.Tasks.VoidTaskResult, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[CuriousContraptions.Workshop+<Click>d__87, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].ExecutionContextCallback(object)
+page:        [4] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page:        [5] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Threading.Tasks.VoidTaskResult, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[CuriousContraptions.Workshop+<Click>d__87, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext(System.Threading.Thread)
+page:        [6] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Threading.Tasks.VoidTaskResult, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[CuriousContraptions.Workshop+<Click>d__87, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext()
+page:        [7] void System.Threading.Tasks.AwaitTaskContinuation.RunOrScheduleAction(System.Runtime.CompilerServices.IAsyncStateMachineBox, bool)
+page:        [8] void System.Threading.Tasks.Task.RunContinuations(object)
+page:        [9] void System.Threading.Tasks.Task.FinishContinuations()
+page:        [10] bool System.Threading.Tasks.Task`1[[System.Boolean, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]].TrySetResult(bool)
+page:        [11] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[System.Boolean, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]].SetExistingTaskResult(System.Threading.Tasks.Task`1[System.Boolean], bool)
+page:        [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[System.Boolean, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]].SetResult(bool)
+page:        [13] void CuriousContraptions.Workshop+<SubmitConstruction>d__107.MoveNext()
+page:        [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Boolean, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[CuriousContraptions.Workshop+<SubmitConstruction>d__107, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].ExecutionContextCallback(object)
+page:        [15] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page:        [16] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Boolean, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[CuriousContraptions.Workshop+<SubmitConstruction>d__107, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext(System.Threading.Thread)
+page:        [17] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Boolean, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[CuriousContraptions.Workshop+<SubmitConstruction>d__107, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext()
+page:        [18] void System.Threading.Tasks.AwaitTaskContinuation.RunOrScheduleAction(System.Runtime.CompilerServices.IAsyncStateMachineBox, bool)
+page:        [19] void System.Threading.Tasks.Task.RunContinuations(object)
+page:        [20] void System.Threading.Tasks.Task.FinishContinuations()
+page:        [21] bool System.Threading.Tasks.Task`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].TrySetResult(CuriousContraptions.Gpu.WorkshopCompletion)
+page:        [22] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetExistingTaskResult(System.Threading.Tasks.Task`1[CuriousContraptions.Gpu.WorkshopCompletion], CuriousContraptions.Gpu.WorkshopCompletion)
+page:        [23] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetResult(CuriousContraptions.Gpu.WorkshopCompletion)
+page:        [24] void CuriousContraptions.MachineWorld+<ReplaceConstruction>d__67.MoveNext()
+page:        [25] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ReplaceConstruction>d__67, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].ExecutionContextCallback(object)
+page:        [26] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page:        [27] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ReplaceConstruction>d__67, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext(System.Threading.Thread)
+page:        [28] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ReplaceConstruction>d__67, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext()
+page:        [29] void System.Threading.Tasks.AwaitTaskContinuation.RunOrScheduleAction(System.Runtime.CompilerServices.IAsyncStateMachineBox, bool)
+page:        [30] void System.Threading.Tasks.Task.RunContinuations(object)
+page:        [31] void System.Threading.Tasks.Task.FinishContinuations()
+page:        [32] bool System.Threading.Tasks.Task`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].TrySetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page:        [33] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetExistingTaskResult(System.Threading.Tasks.Task`1[CuriousContraptions.Gpu.WorkshopDelivery], CuriousContraptions.Gpu.WorkshopDelivery)
+page:        [34] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page:        [35] void CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73.MoveNext()
+page:        [36] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].ExecutionContextCallback(object)
+page:        [37] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page:        [38] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext(System.Threading.Thread)
+page:        [39] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext()
+page:        [40] void System.Threading.Tasks.AwaitTaskContinuation.RunOrScheduleAction(System.Runtime.CompilerServices.IAsyncStateMachineBox, bool)
+page:        [41] void System.Threading.Tasks.Task.RunContinuations(object)
+page:        [42] void System.Threading.Tasks.Task.FinishContinuations()
+page:        [43] bool System.Threading.Tasks.Task`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].TrySetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page:        [44] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetExistingTaskResult(System.Threading.Tasks.Task`1[CuriousContraptions.Gpu.WorkshopDelivery], CuriousContraptions.Gpu.WorkshopDelivery)
+page:        [45] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page:        [46] void CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97.MoveNext()
+page:        [47] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].ExecutionContextCallback(object)
+page:        [48] void System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(System.Threading.Thread, System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page:        [49] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].MoveNext(System.Threading.Thread)
+page:        [50] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].ExecuteFromThreadPool(System.Threading.Thread)
+page:        [51] void System.Threading.ThreadPoolWorkQueue.DispatchWorkItem(object, System.Threading.Thread)
+page:        [52] bool System.Threading.ThreadPoolWorkQueue.Dispatch()
+page:        [53] void System.Threading.ThreadPool.BackgroundJobHandler()
+PAGE EVAL: 2
+FOLLOW-ON: follow-on failed: Error: placeOnCanvas(560, 600): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command
+LAST 30 CONSOLE LINES:
+page error:        [26] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page error:        [27] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ReplaceConstruction>d__67, CuriousContraptions,
+page error:        [28] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopCompletion, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ReplaceConstruction>d__67, CuriousContraptions,
+page error:        [29] void System.Threading.Tasks.AwaitTaskContinuation.RunOrScheduleAction(System.Runtime.CompilerServices.IAsyncStateMachineBox, bool)
+page error:        [30] void System.Threading.Tasks.Task.RunContinuations(object)
+page error:        [31] void System.Threading.Tasks.Task.FinishContinuations()
+page error:        [32] bool System.Threading.Tasks.Task`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].TrySetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page error:        [33] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetExistingTaskResult(System.Threading.Tasks.Task`1[CuriousContraptions.Gpu.WorkshopDelivery], CuriousCont
+page error:        [34] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page error:        [35] void CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73.MoveNext()
+page error:        [36] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73, CuriousContraptions, Versi
+page error:        [37] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page error:        [38] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73, CuriousContraptions, Versi
+page error:        [39] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.MachineWorld+<ExecuteWorkshop>d__73, CuriousContraptions, Versi
+page error:        [40] void System.Threading.Tasks.AwaitTaskContinuation.RunOrScheduleAction(System.Runtime.CompilerServices.IAsyncStateMachineBox, bool)
+page error:        [41] void System.Threading.Tasks.Task.RunContinuations(object)
+page error:        [42] void System.Threading.Tasks.Task.FinishContinuations()
+page error:        [43] bool System.Threading.Tasks.Task`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].TrySetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page error:        [44] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetExistingTaskResult(System.Threading.Tasks.Task`1[CuriousContraptions.Gpu.WorkshopDelivery], CuriousCont
+page error:        [45] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].SetResult(CuriousContraptions.Gpu.WorkshopDelivery)
+page error:        [46] void CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97.MoveNext()
+page error:        [47] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97, CuriousContraptions, 
+page error:        [48] void System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(System.Threading.Thread, System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+page error:        [49] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97, CuriousContraptions, 
+page error:        [50] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[CuriousContraptions.Gpu.WorkshopDelivery, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.Gpu.BrowserWorkshopClient+<Execute>d__97, CuriousContraptions, 
+page error:        [51] void System.Threading.ThreadPoolWorkQueue.DispatchWorkItem(object, System.Threading.Thread)
+page error:        [52] bool System.Threading.ThreadPoolWorkQueue.Dispatch()
+page error:        [53] void System.Threading.ThreadPool.BackgroundJobHandler()
+worker log: CCGPU_CLOCK_DERIVATION {"report":2,"reportName":"Summary","outcome":0,"outcomeName":"Consistent","epoch":0,"correction":-0.0024609267711639404,"qualified":16,"startupAttempts":17,"startupOutliers":0,"startupInconclusive":1,"startupUnanswered":0,"checks":100,"slews":0,"rederivations":0,"inconclusive"
+page log: CCGPU_CLOCK_DERIVATION {"report":2,"reportName":"Summary","outcome":0,"outcomeName":"Consistent","epoch":0,"correction":-0.0024609267711639404,"qualified":16,"startupAttempts":17,"startupOutliers":0,"startupInconclusive":1,"startupUnanswered":0,"checks":100,"slews":0,"rederivations":0,"inconclusive"
+✔ F1 probe: a rethrown post-admission presentation failure in async void Click (24874.294958ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25303.509833

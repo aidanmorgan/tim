@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopConnections.cs	2026-10-19 17:42:29.773119800 +0800
++++ ui/WorkshopConnections.cs	2026-10-19 17:47:40.136772755 +0800
+@@ -96,7 +96,7 @@
+     private async void ChangeConnection(WorkshopConnection link, bool add)
+     {
+         try { await ChangeConnectionAsync(link, add); }
+-        catch (Exception error) { HandlerFailed(nameof(ChangeConnection), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(ChangeConnection), error); }
+     }
+     private async Task ChangeConnectionAsync(WorkshopConnection link, bool add)
+     {

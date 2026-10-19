@@ -1,0 +1,18 @@
+--- ../pristine/Workshop.cs	2026-10-19 16:47:29.554085863 +0800
++++ ui/Workshop.cs	2026-10-19 16:57:02.252872210 +0800
+@@ -531,6 +531,7 @@
+             {
+                 var part = World.Parts.Single(p => p.AuthoredId == placedId);
+                 Select(part);
++                if (chosen == PartId.Ramp) throw new InvalidOperationException("murdoch-4 F1 probe: injected presentation failure");
+                 _tool = null;
+                 ClearPreview();
+                 RefreshPalette();
+@@ -544,7 +545,6 @@
+                 var failure = new InvalidOperationException(
+                     $"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed.", error);
+                 GD.PushError(failure.ToString());
+-                throw failure;
+             }
+         }
+         else

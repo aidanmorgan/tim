@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/Workshop.cs	2026-10-19 17:42:29.771897625 +0800
++++ ui/Workshop.cs	2026-10-19 17:46:21.683981203 +0800
+@@ -860,7 +860,7 @@
+     private async void LoadSave()
+     {
+         try { await LoadSaveAsync(); }
+-        catch (Exception error) { HandlerFailed(nameof(LoadSave), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(LoadSave), error); }
+     }
+     private async Task LoadSaveAsync()
+     {

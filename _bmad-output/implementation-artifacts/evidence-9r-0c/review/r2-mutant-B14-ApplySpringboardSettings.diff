@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopConfiguration.cs	2026-10-19 17:42:29.772920132 +0800
++++ ui/WorkshopConfiguration.cs	2026-10-19 17:47:29.522595835 +0800
+@@ -159,7 +159,7 @@
+     private async void ApplySpringboardSettings(GpuBodyId owner, SpringboardSettings settings)
+     {
+         try { await ApplySpringboardSettingsAsync(owner, settings); }
+-        catch (Exception error) { HandlerFailed(nameof(ApplySpringboardSettings), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(ApplySpringboardSettings), error); }
+     }
+     private async Task ApplySpringboardSettingsAsync(GpuBodyId owner, SpringboardSettings settings)
+     {

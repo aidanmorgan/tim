@@ -1,0 +1,862 @@
+{"passed":true,"targets":10,"controls":["declaredCapacity","heldReceipt","latestReplacement","orderedDrain","overflow","renamedControl","disposedLateOutput"]}
+(node:62456) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ tools/workshop-animation-output.test.mjs (55.503333ms)
+✔ normal publication activates exactly one service and retains startup qualification (2.425667ms)
+✔ delayed managed publication has no callback until explicit activation (0.757167ms)
+✔ default and missing IDs reject without scheduling or changing the ready owner (0.634292ms)
+✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.517917ms)
+✔ duplicate activation preserves the one original timer and owner state (0.415792ms)
+✔ startup timeout before worker readiness rejects creation and activation (0.408542ms)
+✔ startup timeout after JS return remains anchored to both runtime readiness (0.383083ms)
+✔ worker failure rejects activation without invoking managed service (0.36625ms)
+✔ disposal before managed publication prevents later activation (0.382584ms)
+✔ disposal after activation makes a captured late callback inert (0.426709ms)
+✔ failure after activation makes a captured late callback inert (0.354917ms)
+✔ activation does not reset the 1000ms worker liveness boundary (0.375167ms)
+✔ both runtimes must be ready before the one qualification deadline (0,1) (0.345959ms)
+✔ both runtimes must be ready before the one qualification deadline (1,0) (0.305875ms)
+✔ duplicate runtime readiness rejects worker 0 (0.311917ms)
+✔ early ready rejects worker 0 (0.286958ms)
+✔ duplicate runtime readiness rejects worker 1 (0.2855ms)
+✔ early ready rejects worker 1 (0.26725ms)
+✔ early Animation qualification rejects before bootstrap (0.614ms)
+✔ duplicate authoritative Animation peer rejects without a second transfer (0.457625ms)
+✔ disposal during asset loading prevents late readiness from rearming (0.359875ms)
+✔ Animation constructor failure closes the already owned Simulation worker (0.322417ms)
+✔ premature Animation output fails without delivering to the managed consumer (0.342959ms)
+✔ delayed valid ACK clears current stall only after managed validation completion (0.510083ms)
+✔ completing an older ACK cannot clear another aged request or exceed two leases (0.412959ms)
+✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.377375ms)
+✔ unmatched or duplicate ACK faults without clearing stall (false) (0.31625ms)
+✔ unmatched or duplicate ACK faults without clearing stall (true) (0.308292ms)
+✔ two animation owners send sequential controls only after managed ACK delivery returns (0.393083ms)
+✔ encoded trace bytes containing NaN are not diagnostic text (0.41225ms)
+✔ actual errors survive encoded-looking messages and ordinary diagnostics (0.134083ms)
+✔ established isolation permits delayed runtime loading and records actual usable time (1.633584ms)
+✔ incomplete isolation handshake still fails at the existing deadline (0.506708ms)
+✔ controller replacement retires booting ownership (0.382542ms)
+✔ controller replacement retires qualified ownership (0.374875ms)
+✔ at most one isolation reload remains permitted (1.062334ms)
+✔ manual navigation after slow runtime loading starts a fresh isolation attempt (0.696416ms)
+{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"startupControl":1,"passed":true}
+{"startupControl":2,"passed":true}
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: late preparation cannot retain its retired device
+
+false !== true
+
+    at file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-observation.test.mjs:183:16 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.12.0
+✖ tools/workshop-observation.test.mjs (66.172084ms)
+(node:62461) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ actual pose reader preserves first secondary and full-width IDs without owner alias (0.650667ms)
+✔ actual latest reader ignores in-progress slot and uses new aligned stride (0.135458ms)
+✔ old ring layout rejects rather than truncating secondary identity (0.048833ms)
+✔ actual worker writer publishes globally newest frames across wraps and shrinking populations (2.583166ms)
+(node:62462) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✖ rigid-body: an upright box set 1 cm above the bench settles on its face and stands within the rest tolerances (1.579541ms)
+✖ rigid-body: a box tipped past its support topples through 60 deg and settles flat without jitter (0.492417ms)
+✖ rigid-body: a sphere dropped onto the bench bounces dissipatively and comes to rest at its radius (0.416209ms)
+✖ rigid-body: friction on the bench turns a sliding sphere into a rolling one through the declared inertia (0.394584ms)
+✖ rigid-body: a box resting on a static box face holds through the box-box manifold without sinking or launching (0.400208ms)
+✖ rigid-body: a box resting across the edge of a tilted static box balances on the genuine edge-edge crossing (0.417291ms)
+✖ rigid-body: a box resting across an off-centre point of a tilted beam edge still balances on the crossing (0.402584ms)
+✖ rigid-body: a sphere dropped onto a standing box topples it past 60 deg and every tick stays inside the real-time budget (0.366416ms)
+✖ rigid-body: speeds beyond the game-grade envelope clamp inside the exact host bound (64 m/s, 128 rad/s) in every direction and the tick continues (0.47175ms)
+✖ rigid-body: zero restitution never rebounds and zero friction never spins up (declared values, no fallback) (0.456667ms)
+✖ rigid-body: rolling speed follows the declared principal moments, not a shape formula (solid vs hollow sphere) (0.343333ms)
+✖ rigid-body: an f32 remainder rounding to0.5 carries into the next cell (0.357166ms)
+✖ rigid-body: a zero declared moment reads as infinite inertia and the body stays finite (0.326458ms)
+✔ rigid-body: the worker source names no element, hard-coded inertia or material fallback (0.312292ms)
+✖ rigid-body: the motion description is written at the offset the host declares after the orientation sensor table (0.319209ms)
+✖ orientation sensor: nonzero admitted Z and quaternion signs preserve relative threshold (0.418625ms)
+✖ orientation sensor: a tile placed 10 deg off upright rocks back and never fires (0.348584ms)
+✖ orientation sensor: a tile admitted rotated 90 deg about Y stands for 2 s and never fires (initial pose is the admitted pose) (0.341ms)
+✖ orientation sensor: a toppling tile fires once when it passes 45 deg and stays fired at that ordinal (0.343916ms)
+✖ orientation sensor: a sensed body that turns back within the threshold keeps its single emission (0.740958ms)
+✖ orientation sensor: the threshold is declared data, not a constant of the worker (0.501042ms)
+✖ bowling ball: a rolling 0.7 m/s strike (zero declared resistance, so 0.7 m/s at impact) topples a stock Domino that the Basketball only rocks, and the declared mass alone decides it (0.432334ms)
+✖ bowling ball: the two-lane e2e setup (both balls at x = 0.3 and centre 1.05 m, lanes z = -1.5 / +1.5) separates the kinds with a clear margin and both struck balls come to rest (0.467334ms)
+✖ bowling ball: dropped from 3 m each ball rebounds to e²·h of its declared bounce (Bowling low, Basketball high) and the Bowling ball rests at its 0.28 m radius (0.395667ms)
+✖ drag: a free-flying sphere slows as exp(-drag·t) at 60/120/240 Hz and its free-flight spin is never damped (0.355083ms)
+✖ rolling resistance: each ball rolling at 0.7 m/s decelerates at (5/7)·(Crr·g + drag·v), rests within 5 s at its radius height and never reverses (0.424ms)
+✖ rolling resistance: with zero declared drag and coefficient a rolling ball keeps its speed (control) (0.323834ms)
+✖ rolling resistance: at 60/120/240 Hz a ball of either kind struck to 1 m/s stops at the same time and no committed tick erases its decrement (0.357042ms)
+✖ rolling resistance: a ball rolling along +Z (spin about X, the second tangent axis) also comes to rest (0.331958ms)
+✖ rolling resistance: a ball rolling on a static box slab (not the bench plane) comes to rest within 5 s (0.355916ms)
+✖ rolling resistance: a ball rolling on a dynamic box slab also comes to rest (every contact, reaction on the partner) (0.328791ms)
+✖ drag: a free-flying sphere moving diagonally slows along both X and Z as exp(-drag·t) (0.317334ms)
+✖ rolling resistance: a ball resting on the bench spinning about the contact normal keeps its spin (two tangent axes only) (0.751042ms)
+✖ rolling resistance: a free partner ball receives the equal and opposite angular impulse (zero gravity, tangential spin at impact) (0.437291ms)
+✖ rolling resistance: a rolling Bowling ball pushing a resting Basketball (the larger radius as the second collider) brings both to rest together (0.368834ms)
+✖ f32 velocity: the balls' declared drag 0.04 slows a free-flying ball as 2·exp(-0.04·t) on every committed tick at 60/120/240 Hz (0.360083ms)
+✖ f32 velocity: a Basketball rolling at 5 m/s at 240 Hz decelerates on every committed tick at (5/7)·(Crr·g + drag·v) and comes to rest (0.332417ms)
+✖ f32 velocity: a body whose centre of mass sits off its origin (body record +82) spins about that centre in free flight (0.332083ms)
+✖ f32 velocity: a heavy body striking a light one at the envelope cannot commit a struck speed beyond 64 m/s (the clamp after restitution) (0.3115ms)
+✖ f32 velocity: the end-of-substep guard clamps a finite velocity of any size and drops only a non-finite one (0.313083ms)
+✖ f32 velocity: every motion piece carries its body's declared drag rate (+60), so between-tick poses decay like the committed physics (0.334125ms)
+✖ f32 velocity: at the envelope boundary declared drag still slows a ball flying at 63.9 m/s on every committed tick at 240 Hz (0.296375ms)
+✖ f32 velocity: a Basketball rolling at 20 m/s at 240 Hz decelerates at (5/7)·(Crr·g + drag·v) over a second, its spin never rises and it never reverses (0.302041ms)
+✖ paid contact frame uses current anisotropic inertia and contact arms after pose integration (0.302083ms)
+✖ electrical phase routes exactly120 observations per physical second at every publication cadence (0.30225ms)
+✖ contact work admission: all six radial directions qualify independent of owner rotation (0.377208ms)
+✖ contact work admission: oblique contact keeps ordinary spin and tangent while depth miss never qualifies (0.322125ms)
+✖ contact work admission: resting separating below-threshold and grazing gap never call payment (0.3045ms)
+✖ contact work admission: cooldown eligibility is per body and opens at the exact 72-step boundary (0.298459ms)
+✖ prismatic relaxation refreshes both moving frames but retains physical-step spring error (0.331625ms)
+﹣ real WASM prismatic rows keep zero-gravity rest and dissipate an uncharged release (0.014333ms) # SKIP
+﹣ real WASM moving tilted pair preserves reaction momentum and bounded total energy (0.01975ms) # SKIP
+﹣ real WASM isolated anisotropic row applies both current-frame reactions (0.014833ms) # SKIP
+﹣ real WASM gravity-fed ball and plate contact respects complete passive energy (0.012042ms) # SKIP
+﹣ real WASM preserved passive ball contacts along all three source orientations (0.012083ms) # SKIP
+✖ prismatic row-kind boundary rejects changed missing or duplicate mappings (0.782791ms)
+﹣ real WASM five disjoint joints scatter full and partial SIMD batches and shared bodies sequence (0.013584ms) # SKIP
+﹣ real WASM connected collision policy filters only its declared pair (0.011209ms) # SKIP
+﹣ real WASM compound local frames restore across the shortest-arc boundary (0.012583ms) # SKIP
+﹣ real WASM preload transfers only finite stored work to contacting payloads in upright and tilted frames (0.009ms) # SKIP
+﹣ real WASM compiled SpringForward forgiving Receiver offsets preserve capture (0.014458ms) # SKIP
+✔ request success cannot complete Save; transaction abort preserves prior exact bytes (1.992ms)
+✔ completed Save owns input bytes and Load returns an exact independent roundtrip (0.4735ms)
+✔ missing save is empty and incompatible width rejects without replacement (0.587417ms)
+ℹ tests 107
+ℹ suites 0
+ℹ pass 46
+ℹ fail 51
+ℹ cancelled 0
+ℹ skipped 10
+ℹ todo 0
+ℹ duration_ms 109.719708
+
+✖ failing tests:
+
+test at tools/workshop-observation.test.mjs:1:1
+✖ tools/workshop-observation.test.mjs (66.172084ms)
+  'test failed'
+
+test at tools/workshop-rigid-body.test.mjs:218:1
+✖ rigid-body: an upright box set 1 cm above the bench settles on its face and stands within the rest tolerances (1.579541ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:220:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at tools/workshop-rigid-body.test.mjs:228:1
+✖ rigid-body: a box tipped past its support topples through 60 deg and settles flat without jitter (0.492417ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:232:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:245:1
+✖ rigid-body: a sphere dropped onto the bench bounces dissipatively and comes to rest at its radius (0.416209ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:247:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:259:1
+✖ rigid-body: friction on the bench turns a sliding sphere into a rolling one through the declared inertia (0.394584ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:260:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:266:1
+✖ rigid-body: a box resting on a static box face holds through the box-box manifold without sinking or launching (0.400208ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:270:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:278:1
+✖ rigid-body: a box resting across the edge of a tilted static box balances on the genuine edge-edge crossing (0.417291ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:288:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:294:1
+✖ rigid-body: a box resting across an off-centre point of a tilted beam edge still balances on the crossing (0.402584ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:303:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:309:1
+✖ rigid-body: a sphere dropped onto a standing box topples it past 60 deg and every tick stays inside the real-time budget (0.366416ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:312:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:327:1
+✖ rigid-body: speeds beyond the game-grade envelope clamp inside the exact host bound (64 m/s, 128 rad/s) in every direction and the tick continues (0.47175ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:333:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:340:1
+✖ rigid-body: zero restitution never rebounds and zero friction never spins up (declared values, no fallback) (0.456667ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:343:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:356:1
+✖ rigid-body: rolling speed follows the declared principal moments, not a shape formula (solid vs hollow sphere) (0.343333ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:359:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:365:1
+✖ rigid-body: an f32 remainder rounding to0.5 carries into the next cell (0.357166ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:370:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:378:1
+✖ rigid-body: a zero declared moment reads as infinite inertia and the body stays finite (0.326458ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:379:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:391:1
+✖ rigid-body: the motion description is written at the offset the host declares after the orientation sensor table (0.319209ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:392:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:404:1
+✖ orientation sensor: nonzero admitted Z and quaternion signs preserve relative threshold (0.418625ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:409:32)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:432:1
+✖ orientation sensor: a tile placed 10 deg off upright rocks back and never fires (0.348584ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:437:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:445:1
+✖ orientation sensor: a tile admitted rotated 90 deg about Y stands for 2 s and never fires (initial pose is the admitted pose) (0.341ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:448:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:454:1
+✖ orientation sensor: a toppling tile fires once when it passes 45 deg and stays fired at that ordinal (0.343916ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:457:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:470:1
+✖ orientation sensor: a sensed body that turns back within the threshold keeps its single emission (0.740958ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:473:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:481:1
+✖ orientation sensor: the threshold is declared data, not a constant of the worker (0.501042ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:484:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:491:1
+✖ bowling ball: a rolling 0.7 m/s strike (zero declared resistance, so 0.7 m/s at impact) topples a stock Domino that the Basketball only rocks, and the declared mass alone decides it (0.432334ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:493:32)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:510:1
+✖ bowling ball: the two-lane e2e setup (both balls at x = 0.3 and centre 1.05 m, lanes z = -1.5 / +1.5) separates the kinds with a clear margin and both struck balls come to rest (0.467334ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:513:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:535:1
+✖ bowling ball: dropped from 3 m each ball rebounds to e²·h of its declared bounce (Bowling low, Basketball high) and the Bowling ball rests at its 0.28 m radius (0.395667ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at drop (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:538:38)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:546:27)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tools/workshop-rigid-body.test.mjs:558:1
+✖ drag: a free-flying sphere slows as exp(-drag·t) at 60/120/240 Hz and its free-flight spin is never damped (0.355083ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:562:38)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:571:1
+✖ rolling resistance: each ball rolling at 0.7 m/s decelerates at (5/7)·(Crr·g + drag·v), rests within 5 s at its radius height and never reverses (0.424ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:574:15)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:592:1
+✖ rolling resistance: with zero declared drag and coefficient a rolling ball keeps its speed (control) (0.323834ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:593:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:598:1
+✖ rolling resistance: at 60/120/240 Hz a ball of either kind struck to 1 m/s stops at the same time and no committed tick erases its decrement (0.357042ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:603:19)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:624:1
+✖ rolling resistance: a ball rolling along +Z (spin about X, the second tangent axis) also comes to rest (0.331958ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at settles (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:619:11)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:626:42)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tools/workshop-rigid-body.test.mjs:631:1
+✖ rolling resistance: a ball rolling on a static box slab (not the bench plane) comes to rest within 5 s (0.355916ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at settles (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:619:11)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:635:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tools/workshop-rigid-body.test.mjs:641:1
+✖ rolling resistance: a ball rolling on a dynamic box slab also comes to rest (every contact, reaction on the partner) (0.328791ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at settles (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:619:11)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:646:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tools/workshop-rigid-body.test.mjs:652:1
+✖ drag: a free-flying sphere moving diagonally slows along both X and Z as exp(-drag·t) (0.317334ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:653:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:658:1
+✖ rolling resistance: a ball resting on the bench spinning about the contact normal keeps its spin (two tangent axes only) (0.751042ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:659:34)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:663:1
+✖ rolling resistance: a free partner ball receives the equal and opposite angular impulse (zero gravity, tangential spin at impact) (0.437291ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at strike (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:669:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:673:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tools/workshop-rigid-body.test.mjs:682:1
+✖ rolling resistance: a rolling Bowling ball pushing a resting Basketball (the larger radius as the second collider) brings both to rest together (0.368834ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:685:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:697:1
+✖ f32 velocity: the balls' declared drag 0.04 slows a free-flying ball as 2·exp(-0.04·t) on every committed tick at 60/120/240 Hz (0.360083ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:701:15)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:713:1
+✖ f32 velocity: a Basketball rolling at 5 m/s at 240 Hz decelerates on every committed tick at (5/7)·(Crr·g + drag·v) and comes to rest (0.332417ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:715:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:739:1
+✖ f32 velocity: a body whose centre of mass sits off its origin (body record +82) spins about that centre in free flight (0.332083ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:743:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:753:1
+✖ f32 velocity: a heavy body striking a light one at the envelope cannot commit a struck speed beyond 64 m/s (the clamp after restitution) (0.3115ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:758:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:764:1
+✖ f32 velocity: the end-of-substep guard clamps a finite velocity of any size and drops only a non-finite one (0.313083ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:765:31)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-rigid-body.test.mjs:787:1
+✖ f32 velocity: every motion piece carries its body's declared drag rate (+60), so between-tick poses decay like the committed physics (0.334125ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:788:25)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:801:1
+✖ f32 velocity: at the envelope boundary declared drag still slows a ball flying at 63.9 m/s on every committed tick at 240 Hz (0.296375ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:803:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:812:1
+✖ f32 velocity: a Basketball rolling at 20 m/s at 240 Hz decelerates at (5/7)·(Crr·g + drag·v) over a second, its spin never rises and it never reverses (0.302041ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at run (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:189:31)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:817:11)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:827:1
+✖ paid contact frame uses current anisotropic inertia and contact arms after pose integration (0.302083ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:828:31)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-rigid-body.test.mjs:853:1
+✖ electrical phase routes exactly120 observations per physical second at every publication cadence (0.30225ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:857:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-rigid-body.test.mjs:915:1
+✖ contact work admission: all six radial directions qualify independent of owner rotation (0.377208ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at observeContactAdmission (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:907:29)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:917:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:923:1
+✖ contact work admission: oblique contact keeps ordinary spin and tangent while depth miss never qualifies (0.322125ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at observeContactAdmission (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:907:29)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:924:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:934:1
+✖ contact work admission: resting separating below-threshold and grazing gap never call payment (0.3045ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at observeContactAdmission (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:907:29)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:936:29)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:939:1
+✖ contact work admission: cooldown eligibility is per body and opens at the exact 72-step boundary (0.298459ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at observeContactAdmission (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:907:29)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:940:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+
+test at tools/workshop-rigid-body.test.mjs:953:1
+✖ prismatic relaxation refreshes both moving frames but retains physical-step spring error (0.331625ms)
+  SyntaxError [Error]: Export 'applyConstraintImpulse' is not defined in module
+      at new Module (node:internal/vm/module:155:21)
+      at new SourceTextModule (node:internal/vm/module:301:5)
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:955:31)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-rigid-body.test.mjs:1194:1
+✖ prismatic row-kind boundary rejects changed missing or duplicate mappings (0.782791ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Invalid prismatic row kind mapping/. Input:
+  
+  "SyntaxError: Export 'applyConstraintImpulse' is not defined in module"
+  
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:1196:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: SyntaxError: Export 'applyConstraintImpulse' is not defined in module
+        at new Module (node:internal/vm/module:155:21)
+        at new SourceTextModule (node:internal/vm/module:301:5)
+        at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:42:20)
+        at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/tools/workshop-rigid-body.test.mjs:1196:30)
+        at Test.runInAsyncScope (node:async_hooks:226:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:974:7),
+    expected: /Invalid prismatic row kind mapping/,
+    operator: 'rejects',
+    diff: 'simple'
+  }

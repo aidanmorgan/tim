@@ -1,0 +1,42 @@
+Anvil snapshot 0.ts: CuriousContraptions.tests/BasketballResourceTests.cs
+Anvil snapshot 1.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+Anvil snapshot 2.ts: CuriousContraptions.tests/PartRegistryTests.cs
+Anvil snapshot 3.ts: CuriousContraptions.tests/WorkbenchCapacityTests.cs
+Anvil snapshot 4.ts: engine/PartRegistry.cs
+Anvil snapshot 5.ts: engine/UndeliveredParts.cs
+Anvil snapshot 6.ts: engine/gpu/WorkshopInventory.cs
+Anvil snapshot 7.ts: tools/e2e/palette-placement.test.ts
+Anvil snapshot 8.ts: ui/Workshop.cs
+Anvil snapshot 9.ts: ui/WorkshopBenchPlacement.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-19T07:46:33.860365+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 16,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+

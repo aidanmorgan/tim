@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/Workshop.cs	2026-10-19 17:42:29.771897625 +0800
++++ ui/Workshop.cs	2026-10-19 17:45:07.643828413 +0800
+@@ -58,7 +58,7 @@
+     public override async void _Ready()
+     {
+         try { await ReadyAsync(); }
+-        catch (Exception error) { HandlerFailed(nameof(_Ready), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(_Ready), error); }
+     }
+     private async Task ReadyAsync()
+     {

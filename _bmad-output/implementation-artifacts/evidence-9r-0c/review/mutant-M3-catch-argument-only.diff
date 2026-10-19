@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine/WorkshopBenchPlacement.cs	2026-10-19 16:47:29.554385742 +0800
++++ ui/WorkshopBenchPlacement.cs	2026-10-19 16:50:32.130745518 +0800
+@@ -23,7 +23,7 @@
+         ArgumentNullException.ThrowIfNull(pushUndo);
+         WorkshopConstruction proposed;
+         try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, rampDimensions, wallDimensions)); }
+-        catch (Exception error)
++        catch (ArgumentException error)
+         {
+             // A part that cannot be captured or composed is refused here, before any undo entry exists.
+             return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {error.Message}");

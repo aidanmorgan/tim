@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine/Workshop.cs	2026-10-19 16:47:29.554085863 +0800
++++ ui/Workshop.cs	2026-10-19 16:51:15.819690391 +0800
+@@ -544,7 +544,6 @@
+                 var failure = new InvalidOperationException(
+                     $"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed.", error);
+                 GD.PushError(failure.ToString());
+-                throw failure;
+             }
+         }
+         else

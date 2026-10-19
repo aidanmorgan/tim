@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopGpu.cs	2026-10-19 17:42:29.773300885 +0800
++++ ui/WorkshopGpu.cs	2026-10-19 17:47:50.571601351 +0800
+@@ -26,7 +26,7 @@
+     private async void Playback(WorkshopCommandKind kind)
+     {
+         try { await PlaybackAsync(kind); }
+-        catch (Exception error) { HandlerFailed(nameof(Playback), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(Playback), error); }
+     }
+     private async Task PlaybackAsync(WorkshopCommandKind kind)
+     {

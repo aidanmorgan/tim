@@ -1,0 +1,803 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.73]     CuriousContraptions.Tests.WorkshopHintTests.RemovalRestoresBaselineAndCosmeticReentryCannotReviveGpuSession [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopHintTests.RemovalRestoresBaselineAndCosmeticReentryCannotReviveGpuSession [20 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: FATAL: Condition "gchandle.is_released()" is true.
+   at mono_object_disposed_baseref (./modules/mono/csharp_script.cpp:1791)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.74]     CuriousContraptions.Tests.WorkshopHintTests.CommittedBuildingClearsSolvedWithEitherAcknowledgementOrder(acknowledgementFirst: False) [FAIL]
+[xUnit.net 00:00:01.75]     CuriousContraptions.Tests.WorkshopHintTests.CommittedBuildingClearsSolvedWithEitherAcknowledgementOrder(acknowledgementFirst: True) [FAIL]
+[xUnit.net 00:00:01.77]     CuriousContraptions.Tests.WorkshopHintTests.ActualHintAppliesWorkerHalfSamplesAndRetiresConsumedValues [FAIL]
+[xUnit.net 00:00:01.79]     CuriousContraptions.Tests.WorkshopHintTests.ClickingTheLevelPickerLeavesKeyboardFocusWithTheWorkshopShortcuts [FAIL]
+[xUnit.net 00:00:01.80]     CuriousContraptions.Tests.WorkshopHintTests.HiddenParentReportsVisibilityAndUsesNewSampleOnReentry [FAIL]
+[xUnit.net 00:00:01.81]     CuriousContraptions.Tests.WorkshopHintTests.GoalCleanupCompletesWhileTheHintControlIsQueuedBehindTheLease [FAIL]
+[xUnit.net 00:00:01.82]     CuriousContraptions.Tests.BasketballResourceTests.UnknownCatalogueAndOldFloatDeclarationRejectBeforeConstruction [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopHintTests.CommittedBuildingClearsSolvedWithEitherAcknowledgementOrder(acknowledgementFirst: False) [10 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopHintTests.CommittedBuildingClearsSolvedWithEitherAcknowledgementOrder(acknowledgementFirst: True) [10 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopHintTests.ActualHintAppliesWorkerHalfSamplesAndRetiresConsumedValues [10 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopHintTests.ClickingTheLevelPickerLeavesKeyboardFocusWithTheWorkshopShortcuts [20 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopHintTests.HiddenParentReportsVisibilityAndUsesNewSampleOnReentry [9 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopHintTests.GoalCleanupCompletesWhileTheHintControlIsQueuedBehindTheLease [9 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.BasketballResourceTests.UnknownCatalogueAndOldFloatDeclarationRejectBeforeConstruction [9 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.BasketballResourceTests.UnknownCatalogueAndOldFloatDeclarationRejectBeforeConstruction() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/BasketballResourceTests.cs:line 197
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.BasketballResourceTests.BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples [FAIL]
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.BasketballResourceTests.DelayArtworkUsesSharedFullTurnAndSourcePhasePalette [FAIL]
+  Failed CuriousContraptions.Tests.BasketballResourceTests.BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.BasketballResourceTests.BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/BasketballResourceTests.cs:line 129
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.BasketballResourceTests.DelayArtworkUsesSharedFullTurnAndSourcePhasePalette [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.BasketballResourceTests.DelayArtworkUsesSharedFullTurnAndSourcePhasePalette() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/BasketballResourceTests.cs:line 69
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.85]     CuriousContraptions.Tests.BasketballResourceTests.ArtworkBindingsRequireOneDeclaredCurveAndTimerPhasesOnlyForTimers [FAIL]
+[xUnit.net 00:00:01.85]     CuriousContraptions.Tests.BasketballResourceTests.ActualResourceAndSceneUseCanonicalMaterialBits [FAIL]
+[xUnit.net 00:00:01.86]     CuriousContraptions.Tests.BasketballResourceTests.ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette [FAIL]
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ArtworkBindingsRequireOneDeclaredCurveAndTimerPhasesOnlyForTimers [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.BasketballResourceTests.ArtworkBindingsRequireOneDeclaredCurveAndTimerPhasesOnlyForTimers() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/BasketballResourceTests.cs:line 177
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ActualResourceAndSceneUseCanonicalMaterialBits [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.BasketballResourceTests.ActualResourceAndSceneUseCanonicalMaterialBits() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/BasketballResourceTests.cs:line 33
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.BasketballResourceTests.ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/BasketballResourceTests.cs:line 102
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.88]     CuriousContraptions.Tests.PipeBend45Tests.PartRegistry_DiscoversPipeBend45DefinitionAndConfiguresInstance [FAIL]
+  Failed CuriousContraptions.Tests.PipeBend45Tests.PartRegistry_DiscoversPipeBend45DefinitionAndConfiguresInstance [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PipeBend45Tests.PartRegistry_DiscoversPipeBend45DefinitionAndConfiguresInstance() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PipeBend45Tests.cs:line 22
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.89]     CuriousContraptions.Tests.StraightPipeTests.PartRegistry_DiscoversPipeDefinitionAndConfiguresInstance [FAIL]
+[xUnit.net 00:00:01.90]     CuriousContraptions.Tests.FunnelTests.PartRegistry_DiscoversFunnelDefinitionAndConfiguresInstance [FAIL]
+  Failed CuriousContraptions.Tests.StraightPipeTests.PartRegistry_DiscoversPipeDefinitionAndConfiguresInstance [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.StraightPipeTests.PartRegistry_DiscoversPipeDefinitionAndConfiguresInstance() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StraightPipeTests.cs:line 16
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.FunnelTests.PartRegistry_DiscoversFunnelDefinitionAndConfiguresInstance [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.FunnelTests.PartRegistry_DiscoversFunnelDefinitionAndConfiguresInstance() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/FunnelTests.cs:line 18
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.90]     CuriousContraptions.Tests.WorkshopWallResourceTests.ActualResourceThreeAxesArtworkAndProjectionFollowCanonicalFullPose [FAIL]
+[xUnit.net 00:00:01.91]     CuriousContraptions.Tests.WorkshopWallResourceTests.ExistingRampSelectionRingTracksResizeAndCanonicalRestore [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopWallResourceTests.ActualResourceThreeAxesArtworkAndProjectionFollowCanonicalFullPose [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.WorkshopWallResourceTests.ActualResourceThreeAxesArtworkAndProjectionFollowCanonicalFullPose() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/WorkshopWallTests.cs:line 172
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopWallResourceTests.ExistingRampSelectionRingTracksResizeAndCanonicalRestore [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.WorkshopWallResourceTests.ExistingRampSelectionRingTracksResizeAndCanonicalRestore() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/WorkshopWallTests.cs:line 220
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.95]     CuriousContraptions.Tests.WorkshopSpringboardTests.PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopSpringboardTests.PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.WorkshopSpringboardTests.PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/WorkshopSpringboardTests.cs:line 320
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.96]     CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(duplicate: True) [FAIL]
+[xUnit.net 00:00:01.96]     CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(duplicate: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(duplicate: True) [4 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (This catalogue part 'spring' is not supported by the current GPU Workshop.) (Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : This catalogue part 'spring' is not supported by the current GPU Workshop.
+---- twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Create(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 67
+   at CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(Boolean duplicate) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/WorkshopSpringboardTests.cs:line 365
+--- End of stack trace from previous location ---
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(duplicate: False) [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (This catalogue part 'spring' is not supported by the current GPU Workshop.) (Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : This catalogue part 'spring' is not supported by the current GPU Workshop.
+---- twodog.GodotErrorException : Godot reported 2 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+Error: System.ArgumentException: Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.MachineWorld._Ready() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.cs:line 23
+   at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at Godot.Node3D.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret)
+   at CuriousContraptions.MachineWorld.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs:line 100
+   at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Create(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 67
+   at CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(Boolean duplicate) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/WorkshopSpringboardTests.cs:line 365
+--- End of stack trace from previous location ---
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:01.99]     CuriousContraptions.Tests.PressurePlateTests.PartRegistry_DiscoversPressurePlateDefinitionAndConfiguresInstance [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.PartRegistry_DiscoversPressurePlateDefinitionAndConfiguresInstance [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PressurePlateTests.PartRegistry_DiscoversPressurePlateDefinitionAndConfiguresInstance() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PressurePlateTests.cs:line 18
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:02.00]     CuriousContraptions.Tests.StateLatchTests.PartRegistry_DiscoversLatchAndPresentationRestoresRestOnReset [FAIL]
+  Failed CuriousContraptions.Tests.StateLatchTests.PartRegistry_DiscoversLatchAndPresentationRestoresRestOnReset [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.StateLatchTests.PartRegistry_DiscoversLatchAndPresentationRestoresRestOnReset() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 22
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:02.05]     CuriousContraptions.Tests.PoweredGateTests.PartRegistry_DiscoversPoweredGateDefinitionAndConfiguresInstance [FAIL]
+  Failed CuriousContraptions.Tests.PoweredGateTests.PartRegistry_DiscoversPoweredGateDefinitionAndConfiguresInstance [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PoweredGateTests.PartRegistry_DiscoversPoweredGateDefinitionAndConfiguresInstance() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PoweredGateTests.cs:line 15
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:02.06]     CuriousContraptions.Tests.CounterTests.PartRegistry_DiscoversCounterDefinitionAndConfiguresInstance [FAIL]
+  Failed CuriousContraptions.Tests.CounterTests.PartRegistry_DiscoversCounterDefinitionAndConfiguresInstance [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.CounterTests.PartRegistry_DiscoversCounterDefinitionAndConfiguresInstance() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/CounterTests.cs:line 17
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:02.08]     CuriousContraptions.Tests.PipeBend90Tests.PartRegistry_DiscoversPipeBend90DefinitionAndConfiguresInstance [FAIL]
+[xUnit.net 00:00:02.09]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "tennis") [FAIL]
+[xUnit.net 00:00:02.09]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "balloon") [FAIL]
+[xUnit.net 00:00:02.10]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "no-such-part") [FAIL]
+  Failed CuriousContraptions.Tests.PipeBend90Tests.PartRegistry_DiscoversPipeBend90DefinitionAndConfiguresInstance [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PipeBend90Tests.PartRegistry_DiscoversPipeBend90DefinitionAndConfiguresInstance() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PipeBend90Tests.cs:line 22
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "tennis") [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PalettePlacementTests.DiscoveredWorld() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 18
+   at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 79
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "balloon") [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PalettePlacementTests.DiscoveredWorld() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 18
+   at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 79
+   at InvokeStub_PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "no-such-part") [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PalettePlacementTests.DiscoveredWorld() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 18
+   at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 79
+   at InvokeStub_PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+[xUnit.net 00:00:02.10]     CuriousContraptions.Tests.PalettePlacementTests.UndeliveredPartsShipResourcesButHaveNoInstancePathAndNeverReachTheRegistryOrPalette [FAIL]
+[xUnit.net 00:00:02.10]     CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave [FAIL]
+[xUnit.net 00:00:02.10]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAPalettePartProposesItAndRecordsOneUndo [FAIL]
+[xUnit.net 00:00:02.11]     CuriousContraptions.Tests.PartRegistryTests.Discover_LoadsEveryDeliveredPart_AndExcludesUndeliveredParts [FAIL]
+[xUnit.net 00:00:02.11]     CuriousContraptions.Tests.PartRegistryTests.Create_ThrowsArgumentException_OnUnknownOrUnregisteredPartId [FAIL]
+[xUnit.net 00:00:02.11]     CuriousContraptions.Tests.PartRegistryTests.WorkshopInventoryPolicy_Free_PopulatesFromDiscoveredDefinitions [FAIL]
+[xUnit.net 00:00:02.11]     CuriousContraptions.Tests.PartRegistryTests.Create_InstantiatesAndConfiguresEachDiscoveredPart [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.UndeliveredPartsShipResourcesButHaveNoInstancePathAndNeverReachTheRegistryOrPalette [3 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PalettePlacementTests.DiscoveredWorld() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 18
+   at CuriousContraptions.Tests.PalettePlacementTests.UndeliveredPartsShipResourcesButHaveNoInstancePathAndNeverReachTheRegistryOrPalette() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 54
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PalettePlacementTests.DiscoveredWorld() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 18
+   at CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 26
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAPalettePartProposesItAndRecordsOneUndo [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PalettePlacementTests.DiscoveredWorld() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 18
+   at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAPalettePartProposesItAndRecordsOneUndo() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 98
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PartRegistryTests.Discover_LoadsEveryDeliveredPart_AndExcludesUndeliveredParts [2 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PartRegistryTests.Discover_LoadsEveryDeliveredPart_AndExcludesUndeliveredParts() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PartRegistryTests.cs:line 15
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PartRegistryTests.Create_ThrowsArgumentException_OnUnknownOrUnregisteredPartId [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PartRegistryTests.Create_ThrowsArgumentException_OnUnknownOrUnregisteredPartId() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PartRegistryTests.cs:line 94
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PartRegistryTests.WorkshopInventoryPolicy_Free_PopulatesFromDiscoveredDefinitions [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PartRegistryTests.WorkshopInventoryPolicy_Free_PopulatesFromDiscoveredDefinitions() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PartRegistryTests.cs:line 130
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.PartRegistryTests.Create_InstantiatesAndConfiguresEachDiscoveredPart [1 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.) (Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0))
+---- System.ArgumentException : Canonical resource 'res://parts/catalog/balloon.tres' is invalid or malformed.
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak)
+   at void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (System.ArgumentException) -----
+   at CuriousContraptions.PartRegistry.Discover() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/PartRegistry.cs:line 31
+   at CuriousContraptions.Tests.PartRegistryTests.Create_InstantiatesAndConfiguresEachDiscoveredPart() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PartRegistryTests.cs:line 70
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+
+Failed!  - Failed:    36, Passed:   932, Skipped:     0, Total:   968, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

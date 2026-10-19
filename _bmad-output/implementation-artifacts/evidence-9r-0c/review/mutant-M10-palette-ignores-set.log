@@ -1,0 +1,58 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (4 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.03]     CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder [FAIL]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder [11 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                 ↓ (pos 12)
+Expected: [···, battery, spring, pipe, ball_detector, pipe_bend_45, ···]
+Actual:   [···, battery, spring, tennis, balloon, pipe, ···]
+                                 ↑ (pos 12)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 169
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.34]     CuriousContraptions.Tests.PalettePlacementTests.ThePaletteIsTheCanonicalOrderFilteredOnlyByTheUndeliveredSetBeforeAndAfterDiscover [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.ThePaletteIsTheCanonicalOrderFilteredOnlyByTheUndeliveredSetBeforeAndAfterDiscover [1 ms]
+  Error Message:
+   Assert.DoesNotContain() Failure: Item found in collection
+                                  ↓ (pos 13)
+Collection: [···, spring, tennis, balloon, pipe, ball_detector, ···]
+Found:      balloon
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.ThePaletteIsTheCanonicalOrderFilteredOnlyByTheUndeliveredSetBeforeAndAfterDiscover() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut/CuriousContraptions.tests/PalettePlacementTests.cs:line 157
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    60, Skipped:     0, Total:    62, Duration: 585 ms - CuriousContraptions.tests.dll (net10.0)

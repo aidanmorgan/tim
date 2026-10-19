@@ -1,0 +1,100 @@
+(node:91992) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a served Animation probe reaches the host (control) (22.407833ms)
+✔ a disposed Animation worker holds no clock ring and refuses to probe it (1.015792ms)
+✔ a clock reply landing after the Animation worker was disposed never reaches the host (23.078209ms)
+{"passed":true,"targets":10,"controls":["declaredCapacity","heldReceipt","latestReplacement","orderedDrain","overflow","renamedControl","disposedLateOutput"]}
+(node:91993) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ tools/workshop-animation-output.test.mjs (54.385125ms)
+✔ normal publication activates exactly one service and retains startup qualification (3.062917ms)
+✔ delayed managed publication has no callback until explicit activation (0.621917ms)
+✔ default and missing IDs reject without scheduling or changing the ready owner (0.654917ms)
+✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.45875ms)
+✔ duplicate activation preserves the one original timer and owner state (0.4325ms)
+✔ startup timeout before worker readiness rejects creation and activation (0.40375ms)
+✔ startup timeout after JS return remains anchored to both runtime readiness (0.357917ms)
+✔ worker failure rejects activation without invoking managed service (0.346083ms)
+✔ disposal before managed publication prevents later activation (0.388541ms)
+✔ disposal after activation makes a captured late callback inert (0.415334ms)
+✔ failure after activation makes a captured late callback inert (0.371584ms)
+✔ a failed client detaches its clock ring (0.364958ms)
+✔ a clock reply landing after the client failed is never delivered (44.48825ms)
+✔ a clock reply landing after disposal is never delivered (22.161167ms)
+✔ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.749666ms)
+✔ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (2.603917ms)
+✔ a Browser that was itself blocked never mistakes the Simulation for hung (1.0215ms)
+✔ both runtimes must be ready before the one qualification deadline (0,1) (0.449167ms)
+✔ both runtimes must be ready before the one qualification deadline (1,0) (0.323666ms)
+✔ duplicate runtime readiness rejects worker 0 (0.316542ms)
+✔ early ready rejects worker 0 (0.309375ms)
+✔ duplicate runtime readiness rejects worker 1 (0.276375ms)
+✔ early ready rejects worker 1 (0.275417ms)
+✔ early Animation qualification rejects before bootstrap (0.269292ms)
+✔ duplicate authoritative Animation peer rejects without a second transfer (0.296167ms)
+✔ disposal during asset loading prevents late readiness from rearming (0.270625ms)
+✔ Animation constructor failure closes the already owned Simulation worker (0.285708ms)
+✔ premature Animation output fails without delivering to the managed consumer (0.287083ms)
+✔ delayed valid ACK clears current stall only after managed validation completion (0.504958ms)
+✔ completing an older ACK cannot clear another aged request or exceed two leases (0.382334ms)
+✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.392334ms)
+✔ unmatched or duplicate ACK faults without clearing stall (false) (0.343416ms)
+✔ unmatched or duplicate ACK faults without clearing stall (true) (0.309458ms)
+✔ two animation owners send sequential controls only after managed ACK delivery returns (0.382791ms)
+✔ nanoseconds is the exact round-half-even port of WorkshopNativeClock.FromMilliseconds (0.563917ms)
+✔ a valid probe is answered with itself followed by the two master stamps and their derivation epoch (0.375584ms)
+✔ the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeReply rejects (0.178917ms)
+✔ a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly (8.143333ms)
+✔ a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch (7.157333ms)
+✔ a slew installs the new correction under the same epoch, so requester mappings keep their calibration (6.746458ms)
+✔ the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused (0.138ms)
+✔ a newer probe of the same requester supersedes an unconsumed answer, which resolves to null (0.3315ms)
+✔ a probe the master has not served is never overwritten: the next probe resolves null and the session continues (0.216292ms)
+✔ an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed (13.501875ms)
+✔ a reply wait ends after the probe lifetime when the master never answers (252.572166ms)
+✔ startup qualification waits out a stalled master instead of burning its attempt budget (49.101208ms)
+✔ a close finding fails a test that otherwise passed (111.799792ms)
+✔ a close finding never replaces the test's own failure, and is still reported (107.634417ms)
+✔ several findings of one test are aggregated, not dropped (111.783459ms)
+✔ a recorded finding with no test to fail still fails the file (catch-all) (111.202625ms)
+✔ a finding raised in a suite's after hook is reported against that suite (111.23ms)
+✔ closeAfterSuite with no findings passes (control) (107.663584ms)
+✔ no Chrome suite closes its driver with close() in a suite after hook (2.063ms)
+✔ a clean close passes (control), and a finding is raised once, not again for later tests (215.383375ms)
+✔ encoded trace bytes containing NaN are not diagnostic text (0.435042ms)
+✔ a typed base64 envelope never fails on a NaN substring of its payload (Murdoch-2 F1) (0.189459ms)
+✔ no Chrome suite checks a raw NaN substring of console text; each goes through reportsNaN (whole class of F1) (5.505708ms)
+✔ actual errors survive encoded-looking messages and ordinary diagnostics (0.202459ms)
+✔ established isolation permits delayed runtime loading and records actual usable time (1.794709ms)
+✔ incomplete isolation handshake still fails at the existing deadline (0.513083ms)
+✔ controller replacement retires booting ownership (0.392417ms)
+✔ controller replacement retires qualified ownership (0.334416ms)
+✔ at most one isolation reload remains permitted (0.93725ms)
+✔ manual navigation after slow runtime loading starts a fresh isolation attempt (0.697417ms)
+(node:91999) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","ordinaryReadNoExport","acknowledgementOnlyReset","currentReliableStall","dispose"]}
+{"startupControl":1,"passed":true}
+{"startupControl":2,"passed":true}
+{"canonicalCommandWidth":true,"accepted":[72,1672,5768],"rejected":[71,5769]}
+{"schedulerTurnFailureEnvelope":true}
+{"disposalCancelsSchedulerTurns":true}
+✔ tools/workshop-observation.test.mjs (372.155042ms)
+(node:92000) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ actual pose reader preserves first secondary and full-width IDs without owner alias (0.68375ms)
+✔ actual latest reader ignores in-progress slot and uses new aligned stride (0.126ms)
+✔ old ring layout rejects rather than truncating secondary identity (0.046166ms)
+✔ actual worker writer publishes globally newest frames across wraps and shrinking populations (2.820583ms)
+✔ request success cannot complete Save; transaction abort preserves prior exact bytes (1.878416ms)
+✔ completed Save owns input bytes and Load returns an exact independent roundtrip (0.477875ms)
+✔ missing save is empty and incompatible width rejects without replacement (0.598625ms)
+ℹ tests 76
+ℹ suites 0
+ℹ pass 76
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 949.019042

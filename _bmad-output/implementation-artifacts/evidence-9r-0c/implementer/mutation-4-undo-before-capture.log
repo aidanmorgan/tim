@@ -1,0 +1,63 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.csproj]
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (2 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.83]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "tennis") [FAIL]
+[xUnit.net 00:00:01.83]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "balloon") [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "tennis") [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 88
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "balloon") [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 88
+   at InvokeStub_PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "no-such-part") [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "no-such-part") [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 88
+   at InvokeStub_PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     3, Passed:   965, Skipped:     0, Total:   968, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

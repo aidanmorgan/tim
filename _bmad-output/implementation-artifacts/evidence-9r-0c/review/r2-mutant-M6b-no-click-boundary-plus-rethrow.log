@@ -1,0 +1,89 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (13 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.15]     CuriousContraptions.Tests.PalettePlacementTests.AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable [FAIL]
+[xUnit.net 00:00:01.23]     CuriousContraptions.Tests.WorkshopHandlerBoundaryTests.EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable [40 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Assert.Empty() Failure: Collection was not empty
+Collection: [System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 413
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 542
+   at CuriousContraptions.Workshop.Click(Vector2 screen) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 508
+   at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__124_0(Object state)
+   at CuriousContraptions.Tests.PalettePlacementTests.EscapeRecorder.Post(SendOrPostCallback callback, Object state) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.tests/PalettePlacementTests.cs:line 219]) (Godot reported 1 error(s) during this test:
+Error: Bench placement of 'ramp' as body 1 was admitted, but presenting it failed: System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 413
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 542
+   at void CuriousContraptions.Workshop+<ClickAsync>d__89.MoveNext() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:542))
+---- Assert.Empty() Failure: Collection was not empty
+Collection: [System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 413
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 542
+   at CuriousContraptions.Workshop.Click(Vector2 screen) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 508
+   at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__124_0(Object state)
+   at CuriousContraptions.Tests.PalettePlacementTests.EscapeRecorder.Post(SendOrPostCallback callback, Object state) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.tests/PalettePlacementTests.cs:line 219]
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: Bench placement of 'ramp' as body 1 was admitted, but presenting it failed: System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 413
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:line 542
+   at void CuriousContraptions.Workshop+<ClickAsync>d__89.MoveNext() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/ui/Workshop.cs:542)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (Xunit.Sdk.EmptyException) -----
+   at CuriousContraptions.Tests.PalettePlacementTests.AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.tests/PalettePlacementTests.cs:line 275
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Failed CuriousContraptions.Tests.WorkshopHandlerBoundaryTests.EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod [6 ms]
+  Error Message:
+   Assert.All() Failure: 1 out of 19 items in the collection did not pass.
+[1]: Item:  Tuple ("Workshop.cs", "Click", "{\n        await ClickAsync(screen);\n    }")
+     Error: Workshop.cs: async void Click must only await ClickAsync inside a catch that calls HandlerFailed.
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopHandlerBoundaryTests.EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/mut4/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs:line 56
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    13, Skipped:     0, Total:    15, Duration: 300 ms - CuriousContraptions.tests.dll (net10.0)

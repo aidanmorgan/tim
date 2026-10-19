@@ -9,7 +9,15 @@
 - **Design:** the clock is now a JS clock master with typed probes; a lapse is renewed and checked, and is recalibrated only on a real move or a stall over about 1.2 s.
 - [Review](_bmad-output/implementation-artifacts/review-9-4b-cumulative-regression-repair.md); [spec and evidence](_bmad-output/implementation-artifacts/spec-9-4b-cumulative-regression-repair.md).
 
-**Current outcome:** Story 9R.0c (Undelivered Parts Leave the Palette and Bench Placement Never Throws) is first in Epic 9R. It fixes the owner-reported Balloon crash. Next come Stories 9R.0 (C# static gate), 9R.0a (tiered and parallel e2e runner) and 9R.0b, then 9R.1–9R.18, 9.4c and Epic 9A, all before any new element.
+**Also verified:** Story 9R.0c (the Balloon crash) has Murdoch-4's scoped Pass on `8de7f259`.
+- Tennis and Balloon have left the palette through a typed undelivered set; Story 12.1 returns them as real packages with their own art.
+- Bench placement can't crash. No UI handler exception can kill the browser runtime: all 19 are guarded.
+- Results: 1539/1539 native tests; one full Chrome run of 34 files, 165/165; palette-placement 25/25.
+
+**Current outcome:**
+- Next is Story 9R.0 (C# static gate). Its worktree must rebase onto `8de7f259`.
+- Then Stories 9R.0a (tiered and parallel e2e runner; spec written) and 9R.0b, then 9R.1–9R.18, 9.4c and Epic 9A, all before any new element (owner, 19 Oct 2026: keep this order, one lane).
+- A visual-style review of every palette part is running. The owner reported the Funnel glass looks inverted; findings become stories.
 
 **Verification policy:** [verification tiers](_bmad-output/planning-artifacts/autonomous-development-guide.md#verification-tiers), owner decision 19 Oct 2026.
 - A full Chrome run happens only for a material engine change, and as a checkpoint after every 5 element stories.
@@ -17,6 +25,6 @@
 
 **Blocker / owner / retry:** None.
 
-**Next acceptance check:** Story 9R.0c. Rebase Amelia-3's worktree onto 9.4b, then run Tier 1 and the Tier 2 Chrome check (`palette-placement` plus the smoke pair), then the independent review.
+**Next acceptance check:** Story 9R.0. Rebase it onto `8de7f259`, then the native re-check, the Chrome checklist and one full run, because it is a shared-infrastructure change.
 
 **Provenance:** Original `a6c914e` is the sole legacy baseline. [History recovery](docs/history-recovery.md), recovery bundle and archives remain inside tim and are not uploaded. Preserve unrelated dirty historical review/question records. Unknown measurements remain unknown.

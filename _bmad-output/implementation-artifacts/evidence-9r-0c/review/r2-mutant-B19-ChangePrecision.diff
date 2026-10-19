@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopPuzzle.cs	2026-10-19 17:42:29.773929347 +0800
++++ ui/WorkshopPuzzle.cs	2026-10-19 17:48:22.577567365 +0800
+@@ -156,7 +156,7 @@
+     private async void ChangePrecision(double value)
+     {
+         try { await ChangePrecisionAsync(value); }
+-        catch (Exception error) { HandlerFailed(nameof(ChangePrecision), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(ChangePrecision), error); }
+     }
+     private async Task ChangePrecisionAsync(double value)
+     {

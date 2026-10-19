@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine/WorkshopInventory.cs	2026-10-19 16:47:29.554820038 +0800
++++ engine/gpu/WorkshopInventory.cs	2026-10-19 16:52:12.326277206 +0800
+@@ -90,7 +90,7 @@
+     internal static PartInventory FreeRows(IEnumerable<PartId> available, IReadOnlySet<PartId> undelivered)
+     {
+         var set = available.ToHashSet();
+-        var ordered = _canonicalOrder.Where(id => set.Contains(id) && !undelivered.Contains(id));
++        var ordered = _canonicalOrder.Where(id => set.Contains(id));
+         var list = ordered.Select(id => (id, PartAllowance.Unlimited)).ToArray();
+         if (list.Length == 0) throw new ArgumentException("Empty registry cannot populate Free inventory.");
+         return new PartInventory(list);

@@ -137,7 +137,7 @@ development_status:
   # Evidence: _bmad-output/planning-artifacts/retro-verification-2026-10-18.md
   epic-9r: backlog
   # owner report 19 Oct 2026 (Balloon crash): runs first in 9R, right after 9-4b
-  9r-0c-undelivered-parts-leave-palette: backlog
+  9r-0c-undelivered-parts-leave-palette: done
   9r-0-csharp-static-analysis-gate: backlog
   # owner 19 Oct 2026: tiered verification + parallel Chrome for non-timing suites
   9r-0a-tiered-parallel-e2e-runner: backlog

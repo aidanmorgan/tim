@@ -1,0 +1,155 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.csproj]
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (2 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.58]     CuriousContraptions.Tests.StateLatchTests.Compiler_DeclaresStaticLatchBodyWithCanonicalColliders [FAIL]
+[xUnit.net 00:00:02.59]     CuriousContraptions.Tests.StateLatchTests.Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach [FAIL]
+[xUnit.net 00:00:02.59]     CuriousContraptions.Tests.StateLatchTests.Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute [FAIL]
+[xUnit.net 00:00:02.59]     CuriousContraptions.Tests.StateLatchTests.Network_OneSourceWiredToBothInputsNeverTurnsOn [FAIL]
+[xUnit.net 00:00:02.59]     CuriousContraptions.Tests.StateLatchTests.Compiler_SwitchedSupplyRoutesCompileOnceAndTickInputsCloseOnlyWithContactAndEnabledBattery [FAIL]
+  Failed CuriousContraptions.Tests.StateLatchTests.Compiler_DeclaresStaticLatchBodyWithCanonicalColliders [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopPhysicsCompiler.Compile(WorkshopConstruction construction, PhysicsDocumentId document) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopPhysicsCompiler.cs:line 22
+   at CuriousContraptions.Tests.StateLatchTests.Compiler_DeclaresStaticLatchBodyWithCanonicalColliders() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 462
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.StateLatchTests.Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/ActivationNetwork.cs:line 699
+   at CuriousContraptions.Tests.StateLatchTests.Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 441
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.StateLatchTests.Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.StateLatchTests.Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 400
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.StateLatchTests.Network_OneSourceWiredToBothInputsNeverTurnsOn [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.StateLatchTests.Network_OneSourceWiredToBothInputsNeverTurnsOn() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 241
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.StateLatchTests.Compiler_SwitchedSupplyRoutesCompileOnceAndTickInputsCloseOnlyWithContactAndEnabledBattery [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.StateLatchTests.Compiler_SwitchedSupplyRoutesCompileOnceAndTickInputsCloseOnlyWithContactAndEnabledBattery() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 354
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.60]     CuriousContraptions.Tests.StateLatchTests.Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff [FAIL]
+[xUnit.net 00:00:02.60]     CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff [FAIL]
+[xUnit.net 00:00:02.60]     CuriousContraptions.Tests.StateLatchTests.Persistence_BinaryFlatBuffersAndSaveCodecPreserveDistinctSockets [FAIL]
+[xUnit.net 00:00:02.60]     CuriousContraptions.Tests.StateLatchTests.Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes [FAIL]
+  Failed CuriousContraptions.Tests.StateLatchTests.Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.StateLatchTests.Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 205
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 150
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.StateLatchTests.Persistence_BinaryFlatBuffersAndSaveCodecPreserveDistinctSockets [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.StateLatchTests.Persistence_BinaryFlatBuffersAndSaveCodecPreserveDistinctSockets() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 481
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.StateLatchTests.Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopSaveCodec.Validate(WorkshopSavedConstruction save) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopSaveCodec.cs:line 59
+   at CuriousContraptions.Gpu.WorkshopSaveCodec.Encode(WorkshopSavedConstruction save) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkshopSaveCodec.cs:line 19
+   at CuriousContraptions.Tests.StateLatchTests.Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/StateLatchTests.cs:line 130
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.66]     CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave [2 ms]
+  Error Message:
+   System.ArgumentException : Unsupported authored instance declaration.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchFootprint.Of(PartId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 55
+   at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/gpu/WorkbenchCapacity.cs:line 78
+   at CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 38
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    10, Passed:   958, Skipped:     0, Total:   968, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/WorkshopConfiguration.cs	2026-10-19 17:42:29.772920132 +0800
++++ ui/WorkshopConfiguration.cs	2026-10-19 17:46:57.746700584 +0800
+@@ -46,7 +46,7 @@
+     private async void ApplyClockInterval(GpuBodyId owner, float seconds)
+     {
+         try { await ApplyClockIntervalAsync(owner, seconds); }
+-        catch (Exception error) { HandlerFailed(nameof(ApplyClockInterval), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(ApplyClockInterval), error); }
+     }
+     private async Task ApplyClockIntervalAsync(GpuBodyId owner, float seconds)
+     {

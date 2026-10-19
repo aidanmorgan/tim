@@ -1,0 +1,20 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/Workshop.cs	2026-10-19 17:42:29.771897625 +0800
++++ ui/Workshop.cs	2026-10-19 17:43:50.052088759 +0800
+@@ -505,8 +505,7 @@
+     }
+     private async void Click(Vector2 screen)
+     {
+-        try { await ClickAsync(screen); }
+-        catch (Exception error) { HandlerFailed(nameof(Click), error); }
++        await ClickAsync(screen);
+     }
+     private async Task ClickAsync(Vector2 screen)
+     {
+@@ -558,6 +557,7 @@
+                 try { ClearPreview(); RefreshPalette(); RefreshLayers(); }
+                 catch (Exception recovery) { GD.PushError($"Leaving placement mode after body {placedId.Value} failed to present also failed: {recovery}"); }
+                 _status.Text = "The part was placed, but it could not be shown. Choose a part to continue.";
++                throw;
+             }
+         }
+         else

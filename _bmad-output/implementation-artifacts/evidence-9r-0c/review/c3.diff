@@ -1,0 +1,549 @@
+diff --git a/CuriousContraptions.tests/CuriousContraptions.tests.csproj b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+index 0dd143fb..06863160 100644
+--- a/CuriousContraptions.tests/CuriousContraptions.tests.csproj
++++ b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+@@ -74,6 +74,7 @@
+         <Compile Include="BasketballResourceTests.cs" />
+         <Compile Include="PartRegistryTests.cs" />
+         <Compile Include="PalettePlacementTests.cs" />
++        <Compile Include="WorkshopHandlerBoundaryTests.cs" />
+         <Compile Include="GltfColliderExtractionTests.cs" />
+         <Compile Include="StraightPipeTests.cs" />
+         <Compile Include="ClearPipeLevelTests.cs" />
+diff --git a/CuriousContraptions.tests/PalettePlacementTests.cs b/CuriousContraptions.tests/PalettePlacementTests.cs
+index 35fd2a02..f88bf2cb 100644
+--- a/CuriousContraptions.tests/PalettePlacementTests.cs
++++ b/CuriousContraptions.tests/PalettePlacementTests.cs
+@@ -93,6 +93,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+                 null, null, () => undo++);
+             Assert.Equal(BenchPlacementRejection.UnsupportedPart, placement.Rejection);
+             Assert.Contains(external, placement.Message);
++            godot.Errors.Expect($"Bench placement of '{external}' as body 7 was refused");
+             Assert.Equal(0, undo);
+             Assert.Equal(before, placement.Construction);
+             Assert.Equal(before, world.Construction);
+@@ -134,6 +135,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+                 null, null, () => undo++);
+             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
+             Assert.StartsWith("Placement rejected: ", refused.Message);
++            godot.Errors.Expect("Bench placement of 'basket' as body 4294967296 was refused");
+             Assert.Equal(0, undo);
+             Assert.Equal(lesson, refused.Construction);
+             // Control: the same lesson composes its Receiver at an authored identity and records one undo.
+@@ -188,11 +190,29 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         return (scene, client);
+     }
+ 
+-    private static void ClickBench(Workshop scene)
++    /// <summary>Clicks the bench and returns every exception that escaped the async void handler. An escaping exception is posted
++    /// to the captured synchronization context: natively Godot's logs it, but in the browser there is none and the thread pool
++    /// terminates the .NET runtime (Story 9R.0c F1), so the click runs under a context that records instead.</summary>
++    private static List<Exception> ClickBench(Workshop scene)
+     {
+         var height = (float)Field<Metres>(scene, "_placementHeight").Value;
+         var screen = Field<Camera3D>(scene, "_camera").UnprojectPosition(new Vector3(0, height, 0));
+-        typeof(Workshop).GetMethod("Click", Private)!.Invoke(scene, [screen]);
++        var recorder = new EscapeRecorder();
++        var previous = SynchronizationContext.Current;
++        SynchronizationContext.SetSynchronizationContext(recorder);
++        try { typeof(Workshop).GetMethod("Click", Private)!.Invoke(scene, [screen]); }
++        finally { SynchronizationContext.SetSynchronizationContext(previous); }
++        return recorder.Escaped;
++    }
++
++    private sealed class EscapeRecorder : SynchronizationContext
++    {
++        public List<Exception> Escaped { get; } = [];
++        public override void Post(SendOrPostCallback callback, object? state)
++        {
++            try { callback(state); }
++            catch (Exception escaped) { Escaped.Add(escaped); }
++        }
+     }
+ 
+     private void Release(Workshop scene)
+@@ -208,8 +228,9 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         try
+         {
+             var before = scene.World.Construction;
+-            ClickBench(scene);
++            Assert.Empty(ClickBench(scene));
+             Assert.Equal("Placement rejected: Unsupported instance part id 'balloon'.", Field<Label>(scene, "_status").Text);
++            godot.Errors.Expect("Bench placement of 'balloon' as body 1 was refused");
+             Assert.Empty(Field<List<WorkshopConstruction>>(scene, "_undo"));
+             Assert.Empty(client.Commands);
+             Assert.Equal(before, scene.World.Construction);
+@@ -225,7 +246,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         try
+         {
+             var before = scene.World.Construction;
+-            ClickBench(scene);
++            Assert.Empty(ClickBench(scene));
+             // Control: the same click reaches capture and the worker; the admission stays pending in this fixture.
+             Assert.True(client.Commands.Count == 1, $"One Construct must reach the worker; status: {Field<Label>(scene, "_status").Text}");
+             var (kind, construction) = client.Commands[0];
+@@ -237,7 +258,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+     }
+ 
+     [Fact]
+-    public void AnAdmittedPlacementWhosePresentationFailsConsumesItsIdentityAndFailsLoudly()
++    public void AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable()
+     {
+         var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+         var detail = Field<Label>(scene, "_detail");
+@@ -245,18 +266,24 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         {
+             // Fault injection after admission: only Select, which runs once the worker has applied the part, writes this label.
+             SetField<Label?>(scene, "_detail", null);
+-            ClickBench(scene);
+-            godot.Engine.Iteration(); // the async handler's failure surfaces through Godot's synchronization context
+-            godot.Errors.Expect("was admitted, but presenting it failed");
++            Assert.Empty(ClickBench(scene)); // nothing may escape the handler: in the browser that terminates the runtime
++            var logged = godot.Errors.Drain();
++            Assert.Contains("Bench placement of 'ramp' as body 1 was admitted, but presenting it failed", Assert.Single(logged).ToString());
++            Assert.Equal("The part was placed, but it could not be shown. Choose a part to continue.", Field<Label>(scene, "_status").Text);
+             Assert.Equal(new GpuBodyId(2), Field<GpuBodyId>(scene, "_nextId"));
+             Assert.Single(Field<List<WorkshopConstruction>>(scene, "_undo")); // the admitted placement keeps its undo entry
+-            // The next placement takes a fresh identity instead of silently replacing the admitted part.
+-            ClickBench(scene);
+-            godot.Engine.Iteration();
+-            godot.Errors.Expect("was admitted, but presenting it failed");
++            Assert.Null(Field<PartId?>(scene, "_tool")); // placement mode ended: no Escape is needed
++            Assert.False(Field<bool>(scene, "_dragging"));
++            // The next placement works: choose the part from the palette again and place it.
++            SetField(scene, "_detail", detail);
++            typeof(Workshop).GetMethod("ChooseTool", Private)!.Invoke(scene, [PartId.Ramp]);
++            Assert.Empty(ClickBench(scene));
++            Assert.Empty(godot.Errors.Drain());
++            Assert.Equal("Drag to slide. Choose arrows to move or rings to rotate.", Field<Label>(scene, "_status").Text);
+             Assert.Equal(2, client.Commands.Count);
+-            Assert.Equal([new GpuBodyId(1), new GpuBodyId(2)],
+-                Assert.NotNull(client.Commands[1].Construction).Instances.Select(instance => instance.Id));
++            // It takes a fresh identity instead of silently replacing the admitted part: the construction holds both.
++            Assert.Equal([new GpuBodyId(1), new GpuBodyId(2)], scene.World.Construction.Instances.Select(instance => instance.Id));
++            Assert.Equal(new GpuBodyId(3), Field<GpuBodyId>(scene, "_nextId"));
+         }
+         finally { SetField(scene, "_detail", detail); Release(scene); }
+     }
+@@ -267,7 +294,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Rejected);
+         try
+         {
+-            ClickBench(scene);
++            Assert.Empty(ClickBench(scene));
+             Assert.Single(client.Commands);
+             Assert.StartsWith("Placement rejected: ", Field<Label>(scene, "_status").Text);
+             Assert.Empty(Field<List<WorkshopConstruction>>(scene, "_undo"));
+diff --git a/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs b/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
+new file mode 100644
+index 00000000..bf4bd641
+--- /dev/null
++++ b/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
+@@ -0,0 +1,70 @@
++using System.Text.RegularExpressions;
++
++namespace CuriousContraptions.Tests;
++
++/// <summary>
++/// Story 9R.0c F1: in the browser an exception escaping an async void handler is posted to the thread pool and terminates the
++/// .NET runtime. Every async void under ui/ is therefore exactly a boundary over its Task method that logs and shows a failure
++/// (Workshop.HandlerFailed); engine/ keeps only MachineWorld._ExitTree, whose disposal catches its own failure.
++/// </summary>
++public sealed class WorkshopHandlerBoundaryTests
++{
++    private static readonly Regex AsyncVoid = new(@"async void (?<name>\w+)\(", RegexOptions.CultureInvariant);
++
++    private static DirectoryInfo Root()
++    {
++        var root = new DirectoryInfo(AppContext.BaseDirectory);
++        while (root is not null && !File.Exists(Path.Combine(root.FullName, "project.godot"))) root = root.Parent;
++        return Assert.IsType<DirectoryInfo>(root);
++    }
++
++    private static IEnumerable<(string File, string Name, string Body)> Handlers(string directory)
++    {
++        foreach (var file in Directory.GetFiles(Path.Combine(Root().FullName, directory), "*.cs", SearchOption.AllDirectories))
++        {
++            var text = File.ReadAllText(file);
++            foreach (Match match in AsyncVoid.Matches(text))
++                yield return (Path.GetFileName(file), match.Groups["name"].Value, Body(text, match.Index));
++        }
++    }
++
++    // The method body from its opening brace to the matching closing brace, or an expression body up to its semicolon.
++    private static string Body(string text, int start)
++    {
++        var open = text.IndexOf('{', start);
++        var arrow = text.IndexOf("=>", start, StringComparison.Ordinal);
++        if (arrow >= 0 && (open < 0 || arrow < open)) return text[arrow..(text.IndexOf(';', arrow) + 1)];
++        var depth = 0;
++        for (var index = open; index < text.Length; index++)
++        {
++            if (text[index] == '{') depth++;
++            else if (text[index] == '}' && --depth == 0) return text[open..(index + 1)];
++        }
++        throw new InvalidDataException("Unbalanced method body.");
++    }
++
++    // A Godot override such as _Ready awaits ReadyAsync.
++    private static bool IsBoundary(string name, string body) => Regex.IsMatch(Regex.Replace(body, @"\s+", " "),
++        $@"^\{{ try \{{ await {name.TrimStart('_')}Async\([^)]*\); \}} catch \(Exception error\) \{{ HandlerFailed\(nameof\({name}\), error\); \}} \}}$",
++        RegexOptions.CultureInvariant);
++
++    [Fact]
++    public void EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod()
++    {
++        var handlers = Handlers("ui").ToArray();
++        Assert.True(handlers.Length >= 19, $"Expected the Workshop's async void handlers; found {handlers.Length}.");
++        Assert.All(handlers, handler => Assert.True(IsBoundary(handler.Name, handler.Body),
++            $"{handler.File}: async void {handler.Name} must only await {handler.Name.TrimStart('_')}Async inside a catch that calls HandlerFailed."));
++        // Control: the shape check rejects a handler that awaits work without the boundary.
++        Assert.False(IsBoundary("Click", "{ if (_tool is null) return; await SubmitConstruction(proposed); }"));
++        Assert.False(IsBoundary("Click", "{ try { await ClickAsync(screen); } catch (ArgumentException error) { HandlerFailed(nameof(Click), error); } }"));
++    }
++
++    [Fact]
++    public void TheEngineKeepsOnlyItsAuditedAsyncVoidOverride()
++    {
++        var handler = Assert.Single(Handlers("engine"));
++        Assert.Equal(("MachineWorld.cs", "_ExitTree"), (handler.File, handler.Name));
++        Assert.Equal("=> await DisposeWorkshop();", handler.Body);
++    }
++}
+diff --git a/ui/Workshop.cs b/ui/Workshop.cs
+index d57021a5..ed8019a8 100644
+--- a/ui/Workshop.cs
++++ b/ui/Workshop.cs
+@@ -56,6 +56,11 @@ public partial class Workshop : Node3D
+     private bool CanEdit => !_gpuPending && !_inRun && World.WorkshopPhase == WorkshopSimulationPhase.Building;
+ 
+     public override async void _Ready()
++    {
++        try { await ReadyAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(_Ready), error); }
++    }
++    private async Task ReadyAsync()
+     {
+         World = new MachineWorld { Name = "Machine" };
+         AddChild(World);
+@@ -499,6 +504,11 @@ public partial class Workshop : Node3D
+         return closest;
+     }
+     private async void Click(Vector2 screen)
++    {
++        try { await ClickAsync(screen); }
++        catch (Exception error) { HandlerFailed(nameof(Click), error); }
++    }
++    private async Task ClickAsync(Vector2 screen)
+     {
+         if (_linkSource is not null) { ChooseConnectionTarget(Pick(screen)); return; }
+         if (_tool is null && _rotationGizmo.Begin(_camera, screen))
+@@ -540,11 +550,14 @@ public partial class Workshop : Node3D
+             }
+             catch (Exception error)
+             {
+-                // Never swallowed: the admitted part stays admitted, and the failure is logged with its context and rethrown.
+-                var failure = new InvalidOperationException(
+-                    $"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed.", error);
+-                GD.PushError(failure.ToString());
+-                throw failure;
++                // Logged with its context, never rethrown: an exception escaping an async void handler terminates the browser
++                // .NET runtime. The admitted part stays admitted and the Workshop leaves placement mode for the next placement.
++                GD.PushError($"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed: {error}");
++                _tool = null;
++                _dragging = false;
++                try { ClearPreview(); RefreshPalette(); RefreshLayers(); }
++                catch (Exception recovery) { GD.PushError($"Leaving placement mode after body {placedId.Value} failed to present also failed: {recovery}"); }
++                _status.Text = "The part was placed, but it could not be shown. Choose a part to continue.";
+             }
+         }
+         else
+@@ -603,6 +616,11 @@ public partial class Workshop : Node3D
+         SetLayer((float)_depth.Value);
+     }
+     private async void DeleteSelected()
++    {
++        try { await DeleteSelectedAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(DeleteSelected), error); }
++    }
++    private async Task DeleteSelectedAsync()
+     {
+         if (!CanEdit || _selected is not { Locked: false }) return;
+         var id = _selected.AuthoredId;
+@@ -620,6 +638,11 @@ public partial class Workshop : Node3D
+         if (_undo.Count > 40) _undo.RemoveAt(0);
+     }
+     private async void Undo()
++    {
++        try { await UndoAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(Undo), error); }
++    }
++    private async Task UndoAsync()
+     {
+         if (!CanEdit || _undo.Count == 0) return;
+         Select(null);
+@@ -632,6 +655,11 @@ public partial class Workshop : Node3D
+ 
+ 
+     private async void ToggleRun()
++    {
++        try { await ToggleRunAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(ToggleRun), error); }
++    }
++    private async Task ToggleRunAsync()
+     {
+         if (_gpuPending) return;
+         if (IsRuntimePhase(World.WorkshopPhase)) { ResetRun(); return; }
+@@ -657,6 +685,11 @@ public partial class Workshop : Node3D
+ 
+     private bool _cancelPending;
+     private async void ResetRun()
++    {
++        try { await ResetRunAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(ResetRun), error); }
++    }
++    private async Task ResetRunAsync()
+     {
+         if (_gpuPending)
+         {
+@@ -792,6 +825,11 @@ public partial class Workshop : Node3D
+         _objectivePanel.Size = new(266, 0);
+     }
+     private async void Save()
++    {
++        try { await SaveAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(Save), error); }
++    }
++    private async Task SaveAsync()
+     {
+         if (!CanEdit) { _status.Text = "Return to building before saving."; return; }
+         if (World.WorkshopRead.Revision.Value == ulong.MaxValue)
+@@ -820,6 +858,11 @@ public partial class Workshop : Node3D
+     }
+ 
+     private async void LoadSave()
++    {
++        try { await LoadSaveAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(LoadSave), error); }
++    }
++    private async Task LoadSaveAsync()
+     {
+         if (!CanEdit) { _status.Text = "Return to building before loading."; return; }
+         var applied = false;
+diff --git a/ui/WorkshopBattery.cs b/ui/WorkshopBattery.cs
+index 1135c98d..a129e6ba 100644
+--- a/ui/WorkshopBattery.cs
++++ b/ui/WorkshopBattery.cs
+@@ -1,6 +1,7 @@
+ using System;
+ using System.Linq;
+ using System.Collections.Generic;
++using System.Threading.Tasks;
+ using Godot;
+ using CuriousContraptions.Gpu;
+ 
+@@ -101,6 +102,11 @@ public partial class Workshop
+     }
+ 
+     private async void ApplyBatterySettings(GpuBodyId owner, ElectricalSourceSettings settings)
++    {
++        try { await ApplyBatterySettingsAsync(owner, settings); }
++        catch (Exception error) { HandlerFailed(nameof(ApplyBatterySettings), error); }
++    }
++    private async Task ApplyBatterySettingsAsync(GpuBodyId owner, ElectricalSourceSettings settings)
+     {
+         if (!CanEdit) return;
+         try
+@@ -117,6 +123,11 @@ public partial class Workshop
+     }
+ 
+     private async void ApplyBatteryEnable(GpuBodyId owner, ElectricalEnable enabled)
++    {
++        try { await ApplyBatteryEnableAsync(owner, enabled); }
++        catch (Exception error) { HandlerFailed(nameof(ApplyBatteryEnable), error); }
++    }
++    private async Task ApplyBatteryEnableAsync(GpuBodyId owner, ElectricalEnable enabled)
+     {
+         if (_gpuPending || _batteryCommandSending) return;
+         _batteryCommandSending = true;
+diff --git a/ui/WorkshopBenchPlacement.cs b/ui/WorkshopBenchPlacement.cs
+index ac84b015..af424413 100644
+--- a/ui/WorkshopBenchPlacement.cs
++++ b/ui/WorkshopBenchPlacement.cs
+@@ -25,7 +25,9 @@ public static class WorkshopBenchPlacement
+         try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, rampDimensions, wallDimensions)); }
+         catch (Exception error)
+         {
+-            // A part that cannot be captured or composed is refused here, before any undo entry exists.
++            // A part that cannot be captured or composed is refused here, before any undo entry exists. The warning carries the
++            // exception, so a programming defect reaches the console rather than only the status label.
++            GD.PushWarning($"Bench placement of '{part}' as body {body.Value} was refused: {error}");
+             return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {error.Message}");
+         }
+         pushUndo();
+diff --git a/ui/WorkshopConfiguration.cs b/ui/WorkshopConfiguration.cs
+index 2fbea447..d4bed171 100644
+--- a/ui/WorkshopConfiguration.cs
++++ b/ui/WorkshopConfiguration.cs
+@@ -1,5 +1,6 @@
+ using System;
+ using System.Linq;
++using System.Threading.Tasks;
+ using Godot;
+ using CuriousContraptions.Gpu;
+ 
+@@ -43,6 +44,11 @@ public partial class Workshop
+         configure.Disabled = !CanEdit || part.Locked; _connectionChoices.AddChild(configure);
+     }
+     private async void ApplyClockInterval(GpuBodyId owner, float seconds)
++    {
++        try { await ApplyClockIntervalAsync(owner, seconds); }
++        catch (Exception error) { HandlerFailed(nameof(ApplyClockInterval), error); }
++    }
++    private async Task ApplyClockIntervalAsync(GpuBodyId owner, float seconds)
+     {
+         if (!CanEdit) return;
+         try
+@@ -59,7 +65,12 @@ public partial class Workshop
+         }
+         catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+     }
+-    private async void ApplyDelayDuration(GpuBodyId owner,double seconds)
++    private async void ApplyDelayDuration(GpuBodyId owner, double seconds)
++    {
++        try { await ApplyDelayDurationAsync(owner, seconds); }
++        catch (Exception error) { HandlerFailed(nameof(ApplyDelayDuration), error); }
++    }
++    private async Task ApplyDelayDurationAsync(GpuBodyId owner,double seconds)
+     {
+         if (!CanEdit) return;
+         try
+@@ -93,6 +104,11 @@ public partial class Workshop
+         configure.Disabled = !CanEdit || bumper.Locked; _connectionChoices.AddChild(configure);
+     }
+     private async void ApplyBumperStrength(GpuBodyId owner, double strength)
++    {
++        try { await ApplyBumperStrengthAsync(owner, strength); }
++        catch (Exception error) { HandlerFailed(nameof(ApplyBumperStrength), error); }
++    }
++    private async Task ApplyBumperStrengthAsync(GpuBodyId owner, double strength)
+     {
+         if (!CanEdit) return;
+         try
+@@ -141,6 +157,11 @@ public partial class Workshop
+         configure.Disabled = !CanEdit || spring.Locked; _connectionChoices.AddChild(configure);
+     }
+     private async void ApplySpringboardSettings(GpuBodyId owner, SpringboardSettings settings)
++    {
++        try { await ApplySpringboardSettingsAsync(owner, settings); }
++        catch (Exception error) { HandlerFailed(nameof(ApplySpringboardSettings), error); }
++    }
++    private async Task ApplySpringboardSettingsAsync(GpuBodyId owner, SpringboardSettings settings)
+     {
+         if (!CanEdit) return;
+         try
+diff --git a/ui/WorkshopConnections.cs b/ui/WorkshopConnections.cs
+index 04941079..a359d00e 100644
+--- a/ui/WorkshopConnections.cs
++++ b/ui/WorkshopConnections.cs
+@@ -1,6 +1,7 @@
+ using Godot;
+ using System;
+ using System.Linq;
++using System.Threading.Tasks;
+ using CuriousContraptions.Gpu;
+ 
+ namespace CuriousContraptions;
+@@ -93,6 +94,11 @@ public partial class Workshop
+             : "Connect the selected sockets.";
+     }
+     private async void ChangeConnection(WorkshopConnection link, bool add)
++    {
++        try { await ChangeConnectionAsync(link, add); }
++        catch (Exception error) { HandlerFailed(nameof(ChangeConnection), error); }
++    }
++    private async Task ChangeConnectionAsync(WorkshopConnection link, bool add)
+     {
+         if (!CanEdit) return;
+         try
+diff --git a/ui/WorkshopGpu.cs b/ui/WorkshopGpu.cs
+index b0b850c0..f6788b69 100644
+--- a/ui/WorkshopGpu.cs
++++ b/ui/WorkshopGpu.cs
+@@ -24,6 +24,11 @@ public partial class Workshop
+         parent.AddChild(playback);
+     }
+     private async void Playback(WorkshopCommandKind kind)
++    {
++        try { await PlaybackAsync(kind); }
++        catch (Exception error) { HandlerFailed(nameof(Playback), error); }
++    }
++    private async Task PlaybackAsync(WorkshopCommandKind kind)
+     {
+         if (_gpuPending) return;
+         _gpuPending = true;
+@@ -37,6 +42,16 @@ public partial class Workshop
+         finally { if (!_workshopUiRemoved) _gpuPending = false; }
+     }
+ 
++    /// <summary>The boundary of every async void Workshop handler. In the browser an exception escaping one is posted to the thread
++    /// pool, where it terminates the .NET runtime (Story 9R.0c F1), so it is logged with its handler and shown, never rethrown.</summary>
++    private void HandlerFailed(string handler, Exception error)
++    {
++        GD.PushError($"Workshop handler '{handler}' failed: {error}");
++        if (_workshopUiRemoved) return;
++        try { _status.Text = $"That action failed and was logged: {error.Message}"; }
++        catch (Exception statusError) { GD.PushError($"Workshop handler '{handler}' could not show its failure: {statusError}"); }
++    }
++
+     private async Task<bool> SubmitConstruction(WorkshopConstruction construction)
+     {
+         if (!CanEdit) return false;
+@@ -68,6 +83,11 @@ public partial class Workshop
+     }
+ 
+     private async void CommitSelected()
++    {
++        try { await CommitSelectedAsync(); }
++        catch (Exception error) { HandlerFailed(nameof(CommitSelected), error); }
++    }
++    private async Task CommitSelectedAsync()
+     {
+         if (!CanEdit || _selected is null) return;
+         try
+diff --git a/ui/WorkshopPuzzle.cs b/ui/WorkshopPuzzle.cs
+index 12d125cc..f780879d 100644
+--- a/ui/WorkshopPuzzle.cs
++++ b/ui/WorkshopPuzzle.cs
+@@ -1,6 +1,7 @@
+ using Godot;
+ using System;
+ using System.Collections.Generic;
++using System.Threading.Tasks;
+ using CuriousContraptions.Gpu;
+ 
+ namespace CuriousContraptions;
+@@ -10,6 +11,11 @@ public partial class Workshop
+     private Label _success = null!;
+ 
+     private async void SelectModeFromPicker(int index)
++    {
++        try { await SelectModeFromPickerAsync(index); }
++        catch (Exception error) { HandlerFailed(nameof(SelectModeFromPicker), error); }
++    }
++    private async Task SelectModeFromPickerAsync(int index)
+     {
+         if (!CanEdit)
+         {
+@@ -148,6 +154,11 @@ public partial class Workshop
+         if (first) _status.Text = "Place and rotate both ramps. Manual placement; physical nudging is not yet supported.";
+     }
+     private async void ChangePrecision(double value)
++    {
++        try { await ChangePrecisionAsync(value); }
++        catch (Exception error) { HandlerFailed(nameof(ChangePrecision), error); }
++    }
++    private async Task ChangePrecisionAsync(double value)
+     {
+         if (World.Construction.Puzzle.Id == WorkshopPuzzleId.Free)
+         {

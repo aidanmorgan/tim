@@ -98,7 +98,7 @@ Line numbers are from the working tree on 18 Oct 2026, before Story 9.4b's commi
   - `snapshotFrom(response, savedBytes)` flattens every field to a `path → value` list, writing f32 values as bit strings.
   - `assertSnapshotEqual(a, b)` throws on the first differing path.
   - Rationale: one comparison authority.
-- [ ] `tools/e2e/run-reset-snapshot.test.ts` -- unit tests that need no Chrome:
+- [ ] `tools/e2e/unit/run-reset-snapshot.test.ts`: unit tests that need no Chrome. They live under `unit/` so the Story 9R.0a runner doesn't treat them as a Chrome suite (coordinator, 19 Oct 2026).
   - identical snapshots pass;
   - one flipped f32 bit fails and names that path;
   - −0 against +0 fails;

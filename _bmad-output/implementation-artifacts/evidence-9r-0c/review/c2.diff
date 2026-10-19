@@ -1,0 +1,494 @@
+diff --git a/CuriousContraptions.csproj b/CuriousContraptions.csproj
+index c8d24fd6..4bcc85d5 100644
+--- a/CuriousContraptions.csproj
++++ b/CuriousContraptions.csproj
+@@ -37,7 +37,6 @@
+         <Compile Include="engine/BallMaterialResource.cs" />
+         <Compile Include="engine/PartRegistry.cs" />
+         <Compile Include="engine/PartId.cs" />
+-        <Compile Include="engine/UndeliveredParts.cs" />
+         <Compile Include="engine/Workbench.cs" />
+         <Compile Include="engine/IResizablePart.cs" />
+         <Compile Include="ui/Workshop.cs" />
+diff --git a/CuriousContraptions.tests/PalettePlacementTests.cs b/CuriousContraptions.tests/PalettePlacementTests.cs
+index 5dcdb5f8..35fd2a02 100644
+--- a/CuriousContraptions.tests/PalettePlacementTests.cs
++++ b/CuriousContraptions.tests/PalettePlacementTests.cs
+@@ -29,7 +29,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         {
+             // The list comes from the palette the player sees, never from a hand-written copy.
+             var palette = WorkshopInventoryPolicy.Free.Keys.ToArray();
+-            Assert.Equal(world.Registry.Definitions.Count, palette.Length);
++            Assert.Equal(world.Registry.Definitions.Keys.OrderBy(id => id), palette.OrderBy(id => id));
+             var body = 1u;
+             foreach (var id in palette)
+             {
+@@ -119,6 +119,52 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         finally { world.Free(); }
+     }
+ 
++    [Fact]
++    public void AProposalWhoseLessonRefusesTheCapturedPartIsATypedRejectionWithoutUndo()
++    {
++        var world = DiscoveredWorld();
++        try
++        {
++            var lesson = SpringboardLessons.Create(WorkshopPuzzleId.ReadyToRebound, new(1), WorkshopCadenceSettings.Default(),
++                new(1), new(2), new(3), new((Half).5));
++            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world, lesson);
++            var undo = 0;
++            // The Receiver captures, but the lesson's Receiver composition refuses an identity outside the authored domain.
++            var refused = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(1UL << 32), BenchPoint, Quaternion.Identity,
++                null, null, () => undo++);
++            Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
++            Assert.StartsWith("Placement rejected: ", refused.Message);
++            Assert.Equal(0, undo);
++            Assert.Equal(lesson, refused.Construction);
++            // Control: the same lesson composes its Receiver at an authored identity and records one undo.
++            var composed = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(4), BenchPoint, Quaternion.Identity,
++                null, null, () => undo++);
++            Assert.Equal(BenchPlacementRejection.None, composed.Rejection);
++            Assert.Equal(1, undo);
++            Assert.Equal(new GpuBodyId(4), composed.Construction.Puzzle.Goal.Target);
++        }
++        finally { world.Free(); }
++    }
++
++    [Fact]
++    public void ThePaletteIsTheCanonicalOrderFilteredOnlyByTheUndeliveredSetBeforeAndAfterDiscover()
++    {
++        var canonical = WorkshopInventoryPolicy.CanonicalOrder;
++        // Story 12.1 delivers a part by removing it from the set alone: it then appears in its canonical row.
++        var withoutTennis = UndeliveredParts.Ids.Where(id => id != PartId.Tennis).ToHashSet();
++        var delivered = WorkshopInventoryPolicy.FreeRows(canonical, withoutTennis).Keys.ToList();
++        Assert.Equal(delivered.IndexOf(PartId.Springboard) + 1, delivered.IndexOf(PartId.Tennis));
++        Assert.DoesNotContain(PartId.Balloon, delivered);
++        Assert.Equal(canonical.Where(id => !UndeliveredParts.Contains(id)),
++            WorkshopInventoryPolicy.FreeRows(canonical, UndeliveredParts.Ids).Keys);
++        // The shared Free inventory never offers an undelivered part, before any Discover (static reset) or after one.
++        typeof(WorkshopInventoryPolicy).GetField("_free", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
++            .SetValue(null, null);
++        Assert.DoesNotContain(WorkshopInventoryPolicy.Free.Keys, UndeliveredParts.Contains);
++        new PartRegistry().Discover();
++        Assert.DoesNotContain(WorkshopInventoryPolicy.Free.Keys, UndeliveredParts.Contains);
++    }
++
+     // The actual Workshop scene and its private bench Click (native-only reflection boundary, as in WorkshopHintTests): the defect's
+     // precondition is restored by putting the part in the inventory and choosing it, then the bench is clicked at a point on the
+     // placement plane. No production setter or test hook exists.
+@@ -126,13 +172,13 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+     private static T Field<T>(Workshop scene, string name) => (T)typeof(Workshop).GetField(name, Private)!.GetValue(scene)!;
+     private static void SetField<T>(Workshop scene, string name, T value) => typeof(Workshop).GetField(name, Private)!.SetValue(scene, value);
+ 
+-    private (Workshop Scene, PlacementClient Client) BenchScene(PartId tool)
++    private (Workshop Scene, PlacementClient Client) BenchScene(PartId tool, PlacementAnswer answer = PlacementAnswer.Pending)
+     {
+         var scene = GD.Load<PackedScene>("res://scenes/workshop.tscn").Instantiate<Workshop>();
+         godot.Tree.Root.AddChild(scene);
+         scene.SetProcess(false);
+         scene.SetPhysicsProcess(false);
+-        var client = new PlacementClient();
++        var client = new PlacementClient(answer);
+         typeof(MachineWorld).GetField("_workshopClient", Private)!.SetValue(scene.World, client);
+         typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+         SetField(scene, "_gpuPending", false); // a ready Workshop: natively the browser client never initialises
+@@ -190,8 +236,51 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         finally { Release(scene); }
+     }
+ 
+-    /// <summary>Records each command and never answers it: placement admission is outside this fixture.</summary>
+-    private sealed class PlacementClient : IWorkshopClient
++    [Fact]
++    public void AnAdmittedPlacementWhosePresentationFailsConsumesItsIdentityAndFailsLoudly()
++    {
++        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
++        var detail = Field<Label>(scene, "_detail");
++        try
++        {
++            // Fault injection after admission: only Select, which runs once the worker has applied the part, writes this label.
++            SetField<Label?>(scene, "_detail", null);
++            ClickBench(scene);
++            godot.Engine.Iteration(); // the async handler's failure surfaces through Godot's synchronization context
++            godot.Errors.Expect("was admitted, but presenting it failed");
++            Assert.Equal(new GpuBodyId(2), Field<GpuBodyId>(scene, "_nextId"));
++            Assert.Single(Field<List<WorkshopConstruction>>(scene, "_undo")); // the admitted placement keeps its undo entry
++            // The next placement takes a fresh identity instead of silently replacing the admitted part.
++            ClickBench(scene);
++            godot.Engine.Iteration();
++            godot.Errors.Expect("was admitted, but presenting it failed");
++            Assert.Equal(2, client.Commands.Count);
++            Assert.Equal([new GpuBodyId(1), new GpuBodyId(2)],
++                Assert.NotNull(client.Commands[1].Construction).Instances.Select(instance => instance.Id));
++        }
++        finally { SetField(scene, "_detail", detail); Release(scene); }
++    }
++
++    [Fact]
++    public void ARefusedPlacementLeavesNoUndoAndKeepsItsIdentity()
++    {
++        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Rejected);
++        try
++        {
++            ClickBench(scene);
++            Assert.Single(client.Commands);
++            Assert.StartsWith("Placement rejected: ", Field<Label>(scene, "_status").Text);
++            Assert.Empty(Field<List<WorkshopConstruction>>(scene, "_undo"));
++            Assert.Equal(new GpuBodyId(1), Field<GpuBodyId>(scene, "_nextId"));
++        }
++        finally { Release(scene); }
++    }
++
++    private enum PlacementAnswer { Pending, Applied, Rejected }
++
++    /// <summary>Records each command and answers it as configured: never (pending), Applied with an empty body read (a static
++    /// part has no dynamic bodies), or Rejected.</summary>
++    private sealed class PlacementClient(PlacementAnswer answer) : IWorkshopClient
+     {
+         public List<(WorkshopCommandKind Kind, WorkshopConstruction? Construction)> Commands { get; } = [];
+         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
+@@ -210,7 +299,15 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+             WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+         {
+             Commands.Add((kind, construction));
+-            return new TaskCompletionSource<WorkshopDelivery>().Task;
++            if (answer == PlacementAnswer.Pending) return new TaskCompletionSource<WorkshopDelivery>().Task;
++            var result = answer == PlacementAnswer.Applied
++                ? new WorkshopCommandResult(WorkshopCommandOutcome.Applied, WorkshopRejection.None)
++                : new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction);
++            var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,
++                WorkshopSimulationPhase.Building, new WorkshopRead(Epoch, new(0), default, Revision,
++                    new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))),
++                Session: new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
++            return Task.FromResult(new WorkshopDelivery(response, true));
+         }
+         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No command is pending in this fixture.");
+         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+diff --git a/CuriousContraptions.tests/PartRegistryTests.cs b/CuriousContraptions.tests/PartRegistryTests.cs
+index 5a6824cb..8a72cb15 100644
+--- a/CuriousContraptions.tests/PartRegistryTests.cs
++++ b/CuriousContraptions.tests/PartRegistryTests.cs
+@@ -87,6 +87,34 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+         }
+     }
+ 
++    [Fact]
++    public void Admit_RefusesUntypedParametersOnEveryPartButTheClock_AndChecksIdentityFirst()
++    {
++        // A private copy of a real catalogue resource, so the shared cached resource is never mutated.
++        var copy = (PartDefinition)ResourceLoader.Load<PartDefinition>("res://parts/catalog/ramp.tres").Duplicate();
++        try
++        {
++            Assert.Equal(PartAdmission.Registered, PartRegistry.Admit(copy, "ramp copy", new HashSet<PartId>()));
++            copy.Parameters = new() { ["mass"] = 1f };
++            Assert.Contains("untyped Parameters",
++                Assert.Throws<ArgumentException>(() => PartRegistry.Admit(copy, "ramp copy", new HashSet<PartId>())).Message);
++            // Control: the Clock alone declares its interval in Parameters.
++            var clock = ResourceLoader.Load<PartDefinition>("res://parts/catalog/clock.tres");
++            Assert.NotEmpty(clock.Parameters);
++            Assert.Equal(PartAdmission.Registered, PartRegistry.Admit(clock, "clock", new HashSet<PartId>()));
++            // An undelivered identity is refused before its content is checked, and still counts as a claimed identity.
++            copy.Id = PartId.Balloon.Value;
++            var seen = new HashSet<PartId>();
++            Assert.Equal(PartAdmission.Undelivered, PartRegistry.Admit(copy, "balloon copy", seen));
++            Assert.Contains("Duplicate part identity",
++                Assert.Throws<ArgumentException>(() => PartRegistry.Admit(copy, "second balloon copy", seen)).Message);
++            copy.Id = "";
++            Assert.Contains("missing or empty Id",
++                Assert.Throws<ArgumentException>(() => PartRegistry.Admit(copy, "anonymous copy", new HashSet<PartId>())).Message);
++        }
++        finally { copy.Dispose(); }
++    }
++
+     [Fact]
+     public void Create_ThrowsArgumentException_OnUnknownOrUnregisteredPartId()
+     {
+diff --git a/engine/PartRegistry.cs b/engine/PartRegistry.cs
+index 4d492f0d..ed82ff43 100644
+--- a/engine/PartRegistry.cs
++++ b/engine/PartRegistry.cs
+@@ -1,9 +1,13 @@
+ using Godot;
++using CuriousContraptions.Gpu;
+ using System;
+ using System.Collections.Generic;
+ 
+ namespace CuriousContraptions;
+ 
++/// <summary>What admission decided for one catalogue resource.</summary>
++public enum PartAdmission { Registered, Undelivered }
++
+ public sealed class PartRegistry
+ {
+     private readonly Dictionary<PartId, PartDefinition> _definitions = new();
+@@ -14,7 +18,7 @@ public sealed class PartRegistry
+         _definitions.Clear();
+         var files = DirAccess.GetFilesAt("res://parts/catalog");
+         Array.Sort(files, StringComparer.Ordinal);
+-        var loadedAny = false;
++        var seen = new HashSet<PartId>();
+ 
+         foreach (var file in files)
+         {
+@@ -26,40 +30,49 @@ public sealed class PartRegistry
+ 
+             var path = "res://parts/catalog/" + fileName;
+ 
+-            var definition = ResourceLoader.Load<PartDefinition>(path);
+-            if (definition is null || definition.Scene is null)
+-                throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
+-
+-            if (string.IsNullOrWhiteSpace(definition.Id))
+-                throw new ArgumentException($"Canonical resource '{path}' has missing or empty Id.");
+-
+-            var id = definition.PartId;
+-            // Admission is the checked-in typed set, never the resource's contents (Story 9R.0c). The registry owns the
+-            // resource it refuses and releases it here, on the main thread; a dropped wrapper's finalizer would otherwise
+-            // release it on the GC thread while a later Load reuses the cached resource.
+-            if (UndeliveredParts.Contains(id))
++            var definition = ResourceLoader.Load<PartDefinition>(path)
++                ?? throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
++            if (Admit(definition, path, seen) == PartAdmission.Undelivered)
+             {
++                // The registry owns the resource it refuses and releases it here, on the main thread; a dropped wrapper's
++                // finalizer would otherwise release it on the GC thread while a later Load reuses the cached resource.
+                 definition.Dispose();
+                 continue;
+             }
+ 
+-            if (definition.Parameters.Count != 0 && id != PartId.Clock)
+-                throw new ArgumentException($"Canonical resource '{path}' declares untyped Parameters.");
+-
+-            if (_definitions.ContainsKey(id))
+-                throw new ArgumentException($"Duplicate part identity '{id}' encountered in '{path}'.");
+-
++            var id = definition.PartId;
+             if (definition.Ball is not null && (id == PartId.Basketball || id == PartId.BowlingBall))
+                 definition.Ball.Capture(id);
+ 
+             _definitions.Add(id, definition);
+-            loadedAny = true;
+         }
+ 
+-        if (!loadedAny)
++        if (_definitions.Count == 0)
+             throw new ArgumentException("No valid catalogue parts were discovered.");
+ 
+-        Gpu.WorkshopInventoryPolicy.GenerateFree(_definitions.Keys);
++        WorkshopInventoryPolicy.GenerateFree(_definitions.Keys);
++    }
++
++    /// <summary>
++    /// Admission is the checked-in typed <see cref="UndeliveredParts"/> set, never the resource's contents (Story 9R.0c). Identity
++    /// comes first, so a second resource claiming any identity, delivered or not, is a duplicate; an undelivered part is refused
++    /// before its content is checked; a delivered part must have a scene and no untyped Parameters (the Clock alone declares its
++    /// interval there).
++    /// </summary>
++    internal static PartAdmission Admit(PartDefinition definition, string path, ISet<PartId> seen)
++    {
++        if (string.IsNullOrWhiteSpace(definition.Id))
++            throw new ArgumentException($"Canonical resource '{path}' has missing or empty Id.");
++        var id = definition.PartId;
++        if (!seen.Add(id))
++            throw new ArgumentException($"Duplicate part identity '{id}' encountered in '{path}'.");
++        if (UndeliveredParts.Contains(id))
++            return PartAdmission.Undelivered;
++        if (definition.Scene is null)
++            throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
++        if (definition.Parameters.Count != 0 && id != PartId.Clock)
++            throw new ArgumentException($"Canonical resource '{path}' declares untyped Parameters.");
++        return PartAdmission.Registered;
+     }
+ 
+     public MachinePart Create(PartId id)
+diff --git a/engine/UndeliveredParts.cs b/engine/gpu/UndeliveredParts.cs
+similarity index 50%
+rename from engine/UndeliveredParts.cs
+rename to engine/gpu/UndeliveredParts.cs
+index 111d99d7..b62c1981 100644
+--- a/engine/UndeliveredParts.cs
++++ b/engine/gpu/UndeliveredParts.cs
+@@ -1,19 +1,24 @@
+ using System;
++using System.Collections.Frozen;
+ using System.Collections.Generic;
++using System.Collections.ObjectModel;
+ using System.Linq;
+ 
+-namespace CuriousContraptions;
++namespace CuriousContraptions.Gpu;
+ 
+ /// <summary>
+ /// Catalogue parts whose resources still ship but whose instance path (capture, ball material, workbench footprint and save
+-/// decode) is not delivered. They never enter the registry or the Free palette. Story 9A.14 deletes their resources and
+-/// <see cref="PartId"/> members; Story 12.1 returns them as real element packages and removes them from this set.
++/// decode) is not delivered. This set is the single admission authority: the registry does not register them and the Free
++/// palette does not offer them. Story 9A.14 deletes their resources and <see cref="PartId"/> members; Story 12.1 returns them
++/// as real element packages by removing them from this set.
+ /// </summary>
+ public enum UndeliveredPart { Tennis, Balloon }
+ 
+ public static class UndeliveredParts
+ {
+-    public static IReadOnlyList<UndeliveredPart> All { get; } = Enum.GetValues<UndeliveredPart>();
++    public static IReadOnlyList<UndeliveredPart> All { get; } = new ReadOnlyCollection<UndeliveredPart>(Enum.GetValues<UndeliveredPart>());
++
++    public static IReadOnlySet<PartId> Ids { get; } = All.Select(Id).ToFrozenSet();
+ 
+     public static PartId Id(UndeliveredPart part) => part switch
+     {
+@@ -22,5 +27,5 @@ public static class UndeliveredParts
+         _ => throw new ArgumentOutOfRangeException(nameof(part), part, "Unknown undelivered part.")
+     };
+ 
+-    public static bool Contains(PartId id) => All.Any(part => Id(part) == id);
++    public static bool Contains(PartId id) => Ids.Contains(id);
+ }
+diff --git a/engine/UndeliveredParts.cs.uid b/engine/gpu/UndeliveredParts.cs.uid
+similarity index 100%
+rename from engine/UndeliveredParts.cs.uid
+rename to engine/gpu/UndeliveredParts.cs.uid
+diff --git a/engine/gpu/WorkshopInventory.cs b/engine/gpu/WorkshopInventory.cs
+index ee9f01ef..5ed1b3f5 100644
+--- a/engine/gpu/WorkshopInventory.cs
++++ b/engine/gpu/WorkshopInventory.cs
+@@ -43,8 +43,9 @@ public sealed class PartInventory : IReadOnlyDictionary<PartId, PartAllowance>
+     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+ }
+ 
+-/// <summary>Palette inventory per mode, in palette row order. Free play lists every discovered part without a count; the rows
+-/// name delivered parts only, so an undelivered part (the game's UndeliveredParts set) never reaches the palette.</summary>
++/// <summary>Palette inventory per mode, in palette row order. The canonical order names every catalogue part; Free play lists
++/// each available part in that order without a count, filtered only by <see cref="UndeliveredParts"/>, so delivering a part
++/// (Story 12.1) is removing it from that set.</summary>
+ public static class WorkshopInventoryPolicy
+ {
+     private static readonly PartId[] _canonicalOrder =
+@@ -61,6 +62,8 @@ public static class WorkshopInventoryPolicy
+         PartId.BowlingBall,
+         PartId.Battery,
+         PartId.Springboard,
++        PartId.Tennis,
++        PartId.Balloon,
+         PartId.Pipe,
+         PartId.BallDetector,
+         PartId.PipeBend45,
+@@ -73,17 +76,24 @@ public static class WorkshopInventoryPolicy
+         PartId.Latch
+     ];
+ 
++    internal static IReadOnlyList<PartId> CanonicalOrder => _canonicalOrder;
++
+     private static IReadOnlyDictionary<PartId, PartAllowance>? _free;
+     public static IReadOnlyDictionary<PartId, PartAllowance> Free => _free ??= GenerateFree(_canonicalOrder);
+ 
+     public static IReadOnlyDictionary<PartId, PartAllowance> GenerateFree(IEnumerable<PartId> definitions)
+     {
+-        var set = definitions.ToHashSet();
+-        var ordered = _canonicalOrder.Where(set.Contains);
++        _free = FreeRows(definitions, UndeliveredParts.Ids);
++        return _free;
++    }
++
++    internal static PartInventory FreeRows(IEnumerable<PartId> available, IReadOnlySet<PartId> undelivered)
++    {
++        var set = available.ToHashSet();
++        var ordered = _canonicalOrder.Where(id => set.Contains(id) && !undelivered.Contains(id));
+         var list = ordered.Select(id => (id, PartAllowance.Unlimited)).ToArray();
+         if (list.Length == 0) throw new ArgumentException("Empty registry cannot populate Free inventory.");
+-        _free = new PartInventory(list);
+-        return _free;
++        return new PartInventory(list);
+     }
+ 
+     public static IReadOnlyDictionary<PartId, PartAllowance> Authored(WorkshopPuzzle puzzle)
+diff --git a/ui/Workshop.cs b/ui/Workshop.cs
+index 1bd2f7e5..d57021a5 100644
+--- a/ui/Workshop.cs
++++ b/ui/Workshop.cs
+@@ -517,16 +517,18 @@ public partial class Workshop : Node3D
+             var rotation = _preview?.Quaternion ?? Quaternion.Identity;
+             var chosen = _tool.Value;
+             var placedId = _nextId;
++            // The proposal is the typed rejection path: a part that cannot be captured or composed leaves no undo entry.
++            var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
++                _preview?.RampDimensions, _preview?.WallDimensions, PushUndo);
++            if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
++            var accepted = false;
++            try { accepted = await SubmitConstruction(placement.Construction); }
++            finally { if (!accepted && !_workshopUiRemoved && _undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); }
++            if (!accepted || _workshopUiRemoved) return;
++            // The worker admitted the part: its identity is consumed before any presentation step can fail.
++            _nextId = new(placedId.Value + 1);
+             try
+             {
+-                // Capture precedes undo: an uncapturable part is one typed rejection and leaves no undo entry.
+-                var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
+-                    _preview?.RampDimensions, _preview?.WallDimensions, PushUndo);
+-                if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
+-                var accepted = await SubmitConstruction(placement.Construction);
+-                if (_workshopUiRemoved) return;
+-                if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }
+-                _nextId = new(_nextId.Value + 1);
+                 var part = World.Parts.Single(p => p.AuthoredId == placedId);
+                 Select(part);
+                 _tool = null;
+@@ -536,7 +538,14 @@ public partial class Workshop : Node3D
+                 _dragging = false;
+                 _status.Text = "Drag to slide. Choose arrows to move or rings to rotate.";
+             }
+-            catch (Exception error) { if (_workshopUiRemoved) return; World.RestoreConstructionPresentation(); _status.Text = error.Message; }
++            catch (Exception error)
++            {
++                // Never swallowed: the admitted part stays admitted, and the failure is logged with its context and rethrown.
++                var failure = new InvalidOperationException(
++                    $"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed.", error);
++                GD.PushError(failure.ToString());
++                throw failure;
++            }
+         }
+         else
+         {
+diff --git a/ui/WorkshopBenchPlacement.cs b/ui/WorkshopBenchPlacement.cs
+index 3171b002..ac84b015 100644
+--- a/ui/WorkshopBenchPlacement.cs
++++ b/ui/WorkshopBenchPlacement.cs
+@@ -4,14 +4,16 @@ using System;
+ 
+ namespace CuriousContraptions;
+ 
+-/// <summary>Why a bench placement produced no proposed construction. UnsupportedPart covers any ArgumentException from
+-/// MachineWorld.CaptureInstance, not only an unknown part id (for example a ball resource whose material bits are invalid).</summary>
++/// <summary>Why a bench placement produced no proposed construction. UnsupportedPart covers any failure to capture the part or
++/// to compose it into the current construction, not only an unknown part id (for example a lesson that refuses the part's
++/// identity).</summary>
+ public enum BenchPlacementRejection { None, UnsupportedPart }
+ 
+ /// <summary>One bench placement attempt. A rejection carries the unchanged construction and its player-visible message.</summary>
+ public readonly record struct BenchPlacementProposal(BenchPlacementRejection Rejection, WorkshopConstruction Construction, string Message);
+ 
+-/// <summary>The bench click's placement decision: capture the chosen part, then record undo only for a captured part.</summary>
++/// <summary>The bench click's placement decision: capture the chosen part and compose the whole proposed construction, then
++/// record undo only for a complete proposal.</summary>
+ public static class WorkshopBenchPlacement
+ {
+     public static BenchPlacementProposal Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation,
+@@ -19,14 +21,14 @@ public static class WorkshopBenchPlacement
+     {
+         ArgumentNullException.ThrowIfNull(world);
+         ArgumentNullException.ThrowIfNull(pushUndo);
+-        IWorkshopInstance instance;
+-        try { instance = world.CaptureInstance(part, body, position, rotation, rampDimensions, wallDimensions); }
+-        catch (ArgumentException error)
++        WorkshopConstruction proposed;
++        try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, rampDimensions, wallDimensions)); }
++        catch (Exception error)
+         {
+-            // A part without a capture path is refused here, before any undo entry exists.
++            // A part that cannot be captured or composed is refused here, before any undo entry exists.
+             return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {error.Message}");
+         }
+         pushUndo();
+-        return new(BenchPlacementRejection.None, world.Construction.WithInstance(instance), string.Empty);
++        return new(BenchPlacementRejection.None, proposed, string.Empty);
+     }
+ }

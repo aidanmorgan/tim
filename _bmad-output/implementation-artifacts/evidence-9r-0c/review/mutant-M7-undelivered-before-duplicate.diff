@@ -1,0 +1,15 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine/PartRegistry.cs	2026-10-19 16:47:29.554592744 +0800
++++ engine/PartRegistry.cs	2026-10-19 16:51:32.674317948 +0800
+@@ -64,10 +64,10 @@
+         if (string.IsNullOrWhiteSpace(definition.Id))
+             throw new ArgumentException($"Canonical resource '{path}' has missing or empty Id.");
+         var id = definition.PartId;
+-        if (!seen.Add(id))
+-            throw new ArgumentException($"Duplicate part identity '{id}' encountered in '{path}'.");
+         if (UndeliveredParts.Contains(id))
+             return PartAdmission.Undelivered;
++        if (!seen.Add(id))
++            throw new ArgumentException($"Duplicate part identity '{id}' encountered in '{path}'.");
+         if (definition.Scene is null)
+             throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
+         if (definition.Parameters.Count != 0 && id != PartId.Clock)

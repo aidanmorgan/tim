@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine4/Workshop.cs	2026-10-19 17:42:29.771897625 +0800
++++ ui/Workshop.cs	2026-10-19 17:46:11.182212789 +0800
+@@ -827,7 +827,7 @@
+     private async void Save()
+     {
+         try { await SaveAsync(); }
+-        catch (Exception error) { HandlerFailed(nameof(Save), error); }
++        catch (InvalidOperationException error) { HandlerFailed(nameof(Save), error); }
+     }
+     private async Task SaveAsync()
+     {

@@ -1,0 +1,85 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.77]     CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder [FAIL]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                 ↓ (pos 12)
+Expected: [···, battery, spring, pipe, ball_detector, pipe_bend_45, ···]
+Actual:   [···, battery, spring, tennis, balloon, pipe, ···]
+                                 ↑ (pos 12)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 169
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.43]     CuriousContraptions.Tests.BasketballResourceTests.ActualResourceAndSceneUseCanonicalMaterialBits [FAIL]
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ActualResourceAndSceneUseCanonicalMaterialBits [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                ↓ (pos 2)
+Expected: [ball, ball_detector, basket, battery, bowling, ···]
+Actual:   [ball, ball_detector, balloon, basket, battery, ···]
+                                ↑ (pos 2)
+  Stack Trace:
+     at CuriousContraptions.Tests.BasketballResourceTests.ActualResourceAndSceneUseCanonicalMaterialBits() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/BasketballResourceTests.cs:line 34
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.66]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "tennis") [FAIL]
+[xUnit.net 00:00:03.66]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "balloon") [FAIL]
+[xUnit.net 00:00:03.67]     CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "no-such-part") [FAIL]
+[xUnit.net 00:00:03.67]     CuriousContraptions.Tests.PalettePlacementTests.UndeliveredPartsShipResourcesButHaveNoInstancePathAndNeverReachTheRegistryOrPalette [FAIL]
+[xUnit.net 00:00:03.67]     CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave [FAIL]
+[xUnit.net 00:00:03.68]     CuriousContraptions.Tests.PartRegistryTests.Discover_LoadsEveryDeliveredPart_AndExcludesUndeliveredParts [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "tennis") [2 ms]
+  Error Message:
+   System.ArgumentException : Unsupported instance part id 'tennis'.
+  Stack Trace:
+     at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.Gpu.cs:line 128
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/ui/WorkshopBenchPlacement.cs:line 22
+   at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 84
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "balloon") [2 ms]
+  Error Message:
+   System.ArgumentException : Unsupported instance part id 'balloon'.
+  Stack Trace:
+     at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.Gpu.cs:line 128
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/ui/WorkshopBenchPlacement.cs:line 22
+   at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 84
+   at InvokeStub_PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "no-such-part") [1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported instance part id 'no-such-part'.
+  Stack Trace:
+     at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.Gpu.cs:line 128
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/ui/WorkshopBenchPlacement.cs:line 22
+   at CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(String external) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 84
+   at InvokeStub_PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PalettePlacementTests.UndeliveredPartsShipResourcesButHaveNoInstancePathAndNeverReachTheRegistryOrPalette [4 ms]
+  Error Message:
+   tennis must not be registered.
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.UndeliveredPartsShipResourcesButHaveNoInstancePathAndNeverReachTheRegistryOrPalette() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 64
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave [2 ms]
+  Error Message:
+   System.ArgumentException : Unsupported instance part id 'tennis'.
+  Stack Trace:
+     at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/engine/MachineWorld.Gpu.cs:line 128
+   at CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndRoundTripsThroughTheSave() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PalettePlacementTests.cs:line 35
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PartRegistryTests.Discover_LoadsEveryDeliveredPart_AndExcludesUndeliveredParts [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 22
+Actual:   24
+  Stack Trace:
+     at CuriousContraptions.Tests.PartRegistryTests.Discover_LoadsEveryDeliveredPart_AndExcludesUndeliveredParts() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a67f1ccf03b1c80b5/CuriousContraptions.tests/PartRegistryTests.cs:line 17
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     8, Passed:   960, Skipped:     0, Total:   968, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

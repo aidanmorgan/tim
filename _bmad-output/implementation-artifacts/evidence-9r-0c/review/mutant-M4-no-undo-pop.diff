@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/murdoch4/pristine/Workshop.cs	2026-10-19 16:47:29.554085863 +0800
++++ ui/Workshop.cs	2026-10-19 16:50:45.861282676 +0800
+@@ -523,7 +523,7 @@
+             if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
+             var accepted = false;
+             try { accepted = await SubmitConstruction(placement.Construction); }
+-            finally { if (!accepted && !_workshopUiRemoved && _undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); }
++            finally { }
+             if (!accepted || _workshopUiRemoved) return;
+             // The worker admitted the part: its identity is consumed before any presentation step can fail.
+             _nextId = new(placedId.Value + 1);

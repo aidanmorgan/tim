@@ -1,0 +1,22 @@
+fix: Story 9R.0c review round 1 (placement undo, fail-loud presentation, typed palette)
+
+Candidate 1 review found four Medium defects; each is fixed test-first.
+
+- Propose composes the whole construction before recording undo. A lesson
+  that refuses the captured part (ReadyToRebound with a Receiver identity
+  outside the authored domain) left a stale undo entry; any capture or
+  composition exception is now the typed rejection.
+- Click keeps only the proposal as its rejection path. Undo is popped on any
+  pre-acceptance failure, the placed identity is consumed as soon as the
+  worker admits the part, and a later presentation failure is logged with
+  context and rethrown instead of swallowed, so the next placement can never
+  reuse the identity and silently replace the admitted part.
+- Admission is PartRegistry.Admit over one PartDefinition: identity first
+  (duplicates include undelivered ids), the undelivered set before content
+  checks, then scene and untyped Parameters (Clock excepted), now tested.
+- UndeliveredParts moves to engine/gpu and is the single palette authority:
+  the canonical order names every catalogue part and Free filters it by the
+  set before and after Discover, so Story 12.1 only removes an id from it.
+  All is a read-only collection.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

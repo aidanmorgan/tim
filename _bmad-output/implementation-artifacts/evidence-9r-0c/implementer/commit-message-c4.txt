@@ -1,0 +1,10 @@
+test: Story 9R.0c drive a real handler failure through its boundary (R2-M1)
+
+Murdoch-4 round 2: only the source scan named HandlerFailed, so a boundary
+that rethrew or stayed silent would pass every test. The new native test
+fails Undo inside UndoAsync (Select writes a missing detail label) and runs
+it under a recording synchronization context: nothing escapes, exactly one
+error names the handler, and the failure status is shown. The mutants
+"HandlerFailed rethrows" and "HandlerFailed logs nothing" both fail it.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

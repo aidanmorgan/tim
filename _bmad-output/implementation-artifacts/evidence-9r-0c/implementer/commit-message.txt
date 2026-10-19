@@ -1,0 +1,31 @@
+feat: Story 9R.0c undelivered parts leave the palette; bench placement never throws
+
+Story 6.5d removed the Parameters lines from balloon.tres and tennis.tres,
+defeating PartRegistry's resource-text admission check, so both parts entered
+the Free palette. Clicking the bench then threw ArgumentException from
+CaptureInstance inside Workshop.Click's async void, after PushUndo had run.
+
+- Admission is now an explicit typed set (UndeliveredPart enum, owned by
+  Stories 9A.14 and 12.1); the text match is deleted and a non-Clock resource
+  with Parameters now fails fast instead of being skipped silently. Palette
+  rows drop Tennis and Balloon. The registry disposes a refused definition on
+  the main thread: dropping its wrapper raced the GC finalizer against the next
+  cached Load (gchandle FATAL, 6/10 runs without the Dispose, 0/20 with it).
+- Bench placement goes through WorkshopBenchPlacement.Propose: capture first,
+  undo only after a successful capture, and an uncapturable part is one typed
+  BenchPlacementRejection with a visible status message. Click wraps the
+  placement like CommitSelected so nothing escapes async void. Native tests
+  drive the actual Workshop scene's Click with Balloon forced into the
+  inventory (rejection, message, no undo, no command) and with a Ramp
+  control (one Construct, one undo). UnsupportedPart covers any capture
+  ArgumentException (recorded Low).
+- PalettePlacementTests derives the part list from the Free palette and
+  requires capture, ball material, workbench footprint, the save decoder and
+  the worker wire decoder for every part; the three tests that locked Tennis
+  and Balloon in now assert the 22-part contract.
+- tools/e2e/palette-placement.test.ts places every Free palette part through
+  the UI and proves Tennis and Balloon absent by row identity.
+- The Coverage catalogue comment no longer claims Discover admits every
+  catalogue resource.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
