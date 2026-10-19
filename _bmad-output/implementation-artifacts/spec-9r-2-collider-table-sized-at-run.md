@@ -146,7 +146,7 @@ Amelia-7, 20 Oct 2026, on main 8a77f9a9 (9.4b, 9R.0, 9R.0b and 9R.1 landed). Lin
 - Chrome bench, test 1: a static bench has no committed body, and the 9R.1 snapshot requires one, so its Reset and Load legs compare the Save acknowledgement's committed read (`readSnapshot` + `assertSnapshotEqual`) and the stored slot byte for byte (Load: per-instance identity, cell and rotation, since the page revision restarts). Tests 2 and 3 use the 9R.1 snapshot helper (`bodies: 1`).
 
 **Risks, rebaselined under AOT (9R.0b).**
-- Tick cost: natively (Release JIT) the 32-bend bench costs 2.79 ms per tick after the broadphase change (3.70 ms before; insert 2.27 ms, query 0). The BVH is still cleared and every static leaf re-inserted each tick, and insertion is unbalanced, so the cost grows with the static collider count; a bench whose moving body is compiled before the statics gains nothing from caching. Filed for the performance qualification gate (static tree built once at admission), which changes pair order and so needs an owner decision.
+- Tick cost: natively (Release JIT) the 32-bend bench costs 2.79 ms per tick after the broadphase change (3.70 ms before; insert 2.27 ms, query 0). The BVH is still cleared and every static leaf re-inserted each tick, and insertion is unbalanced, so the per-tick re-insert cost still grows with the static collider count (the query cost no longer does). Filed for the performance qualification gate (static tree built once at admission), which changes pair order and so needs an owner decision.
 - Admission cost: gone with the pair loop.
 
 ## Spec Change Log
