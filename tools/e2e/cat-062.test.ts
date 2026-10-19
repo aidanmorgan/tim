@@ -7,7 +7,6 @@ import { decodeWorkshopResponse, type WorkshopResponse } from './workshop-wire.t
 
 const SpringRoute = { Centred: 'Centred', Miss: 'Miss' } as const;
 type SpringRoute = typeof SpringRoute[keyof typeof SpringRoute];
-const preview = process.env.SPRING_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
 const evidence = process.env.SPRING_EVIDENCE_DIR ?? '.anvil/springboard-ui-' + Date.now();
 async function saved(driver: WorkshopDriver): Promise<Buffer> {
     return Buffer.from(await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
@@ -39,7 +38,7 @@ async function construct(driver: WorkshopDriver, route: SpringRoute) {
     return bytes;
 }
 async function observe(driver: WorkshopDriver, milliseconds: number, plateId = '4294968066') {
-    const samples: { time: number; sequence: string; timestamp: string; ball: WorkshopBodyPose; plate: WorkshopBodyPose }[]=[];
+    const samples: { sequence: string; timestamp: string; ball: WorkshopBodyPose; plate: WorkshopBodyPose }[]=[];
     let previousSequence = -1n, previousTime = -1n;
     const started=Date.now();
     while(Date.now()-started<milliseconds){
@@ -49,7 +48,7 @@ async function observe(driver: WorkshopDriver, milliseconds: number, plateId = '
             assert.ok(BigInt(slot.sequence)>previousSequence&&BigInt(slot.timestamp)>previousTime,'New publications advance both sequence and capture time');
             previousSequence=BigInt(slot.sequence);previousTime=BigInt(slot.timestamp);
             if(plateId!=='4294968066')assert.ok(!slot.bodies.some(body=>body.id==='4294968066'),'Retired plate never reappears');
-            samples.push({time:Date.now()-started,sequence:slot.sequence,timestamp:slot.timestamp,ball,plate});
+            samples.push({sequence:slot.sequence,timestamp:slot.timestamp,ball,plate});
         }
         await driver.page.waitForTimeout(15);
     }
@@ -73,7 +72,7 @@ function assertDrop(samples: Awaited<ReturnType<typeof observe>>, route: SpringR
 for(const route of [SpringRoute.Centred,SpringRoute.Miss]){
     test('Springboard actual UI drop/lifecycle '+route,{timeout:120000},async()=>{
         await mkdir(evidence,{recursive:true});
-        const driver=await WorkshopDriver.launch({baseUrl:preview}),errors:string[]=[];
+        const driver=await WorkshopDriver.launch(),errors:string[]=[];
         driver.page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
         driver.page.on('pageerror',error=>errors.push(error.message));
         try{
@@ -98,7 +97,7 @@ for(const route of [SpringRoute.Centred,SpringRoute.Miss]){
 
 test('Springboard actual Step shows compressed plate/coil and Reset restores rendered construction',{timeout:120000},async()=>{
     await mkdir(evidence,{recursive:true});
-    const driver=await WorkshopDriver.launch({baseUrl:preview});
+    const driver=await WorkshopDriver.launch();
     const reads:WorkshopResponse[]=[];driver.page.on('console',message=>{const text=message.text();if(text.startsWith('CCGPU '))reads.push(decodeWorkshopResponse(Buffer.from(text.slice(6),'base64')));});
     try{
         await construct(driver,SpringRoute.Centred);
@@ -148,7 +147,7 @@ const configurations:Record<SpringConfiguration,{stiffness:number;damping:number
 for(const configuration of [SpringConfiguration.SoftUndamped,SpringConfiguration.StiffDamped,SpringConfiguration.Tilted]){
     test('Springboard authored configuration '+configuration,{timeout:120000},async()=>{
         await mkdir(evidence,{recursive:true});
-        const driver=await WorkshopDriver.launch({baseUrl:preview}),errors:string[]=[];
+        const driver=await WorkshopDriver.launch(),errors:string[]=[];
         driver.page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
         driver.page.on('pageerror',error=>errors.push(error.message));
         try{
@@ -195,7 +194,7 @@ for(const configuration of [SpringConfiguration.SoftUndamped,SpringConfiguration
 }
 test('Springboard text settings reject atomically and delete/recreate retires the old plate',{timeout:120000},async()=>{
     await mkdir(evidence,{recursive:true});
-    const driver=await WorkshopDriver.launch({baseUrl:preview}),errors:string[]=[];
+    const driver=await WorkshopDriver.launch(),errors:string[]=[];
     driver.page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
     driver.page.on('pageerror',error=>errors.push(error.message));
     let editAttempt=0;

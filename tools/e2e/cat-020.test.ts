@@ -194,7 +194,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         await driver.run();
         try {
             const started = Date.now();
-            const samples: { t: number; ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
             let previousSeq = -1n;
 
             while (Date.now() - started < 1500) {
@@ -204,7 +204,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
                     const ball = slot.bodies.find(b => b.id === '2');
                     const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
                     if (ball) {
-                        samples.push({ t: Date.now() - started, ball, blade });
+                        samples.push({ ball, blade });
                     }
                 }
                 await driver.page.waitForTimeout(25);
@@ -259,7 +259,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         await driver.run();
         try {
             const started = Date.now();
-            const samples: { t: number; ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
             let previousSeq = -1n;
             let distinctSeqCount = 0;
             let ballMissingCount = 0;
@@ -272,7 +272,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
                     const ball = slot.bodies.find(b => b.id === '2');
                     const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
                     if (ball) {
-                        samples.push({ t: Date.now() - started, ball, blade });
+                        samples.push({ ball, blade });
                     } else ballMissingCount++;
                 }
                 await driver.page.waitForTimeout(15);
@@ -329,7 +329,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         await driver.run();
         try {
             const started = Date.now();
-            const samples: { t: number; ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
             let previousSeq = -1n;
 
             while (Date.now() - started < 3500) {
@@ -339,7 +339,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
                     const ball = slot.bodies.find(b => b.id === '2');
                     const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
                     if (ball) {
-                        samples.push({ t: Date.now() - started, ball, blade });
+                        samples.push({ ball, blade });
                     }
                 }
                 await driver.page.waitForTimeout(15);
@@ -406,7 +406,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         await driver.run();
         try {
             const started = Date.now();
-            const samples: { t: number; ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+            const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
             let previousSeq = -1n;
 
             while (Date.now() - started < 3500) {
@@ -416,7 +416,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
                     const ball = slot.bodies.find(b => b.id === '2');
                     const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
                     if (ball) {
-                        samples.push({ t: Date.now() - started, ball, blade });
+                        samples.push({ ball, blade });
                     }
                 }
                 await driver.page.waitForTimeout(15);

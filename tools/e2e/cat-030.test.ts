@@ -117,7 +117,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         // 4. Run and record trajectory samples
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose }[] = [];
         let prevSeq = -1n;
 
         while (Date.now() - started < 3500) {
@@ -125,7 +125,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
             if (slot && slot.sequence && BigInt(slot.sequence) !== prevSeq) {
                 prevSeq = BigInt(slot.sequence);
                 const ball = slot.bodies.find(b => b.id === '1');
-                if (ball) samples.push({ t: Date.now() - started, ball });
+                if (ball) samples.push({ ball });
             }
             await driver.page.waitForTimeout(25);
         }
@@ -184,7 +184,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         // 4. Run and record trajectory samples
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose }[] = [];
         let prevSeq = -1n;
 
         while (Date.now() - started < 3500) {
@@ -192,7 +192,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
             if (slot && slot.sequence && BigInt(slot.sequence) !== prevSeq) {
                 prevSeq = BigInt(slot.sequence);
                 const ball = slot.bodies.find(b => b.id === '1');
-                if (ball) samples.push({ t: Date.now() - started, ball });
+                if (ball) samples.push({ ball });
             }
             await driver.page.waitForTimeout(25);
         }
@@ -248,7 +248,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         // 4. Run and record trajectory
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose }[] = [];
         let prevSeq = -1n;
 
         while (Date.now() - started < 3500) {
@@ -256,7 +256,7 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
             if (slot && slot.sequence && BigInt(slot.sequence) !== prevSeq) {
                 prevSeq = BigInt(slot.sequence);
                 const ball = slot.bodies.find(b => b.id === '3');
-                if (ball) samples.push({ t: Date.now() - started, ball });
+                if (ball) samples.push({ ball });
             }
             await driver.page.waitForTimeout(25);
         }

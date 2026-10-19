@@ -10,7 +10,6 @@ enum Lesson { Depth=5, Wall=6 }
 enum Route { Paid, Miss }
 enum WorkEffect { Passive, Paid }
 enum CapturePhase { Clear, Latched }
-const URL=process.env.BUMPER_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
 function bodyState(b: BodyRead) {
     return {
         id: b.id(),
@@ -69,7 +68,7 @@ async function difficultyControls(d:WorkshopDriver){
 }
 for(const lesson of [Lesson.Depth,Lesson.Wall])for(const route of [Route.Paid,Route.Miss])
 test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',async()=>{
-    const d=await WorkshopDriver.launch({baseUrl:URL}),reads:WorkshopResponse[]=[],events:WorkshopResponse[]=[],errors:string[]=[];
+    const d=await WorkshopDriver.launch(),reads:WorkshopResponse[]=[],events:WorkshopResponse[]=[],errors:string[]=[];
     d.page.on('console',m=>{const t=m.text();
         if(t.startsWith('CCGPU '))reads.push(decodeWorkshopResponse(Buffer.from(t.slice(6),'base64')));
         if(t.startsWith('CCGPU_RETAINED '))events.push(decodeWorkshopResponse(Buffer.from(t.slice(15),'base64')));

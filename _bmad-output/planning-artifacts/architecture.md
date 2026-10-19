@@ -139,7 +139,7 @@ Samples read-only committed poses from a lock-free pre-allocated `SharedArrayBuf
   - `anvil check --changed` passing with 0 warnings.
   - `dotnet test CuriousContraptions.slnx` passing 100%.
   - Dedicated browser-based Playwright E2E suite executed in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`) passing 100%.
-  - All preceding cumulative browser-based E2E regression suites passing 100% serially in Chrome (`node --test --test-concurrency=1 --test-timeout=150000`).
+  - The required verification tiers' Chrome suites passing 100%, run by `tools/E2eRunner`: the Tier 2 impact selection, and the Tier 3 full run when the story makes a material engine change (timing-sensitive suites alone, the rest on N measured workers).
   - Verification of exact Reset and Save/Load persistence roundtrip in Chrome.
 
 ### AD-11 — Universal glTF 2.0 (.glb) Geometry & Dynamic Part Discovery

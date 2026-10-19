@@ -76,14 +76,13 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         await driver.run();
 
         // Sample poses at ~40ms intervals over 3500 ms to capture trajectory
-        const samples: { t: number; py: number; vy: number }[] = [];
+        const samples: { py: number; vy: number }[] = [];
         const startTime = Date.now();
 
         while (Date.now() - startTime < 3500) {
             const pose = await driver.readLatestPose();
             if (pose && pose.bodies.length > 0) {
                 samples.push({
-                    t: Date.now() - startTime,
                     py: pose.bodies[0].py,
                     vy: pose.bodies[0].vy
                 });

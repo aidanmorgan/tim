@@ -4,7 +4,7 @@
 // the CCGPU command acknowledgement console line, pose-ring publications, the IndexedDB save slot and the CCGOAL_SOLVED console line.
 import { createRequire } from 'node:module';
 import { appendFileSync } from 'node:fs';
-import { raiseCloseFindings, recordCloseFinding } from '../workshop-close-findings.mjs';
+import { raiseCloseFindings, recordCloseFinding, SessionFault, sessionFaultFindings } from '../workshop-close-findings.mjs';
 import type { Browser, BrowserContext, ConsoleMessage, Page, Worker } from 'playwright';
 import { decodeWorkshopResponse, decodeSavedConstruction, ResponseKind } from './workshop-wire.ts';
 
@@ -45,8 +45,22 @@ export interface AnimationSampleRecord {
     timestamp: number;
 }
 
+/** The session faults a test may declare it provokes (WorkshopDriver.closeExpecting); every other observed fault fails the suite. */
+export { SessionFault };
+export type SessionFaultKind = typeof SessionFault[keyof typeof SessionFault];
+
+// The console signals the driver reports as `E2E_OBSERVED <signal> <record>` lines, which tools/E2eRunner counts per file
+// (TapResult's ObservedSignal names). A record matches the first entry whose test it passes.
+const ObservedSignals: readonly { name: string; matches: (text: string) => boolean }[] = [
+    { name: 'DebtFault', matches: text => text.startsWith('CCGPU_DEBT_FAULT') },
+    { name: 'ClockRecalibrated', matches: text => text.startsWith('CCGPU_CLOCK_RECALIBRATED ') },
+    { name: 'ClockReplyRejected', matches: text => text.startsWith('CCGPU_CLOCK_REPLY_REJECTED ') },
+    { name: 'ClockRenewedLate', matches: text => text.startsWith('CCGPU_CLOCK_RENEWED_LATE ') },
+    { name: 'ClockOffsetWide', matches: text => text.startsWith('CCGPU_CLOCK_OFFSET_WIDE') },
+    { name: 'SimulationUnresponsive', matches: text => text.startsWith('CCGPU_TRANSPORT_FAILURE') && text.includes('SimulationUnresponsive') },
+];
+
 export interface WorkshopDriverOptions {
-    baseUrl?: string;
     viewport?: { width: number; height: number };
     /**
      * Every suite fails when a clock mapping recalibrates (Story 9.4b): a recalibration is the counted continue path of
@@ -322,7 +336,8 @@ export class WorkshopDriver {
     readonly browser: Browser;
     readonly context: BrowserContext;
     readonly page: Page;
-    readonly baseUrl: string;
+    /** The runner's own preview (E2E_PREVIEW_URL, required: there is no default port). */
+    readonly previewUrl: string;
     currentLevel: WorkshopLevel = 'free_workshop';
     capturedCount: number = 0;
     private fineRotateOpen = false; // the Fine rotate toggle flips; a page reload or level change rebuilds the menu closed
@@ -341,20 +356,25 @@ export class WorkshopDriver {
     /** Typed CCGPU_CLOCK_RENEWED_LATE records: a stalled requester's lapse renewed by a consistent exchange (R2-F1).
      *  Counted and reported at close, never a failure. */
     readonly clockLateRenewals: string[] = [];
+    /** Every CCGPU_DEBT_FAULT record (simulation debt beyond the 100 ms bound stopped the world): a session fault at close. */
+    readonly debtFaults: string[] = [];
     /** The last console lines other than per-read CCGPU records, for a diagnosable readiness failure. */
     private readonly recentConsole: string[] = [];
     private readonly allowClockRecalibrations: boolean;
 
-    private constructor(browser: Browser, context: BrowserContext, page: Page, baseUrl: string, allowClockRecalibrations: boolean) {
+    private constructor(browser: Browser, context: BrowserContext, page: Page, previewUrl: string, allowClockRecalibrations: boolean) {
         this.browser = browser;
         this.context = context;
         this.page = page;
-        this.baseUrl = baseUrl;
+        this.previewUrl = previewUrl;
         this.allowClockRecalibrations = allowClockRecalibrations;
     }
 
     static async launch(options: WorkshopDriverOptions = {}): Promise<WorkshopDriver> {
-        const baseUrl = options.baseUrl ?? 'http://127.0.0.1:8060/';
+        // One preview URL for every suite, with no default: a suite can never silently hit another agent's stale preview.
+        const previewUrl = process.env.E2E_PREVIEW_URL;
+        if (!previewUrl) throw new Error('E2E_PREVIEW_URL is required: run suites through tools/E2eRunner (tools/e2e/README.md), ' +
+            'or set it to the URL of a preview you started.');
         const viewport = options.viewport ?? { width: 1440, height: 900 };
 
         // E2E_HEADED=1 opens a visible Chrome window so a run can be watched live; E2E_SLOWMO=<ms> slows each Playwright action.
@@ -376,10 +396,10 @@ export class WorkshopDriver {
             worker.on('close', () => undefined);
         });
 
-        const driver = new WorkshopDriver(browser, context, page, baseUrl, options.allowClockRecalibrations === true);
+        const driver = new WorkshopDriver(browser, context, page, previewUrl, options.allowClockRecalibrations === true);
         page.on('console', (msg: ConsoleMessage) => driver.observeConsole(msg.text()));
 
-        await page.goto(baseUrl);
+        await page.goto(previewUrl);
         await driver.waitForReady();
         return driver;
     }
@@ -388,14 +408,11 @@ export class WorkshopDriver {
         if (!text.startsWith('CCGPU ') && !text.startsWith('CCGPU_TICK_TIMES') && !text.startsWith('CCGPU_RETAINED '))
             { this.recentConsole.push(text.slice(0, 300)); if (this.recentConsole.length > 40) this.recentConsole.shift(); }
         if (text.includes('CCGOAL_SOLVED')) this.capturedCount++;
-        if (text.startsWith('CCGPU_CLOCK_RECALIBRATED ')) {
-            this.clockRecalibrations.push(text);
-            if (!this.allowClockRecalibrations) console.error('CLOCK RECALIBRATION (fails this suite at close): ' + text);
-        }
-        if (text.startsWith('CCGPU_CLOCK_REPLY_REJECTED ')) {
-            this.clockReplyRejections.push(text);
-            console.error('MALFORMED CLOCK REPLY (fails this suite at close): ' + text);
-        }
+        const signal = ObservedSignals.find(candidate => candidate.matches(text));
+        if (signal) console.log(`E2E_OBSERVED ${signal.name} ${text.slice(0, 300)}`);
+        if (text.startsWith('CCGPU_CLOCK_RECALIBRATED ')) this.clockRecalibrations.push(text);
+        if (text.startsWith('CCGPU_CLOCK_REPLY_REJECTED ')) this.clockReplyRejections.push(text);
+        if (text.startsWith('CCGPU_DEBT_FAULT')) this.debtFaults.push(text);
         if (text.startsWith('CCGPU_CLOCK_DERIVATION ')) this.clockDerivations.push(text);
         if (text.startsWith('CCGPU_CLOCK_RENEWED_LATE ')) this.clockLateRenewals.push(text);
         if (text.startsWith(ACK_PREFIX)) {
@@ -439,7 +456,13 @@ export class WorkshopDriver {
         raiseCloseFindings(await this.shutdown(), 'after the suite');
     }
 
-    private async shutdown(): Promise<Error[]> {
+    /** OD7 (Story 9R.0a): for a test that deliberately provokes exactly one session fault. Closes now and fails the test at once
+     *  unless that fault occurred and nothing else did; every undeclared fault still fails the suite through close(). */
+    async closeExpecting(fault: SessionFaultKind): Promise<void> {
+        raiseCloseFindings(await this.shutdown(fault), 'closing a session that declared its fault');
+    }
+
+    private async shutdown(expected?: SessionFaultKind): Promise<Error[]> {
         const findings: Error[] = [];
         try { await this.browser.close(); }
         catch (error) { findings.push(error instanceof Error ? error : new Error(`The browser did not close: ${String(error)}`)); }
@@ -450,12 +473,13 @@ export class WorkshopDriver {
         if (this.clockLateRenewals.length > 0)
             console.log(`Session clock late renewals (reported, not a failure): ${this.clockLateRenewals.length}; first: ` +
                 this.clockLateRenewals[0].slice(0, 400));
-        if (this.clockReplyRejections.length > 0)
-            findings.push(new Error(`The session rejected ${this.clockReplyRejections.length} malformed clock reply(ies); first: ` +
-                this.clockReplyRejections[0].slice(0, 400)));
-        if (!this.allowClockRecalibrations && this.clockRecalibrations.length > 0)
-            findings.push(new Error(`The session recalibrated a clock mapping ${this.clockRecalibrations.length} time(s); first: ` +
-                this.clockRecalibrations[0].slice(0, 400)));
+        // Session faults: a debt fault, a malformed clock reply and (unless the probe allows them) a recalibration each fail the
+        // suite, except the one fault a test declared through closeExpecting, which must then have occurred.
+        findings.push(...sessionFaultFindings(new Map<SessionFaultKind, string[]>([
+            [SessionFault.DebtFault, this.debtFaults],
+            [SessionFault.ClockRecalibration, this.allowClockRecalibrations ? [] : this.clockRecalibrations],
+            [SessionFault.ClockReplyRejected, this.clockReplyRejections],
+        ]), expected));
         return findings;
     }
 

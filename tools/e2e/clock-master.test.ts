@@ -6,14 +6,13 @@
 // clock recalibration, and the Workshop keeps running afterwards.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import type { Worker } from 'playwright';
-import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
+import { SessionFault, WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 
-const URL = process.env.CLOCK_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
-// The retired-session screenshot is evidence, never a repository-root file (Godot imports any root image).
-const SCREENSHOT = process.env.CLOCK_EVIDENCE_SCREENSHOT ??
-    fileURLToPath(new globalThis.URL('../../_bmad-output/implementation-artifacts/evidence-9-4b/simulation-unresponsive.png', import.meta.url));
+// The retired-session screenshot is per-run evidence (tools/E2eRunner sets it in the run's output directory), never committed
+// evidence and never a repository-root file (Godot imports any root image).
+const SCREENSHOT = process.env.CLOCK_EVIDENCE_SCREENSHOT;
+if (!SCREENSHOT) throw new Error('CLOCK_EVIDENCE_SCREENSHOT is required: the file path for the retired-session screenshot.');
 const DutyMilliseconds = 20;
 const InjectionMilliseconds = 3000;
 
@@ -81,7 +80,7 @@ function derivationEvidence(driver: WorkshopDriver) {
 }
 
 test('Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build)', { timeout: 120000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL });
+    const driver = await WorkshopDriver.launch();
     const failures: { at: number; text: string }[] = [];
     const recalibrations: string[] = [];
     let injectedAt = 0;
@@ -116,7 +115,7 @@ test('Clock probes are answered while the Simulation worker runs a 20 ms synchro
 // MessageChannel macrotask (WorkshopTickLoop), so a tick cheaper than 3.33 ms keeps up with the 20 ms of competing
 // work per turn (WorkshopTickLoopTests): no Capacity debt stop, no tick failure, no clock fault, poses keep publishing.
 test('A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running)', { timeout: 120000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL });
+    const driver = await WorkshopDriver.launch();
     const failures: string[] = [];
     const recalibrations: string[] = [];
     driver.page.on('console', message => {
@@ -156,7 +155,7 @@ test('A running Basketball keeps up while the Simulation worker runs a 20 ms syn
 // is a counted recalibration of that requester only, and every animation control that arrives meanwhile waits for
 // requalification instead of faulting the session: the running chain still lights its lamp and solves.
 test('A running wired chain survives a 20 ms duty cycle on the Animation worker (Running)', { timeout: 150000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL, allowClockRecalibrations: true });
+    const driver = await WorkshopDriver.launch({ allowClockRecalibrations: true });
     const failures: string[] = [];
     const deferrals: { cause: number; causeName: string }[] = [];
     driver.page.on('console', message => {
@@ -204,7 +203,7 @@ test('A running wired chain survives a 20 ms duty cycle on the Animation worker 
 // longer than the bound faults the session explicitly: one typed SimulationUnresponsive transport failure, and the
 // Workshop shows the retired session.
 test('A Simulation spin beyond the liveness bound faults the session as SimulationUnresponsive; a 600 ms block does not', { timeout: 150000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL });
+    const driver = await WorkshopDriver.launch();
     const failures: { at: number; text: string }[] = [];
     let spunAt = 0;
     driver.page.on('console', message => {
@@ -247,12 +246,34 @@ test('A Simulation spin beyond the liveness bound faults the session as Simulati
     } finally { await driver.close(); }
 });
 
+// OD7 (Story 9R.0a): the contracted Capacity debt stop, declared. A 600 ms Simulation block while Running stays inside the 1000 ms
+// liveness bound, so the session is not retired, but the world owes more than 100 ms of ticks and stops with one typed
+// CCGPU_DEBT_FAULT (WorkshopTickLoop). Every session fails on an undeclared debt fault; this test declares the one it provokes, and
+// fails if it does not occur or if any other session fault does.
+test('A 600 ms Simulation block while Running takes the declared debt stop', { timeout: 120000 }, async () => {
+    const driver = await WorkshopDriver.launch();
+    let closed = false;
+    try {
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(720, 485);
+        await driver.run(0);
+        assert.ok(await driver.readLatestPose(), 'the world is Running before the block');
+        await blockSimulation(simulationWorker(driver), 600);
+        await until(() => driver.debtFaults.length > 0, 5000, driver);
+        await driver.page.waitForTimeout(500);
+        console.log(JSON.stringify({ debtFaults: driver.debtFaults.map(line => line.slice(0, 200)) }));
+        assert.equal(driver.debtFaults.length, 1, 'exactly one debt stop');
+        closed = true;
+        await driver.closeExpecting(SessionFault.DebtFault);
+    } finally { if (!closed) await driver.close(); }
+});
+
 // Murdoch-2 H2/M1 (Story 9.4b): the running derivation check is live, not inert. Skewing the Simulation's own native
 // reading by +0.05 ms (beyond the 0.0158 ms bound, below the 0.1 ms re-derivation threshold) is slewed back at most
 // 0.005 ms per check under the same epoch, with no requester recalibration; a further +1 ms skew re-derives under a new
 // epoch and each requester mapping recalibrates once as counted MasterRederived telemetry, and the session keeps running.
 test('A skewed Simulation clock is slewed back under the same epoch; a large skew re-derives and requesters recalibrate', { timeout: 150000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL, allowClockRecalibrations: true });
+    const driver = await WorkshopDriver.launch({ allowClockRecalibrations: true });
     const failures: string[] = [];
     driver.page.on('console', message => {
         const text = message.text();
@@ -299,7 +320,7 @@ test('A skewed Simulation clock is slewed back under the same epoch; a large ske
 // in that run only moved where the read landed. Unloaded, this replays the former read and proves the ramp on
 // master-time animation ordinals, independent of wall-clock read timing. The chain test above polls instead.
 test('H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit', { timeout: 150000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL });
+    const driver = await WorkshopDriver.launch();
     const failures: string[] = [];
     driver.page.on('console', message => {
         const text = message.text();
@@ -381,7 +402,7 @@ function assertReplaysExactly(original: WorkshopBodyPose[], restored: WorkshopBo
 }
 
 test('A 700 ms Browser stall after ready renews its mapping late: no recalibration; placement, Run/Reset and Save/Load are unaffected', { timeout: 150000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL }); // the strict suite policy: any recalibration fails at close
+    const driver = await WorkshopDriver.launch(); // the strict suite policy: any recalibration fails at close
     try {
         await driver.page.waitForTimeout(AFTER_READY_MS);
         await stallBrowser(driver, 0);
@@ -410,7 +431,7 @@ test('A 700 ms Browser stall after ready renews its mapping late: no recalibrati
 });
 
 test('The same stall with the Browser clock jumping 5 ms disagrees with the old mapping: one recalibration, and the driver fails the suite', { timeout: 150000 }, async () => {
-    const driver = await WorkshopDriver.launch({ baseUrl: URL });
+    const driver = await WorkshopDriver.launch();
     let closed = false;
     try {
         await driver.page.waitForTimeout(AFTER_READY_MS);

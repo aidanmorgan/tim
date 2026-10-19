@@ -137,7 +137,8 @@ public sealed class CSharpStaticGateTests
         ["SelfRegisteredExtensions.cs"] = "SelfRegisteredExtensions",
     };
     private static readonly string[] XunitProjects =
-        ["CuriousContraptions.tests/CuriousContraptions.tests.csproj", "tools/Coverage.Tests/Coverage.Tests.csproj"];
+        ["CuriousContraptions.tests/CuriousContraptions.tests.csproj", "tools/Coverage.Tests/Coverage.Tests.csproj",
+         "tools/E2eRunner.Tests/E2eRunner.Tests.csproj"];
 
     /// <summary>The root .editorconfig, key by key (comments and blank lines excluded).</summary>
     private static readonly string[] EditorConfig =

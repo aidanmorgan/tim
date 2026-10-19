@@ -264,7 +264,7 @@ All currently existing puzzle element implementations must be converted from pro
    - C# Unit tests pass 100% (`dotnet test CuriousContraptions.slnx`, 557+ tests).
    - Anvil static analysis clean with **0 warnings** (`anvil check --changed`).
    - Browser-based E2E Playwright test in actual Chrome passes 100% (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`).
-   - All preceding cumulative E2E regression suites pass 100% serially in Chrome.
+   - The required verification tiers' Chrome suites pass 100%, run by `tools/E2eRunner` (the Tier 2 impact selection; the Tier 3 full run when required).
    - Exact Reset restoration and Save/Load persistence verified in Chrome.
    - Zero legacy remnants verified via codebase grep.
    - Independent adversarial reviewer (Murdoch) terminal scoped `Pass`.

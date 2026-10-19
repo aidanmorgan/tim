@@ -106,7 +106,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
 
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 1800) {
@@ -116,7 +116,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
                 const ball = slot.bodies.find(b => b.id === '2');
                 const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
                 if (ball) {
-                    samples.push({ t: Date.now() - started, ball, blade });
+                    samples.push({ ball, blade });
                 }
             }
             await driver.page.waitForTimeout(25);
@@ -169,7 +169,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
         // 3. Run and observe blade retraction and ball traversal
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 1800) {
@@ -179,7 +179,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
                 const ball = slot.bodies.find(b => b.id === '2');
                 const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
                 if (ball) {
-                    samples.push({ t: Date.now() - started, ball, blade });
+                    samples.push({ ball, blade });
                 }
             }
             await driver.page.waitForTimeout(25);
@@ -220,7 +220,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
         // Run unpowered: gate should remain closed and ball stopped upstream
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose; blade?: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 1800) {
@@ -230,7 +230,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
                 const ball = slot.bodies.find(b => b.id === '2');
                 const blade = slot.bodies.find(b => b.id === BLADE_BODY_ID);
                 if (ball) {
-                    samples.push({ t: Date.now() - started, ball, blade });
+                    samples.push({ ball, blade });
                 }
             }
             await driver.page.waitForTimeout(25);
@@ -281,7 +281,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
         // Run simulation: gate opens and ball rolls downstream
         await driver.run();
         const started = Date.now();
-        const samples: { t: number; ball: WorkshopBodyPose }[] = [];
+        const samples: { ball: WorkshopBodyPose }[] = [];
         let previousSeq = -1n;
 
         while (Date.now() - started < 1800) {
@@ -290,7 +290,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
                 previousSeq = BigInt(slot.sequence);
                 const ball = slot.bodies.find(b => b.id === '2');
                 if (ball) {
-                    samples.push({ t: Date.now() - started, ball });
+                    samples.push({ ball });
                 }
             }
             await driver.page.waitForTimeout(25);
