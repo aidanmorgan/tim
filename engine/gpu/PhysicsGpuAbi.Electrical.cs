@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 public static partial class PhysicsGpuAbi
 {
     public const int ElectricalSourceBytes = 64;
-    public const int ElectricalSourcesOffset = CacheOffset + CacheCapacity * CacheBytes;
+    public const int ElectricalSourcesOffset = MotionOffset + PhysicsMotionRead.ByteLength;
     public const int ElectricalBindingBytes = 16;
     public const int ElectricalBindingsOffset = ElectricalSourcesOffset + ElectricalSupplyPlan.SourceCapacity * ElectricalSourceBytes;
 

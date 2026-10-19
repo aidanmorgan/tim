@@ -33,7 +33,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         // Supplemental immutable-fixture boundary: the player cannot move this locked Receiver, but the compiled scene
         // admits it at the shifted pose. (The former SPRING_COMPILED_FIXTURES export fed the deleted JS-kernel harness.)
-        Assert.Equal(PhysicsGpuAbi.ByteLength, bytes.Length);
+        Assert.Equal(PhysicsGpuAbi.ByteLength(scene.Colliders.Length), bytes.Length);
     }
 
 

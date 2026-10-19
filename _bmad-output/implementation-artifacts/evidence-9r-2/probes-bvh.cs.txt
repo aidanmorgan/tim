@@ -1,0 +1,98 @@
+// Story 9R.2 broadphase probes (temporary members of WorkbenchCapacityTests and WorkshopPhysicsEngine; deleted before commit).
+//
+// Why: the first Chrome run of capacity-9r (scratchpad run cap2, 2026-10-19T20:48Z, runner verdict Fail) raised 5
+// CCGPU_DEBT_FAULT (committedTick 26, 26, 28, 34, 43) on the 2,305- and 2,234-collider benches: the per-tick broadphase rebuild
+// overran the 120 Hz tick under AOT WASM. Spec decision 6 (BVH cost filed as performance) was reversed for this story: AC4
+// requires no worker fault. The fix keeps the tree and the accepted pair order identical (array storage by ref, and skipping
+// subtree pairs that hold only static leaves, exactly the callback's static-static rejection).
+
+// ---- Probe A: per-section tick cost (Release, native JIT), the capacity-9r 32-bend bench (no moving body), 245 ticks ----
+// Temporary instrumentation in WorkshopPhysicsEngine.Advance: Stopwatch.GetTimestamp() before the collider read loop (probe0),
+// before _bvh.Clear() (probe1), before QueryOverlaps (probe2) and before the substep loop (probe3), accumulated into a static
+// long[5] ProbeTimes { read, insert, query, -, ticks }.
+[Fact]
+public async Task ProbeSections()
+{
+    var parts = Enumerable.Range(0, 30)
+        .Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), -6 + i % 6, 3, -3 + i / 6 * 1.5, 0, 0, 0, 1)).ToList();
+    parts.Add(WorkshopInput.PipeBend90(new(31), 3, 3, -2, 0, 0, 0, 1)); parts.Add(WorkshopInput.PipeBend90(new(32), 3, 3, 2, 0, 0, 0, 1));
+    await WorkshopPhysicsEngineTests.Run(Bench(new([.. parts])), 10);
+    Array.Clear(WorkshopPhysicsEngine.ProbeTimes);
+    var watch = System.Diagnostics.Stopwatch.StartNew();
+    await WorkshopPhysicsEngineTests.Run(Bench(new([.. parts])), 240);
+    var t = WorkshopPhysicsEngine.ProbeTimes; var f = 1000.0 / System.Diagnostics.Stopwatch.Frequency / t[4];
+    throw new InvalidOperationException($"ticks={t[4]} total/tick={watch.Elapsed.TotalMilliseconds / 240:F2}ms read={t[0] * f:F3} insert={t[1] * f:F3} query={t[2] * f:F3}");
+}
+// before (List<BvhNode>, full self-traversal): ticks=245 total/tick=3.70ms read=0.212 insert=1.942 query=1.364
+// after  (BvhNode[] by ref, static-only subtree pairs skipped): ticks=245 total/tick=2.79ms read=0.354 insert=2.265 query=0.000
+// Chrome after the change (scratchpad run cap3, 2026-10-19T20:57Z): capacity-9r Pass 3/3, debtFaults=0, closeFindings=0.
+
+// ---- Probe B: bit-identical trajectories before and after the broadphase change (Debug, 240 ticks each) ----
+// SHA-256 over every committed read: each dynamic body's cell (i32 x3), local, velocity, rotation and angular velocity (f32 bits),
+// then each contact-work store's remaining energy.
+public static TheoryData<string> GoldenScenes => new("bumper", "dominoes", "gate", "spring", "receiver", "bowling", "cradle", "balls16", "dominoes16", "gates16", "springs16");
+
+private static WorkshopInstances Golden(string scene) => scene switch
+{
+    "bumper" => new(WorkshopInput.Basketball(new(1), 0, 4.5, 0, 0, 0, 0, 1), WorkshopInput.Bumper(new(2), 0, 3, 0, 0, 0, 0, 1, BumperWork.Default)),
+    "dominoes" => new([.. Enumerable.Range(0, 5).Select(i => (IWorkshopInstance)WorkshopInput.Domino(new((ulong)i + 1), -1 + i * .5, DominoUpright + .01, 0, 0, 0, 0, 1)),
+        WorkshopInput.Ball(PartId.BowlingBall, new(9), -1.3, 1.5, 0, 0, 0, 0, 1)]),
+    "gate" => new(WorkshopInput.Battery(new(1), -2, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+        WorkshopInput.Generic(PartId.PoweredGate, new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders),
+        WorkshopInput.Basketball(new(3), .2, 4, 0, 0, 0, 0, 1)),
+    "spring" => new(WorkshopInput.Springboard(new(1), 0, 1, 0, 0, 0, 0, 1, SpringboardSettings.Default), WorkshopInput.Basketball(new(2), 0, 4, 0, 0, 0, 0, 1)),
+    "receiver" => new(WorkshopInput.Basketball(new(1), -3, 5, 0, 0, 0, 0, 1), WorkshopInput.Ramp(new(2), -3, 2, 0, 0, 0, -.2588, .9659, RampDimensions.Default),
+        WorkshopInput.Receiver(new(3), 0, 1, 0, 0, 0, 0, 1)),
+    "bowling" => new(WorkshopInput.Ball(PartId.BowlingBall, new(1), -3, 5, 0, 0, 0, 0, 1), WorkshopInput.Ramp(new(2), -3, 2, 0, 0, 0, -.2588, .9659, RampDimensions.Default),
+        WorkshopInput.Wall(new(3), 2, 1, 0, 0, 0, 0, 1, WallDimensions.Default)),
+    "cradle" => new([.. Enumerable.Range(0, 30).Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), -6 + i % 6, 3, -3 + i / 6 * 1.5, 0, 0, 0, 1)),
+        WorkshopInput.PipeBend90(new(31), 6, 3, 0, 0, 0, CradleZ, CradleW), WorkshopInput.Basketball(new(32), 6, 3, 0, 0, 0, 0, 1)]),
+    "balls16" => Grid(PartId.Basketball, 16),
+    "dominoes16" => Grid(PartId.Domino, 16),
+    "gates16" => Grid(PartId.PoweredGate, 16),
+    "springs16" => Grid(PartId.Springboard, 16),
+    _ => throw new ArgumentException(scene, nameof(scene)),
+};
+
+[Theory]
+[MemberData(nameof(GoldenScenes))]
+public async Task ProbeGolden(string scene)
+{
+    var reads = await WorkshopPhysicsEngineTests.Run(Bench(Golden(scene)), 240);
+    using var hash = System.Security.Cryptography.IncrementalHash.CreateHash(System.Security.Cryptography.HashAlgorithmName.SHA256);
+    var word = new byte[4];
+    void F(float v) { System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(word, v); hash.AppendData(word); }
+    void I(int v) { System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(word, v); hash.AppendData(word); }
+    foreach (var read in reads)
+    {
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var b = read.Bodies[i];
+            I(b.Body.Cell.X); I(b.Body.Cell.Y); I(b.Body.Cell.Z); F(b.Body.Local.X); F(b.Body.Local.Y); F(b.Body.Local.Z);
+            F(b.Body.Velocity.X); F(b.Body.Velocity.Y); F(b.Body.Velocity.Z);
+            F(b.Rotation.X); F(b.Rotation.Y); F(b.Rotation.Z); F(b.Rotation.W);
+            F(b.AngularVelocity.X); F(b.AngularVelocity.Y); F(b.AngularVelocity.Z);
+        }
+        for (var i = 0; i < read.ContactWorks.Count; i++) F(read.ContactWorks[i].RemainingEnergy.Value);
+    }
+    throw new InvalidOperationException($"GOLDEN {scene} bodies={reads[^1].Bodies.Count} sha256={Convert.ToHexString(hash.GetHashAndReset())}");
+}
+// Before the broadphase change (List<BvhNode>, after the ABI change, which the engine does not read):
+// After the change: every line identical.
+//   GOLDEN balls16    bodies=16 sha256=B9EACC89939308F3D38BB3B014F0878E22EF5FB4F508DF8F8277F3A754F1D433   (before = after)
+//   GOLDEN bowling    bodies=1  sha256=327A5D0155A3987189500FCD336E04879A4F15F926885B8BEF06A7391DAB168B   (before = after)
+//   GOLDEN bumper     bodies=1  sha256=FCB27E1A9CE3A418F7DFE5DA89AC16156A4D9C27B4C7DC27C9839BD8F7BDC150   (before = after)
+//   GOLDEN cradle     bodies=1  sha256=5C1B95C66C652A9EA891749C773926A7D94940AC8456214EEDBE9894ABC31287   (before = after)
+//   GOLDEN dominoes   bodies=6  sha256=6B64B8613295F74C7AC8613E0C8EB6E13090A69327E64D8568E9EEC6F91A81CC   (before = after)
+//   GOLDEN dominoes16 bodies=16 sha256=BA9F321A0B3F1A7FDFF0D18BF7013EDCF9E7E35F255744E0A1C9EF7DE3CC3067   (before = after)
+//   GOLDEN gate       bodies=2  sha256=6339AD9E1FA6E49DC3D0E20CBDD0780EA9E2929DE6D35881DB2B1060CE60E958   (before = after)
+//   GOLDEN gates16    bodies=16 sha256=53802F2FAD6493037AF26BF0F706630FB1587DCAC4AD5A5AD37333656A263342   (before = after)
+//   GOLDEN receiver   bodies=1  sha256=5D8A13F7D689DAB070B3C9C507ACE03410AA4AEA55D7792B0AC50194943F427A   (before = after)
+//   GOLDEN spring     bodies=2  sha256=4C6DB89E1A2DD92CC7DBC59BF171E3E8A599E152CD4A851CC989E292D46AD995   (before = after)
+//   GOLDEN springs16  bodies=16 sha256=1945EC1865AF1B3D149C4BF6CCEAB50B82135D7A8A47A0959CB901CA5C751013   (before = after)
+
+// ---- Mutant M7: prune when either subtree is static-only (|| for &&) in WorkshopDynamicBvh.QueryOverlaps.CheckPair ----
+// dotnet test CuriousContraptions.tests (filter !~Probe): Failed 64, Passed 1657 of 1721, including
+//   WorkbenchCapacityTests.ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(withLastBend: True)
+//   WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab, ...RollingAlongPlusZAboutXAlsoComesToRest, ...
+// Reverted; killed.

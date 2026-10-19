@@ -165,7 +165,6 @@ public sealed class PhysicsSceneDeclaration
 {
     public const int PrismaticCapacity = 16;
     public const int BodyCapacity = 33;
-    public const int ColliderCapacity = 2048;
     public const int MaterialCapacity = 33;
     public const int SensorCapacity = 16;
     public const int GuideCapacity = 16;
@@ -208,7 +207,7 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<SwitchedSupplyRouteDeclaration> switchedSupplies = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
-            prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
+            prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity ||
             materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity ||
             contactWorks.Length > ContactWorkCapacity || orientationSensors.Length > OrientationSensorCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");

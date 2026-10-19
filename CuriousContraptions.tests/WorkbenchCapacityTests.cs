@@ -1,4 +1,5 @@
 using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
 
 namespace CuriousContraptions.Tests;
 
@@ -95,13 +96,16 @@ public sealed class WorkbenchCapacityTests
     }
 
     [Fact]
-    public void HeavyCompoundConstructionsValidateAndCompileSmoothlyWithoutColliderLimits()
+    public async Task HeavyCompoundConstructionsValidateCompileAndStepWithoutColliderLimits()
     {
         // 20 pipes = 480 colliders, 10 pipe bends = 400 colliders (total 880 colliders)
         var heavy = Population((PartId.Pipe, 20), (PartId.PipeBend45, 10));
         Free(heavy).Validate();
         var scene = WorkshopPhysicsCompiler.Compile(Free(heavy), new(1, 2));
         Assert.Equal(20 * 24 + 10 * 40 + 1, scene.Colliders.Length);
+        // Story 9R.2: the 30-instance mixed bench also steps through the production engine.
+        var reads = await WorkshopPhysicsEngineTests.Run(Bench(heavy), SteppedTicks);
+        Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
     }
 
     [Theory]
@@ -159,6 +163,196 @@ public sealed class WorkbenchCapacityTests
         Assert.Equal(PartAllowance.Counted(2), Assert.Single(inventory).Value);
         Assert.Equal(PartAllowance.Counted(1), WorkshopInventoryPolicy.Authored(delayed.Puzzle)[PartId.Delay]);
         Assert.Throws<ArgumentException>(() => WorkshopInventoryPolicy.Authored(default));
+    }
+
+    // ---------- Story 9R.2: the collider table is sized at Run from the compiled construction ----------
+
+    private const int SteppedTicks = 30;
+    private const double DominoUpright = -0.46 + .55;
+    // A cradle: the bend rotated -135 degrees about Z (27 fine-rotate steps of -5 degrees in Chrome), so both mouths point up and
+    // its tube's lowest wall is a valley.
+    private const double CradleZ = -0.9238795, CradleW = 0.3826834;
+
+    /// <summary>Spec D2: per Free palette kind, the largest count Build admits within the 32-instance budget and, when that is
+    /// below 32, the declared budget whose existing message rejects one more.</summary>
+    private static readonly IReadOnlyDictionary<PartId, (int Largest, WorkbenchTable? Rejects)> Budgets = new Dictionary<PartId, (int, WorkbenchTable?)>
+    {
+        [PartId.Basketball] = (16, WorkbenchTable.DynamicBodies),
+        [PartId.BowlingBall] = (16, WorkbenchTable.DynamicBodies),
+        [PartId.Domino] = (16, WorkbenchTable.DynamicBodies),
+        [PartId.Springboard] = (16, WorkbenchTable.Bodies),
+        [PartId.PoweredGate] = (16, WorkbenchTable.Bodies),
+        [PartId.Battery] = (8, WorkbenchTable.ElectricalSources),
+        [PartId.ImpactSwitch] = (8, WorkbenchTable.Triggers),
+        [PartId.PinballBumper] = (8, WorkbenchTable.ContactWork),
+        [PartId.SignalLamp] = (8, WorkbenchTable.ActivationNodes),
+        [PartId.Delay] = (8, WorkbenchTable.ActivationNodes),
+        [PartId.BallDetector] = (8, WorkbenchTable.ActivationNodes),
+        [PartId.Counter] = (8, WorkbenchTable.ActivationNodes),
+        [PartId.Clock] = (8, WorkbenchTable.ActivationNodes),
+        [PartId.Latch] = (8, WorkbenchTable.ActivationNodes),
+        [PartId.Receiver] = (32, null),
+        [PartId.Ramp] = (32, null),
+        [PartId.Wall] = (32, null),
+        [PartId.Pipe] = (32, null),
+        [PartId.PipeBend45] = (32, null),
+        [PartId.PipeBend90] = (32, null),
+        [PartId.Funnel] = (32, null),
+        [PartId.PressurePlate] = (32, null),
+    };
+
+    public static TheoryData<string> FreeKinds => new(WorkshopInventoryPolicy.Free.Keys.Select(kind => kind.Value));
+
+    private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
+    {
+        "ball" or "bowling" => WorkshopInput.Ball(kind, id, x, 4, z, 0, 0, 0, 1),
+        "domino" => WorkshopInput.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
+        "basket" => WorkshopInput.Receiver(id, x, 1, z, 0, 0, 0, 1),
+        "ramp" => WorkshopInput.Ramp(id, x, 2, z, 0, 0, 0, 1, RampDimensions.Default),
+        "wall" => WorkshopInput.Wall(id, x, 2, z, 0, 0, 0, 1, WallDimensions.Default),
+        "switch" => WorkshopInput.Switch(id, x, 1, z, 0, 0, 0, 1, ContactTriggerSettings.Default),
+        "lamp" => WorkshopInput.Lamp(id, x, 1, z, 0, 0, 0, 1),
+        "delay" => WorkshopInput.Delay(id, x, 1, z, 0, 0, 0, 1, DelayDuration.Default),
+        "bumper" => WorkshopInput.Bumper(id, x, 1, z, 0, 0, 0, 1, BumperWork.Default),
+        "battery" => WorkshopInput.Battery(id, x, 1, z, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+        "spring" => WorkshopInput.Springboard(id, x, 1, z, 0, 0, 0, 1, SpringboardSettings.Default),
+        "pipe" => WorkshopInput.Pipe(id, x, 3, z, 0, 0, 0, 1),
+        "ball_detector" => WorkshopInput.BallDetector(id, x, 3, z, 0, 0, 0, 1),
+        "pipe_bend_45" => WorkshopInput.PipeBend45(id, x, 3, z, 0, 0, 0, 1),
+        "pipe_bend_90" => WorkshopInput.PipeBend90(id, x, 3, z, 0, 0, 0, 1),
+        "funnel" => WorkshopInput.Funnel(id, x, 3, z, 0, 0, 0, 1),
+        "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, x, 0, z, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders),
+        "pressure_plate" => WorkshopInput.PressurePlate(id, x, 1, z, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
+        "counter" => WorkshopInput.Counter(id, x, 1, z, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+        "clock" => WorkshopInput.Clock(id, x, 1, z, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
+        "latch" => WorkshopInput.Latch(id, x, 1, z, 0, 0, 0, 1),
+        _ => throw new ArgumentException($"Unsupported palette part '{kind}'.", nameof(kind)),
+    };
+
+    // Eight columns by four rows, wide enough that no moving part starts inside a neighbour.
+    private static WorkshopInstances Grid(PartId kind, int count) =>
+        new([.. Enumerable.Range(0, count).Select(i => Place(kind, new((ulong)i + 1), -6 + i % 8 * 1.6, -5 + i / 8 * 2.5))]);
+
+    // The Story 9.4b harness admits at revision 2 through the production WorkshopSimulation, WorkshopGpuDevice and BrowserGpuTransport.
+    private static WorkshopConstruction Bench(WorkshopInstances instances) => new(new(2), WorkshopCadenceSettings.Default(), instances);
+
+    [Theory]
+    [MemberData(nameof(FreeKinds))]
+    public async Task EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(string kindId)
+    {
+        var kind = new PartId(kindId);
+        var (largest, rejects) = Budgets[kind];
+        if (rejects is { } table)
+        {
+            // Another declared budget rejects 32 first, with its existing Build message; one fewer than the largest count fits.
+            foreach (var count in new[] { WorkshopInstances.Capacity, largest + 1 })
+            {
+                var error = Assert.Throws<WorkbenchFullException>(() => Bench(Grid(kind, count)).Validate());
+                Assert.Equal(table, error.Table);
+                Assert.StartsWith("Workbench is full: ", error.Message);
+            }
+        }
+        else Assert.Equal(WorkshopInstances.Capacity, largest);
+        var bench = Bench(Grid(kind, largest));
+        bench.Validate();
+        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        Assert.Equal(1 + largest * WorkbenchFootprint.Of(kind).Colliders, scene.Colliders.Length);
+        var reads = await WorkshopPhysicsEngineTests.Run(bench, SteppedTicks);
+        Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
+    }
+
+    [Fact]
+    public void TheBudgetTableCoversExactlyTheFreePaletteAndExcludesTheUndeliveredParts()
+    {
+        Assert.Equal(WorkshopInventoryPolicy.Free.Keys.OrderBy(kind => kind.Value), Budgets.Keys.OrderBy(kind => kind.Value));
+        // Spec D2: Tennis and Balloon throw in CaptureInstance and Story 9R.0c removed them from the palette, so Build never admits them.
+        foreach (var undelivered in new[] { PartId.Tennis, PartId.Balloon })
+        {
+            Assert.False(WorkshopInventoryPolicy.Free.ContainsKey(undelivered));
+            Assert.Throws<ArgumentException>(() => WorkbenchFootprint.Of(undelivered));
+        }
+    }
+
+    // The plane alone, then 28 bends (2,017 colliders) and 29 bends (2,089) straddling the retired 2,048 ceiling, then the full bench.
+    [Theory]
+    [InlineData(0)]
+    [InlineData(28)]
+    [InlineData(29)]
+    [InlineData(32)]
+    public async Task BendBenchesAcrossTheRetiredColliderCeilingCompileAndStep(int bends)
+    {
+        var bench = Bench(Grid(PartId.PipeBend90, bends));
+        bench.Validate();
+        Assert.Equal(1 + bends * 72, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Colliders.Length);
+        var reads = await WorkshopPhysicsEngineTests.Run(bench, SteppedTicks);
+        Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
+    }
+
+    // Thirty bends to the left, then (with the last bend) a cradle around the ball: 31 x 72 + plane + ball = 2,234 colliders, and the
+    // ball rests inside the cradle's tube on colliders whose slots lie beyond the retired 2,048 ceiling. The geometry is the
+    // capacity-9r Chrome bench's (placement plane y 3). Control: without that bend the ball falls to the bench.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(bool withLastBend)
+    {
+        var parts = Enumerable.Range(0, 30)
+            .Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), -6 + i % 6, 3, -3 + i / 6 * 1.5, 0, 0, 0, 1))
+            .ToList();
+        var cradle = new GpuBodyId(31);
+        if (withLastBend) parts.Add(WorkshopInput.PipeBend90(cradle, 6, 3, 0, 0, 0, CradleZ, CradleW));
+        var ball = WorkshopInput.Basketball(new(32), 6, 3, 0, 0, 0, 0, 1);
+        parts.Add(ball);
+        var bench = Bench(new([.. parts]));
+        bench.Validate();
+        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        Assert.Equal(withLastBend ? 2234 : 2162, scene.Colliders.Length);
+        if (withLastBend)
+            Assert.All(Enumerable.Range(0, scene.Colliders.Length).Where(slot => scene.Colliders[slot].Body == cradle),
+                slot => Assert.True(slot > 2048, $"cradle collider slot {slot} lies beyond the retired ceiling"));
+        var reads = await WorkshopPhysicsEngineTests.Run(bench, 3 * 120);
+        var rest = reads[^1].Bodies[0];
+        Assert.Equal(ball.Id, rest.Body.Id);
+        var height = (rest.Body.Cell.Y + rest.Body.Local.Y) / 16f;
+        if (withLastBend) Assert.InRange(height, 2.5f, 2.9f); // resting on the cradle tube's lowest wall
+        else Assert.True(height < 0, $"without the cradle the ball falls to the bench (height {height})");
+    }
+
+    [Fact]
+    public void ThirtyThreeBendsAreRejectedAtBuildWithThePartTableMessage()
+    {
+        var error = Assert.Throws<WorkbenchFullException>(() => Bench(Grid(PartId.PipeBend90, 32)).WithInstance(
+            WorkshopInput.PipeBend90(new(33), 6, 3, 4, 0, 0, 0, 1)).Validate());
+        Assert.Equal(WorkbenchTable.Instances, error.Table);
+        Assert.Equal("Workbench is full: part table", error.Message);
+    }
+
+    // One simulation, device and transport admit benches of changing size in turn: 1, 32, 1 and 32 bends, each Run, stepped and Reset.
+    [Fact]
+    public async Task OneTransportAdmitsBenchesOfChangingColliderCount()
+    {
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+            new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        var revision = 1UL;
+        foreach (var bends in new[] { 1, 32, 1, 32 })
+        {
+            var bench = new WorkshopConstruction(new(++revision), WorkshopCadenceSettings.Default(), Grid(PartId.PipeBend90, bends));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(bench)).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+            for (var tick = 0; tick < 3; tick++) Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+            Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
+        }
+    }
+
+    [Fact]
+    public void TheLargestBuildAdmittedColliderPopulationFitsSixteenBitColliderSlots()
+    {
+        var widest = WorkshopInventoryPolicy.Free.Keys.Max(kind => WorkbenchFootprint.Of(kind).Colliders);
+        Assert.True(WorkbenchFootprint.Plane.Colliders + WorkshopInstances.Capacity * widest <= ushort.MaxValue + 1,
+            $"{WorkshopInstances.Capacity} x {widest} colliders exceed the u16 collider slot");
     }
 
     [Fact]

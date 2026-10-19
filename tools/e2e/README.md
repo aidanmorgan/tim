@@ -51,6 +51,7 @@ The runner gives every suite an explicit environment: `PATH`, `HOME` and `TMPDIR
 | cat-037 | measures wall time (`s.t < 2200`, `s.t < 400`) |
 | cat-014 | measures wall time (paces by elapsed wall time) |
 | anim-1a, anim-1b, anim-1c, cat-023a | assert a wall-clock sample rate |
+| capacity-9r | owner-named (coordinator, 20 Oct 2026): a new suite starts SerialAlone until calibration qualifies it; the 2,305-collider scene debt-faulted before Story 9R.2's broadphase fix |
 | cat-020 | owner-named (coordinator, 20 Oct 2026): a boot-time clock recalibration under N=2 AOT workers (`_bmad-output/implementation-artifacts/evidence-9r-1/full-run-parallel`); Parallel returns only through Story F.1's recalibration |
 
 Every other suite is Parallel. Rewriting a SerialAlone suite to measure simulated time instead belongs to the story that owns it.

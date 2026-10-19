@@ -60,8 +60,7 @@ public static partial class PhysicsGpuAbi
     public const int GuideBytes = 64;
     public const int TriggerBytes = 64;
     public const int BodiesOffset = HeaderBytes;
-    public const int CollidersOffset = BodiesOffset + PhysicsSceneDeclaration.BodyCapacity * BodyBytes;
-    public const int MaterialsOffset = CollidersOffset + PhysicsSceneDeclaration.ColliderCapacity * ColliderBytes;
+    public const int MaterialsOffset = BodiesOffset + PhysicsSceneDeclaration.BodyCapacity * BodyBytes;
     public const int SensorsOffset = MaterialsOffset + PhysicsSceneDeclaration.MaterialCapacity * MaterialBytes;
     public const int GuidesOffset = SensorsOffset + PhysicsSceneDeclaration.SensorCapacity * SensorBytes;
     public const int TriggersOffset = GuidesOffset + PhysicsSceneDeclaration.GuideCapacity * GuideBytes;
@@ -75,11 +74,26 @@ public static partial class PhysicsGpuAbi
     public const int OrientationSensorRotationOffset = 16;
     public const int OrientationSensorsOffset = WorkOccurrencesOffset + PhysicsContactWorkRead.OccurrenceCapacity * WorkOccurrenceBytes;
     public const int MotionOffset = OrientationSensorsOffset + PhysicsSceneDeclaration.OrientationSensorCapacity * OrientationSensorBytes;
-    public const int CacheOffset = MotionOffset + PhysicsMotionRead.ByteLength;
-    public const int CacheCapacity = 888 * 4;
-    public const int CacheBytes = 32;
-    public const int ByteLength = PrismaticRecordsOffset + PhysicsSceneDeclaration.PrismaticCapacity * PrismaticBytes;
+    /// <summary>Story 9R.2: the collider table is the buffer's tail, after every fixed-capacity table, sized by the scene's own
+    /// collider count; there is no collider ceiling.</summary>
+    public const int CollidersOffset = PrismaticRecordsOffset + PhysicsSceneDeclaration.PrismaticCapacity * PrismaticBytes;
     public const uint NoBody = uint.MaxValue;
+
+    /// <summary>The one layout authority: the exact world length for a scene with this many colliders.</summary>
+    public static int ByteLength(int colliders)
+    {
+        if (colliders < 0) throw new ArgumentException("A collider count cannot be negative.", nameof(colliders));
+        return checked(CollidersOffset + colliders * ColliderBytes);
+    }
+
+    /// <summary>The exact length a world buffer must have, derived from its own header's collider count.</summary>
+    public static int ByteLength(ReadOnlySpan<byte> header)
+    {
+        if (header.Length < HeaderBytes) throw new ArgumentException("A physics world is shorter than its header.");
+        var length = CollidersOffset + (long)R32(header, HeaderColliderCountOffset) * ColliderBytes;
+        if (length > int.MaxValue) throw new ArgumentException("Unsupported generic physics record.");
+        return (int)length;
+    }
     // A binary eighth-second primary segment bounds elapsed-value quantization.
     public const uint PrimarySegmentSteps = WorkshopCadenceSettings.PhysicalFrequency / 8;
 
@@ -87,7 +101,7 @@ public static partial class PhysicsGpuAbi
     {
         ArgumentNullException.ThrowIfNull(scene); profile.Validate();
         if (epoch.Value == 0) throw new ArgumentException("A world epoch is required.");
-        var bytes = new byte[ByteLength]; var data = bytes.AsSpan();
+        var bytes = new byte[ByteLength(scene.Colliders.Length)]; var data = bytes.AsSpan();
         U32(data, HeaderVersionOffset, (uint)PhysicsStateVersion.GenericMechanical);
         U32(data, HeaderBodyCountOffset, (uint)scene.Bodies.Length); U32(data, HeaderColliderCountOffset, (uint)scene.Colliders.Length);
         U32(data, HeaderMaterialCountOffset, (uint)scene.Materials.Length); U32(data, HeaderSensorCountOffset, (uint)scene.Sensors.Length);
@@ -174,25 +188,6 @@ public static partial class PhysicsGpuAbi
             U64(record, 0, sensor.Id.Value); U32(record, 8, BodySlot(scene, sensor.Body));
             Rotation(record, OrientationSensorRotationOffset, sensor.Initial); H(record, 32, sensor.Threshold.CosineHalfAngle);
         }
-        var pair=0;
-        for (var first=0; first<scene.Colliders.Length; first++)
-            for (var second=first+1; second<scene.Colliders.Length; second++)
-            {
-                var firstBody=scene.Bodies[(int)BodySlot(scene,scene.Colliders[first].Body)];
-                var secondBody=scene.Bodies[(int)BodySlot(scene,scene.Colliders[second].Body)];
-                if (firstBody.Id==secondBody.Id || (firstBody.Motion==RigidMotionKind.Static && secondBody.Motion==RigidMotionKind.Static)) continue;
-                var firstScale=firstBody.Motion==RigidMotionKind.Dynamic ? Math.ILogB((double)firstBody.Mass.Value)+1 : int.MinValue;
-                var secondScale=secondBody.Motion==RigidMotionKind.Dynamic ? Math.ILogB((double)secondBody.Mass.Value)+1 : int.MinValue;
-                for (var point=0; point<4; point++)
-                {
-                    if (pair>=CacheCapacity) throw new ArgumentException("Contact cache capacity exceeded.");
-                    var slot=data.Slice(CacheOffset+pair++*CacheBytes,CacheBytes);
-                    BinaryPrimitives.WriteUInt16LittleEndian(slot,(ushort)first);
-                    BinaryPrimitives.WriteUInt16LittleEndian(slot[2..],(ushort)second);
-                    BinaryPrimitives.WriteInt32LittleEndian(slot[28..],Math.Max(firstScale,secondScale));
-                }
-            }
-        U32(data,HeaderCachePairCountOffset,(uint)pair);
         WriteElectricalAdmission(data, scene);
         WritePrismaticAdmission(data, scene);
         return bytes;
@@ -339,7 +334,9 @@ public static partial class PhysicsGpuAbi
             throw new ArgumentException("Only a successful candidate can commit.");
         var profile = ReadProfile(source);
         // The header's identity, scene counts and profile are fixed; status, failure, tick, ordinal and capture change.
+        // Both worlds passed Header() against their own length, so equal collider counts (compared below) mean equal lengths.
         if (expectedTick.Value > profile.RunTickLimit || R64(candidate, HeaderTickOffset) != expectedTick.Value ||
+            candidate.Length != source.Length ||
             R32(candidate, HeaderSourceOrdinalOffset) != checked((uint)(expectedTick.Value * profile.Substeps)) ||
             !candidate[..HeaderStatusOffset].SequenceEqual(source[..HeaderStatusOffset]) ||
             !candidate[HeaderBodyCountOffset..HeaderTickOffset].SequenceEqual(source[HeaderBodyCountOffset..HeaderTickOffset]) ||
@@ -366,7 +363,8 @@ public static partial class PhysicsGpuAbi
         }
         if (dynamicCount!=R32(source,HeaderDynamicCountOffset) || dynamicCount>PhysicsBodyReadSet.Capacity ||
             !AllZero(candidate.Slice(BodiesOffset+bodyCount*BodyBytes,(PhysicsSceneDeclaration.BodyCapacity-bodyCount)*BodyBytes)) ||
-            !candidate[CollidersOffset..SensorsOffset].SequenceEqual(source[CollidersOffset..SensorsOffset]))
+            !candidate[MaterialsOffset..SensorsOffset].SequenceEqual(source[MaterialsOffset..SensorsOffset]) ||
+            !candidate[CollidersOffset..].SequenceEqual(source[CollidersOffset..]))
             throw new ArgumentException("Candidate changed body population, geometry or material.");
         var bodies = ReadDynamicBodies(candidate);
         uint captured = 0;
@@ -440,7 +438,6 @@ public static partial class PhysicsGpuAbi
         if (expectedTick.Value != 0 && (R32(candidate, MotionOffset + 4) != profile.Substeps ||
             R32(candidate, MotionOffset + 12) != R32(candidate, HeaderSourceOrdinalOffset)))
             throw new ArgumentException("Motion profile differs from its committed world.");
-        ValidateCache(candidate,source);
         ValidateElectricalCandidate(candidate,source);
         ValidatePrismaticCandidate(candidate,source);
         return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(MotionOffset,PhysicsMotionRead.ByteLength), bodies, expectedTick));
@@ -464,44 +461,6 @@ public static partial class PhysicsGpuAbi
         var value=new PrincipalInertia(RH(record,offset),BinaryPrimitives.ReadInt32LittleEndian(record[(offset+PrincipalExponentOffset)..]));
         value.Validate(); return value;
     }
-    private static void ValidateCache(ReadOnlySpan<byte> candidate,ReadOnlySpan<byte> source)
-    {
-        var count=checked((int)R32(source,HeaderCachePairCountOffset));
-        for (var i=0; i<count; i++)
-        {
-            var before=source.Slice(CacheOffset+i*CacheBytes,CacheBytes);
-            var after=candidate.Slice(CacheOffset+i*CacheBytes,CacheBytes);
-            // This external byte boundary checks the same complete record with four integer loads.
-            var identityFeature = R64(after, 0);
-            var impulses = R64(after, 8);
-            var normalPadding = R64(after, 16);
-            var enabledExponent = R64(after, 24);
-            var enabled = (uint)enabledExponent;
-            if ((uint)identityFeature != R32(before, 0) || (uint)(enabledExponent >> 32) != R32(before, 28) ||
-                enabled > 1 || (normalPadding >> 48) != 0)
-                throw new ArgumentException("Contact cache identity or padding changed.");
-            if (enabled == 0)
-            {
-                if (((identityFeature >> 32) | impulses | normalPadding) != 0) throw new ArgumentException("Inactive contact retained a warm impulse.");
-                continue;
-            }
-            PhysicsDeclarationBounds.Range(RH(after,8),(Half)0,(Half)8192);
-            PhysicsDeclarationBounds.Range(RH(after,14),(Half)0,(Half)4096);
-            PhysicsDeclarationBounds.Vector(RH(after,10),RH(after,12),(Half)0,(Half)8192);
-            PhysicsDeclarationBounds.Vector(RH(after,16),RH(after,18),RH(after,20),(Half)1);
-        }
-        if (!AllZero(candidate[(CacheOffset+count*CacheBytes)..ElectricalSourcesOffset])) throw new ArgumentException("Unused cache changed.");
-    }
-
-    private static bool ValidFeature(ColliderShapeKind shape, uint feature)
-    {
-        if (shape is ColliderShapeKind.Plane or ColliderShapeKind.Sphere) return feature == 0;
-        if (shape != ColliderShapeKind.Box) return false;
-        if (feature is >= 64 and <= 69) return true;
-        return feature < 64 && feature != 21 && (feature & 3) <= 2 &&
-            ((feature >> 2) & 3) <= 2 && ((feature >> 4) & 3) <= 2;
-    }
-
     private static bool AdmittedTime(uint ordinal, Half phase, uint end) =>
         Half.IsFinite(phase) && phase >= (Half)(-2048) && phase < (Half)2048 &&
         ordinal <= end && (ordinal != 0 || phase >= (Half)0) && (ordinal != end || phase <= (Half)0);
@@ -509,11 +468,9 @@ public static partial class PhysicsGpuAbi
 
     public static string ShaderPreamble() => FormattableString.Invariant($@"
 enable f16;
-const WORLD_BYTES:u32={ByteLength}u;
 const PHYSICAL_RATE:f16={WorkshopCadenceSettings.PhysicalFrequency}h;
 const PRIMARY_SEGMENT_STEPS:u32={PrimarySegmentSteps}u;
 const BODY_CAPACITY:u32={PhysicsSceneDeclaration.BodyCapacity}u;
-const COLLIDER_CAPACITY:u32={PhysicsSceneDeclaration.ColliderCapacity}u;
 const MATERIAL_CAPACITY:u32={PhysicsSceneDeclaration.MaterialCapacity}u;
 const SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.SensorCapacity}u;
 const GUIDE_CAPACITY:u32={PhysicsSceneDeclaration.GuideCapacity}u;
@@ -551,9 +508,9 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
 
     private static void Header(ReadOnlySpan<byte> data)
     {
-        if (data.Length != ByteLength || R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
+        if (data.Length < HeaderBytes || data.Length != ByteLength(data) ||
+            R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
             R32(data, HeaderBodyCountOffset) > PhysicsSceneDeclaration.BodyCapacity ||
-            R32(data, HeaderColliderCountOffset) > PhysicsSceneDeclaration.ColliderCapacity ||
             R32(data, HeaderMaterialCountOffset) > PhysicsSceneDeclaration.MaterialCapacity ||
             R32(data, HeaderSensorCountOffset) > PhysicsSceneDeclaration.SensorCapacity ||
             R32(data, HeaderGuideCountOffset) > PhysicsSceneDeclaration.GuideCapacity ||
@@ -562,7 +519,7 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             (R64(data, HeaderDocumentLowOffset) == 0 && R64(data, HeaderDocumentHighOffset) == 0) || R64(data, HeaderNextIdentityOffset) == 0 ||
             R32(data, HeaderDynamicCountOffset) > PhysicsBodyReadSet.Capacity ||
             R32(data, HeaderWorkOccurrenceCountOffset) > PhysicsContactWorkRead.OccurrenceCapacity ||
-            R32(data, HeaderCachePairCountOffset) > CacheCapacity ||
+            R32(data, HeaderReservedOffset) != 0 ||
             R32(data, HeaderOrientationSensorCountOffset) > PhysicsSceneDeclaration.OrientationSensorCapacity ||
             R32(data, HeaderElectricalSourceCountOffset) > ElectricalSupplyPlan.SourceCapacity ||
             R32(data, HeaderElectricalBindingCountOffset) > WorkshopConnections.Capacity)

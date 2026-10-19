@@ -949,7 +949,7 @@ public sealed class WorkshopWireTests
         Assert.Equal(Profile, PhysicsGpuAbi.ReadProfile(bytes));
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(bytes));
         Assert.Equal(0, PhysicsMotionRead.Decode(bytes.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength), new(new[] { body }), new(0)).Count);
-        foreach (var length in new[] { 80, 128, 144, 8832, PhysicsGpuAbi.ByteLength - 1, PhysicsGpuAbi.ByteLength + 1 })
+        foreach (var length in new[] { 80, 128, 144, 8832, PhysicsGpuAbi.ByteLength(0) - 1, PhysicsGpuAbi.ByteLength(0) + 1, bytes.Length - 1, bytes.Length + 1 })
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(new byte[length]));
         var reset = PhysicsGpuAbi.Admission(GenericScene, new(3), Profile);
         Assert.Equal(3UL, NamedBody(reset, new(1)).Body.Epoch);
@@ -1031,25 +1031,54 @@ public sealed class WorkshopWireTests
         PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
     }
 
+    // Story 9R.2: the world is exactly as long as its own header's collider count says, the collider table is its tail, and the
+    // retired contact-cache header word is reserved zero.
     [Fact]
-    public void GenericCacheRejectsEveryChangedInactiveOrImmutableByte()
+    public void GenericWorldLengthIsDerivedFromItsOwnColliderCount()
     {
         var source = GenericAdmission();
-        Assert.True(BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(112)) > 0);
+        var colliders = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(PhysicsGpuAbi.HeaderColliderCountOffset)));
+        Assert.Equal(GenericScene.Colliders.Length, colliders);
+        Assert.Equal(PhysicsGpuAbi.CollidersOffset + colliders * PhysicsGpuAbi.ColliderBytes, source.Length);
+        Assert.Equal(source.Length, PhysicsGpuAbi.ByteLength(colliders));
+        Assert.Equal(source.Length, PhysicsGpuAbi.ByteLength(source));
+        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(PhysicsGpuAbi.HeaderReservedOffset)));
         PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
-        for (var offset = 0; offset < PhysicsGpuAbi.CacheBytes; offset++)
+        // One collider record more or less, one byte more or less, or a header that claims another count: rejected.
+        foreach (var length in new[] { source.Length - PhysicsGpuAbi.ColliderBytes, source.Length - 1, source.Length + 1, source.Length + PhysicsGpuAbi.ColliderBytes })
         {
-            if (offset == 24) continue; // The enabled selector has its separate active-record domain.
-            foreach (var bit in new byte[] { 1, 0x80 })
-            {
-                var changed = (byte[])source.Clone();
-                changed[PhysicsGpuAbi.CacheOffset + offset] ^= bit;
-                Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
-            }
+            var resized = new byte[length]; source.AsSpan(0, Math.Min(length, source.Length)).CopyTo(resized);
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(resized));
         }
-        var invalidEnabled = (byte[])source.Clone();
-        invalidEnabled[PhysicsGpuAbi.CacheOffset + 24] = 2;
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(invalidEnabled, source, new(0)));
+        foreach (var count in new[] { (uint)colliders - 1, (uint)colliders + 1, uint.MaxValue })
+        {
+            var claimed = (byte[])source.Clone();
+            BinaryPrimitives.WriteUInt32LittleEndian(claimed.AsSpan(PhysicsGpuAbi.HeaderColliderCountOffset), count);
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(claimed));
+        }
+        var reserved = (byte[])source.Clone();
+        BinaryPrimitives.WriteUInt32LittleEndian(reserved.AsSpan(PhysicsGpuAbi.HeaderReservedOffset), 1);
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(reserved));
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ByteLength(new byte[PhysicsGpuAbi.HeaderBytes - 1]));
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ByteLength(-1));
+        // A candidate world one collider longer than its source never validates against it.
+        var longer = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id)
+            .WithInstance(OnlyBall(Construction) with { Id = new(1) }).WithInstance(WorkshopInput.Wall(new(2), 4, 2, 0, 0, 0, 0, 1, WallDimensions.Default)),
+            new(101, 206)), new(2), Profile);
+        Assert.Equal(source.Length + PhysicsGpuAbi.ColliderBytes, longer.Length);
+        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(longer, source, new(0)));
+    }
+
+    // Story 9R.2: the collider tail is immutable during a Run; every byte of every collider record is bound to its source.
+    [Fact]
+    public void GenericCandidateRejectsAChangeAnywhereInTheColliderTail()
+    {
+        var source = GenericAdmission();
+        for (var offset = PhysicsGpuAbi.CollidersOffset; offset < source.Length; offset++)
+        {
+            var changed = (byte[])source.Clone(); changed[offset] ^= 1;
+            Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
+        }
     }
 
     [Fact]
@@ -1217,9 +1246,9 @@ public sealed class WorkshopWireTests
             checked((int)BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.MotionOffset))) * PhysicsMotionRead.PieceBytes;
         var (start, length) = region switch
         {
-            CanonicalPaddingRegion.UnusedBodies => (bodyTail, PhysicsGpuAbi.CollidersOffset - bodyTail),
+            CanonicalPaddingRegion.UnusedBodies => (bodyTail, PhysicsGpuAbi.MaterialsOffset - bodyTail),
             CanonicalPaddingRegion.UnusedSensors => (sensorTail, PhysicsGpuAbi.GuidesOffset - sensorTail),
-            CanonicalPaddingRegion.UnusedMotion => (motionTail, PhysicsGpuAbi.CacheOffset - motionTail),
+            CanonicalPaddingRegion.UnusedMotion => (motionTail, PhysicsGpuAbi.ElectricalSourcesOffset - motionTail),
             CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + 148, 12),
             CanonicalPaddingRegion.MotionPadding => (PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + 140, 4),
             _ => throw new ArgumentOutOfRangeException(nameof(region))

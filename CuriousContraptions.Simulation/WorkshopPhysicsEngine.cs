@@ -184,7 +184,8 @@ internal sealed class WorkshopPhysicsEngine
         Span<float> elecAfter = stackalloc float[2];
         ElectricalSupply.Allocate(ElectricalEnable.Enabled, 50f, 10f, elecBefore, elecLimits, elecAfter);
 
-        var mockBuffer = new byte[PhysicsGpuAbi.ByteLength];
+        // Each warm-up world is sized from its own collider count: none here, two in the stepped mock below.
+        var mockBuffer = new byte[PhysicsGpuAbi.ByteLength(0)];
         BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(PhysicsGpuAbi.HeaderTriggerCountOffset, 4), 1);
         BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(PhysicsGpuAbi.HeaderContactWorkCountOffset, 4), 1);
         BinaryPrimitives.WriteUInt32LittleEndian(mockBuffer.AsSpan(PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, 4), 1);
@@ -209,11 +210,12 @@ internal sealed class WorkshopPhysicsEngine
             PrismaticConstraintSolver.ActuatorSliderDrive(dummyJoints, true, true, WorkshopConstraintSolver.SubstepSeconds);
         }
 
-        var mockSource = new byte[PhysicsGpuAbi.ByteLength];
-        var mockCandidate = new byte[PhysicsGpuAbi.ByteLength];
+        const int mockColliders = 2;
+        var mockSource = new byte[PhysicsGpuAbi.ByteLength(mockColliders)];
+        var mockCandidate = new byte[PhysicsGpuAbi.ByteLength(mockColliders)];
         var mSpan = mockSource.AsSpan();
         BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderBodyCountOffset, 4), 2);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderColliderCountOffset, 4), 2);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderColliderCountOffset, 4), mockColliders);
         BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderDynamicCountOffset, 4), 1);
         BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderCadenceOffset, 4), 2);
         BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderTriggerCountOffset, 4), 1);
@@ -279,7 +281,7 @@ internal sealed class WorkshopPhysicsEngine
         for (var step = 0; step < 5; step++)
         {
             Advance(mockSource, mockCandidate, warmupInputs);
-            Array.Copy(mockCandidate, mockSource, PhysicsGpuAbi.ByteLength);
+            Array.Copy(mockCandidate, mockSource, mockSource.Length);
         }
 
         Reset();
@@ -398,7 +400,9 @@ internal sealed class WorkshopPhysicsEngine
     public void Advance(byte[] source, byte[] candidate, PhysicsTickInputs inputs)
     {
         ArgumentNullException.ThrowIfNull(inputs);
-        Array.Copy(source, candidate, PhysicsGpuAbi.ByteLength);
+        if (source.Length != PhysicsGpuAbi.ByteLength(source) || candidate.Length != source.Length)
+            throw new ArgumentException("The candidate world must have its committed world's exact length.");
+        Array.Copy(source, candidate, source.Length);
         var span = candidate.AsSpan();
         Span<float> elecBefore = stackalloc float[ElectricalSupply.LoadCapacity];
         Span<float> elecLimits = stackalloc float[ElectricalSupply.LoadCapacity];
@@ -671,7 +675,8 @@ internal sealed class WorkshopPhysicsEngine
             }
             else continue;
 
-            _bvh.InsertLeaf(c.Index, min, max);
+            // Exactly the complement of the overlap callback's static-static rejection below.
+            _bvh.InsertLeaf(c.Index, min, max, b.Motion != 0);
         }
 
         _candidatePairs.Clear();

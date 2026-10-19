@@ -158,7 +158,6 @@ public sealed class WorkshopWallTests
         Assert.Equal(13, scene.Colliders.Length);
         Assert.Equal(8, scene.Materials.Length);
         Assert.Equal(33, PhysicsSceneDeclaration.BodyCapacity);
-        Assert.Equal(2048, PhysicsSceneDeclaration.ColliderCapacity);
         Assert.Equal(33, PhysicsSceneDeclaration.MaterialCapacity);
     }
 }

@@ -6,11 +6,10 @@ namespace CuriousContraptions.Simulation;
 
 internal sealed class BrowserGpuTransport : IWorkshopGpuTransport
 {
-    private readonly byte[] _currentBuffer = new byte[PhysicsGpuAbi.ByteLength];
-    private readonly byte[][] _candidateBuffers = [
-        new byte[PhysicsGpuAbi.ByteLength],
-        new byte[PhysicsGpuAbi.ByteLength]
-    ];
+    // Story 9R.2: every world is exactly as long as its own header says (PhysicsGpuAbi.ByteLength), so the buffers take the
+    // admitted world's length and are reallocated only when an admission changes it.
+    private byte[] _currentBuffer = [];
+    private readonly byte[][] _candidateBuffers = [[], []];
     private int _candidateIndex;
     private readonly WorkshopPhysicsEngine _engine = new();
     private bool _readyCandidate;
@@ -31,17 +30,16 @@ internal sealed class BrowserGpuTransport : IWorkshopGpuTransport
         if (!_initialized) throw new InvalidOperationException("GPU transport is not initialized.");
         if (_readyCandidate) throw new InvalidOperationException("Previous candidate has not been read or committed.");
 
-        var candidate = _candidateBuffers[_candidateIndex];
         if (operation == WorkshopGpuOperation.Admit)
         {
-            if (input.Length != PhysicsGpuAbi.ByteLength)
+            if (input.Length != PhysicsGpuAbi.ByteLength(input))
                 throw new ArgumentException("Invalid GPU candidate input length.");
             _engine.Reset();
-            Array.Copy(input, candidate, PhysicsGpuAbi.ByteLength);
+            Array.Copy(input, Candidate(input.Length), input.Length);
         }
         else if (operation == WorkshopGpuOperation.Advance)
         {
-            _engine.Advance(_currentBuffer, candidate, inputs);
+            _engine.Advance(_currentBuffer, Candidate(_currentBuffer.Length), inputs);
         }
         else
         {
@@ -50,6 +48,12 @@ internal sealed class BrowserGpuTransport : IWorkshopGpuTransport
 
         _readyCandidate = true;
         return Task.CompletedTask;
+    }
+
+    private byte[] Candidate(int length)
+    {
+        if (_candidateBuffers[_candidateIndex].Length != length) _candidateBuffers[_candidateIndex] = new byte[length];
+        return _candidateBuffers[_candidateIndex];
     }
 
     public byte[] Read()
@@ -61,7 +65,9 @@ internal sealed class BrowserGpuTransport : IWorkshopGpuTransport
     public void Commit()
     {
         if (!_readyCandidate) throw new InvalidOperationException("Candidate is not ready to commit.");
-        Array.Copy(_candidateBuffers[_candidateIndex], _currentBuffer, PhysicsGpuAbi.ByteLength);
+        var candidate = _candidateBuffers[_candidateIndex];
+        if (_currentBuffer.Length != candidate.Length) _currentBuffer = new byte[candidate.Length];
+        Array.Copy(candidate, _currentBuffer, candidate.Length);
         _candidateIndex = 1 - _candidateIndex;
         _readyCandidate = false;
     }
