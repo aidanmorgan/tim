@@ -1,0 +1,13 @@
+diff --git a/CuriousContraptions.Simulation/BrowserGpuTransport.cs b/CuriousContraptions.Simulation/BrowserGpuTransport.cs
+index 675ed00e..ece438cc 100644
+--- a/CuriousContraptions.Simulation/BrowserGpuTransport.cs
++++ b/CuriousContraptions.Simulation/BrowserGpuTransport.cs
+@@ -66,7 +66,7 @@ internal sealed class BrowserGpuTransport : IWorkshopGpuTransport
+     {
+         if (!_readyCandidate) throw new InvalidOperationException("Candidate is not ready to commit.");
+         var candidate = _candidateBuffers[_candidateIndex];
+-        if (_currentBuffer.Length != candidate.Length) _currentBuffer = new byte[candidate.Length];
++        if (_currentBuffer.Length < candidate.Length) _currentBuffer = new byte[candidate.Length];
+         Array.Copy(candidate, _currentBuffer, candidate.Length);
+         _candidateIndex = 1 - _candidateIndex;
+         _readyCandidate = false;

@@ -1,0 +1,12 @@
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(withLastBend: True) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: -1) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: NaN) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 0.5, pays: False) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 2, pays: True) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Basketball) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Bowling) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(offset: -0.5, captures: True) 

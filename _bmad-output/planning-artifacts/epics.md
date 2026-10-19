@@ -1211,7 +1211,12 @@ So that every retry starts from the same place.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings (Story 9R.0 gate), `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.2: Collider Table Sized at Run (Reopened Story 6.9b)
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-8 gave a scoped Pass on `50ba7c72` ([review](../implementation-artifacts/review-9r-2-collider-table-sized-at-run.md)).*
+- *The collider table is sized from the compiled scene, so the Free maxima now admit.*
+- *The dead ABI contact cache is deleted, which removes the 888-pair ceiling.*
+- *The broadphase pruning is byte-identical across 9 scenes.*
+- *The full run passed 169/169.*
+- *Findings are filed to Story F.4.*
 
 *Depends on: Story 9R.0. Closes report #6: `ColliderCapacity = 2048` (`engine/gpu/PhysicsDeclarations.cs:168`) while 32 × `pipe_bend_90` or 32 × `funnel` = 32 × 72 + 1 = 2,305 colliders. Build admits the construction because `WorkbenchCapacity.Validate` (`WorkbenchCapacity.cs:68-106`) no longer counts colliders; the `PhysicsSceneDeclaration` constructor then throws "Invalid physics document or capacity" at Run (`PhysicsDeclarations.cs:211`). Repairs Story 6.9b AC2 ("any construction within the 32-instance budget is admitted").*
 
@@ -3497,6 +3502,25 @@ So that Curious Contraptions is ready for public release.
 ## Filed Follow-ups (back of the queue)
 
 *Owner decision, 19 Oct 2026, evening: review findings beyond a story's own acceptance criteria are filed here, after every other queued story, unless they are a player-visible crash. See the [verification tiers](autonomous-development-guide.md#verification-tiers).*
+
+### Story F.4: Collider Table Follow-ups
+*Status: Backlog. Filed from the Story 9R.2 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-2-collider-table-sized-at-run.md)).*
+
+**Acceptance Criteria:**
+- **Guards:**
+  - a checked u16 collider-slot cast (F1);
+  - a bounded collider field on occurrences that never fired (F2);
+  - the correct exception type at extreme collider counts (F4).
+- **Tests:**
+  - buffer reuse (F3);
+  - a permanent broadphase pair-order test (F8);
+  - a moving body in `capacity-9r` test 1, so its Reset compare isn't near-vacuous.
+- **The 9R.1 snapshot helper accepts a bench with no moving body** (`capacity-9r` test 1).
+- **`anvil --changed`** detects unstaged edits in a worktree.
+- **Performance gate items:**
+  - 2.79 ms per tick on the 32-bend bench (F6);
+  - building the static BVH once at admission. This changes pair order, so it needs a trajectory owner.
+- **Story F.1 item:** clock-master `wideOffset=1`, first seen on `1f755119` (F9).
 
 ### Story F.3: Run/Reset Snapshot Hardening
 *Status: Backlog. Filed from the Story 9R.1 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-1-exact-run-reset-snapshot-assertions.md)).*

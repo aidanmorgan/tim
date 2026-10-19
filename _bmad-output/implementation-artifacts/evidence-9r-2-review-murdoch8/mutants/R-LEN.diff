@@ -1,0 +1,12 @@
+diff --git a/engine/gpu/PhysicsGpuAbi.cs b/engine/gpu/PhysicsGpuAbi.cs
+index ea913eb7..bae0bc80 100644
+--- a/engine/gpu/PhysicsGpuAbi.cs
++++ b/engine/gpu/PhysicsGpuAbi.cs
+@@ -336,7 +336,6 @@ public static partial class PhysicsGpuAbi
+         // The header's identity, scene counts and profile are fixed; status, failure, tick, ordinal and capture change.
+         // Both worlds passed Header() against their own length, so equal collider counts (compared below) mean equal lengths.
+         if (expectedTick.Value > profile.RunTickLimit || R64(candidate, HeaderTickOffset) != expectedTick.Value ||
+-            candidate.Length != source.Length ||
+             R32(candidate, HeaderSourceOrdinalOffset) != checked((uint)(expectedTick.Value * profile.Substeps)) ||
+             !candidate[..HeaderStatusOffset].SequenceEqual(source[..HeaderStatusOffset]) ||
+             !candidate[HeaderBodyCountOffset..HeaderTickOffset].SequenceEqual(source[HeaderBodyCountOffset..HeaderTickOffset]) ||

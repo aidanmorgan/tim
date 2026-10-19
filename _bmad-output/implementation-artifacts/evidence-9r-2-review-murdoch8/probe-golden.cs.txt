@@ -1,0 +1,101 @@
+// Murdoch-8 probe (Story 9R.2 review). Copied as CuriousContraptions.tests/Murdoch8GoldenProbe.cs into a detached worktree of
+// BOTH 8a77f9a9 (base) and 1f755119 (candidate), run with --filter Murdoch8GoldenProbe, then deleted. Self-contained: it uses only
+// APIs present unchanged on both commits, so the hashes compare the whole ABI change (cache deletion, offset shift, tail table)
+// plus the broadphase change, end to end through WorkshopSimulation, WorkshopGpuDevice and BrowserGpuTransport.
+// gates16 (faults on base: contact cache) and cradle (2,234 colliders, over the base ceiling) are excluded; nine scenes remain.
+using System.Buffers.Binary;
+using System.Security.Cryptography;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class Murdoch8GoldenProbe
+{
+    private const double DominoUpright = -0.46 + .55;
+    private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
+
+    public static TheoryData<string> Scenes => new("bumper", "dominoes", "gate", "spring", "receiver", "bowling", "balls16", "dominoes16", "springs16");
+
+    private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
+    {
+        "ball" or "bowling" => WorkshopInput.Ball(kind, id, x, 4, z, 0, 0, 0, 1),
+        "domino" => WorkshopInput.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
+        "spring" => WorkshopInput.Springboard(id, x, 1, z, 0, 0, 0, 1, SpringboardSettings.Default),
+        _ => throw new ArgumentException(kind.Value),
+    };
+
+    private static WorkshopInstances Grid(PartId kind, int count) =>
+        new([.. Enumerable.Range(0, count).Select(i => Place(kind, new((ulong)i + 1), -6 + i % 8 * 1.6, -5 + i / 8 * 2.5))]);
+
+    private static WorkshopInstances Scene(string scene) => scene switch
+    {
+        "bumper" => new(WorkshopInput.Basketball(new(1), 0, 4.5, 0, 0, 0, 0, 1), WorkshopInput.Bumper(new(2), 0, 3, 0, 0, 0, 0, 1, BumperWork.Default)),
+        "dominoes" => new([.. Enumerable.Range(0, 5).Select(i => (IWorkshopInstance)WorkshopInput.Domino(new((ulong)i + 1), -1 + i * .5, DominoUpright + .01, 0, 0, 0, 0, 1)),
+            WorkshopInput.Ball(PartId.BowlingBall, new(9), -1.3, 1.5, 0, 0, 0, 0, 1)]),
+        "gate" => new(WorkshopInput.Battery(new(1), -2, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+            WorkshopInput.Generic(PartId.PoweredGate, new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders),
+            WorkshopInput.Basketball(new(3), .2, 4, 0, 0, 0, 0, 1)),
+        "spring" => new(WorkshopInput.Springboard(new(1), 0, 1, 0, 0, 0, 0, 1, SpringboardSettings.Default), WorkshopInput.Basketball(new(2), 0, 4, 0, 0, 0, 0, 1)),
+        "receiver" => new(WorkshopInput.Basketball(new(1), -3, 5, 0, 0, 0, 0, 1), WorkshopInput.Ramp(new(2), -3, 2, 0, 0, 0, -.2588, .9659, RampDimensions.Default),
+            WorkshopInput.Receiver(new(3), 0, 1, 0, 0, 0, 0, 1)),
+        "bowling" => new(WorkshopInput.Ball(PartId.BowlingBall, new(1), -3, 5, 0, 0, 0, 0, 1), WorkshopInput.Ramp(new(2), -3, 2, 0, 0, 0, -.2588, .9659, RampDimensions.Default),
+            WorkshopInput.Wall(new(3), 2, 1, 0, 0, 0, 0, 1, WallDimensions.Default)),
+        "balls16" => Grid(PartId.Basketball, 16),
+        "dominoes16" => Grid(PartId.Domino, 16),
+        "springs16" => Grid(PartId.Springboard, 16),
+        _ => throw new ArgumentException(scene, nameof(scene)),
+    };
+
+    [Theory]
+    [MemberData(nameof(Scenes))]
+    public async Task Golden(string scene)
+    {
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(new WorkshopConstruction(new(2), Settings, Scene(scene)))).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        var word = new byte[4];
+        void F(float v) { BinaryPrimitives.WriteSingleLittleEndian(word, v); hash.AppendData(word); }
+        void I(int v) { BinaryPrimitives.WriteInt32LittleEndian(word, v); hash.AppendData(word); }
+        var moved = 0f;
+        float? firstY = null;
+        for (var tick = 0; tick <= 240; tick++)
+        {
+            if (tick > 0) Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            var read = simulation.Committed;
+            for (var i = 0; i < read.Bodies.Count; i++)
+            {
+                var b = read.Bodies[i];
+                I(b.Body.Cell.X); I(b.Body.Cell.Y); I(b.Body.Cell.Z); F(b.Body.Local.X); F(b.Body.Local.Y); F(b.Body.Local.Z);
+                F(b.Body.Velocity.X); F(b.Body.Velocity.Y); F(b.Body.Velocity.Z);
+                F(b.Rotation.X); F(b.Rotation.Y); F(b.Rotation.Z); F(b.Rotation.W);
+                F(b.AngularVelocity.X); F(b.AngularVelocity.Y); F(b.AngularVelocity.Z);
+            }
+            for (var i = 0; i < read.ContactWorks.Count; i++) F(read.ContactWorks[i].RemainingEnergy.Value);
+            if (read.Bodies.Count > 0)
+            {
+                var y = (read.Bodies[0].Body.Cell.Y + read.Bodies[0].Body.Local.Y) / 16f;
+                firstY ??= y; moved = MathF.Max(moved, MathF.Abs(y - firstY.Value));
+            }
+        }
+        var line = $"GOLDEN {scene} bodies={simulation.Committed.Bodies.Count} tick={simulation.Committed.Tick.Value} moved0={moved:F4} sha256={Convert.ToHexString(hash.GetHashAndReset())}";
+        await File.AppendAllTextAsync(Environment.GetEnvironmentVariable("MURDOCH8_GOLDEN_OUT") ?? throw new InvalidOperationException("MURDOCH8_GOLDEN_OUT"), line + "\n", TestContext.Current.CancellationToken);
+    }
+
+    private sealed class StepClock : IWorkshopCaptureClock
+    {
+        private long _time = 100_000_000;
+        public ClockGeneration Generation => new(1);
+        public WorkshopClockStamp Capture() => new(WorkshopClockDomain.SimulationMonotonic, Generation, new(_time += 8_333_333), new(100_000));
+    }
+
+    private sealed class NoInstallation : IWorkshopInstallation
+    {
+        public void Abort(CommandSequence owner) { }
+        public void Retire() { }
+        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
+    }
+}

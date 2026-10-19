@@ -1,0 +1,856 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.86] CuriousContraptions.tests: Skipping test case with duplicate ID 'bad2de77a9f833b02010ab519a7a367ad24e840f6d4f985b01cf27960b8c66c3' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.86] CuriousContraptions.tests: Skipping test case with duplicate ID '6c397682a5d0222764aa6240c87b331af100d2c6ad76e2d16ab10315fb97e57c' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'e8c700481d2f502ecb3a19111a2127a282f2cae1a90ed49cd89d32220dc9d42b' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '1a31a7b919b410db15e4b6bb7620f52f295db3ad016f8a31e0e8dc3264882245' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '5c0b2bb1d8d23bd074b1e6f6de1abd6461d5d7147fdef4917114afaa10ee27ba' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 1)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 1)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'b5de18de71ccafeb47c6b3fd3e21cbc68f1e833942961d2e4c48a576d15921fd' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 9)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Counter, value: 9)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '1c2ae72b9431a59485b531c342490616136b2cc163df7a17be53f34058b2d0bb' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'a15a92f0c90b0fde8be53ce47aa4a692ee8fe95a53e604c87f83900505be11e3' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'a0fa0e747d86ecc0be13ee78beeb4048bfc73f8350db9218e882b64090d5e91f' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'b14ab9e5418d4badacce15d5682f784523b022cfb45be341a188ddeed81c4e8b' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'b6a5e4549e7debd0979f62f259ec14565e0b1c551c9e86779092730c671ba3bb' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '28d3e84ff82cc06f29a890507fc897667e5d802db750e2bf63c52b2ffb1de07c' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '06c4f5fa67d580e4631b8c4d980903cdd16f58e9dff61087f4a4632f34f5cc48' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 1)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 1)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'fb0848851db7384ed277304ea73a8c9372b83b1dc25eae6fa3a14192ce1dc1fc' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 9)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Counter, value: 9)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'e07b6f5b2b62db134aa5f2c70cf76d363961e114db8686c0497430deff9b5fd6' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '75e8b88fb0fea4384f6e1239136fd80b280fd18612f1da4fbfcef640322f7e34' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'f9a4b93bc942faced3e87898ec418ab6376fbbf944a6e437a792bf7c06b05b61' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '346421f9ef7230e451938bf3d4b7b0224f67c40ff56cd11015a7554fccc57b6a' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'b68eccc2a972e9ba936eea5bef88cc35b33dd0ad8b2fa79ca95d5b9561f54b0a' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'e29b40547a016faaa6819056ad3c5a0f912addf139e366d0ffeed421be717b87' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: NaN)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '99b23de8888093aeb942031f84385cc6d246b9d686908f66c77c38d00be9ff65' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: 1)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: 1)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'e51cdc135f94dc60ad696067f2eda883f4b0233e9d174e652035295ee9455b1d' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: 9)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Counter, value: 9)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID 'c60c75b5d8802158f6235bf1693026a2577ebfbcf8de4705233a9b236cf8e84c' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.87] CuriousContraptions.tests: Skipping test case with duplicate ID '5b00e5e1a66af0a484e15814144b6bbe7be9bb7f1aedd6e56eed357a75c41506' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.BinaryDecoderAgreesWithTheFlatBuffersDecoder(part: Clock, value: NaN)')
+[xUnit.net 00:00:10.27]     CuriousContraptions.Tests.WorkbenchCapacityTests.ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(withLastBend: True) [FAIL]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(withLastBend: True) [3 s]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (2.5 - 2.9000001)
+Actual: -39.4691277
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkbenchCapacityTests.ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(Boolean withLastBend) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 317
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.10]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission [FAIL]
+[xUnit.net 00:00:13.10]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires [FAIL]
+[xUnit.net 00:00:13.11]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.CooldownEligibilityIsPerBodyAndOpensAtTheExactSeventyTwoStepBoundary [FAIL]
+[xUnit.net 00:00:13.11]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission [3 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 59)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ASensedBodyThatTurnsBackWithinTheThresholdKeepsItsSingleEmission() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 150
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires [5 ms]
+  Error Message:
+   settles upright (tilt 10.000007)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.ATilePlacedTenDegreesOffUprightRocksBackAndNeverFires() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 87
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.CooldownEligibilityIsPerBodyAndOpensAtTheExactSeventyTwoStepBoundary [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.CooldownEligibilityIsPerBodyAndOpensAtTheExactSeventyTwoStepBoundary() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 273
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal [5 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (87 - 93)
+Actual: 163.26738
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AToppplingTileFiresOnceInTheTickItPassesFortyFiveDegreesAndStaysFiredAtThatOrdinal() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 136
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:13.12]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation [FAIL]
+[xUnit.net 00:00:13.12]     CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AnObliqueContactKeepsItsOrdinarySpinAndTangentWhileADepthMissNeverQualifies [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 215
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AnObliqueContactKeepsItsOrdinarySpinAndTangentWhileADepthMissNeverQualifies [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AnObliqueContactKeepsItsOrdinarySpinAndTangentWhileADepthMissNeverQualifies() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:line 230
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:13.39]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.75) [FAIL]
+[xUnit.net 00:00:13.40]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.5) [FAIL]
+[xUnit.net 00:00:13.42]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.25) [FAIL]
+[xUnit.net 00:00:13.43]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.75) [16 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.5) [14 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.25) [13 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6) [13 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.46]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.375) [FAIL]
+[xUnit.net 00:00:13.47]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.25) [FAIL]
+[xUnit.net 00:00:13.49]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.75) [FAIL]
+[xUnit.net 00:00:13.51]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.125) [FAIL]
+[xUnit.net 00:00:13.53]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.75) [FAIL]
+[xUnit.net 00:00:13.55]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5) [FAIL]
+[xUnit.net 00:00:13.57]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.5) [FAIL]
+[xUnit.net 00:00:13.58]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.5) [FAIL]
+[xUnit.net 00:00:13.61]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Bowling) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.375) [24 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.25) [13 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 6.75) [12 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 7.125) [23 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.75) [14 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5) [16 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 5.5) [18 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(dropHeight: 4.5) [13 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(Double dropHeight) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Bowling) [24 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(LawBall kind) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 213
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.62]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Basketball) [FAIL]
+[xUnit.net 00:00:13.71]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(offset: 0.29999999999999999, captures: True) [FAIL]
+[xUnit.net 00:00:13.79]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(offset: -0.5, captures: True) [FAIL]
+[xUnit.net 00:00:13.86]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 0.5, pays: False) [FAIL]
+[xUnit.net 00:00:13.87]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 2, pays: True) [FAIL]
+[xUnit.net 00:00:13.87]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:13.88]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz120) [FAIL]
+[xUnit.net 00:00:13.88]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz120) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(kind: Basketball) [13 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(LawBall kind) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 213
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(offset: 0.29999999999999999, captures: True) [87 ms]
+  Error Message:
+   offset 0.3 m capture expected True, first capture tick 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(Double offset, Boolean captures) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 385
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(offset: -0.5, captures: True) [74 ms]
+  Error Message:
+   offset -0.5 m capture expected True, first capture tick 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(Double offset, Boolean captures) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 385
+   at InvokeStub_WorkshopPhysicsEngineTests.ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 0.5, pays: False) [3 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(Single minimums, Boolean pays) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 131
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(minimums: 2, pays: True) [2 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(Single minimums, Boolean pays) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 131
+   at InvokeStub_WorkshopPhysicsEngineTests.APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz60) [3 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 429
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz120) [3 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 429
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz120) [3 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 429
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:13.88]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:13.89]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:13.90]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:13.90]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 1, topples: False) [FAIL]
+[xUnit.net 00:00:13.91]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 4, topples: True) [FAIL]
+[xUnit.net 00:00:13.91]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 1, topples: False) [FAIL]
+[xUnit.net 00:00:13.92]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 4, topples: True) [FAIL]
+[xUnit.net 00:00:13.93]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TargetLimitedPayoutLeavesTheExactRemainder [FAIL]
+[xUnit.net 00:00:13.95]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz60) [2 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 429
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Bowling, cadence: Hz240) [4 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 429
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(ball: Basketball, cadence: Hz240) [4 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(LawBall ball, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 429
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingBallComesToRestAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 1, topples: False) [4 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 525
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Basketball, mass: 4, topples: True) [5 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 525
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 1, topples: False) [4 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 525
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(ballKind: Bowling, mass: 4, topples: True) [4 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Canonical body axis exceeds admitted profile. (Parameter 'local')
+  Stack Trace:
+     at CuriousContraptions.Gpu.CanonicalBody.ValidateAxis(Int32 cell, Single local) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 96
+   at CuriousContraptions.Gpu.CanonicalBody.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/CanonicalBody.cs:line 84
+   at CuriousContraptions.Gpu.PhysicsBodyRead.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 10
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet..ctor(ReadOnlySpan`1 values) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsBodyReadSet.cs:line 40
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadDynamicBodies(ReadOnlySpan`1 data) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/engine/gpu/PhysicsGpuAbi.cs:line 238
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass24_0.<Step>b__0(Int32 tick, Byte[] world) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 331
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Step(Byte[] admitted, Int32 ticks, Action`2 observe) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 310
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(LawBall ballKind, Single mass, Boolean topples) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 525
+   at InvokeStub_WorkshopPhysicsEngineTests.RollingStrikeTopplesTheDominoOnlyWithTheHeavierMass(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TargetLimitedPayoutLeavesTheExactRemainder [11 ms]
+  Error Message:
+   System.InvalidOperationException : Sequence contains no matching element
+  Stack Trace:
+     at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.First[TSource](IEnumerable`1 source, Func`2 predicate)
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TargetLimitedPayoutLeavesTheExactRemainder() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 92
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius [18 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 197
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.97]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults [9 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 165
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.98]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: -1) [FAIL]
+[xUnit.net 00:00:13.98]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: NaN) [FAIL]
+[xUnit.net 00:00:13.98]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33) [FAIL]
+[xUnit.net 00:00:14.01]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [FAIL]
+[xUnit.net 00:00:14.04]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: -1) [2 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.InvalidOperationException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Single available) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 151
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: NaN) [1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.InvalidOperationException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Single available) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 151
+   at InvokeStub_WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(available: 33) [1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.InvalidOperationException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Single available) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 151
+   at InvokeStub_WorkshopPhysicsEngineTests.AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest [27 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 244
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [15 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 30
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 33
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 175
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:19.02]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzDeceleratesAtTheRollingLawOverASecondAndNeverReverses [FAIL]
+[xUnit.net 00:00:19.02]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0) [FAIL]
+[xUnit.net 00:00:19.02]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0.699999988) [FAIL]
+[xUnit.net 00:00:19.03]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxOnAStaticBoxFaceHoldsThroughTheBoxBoxManifoldWithoutSinkingOrLaunching [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzDeceleratesAtTheRollingLawOverASecondAndNeverReverses [10 ms]
+  Error Message:
+   the spin falls over the second (max 58.808326721191406, first 58.808326721191406, last 58.808326721191406, declared 58.808327)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzDeceleratesAtTheRollingLawOverASecondAndNeverReverses() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 1038
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0) [1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.961303174 - 0.967303216)
+Actual: -0.265370458
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(Single along) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 375
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0.699999988) [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.961303174 - 0.967303216)
+Actual: -0.265370458
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(Single along) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 375
+   at InvokeStub_WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxOnAStaticBoxFaceHoldsThroughTheBoxBoxManifoldWithoutSinkingOrLaunching [2 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (2.08884382 - 2.09084368)
+Actual: -17.5506363
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxOnAStaticBoxFaceHoldsThroughTheBoxBoxManifoldWithoutSinkingOrLaunching() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 348
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:19.03]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [FAIL]
+[xUnit.net 00:00:19.04]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite [FAIL]
+[xUnit.net 00:00:19.05]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [2 ms]
+  Error Message:
+   relative rolling zeroed (0.3 vs 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 952
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite [3 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.121873043 - -0.11787305)
+Actual: -18.1308632
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 491
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [9 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 599)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 920
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:19.09]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest [FAIL]
+[xUnit.net 00:00:19.10]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [FAIL]
+[xUnit.net 00:00:19.10]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [FAIL]
+[xUnit.net 00:00:19.11]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [FAIL]
+[xUnit.net 00:00:19.12]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AnUprightBoxSetAboveTheBenchSettlesOnItsFaceWithinTheRestTolerances [FAIL]
+[xUnit.net 00:00:19.12]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest [5 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 599)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 889
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [6 ms]
+  Error Message:
+   Bowling decelerates 0.027173579 m/s² vs 0.22967626
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(LawBall kind) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 836
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [4 ms]
+  Error Message:
+   Basketball decelerates 0.027173579 m/s² vs 0.26475513
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(LawBall kind) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 836
+   at InvokeStub_WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [8 ms]
+  Error Message:
+   the Basketball is driven forward
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 969
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AnUprightBoxSetAboveTheBenchSettlesOnItsFaceWithinTheRestTolerances [2 ms]
+  Error Message:
+   speed 29.437725067138672 spin 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AnUprightBoxSetAboveTheBenchSettlesOnItsFaceWithinTheRestTolerances() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 299
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [5 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 599)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 906
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:19.14]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow [FAIL]
+[xUnit.net 00:00:19.14]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow [1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (2.06299996 - 2.22299981)
+Actual: 3
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 453
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter [3 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (87 - 93)
+Actual: 163.26738
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 319
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:19.16]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [FAIL]
+[xUnit.net 00:00:19.16]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [FAIL]
+[xUnit.net 00:00:19.18]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesAtTheRollingLawAndRestsOnTheBench [FAIL]
+[xUnit.net 00:00:19.19]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.AHeavyBodyStrikingALightOneAtTheEnvelopeCannotCommitAStruckSpeedBeyond64 [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [5 ms]
+  Error Message:
+   Bowling 60 Hz comes to rest
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(LawBall kind) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 863
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [4 ms]
+  Error Message:
+   Basketball 60 Hz comes to rest
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(LawBall kind) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 863
+   at InvokeStub_WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesAtTheRollingLawAndRestsOnTheBench [21 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (1 - 4200)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesAtTheRollingLawAndRestsOnTheBench() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 1002
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AHeavyBodyStrikingALightOneAtTheEnvelopeCannotCommitAStruckSpeedBeyond64 [< 1 ms]
+  Error Message:
+   struck 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.AHeavyBodyStrikingALightOneAtTheEnvelopeCannotCommitAStruckSpeedBeyond64() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 1074
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:19.19]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees [FAIL]
+[xUnit.net 00:00:19.20]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia [FAIL]
+[xUnit.net 00:00:19.22]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryCommittedTick [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees [3 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (1 - 240)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 388
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia [1 ms]
+  Error Message:
+   omega 0 vs -8.821249
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 334
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryCommittedTick [21 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (1 - 4200)
+Actual: -1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryCommittedTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 986
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:28.24]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: True, miss: 0) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: 0, compression: 0.200000003, payload: True, miss: 0) [7 ms]
+  Error Message:
+   the charged plate launches its payload (0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 396
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:28.27]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 0) [FAIL]
+[xUnit.net 00:00:28.34]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 0, y: 0, z: 0) [FAIL]
+[xUnit.net 00:00:28.34]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 30, y: 50, z: 70) [FAIL]
+[xUnit.net 00:00:28.35]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 90, y: 0, z: 0) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(degrees: -30, compression: 0.200000003, payload: True, miss: 0) [7 ms]
+  Error Message:
+   the charged plate launches its payload (0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Int32 degrees, Single compression, Boolean payload, Single miss) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 396
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreloadTransfersOnlyFiniteStoredWorkToContactingPayloadsInUprightAndTiltedFrames(Object, Span`1)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 0, y: 0, z: 0) [8 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.00999999978 - 0.250001013)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(Int32 x, Int32 y, Int32 z) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 225
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 30, y: 50, z: 70) [7 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.00999999978 - 0.250001013)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(Int32 x, Int32 y, Int32 z) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 225
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(Object, Span`1)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(x: 90, y: 0, z: 0) [7 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.00999999978 - 0.250001013)
+Actual: 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(Int32 x, Int32 y, Int32 z) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 225
+   at InvokeStub_WorkshopPhysicsLawPrismaticTests.PreservedPassiveBallContactsAlongEachSourceOrientation(Object, Span`1)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:28.40]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AGravityFedBallAndPlateContactRespectsCompletePassiveEnergy [FAIL]
+[xUnit.net 00:00:28.41]     CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.TheConnectedCollisionPolicyFiltersOnlyItsDeclaredPair [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AGravityFedBallAndPlateContactRespectsCompletePassiveEnergy [21 ms]
+  Error Message:
+   contact compresses the plate (4.9886794) and returns finite spring work (0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.AGravityFedBallAndPlateContactRespectsCompletePassiveEnergy() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 186
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.TheConnectedCollisionPolicyFiltersOnlyItsDeclaredPair [< 1 ms]
+  Error Message:
+   an enabled connected overlap has a physical response
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawPrismaticTests.TheConnectedCollisionPolicyFiltersOnlyItsDeclaredPair() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:line 307
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    72, Passed:  1657, Skipped:     0, Total:  1729, Duration: 27 s - CuriousContraptions.tests.dll (net10.0)

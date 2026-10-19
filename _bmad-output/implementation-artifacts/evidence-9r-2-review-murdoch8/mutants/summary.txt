@@ -1,0 +1,9 @@
+R-SLOT exit 1 :: Failed!  - Failed:     1, Passed:  1728, Skipped:     0, Total:  1729, Duration: 26 s - CuriousContraptions.tests.dll (net10.0) 
+R-RES exit 1 :: Failed!  - Failed:     1, Passed:  1728, Skipped:     0, Total:  1729, Duration: 28 s - CuriousContraptions.tests.dll (net10.0) 
+R-LEN exit 0 :: Passed!  - Failed:     0, Passed:  1729, Skipped:     0, Total:  1729, Duration: 27 s - CuriousContraptions.tests.dll (net10.0) 
+R-CUR exit 1 :: Failed!  - Failed:     1, Passed:  1728, Skipped:     0, Total:  1729, Duration: 25 s - CuriousContraptions.tests.dll (net10.0) 
+R-REUSE exit 0 :: Passed!  - Failed:     0, Passed:  1729, Skipped:     0, Total:  1729, Duration: 28 s - CuriousContraptions.tests.dll (net10.0) 
+R-TAIL exit 1 :: Failed!  - Failed:     1, Passed:  1728, Skipped:     0, Total:  1729, Duration: 26 s - CuriousContraptions.tests.dll (net10.0) 
+R-HDR exit 1 :: Failed!  - Failed:     1, Passed:  1728, Skipped:     0, Total:  1729, Duration: 28 s - CuriousContraptions.tests.dll (net10.0) 
+R-PRUNE0 exit 1 :: Failed!  - Failed:    72, Passed:  1657, Skipped:     0, Total:  1729, Duration: 27 s - CuriousContraptions.tests.dll (net10.0) 
+       0

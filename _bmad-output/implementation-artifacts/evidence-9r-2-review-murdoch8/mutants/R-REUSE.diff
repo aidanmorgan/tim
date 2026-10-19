@@ -1,0 +1,13 @@
+diff --git a/CuriousContraptions.Simulation/BrowserGpuTransport.cs b/CuriousContraptions.Simulation/BrowserGpuTransport.cs
+index 675ed00e..50727450 100644
+--- a/CuriousContraptions.Simulation/BrowserGpuTransport.cs
++++ b/CuriousContraptions.Simulation/BrowserGpuTransport.cs
+@@ -52,7 +52,7 @@ internal sealed class BrowserGpuTransport : IWorkshopGpuTransport
+ 
+     private byte[] Candidate(int length)
+     {
+-        if (_candidateBuffers[_candidateIndex].Length != length) _candidateBuffers[_candidateIndex] = new byte[length];
++        if (length >= 0) _candidateBuffers[_candidateIndex] = new byte[length];
+         return _candidateBuffers[_candidateIndex];
+     }
+ 

@@ -2,7 +2,7 @@
 title: 'Story 9R.2: Collider Table Sized at Run (Reopened Story 6.9b)'
 type: 'bugfix'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 context:

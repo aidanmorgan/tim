@@ -1,0 +1,12 @@
+diff --git a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+index 343fc1a5..9bc47bb1 100644
+--- a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
++++ b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+@@ -676,6 +676,7 @@ internal sealed class WorkshopPhysicsEngine
+             else continue;
+ 
+             // Exactly the complement of the overlap callback's static-static rejection below.
++            if (b.Motion == 0 && c.Index > 2048) continue;
+             _bvh.InsertLeaf(c.Index, min, max, b.Motion != 0);
+         }
+ 

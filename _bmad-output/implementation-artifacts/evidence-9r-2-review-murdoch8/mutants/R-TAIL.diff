@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/PhysicsGpuAbi.cs b/engine/gpu/PhysicsGpuAbi.cs
+index ea913eb7..98846d91 100644
+--- a/engine/gpu/PhysicsGpuAbi.cs
++++ b/engine/gpu/PhysicsGpuAbi.cs
+@@ -364,7 +364,7 @@ public static partial class PhysicsGpuAbi
+         if (dynamicCount!=R32(source,HeaderDynamicCountOffset) || dynamicCount>PhysicsBodyReadSet.Capacity ||
+             !AllZero(candidate.Slice(BodiesOffset+bodyCount*BodyBytes,(PhysicsSceneDeclaration.BodyCapacity-bodyCount)*BodyBytes)) ||
+             !candidate[MaterialsOffset..SensorsOffset].SequenceEqual(source[MaterialsOffset..SensorsOffset]) ||
+-            !candidate[CollidersOffset..].SequenceEqual(source[CollidersOffset..]))
++            !candidate[CollidersOffset..(CollidersOffset + ColliderBytes)].SequenceEqual(source[CollidersOffset..(CollidersOffset + ColliderBytes)]))
+             throw new ArgumentException("Candidate changed body population, geometry or material.");
+         var bodies = ReadDynamicBodies(candidate);
+         uint captured = 0;

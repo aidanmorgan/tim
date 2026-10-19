@@ -1,0 +1,12 @@
+diff --git a/engine/gpu/PhysicsGpuAbi.cs b/engine/gpu/PhysicsGpuAbi.cs
+index ea913eb7..91975616 100644
+--- a/engine/gpu/PhysicsGpuAbi.cs
++++ b/engine/gpu/PhysicsGpuAbi.cs
+@@ -519,7 +519,6 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
+             (R64(data, HeaderDocumentLowOffset) == 0 && R64(data, HeaderDocumentHighOffset) == 0) || R64(data, HeaderNextIdentityOffset) == 0 ||
+             R32(data, HeaderDynamicCountOffset) > PhysicsBodyReadSet.Capacity ||
+             R32(data, HeaderWorkOccurrenceCountOffset) > PhysicsContactWorkRead.OccurrenceCapacity ||
+-            R32(data, HeaderReservedOffset) != 0 ||
+             R32(data, HeaderOrientationSensorCountOffset) > PhysicsSceneDeclaration.OrientationSensorCapacity ||
+             R32(data, HeaderElectricalSourceCountOffset) > ElectricalSupplyPlan.SourceCapacity ||
+             R32(data, HeaderElectricalBindingCountOffset) > WorkshopConnections.Capacity)

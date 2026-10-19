@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/PhysicsGpuAbi.cs b/engine/gpu/PhysicsGpuAbi.cs
+index ea913eb7..9f57f2d0 100644
+--- a/engine/gpu/PhysicsGpuAbi.cs
++++ b/engine/gpu/PhysicsGpuAbi.cs
+@@ -508,7 +508,7 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
+ 
+     private static void Header(ReadOnlySpan<byte> data)
+     {
+-        if (data.Length < HeaderBytes || data.Length != ByteLength(data) ||
++        if (data.Length < HeaderBytes ||
+             R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
+             R32(data, HeaderBodyCountOffset) > PhysicsSceneDeclaration.BodyCapacity ||
+             R32(data, HeaderMaterialCountOffset) > PhysicsSceneDeclaration.MaterialCapacity ||

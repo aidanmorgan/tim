@@ -1,0 +1,33 @@
+#!/bin/zsh
+# Murdoch-8, Story 9R.2 mutants. Each is applied alone to the detached review worktree at 1f755119, the native suite
+# (CuriousContraptions.tests) is run, and the worktree is restored with `git checkout -- .`.
+set -u
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch8-9r2
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-2-review-murdoch8/mutants
+mkdir -p $E
+cd $W || exit 9
+ENG=CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+ABI=engine/gpu/PhysicsGpuAbi.cs
+TR=CuriousContraptions.Simulation/BrowserGpuTransport.cs
+
+mutate() { # name file perl-substitution
+  git checkout -- . ; [ -z "$(git status --porcelain)" ] || { echo "$1 refused: dirty"; return; }
+  perl -0pi -e "$3" $2
+  if git diff --quiet; then echo "$1 NOT APPLIED"; return; fi
+  git diff > $E/$1.diff
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj > $E/$1.log 2>&1
+  echo "$1 exit $? :: $(grep -E '^(Passed|Failed)!|error CS|error CA' $E/$1.log | head -3 | tr '\n' ' ')"
+  grep -E '^\s+Failed ' $E/$1.log | sed 's/\[.*//' | sort -u | head -12 > $E/$1.failed.txt
+  git checkout -- .
+}
+
+mutate R-SLOT  $ENG 's/(\n(\s+)_bvh\.InsertLeaf\(c\.Index, min, max, b\.Motion != 0\);)/\n$2if (b.Motion == 0 && c.Index > 2048) continue;$1/'
+mutate R-RES   $ABI 's/\n\s+R32\(data, HeaderReservedOffset\) != 0 \|\|//'
+mutate R-LEN   $ABI 's/\n\s+candidate\.Length != source\.Length \|\|//'
+mutate R-CUR   $TR  's/if \(_currentBuffer\.Length != candidate\.Length\)/if (_currentBuffer.Length < candidate.Length)/'
+mutate R-REUSE $TR  's/if \(_candidateBuffers\[_candidateIndex\]\.Length != length\)/if (length >= 0)/'
+mutate R-TAIL  $ABI 's/!candidate\[CollidersOffset\.\.\]\.SequenceEqual\(source\[CollidersOffset\.\.\]\)/!candidate[CollidersOffset..(CollidersOffset + ColliderBytes)].SequenceEqual(source[CollidersOffset..(CollidersOffset + ColliderBytes)])/'
+mutate R-HDR   $ABI 's/if \(data\.Length < HeaderBytes \|\| data\.Length != ByteLength\(data\) \|\|/if (data.Length < HeaderBytes ||/'
+mutate R-PRUNE0 $ENG 's/_bvh\.InsertLeaf\(c\.Index, min, max, b\.Motion != 0\);/_bvh.InsertLeaf(c.Index, min, max, false);/'
+git checkout -- .
+git status --porcelain | wc -l
