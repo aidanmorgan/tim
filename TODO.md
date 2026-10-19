@@ -14,10 +14,12 @@
 - Bench placement can't crash. No UI handler exception can kill the browser runtime: all 19 are guarded.
 - Results: 1539/1539 native tests; one full Chrome run of 34 files, 165/165; palette-placement 25/25.
 
+**Also verified:** Story 9R.0, the real C# static gate. It has Murdoch-3's round-7 verdict on `ea4edab4`: analyzers run with warnings as errors on every C# project, and CI runs on every push and PR.
+
 **Current outcome:**
-- Next is Story 9R.0 (C# static gate). Its worktree must rebase onto `8de7f259`.
-- Then Stories 9R.0a (tiered and parallel e2e runner; spec written) and 9R.0b, then 9R.1–9R.18, 9.4c and Epic 9A, all before any new element (owner, 19 Oct 2026: keep this order, one lane).
-- A visual-style review of every palette part is running. The owner reported the Funnel glass looks inverted; findings become stories.
+- Next is Story 9R.0a (tiered and parallel e2e runner; spec written), then 9R.0b and 9R.1–9R.17.
+- The visual repair Stories 9R.19–9R.22 come before 9R.18; they came from the owner's Funnel report and the 19 Oct visual review.
+- After those: 9R.18, 9.4c and Epic 9A, all before any new element (owner, 19 Oct 2026: keep this order, one lane).
 
 **Verification policy:** [verification tiers](_bmad-output/planning-artifacts/autonomous-development-guide.md#verification-tiers), owner decision 19 Oct 2026.
 - A full Chrome run happens only for a material engine change, and as a checkpoint after every 5 element stories.
@@ -25,6 +27,9 @@
 
 **Blocker / owner / retry:** None.
 
-**Next acceptance check:** Story 9R.0. Rebase it onto `8de7f259`, then the native re-check, the Chrome checklist and one full run, because it is a shared-infrastructure change.
+**Next acceptance check:** Story 9R.0a.
+- First, a design review of `spec-9r-0a-tiered-parallel-e2e-runner.md`.
+- Then implementation, test-first.
+- Its own proof: two consecutive parallel full runs at 100%.
 
 **Provenance:** Original `a6c914e` is the sole legacy baseline. [History recovery](docs/history-recovery.md), recovery bundle and archives remain inside tim and are not uploaded. Preserve unrelated dirty historical review/question records. Unknown measurements remain unknown.

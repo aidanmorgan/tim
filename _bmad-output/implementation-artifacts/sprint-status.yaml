@@ -138,7 +138,7 @@ development_status:
   epic-9r: backlog
   # owner report 19 Oct 2026 (Balloon crash): runs first in 9R, right after 9-4b
   9r-0c-undelivered-parts-leave-palette: done
-  9r-0-csharp-static-analysis-gate: backlog
+  9r-0-csharp-static-analysis-gate: done
   # owner 19 Oct 2026: tiered verification + parallel Chrome for non-timing suites
   9r-0a-tiered-parallel-e2e-runner: backlog
   # coordinator 18 Oct 2026: workers are not AOT-compiled (interpreted), so AGENTS.md wasm-simd128 is unmet

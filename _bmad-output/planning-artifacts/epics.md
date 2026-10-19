@@ -1069,7 +1069,12 @@ So that branching circuits and toggle mechanisms can be built.
 - Exact Run/Reset is asserted against the pre-Run snapshot helper from Story 9R.1.
 
 ### Story 9R.0: Real C# Static Analysis Gate
-*Status: Backlog*
+*Status: Done (19 Oct 2026). Murdoch-3's round-7 terminal verdict was given on `ea4edab4` ([review](../implementation-artifacts/review-9r-0-csharp-static-gate.md)).*
+- *The gate: analyzers with warnings as errors, checked against the actual Csc inputs.*
+- *Native results: 1692/1692 tests and 0 warnings.*
+- *Chrome: one full run (33/34) found a regression from this story, which was fixed. The failed suite (clock-master 8/8), the smoke pair and the checklist then passed.*
+- *CI now runs on every push and every PR.*
+- *Open Lows: the forced fault prints two stderr lines, identical to main (owned by 9A.24); CA2000 is left at its default; the publish isn't byte-reproducible; a hook edit in the working tree can bypass the gate (CI is the backstop).*
 
 *Depends on: Story 9.4b (the IL2125 warning is removed there). Closes report #18 and X1: `anvil check --changed` scans no `.cs` (review-9-4 matrix row A2, `anvil-csharp-control`: a probe `.cs` file with two empty catch blocks returned 0 warnings). Every recorded "anvil 0 warnings" claim on C# was vacuous; this story makes the C# gate real for every story, reopened or new.*
 
