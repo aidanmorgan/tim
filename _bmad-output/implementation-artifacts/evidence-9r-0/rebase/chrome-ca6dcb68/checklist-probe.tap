@@ -1,0 +1,26 @@
+TAP version 13
+# CHECK_WORKERS ["/simulation/worker.js","/animation/worker.js","/simulation/clock-master.js"]
+# CHECK_LIFECYCLE_ERRORS []
+# CHECK_REFUSAL ["log page: CCGPU_UI_REJECTION CuriousContraptions.Gpu.WorkshopEditRejectedException: Unsupported construction save."] errors []
+# Subtest: workers boot; Run, Pause, Step, Resume, Reset, Save, Load log nothing to stderr; a refusal goes only to stdout
+ok 1 - workers boot; Run, Pause, Step, Resume, Reset, Save, Load log nothing to stderr; a refusal goes only to stdout
+  ---
+  duration_ms: 13852.664708
+  type: 'test'
+  ...
+# CHECK_FAULT ["error page: CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\\n    at checkSimulationLiveness (http://127.0.0.1:8060/workshop-client.js:343:23)\\n    at http://127.0.0.1:8060/workshop-client.js:3","error page: SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\\n    at checkSimulationLiveness (http://127.0.0.1:8060/workshop-client.js:343:23)\\n    at http://127.0.0.1:8060/workshop-client.js:362:13"]
+# Subtest: a forced Simulation fault (the liveness spin) is reported on stderr once, as the typed fault
+ok 2 - a forced Simulation fault (the liveness spin) is reported on stderr once, as the typed fault
+  ---
+  duration_ms: 11321.487291
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25472.864791

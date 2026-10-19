@@ -1,0 +1,6 @@
+candidate ca6dcb6874914a17880bd2d96c20f2520e46f6f6 served-game-wasm 757e9bf370f4e6176041bc01fbccd1c34ad4d89fd15ff1ea3e1f62b536e6357d started 2026-10-19T11:16:55Z
+clock-master exit=0 pass=8 fail=0 seconds=82
+engine-core-2b1 exit=0 pass=1 fail=0 seconds=9
+engine-core-2a1 exit=0 pass=5 fail=0 seconds=20
+checklist-probe exit=0 pass=2 fail=0 seconds=25
+finished 2026-10-19T11:19:11Z served-game-wasm 757e9bf370f4e6176041bc01fbccd1c34ad4d89fd15ff1ea3e1f62b536e6357d

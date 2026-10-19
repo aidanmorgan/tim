@@ -199,3 +199,50 @@ Codec sniffing (CA1031 in WorkshopCommandRouter.Dispatch and BrowserWorkshopClie
   (0-6,000 bytes): System.ArgumentException 16,508, System.ArgumentOutOfRangeException 8,026, decoded 0.
   The narrowed `catch (ArgumentException)` covers every observed failure; the router tests that dispatch
   fixed-binary commands (WorkshopWireTests.ActualRouterReplaysOnlyExactPendingAndCompletedCommand) pass.
+
+=== Rebase onto main 0673bb92 (Stories 9.4b and 9R.0c), 19 Oct 2026 — spec §13 ===
+Branch history: the story was squashed to one commit (unsquashed history on story-9r-0-history-5c0a6232).
+Commits on 0673bb92: bd282b22 feat (gate), db620db4 docs (round-5 review), 6c8f7dc3 fix (rebase), ca6dcb68 fix (one
+transport fault is one stderr line). Every commit ran the pre-commit hook (binlog gate, 123 gate tests passed).
+
+Tier 1 on 6c8f7dc3 (scratchpad tier1-6c8f7dc3/):
+  probe/ci-clone.sh (pages.yml's steps in a fresh git clone, binary logs checked): exit 0, 126 s; solution, playtest
+    and web builds 0 warnings; dotnet test 1687/1687 with CSHARP_STATIC_GATE_BINLOGS; publish and bundle checks pass
+  dotnet test CuriousContraptions.slnx: CuriousContraptions.tests 1687/1687, Coverage.Tests 78/78
+  node --experimental-vm-modules --test tools/*.test.mjs: 76/76 (without the flag Node 26 fails 6 files on
+    vm.SourceTextModule)
+  LifecycleContract 510/0, WireContract 109/0, Ownership --oracles exit 0
+  anvil check over the 147 changed source and document files: 0 warnings; one line not scannable
+    (docs/engine-contracts.md:241, 4,784 bytes, unchanged from main). Of the 231 evidence files under evidence-9r-0/,
+    about 100 raw logs report SECRET-HIGH-ENTROPY-STRING (442 matches) on absolute paths in build and stack-trace
+    output, not secrets.
+
+Full serial Chrome run on 6c8f7dc3 (one run, every tools/e2e/*.test.ts, :8060 preview of this worktree's publish,
+served godot.wasm 508493f7… before and after; rebase/chrome-6c8f7dc3/): 33 of 34 files exit 0; clock-master 7/8.
+  (An earlier start under a 30-minute monitor was stopped during anim-1a, before any result, and restarted unmonitored.)
+  Failure: clock-master test 4 (forced SimulationUnresponsive): besides CCGPU_TRANSPORT_FAILURE and the page notice,
+  CCGPU_PRESENTATION_EXCEPTION and CCGPU_DISPOSAL_EXCEPTION reached stderr. Cause: this story's own round-1 change
+  (both boundaries logged whole to stderr). Fixed in ca6dcb68 (spec §13 item 6).
+
+Tier 1 on ca6dcb68 (rebase/tier1-ca6dcb68/): ci-clone exit 0, 125 s, 0 warnings, 1690/1690; slnx 1690/1690 and
+  Coverage 78/78; node 76/76; LifecycleContract 510/0, WireContract 109/0, Ownership exit 0; anvil 0 warnings (same
+  one unscannable line).
+  Retirement fix: red 2/20 (rebase/retire-red.txt), green 20/20; mutants killed: presentation rule widened to any
+  InvalidOperationException, disposal rule blind to the transport state (retire-mutant-*.txt).
+
+Chrome on ca6dcb68 (republished; served CuriousContraptions.wasm 757e9bf3… before and after; manifest
+rebase/chrome-ca6dcb68/bundle-manifest.sha256): the failed suite, the smoke pair and the checklist probe.
+  clock-master 8/8 exit 0 (test 4: exactly the transport failure and its page notice, first at 1020 ms)
+  engine-core-2b1 1/1, engine-core-2a1 5/5
+  checklist-probe 2/2 (rebase/chrome-ca6dcb68/checklist-probe.test.ts.txt):
+    workers boot: /simulation/worker.js, /animation/worker.js, /simulation/clock-master.js
+    place, Run, Pause, Step, Resume, Reset, Save, reload, Load, Run, Reset: 0 console, page, worker or web errors
+    refusal (a stored save that is not a construction, then Load): exactly one CCGPU_UI_REJECTION line, on stdout
+      ("…WorkshopEditRejectedException: Unsupported construction save."), 0 stderr; status line "Load rejected;
+      construction unchanged. Unsupported construction save." (checklist-refusal.png)
+    forced fault (4 s Simulation spin, the clock-master injection): one CCGPU_TRANSPORT_FAILURE stderr line, plus
+      index.html's notice of the same error (as on main), nothing else
+    UI labels: checklist-build.png, checklist-menu.png (Workshop panel, Playback Pause/Resume/Step, Difficulty,
+      Camera, palette rows)
+  Not re-run on ca6dcb68: the other 33 files of the full run (passed on 6c8f7dc3). The fix changes only the two
+  boundaries' logging when the transport has already retired, which only the fault suites reach.

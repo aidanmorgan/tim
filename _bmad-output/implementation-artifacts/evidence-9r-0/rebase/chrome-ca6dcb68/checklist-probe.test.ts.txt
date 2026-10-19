@@ -1,0 +1,97 @@
+// Scratch probe (not a deliverable): Story 9R.0's Chrome checklist on the :8060 production preview.
+// Streams are read by console type: .NET stdout reaches the browser console as 'log', stderr as 'error'.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import type { ConsoleMessage, Worker } from 'playwright';
+import { WorkshopDriver } from '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/e2e/workshop-driver.ts';
+
+const OUT = '/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/tier1-6c8f7dc3/checklist';
+type Line = { source: string; type: string; text: string };
+
+function record(driver: WorkshopDriver): Line[] {
+    const lines: Line[] = [];
+    const watch = (source: string) => (message: ConsoleMessage): void => { lines.push({ source, type: message.type(), text: message.text() }); };
+    driver.page.on('console', watch('page'));
+    driver.page.on('pageerror', (error: Error) => lines.push({ source: 'page', type: 'pageerror', text: String(error) }));
+    driver.page.on('worker', (worker: Worker) => worker.on('console', watch(`worker ${worker.url()}`)));
+    driver.context.on('weberror', webError => lines.push({ source: 'context', type: 'weberror', text: String(webError.error()) }));
+    return lines;
+}
+const errors = (lines: Line[]) => lines.filter(line => line.type === 'error' || line.type === 'pageerror' || line.type === 'weberror');
+const show = (lines: Line[]) => lines.map(line => `${line.type} ${line.source}: ${line.text.slice(0, 240)}`);
+
+test('workers boot; Run, Pause, Step, Resume, Reset, Save, Load log nothing to stderr; a refusal goes only to stdout', { timeout: 300000 }, async () => {
+    const driver = await WorkshopDriver.launch();
+    const lines = record(driver);
+    try {
+        await driver.reload();
+        const workers = driver.page.workers().map(worker => new URL(worker.url()).pathname);
+        console.log(`CHECK_WORKERS ${JSON.stringify(workers)}`);
+        assert.ok(workers.some(path => path.includes('/simulation/worker.js')), 'the Simulation worker booted');
+        assert.ok(workers.some(path => path.includes('/animation/')), 'the Animation worker booted');
+        await driver.page.screenshot({ path: `${OUT}-build.png` });
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(720, 485);
+        await driver.run(300);
+        await driver.pauseSimulation();
+        await driver.stepSimulation();
+        await driver.resumeSimulation();
+        await driver.reset();
+        await driver.save();
+        await driver.reload();
+        await driver.load();
+        await driver.run(300);
+        await driver.reset();
+        await driver.openMenu();
+        await driver.page.screenshot({ path: `${OUT}-menu.png` });
+        await driver.closeMenu();
+        console.log(`CHECK_LIFECYCLE_ERRORS ${JSON.stringify(show(errors(lines)))}`);
+        assert.deepEqual(show(errors(lines)), [], 'the ordinary lifecycle logs nothing to stderr');
+        const before = lines.length;
+        // A refusal: a stored save that is not an admissible construction (WorkshopEditRejection.UnsupportedSave).
+        await driver.page.evaluate(() => new Promise<void>((resolve, reject) => {
+            const request = indexedDB.open('curious-contraptions-workshop');
+            request.onerror = () => reject(new Error('database unavailable'));
+            request.onsuccess = () => {
+                const connection = request.result;
+                const transaction = connection.transaction('construction', 'readwrite');
+                transaction.objectStore('construction').put(new Uint8Array([1, 2, 3]), 1);
+                transaction.oncomplete = () => { connection.close(); resolve(); };
+                transaction.onabort = () => { connection.close(); reject(new Error('write aborted')); };
+            };
+        }));
+        await driver.openMenu();
+        await (driver as unknown as { press(x: number, y: number): Promise<void> }).press(1098, 178);
+        await driver.page.waitForTimeout(2000);
+        await driver.page.screenshot({ path: `${OUT}-refusal.png` });
+        await driver.closeMenu();
+        const after = lines.slice(before);
+        const rejections = after.filter(line => line.text.startsWith('CCGPU_UI_REJECTION'));
+        console.log(`CHECK_REFUSAL ${JSON.stringify(show(rejections))} errors ${JSON.stringify(show(errors(after)))}`);
+        assert.equal(rejections.length, 1, 'exactly one UI rejection line');
+        assert.ok(['log', 'info'].includes(rejections[0].type), `the refusal is on stdout (console ${rejections[0].type})`);
+        assert.deepEqual(show(errors(after)), [], 'the refusal logs nothing to stderr');
+    } finally { await driver.close(); }
+});
+
+test('a forced Simulation fault (the liveness spin) is reported on stderr once, as the typed fault', { timeout: 150000 }, async () => {
+    const driver = await WorkshopDriver.launch();
+    const lines = record(driver);
+    try {
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(720, 485);
+        const worker = driver.page.workers().find(candidate => candidate.url().includes('/simulation/worker.js'));
+        assert.ok(worker);
+        const before = lines.length;
+        await worker.evaluate(block => {
+            setTimeout(() => { const end = performance.now() + block; while (performance.now() < end) { /* injected spin */ } }, 0);
+        }, 4000);
+        await driver.page.waitForTimeout(6000);
+        await driver.page.screenshot({ path: `${OUT}-fault.png` });
+        const reported = errors(lines.slice(before));
+        console.log(`CHECK_FAULT ${JSON.stringify(show(reported))}`);
+        assert.equal(reported.filter(line => line.text.startsWith('CCGPU_TRANSPORT_FAILURE')).length, 1, 'exactly one transport fault line');
+        assert.ok(reported.every(line => line.text.startsWith('CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: ') ||
+            line.text.startsWith('SimulationUnresponsive: ')), 'nothing but the typed fault and its page notice');
+    } finally { await driver.close(); }
+});
