@@ -8,7 +8,7 @@ using Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class FunnelTests(NativeSceneFixture godot)
 {
     [Fact]

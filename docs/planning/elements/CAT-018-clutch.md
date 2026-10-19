@@ -65,7 +65,7 @@ None. The clutch stores no energy. Its phase/closure state is discrete runtime s
 
 ### Catalogue and inventory entry
 - `Id = "clutch"`, title "Clutch", category "Power", default parameters `{close_seconds: 0.2}` (`parts/catalog/clutch.tres@a6c914e:L6-L12`).
-- No `content/puzzles.json` level places the clutch or lists it in inventory at a6c914e. A `WorkshopPartKind` member and a `PartInventory` entry must be added (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- No `content/puzzles.json` level places the clutch or lists it in inventory at a6c914e. A `WorkshopPartKind` member and a `PartInventoryDictionary` entry must be added (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 

@@ -89,7 +89,7 @@ public partial class MachineWorld
             with { Material = material };
     }
 
-    public WorkshopReceiver CaptureReceiver(GpuBodyId id, Vector3 position, Quaternion rotation)
+    public static WorkshopReceiver CaptureReceiver(GpuBodyId id, Vector3 position, Quaternion rotation)
     {
         var q = rotation.Normalized();
         return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
@@ -289,7 +289,11 @@ public partial class MachineWorld
                 frame == _workshopWriteFrame ? _workshopPositionWrites : (byte)0, checked((byte)_parts.Count), DisplaySimulationTime,
                 position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, rotation.W));
         }
-        catch (Exception error) { WorkshopPhase = WorkshopPhase.Faulted; WorkshopFault = error.Message; Running = false; }
+        catch (Exception error)
+        {
+            WorkshopPhase = WorkshopPhase.Faulted; WorkshopFault = error.Message; Running = false;
+            WorkshopDiagnostics.Fault(FaultSite.Presentation, error);
+        }
     }
 
     private void ApplyWorkshopRead(WorkshopRead read)
@@ -385,7 +389,7 @@ public partial class MachineWorld
         {
             _workshopClient = null;
             try { await client.DisposeAsync(); }
-            catch (Exception error) { GD.PrintErr(error.Message); }
+            catch (Exception error) { WorkshopDiagnostics.Fault(FaultSite.Disposal, error); }
         }
     }
 }

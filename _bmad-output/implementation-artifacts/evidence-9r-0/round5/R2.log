@@ -1,0 +1,15 @@
+probe: R2-forged-generated-source-in-obj
+expected refusal (ERE): pre-commit: committed files in a bin/, obj/ or .godot/ directory
+head_before: cb58f5f2338590ccd859d628feed2ab1455e830c
+--- staged:
+ elements/Ball/Ball.csproj                               | 1 +
+ elements/Ball/obj/Debug/net10.0/Probe.GlobalUsings.g.cs | 6 ++++++
+ 2 files changed, 7 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+pre-commit: committed files in a bin/, obj/ or .godot/ directory (listed above) are not allowed
+--- full commit output:
+elements/Ball/obj/Debug/net10.0/Probe.GlobalUsings.g.cs
+pre-commit: committed files in a bin/, obj/ or .godot/ directory (listed above) are not allowed
+--- result: commit_exit=1 head_after=cb58f5f2338590ccd859d628feed2ab1455e830c moved=no refusal_named=yes

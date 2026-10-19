@@ -2,6 +2,8 @@ using System.Buffers.Binary;
 using System.Runtime.InteropServices.JavaScript;
 using CuriousContraptions.Gpu;
 
+namespace CuriousContraptions.Simulation;
+
 public static partial class Program
 {
     private static WorkshopSchedule? _schedule;
@@ -87,10 +89,16 @@ public static partial class Program
                 SendPrepare(WorkshopRuntimeRole.Animation, encoded);
                 await RequireReceipts();
             }
-            catch
+            catch (WorkshopInstallationException)
+            {
+                // Superseded or already wrapped: keep it as it is.
+                if (owner == _installationOwner) AbortInstallation();
+                throw;
+            }
+            catch (Exception error)
             {
                 if (owner == _installationOwner) AbortInstallation();
-                throw new WorkshopInstallationException();
+                throw new WorkshopInstallationException(error);
             }
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Google.FlatBuffers;
 using CuriousContraptions.Wire;
 
@@ -16,7 +17,9 @@ public static class WorkshopSaveCodec
 
     public static byte[] Encode(WorkshopSavedConstruction save)
     {
-        Validate(save);
+        // The committed construction is valid by invariant: a failure here is a defect, never a refusal.
+        save.Construction.Validate();
+        if (!AllocatorIsValid(save)) throw new ArgumentException("Saved construction allocator is invalid.");
         var builder = new FlatBufferBuilder(2048);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, save.Construction);
         SavedConstruction.StartSavedConstruction(builder);
@@ -29,38 +32,51 @@ public static class WorkshopSaveCodec
         return builder.SizedByteArray();
     }
 
+    /// <summary>Untrusted stored bytes. A malformed save is the player's refusal (UnsupportedSave, with the failure as its
+    /// cause); a rule's own rejection keeps its reason; any other exception is a defect and escapes as one.</summary>
     public static WorkshopSavedConstruction Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length < 16) throw new ArgumentException("Unsupported construction save.");
+        if (bytes.Length < 16) throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
+        var save = Read(bytes);
+        try { save.Construction.Validate(); }
+        // The structural validators' declared input rejection: the stored construction is not admissible.
+        catch (Exception error) when (IsInvalidStoredValue(error))
+        {
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, error.Message, error);
+        }
+        if (!AllocatorIsValid(save))
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Saved construction allocator is invalid.");
+        return save;
+    }
+
+    // The FlatBuffers reader and the record decoder: only here are the reader's bounds failures a malformed save.
+    private static WorkshopSavedConstruction Read(ReadOnlySpan<byte> bytes)
+    {
         var bb = new ByteBuffer(bytes.ToArray());
-        SavedConstruction saved;
         try
         {
-            saved = SavedConstruction.GetRootAsSavedConstruction(bb);
+            var saved = SavedConstruction.GetRootAsSavedConstruction(bb);
             if (saved.Magic != Magic || saved.Version != Version || !saved.Construction.HasValue)
-                throw new ArgumentException("Unsupported construction save.");
-            var construction = WorkshopWireFlatBuffers.DecodeConstructionRecord(saved.Construction.Value);
-            var save = new WorkshopSavedConstruction(construction, new(saved.NextBodyId));
-            Validate(save);
-            return save;
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
+            return new(WorkshopWireFlatBuffers.DecodeConstructionRecord(saved.Construction.Value), new(saved.NextBodyId));
         }
-        catch (ArgumentException ex) when (ex.GetType() == typeof(ArgumentException))
+        catch (Exception error) when (IsMalformedRecord(error))
         {
-            throw;
-        }
-        catch
-        {
-            throw new ArgumentException("Unsupported construction save.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave,
+                error.GetType() == typeof(ArgumentException) ? error.Message : "Unsupported construction save.", error);
         }
     }
 
-    private static void Validate(WorkshopSavedConstruction save)
-    {
-        save.Construction.Validate();
-        if (save.NextBodyId.Value == 0)
-            throw new ArgumentException("Saved construction allocator is invalid.");
-        foreach (var instance in save.Construction.Instances)
-            if (save.NextBodyId.Value <= instance.Id.Value)
-                throw new ArgumentException("Saved construction allocator is invalid.");
-    }
+    /// <summary>The structural validators' declared input rejection of a stored value: exactly ArgumentException, or
+    /// ArgumentOutOfRangeException for an out-of-range field. Anything else from validation is a defect.</summary>
+    internal static bool IsInvalidStoredValue(Exception error) =>
+        error.GetType() == typeof(ArgumentException) || error.GetType() == typeof(ArgumentOutOfRangeException);
+
+    /// <summary>What malformed record bytes produce while reading: the decoder's input rejection and the FlatBuffers
+    /// reader's own bounds failures (IndexOutOfRangeException, OverflowException), only inside Read.</summary>
+    internal static bool IsMalformedRecord(Exception error) =>
+        IsInvalidStoredValue(error) || error.GetType() == typeof(IndexOutOfRangeException) || error.GetType() == typeof(OverflowException);
+
+    private static bool AllocatorIsValid(WorkshopSavedConstruction save) =>
+        save.NextBodyId.Value != 0 && save.Construction.Instances.All(instance => save.NextBodyId.Value > instance.Id.Value);
 }

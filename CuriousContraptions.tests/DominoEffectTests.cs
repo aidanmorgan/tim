@@ -61,20 +61,20 @@ public sealed class DominoEffectTests
     public void ForeignInventoryExhaustedTilesChangedFixturesAndWiringIntoADominoReject()
     {
         var lesson = Lesson(); var solved = Solved(lesson);
-        Assert.Throws<ArgumentException>(() => solved.WithInstance(WorkshopInput.Domino(new(9), 1, Upright, 0, 0, 0, 0, 1)).Validate());
-        Assert.Throws<ArgumentException>(() => lesson.WithInstance(WorkshopInput.Receiver(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        Assert.Throws<ArgumentException>(() => lesson.WithInstance(WorkshopInput.Switch(new(9), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default)).Validate());
-        Assert.Throws<ArgumentException>(() => lesson.WithInstance(WorkshopInput.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        Assert.Throws<ArgumentException>(() => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());
-        Assert.Throws<ArgumentException>(() => lesson.WithInstance(WorkshopInput.Domino(new(2), .5, .09, 0, 0, 0, 0, 1) with { Locked = true }).Validate());
-        Assert.Throws<ArgumentException>(() => lesson.WithoutInstance(new(2)).Validate());
-        Assert.Throws<ArgumentException>(() => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
-        Assert.Throws<ArgumentException>(() => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDelay = new((Half).5) } } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(WorkshopInput.Domino(new(9), 1, Upright, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Receiver(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Switch(new(9), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(WorkshopInput.Domino(new(2), .5, .09, 0, 0, 0, 0, 1) with { Locked = true }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDelay = new((Half).5) } } }).Validate());
         Assert.Throws<ArgumentException>(() => DominoEffect.WithPrecision(DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new((Half)0)), new((Half).5)));
         Assert.Equal((Half).5, DominoEffect.WithPrecision(lesson, new((Half).5)).Puzzle.Precision.Value);
         // A Domino offers no activation input: wiring into one is rejected before any admission.
         var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
-        Assert.Throws<ArgumentException>(() => (lesson with { Connections = new(intoDomino) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (lesson with { Connections = new(intoDomino) }).Validate());
     }
 
     [Fact]

@@ -45,15 +45,16 @@ public static class DelayedSignal
             construction.Ball is not { } ball || ball != Ball(ball.Id) ||
             construction.Instances.Find<WorkshopSwitch>() != Switch(new(puzzle.Goal.SourceNode.Value), puzzle.Precision) ||
             construction.Instances.Find<WorkshopLamp>() != Lamp(new(puzzle.Goal.TargetNode.Value)))
-            throw new ArgumentException("Changed delayed signal fixture or goal.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Changed delayed signal fixture or goal.");
         var delays = 0;
         foreach (var instance in construction.Instances)
         {
             if (instance is WorkshopDelay { Locked: false }) { delays++; continue; }
             if (instance is WorkshopBall || instance is WorkshopLamp lamp && lamp.Id.Value == puzzle.Goal.TargetNode.Value ||
                 instance is WorkshopSwitch trigger && trigger.Id.Value == puzzle.Goal.SourceNode.Value) continue;
-            throw new ArgumentException("Unsupported delayed signal inventory.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported delayed signal inventory.");
         }
-        if (delays > puzzle.InventoryCount) throw new ArgumentException("Delay inventory exhausted.");
+        if (delays > puzzle.InventoryCount)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Delay inventory exhausted.");
     }
 }

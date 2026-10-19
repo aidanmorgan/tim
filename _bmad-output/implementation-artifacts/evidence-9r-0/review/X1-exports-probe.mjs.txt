@@ -1,0 +1,15 @@
+// Review probe: resolve the worker JSExport paths from the published bundles in node (no browser).
+const root = process.argv[2];
+for (const [name, path] of [['simulation', ['CuriousContraptions', 'Simulation', 'Program']], ['animation', ['CuriousContraptions', 'Animation', 'Worker', 'Program']]]) {
+    try {
+        const { dotnet } = await import(`${root}/CuriousContraptions.web/AppBundle/${name}/_framework/dotnet.js`);
+        const runtime = await dotnet.create();
+        const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+        let node = exports;
+        for (const key of path) node = node?.[key];
+        console.log(`${name}: mainAssembly=${runtime.getConfig().mainAssemblyName} exports.${path.join('.')} resolved=${node !== undefined} members=${node ? Object.keys(node).length : 0}; legacy exports.Program resolved=${exports.Program !== undefined}; top-level keys=${Object.keys(exports).join(',')}`);
+    } catch (error) {
+        console.log(`${name}: probe failed: ${error?.message ?? error}`);
+    }
+}
+process.exit(0);

@@ -1,0 +1,67 @@
+### G1 #if DEBUG around #pragma warning disable CA2000 + undisposed FileStream; and #if DEBUG around an empty typed catch
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=1
+Failed!  - Failed:     1, Passed:    37, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+   1 C# static gate violation(s):
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 157
+### G1-control same file without the #if DEBUG wrappers (guard must fail)
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=1
+Failed!  - Failed:     2, Passed:    36, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+   1 C# static gate violation(s):
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 157
+   1 C# static gate violation(s):
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 157
+### G2 [SuppressMessage] through a using alias (SM) on an undisposed FileStream
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G3 #nullable disable
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=1
+Failed!  - Failed:     1, Passed:    37, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+   1 C# static gate violation(s):
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 157
+### G4 root Directory.Build.rsp with -p:TreatWarningsAsErrors=false and an unused local
+  build CuriousContraptions.slnx exit=0
+elements/Ball/ReviewAttack.cs(2,70): warning CS0219: The variable 'unused' is assigned but its value is never used
+elements/Ball/ReviewAttack.cs(2,70): warning IDE0059: Unnecessary assignment of a value to 'unused'
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G5 csproj target removing every analyzer before CoreCompile, plus an undisposed FileStream and a dead store
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G8 nested elements/Ball/Directory.Build.targets removing every analyzer (same probe as G5)
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G6a uncompiled .cs under a new tools/ subfolder (unused local, undisposed stream)
+  build CuriousContraptions.slnx exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G6b new test file in CuriousContraptions.tests not listed in its csproj (EnableDefaultCompileItems=false)
+  build CuriousContraptions.tests/CuriousContraptions.tests.csproj exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G7 new C# project not in the slnx
+  guard exit=1
+Failed!  - Failed:     1, Passed:    37, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G12 tracked source in the guard-skipped archives/ directory, compiled into Ball via Compile Include, with #pragma + undisposed stream
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G12b the same under the tracked, guard-skipped .claude/ directory
+  build elements/Ball/Ball.csproj exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+?? _bmad-output/implementation-artifacts/evidence-9r-0/review2/
+### G1b #if DEBUG around an empty typed catch (analyzers skip) and a logging catch-all (CA1031 fires) in a non-boundary method
+  Debug build exit=1
+elements/Ball/ReviewAttack.cs(10,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### G1c only an empty typed catch, under #if DEBUG (the hook's builds are Debug)
+  Debug build exit=0
+  guard exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

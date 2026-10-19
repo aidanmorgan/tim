@@ -105,7 +105,17 @@ public static class WorkshopWireFlatBuffers
         return builder.SizedByteArray();
     }
 
+    // Decode boundary: a malformed buffer is always rejected with ArgumentException. The FlatBuffers reader itself
+    // signals offsets and lengths that run outside the buffer with these runtime exceptions; they are translated
+    // here, once, with the reader's exception kept as the cause. WorkshopWireDecodeBoundaryTests fuzzes this.
     public static WorkshopCommand DecodeCommand(ReadOnlySpan<byte> bytes)
+    {
+        try { return DecodeCommandRecord(bytes); }
+        catch (Exception error) when (error is OverflowException or IndexOutOfRangeException)
+        { throw new ArgumentException("Malformed Workshop command buffer.", nameof(bytes), error); }
+    }
+
+    private static WorkshopCommand DecodeCommandRecord(ReadOnlySpan<byte> bytes)
     {
         var bb = new ByteBuffer(bytes.ToArray());
         var fb = CuriousContraptions.Wire.WorkshopCommand.GetRootAsWorkshopCommand(bb);
@@ -420,6 +430,13 @@ public static class WorkshopWireFlatBuffers
     }
 
     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> bytes)
+    {
+        try { return DecodeResponseRecord(bytes); }
+        catch (Exception error) when (error is OverflowException or IndexOutOfRangeException)
+        { throw new ArgumentException("Malformed Workshop response buffer.", nameof(bytes), error); }
+    }
+
+    private static WorkshopResponse DecodeResponseRecord(ReadOnlySpan<byte> bytes)
     {
         var bb = new ByteBuffer(bytes.ToArray());
         var fb = CuriousContraptions.Wire.WorkshopResponse.GetRootAsWorkshopResponse(bb);

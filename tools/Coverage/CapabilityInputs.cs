@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -179,10 +180,10 @@ public static class CapabilityInputs
         return selected.Path;
     }
 
-    private static readonly IReadOnlySet<RequirementId> WorkflowGaps=new HashSet<RequirementId>
+    private static readonly FrozenSet<RequirementId> WorkflowGaps=new HashSet<RequirementId>
     {
         new("gap-10"),new("gap-11"),new("gap-12"),new("gap-13"),new("gap-14"),new("gap-15"),new("gap-17")
-    };
+    }.ToFrozenSet();
     private static SourceClassification Classification(SourceKey source)
     {
         if(source.Origin==RequirementOrigin.Task)
@@ -237,7 +238,7 @@ public static class CapabilityInputs
         }
         return result;
     }
-    private static IReadOnlyDictionary<SourceKey,SourceRelation[]> SourceRelations(string text,IReadOnlyList<SourceRequirement> sources)
+    private static Dictionary<SourceKey,SourceRelation[]> SourceRelations(string text,IReadOnlyList<SourceRequirement> sources)
     {
         var byId=sources.Where(x=>x.Key.Origin is RequirementOrigin.Task or RequirementOrigin.Element or RequirementOrigin.Thermal or RequirementOrigin.Radiation or RequirementOrigin.Gap)
             .ToDictionary(x=>x.Key.Id.Value,x=>x.Key);

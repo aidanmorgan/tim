@@ -1,0 +1,42 @@
+HEAD before: 26ff653fbb80cfdd555d1e38a8f58d0fda20ad0a
+### R1 Ball.csproj: CreateProperty sets TreatWarningsAsErrors=false before CoreCompile and true after it (gate reads the restored value) + unused local
+  git commit exit=0  HEAD after: a7a6b29
+elements/Ball/ReviewLocal.cs(2,65): warning CS0219: The variable 'unused' is assigned but its value is never used
+elements/Ball/ReviewLocal.cs(2,65): warning IDE0059: Unnecessary assignment of a value to 'unused'
+Passed!  - Failed:     0, Passed:    92, Skipped:     0, Total:    92, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+undo:3: no matches found: elements/Ball/Review*.cs.uid
+  undone: HEAD=26ff653fbb80cfdd555d1e38a8f58d0fda20ad0a status=[?? .c.raw ?? elements/Ball/ReviewLocal.cs ]
+### R2 Ball.csproj: CreateProperty appends CA1031;IDE0059;CS0219 to NoWarn before CoreCompile, restores it after + swallowing catch-all and unused local
+  git commit exit=1  HEAD after: 26ff653
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Nak3Tc/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 215
+   1 C# static gate violation(s):
+Failed!  - Failed:     1, Passed:    91, Skipped:     0, Total:    92, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+undo:3: no matches found: elements/Ball/Review*.cs.uid
+  undone: HEAD=26ff653fbb80cfdd555d1e38a8f58d0fda20ad0a status=[?? .c.raw ?? elements/Ball/ReviewLocal.cs ]
+### R3 csproj DefineConstants adds REVIEWSNEAKY; an empty typed catch under #if REVIEWSNEAKY
+  git commit exit=1  HEAD after: 26ff653
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0XX6wz/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 215
+   1 C# static gate violation(s):
+Failed!  - Failed:     2, Passed:    90, Skipped:     0, Total:    92, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+undo:3: no matches found: elements/Ball/Review*.cs.uid
+  undone: HEAD=26ff653fbb80cfdd555d1e38a8f58d0fda20ad0a status=[?? .c.raw ?? elements/Ball/ReviewLocal.cs ]
+### R4 round-2 C1 again: alias SuppressMessage + DEBUG empty catch + archives/ pragma source
+  git commit exit=1  HEAD after: 26ff653
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.zUSW7e/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 215
+   1 C# static gate violation(s):
+   3 C# static gate violation(s):
+Failed!  - Failed:     2, Passed:    90, Skipped:     0, Total:    92, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+undo:3: no matches found: elements/Ball/Review*.cs.uid
+  undone: HEAD=26ff653fbb80cfdd555d1e38a8f58d0fda20ad0a status=[?? .c.raw ?? archives/ ?? elements/Ball/ReviewAttack.cs ?? elements/Ball/ReviewLocal.cs ]
+### R5 round-2 C2 again: Analyzer Remove target + undisposed Timer
+  git commit exit=1  HEAD after: 26ff653
+CSharpStaticGate.targets(99,9): error : C# static gate: elements/Ball/Ball.csproj compiled without Microsoft.CodeAnalysis.NetAnalyzers.dll;Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll;Microsoft.CodeAnalysis.CodeStyle.dll;Microsoft.CodeAnalysis.CSharp.CodeStyle.dll.
+undo:3: no matches found: elements/Ball/Review*.cs.uid
+  undone: HEAD=26ff653fbb80cfdd555d1e38a8f58d0fda20ad0a status=[?? .c.raw ?? archives/ ?? elements/Ball/ReviewAttack.cs ?? elements/Ball/ReviewLocal.cs ]
+### R6 round-2 C3 again: root Directory.Build.rsp -p:TreatWarningsAsErrors=false + unused local
+  git commit exit=1  HEAD after: 26ff653
+elements/Ball/ReviewLocal.cs(2,65): error CS0219: The variable 'unused' is assigned but its value is never used
+elements/Ball/ReviewLocal.cs(2,65): error IDE0059: Unnecessary assignment of a value to 'unused'
+undo:3: no matches found: elements/Ball/Review*.cs.uid
+  undone: HEAD=26ff653fbb80cfdd555d1e38a8f58d0fda20ad0a status=[?? .c.raw ?? Directory.Build.rsp ?? archives/ ?? elements/Ball/ReviewAttack.cs ?? elements/Ball/ReviewLocal.cs ]
+DONE

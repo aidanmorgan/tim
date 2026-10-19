@@ -32,9 +32,9 @@ public sealed class DelayedSignalTests
         changed = changed with { Connections = new(new(new(2),WorkshopSocket.ActivationOut,new(4),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
             new(new(4),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)) };
         Assert.Equal(changed, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
-        Assert.Throws<ArgumentException>(() => changed.WithInstance(WorkshopInput.Receiver(new(5),0,1,0,0,0,0,1)).Validate());
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(construction.Ball!.Value with { Locked=false }).Validate());
-        Assert.Throws<ArgumentException>(() => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDelay=new((Half).5) } } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Receiver(new(5),0,1,0,0,0,0,1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked=false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDelay=new((Half).5) } } }).Validate());
     }
 
     [Theory]
@@ -121,10 +121,10 @@ public sealed class DelayedSignalTests
     {
         var bytes=WorkshopSaveCodec.Encode(new(Lesson((Half)1),new(4)));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4),5);
-        Assert.Throws<ArgumentException>(()=>WorkshopSaveCodec.Decode(bytes));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes));
         var goal=Lesson((Half)1).Puzzle.Goal;
-        Assert.Throws<ArgumentException>(()=>(goal with { Body=new(1) }).Validate());
-        Assert.Throws<ArgumentException>(()=>(goal with { SourceNode=goal.TargetNode }).Validate());
+        Assert.Throws<ArgumentException>(() => (goal with { Body=new(1) }).Validate());
+        Assert.Throws<ArgumentException>(() => (goal with { SourceNode=goal.TargetNode }).Validate());
         var command=WorkshopWire.Encode(new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),Lesson((Half)1),Session:new(1,2),Cadence:new(1),Projection:new(1)));
         BinaryPrimitives.WriteUInt32LittleEndian(command.AsSpan(12),12);
         Assert.Throws<ArgumentException>(()=>WorkshopWire.DecodeCommand(command));

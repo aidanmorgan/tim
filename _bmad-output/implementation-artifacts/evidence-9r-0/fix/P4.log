@@ -1,0 +1,112 @@
+Anvil snapshot 0.ts: elements/Ball/ProbeSwallows.cs
+Anvil snapshot 1.ts: elements/Battery/ProbeGeneratedHeader.cs
+Anvil snapshot 2.ts: elements/Ramp/ProbeNestedConfig.cs
+Anvil snapshot 3.ts: elements/Wall/GlobalSuppressions.cs
+Anvil snapshot 4.ts: elements/Wall/ProbeSuppressions.cs
+Anvil snapshot 5.ts: ui/Workshop.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T11:19:07.027968+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 14,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.85
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.44
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.30
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.63]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty [613 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["elements/Ball/ProbeSwallows.cs:9 ProbeSwallows.Typ"···]
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 351
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.66]     CuriousContraptions.Tests.CSharpStaticGateTests.OnlyTheRootEditorConfigConfiguresTheAnalyzers [FAIL]
+[xUnit.net 00:00:01.66]     CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesSetAnalysisWarningOrGateProperties [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.OnlyTheRootEditorConfigConfiguresTheAnalyzers [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+Expected: [".editorconfig"]
+Actual:   [".editorconfig", "elements/Ramp/.editorconfig"]
+                            ↑ (pos 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.OnlyTheRootEditorConfigConfiguresTheAnalyzers() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 201
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesSetAnalysisWarningOrGateProperties [4 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["elements/Domino/Domino.csproj: [<NoWarn>$(NoWarn);"···, "elements/SignalLamp/Directory.Build.props: [<CShar"···, "elements/Counter/Counter.csproj: [<TreatWarningsAs"···]
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesSetAnalysisWarningOrGateProperties() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 236
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.51]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCSharpSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [FAIL]
+[xUnit.net 00:00:03.13]     CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCSharpSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [841 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["elements/Wall/ProbeSuppressions.cs:8: #pragma warn"···, "elements/Wall/ProbeSuppressions.cs:14: #pragma war"···, "elements/Wall/ProbeSuppressions.cs:16: SuppressMes"···, "elements/Wall/GlobalSuppressions.cs: suppression f"···, "elements/Wall/GlobalSuppressions.cs:2: System.Diag"···, ···]
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.NoCSharpSourceSuppressesADiagnosticOrHidesFromTheAnalyzers() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 193
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [619 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["elements/Ball/ProbeSwallows.cs:ProbeSwallows.Filte"···, "elements/Battery/ProbeGeneratedHeader.cs:ProbeGene"···, "elements/Ramp/ProbeNestedConfig.cs:ProbeNestedConf"···, "elements/Wall/ProbeSuppressions.cs:ProbeSuppressio"···, "elements/Wall/ProbeSuppressions.cs:ProbeSuppressio"···, ···]
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Felsph/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 363
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     5, Passed:    16, Skipped:     0, Total:    21, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

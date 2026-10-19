@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace Ownership;
 
 // Bounded current semantic examples from docs/engine-contracts.md#ownership-and-assemblies.
@@ -15,13 +17,13 @@ public static class OwnershipPolicy
         };
 
     private static readonly MemberId AnimationFree = new("F:CuriousContraptions.Presentation.AnimationBatch._free");
-    private static readonly IReadOnlySet<CallerId> AnimationFreeCallers = new HashSet<CallerId>
+    private static readonly FrozenSet<CallerId> AnimationFreeCallers = new HashSet<CallerId>
     {
         new("M:CuriousContraptions.Presentation.AnimationBatch.#ctor(System.Int32)"),
         new("M:CuriousContraptions.Presentation.AnimationBatch.RegisterSlot(CuriousContraptions.Presentation.AnimationBinding,CuriousContraptions.Presentation.AnimationBatch.Slot,CuriousContraptions.Presentation.AnimationValue,CuriousContraptions.Presentation.AnimationValue)~CuriousContraptions.Presentation.AnimationHandle"),
         new("M:CuriousContraptions.Presentation.AnimationBatch.Remove(CuriousContraptions.Presentation.AnimationHandle)"),
         new("M:CuriousContraptions.Presentation.AnimationBatch.FillFree")
-    };
+    }.ToFrozenSet();
 
     public static void Validate(StateMember member, OwnershipAssignment assignment)
     {

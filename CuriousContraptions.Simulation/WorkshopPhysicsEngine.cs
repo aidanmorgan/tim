@@ -7,7 +7,7 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
 
-public sealed class WorkshopPhysicsEngine
+internal sealed class WorkshopPhysicsEngine
 {
     private readonly Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2, float Approach)> _contactCache = new();
     private bool _plateLoaded;

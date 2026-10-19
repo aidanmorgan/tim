@@ -9,6 +9,24 @@ The hook reads added, copied, modified and renamed source files **from Git's
 index**. It checks their full staged contents. Unstaged changes cannot hide a
 staged skip. Deleted files and an empty index need no source check.
 
+## C# static gate
+
+Anvil does not analyse C#. Between the skip check and the normal Anvil hook,
+`.githooks/pre-commit` writes the staged index to a fresh temporary directory
+(`git checkout-index`, outside every checkout) and builds it from scratch:
+
+- `CuriousContraptions.slnx`, both default and `-p:PlaytestDiagnostics=true`;
+- the web host's own sources, compile only;
+- both `tools/anvil` apps.
+
+It then runs `CSharpStaticGateTests` there. `Directory.Build.props` builds every
+C# project and file-based app with the .NET analyzers and warnings as errors
+(Story 9R.0). Any C# warning, suppression, widened exemption or swallowed
+exception therefore refuses the commit. Unstaged edits and stale build outputs
+cannot change the result. CI runs the same builds.
+
+## Skip check
+
 Anvil 0.12.0-beta loads `ANVIL_REGISTRY_PATH` as a replacement catalogue.
 The hook scopes that environment variable to a separate invocation, then
 runs the normal `anvil hook pre-commit` with the normal catalogue.

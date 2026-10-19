@@ -354,6 +354,13 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
+    public void PhysicalFrequencyIsExactlyRepresentableInTheHalfWireField()
+    {
+        // The motion read carries the physical frequency as a binary16 field; the constant must round-trip exactly.
+        Assert.Equal(WorkshopCadenceSettings.PhysicalFrequency, (uint)(Half)WorkshopCadenceSettings.PhysicalFrequency);
+    }
+
+    [Fact]
     public void WorldPauseLeavesAutonomousMasterPulsesAdvancingAndResumeWaitsAWholePeriod()
     {
         var settings = WorkshopCadenceSettings.Default();
@@ -1084,7 +1091,7 @@ public sealed class WorkshopWireTests
 
     private static byte[] GenericEndpoint(ulong tick, uint origin, Half phase)
     {
-        var bytes = GenericAdmission(); var offset = DynamicOffset(bytes);
+        var bytes = GenericAdmission();
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(40), tick);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), checked((uint)(tick * Profile.Substeps)));
         var body = NamedBody(bytes, new(1));

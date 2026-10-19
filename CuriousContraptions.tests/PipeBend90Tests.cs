@@ -9,7 +9,7 @@ using Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class PipeBend90Tests(NativeSceneFixture godot)
 {
     private static WorkshopConstruction Lesson(Half precision) =>
@@ -253,22 +253,22 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
 
         // Second pipe bend 90 exceeds inventory limit
         var bend2 = WorkshopInput.PipeBend90(new(4), 1, 3, 0, 0, 0, 0, 1);
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(bend2).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bend2).Validate());
 
         // Locked player pipe bend is rejected
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(bend with { Locked = true }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => construction.WithInstance(bend with { Locked = true }).Validate());
 
         // Unlocking fixed ball or receiver is rejected
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(construction.Receiver!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Receiver!.Value with { Locked = false }).Validate());
 
         // Unauthorized parts are rejected
         var pipe = WorkshopInput.Pipe(new(5), 0, 1, 0, 0, 0, 0, 1);
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(pipe).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(pipe).Validate());
 
         // Tampering with assistance profiles is rejected
-        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
-        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
     }
 
     [Theory]

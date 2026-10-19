@@ -17,7 +17,7 @@ public readonly record struct UiCurveDeclaration(WorkshopUiTarget Target, Worksh
     {
         WorkshopUiTarget.Hint => new(1),
         WorkshopUiTarget.Goal => new(ulong.MaxValue),
-        _ => throw new ArgumentException("Undeclared UI target has no animation identity.")
+        _ => throw new InvalidOperationException("Undeclared UI target has no animation identity.")
     };
     public void Validate()
     {

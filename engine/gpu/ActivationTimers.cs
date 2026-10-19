@@ -17,6 +17,10 @@ public readonly record struct ActivationTime(uint Ordinal, Half Phase) : ICompar
     }
     public int CompareTo(ActivationTime other) =>
         Ordinal != other.Ordinal ? Ordinal.CompareTo(other.Ordinal) : Phase.CompareTo(other.Phase);
+    public static bool operator <(ActivationTime left, ActivationTime right) => left.CompareTo(right) < 0;
+    public static bool operator <=(ActivationTime left, ActivationTime right) => left.CompareTo(right) <= 0;
+    public static bool operator >(ActivationTime left, ActivationTime right) => left.CompareTo(right) > 0;
+    public static bool operator >=(ActivationTime left, ActivationTime right) => left.CompareTo(right) >= 0;
     public ulong CeilingTick(uint substeps)
     {
         Validate(); ValidateSubsteps(substeps);

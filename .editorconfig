@@ -1,5 +1,4 @@
-# The repository root: no parent .editorconfig merges in. Story 9R.0 also edits this file (its C# static gate rules and
-# a test that pins every key); merging the two keeps this section unchanged and adds it to 9R.0's pinned copy.
+# The repository root: no parent .editorconfig merges in.
 root = true
 
 # Story 9.4b: the vendored Google FlatBuffers runtime is third-party code kept byte-for-byte (THIRD-PARTY-NOTICES.md).
@@ -8,3 +7,76 @@ root = true
 # evidence-9-4b/trim/generated-code-probe-build.log).
 [CuriousContraptions.FlatBuffers/**.cs]
 generated_code = true
+
+# C# static gate (Story 9R.0). Directory.Build.props sets AnalysisLevel 10.0-recommended,
+# EnforceCodeStyleInBuild and TreatWarningsAsErrors; this file raises correctness rules beyond that level.
+# Every exclusion below is scoped to named files or symbols and carries its justification; the spec
+# (_bmad-output/implementation-artifacts/spec-9r-0-csharp-static-gate.md) lists them all.
+# CuriousContraptions.tests/CSharpStaticGateTests.cs pins every key and value in this file, so changing any of
+# them fails the test until its pinned copy changes too (both show in the diff for review). It is the only
+# analyzer configuration file allowed in the repository.
+[*.cs]
+# Never swallow exceptions: a general catch must rethrow, or catch the specific types it handles.
+dotnet_diagnostic.CA1031.severity = warning
+# Exceptions thrown from members callers do not expect (getters, Equals, GetHashCode, ToString, finalizers).
+dotnet_diagnostic.CA1065.severity = warning
+# Conditions the data-flow analysis proves are always true or false (dead code).
+dotnet_diagnostic.CA1508.severity = warning
+# Synchronous blocking calls inside async methods.
+dotnet_diagnostic.CA1849.severity = warning
+# Unused private fields.
+dotnet_diagnostic.CA1823.severity = warning
+# Task continuations without an explicit TaskScheduler.
+dotnet_diagnostic.CA2008.severity = warning
+# Disposables dropped before disposal, and disposable fields their owner never disposes. Godot-owned objects are
+# excluded by type: after AddChild the scene tree owns and frees a Node, and an exported or loaded Resource is
+# shared through Godot's resource cache (a field holding one must not dispose it). Other Godot objects
+# (input events, materials created with new) stay under CA2000.
+dotnet_diagnostic.CA2000.severity = warning
+dotnet_diagnostic.CA2213.severity = warning
+dotnet_code_quality.CA2000.excluded_type_names_with_derived_types = T:Godot.Node
+dotnet_code_quality.CA2213.excluded_type_names_with_derived_types = T:Godot.Node|T:Godot.Resource
+# Unused private members, unread private members, dead value assignments and unused parameters.
+dotnet_diagnostic.IDE0051.severity = warning
+dotnet_diagnostic.IDE0052.severity = warning
+dotnet_diagnostic.IDE0059.severity = warning
+dotnet_diagnostic.IDE0060.severity = warning
+
+# CA1031 boundary exclusions. Each listed method is a deliberate fault boundary that must convert every
+# failure into reported state; it records the whole exception through WorkshopDiagnostics and reports it
+# (status text or Faulted phase), and a narrowed catch would let an unlisted type escape and leave the phase or
+# UI stuck. Every other method keeps CA1031. CA1031 exempts the whole method, so CSharpStaticGateTests also pins
+# each method's exact catch-all count and rejects any catch-all inside a lambda or local function.
+
+# Simulation command state machine: any failure faults the simulation (Faulted + logged), never leaves it mid-phase.
+[engine/gpu/WorkshopSimulation.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Gpu.WorkshopSimulation.Initialize|M:CuriousContraptions.Gpu.WorkshopSimulation.Construct(CuriousContraptions.Gpu.WorkshopConstruction)|M:CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(System.Boolean)|M:CuriousContraptions.Gpu.WorkshopSimulation.Reset
+
+# Godot frame presentation and disposal: a presentation failure faults the Workshop with its message; disposal always completes and logs.
+[engine/MachineWorld.Gpu.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.MachineWorld.PresentWorkshopRead|M:CuriousContraptions.MachineWorld.DisposeWorkshop
+
+# Simulation worker: warm-up is non-fatal and logged; the run loop retires the worker with the logged fault.
+[CuriousContraptions.Simulation/Program.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Simulation.Program.WarmupSimulation|M:CuriousContraptions.Simulation.Program.RunLoop(System.UInt64)
+
+# Godot async-void UI handlers: an exception escaping one is lost to the player; each shows the failure in the status line.
+[ui/Workshop.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop._Ready|M:CuriousContraptions.Workshop.ToggleRun|M:CuriousContraptions.Workshop.ResetRun|M:CuriousContraptions.Workshop.Save|M:CuriousContraptions.Workshop.LoadSave
+[ui/WorkshopBattery.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyBatterySettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalSourceSettings)|M:CuriousContraptions.Workshop.ApplyBatteryEnable(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)
+[ui/WorkshopConfiguration.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyClockInterval(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyDelayDuration(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyBumperStrength(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplySpringboardSettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.SpringboardSettings)
+[ui/WorkshopConnections.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)
+[ui/WorkshopGpu.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)
+[ui/WorkshopPuzzle.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)
+
+# xUnit test-method names use the established Subject_Condition_Outcome underscore form, and recorded
+# evidence and --filter commands cite them by name; CA1707 still applies to all production code.
+[CuriousContraptions.tests/**.cs]
+dotnet_diagnostic.CA1707.severity = none
+[tools/Coverage.Tests/**.cs]
+dotnet_diagnostic.CA1707.severity = none

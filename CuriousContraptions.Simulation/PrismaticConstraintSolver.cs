@@ -6,7 +6,7 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
 
-public struct ConstraintRowData
+internal struct ConstraintRowData
 {
     public Vector3 La;
     public Vector3 Lb;
@@ -18,7 +18,7 @@ public struct ConstraintRowData
     public float Minimum;
 }
 
-public sealed class SimJoint
+internal sealed class SimJoint
 {
     public int Offset;
     public SimBody A = null!;
@@ -37,7 +37,7 @@ public sealed class SimJoint
     public ConstraintRowData[] Rows = new ConstraintRowData[8];
 }
 
-public static class PrismaticConstraintSolver
+internal static class PrismaticConstraintSolver
 {
     public static bool IsStop(int index) => index == (int)PrismaticRowKind.LowerStop || index == (int)PrismaticRowKind.UpperStop;
 

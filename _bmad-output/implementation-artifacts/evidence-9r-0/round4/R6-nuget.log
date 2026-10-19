@@ -1,0 +1,60 @@
+probe: R6-repository-nuget-feed
+expected refusal (ERE): nuget.config: response files, package configuration and analyzer configuration other than the root .editorconfig are not allowed
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ nuget.config          | 6 ++++++
+ probe-feed/README.txt | 1 +
+ 2 files changed, 7 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+nuget.config: response files, package configuration and analyzer configuration other than the root .editorconfig are not allowed
+--- full commit output:
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Kpfvyv/solution.binlog
+
+Time Elapsed 00:00:08.95
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Kpfvyv/playtest.binlog
+
+Time Elapsed 00:00:10.70
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Kpfvyv/web.binlog
+
+Time Elapsed 00:00:05.41
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.28]     CuriousContraptions.Tests.CSharpStaticGateTests.NoRepositoryFileAddsCompilerSwitchesOrAnalyzerConfiguration [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoRepositoryFileAddsCompilerSwitchesOrAnalyzerConfiguration [< 1 ms]
+  Error Message:
+   1 C# static gate violation(s):
+nuget.config: response files, package configuration and analyzer configuration other than the root .editorconfig are not allowed
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoRepositoryFileAddsCompilerSwitchesOrAnalyzerConfiguration() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.BcUFZ2/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 915
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   102, Skipped:     0, Total:   103, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

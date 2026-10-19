@@ -1,0 +1,50 @@
+#!/bin/zsh
+# Round-2 re-checks of the round-1 bypasses (F1, F2) and a CA2000 positive control.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+BASE=$(git rev-parse HEAD); echo "HEAD before: $BASE"
+undo() { if [ "$(git rev-parse HEAD)" != "$BASE" ]; then git reset -q --soft $BASE; fi; git reset -q; git checkout -- .; rm -f elements/Ball/ReviewCtl.cs elements/Ball/ReviewCtl.cs.uid CuriousContraptions.Abstractions/ReviewIdx.cs CuriousContraptions.Abstractions/ReviewIdx.cs.uid; echo "  undone: HEAD=$(git rev-parse HEAD)"; }
+show() { grep -E "error [A-Z]+[0-9]+" $W/.r.raw | sed -E 's#^/[^ ]*/(csharp-gate\.[A-Za-z0-9]+|agent-a08aebc94d551b53b)/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -6; }
+
+echo "### K1 CA2000 positive control: undisposed FileStream (non-Godot) and new Godot.StandardMaterial3D (a Resource, not a Node) in elements/Ball"
+cat > elements/Ball/ReviewCtl.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewCtl
+{
+    public static long Leak(string path) => new System.IO.FileStream(path, System.IO.FileMode.Open).Length;
+}
+EOF
+dotnet build elements/Ball/Ball.csproj -nologo -v q > .r.raw 2>&1; echo "  build exit=$?"; show
+rm -f elements/Ball/ReviewCtl.cs elements/Ball/ReviewCtl.cs.uid
+printf '%s\n' 'namespace CuriousContraptions;' 'internal static class ReviewCtlGodot { public static string Name() { var material = new Godot.StandardMaterial3D(); return material.ResourceName; } }' > ui/ReviewCtlGodot.cs
+sed -i '' 's#        <Compile Include="ui/WorkshopArtwork.cs" />#&\
+        <Compile Include="ui/ReviewCtlGodot.cs" />#' CuriousContraptions.csproj
+dotnet build CuriousContraptions.csproj -nologo -v q > .r.raw 2>&1; echo "  game build (Godot Resource created and dropped) exit=$?"; show
+rm -f ui/ReviewCtlGodot.cs ui/ReviewCtlGodot.cs.uid; git checkout -- CuriousContraptions.csproj
+
+echo "### F1-recheck real commit: empty catch + unused local in CuriousContraptions.web/Program.cs"
+cat >> CuriousContraptions.web/Program.cs <<'EOF'
+
+internal static class ReviewProbeWeb
+{
+    public static int Parse(string text)
+    {
+        var unused = 0;
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch { }
+        return -1;
+    }
+}
+EOF
+git add CuriousContraptions.web/Program.cs
+git commit -m "review probe F1-recheck (to be reset)" > .r.raw 2>&1; echo "  git commit exit=$?"; show; echo "  HEAD after: $(git rev-parse HEAD)"
+undo
+
+echo "### F2-recheck real commit: staged warning behind a clean working copy"
+printf '%s\n' 'namespace CuriousContraptions.Abstractions;' 'internal static class ReviewIdx { public static int M() { var unused = 0; return 1; } }' > CuriousContraptions.Abstractions/ReviewIdx.cs
+git add CuriousContraptions.Abstractions/ReviewIdx.cs
+printf '%s\n' 'namespace CuriousContraptions.Abstractions;' 'internal static class ReviewIdx { public static int M() => 1; }' > CuriousContraptions.Abstractions/ReviewIdx.cs
+git commit -m "review probe F2-recheck (to be reset)" > .r.raw 2>&1; echo "  git commit exit=$?"; show; echo "  HEAD after: $(git rev-parse HEAD)"
+undo
+rm -f .r.raw
+git status --short

@@ -1,0 +1,37 @@
+#!/bin/zsh
+# Round-4 review: does the binlog checker fail closed? Builds the gate's binary logs from the (clean) worktree, then
+# runs the guard against good, empty, truncated, partial and missing log directories.
+setopt NULL_GLOB
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4
+cd $W
+mkdir -p $S/good $S/empty $S/truncated $S/partial $S/garbage
+g="-noAutoResponse"
+dotnet restore CuriousContraptions.slnx -nologo -v q --disable-parallel $g > /dev/null
+dotnet build CuriousContraptions.slnx -nologo -v q --no-restore --no-incremental $g -bl:$S/good/solution.binlog > /dev/null; echo "solution build exit=$?"
+dotnet build CuriousContraptions.slnx -nologo -v q --no-restore --no-incremental -p:PlaytestDiagnostics=true $g -bl:$S/good/playtest.binlog > /dev/null; echo "playtest build exit=$?"
+dotnet restore CuriousContraptions.web/CuriousContraptions.web.csproj -nologo -v q --disable-parallel $g > /dev/null
+dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj -nologo -v q --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false $g -bl:$S/good/web.binlog > /dev/null; echo "web build exit=$?"
+dotnet build tools/anvil/CheckStagedTests.cs -nologo -v q -bl:$S/good/check-staged-tests.binlog > /dev/null; echo "check-staged build exit=$?"
+dotnet build tools/anvil/VerifyPolicy.cs -nologo -v q -bl:$S/good/verify-policy.binlog > /dev/null; echo "verify-policy build exit=$?"
+# The guard's own test assembly must be built from this tree (the default build above did that, without PLAYTEST last? rebuild default).
+dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -nologo -v q $g > /dev/null
+cp $S/good/*.binlog $S/truncated/
+size=$(stat -f %z $S/truncated/solution.binlog); head -c $((size / 2)) $S/good/solution.binlog > $S/truncated/solution.binlog
+cp $S/good/solution.binlog $S/partial/   # only the solution log: web and file-based apps missing
+cp $S/good/*.binlog $S/garbage/; printf 'not a binlog' > $S/garbage/solution.binlog
+guard() {
+  echo "### guard with CSHARP_STATIC_GATE_BINLOGS=$1 ($2)"
+  CSHARP_STATIC_GATE_BINLOGS="$1" dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -nologo --no-build \
+    --filter "FullyQualifiedName~CuriousContraptions.Tests.CSharpStaticGateTests" -noAutoResponse > $W/.g.raw 2>&1
+  echo "  exit=$?"; grep -E "Passed!|Failed!" $W/.g.raw; grep -E "no Csc run|Exception|violation" $W/.g.raw | sort -u | head -4
+}
+guard $S/good "all five logs"
+guard $S/empty "empty directory"
+guard $S/truncated "solution log truncated to half"
+guard $S/partial "solution log only"
+guard $S/garbage "solution log replaced by garbage"
+guard $S/nonexistent "directory does not exist"
+rm -f $W/.g.raw
+git status --short
+echo DONE

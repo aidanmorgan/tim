@@ -14,7 +14,7 @@ const host = {
 };
 const runtime = {
     setModuleImports: (_, value) => { imports = value; },
-    getAssemblyExports: async () => ({ Program: host }),
+    getAssemblyExports: async () => ({ CuriousContraptions: { Animation: { Worker: { Program: host } } } }),
     getConfig: () => ({ mainAssemblyName: 'AnimationBoundaryControl' })
 };
 const self = {

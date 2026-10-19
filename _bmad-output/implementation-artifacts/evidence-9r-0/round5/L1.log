@@ -1,0 +1,84 @@
+probe: L1-line-hidden-silences-analyzers
+expected refusal (ERE): elements/Ball/ProbeLine.cs:4: #line hidden
+head_before: cb58f5f2338590ccd859d628feed2ab1455e830c
+--- staged:
+ elements/Ball/ProbeLine.cs | 7 +++++++
+ 1 file changed, 7 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+elements/Ball/ProbeLine.cs:4: #line hidden
+--- full commit output:
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.KeubAo/solution.binlog
+
+Time Elapsed 00:00:11.19
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.KeubAo/playtest.binlog
+
+Time Elapsed 00:00:10.97
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.KeubAo/web.binlog
+
+Time Elapsed 00:00:05.20
+Anvil snapshot 0.ts: elements/Ball/ProbeLine.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T15:25:20.117783+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.58]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [1 s]
+  Error Message:
+   2 C# static gate violation(s):
+elements/Ball/ProbeLine.cs:4: #line hidden
+elements/Ball/ProbeLine.cs:6: #line default
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Ndgljf/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 942
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   109, Skipped:     0, Total:   110, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=cb58f5f2338590ccd859d628feed2ab1455e830c moved=no refusal_named=yes

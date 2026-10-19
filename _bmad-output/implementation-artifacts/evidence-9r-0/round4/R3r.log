@@ -1,0 +1,94 @@
+probe: R3r-defined-symbol-hides-empty-catch
+expected refusal (ERE): elements/Ball/ProbeLocal.cs:8 ProbeLocal.M
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ elements/Ball/Ball.csproj   |  1 +
+ elements/Ball/ProbeLocal.cs | 12 ++++++++++++
+ 2 files changed, 13 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+elements/Ball/ProbeLocal.cs:8 ProbeLocal.M
+--- full commit output:
+Anvil snapshot 0.ts: elements/Ball/ProbeLocal.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T14:41:19.323814+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.DG1BZ1/solution.binlog
+
+Time Elapsed 00:00:11.89
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.DG1BZ1/playtest.binlog
+
+Time Elapsed 00:00:09.92
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.DG1BZ1/web.binlog
+
+Time Elapsed 00:00:05.29
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.17]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [1 s]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/ProbeLocal.cs:7: in an inactive #if branch: catch (System.FormatException) { }
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 900
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.18]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty [< 1 ms]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/ProbeLocal.cs:8 ProbeLocal.M
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.OB68ch/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1207
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:   101, Skipped:     0, Total:   103, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

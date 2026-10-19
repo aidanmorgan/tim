@@ -1,0 +1,103 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Animation/CuriousContraptions.Animation.csproj (in 116 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj (in 116 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj (in 116 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CuriousContraptions.tests.csproj (in 126 ms).
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (6 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.98]     CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [FAIL]
+[xUnit.net 00:00:02.81]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCSharpSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [600 ms]
+  Error Message:
+   6 C# static gate violation(s):
+elements/Ball/ProbeSwallows.cs:ProbeSwallows.FilteredCatchAll: found 1, pinned 0
+elements/Battery/ProbeGeneratedHeader.cs:ProbeGeneratedHeader.Parse: found 1, pinned 0
+elements/Ramp/ProbeNestedConfig.cs:ProbeNestedConfig.Parse: found 1, pinned 0
+elements/Wall/ProbeSuppressions.cs:ProbeSuppressions.Attribute: found 1, pinned 0
+elements/Wall/ProbeSuppressions.cs:ProbeSuppressions.Pragma: found 1, pinned 0
+ui/Workshop.cs:<lambda>: found 1, pinned 0
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 158
+   at CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 370
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCSharpSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [825 ms]
+  Error Message:
+   6 C# static gate violation(s):
+elements/Wall/ProbeSuppressions.cs:8: #pragma warning disable CA1031
+elements/Wall/ProbeSuppressions.cs:14: #pragma warning restore CA1031
+elements/Wall/ProbeSuppressions.cs:16: SuppressMessage("Design", "CA1031")
+elements/Wall/GlobalSuppressions.cs: suppression file
+elements/Wall/GlobalSuppressions.cs:2: System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031", Scope = "namespaceanddescendants", Target = "~N:CuriousContraptions.Elements.Wall")
+elements/Battery/ProbeGeneratedHeader.cs: generated-code header (analyzers skip generated code)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 158
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoCSharpSourceSuppressesADiagnosticOrHidesFromTheAnalyzers() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 200
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.51]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty [FAIL]
+[xUnit.net 00:00:03.51]     CuriousContraptions.Tests.CSharpStaticGateTests.OnlyTheRootEditorConfigConfiguresTheAnalyzers [FAIL]
+[xUnit.net 00:00:03.52]     CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesSetAnalysisWarningOrGateProperties [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty [679 ms]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/ProbeSwallows.cs:9 ProbeSwallows.TypedEmpty
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 158
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 358
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.OnlyTheRootEditorConfigConfiguresTheAnalyzers [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+Expected: [".editorconfig"]
+Actual:   [".editorconfig", "elements/Ramp/.editorconfig"]
+                            ↑ (pos 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.OnlyTheRootEditorConfigConfiguresTheAnalyzers() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 208
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesSetAnalysisWarningOrGateProperties [4 ms]
+  Error Message:
+   3 C# static gate violation(s):
+elements/Domino/Domino.csproj: [<NoWarn>$(NoWarn);CA1031</NoWarn>] expected []
+elements/SignalLamp/Directory.Build.props: [<CSharpStaticGate>false</CSharpStaticGate>] expected []
+elements/Counter/Counter.csproj: [<TreatWarningsAsErrors>false</TreatWarningsAsErrors>] expected []
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 158
+   at CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesSetAnalysisWarningOrGateProperties() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 243
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     5, Passed:    16, Skipped:     0, Total:    21, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

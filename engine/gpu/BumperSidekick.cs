@@ -47,20 +47,21 @@ public static class BumperSidekick
             puzzle.BallAssistance != FirstPrinciples.BallAssistance ||
             puzzle.ReceiverAssistance != FirstPrinciples.ReceiverAssistance || puzzle.RampAssistance != BumperAssistance ||
             construction.Connections.Count != 0)
-            throw new ArgumentException("Unsupported sidekick authored settings.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported sidekick authored settings.");
         var receiver = Receiver(puzzle.Goal.Target, puzzle.Precision);
         if (construction.Ball != Ball(puzzle.Goal.Body) || construction.Receiver != receiver ||
             puzzle.Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(receiver))
-            throw new ArgumentException("Fixed sidekick declarations changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed sidekick declarations changed.");
         var receivers = 0; var bumpers = 0;
         foreach (var instance in construction.Instances)
         {
             if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopBumper) ||
                 instance is WorkshopBumper { Locked: true })
-                throw new ArgumentException("Unsupported sidekick inventory.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported sidekick inventory.");
             if (instance is WorkshopReceiver) receivers++;
             if (instance is WorkshopBumper) bumpers++;
         }
-        if (receivers != 1 || bumpers > 1) throw new ArgumentException("Sidekick inventory exceeded.");
+        if (receivers != 1 || bumpers > 1)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Sidekick inventory exceeded.");
     }
 }

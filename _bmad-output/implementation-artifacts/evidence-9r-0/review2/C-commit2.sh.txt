@@ -1,0 +1,82 @@
+#!/bin/zsh
+# Round-2 real-commit proofs: each bypass that passed the build and the guard is committed through the real hook.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+BASE=$(git rev-parse HEAD); echo "HEAD before: $BASE"
+undo() {
+  if [ "$(git rev-parse HEAD)" != "$BASE" ]; then git reset -q --soft $BASE; fi
+  git reset -q; git checkout -- . ; rm -rf archives/review elements/Ball/ReviewAttack.cs elements/Ball/ReviewAttack.cs.uid Directory.Build.rsp elements/Ball/ReviewRsp.cs elements/Ball/ReviewRsp.cs.uid
+  echo "  undone: HEAD=$(git rev-parse HEAD)"
+}
+
+echo "### C1 one commit: alias SuppressMessage (G2) + DEBUG-only empty typed catch (G1c) + csproj Analyzer Remove (G5) + archives/ source with #pragma (G12)"
+cat > elements/Ball/ReviewAttack.cs <<'EOF'
+using SM = System.Diagnostics.CodeAnalysis.SuppressMessageAttribute;
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+    [SM("Reliability", "CA2000", Justification = "probe")]
+    public static long Leak(string path) => new System.IO.FileStream(path, System.IO.FileMode.Open).Length;
+    public static int Parse(string text)
+    {
+#if DEBUG
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.FormatException) { }
+#endif
+        return -1;
+    }
+}
+EOF
+mkdir -p archives/review
+cat > archives/review/Hidden.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+#pragma warning disable CA2000, IDE0059, CS0219
+internal static class Hidden { public static long Leak(string path) { var unused = 0; return new System.IO.FileStream(path, System.IO.FileMode.Open).Length; } }
+EOF
+sed -i '' 's#</Project>#  <ItemGroup><Compile Include="../../archives/review/Hidden.cs" /></ItemGroup>\
+  <Target Name="ReviewDropAnalyzers" BeforeTargets="CoreCompile" Condition="'"'"'$(ReviewNever)'"'"' == '"'"'yes'"'"'"><ItemGroup><Analyzer Remove="@(Analyzer)" /></ItemGroup></Target>\
+</Project>#' elements/Ball/Ball.csproj
+git add elements/Ball/ReviewAttack.cs archives/review/Hidden.cs elements/Ball/Ball.csproj
+git diff --cached --stat
+git commit -m "review probe C1 (to be reset)" > $W/.c.raw 2>&1; echo "  git commit exit=$?"; grep -E "error [A-Z]+[0-9]+|Failed!|Passed!" $W/.c.raw | sed -E 's#^/[^ ]*/csharp-gate\.[A-Za-z0-9]+/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -8
+echo "  HEAD after: $(git rev-parse HEAD)"
+undo
+
+echo "### C2 G5 alone, active: Ball.csproj target removing every analyzer + undisposed FileStream and dead store"
+cat > elements/Ball/ReviewAttack.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+    public static long Leak(string path) { var dead = 1; dead = 2; return new System.IO.FileStream(path, System.IO.FileMode.Open).Length + dead; }
+}
+EOF
+sed -i '' 's#</Project>#  <Target Name="ReviewDropAnalyzers" BeforeTargets="CoreCompile"><ItemGroup><Analyzer Remove="@(Analyzer)" /></ItemGroup></Target>\
+</Project>#' elements/Ball/Ball.csproj
+git add elements/Ball/ReviewAttack.cs elements/Ball/Ball.csproj
+git commit -m "review probe C2 (to be reset)" > $W/.c.raw 2>&1; echo "  git commit exit=$?"; grep -E "error [A-Z]+[0-9]+|Failed!|Passed!" $W/.c.raw | sed -E 's#^/[^ ]*/csharp-gate\.[A-Za-z0-9]+/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -8
+echo "  HEAD after: $(git rev-parse HEAD)"
+undo
+
+echo "### C3 G4: root Directory.Build.rsp (-p:TreatWarningsAsErrors=false) + unused local"
+printf '%s\n' '-p:TreatWarningsAsErrors=false' > Directory.Build.rsp
+cat > elements/Ball/ReviewRsp.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewRsp { public static int Parse() { var unused = 0; return 1; } }
+EOF
+git add Directory.Build.rsp elements/Ball/ReviewRsp.cs
+git commit -m "review probe C3 (to be reset)" > $W/.c.raw 2>&1; echo "  git commit exit=$?"; grep -E "(error|warning) [A-Z]+[0-9]+|Failed!|Passed!" $W/.c.raw | grep -v IL2125 | sed -E 's#^/[^ ]*/csharp-gate\.[A-Za-z0-9]+/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -8
+echo "  HEAD after: $(git rev-parse HEAD)"
+undo
+
+echo "### C4 --no-verify: an empty catch {} commits without the hook (expected); then the CI gate step on that tree"
+cat > elements/Ball/ReviewAttack.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack { public static int Parse(string t) { try { return int.Parse(t, System.Globalization.CultureInfo.InvariantCulture); } catch { } return -1; } }
+EOF
+git add elements/Ball/ReviewAttack.cs
+git commit --no-verify -m "review probe C4 (to be reset)" > $W/.c.raw 2>&1; echo "  git commit --no-verify exit=$?; HEAD=$(git rev-parse --short HEAD)"
+dotnet restore CuriousContraptions.slnx --nologo --disable-parallel -v q > /dev/null 2>&1
+dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental -v q > $W/.c.raw 2>&1; echo "  CI step 'dotnet build CuriousContraptions.slnx --no-restore --no-incremental' exit=$?"; grep -E "error [A-Z]+[0-9]+" $W/.c.raw | sed -E 's#^/[^ ]*/agent-a08aebc94d551b53b/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -4
+undo
+rm -f $W/.c.raw
+git status --short

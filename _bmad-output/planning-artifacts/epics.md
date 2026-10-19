@@ -48,7 +48,7 @@ Every story is an INVEST vertical slice: delivering one player-observable behavi
 - **NFR-03 (Forward-Only Refactoring):** Zero backwards-compatibility shims, legacy flags, or CPU fallback paths. Superseded code is deleted in the slice that replaces it.
 - **NFR-04 (Game-Grade Numerical Envelope):** Clamp-or-continue numerical policy. Residuals clamp; non-finite states preserve prior poses; ticks never fault.
 - **NFR-05 (Strict Type Safety):** Closed sets are enums end-to-end; extensible identities use strongly typed IDs; string conversions exist only at external boundaries.
-- **NFR-06 (Automated Verification Rigor):** Every slice must pass `anvil check --changed` with 0 warnings, `dotnet test CuriousContraptions.slnx` 100% (557+ tests), and serial Playwright E2E tests in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts` plus all cumulative regression suites).
+- **NFR-06 (Automated Verification Rigor):** Every slice must pass the C# static gate (`dotnet build CuriousContraptions.slnx` with analyzers and warnings as errors, 0 warnings; anvil does not analyse C#), `anvil check --changed` with 0 warnings for non-C# files, `dotnet test CuriousContraptions.slnx` 100% (557+ tests), and serial Playwright E2E tests in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts` plus all cumulative regression suites).
 
 ---
 
@@ -57,7 +57,7 @@ Every story is an INVEST vertical slice: delivering one player-observable behavi
 Every single story across all epics must formally satisfy the following mandatory Story Completion Criteria before it can be accepted or marked complete:
 
 1. **C# Unit Tests Pass 100%:** `dotnet test CuriousContraptions.slnx` passes 100% with 0 failures (557+ tests).
-2. **Anvil Static Analysis Clean:** `anvil check --changed` passes with **0 warnings**.
+2. **C# Static Gate Clean:** `dotnet build CuriousContraptions.slnx` reports **0 warnings and 0 errors** with the .NET analyzers and warnings as errors (`Directory.Build.props`, Story 9R.0), in the default configuration and with `-p:PlaytestDiagnostics=true`, and the web host's own sources compile clean. `CSharpStaticGateTests` passes (no suppression, no widened exemption, no swallowed exception). The repository pre-commit hook checks all of this on a from-scratch snapshot of the staged index and refuses a commit that fails; CI repeats the builds. Until the Story 9.4b rebase, the one expected warning is IL2125. Anvil does not analyse C#: `anvil check --changed` with 0 warnings applies to non-C# files only and is never evidence for C# code.
 3. **Browser-Based Playwright E2E Suite Passes 100%:** The story's dedicated browser-based Playwright E2E test suite (`tools/e2e/<suite>.test.ts`) executed in actual Chrome via the Playwright browser connector passes 100%.
 4. **Cumulative E2E Regression Suites Pass 100% Serially in Chrome:** All prior cumulative browser-based E2E regression suites (`tools/e2e/*.test.ts`) execute serially in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000`) and pass 100%. A 100% pass rate across both the slice's E2E test and all cumulative E2E regression suites is mandatory before any story can be marked complete. Any browser failure or regression strictly blocks completion.
 5. **Exact Reset and Save/Load Persistence Roundtrip:** Exact state restoration before Run and after Reset, as well as JSON Save/Load persistence roundtrip, is verified in Chrome.

@@ -1,0 +1,201 @@
+Story 9R.0 implementer verification (native only; no Chrome, Playwright or preview server was run)
+===================================================================================================
+
+ROUND 5 (after Murdoch-3 review-4 Fail: #line hidden; fix in cb58f5f2)
+-------------------------------------------------------------------
+  #line refused in every form (active and inactive branches) outside the SDK's generated files; every named gate log
+    required with its compiles and the PLAYTEST define; NuGet analyzers pinned per project; the hook re-runs its
+    staged copy and the staged CheckStagedTests.
+  Hook dry run (gate mode): 110/110 guard and UI tests, 36 s. Development dotnet test: 1098/1098.
+  Real commit probes on cb58f5f2 (round5/*.log): 50, every one commit_exit=1, moved=no, refusal_named=yes (the 45
+    of round 4, plus #line hidden, #line in an inactive branch, xunit.analyzers in a production project, a staged
+    hook without the PLAYTEST build, and an unstaged hook edit). The #line hidden probe's own build passed (CA2000
+    silenced) and only the guard refused it.
+  CI reproduced in a fresh git clone of cb58f5f2 with the binary logs checked: exit 0 in 119 s, 1098/1098, publish
+    included (round5/CI-clone.log).
+
+ROUND 4 (after Murdoch-3 review-3 Fail: CreateProperty toggles around CoreCompile; fix in 401528e)
+------------------------------------------------------------------------------------------------
+  The gate reads what Csc received from the gate builds' binary logs (SDK Microsoft.Build replay): every token a
+    source or one of 29 pinned switches, diagnostic switch values, analyzers by SDK location or NuGet package id,
+    analyzer configuration and the generated MSBuild config's 33 keys and analyzer switches, every expected compile
+    logged. CSharpStaticGate.targets and its manifests deleted. Targets pinned by hash (10); UsingTask/CreateProperty/
+    CreateItem/Output outside them refused; imports pinned; .gitattributes diff-hiding, nuget.config and
+    Directory.Packages.props refused; the vendored directory reserved. Guard follows same-type calls, throw helpers
+    and using aliases. 104 refusal assertions now assert their reason (EditRefusal.Is). Save decode: reader bounds
+    failures only while reading records.
+  Hook dry run on the staged candidate (gate mode, binary logs): 103/103 guard and UI tests, 37 s (round4/hook.log).
+  Development dotnet test: CuriousContraptions.tests 1091/1091.
+  CI reproduced as pages.yml is written, in a fresh git clone of 401528e with the binary logs checked: exit 0 in
+    114 s, 1091/1091, publish and bundle checks included (round4/CI-clone.log, ci-clone.sh.txt).
+  Real commit probes on 401528e (round4/*.log): 45, every one commit_exit=1, moved=no, refusal_named=yes. The
+    CreateProperty TreatWarningsAsErrors/NoWarn/WarningsNotAsErrors/WarningLevel/Nullable toggles are each refused by
+    the Csc-input check; the AnalysisLevel toggle does not reach Csc (the warnings stayed errors). A plain
+    <Features>run-nullable-analysis=never</Features> built clean (CS8602 silenced) and was refused only by the
+    Csc-input check. Attempts not counted: R1-Nullable's first try (a nullable annotation made the build fail with
+    CS8632 first; re-run with annotation-free code) and R6's first try (the probe feed directory did not exist, so
+    restore failed first; re-run with the directory present).
+
+ROUND 3c (coordinator: a framework ArgumentException must not be a refusal; typed edit rejection)
+-------------------------------------------------------------------------------------------------
+  WorkshopEditRejectedException (sealed, closed WorkshopEditRejection reason) at every refusal site: 8 UI handlers,
+    WorkshopConnections.Validate, WorkshopPuzzle.Validate and the 8 lesson validators, SpringboardSettings.Validate,
+    WorkshopSaveCodec.Decode. IsRejection accepts only it, WorkbenchFullException and WorkshopTransportException;
+    ArgumentException itself is a fault. The save codec maps only malformed-input failure types to UnsupportedSave.
+  Guard TheEditValidationPathsRefuseOnlyWithTheTypedRejection: 28 pinned methods, every ArgumentException spelling.
+  dotnet build slnx (default and PLAYTEST): 0 errors, IL2125 only. CuriousContraptions.tests 1079/1079 (PLAYTEST
+    1093/1093). 84 exact Throws<ArgumentException> assertions on converted sites now expect the typed rejection;
+    the structural-validator assertions stay ArgumentException.
+  Committed as facf10c through the hook. Real commit probes on facf10c, each refused with HEAD unmoved and the
+    refusal named (round3/F7c.log, F7d.log, F7.log): an untyped ArgumentException refusal in a handler, a
+    target-typed one in a validator, and the UI wiring bypass.
+  CI reproduced in a fresh git clone of facf10c (manifests required): exit 0 in 125 s, 1079/1079 (round3/CI-clone.log).
+
+ROUND 3 (after Murdoch-3 review-2 Fail C1-C3; fixes in 3a3b5f7, b833831 and 6ad4342, this record in the next commit)
+-------------------------------------------------------------------------------------------------------------------
+  Candidate: 3a3b5f7 (effective-config gate, compiled-source scan, F11, F7 classification), b833831 (full UI-catch
+    violation messages), 6ad4342 (build-output sources pinned to the SDK's own files by project and structure;
+    SubmitConstruction and the rotation gizmo report every exception). All committed through the real hook (exit 0).
+  6ad4342 came from the advisor's pre-completion review: a committed target could write Evil.GlobalUsings.g.cs into
+    obj/ and compile it (0 warnings: analyzers skip *.g.cs, and the old name-pattern exemption skipped the scan), or
+    overwrite Ball.GlobalUsings.g.cs with a class (probes R3, R3b; both refused now). SubmitConstruction rethrew
+    defects out of the place/delete/undo async void handlers, which have no catch; the gizmo's filtered catch let
+    ArgumentOutOfRangeException escape with the drag active. The SDK/xUnit generated files are now scanned like any
+    source except for their name and header. dotnet test after the change: 1057/1057.
+  Hook dry run on the staged candidate (round3/hook.log): 78 tests (CSharpStaticGateTests + WorkshopUiFailureTests),
+    manifests required, 0 failed, 34 s wall time.
+  CI reproduced as pages.yml is written, in a fresh `git clone` of the branch (a git checkout, so the guard lists
+    files through git ls-files, with every manifest required): restores, both slnx builds, web compile, both anvil
+    apps with the gate targets, dotnet test, publish and every bundle check -> exit 0: on b833831 1056/1056 in 117 s,
+    re-run on 6ad4342 1057/1057 in 114 s (round3/CI-clone.log is the 6ad4342 run; script round3/ci-clone.sh.txt).
+    Only warning: IL2125 (expected until the 9.4b rebase).
+  dotnet test CuriousContraptions.slnx -noAutoResponse: CuriousContraptions.tests 1056/1056; Coverage.Tests 65/68
+    (the 3 pre-existing 9.4b-owned failures). PLAYTEST: CuriousContraptions.tests 1070/1070.
+  Real commit probes (round3/<probe>.log, run-probe.sh.txt): 30 probes (28 on b833831, R3 and R3b on 6ad4342), every one commit_exit=1, moved=no,
+    refusal_named=yes, where the expected refusal is matched only in the commit's own output. Re-run attempts:
+    P4I and P4L were refused on the first attempt too, but by a message other than the predicted one
+    (TreatWarningsAsErrors='false' rather than '', and the lambda container `<lambda>` rather than ToggleRun); R1's
+    first attempt was refused by an unrelated CS8321 build error, so it was re-run with only the pragma; F7's first
+    attempt was refused, but xUnit truncated the violation text, fixed in b833831 and re-run. Each final log is the
+    named refusal.
+  Found by the advisor review before the commit and closed in 3a3b5f7: the hook's `dotnet test` read
+    Directory.Build.rsp (now -noAutoResponse; proof C3b runs all 78 tests); a committed file under obj/ could pose
+    as an SDK-generated source (now refused by the hook and the guard; proof R2); the UI classification by base
+    type admitted ArgumentNullException, ObjectDisposedException and runtime InvalidOperationExceptions (now exact
+    declared types, with negative tests).
+  Not run (forbidden here): Chrome/Playwright e2e and the preview server; see spec section 8.
+
+ROUND 2b (pre-review audit of round 2)
+--------------------------------------
+  CA2000 exclusion narrowed from T:Godot.GodotObject to T:Godot.Node (CA2213: Node|Resource): the measured extra sites
+    were 2 (fix/CA2000-node-exclusion-extra-sites.txt): PartDefinition's exported PackedScene (cache-owned) and a test
+    InputEvent (now disposed). dispose_ownership_transfer_at_constructor removed (it contradicted Borrowed); the 3 test
+    sites it covered are fixed (harness owns its objects; the reset test owns the device and lends it).
+  Device gate: a queued waiter is handed the count on release, so CurrentCount == 1 means idle. The round-2 commit's
+    "dispose on any release after disposal" disposed the gate under a queued waiter: fix/M2 shows the new test failing
+    on that logic (SemaphoreSlim ObjectDisposedException instead of the device's) and passing on the fix.
+  New native tests: borrowed warm-up then owned initialise on one device; gate disposal with a queued waiter, while
+    free and while a candidate holds it; installation cause logged versus supersession silent; fixed-binary decoder
+    fuzz (commands and responses); guard: `catch { ; }` is empty, and every hook/CI protection fragment is present.
+  dotnet test CuriousContraptions.slnx: CuriousContraptions.tests 1016/1016 (PLAYTEST 1030/1030); Coverage.Tests 65/68
+    (pre-existing).
+  CI reproduced exactly as pages.yml is written, on a fresh physical checkout-index snapshot: restore, both slnx
+    builds, web compile, both anvil apps, dotnet test, publish and bundle checks -> exit 0 in 113 s
+    (fix/CI-fresh-snapshot.log). The first attempt, before the guard's pin update, also passed restore and every build.
+  Hook wall time on this machine: 36 s (snapshot, restore, 3 from-scratch builds, 2 apps, 38 guard tests, anvil).
+  Stream evidence: no recorded run in either checkout contains "WarmupSimulation non-fatal", "FAULT 1:" or
+    "CCGPU_ADVANCE_EXCEPTION" (searched _bmad-output, docs, main .anvil), so the move to stderr is a Chrome check.
+
+ROUND 2 (after Murdoch-3 Fail; fixes in 1632622, this record and the guard message change in the next commit)
+----------------------------------------------------------------------------------------------------------
+Builds (gate on; root no longer imports the enclosing checkout's props)
+  dotnet build CuriousContraptions.slnx --no-incremental                       exit 0, 32 projects, IL2125 only
+  dotnet build CuriousContraptions.slnx --no-incremental -p:PlaytestDiagnostics=true    exit 0, IL2125 only
+  dotnet build CuriousContraptions.web/... -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false  exit 0 (hook/CI)
+  dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false|true   exit 0 each, IL2125 only
+  node export-probe.mjs on AppBundle/simulation (PLAYTEST publish)              resolved: true
+Tests
+  dotnet test CuriousContraptions.slnx: CuriousContraptions.tests 991/991 (default), 1005/1005 (PLAYTEST);
+    Coverage.Tests now discovered: 65/68, the same 3 pre-existing failures (owner: Story 9.4b, per coordinator)
+  new: CSharpStaticGateTests (21), WorkshopWireDecodeBoundaryTests (3; red with OverflowException before the
+       decode boundary), CompiledMemoryLayoutTests (4, rewritten against the real compiled scene)
+  LifecycleContract / WireContract tools: exit 0, 0 failed cases
+Hook (real `git commit` attempts in this worktree; logs in fix/, scripts fix/try-commit*.sh.txt)
+  commit 1632622 itself: hook ran snapshot restore + 3 builds + both anvil apps + 21 guard tests, all passing
+  P1 web host empty catch + unused local, staged          -> commit exit 1, HEAD unmoved (CA1031, CS0219, IDE0059)
+  P2 warning staged, working copy clean and unstaged      -> commit exit 1, HEAD unmoved (snapshot built the index)
+  P3 warning staged after a warm -p:TreatWarningsAsErrors=false build in the working tree
+                                                          -> commit exit 1, HEAD unmoved (fresh snapshot, --no-incremental)
+  P4 every suppression/swallow vector staged at once (all builds pass because the vectors work)
+                                                          -> commit exit 1, HEAD unmoved; guard lists each vector:
+     A catch (FormatException) { } .......... NoCatchBlockIsEmpty
+     C #pragma warning disable CA1031 ......... NoCSharpSourceSuppresses... (+ unpinned catch-all)
+     D [SuppressMessage] ...................... NoCSharpSourceSuppresses... (+ unpinned catch-all)
+     E GlobalSuppressions.cs .................. NoCSharpSourceSuppresses...
+     F nested .editorconfig (CA1031 none) ..... OnlyTheRootEditorConfigConfiguresTheAnalyzers (+ catch-all)
+     G csproj <NoWarn> ........................ OnlyThePinnedMsBuildLines...
+     H csproj TreatWarningsAsErrors=false ..... OnlyThePinnedMsBuildLines...
+     I nested Directory.Build.props CSharpStaticGate=false ... OnlyThePinnedMsBuildLines...
+     J // <auto-generated/> header ............ NoCSharpSourceSuppresses... (+ catch-all)
+     K catch (Exception e) when (e.HResult != 0) ... CatchAllsExistOnlyAtThePinnedBoundaries...
+     L6 catch-all lambda inside excluded ToggleRun .. CatchAlls... ("ui/Workshop.cs:<lambda>")
+  All probes removed afterwards; tree clean.
+Environment findings while building the gate
+  - A nested worktree imported the enclosing checkout's in-progress Directory.Build.props (IL2001-IL2125 as
+    errors); the root props is now hermetic.
+  - A solution build through the macOS /var symlink breaks the .editorconfig's path-relative sections (258
+    CA1707 errors under /var/..., 0 under /private/var/...); the hook resolves the snapshot with pwd -P.
+  - Parallel restore of a fresh tree races on obj/*.nuget.g.props; the hook restores with --disable-parallel.
+
+ROUND 1
+-------
+Base 8f682f8, worktree branch worktree-agent-a08aebc94d551b53b, SDK 10.0.401, node with --experimental-vm-modules.
+
+Builds (gate on, warnings as errors)
+  dotnet build CuriousContraptions.slnx --no-incremental                        exit 0, 32 projects, IL2125 only
+  dotnet build CuriousContraptions.slnx --no-incremental -p:PlaytestDiagnostics=true    exit 0, IL2125 only (hook's second build)
+  dotnet build CuriousContraptions.slnx --no-incremental -c Release -p:PlaytestDiagnostics=true   exit 0, IL2125 only
+  dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false exit 0, IL2125 only (no ILLink warnings)
+  dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=true  exit 0, IL2125 only (no ILLink warnings)
+  dotnet build tools/anvil/CheckStagedTests.cs ; dotnet build tools/anvil/VerifyPolicy.cs   exit 0, 0 warnings
+
+Restore and packages (CI parity: TreatWarningsAsErrors also makes NuGet warnings errors)
+  dotnet restore CuriousContraptions.slnx --force                              exit 0, no NU warnings
+  dotnet list CuriousContraptions.slnx package --vulnerable --include-transitive   33/33 projects: no vulnerable packages
+
+Tests
+  dotnet test CuriousContraptions.slnx      Passed 963, Failed 0, Skipped 0 (CuriousContraptions.tests.dll), exit 0
+  dotnet test CuriousContraptions.slnx -p:PlaytestDiagnostics=true   Passed 977, Failed 0, Skipped 0, exit 0
+    (PLAYTEST adds the trace tests, including the FailingOutput containment tests that exercise the
+     narrowed FlushSealed catch and its new Console.Error line)
+    (includes the new WorkshopWireTests.PhysicalFrequencyIsExactlyRepresentableInTheHalfWireField and the restored
+     assertions in ActivationTimerTests.BusyAndFinishedInputsDoNotRestartOrReemit and
+     StraightPipeTests.BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth)
+  dotnet tools/LifecycleContract/bin/Release/net10.0/LifecycleContract.dll   exit 0, every case Passed
+  dotnet tools/WireContract/bin/Release/net10.0/WireContract.dll             exit 0, every case Passed
+  dotnet tools/Ownership/bin/Release/net10.0/Ownership.dll --oracles         exit 0
+  dotnet run --file tools/anvil/VerifyPolicy.cs                              PASS (focused suite, suppression, empty index, real commit)
+  dotnet tools/Coverage.Tests/bin/Release/net10.0/Coverage.Tests.dll         68 total, 3 failed: PRE-EXISTING and unrelated.
+    All three throw "Missing or duplicate admitted catalogue resource boundary." at CurrentCatalogue.cs:39, which
+    reads the part-registry file for res://parts/catalog/*.tres paths that no longer exist there (dynamic part
+    discovery). This change touches CurrentCatalogue.cs only at line 97, after that throw. The tool was never
+    built or run by any gate before this story; it is now built by the slnx gate (not run by dotnet test).
+  node --experimental-vm-modules --test tools/workshop-*.test.mjs (8 files)
+    current: tests 107, pass 46, fail 51, skipped 10
+    8f682f8 baseline (git archive into the scratchpad, same command): tests 107, pass 46, fail 51, skipped 10
+    The failing test-name sets are identical (52 names, timings stripped). The rigid-body module-load failure
+    ("Export 'applyConstraintImpulse' is not defined in module") was already recorded in review-9-4. The suites
+    whose mocks this change edits for the namespaced export path (animation-output, pose-ring) pass.
+
+Worker export path (CA1050 namespaces), real trimmed bundles via node + dotnet.create():
+  AppBundle/simulation  exports.CuriousContraptions.Simulation.Program        resolved: true (both publish configs)
+  AppBundle/animation   exports.CuriousContraptions.Animation.Worker.Program  resolved: true (both publish configs)
+  control: AppBundle/simulation exports.Program                               resolved: false
+  shipped worker.js: simulation/worker.js:241 and animation/worker.js:62 read the namespaced paths.
+
+Codec sniffing (CA1031 in WorkshopCommandRouter.Dispatch and BrowserWorkshopClient.ReceiveRead):
+  temporary xUnit probe (seed 9; removed): WorkshopWireFlatBuffers.DecodeCommand/DecodeResponse over fixed-binary
+  WorkshopWire command and response encodings, every single-byte mutation of them and 4,000 random buffers
+  (0-6,000 bytes): System.ArgumentException 16,508, System.ArgumentOutOfRangeException 8,026, decoded 0.
+  The narrowed `catch (ArgumentException)` covers every observed failure; the router tests that dispatch
+  fixed-binary commands (WorkshopWireTests.ActualRouterReplaysOnlyExactPendingAndCompletedCommand) pass.

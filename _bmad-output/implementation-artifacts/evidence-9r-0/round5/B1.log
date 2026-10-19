@@ -1,0 +1,90 @@
+probe: B1-hook-skips-the-playtest-build
+expected refusal (ERE): playtest.binlog: missing \(every gate build.s binary log is required\)
+head_before: cb58f5f2338590ccd859d628feed2ab1455e830c
+--- staged:
+ .githooks/pre-commit | 1 -
+ 1 file changed, 1 deletion(-)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+playtest.binlog: missing (every gate build's binary log is required)
+--- full commit output:
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.WKyWsj/solution.binlog
+
+Time Elapsed 00:00:08.70
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.WKyWsj/web.binlog
+
+Time Elapsed 00:00:05.20
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.01]     CuriousContraptions.Tests.CSharpStaticGateTests.TheHookKeepsEachProtection(fragment: "gate_build playtest \"$snapshot/CuriousContraption"···) [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.TheHookKeepsEachProtection(fragment: "gate_build playtest \"$snapshot/CuriousContraption"···) [2 ms]
+  Error Message:
+   Assert.Contains() Failure: Sub-string not found
+String:    "#!/bin/sh\nset -eu\n# Run the staged copy of this ho"···
+Not found: "gate_build playtest "$snapshot/CuriousContraptions"···
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.TheHookKeepsEachProtection(String fragment) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1154
+   at InvokeStub_CSharpStaticGateTests.TheHookKeepsEachProtection(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.88]     CuriousContraptions.Tests.CSharpStaticGateTests.EveryProjectReportsTheSourcesItCompiled [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.EveryProjectReportsTheSourcesItCompiled [< 1 ms]
+  Error Message:
+   33 C# static gate violation(s):
+playtest.binlog: missing (every gate build's binary log is required)
+playtest.binlog: no Csc run of CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj
+playtest.binlog: no Csc run of CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj
+playtest.binlog: no Csc run of CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj
+playtest.binlog: no Csc run of CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj
+playtest.binlog: no Csc run of elements/Ball/Ball.csproj
+playtest.binlog: no Csc run of elements/BallDetector/BallDetector.csproj
+playtest.binlog: no Csc run of elements/Battery/Battery.csproj
+playtest.binlog: no Csc run of elements/Bumper/Bumper.csproj
+playtest.binlog: no Csc run of elements/Counter/Counter.csproj
+playtest.binlog: no Csc run of elements/Domino/Domino.csproj
+playtest.binlog: no Csc run of elements/PoweredGate/PoweredGate.csproj
+playtest.binlog: no Csc run of elements/PressurePlate/PressurePlate.csproj
+playtest.binlog: no Csc run of elements/Ramp/Ramp.csproj
+playtest.binlog: no Csc run of elements/SignalLamp/SignalLamp.csproj
+playtest.binlog: no Csc run of elements/StateLatch/StateLatch.csproj
+playtest.binlog: no Csc run of elements/SystemClock/SystemClock.csproj
+playtest.binlog: no Csc run of elements/Wall/Wall.csproj
+playtest.binlog: no Csc run of tools/BundleElements/BundleElements.csproj
+playtest.binlog: no Csc run of tools/Coverage/Coverage.csproj
+playtest.binlog: no Csc run of tools/Coverage.Tests/Coverage.Tests.csproj
+playtest.binlog: no Csc run of tools/LifecycleContract/LifecycleContract.csproj
+playtest.binlog: no Csc run of tools/Ownership/Ownership.csproj
+playtest.binlog: no Csc run of tools/Preview/Preview.csproj
+playtest.binlog: no Csc run of tools/TraceAllocations/TraceAllocations.csproj
+playtest.binlog: no Csc run of tools/WireContract/WireContract.csproj
+playtest.binlog: no Csc run of CuriousContraptions.Animation/CuriousContraptions.Animation.csproj
+playtest.binlog: no Csc run of CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj
+playtest.binlog: no Csc run of CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj
+playtest.binlog: no Csc run of CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj
+playtest.binlog: no Csc run of CuriousContraptions.2dog/CuriousContraptions.2dog.csproj
+playtest.binlog: no Csc run of CuriousContraptions.csproj
+playtest.binlog: no Csc run of CuriousContraptions.tests/CuriousContraptions.tests.csproj
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.EveryProjectReportsTheSourcesItCompiled() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2ob24T/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 418
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:   108, Skipped:     0, Total:   110, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=cb58f5f2338590ccd859d628feed2ab1455e830c moved=no refusal_named=yes

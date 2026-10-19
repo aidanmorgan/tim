@@ -160,7 +160,7 @@ public static class RevisionTwoOracles
         void Check(RevisionTwoCase id,Action action)
         {
             try{action();results.Add(new(id,true,"Passed"));}
-            catch(Exception error){results.Add(new(id,false,error.Message));}
+            catch(Exception error) when(error is InvalidOperationException or ArgumentException){results.Add(new(id,false,error.Message));}
         }
         Check(RevisionTwoCase.AxisX,()=>Require(Direction(Axis.X)==new Vector(1,0,0)));
         Check(RevisionTwoCase.AxisY,()=>Require(Direction(Axis.Y)==new Vector(0,1,0)));

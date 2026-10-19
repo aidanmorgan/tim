@@ -19,8 +19,28 @@ jobs:
           dotnet-version: '10.0.401'
       - name: Install WebAssembly workload
         run: dotnet workload install wasm-tools
+      # C# static gate (Story 9R.0): the same builds as .githooks/pre-commit, so a commit that skipped the hook
+      # still cannot deploy with a C# warning. Directory.Build.props makes every warning an error.
+      # A fresh tree restored in parallel races on shared obj/ files, so each entry point restores once, sequentially.
+      # GATE: no auto-response files. Every build writes a binary log to GATE_LOGS; CSharpStaticGateTests then checks
+      # what each Csc task actually received there against the pins.
+      - name: C# static gate
+        env:
+          GATE: -noAutoResponse
+          GATE_LOGS: ${{ runner.temp }}/csharp-gate-binlogs
+        run: |
+          dotnet restore CuriousContraptions.slnx --nologo --disable-parallel $GATE
+          dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental $GATE -bl:$GATE_LOGS/solution.binlog
+          dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental -p:PlaytestDiagnostics=true $GATE -bl:$GATE_LOGS/playtest.binlog
+          dotnet restore CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --disable-parallel $GATE
+          dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false $GATE -bl:$GATE_LOGS/web.binlog
+          dotnet build tools/anvil/CheckStagedTests.cs --nologo -bl:$GATE_LOGS/check-staged-tests.binlog
+          dotnet build tools/anvil/VerifyPolicy.cs --nologo -bl:$GATE_LOGS/verify-policy.binlog
+      # Runs CSharpStaticGateTests against the gate builds' binary logs (every compile must be logged and pinned).
       - name: Test C# game
-        run: dotnet test CuriousContraptions.tests --nologo
+        env:
+          CSHARP_STATIC_GATE_BINLOGS: ${{ runner.temp }}/csharp-gate-binlogs
+        run: dotnet test CuriousContraptions.tests --nologo -noAutoResponse
       - name: Publish production browser bundle
         run: dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
       - name: Check static deployment

@@ -13,8 +13,10 @@ public sealed class WorkshopGpuDeviceTests
     public async Task RealResetLifecycleRebuildsAllEightPrismaticImpulseBytes(float compression)
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
-        var device = new WorkshopGpuDevice(transport, Document);
-        await using var simulation = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation());
+        // The test owns the device; the simulation borrows it (disposed first, it leaves the device to the test).
+        await using var device = new WorkshopGpuDevice(transport, Document);
+        await using var simulation = new WorkshopSimulation(device, new ResetClock(), Settings, new(1),
+            new ResetInstallation(), GpuDeviceOwnership.Borrowed);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             WorkshopInput.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default with { InitialCompression = compression })));
@@ -283,6 +285,83 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(ActivationPhase.Clear, reset.Read.Activations[0].Phase);
         Assert.Equal(timers[0], reset.Read.Timers[0]);
         device.Commit(reset.Sequence); device.Discard(reset.Sequence); await device.DisposeAsync();
+    }
+
+    // ----- Story 9R.0: device ownership and the gate's disposal -----
+
+    private static readonly System.Reflection.FieldInfo GateField =
+        typeof(WorkshopGpuDevice).GetField("_gate", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+    // AvailableWaitHandle throws ObjectDisposedException exactly when the semaphore is disposed (and changes no count).
+    private static bool GateDisposed(WorkshopGpuDevice device)
+    {
+        var gate = (SemaphoreSlim)GateField.GetValue(device)!;
+        try { _ = gate.AvailableWaitHandle; return false; }
+        catch (ObjectDisposedException) { return true; }
+    }
+
+    [Fact]
+    public async Task ABorrowedWarmupLeavesTheDeviceToItsOwnerWhichThenInitialisesAFreshSimulation()
+    {
+        var transport = new HeldTransport(false); transport.Held.SetResult();
+        await using var device = new WorkshopGpuDevice(transport, Document);
+        await using (var warmup = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Borrowed))
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Initialize()).Outcome);
+            var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1)));
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Construct(construction)).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Run()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Reset()).Outcome);
+        }
+        Assert.Equal(0, transport.Disposals);
+        Assert.False(GateDisposed(device));
+        await using (var owner = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Owned))
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await owner.Initialize()).Outcome);
+            Assert.Equal(0UL, owner.Committed.Tick.Value);
+            Assert.Empty(owner.Construction.Instances);
+        }
+        Assert.Equal(1, transport.Disposals);
+    }
+
+    [Fact]
+    public async Task DisposalWithAQueuedCandidateDisposesTheGateOnlyAfterTheQueueDrains()
+    {
+        var transport = new HeldTransport(true);
+        await using var device = new WorkshopGpuDevice(transport, Document);
+        var preparation = device.Prepare();
+        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        await device.DisposeAsync();
+        Assert.False(GateDisposed(device));
+        transport.Held.SetResult();
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => preparation);
+        // The queued candidate acquires, sees the disposal and releases normally: its failure is the device's, not the gate's.
+        var queued = await Assert.ThrowsAsync<ObjectDisposedException>(() => candidate);
+        Assert.Contains(nameof(WorkshopGpuDevice), queued.ObjectName, StringComparison.Ordinal);
+        Assert.True(GateDisposed(device));
+    }
+
+    [Fact]
+    public async Task DisposalWhileTheGateIsFreeDisposesItAtOnceAndRejectsLaterWork()
+    {
+        var transport = new HeldTransport(false); transport.Held.SetResult();
+        await using var device = new WorkshopGpuDevice(transport, Document);
+        await device.Prepare();
+        await device.DisposeAsync();
+        Assert.True(GateDisposed(device));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask());
+    }
+
+    [Fact]
+    public async Task DisposalWhileACandidateHoldsTheGateDisposesItWhenTheCandidateIsDiscarded()
+    {
+        var transport = new HeldTransport(false); transport.Held.SetResult();
+        await using var device = new WorkshopGpuDevice(transport, Document);
+        var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1));
+        await device.DisposeAsync();
+        Assert.False(GateDisposed(device));
+        device.Discard(admitted.Sequence);
+        Assert.True(GateDisposed(device));
     }
 
     private sealed class HeldTransport(bool holdInitialization) : IWorkshopGpuTransport

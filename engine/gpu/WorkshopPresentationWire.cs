@@ -4,9 +4,9 @@ using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
 [Flags]
-public enum PresentationEvidenceFlags : byte { None = 0, Selected = 1, DisplayTiming = 2 }
+public enum PresentationEvidenceBits : byte { None = 0, Selected = 1, DisplayTiming = 2 }
 [Flags]
-public enum PresentationEndpointFlags : uint { None = 0, Present = 1, Mapped = 2 }
+public enum PresentationEndpointBits : uint { None = 0, Present = 1, Mapped = 2 }
 public readonly record struct PresentationScene(ulong Frame, byte PositionWrites, byte PartCount, double SimulationTime,
     float X, float Y, float Z, float Qx, float Qy, float Qz, float Qw);
 
@@ -33,8 +33,8 @@ public static class WorkshopPresentationWire
         BinaryPrimitives.WriteUInt64LittleEndian(data[40..], evidence.WorldEpoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[48..], evidence.DisplayEpoch);
         data[56] = checked((byte)sample.Quality);
-        data[57] = (byte)((selected ? PresentationEvidenceFlags.Selected : PresentationEvidenceFlags.None) |
-            (sample.DisplayWall is not null ? PresentationEvidenceFlags.DisplayTiming : PresentationEvidenceFlags.None));
+        data[57] = (byte)((selected ? PresentationEvidenceBits.Selected : PresentationEvidenceBits.None) |
+            (sample.DisplayWall is not null ? PresentationEvidenceBits.DisplayTiming : PresentationEvidenceBits.None));
         data[58] = scene.PositionWrites; data[59] = scene.PartCount;
         BinaryPrimitives.WriteSingleLittleEndian(data[60..], scene.X);
         BinaryPrimitives.WriteSingleLittleEndian(data[64..], scene.Y);
@@ -60,10 +60,10 @@ public static class WorkshopPresentationWire
         BinaryPrimitives.WriteInt64LittleEndian(data[8..], item.Capture.Time.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[16..], item.Capture.Generation.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[24..], checked((uint)item.Capture.Uncertainty.Value));
-        var flags = PresentationEndpointFlags.Present;
+        var flags = PresentationEndpointBits.Present;
         if (item.Mapped is { } mapped)
         {
-            flags |= PresentationEndpointFlags.Mapped;
+            flags |= PresentationEndpointBits.Mapped;
             BinaryPrimitives.WriteInt128LittleEndian(data[32..], mapped.BrowserInterval.Lower);
             BinaryPrimitives.WriteInt128LittleEndian(data[48..], mapped.BrowserInterval.Upper);
             BinaryPrimitives.WriteInt64LittleEndian(data[64..], mapped.Receipt.Value);

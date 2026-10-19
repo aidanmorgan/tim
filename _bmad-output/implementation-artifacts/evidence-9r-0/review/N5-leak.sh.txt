@@ -1,0 +1,43 @@
+#!/bin/zsh
+# Review probes for the CA1031 per-symbol exclusions in engine/gpu/WorkshopSimulation.cs.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+F=engine/gpu/WorkshopSimulation.cs
+diag() { grep -E "(error|warning) CA1031" $1 | sed -E 's#^/[^ ]*/agent-a08aebc94d551b53b/##' | sed -E 's#: (error|warning) ([A-Z]+[0-9]+): ([^(\[]*).*#: \1 \2: \3#' | sort -u; }
+run() {
+  echo "### $1"
+  dotnet build CuriousContraptions.csproj -nologo -v q -p:TreatWarningsAsErrors=false > $W/.rv.raw 2>&1
+  echo "build exit=$? (TWAE off so every CA1031 is listed)"; echo "CA1031 diagnostics:"; diag $W/.rv.raw; rm -f $W/.rv.raw
+  git checkout -- $F
+}
+# L1: overload of an excluded name (Reset(int)) with a catch-all.
+sed -i '' 's#^    public async ValueTask<WorkshopCommandResult> Reset()$#    public static int Reset(int probe) { try { return checked(probe * probe); } catch (Exception) { return 0; } }\
+    public async ValueTask<WorkshopCommandResult> Reset()#' $F
+run "L1 overload Reset(int) with catch-all, beside the excluded Reset()"
+# L2: lambda with a swallowing catch-all inside the excluded Reset().
+sed -i '' 's#^    public async ValueTask<WorkshopCommandResult> Reset()$#&\
+    {\
+        Func<int, int> probe = value => { try { return checked(value * value); } catch (Exception) { return 0; } };\
+        _ = probe(3);\
+        return await ResetBody();\
+    }\
+    private async ValueTask<WorkshopCommandResult> ResetBody()#' $F
+run "L2 lambda with a swallowing catch-all inside excluded Reset(); the remaining body moved to ResetBody() (not excluded)"
+# L3: local function with a swallowing catch-all inside excluded AdvanceCore(bool).
+sed -i '' 's#^    private async ValueTask<WorkshopCommandResult> AdvanceCore(bool step)$#&\
+    {\
+        static int Probe(int value) { try { return checked(value * value); } catch (Exception) { return 0; } }\
+        _ = Probe(3);\
+        return await AdvanceBody(step);\
+    }\
+    private async ValueTask<WorkshopCommandResult> AdvanceBody(bool step)#' $F
+run "L3 local function with a swallowing catch-all inside excluded AdvanceCore(bool); remaining body moved to AdvanceBody(bool)"
+# L4: a second, swallowing catch-all directly inside excluded Reset().
+sed -i '' 's#^    public async ValueTask<WorkshopCommandResult> Reset()$#&\
+    {\
+        try { _ = checked(_pending * 3); } catch (Exception) { }\
+        return await ResetBody();\
+    }\
+    private async ValueTask<WorkshopCommandResult> ResetBody()#' $F
+run "L4 a new swallowing catch-all statement directly inside excluded Reset(); remaining body moved to ResetBody()"
+git status --short

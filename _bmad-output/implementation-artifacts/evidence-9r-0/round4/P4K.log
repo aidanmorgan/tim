@@ -1,0 +1,83 @@
+probe: P4K-filtered-catch-all
+expected refusal (ERE): elements/Ball/ProbeK.cs:ProbeK.Parse: found 1, pinned 0
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ elements/Ball/ProbeK.cs | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+elements/Ball/ProbeK.cs:ProbeK.Parse: found 1, pinned 0
+--- full commit output:
+Anvil snapshot 0.ts: elements/Ball/ProbeK.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T14:57:13.213163+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 9,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.tT0Hho/solution.binlog
+
+Time Elapsed 00:00:12.41
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.tT0Hho/playtest.binlog
+
+Time Elapsed 00:00:12.19
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.tT0Hho/web.binlog
+
+Time Elapsed 00:00:05.39
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.21]     CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [723 ms]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/ProbeK.cs:ProbeK.Parse: found 1, pinned 0
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ZzS0AZ/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1218
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   102, Skipped:     0, Total:   103, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

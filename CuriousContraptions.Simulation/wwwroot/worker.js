@@ -268,7 +268,7 @@ runtime.setModuleImports('workshopGpu', {
 });
 
 const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
-host = exports.Program;
+host = exports.CuriousContraptions.Simulation.Program;
 roles = Array.from(host.ScheduleRoles());
 const commandAbi = Array.from(host.CommandAbi());
 const responseAbi = Array.from(host.ResponseAbi());

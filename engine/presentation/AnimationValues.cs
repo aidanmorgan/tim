@@ -14,7 +14,7 @@ internal static class AnimationNumbers
     public static Half Positive(Half value)
     {
         Finite(value);
-        if (value <= (Half)0) throw new ArgumentOutOfRangeException(nameof(value));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
         return value;
     }
     public static Half Unit(Half value)

@@ -1,0 +1,13 @@
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewProbe.cs(8,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewProbe.cs(8,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:01.10

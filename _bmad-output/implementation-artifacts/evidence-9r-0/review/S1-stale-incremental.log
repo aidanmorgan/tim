@@ -1,0 +1,10 @@
+## S1 stale incremental outputs: warning probe in Abstractions, built once with -p:TreatWarningsAsErrors=false, then the hook
+TWAE=false build exit=0 (2 CA1031 lines)
+plain slnx build (hook step 1) exit=0
+
+## S2 same probe, full hook: TWAE=false build, then sh .githooks/pre-commit
+TWAE=false build exit=0
+hook exit=0
+0
+-- control: same probe after touching it (forces CoreCompile)
+plain slnx build exit=1

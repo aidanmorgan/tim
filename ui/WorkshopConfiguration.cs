@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -16,7 +17,7 @@ public partial class Workshop
         if (part.Definition?.PartId == PartId.Clock) { AddClockConfiguration(part); return; }
         if (part.Definition?.PartId != PartId.Delay) return;
         var owner=part.AuthoredId;
-        var configure=SignalButton("Delay: "+((double)part.CanonicalDuration.Seconds.Value).ToString("0.###")+" s",()=>
+        var configure=SignalButton("Delay: "+((double)part.CanonicalDuration.Seconds.Value).ToString("0.###", CultureInfo.CurrentCulture)+" s",()=>
         {
             if (!CanEdit) return;
             ClearConnectionChoices();
@@ -31,7 +32,7 @@ public partial class Workshop
     private void AddClockConfiguration(MachinePart part)
     {
         var owner = part.AuthoredId;
-        var configure = SignalButton("Interval: " + part.CanonicalIntervalSeconds.ToString("0.###") + " s", () =>
+        var configure = SignalButton("Interval: " + part.CanonicalIntervalSeconds.ToString("0.###", CultureInfo.CurrentCulture) + " s", () =>
         {
             if (!CanEdit) return;
             ClearConnectionChoices();
@@ -54,16 +55,16 @@ public partial class Workshop
         try
         {
             if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopClock current || current.Locked)
-                throw new ArgumentException("This part has no editable clock interval.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable clock interval.");
             if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)
-                throw new ArgumentException("Clock interval is outside its authored range.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.OutOfRange, "Clock interval is outside its authored range.");
             if (seconds == current.IntervalSeconds) { RefreshConnectionChoices(); return; }
             var proposed = World.Construction.WithInstance(current with { IntervalSeconds = seconds });
             PushUndo();
             if (!await SubmitConstruction(proposed)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (!_workshopUiRemoved) { _status.Text = "Clock interval updated."; RefreshConnectionChoices(); }
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
     }
     private async void ApplyDelayDuration(GpuBodyId owner, double seconds)
     {
@@ -76,7 +77,7 @@ public partial class Workshop
         try
         {
             if (World.Construction.Instances.Single(instance=>instance.Id==owner) is not WorkshopDelay current || current.Locked)
-                throw new ArgumentException("This part has no editable delay.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable delay.");
             var duration=DelayDuration.FromInput(seconds);
             if (duration==current.Duration) {RefreshConnectionChoices();return;}
             var proposed=World.Construction.WithInstance(current with {Duration=duration});
@@ -84,12 +85,12 @@ public partial class Workshop
             if (!await SubmitConstruction(proposed)) {if(_undo.Count>0)_undo.RemoveAt(_undo.Count-1);return;}
             if (!_workshopUiRemoved) {_status.Text="Delay duration updated.";RefreshConnectionChoices();}
         }
-        catch(Exception error) {if(!_workshopUiRemoved)_status.Text=error.Message;}
+        catch(Exception error) {var failure=WorkshopUiFailure.Report(error);if(!_workshopUiRemoved)_status.Text=failure;}
     }
     private void AddBumperConfiguration(MachinePart bumper)
     {
         var owner = bumper.AuthoredId;
-        var configure = SignalButton("Strength: " + ((double)bumper.CanonicalWork.Strength.Value).ToString("0.###"), () =>
+        var configure = SignalButton("Strength: " + ((double)bumper.CanonicalWork.Strength.Value).ToString("0.###", CultureInfo.CurrentCulture), () =>
         {
             if (!CanEdit) return;
             ClearConnectionChoices();
@@ -114,7 +115,7 @@ public partial class Workshop
         try
         {
             if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopBumper current || current.Locked)
-                throw new ArgumentException("This part has no editable strength.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable strength.");
             var work = BumperWork.FromInput(strength);
             if (work == current.Work) { RefreshConnectionChoices(); return; }
             PushUndo();
@@ -122,7 +123,7 @@ public partial class Workshop
                 { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (!_workshopUiRemoved) { _status.Text = "Bumper strength updated."; RefreshConnectionChoices(); }
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
     }
 
     private void AddSpringboardConfiguration(MachinePart spring)
@@ -168,13 +169,13 @@ public partial class Workshop
         {
             settings.Validate();
             if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopSpringboard current || current.Locked)
-                throw new ArgumentException("This part has no editable spring.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable spring.");
             if (current.Settings == settings) { RefreshConnectionChoices(); return; }
             PushUndo();
             if (!await SubmitConstruction(World.Construction.WithInstance(current with { Settings = settings })))
                 { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (!_workshopUiRemoved) { _status.Text = "Spring settings updated."; RefreshConnectionChoices(); }
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
     }
 }

@@ -1,0 +1,15 @@
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/GateProbe.cs(7,13): warning CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/GateProbe.cs(9,9): warning CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/GateProbe.cs(7,13): warning IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/Ball.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/GateProbe.cs(7,13): warning CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/GateProbe.cs(9,9): warning CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/GateProbe.cs(7,13): warning IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/Ball.csproj]
+    4 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.84

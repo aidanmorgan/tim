@@ -56,9 +56,9 @@ public partial class Workshop
         var advanced = new VBoxContainer { Visible = false };
         _optionsContents.AddChild(Button("Fine rotate", () => advanced.Visible = !advanced.Visible));
         _optionsContents.AddChild(advanced);
-        AddRotationRow(advanced, "Tip", "X", Vector3.Right);
-        AddRotationRow(advanced, "Turn", "Y", Vector3.Up);
-        AddRotationRow(advanced, "Tilt", "Z", Vector3.Back);
+        AddRotationRow(advanced, "Tip", Vector3.Right);
+        AddRotationRow(advanced, "Turn", Vector3.Up);
+        AddRotationRow(advanced, "Tilt", Vector3.Back);
         var quick = new HBoxContainer();
         quick.AddChild(Button("↶ Tilt", () => Rotate(new(0, 0, 5))));
         quick.AddChild(Button("Tilt ↷", () => Rotate(new(0, 0, -5))));
@@ -129,7 +129,7 @@ public partial class Workshop
         _rotationGizmo.Follow(_selected, !_inRun && _tool is null, _camera);
     }
 
-    private void AddRotationRow(VBoxContainer parent, string title, string explanation, Vector3 axis)
+    private void AddRotationRow(VBoxContainer parent, string title, Vector3 axis)
     {
         var row = new HBoxContainer();
         var label = Text(title, 14);
@@ -387,7 +387,6 @@ public partial class Workshop
     {
         if (_rotationGizmo == null) return;
         var wasDragging = _rotationGizmo.Dragging;
-        var snapMove = _rotationGizmo.Dragging && _rotationGizmo.MoveMode && !cancel;
         _rotationGizmo.End(cancel);
         if (wasDragging && !cancel) CommitSelected();
         if (cancel && _gizmoUndoPending && _undo.Count > 0)
@@ -401,39 +400,42 @@ public partial class Workshop
     }
 
     // Release must be seen even when the pointer ends a drag over a UI panel.
-    public override void _Input(InputEvent input)
+    public override void _Input(InputEvent @event)
     {
-        if (input is InputEventKey { Pressed: false } released)
+        if (@event is InputEventKey { Pressed: false } released)
             _cameraKeys.Remove(released.PhysicalKeycode != Key.None ? released.PhysicalKeycode : released.Keycode);
         if (_rotationGizmo != null && _rotationGizmo.Dragging)
         {
-            if (input is InputEventKey { Pressed: true, Keycode: Key.Escape })
+            if (@event is InputEventKey { Pressed: true, Keycode: Key.Escape })
             {
                 EndGizmo(true);
                 GetViewport().SetInputAsHandled();
                 return;
             }
-            if (input is InputEventMouseMotion rotate)
+            if (@event is InputEventMouseMotion rotate)
             {
                 try
                 {
                     if (_rotationGizmo.Drag(_camera, rotate.Position, rotate.ShiftPressed))
                     { GetViewport().SetInputAsHandled(); return; }
                 }
+                // The drag ends and the placement is unchanged either way; a declared refusal shows its message, and
+                // any other ArgumentException subtype (an out-of-range pose) is reported as a fault.
                 catch (ArgumentException error)
                 {
                     EndGizmo(true);
-                    _status.Text = "Placement unchanged: " + error.Message;
+                    var failure = WorkshopUiFailure.Report(error);
+                    _status.Text = WorkshopUiFailure.IsRejection(error) ? "Placement unchanged: " + failure : failure;
                     GetViewport().SetInputAsHandled(); return;
                 }
             }
-            if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: false })
+            if (@event is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: false })
             {
                 EndGizmo(false);
                 GetViewport().SetInputAsHandled();
             }
         }
-        if (input is InputEventMouseMotion motion && _lifting && CanEdit)
+        if (@event is InputEventMouseMotion motion && _lifting && CanEdit)
         {
             var target = _preview ?? _selected;
             if (target is { Locked: false } && _liftScreenAxis.LengthSquared() > 1)
@@ -444,7 +446,7 @@ public partial class Workshop
                 
             }
         }
-        if (input is InputEventMouseButton { Pressed: false } mouse)
+        if (@event is InputEventMouseButton { Pressed: false } mouse)
         {
             if (mouse.ButtonIndex == MouseButton.Left)
             {

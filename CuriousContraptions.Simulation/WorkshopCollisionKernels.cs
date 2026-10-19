@@ -4,14 +4,14 @@ using System.Numerics;
 
 namespace CuriousContraptions.Simulation;
 
-public enum ShapeKind : uint
+internal enum ShapeKind : uint
 {
     Sphere = 0,
     Box = 1,
     Plane = 2
 }
 
-public sealed class SimBody
+internal sealed class SimBody
 {
     public int BodySlot;
     public int BodyOffset;
@@ -54,7 +54,7 @@ public sealed class SimBody
     public Vector3 CentreOfMass => new(Cmx, Cmy, Cmz);
 }
 
-public sealed class SimCollider
+internal sealed class SimCollider
 {
     public int Index;
     public int BodySlot;
@@ -79,7 +79,7 @@ public sealed class SimCollider
     public Quaternion Rotation => new(Qx, Qy, Qz, Qw);
 }
 
-public sealed class ContactPoint
+internal sealed class ContactPoint
 {
     public SimBody A = null!;
     public SimBody B = null!;
@@ -112,7 +112,7 @@ public sealed class ContactPoint
     public Vector3 Point => new(Px, Py, Pz);
 }
 
-public sealed class ContactManifold
+internal sealed class ContactManifold
 {
     public List<ContactPoint> Points = new();
     public float Rolling;
@@ -122,7 +122,7 @@ public sealed class ContactManifold
     public float LambdaR2;
 }
 
-public static class WorkshopCollisionKernels
+internal static class WorkshopCollisionKernels
 {
     private const float EdgeFaceAlignment = 0.98f;
 

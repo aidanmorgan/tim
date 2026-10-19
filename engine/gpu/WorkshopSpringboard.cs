@@ -10,7 +10,7 @@ public readonly record struct SpringboardSettings(float Stiffness, float Damping
         if (!float.IsFinite(Stiffness) || Stiffness is < 120f or > 1200f ||
             !float.IsFinite(Damping) || Damping is < 0f or > 8f ||
             !float.IsFinite(InitialCompression) || InitialCompression is < 0f or > .2f)
-            throw new ArgumentException("Unsupported spring settings.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.OutOfRange, "Unsupported spring settings.");
     }
 }
 

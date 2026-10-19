@@ -1,0 +1,14 @@
+$ dotnet build CuriousContraptions.slnx --no-incremental 
+    0 Error(s)
+    1 Warning(s)
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+$ dotnet test CuriousContraptions.slnx 
+Failed!  - Failed:     3, Passed:    65, Skipped:     0, Total:    68, Duration: 156 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1091, Skipped:     0, Total:  1091, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+$ dotnet build CuriousContraptions.slnx --no-incremental -p:PlaytestDiagnostics=true
+    0 Error(s)
+    1 Warning(s)
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+$ dotnet test CuriousContraptions.slnx -p:PlaytestDiagnostics=true
+Failed!  - Failed:     3, Passed:    65, Skipped:     0, Total:    68, Duration: 179 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1105, Skipped:     0, Total:  1105, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,18 @@
+## U1 tracked-but-uncompiled CuriousContraptions.tests/CompiledMemoryLayoutTests.cs, temporarily included
+exit=1
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(117,17): error CS7036: There is no argument given that corresponds to the required parameter 'AngularVelocity' of 'RigidBodyDeclaration.RigidBodyDeclaration(GpuBodyId, RigidMotionKind, CellOrigin, LocalPosition, CanonicalRotation, LinearVelocity, AngularVelocity, Kilograms, AccelerationVector, InverseSeconds)'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(117,46): error CS0103: The name 'GpuBodyType' does not exist in the current context
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(121,13): error CS1739: The best overload for 'PhysicsSceneDeclaration' does not have a parameter named 'Bodies'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(26,17): error CS7036: There is no argument given that corresponds to the required parameter 'AngularVelocity' of 'RigidBodyDeclaration.RigidBodyDeclaration(GpuBodyId, RigidMotionKind, CellOrigin, LocalPosition, CanonicalRotation, LinearVelocity, AngularVelocity, Kilograms, AccelerationVector, InverseSeconds)'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(26,47): error CS0103: The name 'GpuBodyType' does not exist in the current context
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(27,17): error CS7036: There is no argument given that corresponds to the required parameter 'AngularVelocity' of 'RigidBodyDeclaration.RigidBodyDeclaration(GpuBodyId, RigidMotionKind, CellOrigin, LocalPosition, CanonicalRotation, LinearVelocity, AngularVelocity, Kilograms, AccelerationVector, InverseSeconds)'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(27,47): error CS0103: The name 'GpuBodyType' does not exist in the current context
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(31,17): error CS1729: 'ColliderDeclaration' does not contain a constructor that takes 9 arguments
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(31,70): error CS0103: The name 'GpuShapeType' does not exist in the current context
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(35,17): error CS7036: There is no argument given that corresponds to the required parameter 'Friction' of 'ContactMaterialDeclaration.ContactMaterialDeclaration(GpuMaterialId, Restitution, LinearSpeed, FrictionCoefficient, RollingResistance)'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(39,17): error CS7036: There is no argument given that corresponds to the required parameter 'Minimum' of 'ResidenceSensorDeclaration.ResidenceSensorDeclaration(GpuSensorId, GpuBodyId, GpuBodyId, RigidLocalPose, MetreVector, MetreVector, LinearSpeed, DurationSeconds, SensorParticipation)'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(43,17): error CS7036: There is no argument given that corresponds to the required parameter 'Maximum' of 'PlanarGuideDeclaration.PlanarGuideDeclaration(GpuForceId, GpuBodyId, GpuBodyId, RigidLocalPose, MetreVector, MetreVector, Metres, Metres, Acceleration)'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(47,54): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Gpu.GpuColliderId' to 'CuriousContraptions.Gpu.GpuBodyId'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(47,66): error CS1503: Argument 3: cannot convert from 'uint' to 'CuriousContraptions.Gpu.BodyTargetSet'
+CuriousContraptions.tests/CompiledMemoryLayoutTests.cs(47,70): error CS1503: Argument 4: cannot convert from 'float' to 'CuriousContraptions.Gpu.LinearSpeed'
+40

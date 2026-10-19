@@ -45,7 +45,7 @@ try
     foreach (var test in cases)
     {
         Run(root, "git", ["read-tree", "--empty"]);
-        var path = test.Source switch { Source.CSharp => "SampleTests.cs", Source.TypeScript => "sample.spec.ts", _ => throw new ArgumentOutOfRangeException() };
+        var path = test.Source switch { Source.CSharp => "SampleTests.cs", Source.TypeScript => "sample.spec.ts", _ => throw new InvalidOperationException("Unsupported fixture source.") };
         File.WriteAllText(Path.Combine(root, path), test.Content);
         Run(root, "git", ["add", "--", path]);
         // Check staged bytes, even when the worktree looks clean.
@@ -87,8 +87,8 @@ static Result Run(string root, string executable, string[] arguments, bool requi
 
 enum Source { CSharp, TypeScript }
 enum Outcome { Allow, Block }
-record Case(string Label, Source Source, string Content, Outcome Expected);
-record Result(int ExitCode, string Output);
+sealed record Case(string Label, Source Source, string Content, Outcome Expected);
+sealed record Result(int ExitCode, string Output);
 
 [System.Text.Json.Serialization.JsonSerializable(typeof(Case[]))]
-partial class FixtureContext : System.Text.Json.Serialization.JsonSerializerContext;
+sealed partial class FixtureContext : System.Text.Json.Serialization.JsonSerializerContext;

@@ -1,0 +1,20 @@
+### P1 .gitattributes '-diff' on the gate targets and the guard: the pin edit is invisible in git diff
+$ git diff --stat
+ CSharpStaticGate.targets | Bin 11556 -> 11492 bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+$ git diff CSharpStaticGate.targets
+diff --git a/CSharpStaticGate.targets b/CSharpStaticGate.targets
+index 476518c..426fc75 100644
+Binary files a/CSharpStaticGate.targets and b/CSharpStaticGate.targets differ
+$ git diff --cached after git add (what a commit/PR reviewer sees)
+diff --git a/.gitattributes b/.gitattributes
+new file mode 100644
+index 0000000..ed57b7b
+--- /dev/null
++++ b/.gitattributes
+@@ -0,0 +1,2 @@
++CSharpStaticGate.targets -diff
++CuriousContraptions.tests/CSharpStaticGateTests.cs -diff
+diff --git a/CSharpStaticGate.targets b/CSharpStaticGate.targets
+index 476518c..426fc75 100644
+Binary files a/CSharpStaticGate.targets and b/CSharpStaticGate.targets differ

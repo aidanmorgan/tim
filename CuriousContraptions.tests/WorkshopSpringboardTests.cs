@@ -96,8 +96,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
             Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1,2)).Prismatics.ToArray());
         }
-        Assert.Throws<ArgumentException>(() => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate());
-        Assert.Throws<ArgumentException>(() => (construction with { Puzzle = construction.Puzzle with { RampAssistance = default } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle = construction.Puzzle with { RampAssistance = default } }).Validate());
         if (ready)
         {
             var removed = construction.WithoutInstance(new(3)); removed.Validate();
@@ -160,7 +160,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
                 CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
                 var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
                 builder.Finish(end.Value);
-                Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+                EditRefusal.Is(WorkshopEditRejection.OutOfRange, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
                 Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
             }
         }
@@ -248,7 +248,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
         builder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.OutOfRange, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         Assert.Equal(save, WorkshopSaveCodec.Decode(encoded));
     }
 
@@ -279,7 +279,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var part = new MachinePart();
         try
         {
-            Assert.Throws<ArgumentException>(() => part.ApplySpring(new SpringboardSettings(400, .2f, compression)));
+            EditRefusal.Is(WorkshopEditRejection.OutOfRange, () => part.ApplySpring(new SpringboardSettings(400, .2f, compression)));
             part.ApplySpring(new SpringboardSettings(400, .2f, .2f));
             Assert.Equal(.2f, part.CanonicalSpring.InitialCompression);
             var saved = new WorkshopSavedConstruction(Construction(new(400, .2f, .2f)), new(3));
@@ -295,7 +295,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
             builder.Finish(end.Value);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            EditRefusal.Is(WorkshopEditRejection.OutOfRange, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
         }
         finally { part.Free(); }
@@ -354,7 +354,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     public async Task WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(bool duplicate)
     {
         var world = new MachineWorld();
-        var client = new PresentationClient();
+        await using var client = new PresentationClient();
         try
         {
             godot.Tree.Root.AddChild(world);

@@ -164,7 +164,7 @@ public sealed partial class BrowserWorkshopClient
         else if (sample.Target == UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
         else if (IsElectricalTarget(sample.Target)) ReceiveElectricalSample(sample, kind, active);
         else if (IsCaptureTarget(sample.Target)) ReceiveCaptureSample(sample, kind, active);
-        else if (sample.PulseDuration > (Half)0) ReceiveContactSample(sample, kind, active);
+        else if (sample.PulseDuration > (Half)0) ReceiveContactSample(sample, active);
         else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);
         else if (IsMemoryTarget(sample.Target)) ReceiveMemorySample(sample, kind, active);
         else ReceiveActivationSample(sample, kind, active);

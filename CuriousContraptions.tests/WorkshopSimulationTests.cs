@@ -7,16 +7,27 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopSimulationTests
 {
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
-    private static WorkshopSimulation Create(ControlledDevice device, ControlledClock? clock = null, ControlledInstallation? installation = null) =>
-        new(device, clock ?? new ControlledClock(), Settings, new(1), installation ?? new ControlledInstallation());
+    private static SimulationRun Create(ControlledClock? clock = null, ControlledInstallation? installation = null, bool holdStartup = false) =>
+        new(clock ?? new ControlledClock(), installation ?? new ControlledInstallation(), holdStartup);
+    // The run owns the simulation, which owns (and disposes) its device; the run keeps the device for assertions.
+    private sealed class SimulationRun : IAsyncDisposable
+    {
+        public SimulationRun(ControlledClock clock, ControlledInstallation installation, bool holdStartup)
+        {
+            Device = new ControlledDevice { HoldStartup = holdStartup };
+            Simulation = new WorkshopSimulation(Device, clock, Settings, new(1), installation, GpuDeviceOwnership.Owned);
+        }
+        public WorkshopSimulation Simulation { get; }
+        public ControlledDevice Device { get; }
+        public ValueTask DisposeAsync() => Simulation.DisposeAsync();
+    }
     private static WorkshopConstruction BallConstruction(ulong revision = 2) =>
         new(new(revision), Settings, new(WorkshopInput.Basketball(new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
 
     [Fact]
     public async Task RoundedGpuRotationCommitsThroughTheSimulationReadBoundary()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var admission = simulation.Construct(BallConstruction()).AsTask();
         device.CompleteAdmission(0); await admission;
@@ -35,8 +46,7 @@ public sealed class WorkshopSimulationTests
     [InlineData(16)]
     public async Task CompletePopulationSharesTimeAndResetRestoresEveryBody(int count)
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = PopulationConstruction(count);
         var admission = simulation.Construct(construction).AsTask();
@@ -72,8 +82,7 @@ public sealed class WorkshopSimulationTests
     [InlineData(PopulationChange.ForeignLast)]
     public async Task InvalidNonfirstMemberCannotReplaceCompleteCommittedPopulation(PopulationChange change)
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var admission = simulation.Construct(PopulationConstruction(16)).AsTask();
         device.CompleteAdmission(0); await admission;
@@ -100,8 +109,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task SaveChangesRevisionOnceWithoutChangingWorldOrDispatchingGpu()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Committed;
         var construction = simulation.Construction;
@@ -120,8 +128,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task SaveCannotOvertakePendingConstruction()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Committed;
         var admission = simulation.Construct(BallConstruction()).AsTask();
@@ -134,9 +141,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task RunRemainsPendingUntilRecipientsPrepareWithoutRestampingOrGpuWork()
     {
-        var device = new ControlledDevice();
         var installation = new ControlledInstallation();
-        await using var simulation = Create(device, installation: installation);
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Committed;
         var commits = device.Commits;
@@ -158,8 +164,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task RejectedGpuAdmissionPreservesExactConstructionAndRead()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = simulation.Construction;
         var read = simulation.Committed;
@@ -174,9 +179,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task ResetSupersedesPendingRunWithoutLateOverwrite()
     {
-        var device = new ControlledDevice();
         var installation = new ControlledInstallation();
-        await using var simulation = Create(device, installation: installation);
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = BallConstruction();
         var admission = simulation.Construct(construction).AsTask();
@@ -197,8 +201,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task OldAdvanceCannotClearNewEpochsInFlightOwner()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var run = simulation.Run().AsTask();
         await run;
@@ -223,8 +226,7 @@ public sealed class WorkshopSimulationTests
     [InlineData(WorkshopRejection.Capacity)] [InlineData(WorkshopRejection.ReliableStalled)] [InlineData(WorkshopRejection.Transport)]
     public async Task AFaultStopInvalidatesPendingCommitAndRetainsLastRead(WorkshopRejection reason)
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var run = simulation.Run().AsTask();
         await run;
@@ -241,8 +243,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task ForeignGpuBodyCannotReplaceConstruction()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Construction;
         var pending = simulation.Construct(BallConstruction()).AsTask();
@@ -256,9 +257,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task DisposeInvalidatesPendingInstallationAndOwnsDeviceOnce()
     {
-        var device = new ControlledDevice();
         var installation = new ControlledInstallation();
-        var simulation = Create(device, installation: installation);
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         installation.HoldNext = true;
         var pending = simulation.Run().AsTask();
@@ -274,8 +274,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task StartupRejectsRunUntilGpuReadyAndRunPreservesGeneration()
     {
-        var device = new ControlledDevice { HoldStartup = true };
-        await using var simulation = Create(device);
+        await using var harness = Create(holdStartup: true); var (simulation, device) = (harness.Simulation, harness.Device);
         var startup = simulation.Initialize().AsTask();
         Assert.Equal(WorkshopSimulationPhase.Initializing, simulation.Phase);
         Assert.Equal(WorkshopRejection.WrongPhase, (await simulation.Run()).Reason);
@@ -290,8 +289,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task HeldResetRejectsRepeatedRequestsAndRestoresBitsAfterChangedPose()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = BallConstruction();
         var admission = simulation.Construct(construction).AsTask();
@@ -317,8 +315,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task ChangedSignedZeroInAdmissionCannotCommit()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Committed;
         var command = simulation.Construct(BallConstruction()).AsTask();
@@ -334,8 +331,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task CancelBeforeCommitRetainsOldReadAndOriginalOutcome()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var old = simulation.Committed;
         var request = simulation.Construct(BallConstruction()).AsTask();
@@ -362,8 +358,7 @@ public sealed class WorkshopSimulationTests
     [InlineData(AdvancedIdentityChange.Tick)]
     public async Task GenericAdvanceAcceptsLateralMotionButRejectsChangedIdentity(AdvancedIdentityChange change)
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var admit = simulation.Construct(BallConstruction()).AsTask();
         device.CompleteAdmission(0); await admit;
@@ -403,8 +398,7 @@ public sealed class WorkshopSimulationTests
     [InlineData(true)]
     public async Task CancelledResetKeepsPriorModeAndOnlyCancelAdvancesAuthority(bool completed)
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         Assert.Equal(new AuthorityRevision(0), simulation.Revision);
         var run = simulation.Run().AsTask();
@@ -443,8 +437,7 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task AuthorityExhaustionFaultsBeforeGpuMutation()
     {
-        var device = new ControlledDevice();
-        await using var simulation = Create(device);
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         // Native negative boundary injection into the actual owner; no production setter is exposed.
         var exhausted = simulation.Committed with { Revision = new(ulong.MaxValue) };
@@ -471,9 +464,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task ClockFailureCannotSwapGpuOrRestampLastCommit()
     {
-        var device = new ControlledDevice();
         var clock = new ControlledClock();
-        await using var simulation = Create(device, clock);
+        await using var harness = Create(clock); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         await simulation.Run();
         var original = simulation.Committed;
@@ -489,9 +481,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task NativeCaptureOccursOnPhysicalCommitAndNeverOnProjectionOrCancellation()
     {
-        var device = new ControlledDevice();
         var clock = new ControlledClock();
-        await using var simulation = Create(device, clock);
+        await using var harness = Create(clock); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var initial = simulation.Committed.Capture;
         await simulation.Run();
@@ -512,9 +503,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task OldTransportFailureCannotAbortNewerResetInstallation()
     {
-        var device = new ControlledDevice();
         var installation = new ControlledInstallation();
-        await using var simulation = Create(device, installation: installation);
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize(); await simulation.Run();
         var old = simulation.Advance().AsTask();
         installation.HoldNext = true;
@@ -534,9 +524,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task DisposedConfigureCannotPrepareOrInstallALateGpuCandidate()
     {
-        var device = new ControlledDevice();
         var installation = new ControlledInstallation();
-        var simulation = Create(device, installation: installation);
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var initial = simulation.Profile;
         var pending = simulation.Configure(Settings with { Simulation = SimulationCadence.Hz240 }, new(2)).AsTask();
@@ -555,9 +544,8 @@ public sealed class WorkshopSimulationTests
     public async Task ConfiguredProfileCommitsAtomicallyThenPausesStepsAndCompletesAtItsOwnLimit(
         SimulationCadence cadence, ulong limit)
     {
-        var device = new ControlledDevice();
         var installation = new ControlledInstallation();
-        await using var simulation = Create(device, installation: installation);
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var before = simulation.Profile;
         var settings = Settings with { Simulation = cadence };
@@ -597,8 +585,8 @@ public sealed class WorkshopSimulationTests
     [Fact]
     public async Task TimerBearingStepInstallationRejectsAtomicallyAndResetCancelsCountdown()
     {
-        var device = new ControlledDevice(); var installation = new ControlledInstallation();
-        await using var simulation = Create(device, installation: installation);
+        var installation = new ControlledInstallation();
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
@@ -637,11 +625,37 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(restored,simulation.Committed);
     }
 
+    // Story 9R.0: a failed installation (its cause carried inner) is a logged fault; a superseded one (no cause) is not.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task AnInstallationFailureCarryingACauseIsLoggedAndASupersededOneIsNot(bool failed)
+    {
+        var installation = new ControlledInstallation();
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
+        await simulation.Initialize();
+        using var errors = new StringWriter(System.Globalization.CultureInfo.InvariantCulture);
+        var previous = Console.Error;
+        Console.SetError(errors);
+        try
+        {
+            installation.HoldNext = true;
+            var admission = simulation.Construct(BallConstruction()).AsTask(); device.CompleteAdmission(0);
+            installation.Pending[0].Completion.SetException(failed
+                ? new WorkshopInstallationException(new IOException("installation cause"))
+                : new WorkshopInstallationException());
+            Assert.Equal(WorkshopRejection.Transport, (await admission).Reason);
+        }
+        finally { Console.SetError(previous); }
+        Assert.Equal(failed, errors.ToString().Contains("CCGPU_INSTALLATION_EXCEPTION System.IO.IOException: installation cause", StringComparison.Ordinal));
+        Assert.Equal(failed, errors.ToString().Length > 0);
+    }
+
     [Fact]
     public async Task PaidWorkStepInstallationRejectsAtomicallyAndResetRestoresPreload()
     {
-        var device = new ControlledDevice(); var installation = new ControlledInstallation();
-        await using var simulation = Create(device, installation: installation);
+        var installation = new ControlledInstallation();
+        await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),

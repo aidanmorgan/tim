@@ -39,7 +39,12 @@ public sealed class GpuAdmissionException : Exception
 /// Callers publish the value-only Committed read after an Applied result; no observer callback is
 /// part of the authority transaction.
 /// </summary>
-public sealed class WorkshopInstallationException : Exception { }
+/// <summary>The presentation installation did not complete: superseded (no cause) or failed (the cause is inner).</summary>
+public sealed class WorkshopInstallationException : Exception
+{
+    public WorkshopInstallationException() { }
+    public WorkshopInstallationException(Exception cause) : base(null, cause) { }
+}
 
 public interface IWorkshopInstallation
 {
@@ -47,6 +52,10 @@ public interface IWorkshopInstallation
     void Retire();
     ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase);
 }
+
+/// <summary>Whether disposing a simulation also disposes its GPU device. The worker's simulation owns the device;
+/// the bootstrap warm-up borrows the same device and must leave it to that owner.</summary>
+public enum GpuDeviceOwnership { Owned = 1, Borrowed = 2 }
 
 public sealed class WorkshopSimulation : IAsyncDisposable
 {
@@ -98,8 +107,11 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     public WorkshopRead Committed { get; private set; }
     public WorkshopSimulationPhase Phase { get; private set; } = WorkshopSimulationPhase.Uninitialized;
     public WorkshopRejection Fault { get; private set; }
-    public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, WorkshopCadenceSettings settings, CadenceRevision revision, IWorkshopInstallation installation)
+    public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, WorkshopCadenceSettings settings, CadenceRevision revision,
+        IWorkshopInstallation installation, GpuDeviceOwnership deviceOwnership)
     {
+        if (!Enum.IsDefined(deviceOwnership)) throw new ArgumentException("Undefined GPU device ownership.", nameof(deviceOwnership));
+        _deviceOwnership = deviceOwnership;
         settings.Validate(); Profile = new(settings.Simulation, settings.Physical, revision); Profile.Validate();
         Construction = new(new(1), settings, WorkshopInstances.Empty);
         _installation = installation ?? throw new ArgumentNullException(nameof(installation));
@@ -139,11 +151,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Phase = WorkshopSimulationPhase.Building;
             return Applied();
         }
-        catch (WorkshopInstallationException) { if (Owns(owner)) Phase = _priorPhase; return Reject(WorkshopRejection.Transport); }
+        catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch (Exception error)
         {
-            Console.Error.WriteLine("CCGPU_INITIALIZE_EXCEPTION " + error);
-            return Failure(owner, WorkshopRejection.InvalidRead);
+            var failed = Failure(owner, WorkshopRejection.InvalidRead);
+            WorkshopDiagnostics.Fault(FaultSite.Initialize, error);
+            return failed;
         }
         finally { _device.Discard(new(owner)); _pending--; }
     }
@@ -184,8 +197,13 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Phase = WorkshopSimulationPhase.Building;
             return Reject(WorkshopRejection.GpuAdmission);
         }
-        catch (WorkshopInstallationException) { if (Owns(owner)) Phase = _priorPhase; return Reject(WorkshopRejection.Transport); }
-        catch (Exception) { return Failure(owner, WorkshopRejection.InvalidRead); }
+        catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
+        catch (Exception error)
+        {
+            var failed = Failure(owner, WorkshopRejection.InvalidRead);
+            WorkshopDiagnostics.Fault(FaultSite.Construct, error);
+            return failed;
+        }
         finally { _device.Discard(new(owner)); _pending--; }
     }
 
@@ -215,7 +233,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Committed = read; Phase = target;
             return Applied();
         }
-        catch (WorkshopInstallationException) { if (Owns(owner)) Phase = _priorPhase; return Reject(WorkshopRejection.Transport); }
+        catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         finally { _pending--; }
     }
 
@@ -271,11 +289,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Committed = read;
             return Applied();
         }
-        catch (WorkshopInstallationException) { if (Owns(owner)) Phase = _priorPhase; return Reject(WorkshopRejection.Transport); }
+        catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch (Exception error)
         {
-            Console.WriteLine($"CCGPU_ADVANCE_EXCEPTION: {error}");
-            return Failure(owner, WorkshopRejection.InvalidRead);
+            var failed = Failure(owner, WorkshopRejection.InvalidRead);
+            WorkshopDiagnostics.Fault(FaultSite.Advance, error);
+            return failed;
         }
         // Counts every request, independently of ownership. A stale completion cannot clear a new one.
         finally { _device.Discard(new(owner)); _pending--; }
@@ -306,8 +325,13 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Fault = WorkshopRejection.None;
             return Applied();
         }
-        catch (WorkshopInstallationException) { if (Owns(owner)) Phase = _priorPhase; return Reject(WorkshopRejection.Transport); }
-        catch (Exception) { return Failure(owner, WorkshopRejection.InvalidRead); }
+        catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
+        catch (Exception error)
+        {
+            var failed = Failure(owner, WorkshopRejection.InvalidRead);
+            WorkshopDiagnostics.Fault(FaultSite.Reset, error);
+            return failed;
+        }
         finally { _device.Discard(new(owner)); _pending--; }
     }
 
@@ -355,8 +379,9 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         _installation.Retire();
         Phase = WorkshopSimulationPhase.Disposed;
         // Disposal never needs to allocate another identity, including at counter exhaustion.
-        await _device.DisposeAsync();
+        if (_deviceOwnership == GpuDeviceOwnership.Owned) await _device.DisposeAsync();
     }
+    private readonly GpuDeviceOwnership _deviceOwnership;
 
     private bool CanAdvanceRevision()
     {
@@ -380,6 +405,14 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     }
     private bool Owns(ulong operation) => !_disposed && _operation == operation &&
         Phase != WorkshopSimulationPhase.Faulted;
+    // A superseded installation carries no cause and is an ordinary transport rejection; a failed one is also a fault.
+    private WorkshopCommandResult InstallationRejected(ulong owner, WorkshopInstallationException error)
+    {
+        if (Owns(owner)) Phase = _priorPhase;
+        if (error.InnerException is { } cause) WorkshopDiagnostics.Fault(FaultSite.Installation, cause);
+        return Reject(WorkshopRejection.Transport);
+    }
+
     private WorkshopCommandResult Failure(ulong owner, WorkshopRejection reason)
     {
         if (!Owns(owner)) return Superseded(owner);

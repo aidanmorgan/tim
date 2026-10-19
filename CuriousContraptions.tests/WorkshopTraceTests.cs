@@ -566,12 +566,18 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
 
     private sealed class CapturedConsole : IDisposable
     {
-        private readonly TextWriter _previous = Console.Out;
+        // The previous writer is borrowed (it belongs to the runner), so only a restore action is kept, never the writer.
+        private readonly Action _restore;
         private readonly StringWriter _output = new(CultureInfo.InvariantCulture);
-        public CapturedConsole() => Console.SetOut(_output);
+        public CapturedConsole()
+        {
+            var previous = Console.Out;
+            _restore = () => Console.SetOut(previous);
+            Console.SetOut(_output);
+        }
         public string[] Lines => _output.ToString().Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
         public string[] TraceLines => Lines.Where(line => line.StartsWith("CCGPU_TRACE_", StringComparison.Ordinal)).ToArray();
         public string[] TimingLines => Lines.Where(line => line.StartsWith("CCGPU_TICK_TIMES_", StringComparison.Ordinal)).ToArray();
-        public void Dispose() { Console.SetOut(_previous); _output.Dispose(); }
+        public void Dispose() { _restore(); _output.Dispose(); }
     }
 }

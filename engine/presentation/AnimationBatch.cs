@@ -16,7 +16,7 @@ public readonly record struct AnimationTargetId
     public ulong Value { get; }
     public AnimationTargetId(ulong value)
     {
-        if (value == 0) throw new ArgumentOutOfRangeException(nameof(value));
+        ArgumentOutOfRangeException.ThrowIfZero(value);
         Value = value;
     }
 }
@@ -25,7 +25,7 @@ public readonly record struct AnimationGeneration
     public ulong Value { get; }
     public AnimationGeneration(ulong value)
     {
-        if (value == 0) throw new ArgumentOutOfRangeException(nameof(value));
+        ArgumentOutOfRangeException.ThrowIfZero(value);
         Value = value;
     }
 }
@@ -129,7 +129,7 @@ public sealed class AnimationBatch
 
     public AnimationBatch(int capacity)
     {
-        if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
         _slots = new Slot[capacity]; _versions = new ulong[capacity];
         _active = new int[capacity]; _free = new int[capacity]; _samples = new AnimationSample[capacity];
         _writers = new(capacity);
@@ -438,7 +438,7 @@ public sealed class AnimationBatch
 
     public AnimationFrameWork Advance(ulong frame, double presentationTime, double simulationTime)
     {
-        if (frame <= _frame) throw new ArgumentOutOfRangeException(nameof(frame));
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(frame, _frame);
         if (!double.IsFinite(presentationTime) || presentationTime < _presentationTime ||
             !double.IsFinite(simulationTime) || simulationTime < _simulationTime)
             throw new ArgumentOutOfRangeException(nameof(presentationTime), "Animation clocks must be finite and monotone.");

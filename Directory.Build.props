@@ -1,9 +1,7 @@
 <Project>
-    <!-- Keep a Directory.Build.props above the project in effect (this file would otherwise shadow it). -->
-    <PropertyGroup>
-        <_TwoDogParentProps>$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))</_TwoDogParentProps>
-    </PropertyGroup>
-    <Import Project="$(_TwoDogParentProps)" Condition="'$(_TwoDogParentProps)' != ''"/>
+    <!-- The repository root is hermetic: no Directory.Build.props above it is imported. A file above the checkout
+         (for example the enclosing checkout of a nested git worktree) could otherwise change or disable the C#
+         static gate below. Nested props inside the repository still import this file. -->
 
     <!-- The package versions every host references. `2dog update` rewrites this block, `2dog doctor` checks it;
          the game project's Godot.NET.Sdk version stays in its csproj (SDK resolution runs before this file). -->
@@ -24,5 +22,22 @@
         <WarningsAsErrors>$(WarningsAsErrors);$(TrimAnalysisWarningsAsErrors)</WarningsAsErrors>
         <MSBuildWarningsAsErrors>$(MSBuildWarningsAsErrors);$(TrimAnalysisWarningsAsErrors)</MSBuildWarningsAsErrors>
         <ILLinkTreatWarningsAsErrors>true</ILLinkTreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <!-- C# static gate (Story 9R.0): every C# project and file-based app under this directory builds with the
+         .NET analyzers at the pinned .NET 10 recommended level (a newer SDK cannot add rules silently), code-style
+         rules enforced in the build, nullable reference types on, and every warning an error. Rule severities
+         beyond the level live in the root .editorconfig. The only opt-out is for vendored third-party source kept
+         byte-identical to upstream: its directory's own Directory.Build.props sets CSharpStaticGate=false before
+         importing this file. CSharpStaticGateTests pins this block, the opt-out and every other exemption. -->
+    <PropertyGroup Label="CSharpStaticGate" Condition="'$(CSharpStaticGate)' != 'false'">
+        <AnalysisLevel>10.0-recommended</AnalysisLevel>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+    <PropertyGroup Label="CSharpStaticGateVendoredOptOut" Condition="'$(CSharpStaticGate)' == 'false'">
+        <RunAnalyzers>false</RunAnalyzers>
+        <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     </PropertyGroup>
 </Project>

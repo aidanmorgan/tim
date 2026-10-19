@@ -1,0 +1,83 @@
+probe: F7-handler-bypasses-classification
+expected refusal (ERE): WorkshopConnections.cs: logs a rejection without WorkshopUiFailure.Report
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ ui/WorkshopConnections.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+WorkshopConnections.cs: logs a rejection without WorkshopUiFailure.Report
+--- full commit output:
+Anvil snapshot 0.ts: ui/WorkshopConnections.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T15:02:10.206231+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.ZCqCN5/solution.binlog
+
+Time Elapsed 00:00:09.60
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.ZCqCN5/playtest.binlog
+
+Time Elapsed 00:00:10.37
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.ZCqCN5/web.binlog
+
+Time Elapsed 00:00:05.10
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.53]     CuriousContraptions.Tests.WorkshopUiFailureTests.EveryUiCatchReportsThroughTheClassificationOrIsAFaultOrRethrows [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopUiFailureTests.EveryUiCatchReportsThroughTheClassificationOrIsAFaultOrRethrows [19 ms]
+  Error Message:
+   2 UI catch violation(s):
+WorkshopConnections.cs: logs a rejection without WorkshopUiFailure.Report
+WorkshopConnections.cs:109: catch neither reports nor rethrows
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopUiFailureTests.EveryUiCatchReportsThroughTheClassificationOrIsAFaultOrRethrows() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.mTwg84/CuriousContraptions.tests/WorkshopUiFailureTests.cs:line 146
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   102, Skipped:     0, Total:   103, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

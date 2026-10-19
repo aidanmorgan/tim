@@ -14,7 +14,7 @@ public static class BumperAdvanced
     {
         WorkshopPuzzleId.BumperDepth => true,
         WorkshopPuzzleId.WallAndBumper => false,
-        _ => throw new ArgumentException("Not an advanced Bumper lesson.")
+        _ => throw new ArgumentOutOfRangeException(nameof(id), id, "Not an advanced Bumper lesson.")
     };
     public static WorkshopBall Ball(WorkshopPuzzleId lesson, GpuBodyId id) => IsDepth(lesson)
         ? WorkshopInput.Basketball(id, 0, 5, 3, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5)) with { Locked = true }
@@ -58,22 +58,22 @@ public static class BumperAdvanced
             puzzle.BallAssistance != FirstPrinciples.BallAssistance ||
             puzzle.ReceiverAssistance != FirstPrinciples.ReceiverAssistance ||
             puzzle.RampAssistance != BumperSidekick.BumperAssistance || construction.Connections.Count != 0)
-            throw new ArgumentException("Unsupported advanced Bumper authored settings.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported advanced Bumper authored settings.");
         var receiver = Receiver(puzzle.Id, puzzle.Goal.Target, puzzle.Precision);
         if (construction.Ball != Ball(puzzle.Id, puzzle.Goal.Body) || construction.Receiver != receiver ||
             puzzle.Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(receiver))
-            throw new ArgumentException("Fixed advanced Bumper declarations changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed advanced Bumper declarations changed.");
         var receivers = 0; var bumpers = 0; var walls = 0;
         foreach (var instance in construction.Instances)
         {
             if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopBumper or WorkshopWall) ||
                 instance is WorkshopBumper { Locked: true } or WorkshopWall { Locked: true })
-                throw new ArgumentException("Unsupported advanced Bumper inventory.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported advanced Bumper inventory.");
             if (instance is WorkshopReceiver) receivers++;
             if (instance is WorkshopBumper) bumpers++;
             if (instance is WorkshopWall) walls++;
         }
         if (receivers != 1 || bumpers > 1 || walls > (depth ? 0 : 1))
-            throw new ArgumentException("Advanced Bumper inventory exceeded.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Advanced Bumper inventory exceeded.");
     }
 }

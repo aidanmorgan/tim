@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// TEMPORARY review probe (Murdoch-3, Story 9R.0). Removed after the run; not part of the deliverable.
+public sealed class ReviewCodecProbeTests
+{
+    private static readonly Dictionary<string, int> Tally = new(StringComparer.Ordinal);
+
+    private static void Probe(string label, byte[] bytes, bool command)
+    {
+        string key;
+        try
+        {
+            if (command) _ = WorkshopWireFlatBuffers.DecodeCommand(bytes);
+            else _ = WorkshopWireFlatBuffers.DecodeResponse(bytes);
+            key = "decoded";
+        }
+        catch (Exception error) { key = error.GetType().FullName + (error is ArgumentException ? " (caught by narrowed catch)" : " (ESCAPES narrowed catch)"); }
+        key = label + " | " + key;
+        Tally[key] = Tally.GetValueOrDefault(key) + 1;
+    }
+
+    [Fact]
+    public void ReviewProbe_FlatBuffersDecodersOnForeignAndCorruptBytes()
+    {
+        var counter = new WorkshopCounter(new(10), default, new LocalPosition(0.1f, 0.2f, -0.3f), CanonicalRotation.Identity, 7, false);
+        var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new([counter]));
+        var bumper = BumperAdvanced.Create(WorkshopPuzzleId.WallAndBumper, new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half).45));
+        var commands = new List<WorkshopCommand>
+        {
+            new(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1)),
+            new(new(1), WorkshopCommandKind.Construct, new(1), new(1), bumper, Session: new(1, 2), Cadence: new(1), Projection: new(1)),
+        };
+        var fixedBinary = commands.Select(WorkshopWire.Encode).ToList();
+        var flat = commands.Select(WorkshopWireFlatBuffers.EncodeCommand).ToList();
+        var random = new Random(20261018);
+        foreach (var bytes in fixedBinary)
+        {
+            Probe("fixed-binary command -> FB command decoder", bytes, true);
+            Probe("fixed-binary command -> FB response decoder", bytes, false);
+            for (var i = 0; i < bytes.Length; i++)
+                for (var v = 0; v < 8; v++)
+                {
+                    var copy = (byte[])bytes.Clone(); copy[i] = (byte)random.Next(256);
+                    Probe("mutated fixed-binary -> FB command decoder", copy, true);
+                    Probe("mutated fixed-binary -> FB response decoder", copy, false);
+                }
+        }
+        foreach (var bytes in flat)
+        {
+            Probe("valid FB command -> FB command decoder (control)", bytes, true);
+            for (var i = 0; i < bytes.Length; i++)
+                for (var v = 0; v < 8; v++)
+                {
+                    var copy = (byte[])bytes.Clone(); copy[i] = (byte)random.Next(256);
+                    Probe("mutated FB command -> FB command decoder", copy, true);
+                }
+            for (var cut = 0; cut < bytes.Length; cut += 3)
+                Probe("truncated FB command -> FB command decoder", bytes[..cut], true);
+        }
+        for (var n = 0; n < 20000; n++)
+        {
+            var bytes = new byte[random.Next(0, 6000)];
+            random.NextBytes(bytes);
+            Probe("random bytes -> FB command decoder", bytes, true);
+            Probe("random bytes -> FB response decoder", bytes, false);
+        }
+        foreach (var line in Tally.OrderBy(p => p.Key, StringComparer.Ordinal))
+            System.IO.File.AppendAllText("/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/codec-probe.txt", $"REVIEW_CODEC_PROBE {line.Key} = {line.Value}\n");
+        Assert.NotEmpty(Tally);
+    }
+}

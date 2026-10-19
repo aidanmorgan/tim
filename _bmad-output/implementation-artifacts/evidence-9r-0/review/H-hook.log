@@ -1,0 +1,30 @@
+## H1 positive refusal: staged probe with empty catch + unused local, working copy identical
+HEAD before: aad52ceead3862649dc666c7070135089ca47215
+git commit exit=1
+CuriousContraptions.Abstractions/ReviewHookProbe.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used
+CuriousContraptions.Abstractions/ReviewHookProbe.cs(6,13): error IDE0059: Unnecessary assignment of a value to 'unused'
+CuriousContraptions.Abstractions/ReviewHookProbe.cs(8,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception
+HEAD after: aad52ceead3862649dc666c7070135089ca47215
+
+## H2 index vs working tree: stage the BAD probe, then make the working copy CLEAN without staging
+ CuriousContraptions.Abstractions/ReviewHookProbe.cs | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+git commit exit=0
+[worktree-agent-a08aebc94d551b53b b6edf95] review probe H2 (index holds a warning)
+ 1 file changed, 11 insertions(+)
+ create mode 100644 CuriousContraptions.Abstractions/ReviewHookProbe.cs
+HEAD after: b6edf95def2d51435f6e06ad565fe55c3ddf84f1
+committed blob of CuriousContraptions.Abstractions/ReviewHookProbe.cs:
+namespace CuriousContraptions.Abstractions;
+internal static class ReviewHookProbe
+{
+    public static int Parse(string text)
+    {
+        var unused = 0;
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch { }
+        return -1;
+    }
+}
+reset: HEAD=aad52ceead3862649dc666c7070135089ca47215
+?? _bmad-output/implementation-artifacts/evidence-9r-0/

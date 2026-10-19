@@ -1,0 +1,30 @@
+probe: H2-unstaged-hook-edit-skips-the-gate
+expected refusal (ERE): ProbeStaged.cs\(2,[0-9]+\): error (CS0219|IDE0059)
+head_before: cb58f5f2338590ccd859d628feed2ab1455e830c
+--- staged:
+ elements/Ball/ProbeStaged.cs | 2 ++
+ 1 file changed, 2 insertions(+)
+--- unstaged:
+ .githooks/pre-commit | 1 +
+ 1 file changed, 1 insertion(+)
+--- commit output:
+--- refusal lines matching the expected pattern:
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/ProbeStaged.cs(2,69): error CS0219: The variable 'unused' is assigned but its value is never used [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/Ball.csproj]
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/ProbeStaged.cs(2,69): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/Ball.csproj]
+--- full commit output:
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/ProbeStaged.cs(2,69): error CS0219: The variable 'unused' is assigned but its value is never used [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/Ball.csproj]
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/ProbeStaged.cs(2,69): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/Ball.csproj]
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/CuriousContraptions.csproj]
+
+Build FAILED.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/CuriousContraptions.csproj]
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/ProbeStaged.cs(2,69): error CS0219: The variable 'unused' is assigned but its value is never used [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/Ball.csproj]
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/ProbeStaged.cs(2,69): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.sGKn9f/elements/Ball/Ball.csproj]
+    1 Warning(s)
+    2 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.DksSrM/solution.binlog
+
+Time Elapsed 00:00:12.11
+--- result: commit_exit=1 head_after=cb58f5f2338590ccd859d628feed2ab1455e830c moved=no refusal_named=yes

@@ -50,7 +50,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _preparationFailure = ExceptionDispatchInfo.Capture(error);
             throw;
         }
-        finally { _gate.Release(); }
+        finally { ReleaseGate(); }
     }
 
     private async Task EnsureInitialized()
@@ -161,7 +161,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _candidateProfile = profile;
 #if PLAYTEST
             try { _diagnosticCandidate = WorkshopTraceRecord.Encode(read, profile); }
-            catch { _diagnosticCandidate = []; } // Missing diagnostic data cannot reject a physical candidate.
+            catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
+            { _diagnosticCandidate = []; } // Missing diagnostic data cannot reject a physical candidate.
 #endif
             return new(sequence, read);
         }
@@ -172,7 +173,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _candidateWorld = []; _candidateCaptures = default;
             _candidateActivations = default; _candidateTimers = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
             transport.Discard();
-            _gate.Release();
+            ReleaseGate();
             throw;
         }
     }
@@ -198,12 +199,26 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _diagnosticCandidate = [];
 #endif
         if (!_disposed) transport.Discard();
+        ReleaseGate();
+    }
+    // The gate is held from Stage until Commit or Discard, and operations may queue for it. It is disposed exactly when
+    // it is idle after device disposal. Release hands the count straight to a queued waiter, so CurrentCount is 1 only
+    // when nothing holds or awaits the gate: that is at disposal itself, or at the release of the last operation that
+    // held or awaited it then (a queued operation acquires, sees the disposal and releases normally).
+    private void DisposeGateIfIdle()
+    {
+        if (_disposed && _gate.CurrentCount == 1) _gate.Dispose();
+    }
+    private void ReleaseGate()
+    {
         _gate.Release();
+        DisposeGateIfIdle();
     }
     public ValueTask DisposeAsync()
     {
         if (_disposed) return ValueTask.CompletedTask;
         _disposed = true;
+        DisposeGateIfIdle();
         _committedWorld = []; _candidateWorld = [];
         _committedCaptures = default; _candidateCaptures = default;
         _committedActivations = default; _candidateActivations = default;

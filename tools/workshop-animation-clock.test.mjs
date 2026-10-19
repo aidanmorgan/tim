@@ -30,7 +30,7 @@ async function animationWorker() {
     };
     const runtime = {
         setModuleImports: (_, value) => { imports = value; },
-        getAssemblyExports: async () => ({ Program: host }),
+        getAssemblyExports: async () => ({ CuriousContraptions: { Animation: { Worker: { Program: host } } } }),
         getConfig: () => ({ mainAssemblyName: 'AnimationClockControl' })
     };
     const self = { postMessage: (value, transfer = []) => messages.push(structuredClone(value, { transfer })), close: () => {} };

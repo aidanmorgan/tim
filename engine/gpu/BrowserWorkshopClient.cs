@@ -1,6 +1,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices.JavaScript;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
@@ -19,6 +20,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private WorkshopClientId _id;
     private WorkshopClockPeer? _peer;
     private WorkshopClockMapping? _clock;
+    private bool _started;
     private WorkshopClockPeer Peer => _peer ?? throw new InvalidOperationException("Master bootstrap is not installed.");
     private WorkshopClockMapping Clock => _clock ?? throw new InvalidOperationException("Master bootstrap is not installed.");
     private readonly WorkshopPoseHistory _history = new();
@@ -37,7 +39,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         {
             if (_disposed) return WorkshopTransportState.RecoveryBlocked;
             var state = (WorkshopTransportState)Status(_id.Value);
-            if (!Enum.IsDefined(state)) throw new ArgumentException("Unknown transport state.");
+            if (!Enum.IsDefined(state)) throw new InvalidOperationException("Unknown transport state.");
             return state;
         }
     }
@@ -102,16 +104,16 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         System.Security.Cryptography.RandomNumberGenerator.Fill(identity);
         var session = WorkshopWire.ReadSession(identity);
         var client = new BrowserWorkshopClient(session);
-        client._construction = new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty);
-        client._id = new(await CreateClient([(int)WorkshopTransportState.Ready, (int)WorkshopTransportState.Backpressure,
-            (int)WorkshopTransportState.TimedOut, (int)WorkshopTransportState.Indeterminate, (int)WorkshopTransportState.RecoveryBlocked],
-            identity, [(int)WorkshopClockWire.Version, (int)NativeClockProfile.IsolatedWitnessedPerformanceNow,
-                WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
-                WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
-            WorkshopWire.ResponseAbi(), (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
-            client.Service, client.BeginMemory, client.ReceiveMemory, client.ReleaseMemory));
         try
         {
+            client._construction = new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty);
+            client._id = new(await CreateClient([(int)WorkshopTransportState.Ready, (int)WorkshopTransportState.Backpressure,
+                (int)WorkshopTransportState.TimedOut, (int)WorkshopTransportState.Indeterminate, (int)WorkshopTransportState.RecoveryBlocked],
+                identity, [(int)WorkshopClockWire.Version, (int)NativeClockProfile.IsolatedWitnessedPerformanceNow,
+                    WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
+                    WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
+                WorkshopWire.ResponseAbi(), (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
+                client.Service, client.BeginMemory, client.ReceiveMemory, client.ReleaseMemory));
             var peer = WorkshopClockWire.DecodePeer(MasterBootstrap(client._id.Value));
             if (peer.Session != session || peer.Generation.Value != 1 || peer.RequesterGeneration.Value != 1 ||
                 peer.RequesterRole != WorkshopRuntimeRole.Browser)
@@ -136,12 +138,15 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             if (initialized.Response.Result.Outcome != WorkshopCommandOutcome.Applied)
                 throw new InvalidOperationException("The WebGPU simulation worker could not initialize.");
             Qualified(client._id.Value);
+            client._started = true;
             return client;
         }
         catch (Exception error)
         {
-            Console.Error.WriteLine("CCGPU_STARTUP_EXCEPTION " + error);
-            client._disposed = true; client._clock?.Retire(); DisposeClient(client._id.Value); throw;
+            WorkshopDiagnostics.Fault(FaultSite.Startup, error);
+            // An unstarted client retires locally (DisposeAsync's startup path); the worker never saw a command.
+            await client.DisposeAsync();
+            throw;
         }
     }
 
@@ -265,8 +270,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         {
             response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
         }
-        catch
+        catch (ArgumentException)
         {
+            // Not a FlatBuffers response (its decoder rejects foreign bytes with ArgumentException): fixed binary.
             response = WorkshopWire.DecodeResponse(bytes);
         }
         if (_schedule is not { } active || response.Cadence.Value < active.Revision.Value ||
@@ -362,16 +368,21 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
-        if (_memoryRequest is not null)
+        if (!_started || _memoryRequest is not null)
         {
-            _disposed = true; Clock.Retire(); _history.Retire(); DisposeClient(_id.Value);
+            // Startup failure or a pending memory observation: retire locally without a worker command.
+            // A client whose browser registration failed has no id (browser ids start at 1).
+            _disposed = true; _clock?.Retire(); _history.Retire();
+            if (_id.Value != 0) DisposeClient(_id.Value);
             return;
         }
         try
         {
             var disposal = Execute(WorkshopCommandKind.Dispose);
             if (await Task.WhenAny(disposal, Task.Delay(1000)) == disposal) await disposal;
-            else _ = disposal.ContinueWith(task => { _ = task.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
+            // A late disposal failure is observed and logged; the client is already retired below.
+            else _ = disposal.ContinueWith(task => WorkshopDiagnostics.Fault(FaultSite.LateDispose, task.Exception!),
+                CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
         }
         finally { _disposed = true; Clock.Retire(); _history.Retire(); DisposeClient(_id.Value); }
     }

@@ -26,8 +26,8 @@ builder.Services.AddResponseCompression(options =>
 });
 var app = builder.Build();
 // app.UseResponseCompression();
-var files = new PhysicalFileProvider(directory);
-app.Lifetime.ApplicationStopped.Register(files.Dispose);
+// Disposed when app.Run() returns at shutdown, and on any startup failure before it.
+using var files = new PhysicalFileProvider(directory);
 void Serve(IApplicationBuilder branch)
 {
     branch.Use((context, next) =>

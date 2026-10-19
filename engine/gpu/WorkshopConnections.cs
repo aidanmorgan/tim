@@ -151,40 +151,42 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     }
     public void Validate(WorkshopInstances instances)
     {
-        if (Count > Capacity) throw new ArgumentException("Connection capacity exceeded.");
+        if (Count > Capacity) throw new WorkshopEditRejectedException(WorkshopEditRejection.ConnectionCapacity, "Connection capacity exceeded.");
         var seen = new HashSet<WorkshopConnection>();
         foreach (var link in _items)
         {
             if (link.Source.Value == 0 || link.Target.Value == 0 || link.Source == link.Target ||
                 !Enum.IsDefined(link.Output) || !Enum.IsDefined(link.Input) ||
                 !Enum.IsDefined(link.Domain) || !seen.Add(link))
-                throw new ArgumentException("Unsupported or duplicate connection.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported or duplicate connection.");
             var source = instances.FirstOrDefault(part => part.Id == link.Source);
             var target = instances.FirstOrDefault(part => part.Id == link.Target);
             if (source is null || target is null ||
                 !WorkshopPorts.Has(source.PartId, link.Output, link.Domain, WorkshopPortDirection.Output) ||
                 !WorkshopPorts.Has(target.PartId, link.Input, link.Domain, WorkshopPortDirection.Input))
-                throw new ArgumentException("Connection does not own matching declared ports.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Connection does not own matching declared ports.");
             if (link.Domain == WorkshopConnectionDomain.Activation)
             {
-                if (link.Output != WorkshopSocket.ActivationOut) throw new ArgumentException("Unsupported activation output.");
-                if (link.Input is not (WorkshopSocket.ActivationIn or WorkshopSocket.SetIn or WorkshopSocket.ResetIn)) throw new ArgumentException("Unsupported activation input.");
+                if (link.Output != WorkshopSocket.ActivationOut)
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation output.");
+                if (link.Input is not (WorkshopSocket.ActivationIn or WorkshopSocket.SetIn or WorkshopSocket.ResetIn))
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation input.");
                 // A latch output is a level, so it drives Signal lamps only, and such a lamp follows that latch alone.
                 if (source.PartId == PartId.Latch && target.PartId != PartId.SignalLamp)
-                    throw new ArgumentException("A latch output can only light a Signal lamp.");
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LatchDrivesLampOnly, "A latch output can only light a Signal lamp.");
                 if (target.PartId == PartId.SignalLamp && _items.Count(other => other.Domain == WorkshopConnectionDomain.Activation && other.Target == link.Target) > 1 &&
                     _items.Any(other => other.Domain == WorkshopConnectionDomain.Activation && other.Target == link.Target &&
                         instances.FirstOrDefault(part => part.Id == other.Source)?.PartId == PartId.Latch))
-                    throw new ArgumentException("A lamp that follows a latch takes no other signal.");
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LampFollowsOneLatch, "A lamp that follows a latch takes no other signal.");
             }
             else
             {
                 if (link.Output != WorkshopSocket.Supply || link.Input != WorkshopSocket.PowerIn)
-                    throw new ArgumentException("Unsupported electrical socket.");
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported electrical socket.");
                 foreach (var previous in seen)
                     if (previous != link && previous.Target == link.Target && previous.Input == link.Input &&
                         previous.Domain == WorkshopConnectionDomain.Electrical)
-                        throw new ArgumentException("This power input already has a supplier.");
+                        throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
             }
         }
     }

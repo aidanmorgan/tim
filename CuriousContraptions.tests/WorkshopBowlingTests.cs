@@ -127,7 +127,7 @@ public sealed class WorkshopBowlingTests
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
             builder.Finish(end.Value);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         }
         // Material bits of one kind under the other kind's tag are not that kind.
         var swapped1 = decoded.Construction with {
@@ -141,7 +141,7 @@ public sealed class WorkshopBowlingTests
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b1, 5);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(b1, cr1);
         b1.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b1).Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(b1.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(b1.SizedByteArray()));
 
         var swapped2 = decoded.Construction with {
             Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], basketball with { Material = BallMaterial.For(PartId.BowlingBall) }, decoded.Construction.Instances[3])
@@ -154,7 +154,7 @@ public sealed class WorkshopBowlingTests
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b2, 5);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(b2, cr2);
         b2.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b2).Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(b2.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(b2.SizedByteArray()));
         Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, fbSave.Version);
     }
 
@@ -225,10 +225,10 @@ public sealed class WorkshopBowlingTests
             Assert.Equal(PartId.Basketball, ball.PartId);
             // The same identity and pose as a Bowling ball is not the authored fixture.
             var replaced = level.WithInstance(ball with { PartId = PartId.BowlingBall, Material = BallMaterial.For(PartId.BowlingBall) });
-            var error = Assert.Throws<ArgumentException>(() => replaced.Validate());
+            var error = EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => replaced.Validate());
             Assert.Equal("Authored puzzles admit only their named Basketball.", error.Message);
             // A second ball of the heavier kind is not an inventory item either.
-            Assert.Throws<ArgumentException>(() => level.WithInstance(Bowling(100009, 2, 5)).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => level.WithInstance(Bowling(100009, 2, 5)).Validate());
             Assert.False(WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(PartId.BowlingBall));
         }
         // Free play admits both kinds together.

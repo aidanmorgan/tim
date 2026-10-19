@@ -59,6 +59,9 @@ public sealed class ActivationTimerTests
         var finished = network.Consume(busy.Activations,busy.Timers,[],new(123),[]);
         var fresh = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
         var freshFinished = network.Consume(fresh.Activations,fresh.Timers,[],new(123),[]);
+        // The busy input did not restart the interval: it finishes exactly as an undisturbed one does.
+        Assert.Equal(ActivationTimerPhase.Finished,finished.Timers[0].Phase);
+        Assert.Equal(freshFinished.Timers[0],finished.Timers[0]);
         var ignored = network.Consume(freshFinished.Activations,freshFinished.Timers,
             new[]{second with {EventOrdinal=500}},new(125),[]);
         Assert.Equal(ActivationPhase.Latched,Node(ignored.Activations,5).Phase);
@@ -92,7 +95,7 @@ public sealed class ActivationTimerTests
         var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,(Half)0),new((Half)1));
         var input=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(1),cause.Time,cause);
         Assert.Throws<OverflowException>(()=>ActivationTimerState.Ready(new(2)).Trigger(new(new(2),1440),input,4));
-        Assert.Throws<ArgumentException>(()=>(input with {Kind=ActivationOccurrenceKind.TimerElapsed,Time=new(uint.MaxValue,(Half).25)}).Validate());
+        Assert.Throws<ArgumentException>(() => (input with {Kind=ActivationOccurrenceKind.TimerElapsed,Time=new(uint.MaxValue,(Half).25)}).Validate());
     }
     [Fact]
     public void CompleteWorkerResponseRoundTripsCountingAndFinishedTimerSections()

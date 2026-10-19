@@ -275,7 +275,7 @@ public sealed class OrientationSensorTests
     public void WiringIntoADominoRejectsAndNineWiredSourcesExceedTheActivationTable()
     {
         var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
-        Assert.Throws<ArgumentException>(() => (Construction(false) with { Connections = new(intoDomino) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate());
         var items = new List<IWorkshopInstance>();
         for (var i = 1; i <= 8; i++) items.Add(WorkshopInput.Domino(new((ulong)i), -6 + i, Upright, 0, 0, 0, 0, 1));
         items.Add(WorkshopInput.Lamp(new(9), 4, 1, 0, 0, 0, 0, 1));

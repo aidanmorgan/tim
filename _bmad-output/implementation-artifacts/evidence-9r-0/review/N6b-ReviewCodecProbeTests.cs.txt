@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// TEMPORARY review probe 2 (Murdoch-3, Story 9R.0): real fixed-binary RESPONSES (the per-frame ReadOutput path)
+// fed to the FlatBuffers response decoder. Removed after the run; not part of the deliverable.
+public sealed class ReviewCodecProbeTests
+{
+    private static readonly Dictionary<string, int> Tally = new(StringComparer.Ordinal);
+
+    private static void Probe(string label, byte[] bytes)
+    {
+        string key;
+        try { _ = WorkshopWireFlatBuffers.DecodeResponse(bytes); key = "decoded"; }
+        catch (Exception error) { key = error.GetType().FullName + (error is ArgumentException ? " (caught by narrowed catch)" : " (ESCAPES narrowed catch)"); }
+        key = label + " | " + key;
+        Tally[key] = Tally.GetValueOrDefault(key) + 1;
+    }
+
+    private static WorkshopResponse Response(WorkshopRead read, WorkshopResponseKind kind) => new(
+        kind == WorkshopResponseKind.Read ? default : new(1), kind,
+        new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
+        read.Tick.Value == 0 ? WorkshopSimulationPhase.Building : WorkshopSimulationPhase.Running,
+        read, new(11, 23), default, new(1), new(1), new(1), new(read.Tick.Value));
+
+    [Fact]
+    public void ReviewProbe_FixedBinaryResponsesIntoFlatBuffersResponseDecoder()
+    {
+        var reads = new List<(string, WorkshopRead, WorkshopResponseKind)>();
+        foreach (var bodyPresent in new[] { false, true })
+            foreach (var captured in new[] { false, true })
+            {
+                var body = bodyPresent ? new CanonicalBody(new(1), 2, 0, default, default, default) : (CanonicalBody?)null;
+                var read = new WorkshopRead(new(2), new(0), body.HasValue ? new PhysicsBodyReadSet([new PhysicsBodyRead(body.Value, CanonicalRotation.Identity, default, default)]) : default, new(4),
+                    new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
+                    Captures: captured ? new PhysicsCaptureRead([CaptureLatch.Clear(new(9))]) : default);
+                reads.Add(($"ack body={bodyPresent} captured={captured}", read, WorkshopResponseKind.Acknowledgement));
+            }
+        var electrical = new WorkshopRead(new(1), new(1), default, new(1),
+            ContactWorks: new([new(new(2), new(3), 0, new(20f))], []),
+            Electrical: new([new(new(4), new(5), new(100f), default, ElectricalEnable.Enabled)]));
+        reads.Add(("ack electrical+contact", electrical, WorkshopResponseKind.Acknowledgement));
+        var random = new Random(20261018);
+        var output = new byte[WorkshopWire.ResponseBytes]; // reused buffer, as the worker's ReadOutput
+        var encoded = 0;
+        foreach (var (label, read, kind) in reads)
+        {
+            byte[] bytes;
+            try { bytes = WorkshopWire.Encode(Response(read, kind)); }
+            catch (ArgumentException error) { Tally[$"{label} | fixture rejected by WorkshopWire: {error.Message}"] = 1; continue; }
+            encoded++;
+            Probe("fixed-binary response (Encode) -> FB response decoder", bytes);
+            WorkshopWire.Write(Response(read, kind), output);
+            Probe("fixed-binary response (Write into reused ReadOutput) -> FB response decoder", (byte[])output.Clone());
+            for (var n = 0; n < 4000; n++)
+            {
+                var copy = (byte[])bytes.Clone(); copy[random.Next(copy.Length)] = (byte)random.Next(256);
+                if (n % 2 == 0) copy[random.Next(64)] = (byte)random.Next(256); // bias toward the header
+                Probe("mutated fixed-binary response -> FB response decoder", copy);
+            }
+        }
+        Tally[$"fixtures encoded = {encoded}"] = 1;
+        foreach (var line in Tally.OrderBy(p => p.Key, StringComparer.Ordinal))
+            System.IO.File.AppendAllText("/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/codec-probe2.txt", $"REVIEW_CODEC_PROBE2 {line.Key} = {line.Value}\n");
+        Assert.True(encoded > 0);
+    }
+}

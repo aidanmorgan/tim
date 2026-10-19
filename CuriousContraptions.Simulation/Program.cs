@@ -3,9 +3,10 @@ using System.Buffers.Binary;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using CuriousContraptions.Gpu;
-using CuriousContraptions.Simulation;
 
 [assembly: SupportedOSPlatform("browser")]
+
+namespace CuriousContraptions.Simulation;
 
 public static partial class Program
 {
@@ -82,7 +83,9 @@ public static partial class Program
                 new([battery, plate, gate, ball, ramp]),
                 Connections: new([wire1, wire2]));
 
-            var sim = new WorkshopSimulation(Device, new CaptureClock(), settings, new(1), new WarmupInstallation());
+            // The warm-up borrows the worker's device: disposing it retires the warm-up only, never the device.
+            await using var sim = new WorkshopSimulation(Device, new CaptureClock(), settings, new(1), new WarmupInstallation(),
+                GpuDeviceOwnership.Borrowed);
             var initResult = await sim.Initialize();
             Console.WriteLine($"WARMUP: init={initResult.Outcome} {initResult.Reason}");
             if (initResult.Outcome == WorkshopCommandOutcome.Applied)
@@ -107,9 +110,10 @@ public static partial class Program
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception error)
         {
-            Console.WriteLine($"WarmupSimulation non-fatal: {ex}");
+            // Non-fatal: the worker's own Initialize admits a fresh world on the same device afterwards.
+            WorkshopDiagnostics.Fault(FaultSite.Warmup, error);
         }
     }
 
@@ -132,7 +136,7 @@ public static partial class Program
     private static double ObservationMilliseconds()
     {
         try { return NativeMilliseconds(); }
-        catch { return double.NaN; } // Incomplete observation never replaces the physical result.
+        catch (JSException) { return double.NaN; } // Incomplete observation never replaces the physical result.
     }
 
     [JSExport]
@@ -204,7 +208,7 @@ public static partial class Program
         {
             case WorkshopCommandKind.Initialize:
                 if (_simulation is not null) throw new InvalidOperationException("Already initialized.");
-                _simulation = new(Device, new CaptureClock(), command.Settings!.Value, new(1), new Installation());
+                _simulation = new(Device, new CaptureClock(), command.Settings!.Value, new(1), new Installation(), GpuDeviceOwnership.Owned);
                 result = await Simulation.Initialize(); break;
             case WorkshopCommandKind.ConfigureCadence:
                 result = await Simulation.Configure(command.Settings!.Value, new(checked(++_nextCadence))); break;
@@ -285,10 +289,11 @@ public static partial class Program
         try { await RunTicks(owner); }
         catch (Exception error)
         {
-            if (owner != _loopOwner) return;
+            // A superseded loop no longer owns the simulation, so it records its failure and changes nothing.
+            if (owner != _loopOwner) { WorkshopDiagnostics.Fault(FaultSite.StaleRunLoop, error); return; }
             _loopOwner++;
             Simulation.Stop(WorkshopRejection.Transport);
-            Console.WriteLine($"FAULT 1: {error}");
+            WorkshopDiagnostics.Fault(FaultSite.RunLoop, error);
             Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
             Retire("Physical publication failed after commit: " + error.Message);
         }

@@ -1,0 +1,48 @@
+probe: P4F-nested-editorconfig
+expected refusal (ERE): elements/Ball/Ball.csproj used unpinned analyzer configuration|elements/Ball/.editorconfig: response files and analyzer configuration
+head_before: 3a3b5f7393787653368026f6e72abe318fd547d7
+--- staged:
+ elements/Ball/.editorconfig | 2 ++
+ elements/Ball/ProbeLeak.cs  | 5 +++++
+ 2 files changed, 7 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/CSharpStaticGate.targets(102,9): error : C# static gate: elements/Ball/Ball.csproj used unpinned analyzer configuration /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/elements/Ball/.editorconfig. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/elements/Ball/Ball.csproj]
+--- full commit output:
+Anvil snapshot 0.ts: elements/Ball/ProbeLeak.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T12:50:35.888800+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 9,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/CSharpStaticGate.targets(102,9): error : C# static gate: elements/Ball/Ball.csproj used unpinned analyzer configuration /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/elements/Ball/.editorconfig. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/elements/Ball/Ball.csproj]
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/CuriousContraptions.csproj]
+
+Build FAILED.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/CuriousContraptions.csproj]
+/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/CSharpStaticGate.targets(102,9): error : C# static gate: elements/Ball/Ball.csproj used unpinned analyzer configuration /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/elements/Ball/.editorconfig. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.08T0X1/elements/Ball/Ball.csproj]
+    1 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:08.60
+--- result: commit_exit=1 head_after=3a3b5f7393787653368026f6e72abe318fd547d7 moved=no refusal_named=yes

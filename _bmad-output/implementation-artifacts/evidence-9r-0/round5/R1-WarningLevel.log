@@ -1,0 +1,100 @@
+probe: R1-CreateProperty-WarningLevel
+expected refusal (ERE): solution.binlog: elements/Ball/Ball.csproj: /warn:0 \(must be exactly 10\)
+head_before: cb58f5f2338590ccd859d628feed2ab1455e830c
+--- staged:
+ elements/Ball/Ball.csproj   | 2 ++
+ elements/Ball/ProbeLocal.cs | 2 ++
+ 2 files changed, 4 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+solution.binlog: elements/Ball/Ball.csproj: /warn:0 (must be exactly 10)
+--- full commit output:
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.5Ng1jn/solution.binlog
+
+Time Elapsed 00:00:11.98
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.5Ng1jn/playtest.binlog
+
+Time Elapsed 00:00:09.79
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.5Ng1jn/web.binlog
+
+Time Elapsed 00:00:05.16
+Anvil snapshot 0.ts: elements/Ball/ProbeLocal.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T15:30:24.517594+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 9,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.26]     CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports [5 ms]
+  Error Message:
+   6 C# static gate violation(s):
+elements/Ball/Ball.csproj:ProbeLevel: unpinned target (hash 08af2b377e5e20ae901ec010a1d11c38dcfe0562fdcca30b29d8d0dab04e07d3)
+elements/Ball/Ball.csproj: <CreateProperty> outside a pinned target
+elements/Ball/Ball.csproj: <Output> outside a pinned target
+elements/Ball/Ball.csproj:ProbeRestore: unpinned target (hash 0c411d7bafba856043831b664270bc3579625b0838eee699c4f539e82f25f03d)
+elements/Ball/Ball.csproj: <CreateProperty> outside a pinned target
+elements/Ball/Ball.csproj: <Output> outside a pinned target
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1075
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.04]     CuriousContraptions.Tests.CSharpStaticGateTests.EveryLoggedCompileReceivedThePinnedCompilerInputs [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.EveryLoggedCompileReceivedThePinnedCompilerInputs [33 ms]
+  Error Message:
+   2 C# static gate violation(s):
+playtest.binlog: elements/Ball/Ball.csproj: /warn:0 (must be exactly 10)
+solution.binlog: elements/Ball/Ball.csproj: /warn:0 (must be exactly 10)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.EveryLoggedCompileReceivedThePinnedCompilerInputs() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9iaFTD/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 674
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:   108, Skipped:     0, Total:   110, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=cb58f5f2338590ccd859d628feed2ab1455e830c moved=no refusal_named=yes

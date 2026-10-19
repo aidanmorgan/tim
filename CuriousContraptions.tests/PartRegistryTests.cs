@@ -5,7 +5,7 @@ using Godot;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class PartRegistryTests(NativeSceneFixture godot)
 {
     [Fact]

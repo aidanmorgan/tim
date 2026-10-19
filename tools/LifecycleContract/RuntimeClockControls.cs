@@ -27,7 +27,7 @@ internal static class RuntimeClockControls
         void Check(RuntimeClockCase id, Action action)
         {
             try { action(); results.Add(new(id, true, "Passed")); }
-            catch (Exception error) { results.Add(new(id, false, error.ToString())); }
+            catch (Exception error) when (error is InvalidOperationException or ArgumentException) { results.Add(new(id, false, error.ToString())); }
         }
         Check(RuntimeClockCase.ExactNativeConversion, () =>
         {
@@ -255,7 +255,7 @@ internal static class RuntimeClockControls
     private static void Fault(Action action)
     {
         try { action(); } catch (InvalidOperationException) { return; }
-        throw new Exception("Bounded recovery failed to fault.");
+        throw new InvalidOperationException("Bounded recovery failed to fault.");
     }
 
     private static WorkshopClockMapping Ready()

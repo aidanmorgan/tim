@@ -1,5 +1,58 @@
 #!/bin/sh
 set -eu
-repo_root=$(git rev-parse --show-toplevel)
-dotnet run --file "$repo_root/tools/anvil/CheckStagedTests.cs"
+# Run the staged copy of this hook, not the working-tree one, so an unstaged hook edit does not take effect.
+if [ "${CSHARP_GATE_STAGED_HOOK:-}" != "1" ]; then
+    staged_hook=$(mktemp "${TMPDIR:-/tmp}/pre-commit.XXXXXX")
+    git show :.githooks/pre-commit > "$staged_hook"
+    if CSHARP_GATE_STAGED_HOOK=1 sh "$staged_hook" "$@"; then status=0; else status=$?; fi
+    rm -f "$staged_hook"
+    exit $status
+fi
+
+# C# static gate (Story 9R.0). Anvil does not analyse C#. Directory.Build.props builds every C# project with the
+# .NET analyzers and warnings as errors. Every gate build writes a binary log, and CSharpStaticGateTests reads what
+# each Csc task actually received there (switches, analyzers, analyzer configuration, sources), so no repository file,
+# target or property trick can change a compile without the gate seeing it.
+# The gate builds exactly what is being committed: a snapshot of the index, written outside every checkout (so no
+# Directory.Build.props above it applies), built from scratch (so stale incremental outputs cannot hide a warning).
+# The physical path (pwd -P): through a symlinked temp directory (macOS /var -> /private/var) a solution build
+# resolves paths differently and the .editorconfig's path-relative sections stop matching.
+snapshot=$(cd "$(mktemp -d "${TMPDIR:-/tmp}/csharp-gate.XXXXXX")" && pwd -P)
+binlogs=$(cd "$(mktemp -d "${TMPDIR:-/tmp}/csharp-gate-logs.XXXXXX")" && pwd -P)
+trap 'rm -rf "$snapshot" "$binlogs"' EXIT
+git checkout-index --all --prefix="$snapshot/"
+# No committed file may sit in a build output directory: the snapshot's file walk skips them, and the guard exempts
+# the SDK's generated sources there (CSharpStaticGateTests refuses them in a git checkout, as CI runs it).
+if git ls-files --cached | grep -E '(^|/)(bin|obj|\.godot)/'; then
+    echo "pre-commit: committed files in a bin/, obj/ or .godot/ directory (listed above) are not allowed" >&2
+    exit 1
+fi
+# Every MSBuild run: no auto-response files (a Directory.Build.rsp cannot add switches).
+gate="-noAutoResponse"
+# One sequential restore per entry point (a fresh tree restored in parallel races on shared obj/ files).
+gate_restore() { dotnet restore "$1" -nologo -v q --disable-parallel $gate; }
+# Each build: from scratch, with its binary log (the first argument names it).
+gate_build() { log="$1"; shift; dotnet build "$@" -nologo -v q --no-restore --no-incremental $gate "-bl:$binlogs/$log.binlog"; }
+gate_restore "$snapshot/CuriousContraptions.slnx"
+gate_build solution "$snapshot/CuriousContraptions.slnx"
+# PLAYTEST-only code (the e2e preview publish).
+gate_build playtest "$snapshot/CuriousContraptions.slnx" -p:PlaytestDiagnostics=true
+# The web host's own sources (the slnx leaves its browser build to the publish): compile only, no app bundle or import.
+gate_restore "$snapshot/CuriousContraptions.web/CuriousContraptions.web.csproj"
+gate_build web "$snapshot/CuriousContraptions.web/CuriousContraptions.web.csproj" -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false
+# File-based apps reject MSBuild-only switches; their compiles are logged and checked the same way, and
+# CSharpStaticGateTests refuses any .rsp file in the repository.
+dotnet build "$snapshot/tools/anvil/CheckStagedTests.cs" -nologo -v q "-bl:$binlogs/check-staged-tests.binlog"
+dotnet build "$snapshot/tools/anvil/VerifyPolicy.cs" -nologo -v q "-bl:$binlogs/verify-policy.binlog"
+# The staged-test check, from the staged snapshot just built (it reads the index of this repository).
+dotnet run --file "$snapshot/tools/anvil/CheckStagedTests.cs"
+# What the compiler received, from the binary logs: every compile's inputs against the pins, every expected compile
+# present, every compiled source scanned, and every repository C# file compiled.
+# TreatNoTestsAsError: a missing or renamed guard fails the hook instead of passing an empty run.
+CSHARP_STATIC_GATE_BINLOGS="$binlogs" dotnet test "$snapshot/CuriousContraptions.tests/CuriousContraptions.tests.csproj" -nologo --no-build \
+    --filter "FullyQualifiedName~CuriousContraptions.Tests.CSharpStaticGateTests|FullyQualifiedName~CuriousContraptions.Tests.WorkshopUiFailureTests" -noAutoResponse \
+    -- RunConfiguration.TreatNoTestsAsError=true
+rm -rf "$snapshot" "$binlogs"
+trap - EXIT
+
 exec anvil hook pre-commit

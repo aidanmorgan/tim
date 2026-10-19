@@ -1,0 +1,3 @@
+## X1 node + dotnet.create() on AppBundle built 18 Oct 16:49 (before 0dd495f commit; export-path sources unchanged since)
+simulation: mainAssembly=CuriousContraptions.Simulation.dll exports.CuriousContraptions.Simulation.Program resolved=true members=48; legacy exports.Program resolved=false; top-level keys=CuriousContraptions
+animation: mainAssembly=CuriousContraptions.Animation.Worker.dll exports.CuriousContraptions.Animation.Worker.Program resolved=true members=14; legacy exports.Program resolved=false; top-level keys=CuriousContraptions

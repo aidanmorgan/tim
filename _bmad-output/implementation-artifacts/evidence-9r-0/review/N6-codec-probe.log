@@ -1,0 +1,14 @@
+REVIEW_CODEC_PROBE fixed-binary command -> FB command decoder | System.ArgumentException (caught by narrowed catch) = 2
+REVIEW_CODEC_PROBE fixed-binary command -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 2
+REVIEW_CODEC_PROBE mutated FB command -> FB command decoder | System.ArgumentException (caught by narrowed catch) = 4443
+REVIEW_CODEC_PROBE mutated FB command -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 1771
+REVIEW_CODEC_PROBE mutated FB command -> FB command decoder | System.OverflowException (ESCAPES narrowed catch) = 25
+REVIEW_CODEC_PROBE mutated FB command -> FB command decoder | decoded = 93665
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB command decoder | System.ArgumentException (caught by narrowed catch) = 92219
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 69
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 92219
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB response decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 69
+REVIEW_CODEC_PROBE random bytes -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 20000
+REVIEW_CODEC_PROBE random bytes -> FB response decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 20000
+REVIEW_CODEC_PROBE truncated FB command -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 4164
+REVIEW_CODEC_PROBE valid FB command -> FB command decoder (control) | decoded = 2

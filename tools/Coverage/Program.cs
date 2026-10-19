@@ -41,7 +41,7 @@ try
             }
             var capabilityReport=CapabilityAudit.Analyze(sources,capabilities,expectations,Source);
             Write(capabilityReport);return capabilityReport.InventoryCurrent?0:2;
-        default:throw new ArgumentOutOfRangeException(nameof(operation));
+        default:throw new ArgumentException("Unsupported coverage operation.",nameof(args));
     }
 }
 catch(Exception error) when(error is IOException or InvalidDataException or JsonException or ArgumentException or InvalidOperationException)

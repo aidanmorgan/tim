@@ -71,11 +71,12 @@ public static class CurrentOwnerMembership
         var fixtureTable = fixtureEnd < 0 ? consumers[fixtureStart..] : consumers[fixtureStart..fixtureEnd];
         var fixtureCount = 0;
         var fixtureIds = new HashSet<WorkId>();
-        foreach (var line in fixtureTable.Split('\n').Where(line => line.StartsWith("|", StringComparison.Ordinal)))
+        foreach (var line in fixtureTable.Split('\n').Where(line => line.StartsWith('|')))
         {
             if (line.StartsWith("| Canonical owner |", StringComparison.Ordinal) || line.StartsWith("| --- |", StringComparison.Ordinal)) continue;
             var row = Regex.Match(line.TrimEnd('\r'), "^\\| <a id=\"(fix-[0-9]{3}-[0-9]{3})\"></a>(FIX-[0-9]{3}-[0-9]{3}) \\| [^|]+ \\| [^|]+ \\| (CAT-[0-9]{3}-V) \\| (FIX-[0-9]{3}-[0-9]{3}) \\|$");
-            if (!row.Success || row.Groups[1].Value != row.Groups[2].Value.ToLowerInvariant() || row.Groups[2].Value != row.Groups[4].Value)
+            // The pattern fixes group 1 lower-case and group 2 upper-case, so a case-insensitive match is exact.
+            if (!row.Success || !string.Equals(row.Groups[1].Value, row.Groups[2].Value, StringComparison.OrdinalIgnoreCase) || row.Groups[2].Value != row.Groups[4].Value)
                 throw new InvalidDataException("Malformed current fixture owner declaration.");
             var fixture = Identity(row.Groups[2].Value);
             if (!fixtureIds.Add(fixture)) throw new InvalidDataException("Duplicate current fixture identity.");

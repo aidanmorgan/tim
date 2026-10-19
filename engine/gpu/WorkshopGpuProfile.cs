@@ -11,7 +11,7 @@ public readonly record struct WorkshopGpuProfile(
         SimulationCadence.Hz60 => 8,
         SimulationCadence.Hz120 => 4,
         SimulationCadence.Hz240 => 2,
-        _ => throw new ArgumentException("Undefined GPU simulation cadence.")
+        _ => throw new InvalidOperationException("Undefined GPU simulation cadence.")
     };
     public ulong RunTickLimit => WorkshopCadenceSettings.PhysicalOrdinalLimit / Substeps;
     public void Validate()

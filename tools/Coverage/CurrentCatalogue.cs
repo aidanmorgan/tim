@@ -96,7 +96,8 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         foreach (var line in text[fixtureStart..].Split('\n').Where(line => line.StartsWith("| <a", StringComparison.Ordinal)))
         {
             var row = Regex.Match(line.TrimEnd('\r'), "^\\| <a id=\"(fix-[0-9]{3}-[0-9]{3})\"></a>(FIX-[0-9]{3}-[0-9]{3}) \\| ([a-z0-9_]+/[a-z0-9_]+) \\| ([a-z0-9_]+) / (True|False) \\| (CAT-[0-9]{3}-V) \\| (FIX-[0-9]{3}-[0-9]{3}) \\|$");
-            if (!row.Success || row.Groups[1].Value != row.Groups[2].Value.ToLowerInvariant() || row.Groups[2].Value != row.Groups[7].Value)
+            // The pattern fixes group 1 lower-case and group 2 upper-case, so a case-insensitive match is exact.
+            if (!row.Success || !string.Equals(row.Groups[1].Value, row.Groups[2].Value, StringComparison.OrdinalIgnoreCase) || row.Groups[2].Value != row.Groups[7].Value)
                 throw new InvalidDataException("Malformed fixture identity row.");
             var id = new WorkOrderId(row.Groups[2].Value);
             var instance = new RequirementId(row.Groups[3].Value);

@@ -1,0 +1,100 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/Preview/bin/Debug/net10.0/Preview.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Battery/bin/Debug/net10.0/Battery.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Counter/bin/Debug/net10.0/Counter.dll
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/Domino/bin/Debug/net10.0/Domino.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (18 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:14.24
+dotnet build CuriousContraptions.slnx --no-incremental -nologo  3.14s user 0.88s system 27% cpu 14.359 total
+exit=0

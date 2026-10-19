@@ -1,0 +1,12 @@
+#!/bin/sh
+# Story 9R.0 bypass probe: stage everything, attempt a real commit, report the exit code and whether HEAD moved.
+# Usage: try-commit.sh <worktree> <label> <log>
+wt="$1"; label="$2"; log="$3"
+before=$(git -C "$wt" rev-parse HEAD)
+git -C "$wt" add -A
+set +e
+git -C "$wt" commit -q -m "probe: $label (must be refused)" > "$log" 2>&1
+status=$?
+set -e
+after=$(git -C "$wt" rev-parse HEAD)
+echo "probe=$label commit_exit=$status head_before=$before head_after=$after moved=$([ "$before" = "$after" ] && echo no || echo YES)"

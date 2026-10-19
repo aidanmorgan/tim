@@ -83,7 +83,7 @@ The palette tokens are cream, cyan inset, gold pivot, marks and stops, and a nav
 ### Catalogue and inventory entry
 
 - **Catalogue.** Id `impact_lever`, title "Impact lever", category "Motion". Description: "A passive hinged beam. A falling load turns one end and can lift a lighter load at the other. Gold marks show the lever arms; fixed stops limit its swing. No power or automatic launch." (`parts/catalog/impact_lever.tres@a6c914e:L6-L9`).
-- **Inventory.** Story 10.3 adds a `WorkshopPartKind` member and a `PartInventory` allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). No level at `a6c914e` places the lever or stocks it in an inventory: `content/puzzles.json` has zero `impact_lever` occurrences at that commit.
+- **Inventory.** Story 10.3 adds a `WorkshopPartKind` member and a `PartInventoryDictionary` allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). No level at `a6c914e` places the lever or stocks it in an inventory: `content/puzzles.json` has zero `impact_lever` occurrences at that commit.
 
 ## 3. Engine capabilities
 

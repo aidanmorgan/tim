@@ -1,0 +1,7 @@
+## M1 mutation: straight-pipe top rim y 0.8 -> 0.85 (inner face 0.70); restored StraightPipe assertion must fail
+   Assert.InRange() Failure: Value not in range
+Range:  (0.648000002 - 0.65200001)
+Actual: 0.700073242
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 19 ms - CuriousContraptions.tests.dll (net10.0)
+-- restored source:
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 12 ms - CuriousContraptions.tests.dll (net10.0)

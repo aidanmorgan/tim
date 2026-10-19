@@ -8,7 +8,7 @@ using Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class PressurePlateTests(NativeSceneFixture godot)
 {
     [Fact]
@@ -136,7 +136,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         // Invalid: Activation connection to plate PowerIn must be rejected
         var invalidConn = new WorkshopConnection(switchPart.Id, WorkshopSocket.ActivationOut, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation);
         var invalidConnections = new WorkshopConnections(invalidConn);
-        Assert.Throws<ArgumentException>(() => invalidConnections.Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(instances));
     }
 
     [Fact]
@@ -147,16 +147,11 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 0.5f).Validate();
         new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 16.0f).Validate();
 
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 16.1f).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, -1.0f).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, float.NaN).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, float.PositiveInfinity).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 16.1f).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, -1.0f).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, float.NaN).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, float.PositiveInfinity).Validate());
     }
 
     [Fact]

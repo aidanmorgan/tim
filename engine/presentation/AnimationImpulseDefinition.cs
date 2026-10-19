@@ -12,7 +12,7 @@ public readonly record struct AnimationOccurrenceId
     public ulong Value { get; }
     public AnimationOccurrenceId(ulong value)
     {
-        if(value==0)throw new ArgumentOutOfRangeException(nameof(value));
+        ArgumentOutOfRangeException.ThrowIfZero(value);
         Value=value;
     }
 }

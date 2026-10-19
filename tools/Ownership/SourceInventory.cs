@@ -14,8 +14,6 @@ public static class SourceInventory
     private const string MainProject = "CuriousContraptions.csproj";
     private const string WebProject = "CuriousContraptions.web/CuriousContraptions.web.csproj";
     private const string TestProject = "CuriousContraptions.tests/CuriousContraptions.tests.csproj";
-    private const string DiagnosticSymbol = "PLAYTEST";
-    private const string WebSymbol = "TWODOG_WEB_BOOT";
 
     internal sealed record ProjectInputs(string[] Paths, string[] BindingPaths, string[] References, string[] Symbols,
         string[] Usings, string AssemblyName, LanguageVersion Language, NullableContextOptions Nullable,
@@ -199,7 +197,7 @@ public static class SourceInventory
             .Select(item => new BindingDiagnostic(context.Kind, new(item.Id),
                 new(item.Location.SourceTree?.FilePath ?? string.Empty),
                 item.Location.IsInSource ? item.Location.GetLineSpan().StartLinePosition.Line + 1 : 0,
-                item.GetMessage()))).ToArray();
+                item.GetMessage(System.Globalization.CultureInfo.InvariantCulture)))).ToArray();
         // Animation currently has no conditional source branches. Revisit this Release-only union
         // when its authored conditionals/configurations change; do not infer future coverage.
         var declarations = contexts.Where(context => context.Kind is InspectionContext.ProductionDiagnostic

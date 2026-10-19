@@ -7,7 +7,7 @@ using Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class CounterTests(NativeSceneFixture godot)
 {
     [Fact]
@@ -164,12 +164,9 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.False(typeof(WorkshopCounter).GetConstructors().Single().GetParameters()
             .Single(parameter => parameter.Name == nameof(WorkshopCounter.TargetCount)).HasDefaultValue);
 
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, 0).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, -1).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, 10).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, 0).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, -1).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopCounter(new(1), default, default, CanonicalRotation.Identity, 10).Validate());
     }
 
     [Fact]
@@ -193,7 +190,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         // Invalid: Activation on electrical socket
         var invalidConn = new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation);
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(invalidConn).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(instances));
     }
 
     [Fact]

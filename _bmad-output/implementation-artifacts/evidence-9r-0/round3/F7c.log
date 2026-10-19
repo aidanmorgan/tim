@@ -1,0 +1,77 @@
+probe: F7c-handler-refuses-with-ArgumentException
+expected refusal (ERE): ui/WorkshopConfiguration.cs:[0-9]+: Workshop.ApplyDelayDuration creates new System.ArgumentException
+head_before: facf10cfa8260497d47b1755d356d391ff044caf
+--- staged:
+ ui/WorkshopConfiguration.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+ui/WorkshopConfiguration.cs:69: Workshop.ApplyDelayDuration creates new System.ArgumentException("This part has no editable delay.") (refuse with WorkshopEditRejectedException)
+--- full commit output:
+Anvil snapshot 0.ts: ui/WorkshopConfiguration.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T13:41:27.370296+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.10
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.47
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.21
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.10]     CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [34 ms]
+  Error Message:
+   1 C# static gate violation(s):
+ui/WorkshopConfiguration.cs:69: Workshop.ApplyDelayDuration creates new System.ArgumentException("This part has no editable delay.") (refuse with WorkshopEditRejectedException)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 215
+   at CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.gGqMRO/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 441
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    91, Skipped:     0, Total:    92, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=facf10cfa8260497d47b1755d356d391ff044caf moved=no refusal_named=yes

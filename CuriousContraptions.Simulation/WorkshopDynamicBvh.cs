@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace CuriousContraptions.Simulation;
 
-public struct BvhNode
+internal struct BvhNode
 {
     public int Id;
     public int Parent;
@@ -15,7 +15,7 @@ public struct BvhNode
     public int Height;
 }
 
-public sealed class WorkshopDynamicBvh
+internal sealed class WorkshopDynamicBvh
 {
     private readonly List<BvhNode> _nodes = new(64);
     private int _root = -1;

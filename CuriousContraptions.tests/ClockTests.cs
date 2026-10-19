@@ -7,7 +7,7 @@ using Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class ClockTests(NativeSceneFixture godot)
 {
     [Fact]
@@ -148,14 +148,10 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.False(typeof(WorkshopClock).GetConstructors().Single().GetParameters()
             .Single(parameter => parameter.Name == nameof(WorkshopClock.IntervalSeconds)).HasDefaultValue);
 
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 12.1f).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.NaN).Validate());
-        Assert.Throws<ArgumentException>(() =>
-            new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.PositiveInfinity).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 12.1f).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.NaN).Validate());
+        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.PositiveInfinity).Validate());
 
         // Ticks math
         var clock1s = new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 1.0f);
@@ -184,7 +180,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
 
         // Invalid: Activation on electrical socket
         var invalidConn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Electrical);
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(invalidConn).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(invalidConn).Validate(instances));
     }
 
     [Fact]

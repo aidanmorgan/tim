@@ -12,7 +12,7 @@ public partial class Workshop
     private (GpuBodyId Owner, WorkshopPort Port)? _linkSource;
     private Node3D? _connectionArtwork;
 
-    private static Button SignalButton(string label, Action action)
+    private static WorkshopButton SignalButton(string label, Action action)
     {
         var button = Button(label, action); button.Text = label; button.Icon = null;
         button.AddThemeFontSizeOverride("font_size", 12); return button;
@@ -23,16 +23,16 @@ public partial class Workshop
         WorkshopSocket.ActivationIn => "ActivationIn",
         WorkshopSocket.PowerIn => "PowerIn",
         WorkshopSocket.Supply => "Supply",
-        _ => throw new ArgumentException("Unknown socket.")
+        _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Unknown socket.")
     };
     /// <summary>The State Latch's two activation inputs are chosen by icon only, matching the on-part marks (DESIGN.md Set/Reset latch).</summary>
     private static string SocketIcon(WorkshopSocket socket) => socket switch
     {
         WorkshopSocket.SetIn => "socket_set",
         WorkshopSocket.ResetIn => "socket_reset",
-        _ => throw new ArgumentException("Socket has no icon-only choice.")
+        _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Socket has no icon-only choice.")
     };
-    private static Button SocketIconButton(WorkshopSocket socket, Action action)
+    private static WorkshopButton SocketIconButton(WorkshopSocket socket, Action action)
     {
         var button = SignalButton("", action);
         button.Text = ""; button.Icon = WorkshopIcons.Pictogram(SocketIcon(socket));
@@ -112,7 +112,7 @@ public partial class Workshop
                 ? (add ? "Supply connected." : "Supply disconnected.")
                 : (add ? "Activation connected." : "Activation disconnected.");
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
     }
     private void RefreshConnectionArtwork()
     {

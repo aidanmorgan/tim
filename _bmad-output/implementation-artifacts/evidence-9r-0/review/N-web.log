@@ -1,0 +1,68 @@
+## N-web: probe appended to CuriousContraptions.web/Program.cs (empty catch + unused local)
+$ dotnet build CuriousContraptions.slnx -nologo -v q
+    0 Warning(s)
+    0 Error(s)
+exit=
+$ dotnet build CuriousContraptions.slnx -nologo -v q -p:PlaytestDiagnostics=true
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+exit=
+$ dotnet build CuriousContraptions.web -nologo -v q
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/Program.cs(41,13): error CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/CuriousContraptions.web.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/Program.cs(43,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/CuriousContraptions.web.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/Program.cs(41,13): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/CuriousContraptions.web.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/Program.cs(41,13): error CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/CuriousContraptions.web.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/Program.cs(43,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/CuriousContraptions.web.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/Program.cs(41,13): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.web/CuriousContraptions.web.csproj]
+    1 Warning(s)
+    3 Error(s)
+exit=
+
+## N-web exit codes (zsh-safe), same probe in place
+slnx build exit=0
+slnx PLAYTEST build exit=0
+web build exit=1
+$ sh .githooks/pre-commit (nothing staged)
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.99
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.17
+hook exit=0
+
+## C-web: real git commit of the web probe
+HEAD before: aad52ceead3862649dc666c7070135089ca47215
+ CuriousContraptions.web/Program.cs | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+(eval):1: read-only file system: /c.log
+git commit exit=1
+HEAD after: aad52ceead3862649dc666c7070135089ca47215
+aad52ce fix: gate PLAYTEST C# and give the last two catches context (Story 9R.0)
+(previous attempt: log redirect failed before git ran; retry)
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:09.47
+[worktree-agent-a08aebc94d551b53b bc204cc] review probe: warning in web Program.cs (to be reset)
+ 1 file changed, 11 insertions(+)
+git commit exit=0
+HEAD after: bc204ccc0451215beac3c452e90bcf2c5e8bb5e3
+bc204cc review probe: warning in web Program.cs (to be reset)
+ CuriousContraptions.web/Program.cs | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+reset: HEAD=aad52ceead3862649dc666c7070135089ca47215
+?? _bmad-output/implementation-artifacts/evidence-9r-0/

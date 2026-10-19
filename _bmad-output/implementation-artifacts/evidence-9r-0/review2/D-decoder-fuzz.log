@@ -1,0 +1,21 @@
+## commands corpus (seed 77017)
+REVIEW_CODEC_PROBE fixed-binary command -> FB command decoder | System.ArgumentException (caught by narrowed catch) = 2
+REVIEW_CODEC_PROBE fixed-binary command -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 2
+REVIEW_CODEC_PROBE mutated FB command -> FB command decoder | System.ArgumentException (caught by narrowed catch) = 4447
+REVIEW_CODEC_PROBE mutated FB command -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 1787
+REVIEW_CODEC_PROBE mutated FB command -> FB command decoder | decoded = 93670
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB command decoder | System.ArgumentException (caught by narrowed catch) = 92221
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 67
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 92221
+REVIEW_CODEC_PROBE mutated fixed-binary -> FB response decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 67
+REVIEW_CODEC_PROBE random bytes -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 20000
+REVIEW_CODEC_PROBE random bytes -> FB response decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 20000
+REVIEW_CODEC_PROBE truncated FB command -> FB command decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 4164
+REVIEW_CODEC_PROBE valid FB command -> FB command decoder (control) | decoded = 2
+## fixed-binary response corpus (seed 88028)
+REVIEW_CODEC_PROBE2 ack electrical+contact | fixture rejected by WorkshopWire: An installed physical read requires its original capture. = 1
+REVIEW_CODEC_PROBE2 fixed-binary response (Encode) -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 4
+REVIEW_CODEC_PROBE2 fixed-binary response (Write into reused ReadOutput) -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 4
+REVIEW_CODEC_PROBE2 fixtures encoded = 4 = 1
+REVIEW_CODEC_PROBE2 mutated fixed-binary response -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 15564
+REVIEW_CODEC_PROBE2 mutated fixed-binary response -> FB response decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 436

@@ -16,8 +16,6 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
             AnimationValue.Channel(property,new((Half)value)),
         _ => throw new ArgumentOutOfRangeException(nameof(property))
     };
-    private static double Number(AnimationValue value) =>
-        (double)BitConverter.UInt16BitsToHalf(value.CanonicalBits);
     private static void Equal(double expected,AnimationValue actual) =>
         Assert.Equal(BitConverter.HalfToUInt16Bits((Half)expected),actual.CanonicalBits);
     private static AnimationBinding Binding(ulong id=1,AnimationProperty property=AnimationProperty.Opacity) => new(new(id),property);

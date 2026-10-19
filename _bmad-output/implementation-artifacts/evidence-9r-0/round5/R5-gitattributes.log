@@ -1,0 +1,59 @@
+probe: R5-gitattributes-hides-the-guard-diff
+expected refusal (ERE): .gitattributes:1: CuriousContraptions.tests/CSharpStaticGateTests.cs -diff \(diff-hiding attributes are not allowed\)
+head_before: cb58f5f2338590ccd859d628feed2ab1455e830c
+--- staged:
+ .gitattributes | 1 +
+ 1 file changed, 1 insertion(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+.gitattributes:1: CuriousContraptions.tests/CSharpStaticGateTests.cs -diff (diff-hiding attributes are not allowed)
+--- full commit output:
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.cz5NT9/solution.binlog
+
+Time Elapsed 00:00:07.20
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.cz5NT9/playtest.binlog
+
+Time Elapsed 00:00:12.88
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.cz5NT9/web.binlog
+
+Time Elapsed 00:00:05.28
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.83]     CuriousContraptions.Tests.CSharpStaticGateTests.NoGitAttributesHideADiff [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoGitAttributesHideADiff [2 ms]
+  Error Message:
+   1 C# static gate violation(s):
+.gitattributes:1: CuriousContraptions.tests/CSharpStaticGateTests.cs -diff (diff-hiding attributes are not allowed)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoGitAttributesHideADiff() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NMGn7M/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1090
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   109, Skipped:     0, Total:   110, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=cb58f5f2338590ccd859d628feed2ab1455e830c moved=no refusal_named=yes

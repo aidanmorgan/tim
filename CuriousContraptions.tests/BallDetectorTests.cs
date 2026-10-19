@@ -8,7 +8,7 @@ using NumVector3 = System.Numerics.Vector3;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class BallDetectorTests(NativeSceneFixture godot)
 {
     [Fact]

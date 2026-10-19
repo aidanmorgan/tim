@@ -1,0 +1,20 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.84]     CuriousContraptions.Tests.WorkshopGpuDeviceTests.DisposalWithAQueuedCandidateDisposesTheGateOnlyAfterTheQueueDrains [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopGpuDeviceTests.DisposalWithAQueuedCandidateDisposesTheGateOnlyAfterTheQueueDrains [48 ms]
+  Error Message:
+   Assert.Contains() Failure: Sub-string not found
+String:    "System.Threading.SemaphoreSlim"
+Not found: "WorkshopGpuDevice"
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopGpuDeviceTests.DisposalWithAQueuedCandidateDisposesTheGateOnlyAfterTheQueueDrains() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs:line 338
+   at CuriousContraptions.Tests.WorkshopGpuDeviceTests.DisposalWithAQueuedCandidateDisposesTheGateOnlyAfterTheQueueDrains() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs:line 339
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 63 ms - CuriousContraptions.tests.dll (net10.0)

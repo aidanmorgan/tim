@@ -1,0 +1,32 @@
+#!/bin/sh
+# Story 9R.0: run pages.yml's build steps as written, in a fresh git clone of the committed branch (CI's shape: a git
+# checkout, so the guard lists files through git ls-files), with the gate builds' binary logs checked.
+# Usage: ci-clone.sh <worktree> <branch> <log>
+set -eu
+wt="$1"; branch="$2"; log="$3"
+parent=$(cd "$(mktemp -d "${TMPDIR:-/tmp}/ci-clone.XXXXXX")" && pwd -P)
+workspace="$parent/repo"
+GATE_LOGS="$parent/csharp-gate-binlogs"
+git clone -q --no-hardlinks --branch "$branch" "$wt" "$workspace"
+cd "$workspace"
+GATE="-noAutoResponse"
+start=$(date +%s)
+{
+  echo "workspace=$workspace head=$(git rev-parse HEAD) git_dir=$(git rev-parse --git-dir)"
+  dotnet restore CuriousContraptions.slnx --nologo --disable-parallel $GATE
+  dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental $GATE -bl:$GATE_LOGS/solution.binlog
+  dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental -p:PlaytestDiagnostics=true $GATE -bl:$GATE_LOGS/playtest.binlog
+  dotnet restore CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --disable-parallel $GATE
+  dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false $GATE -bl:$GATE_LOGS/web.binlog
+  dotnet build tools/anvil/CheckStagedTests.cs --nologo -bl:$GATE_LOGS/check-staged-tests.binlog
+  dotnet build tools/anvil/VerifyPolicy.cs --nologo -bl:$GATE_LOGS/verify-policy.binlog
+  CSHARP_STATIC_GATE_BINLOGS="$GATE_LOGS" dotnet test CuriousContraptions.tests --nologo -noAutoResponse
+  dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
+  test -s CuriousContraptions.web/AppBundle/index.html
+  test -s CuriousContraptions.web/AppBundle/404.html
+  test -s CuriousContraptions.web/AppBundle/godot.wasm
+  test -s CuriousContraptions.web/AppBundle/godot.pck
+  test -s CuriousContraptions.web/AppBundle/_framework/dotnet.js
+  echo "CI_CLONE_OK seconds=$(( $(date +%s) - start ))"
+} > "$log" 2>&1
+echo "exit=0 workspace=$workspace"

@@ -32,7 +32,7 @@ public static class SpringboardLessons
     {
         WorkshopPuzzleId.SpringForward => false,
         WorkshopPuzzleId.ReadyToRebound => true,
-        _ => throw new ArgumentException("Not a Springboard lesson.")
+        _ => throw new ArgumentOutOfRangeException(nameof(lesson), lesson, "Not a Springboard lesson.")
     };
     public static WorkshopBall Ball(WorkshopPuzzleId lesson, GpuBodyId id) => (IsReady(lesson)
         ? WorkshopInput.Basketball(id, .1785, 2.809171, 0, 0, 0, 0, 1)
@@ -101,26 +101,26 @@ public static class SpringboardLessons
             puzzle.ReceiverAssistance != (ready ? ReadyReceiverAssistance : FirstPrinciples.ReceiverAssistance) ||
             puzzle.RampAssistance != (ready ? ReadyAssistance : SpringAssistance) || construction.Connections.Count != 0 ||
             construction.Ball != Ball(puzzle.Id, puzzle.Goal.Body))
-            throw new ArgumentException("Springboard lesson declarations changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Springboard lesson declarations changed.");
         var boards = construction.Instances.OfType<WorkshopSpringboard>().ToArray();
         var receivers = construction.Instances.OfType<WorkshopReceiver>().ToArray();
         if (construction.Instances.Any(x => x is not (WorkshopBall or WorkshopSpringboard or WorkshopReceiver)) ||
             boards.Length > 1 || receivers.Length > 1)
-            throw new ArgumentException("Springboard lesson inventory exceeded.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Springboard lesson inventory exceeded.");
         if (ready)
         {
             if (boards.Length != 1 || boards[0] != ChargedBoard(boards[0].Id))
-                throw new ArgumentException("The precharged fixture changed.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "The precharged fixture changed.");
             if (receivers.Length == 1 &&
                 (receivers[0].Locked || receivers[0].Id != puzzle.Goal.Target ||
                  receivers[0] != ReceiverSettings(receivers[0], puzzle.Id, puzzle.Precision)))
-                throw new ArgumentException("The placed Receiver has invalid lesson settings.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "The placed Receiver has invalid lesson settings.");
         }
         else if (receivers.Length != 1 || receivers[0] != FixedReceiver(puzzle.Goal.Target, puzzle.Precision) ||
                  boards.Any(x => x.Locked))
-            throw new ArgumentException("The passive lesson fixtures changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "The passive lesson fixtures changed.");
         var target = WorkshopInput.Receiver(puzzle.Goal.Target, 0, 0, 0, 0, 0, 0, 1);
         if (puzzle.Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(target))
-            throw new ArgumentException("The named capture target changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "The named capture target changed.");
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ public partial class Workshop
             if (read.Owner != _batteryObservedOwner) continue;
             _batteryObservedState = BatteryIntent(read.Owner, read.Enabled);
             _batteryToggle.Text = BatteryToggleText(read.Owner, _batteryObservedState);
-            _batteryCharge.Text = "Charge: " + read.Remaining.Value.ToString("0.##") + " J";
+            _batteryCharge.Text = "Charge: " + read.Remaining.Value.ToString("0.##", CultureInfo.CurrentCulture) + " J";
             return;
         }
     }
@@ -67,7 +68,7 @@ public partial class Workshop
             toggle.Disabled = battery.Locked || _gpuPending || _batteryCommandSending;
             _connectionChoices.AddChild(toggle);
             _batteryToggle = toggle;
-            _batteryCharge = Text("Charge: " + remaining.ToString("0.##") + " J", 12);
+            _batteryCharge = Text("Charge: " + remaining.ToString("0.##", CultureInfo.CurrentCulture) + " J", 12);
             _connectionChoices.AddChild(_batteryCharge);
             return;
         }
@@ -113,13 +114,13 @@ public partial class Workshop
         {
             settings.Validate();
             if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopBattery current || current.Locked)
-                throw new ArgumentException("This source cannot be configured.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This source cannot be configured.");
             PushUndo();
             if (!await SubmitConstruction(World.Construction.WithInstance(current with { Settings = settings })))
             { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (!_workshopUiRemoved) { _status.Text = "Battery settings updated."; RefreshConnectionChoices(); }
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
     }
 
     private async void ApplyBatteryEnable(GpuBodyId owner, ElectricalEnable enabled)
@@ -145,7 +146,7 @@ public partial class Workshop
                     ? "Supply change accepted for the next physics step." : "Supply change was not applied.";
             }
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
         finally
         {
             _batteryCommandSending = false;

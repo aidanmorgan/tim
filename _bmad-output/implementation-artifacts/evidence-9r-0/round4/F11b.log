@@ -1,0 +1,83 @@
+probe: F11b-test-missing-from-compile-list
+expected refusal (ERE): CuriousContraptions.tests/ProbeOrphanTests.cs: compiled by no project
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ CuriousContraptions.tests/ProbeOrphanTests.cs | 7 +++++++
+ 1 file changed, 7 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+CuriousContraptions.tests/ProbeOrphanTests.cs: compiled by no project (add it to one, or delete it)
+--- full commit output:
+Anvil snapshot 0.ts: CuriousContraptions.tests/ProbeOrphanTests.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T15:01:24.452381+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 9,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Ou9OsR/solution.binlog
+
+Time Elapsed 00:00:09.23
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Ou9OsR/playtest.binlog
+
+Time Elapsed 00:00:11.46
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Ou9OsR/web.binlog
+
+Time Elapsed 00:00:05.38
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.22]     CuriousContraptions.Tests.CSharpStaticGateTests.EveryRepositoryCSharpFileIsCompiledByAProject [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.EveryRepositoryCSharpFileIsCompiledByAProject [329 ms]
+  Error Message:
+   1 C# static gate violation(s):
+CuriousContraptions.tests/ProbeOrphanTests.cs: compiled by no project (add it to one, or delete it)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.EveryRepositoryCSharpFileIsCompiledByAProject() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tmlBS3/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 404
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   102, Skipped:     0, Total:   103, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

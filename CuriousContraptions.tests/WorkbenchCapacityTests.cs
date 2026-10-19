@@ -142,18 +142,18 @@ public sealed class WorkbenchCapacityTests
         Assert.Equal(2u, first.Puzzle.InventoryCount);
         var ramps = first.WithInstance(Make(PartId.Ramp, 0)).WithInstance(Make(PartId.Ramp, 1));
         ramps.Validate();
-        Assert.Throws<ArgumentException>(() => ramps.WithInstance(Make(PartId.Ramp, 2)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => ramps.WithInstance(Make(PartId.Ramp, 2)).Validate());
         Assert.ThrowsAny<ArgumentException>(() => first.WithInstance(Make(PartId.Receiver, 3)).Validate());
-        Assert.Throws<ArgumentException>(() => first.WithInstance(Make(PartId.Wall, 4)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => first.WithInstance(Make(PartId.Wall, 4)).Validate());
 
         var delayed = DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(), new(100001), new(100002), new(100003), new((Half).5));
         Assert.Equal(PartId.Delay, delayed.Puzzle.InventoryPart);
         Assert.Equal(1u, delayed.Puzzle.InventoryCount);
         var delay = delayed.WithInstance(Make(PartId.Delay, 0));
         delay.Validate();
-        Assert.Throws<ArgumentException>(() => delay.WithInstance(Make(PartId.Delay, 1)).Validate());
-        Assert.Throws<ArgumentException>(() => delayed.WithInstance(Make(PartId.SignalLamp, 2)).Validate());
-        Assert.Throws<ArgumentException>(() => delayed.WithInstance(Make(PartId.ImpactSwitch, 3)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => delay.WithInstance(Make(PartId.Delay, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => delayed.WithInstance(Make(PartId.SignalLamp, 2)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => delayed.WithInstance(Make(PartId.ImpactSwitch, 3)).Validate());
 
         var inventory = WorkshopInventoryPolicy.Authored(first.Puzzle);
         Assert.Equal(PartAllowance.Counted(2), Assert.Single(inventory).Value);
@@ -176,7 +176,7 @@ public sealed class WorkbenchCapacityTests
         Assert.Equal(PartAllowance.None, PartAllowance.Counted(2).Less(3)); // over-placed parts clamp at zero, never "× -1"
         Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.Ramp]);
         Assert.False(WorkshopInventoryPolicy.Free.ContainsKey(new PartId("unsupported")));
-        Assert.Throws<ArgumentException>(() => new PartInventory((PartId.Wall, PartAllowance.Unlimited), (PartId.Wall, PartAllowance.None)));
+        Assert.Throws<ArgumentException>(() => new PartInventoryDictionary((PartId.Wall, PartAllowance.Unlimited), (PartId.Wall, PartAllowance.None)));
         Assert.True(PartAllowance.None.Exhausted);
     }
 }

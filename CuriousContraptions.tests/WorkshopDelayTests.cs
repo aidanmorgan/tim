@@ -63,7 +63,7 @@ public sealed class WorkshopDelayTests
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
             builder.Finish(end.Value);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         }
         var oldBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var oldCr = WorkshopWireFlatBuffers.EncodeConstructionRecord(oldBuilder, saved.Construction);
@@ -74,7 +74,7 @@ public sealed class WorkshopDelayTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(oldBuilder, oldCr);
         var oldEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(oldBuilder);
         oldBuilder.Finish(oldEnd.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(oldBuilder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(oldBuilder.SizedByteArray()));
         foreach (var invalid in new[] {double.NaN,double.PositiveInfinity,.09,12.01})
             Assert.Throws<ArgumentException>(() => DelayDuration.FromInput(invalid));
     }
@@ -100,7 +100,7 @@ public sealed class WorkshopDelayTests
             new WorkshopConnection(new(8),WorkshopSocket.ActivationIn,new(7),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
             new WorkshopConnection(new(5),WorkshopSocket.ActivationOut,new(8),WorkshopSocket.ActivationOut,WorkshopConnectionDomain.Activation),
             new WorkshopConnection(new(8),WorkshopSocket.ActivationOut,new(7),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Electrical) })
-            Assert.Throws<ArgumentException>(() => (construction with {Connections=new(edge)}).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with {Connections=new(edge)}).Validate());
     }
     [Fact]
     public void PortsAndPuzzlePopulationRemainBounded()
@@ -110,6 +110,6 @@ public sealed class WorkshopDelayTests
         Assert.False(WorkshopPorts.Has(PartId.Delay, WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
         new WorkshopInstances(Delay((Half)1), Delay((Half)2) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
         var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)0));
-        Assert.Throws<ArgumentException>(() => puzzle.WithInstance(Delay((Half)1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(Delay((Half)1)).Validate());
     }
 }

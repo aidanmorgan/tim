@@ -1,0 +1,12 @@
+$ dotnet build CuriousContraptions.slnx --no-incremental -nologo -v q -c Release
+exit=0
+    1 Warning(s)
+    0 Error(s)
+$ dotnet build CuriousContraptions.slnx --no-incremental -nologo -v q -c Editor
+exit=0
+    1 Warning(s)
+    0 Error(s)
+$ dotnet build CuriousContraptions.slnx --no-incremental -nologo -v q -p:PlaytestDiagnostics=true
+exit=0
+    1 Warning(s)
+    0 Error(s)

@@ -5,6 +5,9 @@ namespace CuriousContraptions.Tests;
 
 public sealed class ElectricalSupplyTests
 {
+    private static readonly float[] ProportionalShares = [31.25f, 29.75f, 32f];
+    private static readonly float[] UntouchedOutput = [123f, 456f];
+
     [Theory]
     [InlineData(ElectricalEnable.Disabled)]
     [InlineData(ElectricalEnable.Enabled)]
@@ -21,7 +24,7 @@ public sealed class ElectricalSupplyTests
         var original = WorkshopSaveCodec.Encode(saved);
         var malformed = original.ToArray();
         malformed[24 + WorkshopWire.ConstructionHeaderBytes + 124] = 2;
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(malformed));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(malformed));
         var restored = WorkshopSaveCodec.Decode(original);
         Assert.Equal(settings, Assert.IsType<WorkshopBattery>(restored.Construction.Instances[0]).Settings);
         Assert.Equal(original, WorkshopSaveCodec.Encode(restored));
@@ -32,10 +35,10 @@ public sealed class ElectricalSupplyTests
         Assert.Equal(settings.MaximumPower, scene.Electrical.Sources[0].MaximumPower);
         var second = battery with { Id = new(3) };
         var ambiguous = construction.WithInstance(second) with { Connections = new(link, link with { Source = second.Id }) };
-        Assert.Throws<ArgumentException>(() => ambiguous.Validate());
+        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => ambiguous.Validate());
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
         var wrongDomain = construction with { Connections = new(link with { Domain = WorkshopConnectionDomain.Activation }) };
-        Assert.Throws<ArgumentException>(() => wrongDomain.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => wrongDomain.Validate());
     }
 
     [Theory]
@@ -117,7 +120,7 @@ public sealed class ElectricalSupplyTests
     {
         float[] before = [31f, 29f, 32f], capacity = [32f, 32f, 32f], after = new float[3];
         var result = ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after);
-        Assert.Equal(new[] {31.25f, 29.75f, 32f}, after);
+        Assert.Equal(ProportionalShares, after);
         Assert.Equal(1f, result.Debit);
     }
 
@@ -147,10 +150,10 @@ public sealed class ElectricalSupplyTests
     {
         float[] before = [0f, 33f], capacity = [32f, 32f], after = [123f, 456f];
         Assert.Throws<ArgumentException>(() => ElectricalSupply.Allocate(ElectricalEnable.Enabled, 3600f, 120f, before, capacity, after));
-        Assert.Equal(new[] {123f, 456f}, after);
+        Assert.Equal(UntouchedOutput, after);
         before[1] = 0;
         Assert.Throws<ArgumentException>(() => ElectricalSupply.Allocate((ElectricalEnable)2, 3600f, 120f, before, capacity, after));
-        Assert.Equal(new[] {123f, 456f}, after);
+        Assert.Equal(UntouchedOutput, after);
     }
 
     // Story 9.4b (CAT-015 ledger class): the electrical ledger never debits work that no store was credited with,

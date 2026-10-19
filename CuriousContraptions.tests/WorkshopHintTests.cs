@@ -4,9 +4,11 @@ using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
-public sealed class WorkshopHintTests(NativeSceneFixture godot)
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposable
 {
+    // The scene's MachineWorld also retires the injected client; its disposal is idempotent.
+    public ValueTask DisposeAsync() => _client?.DisposeAsync() ?? ValueTask.CompletedTask;
     // This native fixture supplies transport results, never a local animation clock/evaluator.
     // Actual A execution and clock qualification are covered by the owned Chrome evidence.
     private HintReadClient _client = null!;
@@ -329,7 +331,10 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
             // Pointer events arrive in window pixels; the headless window is stretched onto the 1440x900 viewport.
             var centre = viewport.GetFinalTransform() * picker.GetGlobalRect().GetCenter();
             foreach (var pressed in new[] { true, false })
-                viewport.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed, Position = centre, GlobalPosition = centre });
+            {
+                using var click = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed, Position = centre, GlobalPosition = centre };
+                viewport.PushInput(click);
+            }
             godot.Engine.Iteration();
             Assert.True(picker.GetPopup().Visible, "the click reached the picker and opened its list");
             picker.GetPopup().Hide();

@@ -93,7 +93,7 @@ public readonly record struct CanonicalBody(
             cell < -MaximumCell || cell > MaximumCell ||
             (cell == MaximumCell && local > (float)0) ||
             (cell == -MaximumCell && local < (float)0))
-            throw new ArgumentOutOfRangeException("Canonical body axis exceeds admitted profile.");
+            throw new ArgumentOutOfRangeException(nameof(local), "Canonical body axis exceeds admitted profile.");
     }
 
 }

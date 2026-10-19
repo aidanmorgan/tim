@@ -62,7 +62,8 @@ internal sealed class WorkshopTrace
             _expectedCount = expectedCount;
             _active = true;
         }
-        catch { End(TraceEnd.InvalidRecord); }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
+        { End(TraceEnd.InvalidRecord); }
     }
     #if PLAYTEST
     internal void Append(byte[] record)
@@ -81,7 +82,8 @@ internal sealed class WorkshopTrace
             record.CopyTo(_records, _count * _recordBytes);
             _count++;
         }
-        catch { _poseEnd = TraceEnd.InvalidRecord; }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or IndexOutOfRangeException)
+        { _poseEnd = TraceEnd.InvalidRecord; }
     }
     #endif
     // Host observational milliseconds only. This is the complete critical-path wall span,
@@ -92,16 +94,12 @@ internal sealed class WorkshopTrace
     internal void RecordTickDuration(SimulationTick tick, double milliseconds)
     {
         if (!_active) return;
-        try
-        {
-            if (!_timingValid || !double.IsFinite(milliseconds) || milliseconds < 0 ||
-                _durationCount >= _durations.Length || tick.Value != (ulong)_durationCount + 1 ||
-                tick.Value >= (ulong)_expectedCount
-                )
-            { _timingValid = false; return; }
-            _durations[_durationCount++] = milliseconds;
-        }
-        catch { _timingValid = false; }
+        // The guard bounds the index, so the store cannot throw.
+        if (!_timingValid || !double.IsFinite(milliseconds) || milliseconds < 0 ||
+            _durationCount >= _durations.Length || tick.Value != (ulong)_durationCount + 1 ||
+            tick.Value >= (ulong)_expectedCount)
+        { _timingValid = false; return; }
+        _durations[_durationCount++] = milliseconds;
     }
 
     internal void End(TraceEnd reason)
@@ -166,6 +164,11 @@ internal sealed class WorkshopTrace
             }
             Console.WriteLine($"CCGPU_TICK_TIMES_END {_identity} {_durationCount} {durationChunks} {(int)status}");
         }
-        catch { /* Missing end/chunks are an explicit incomplete capture to its consumer. */ }
+        catch (Exception error) when (error is IOException or ArgumentException)
+        {
+            // Missing end/chunks are an explicit incomplete capture to its consumer; the cause goes to the error stream
+            // (the fault channel), never the standard stream that just failed.
+            WorkshopDiagnostics.Fault(FaultSite.TraceFlush, error);
+        }
     }
 }

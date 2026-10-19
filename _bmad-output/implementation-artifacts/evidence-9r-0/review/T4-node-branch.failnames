@@ -1,0 +1,52 @@
+✖ bowling ball: a rolling 0.7 m/s strike (zero declared resistance, so 0.7 m/s at impact) topples a stock Domino that the Basketball only rocks, and the declared mass alone decides it
+✖ bowling ball: dropped from 3 m each ball rebounds to e²·h of its declared bounce (Bowling low, Basketball high) and the Bowling ball rests at its 0.28 m radius
+✖ bowling ball: the two-lane e2e setup (both balls at x = 0.3 and centre 1.05 m, lanes z = -1.5 / +1.5) separates the kinds with a clear margin and both struck balls come to rest
+✖ contact work admission: all six radial directions qualify independent of owner rotation
+✖ contact work admission: cooldown eligibility is per body and opens at the exact 72-step boundary
+✖ contact work admission: oblique contact keeps ordinary spin and tangent while depth miss never qualifies
+✖ contact work admission: resting separating below-threshold and grazing gap never call payment
+✖ drag: a free-flying sphere moving diagonally slows along both X and Z as exp(-drag·t)
+✖ drag: a free-flying sphere slows as exp(-drag·t) at 60/120/240 Hz and its free-flight spin is never damped
+✖ electrical phase routes exactly120 observations per physical second at every publication cadence
+✖ f32 velocity: a Basketball rolling at 20 m/s at 240 Hz decelerates at (5/7)·(Crr·g + drag·v) over a second, its spin never rises and it never reverses
+✖ f32 velocity: a Basketball rolling at 5 m/s at 240 Hz decelerates on every committed tick at (5/7)·(Crr·g + drag·v) and comes to rest
+✖ f32 velocity: a body whose centre of mass sits off its origin (body record +82) spins about that centre in free flight
+✖ f32 velocity: a heavy body striking a light one at the envelope cannot commit a struck speed beyond 64 m/s (the clamp after restitution)
+✖ f32 velocity: at the envelope boundary declared drag still slows a ball flying at 63.9 m/s on every committed tick at 240 Hz
+✖ f32 velocity: every motion piece carries its body's declared drag rate (+60), so between-tick poses decay like the committed physics
+✖ f32 velocity: the balls' declared drag 0.04 slows a free-flying ball as 2·exp(-0.04·t) on every committed tick at 60/120/240 Hz
+✖ f32 velocity: the end-of-substep guard clamps a finite velocity of any size and drops only a non-finite one
+✖ failing tests:
+✖ orientation sensor: a sensed body that turns back within the threshold keeps its single emission
+✖ orientation sensor: a tile admitted rotated 90 deg about Y stands for 2 s and never fires (initial pose is the admitted pose)
+✖ orientation sensor: a tile placed 10 deg off upright rocks back and never fires
+✖ orientation sensor: a toppling tile fires once when it passes 45 deg and stays fired at that ordinal
+✖ orientation sensor: nonzero admitted Z and quaternion signs preserve relative threshold
+✖ orientation sensor: the threshold is declared data, not a constant of the worker
+✖ paid contact frame uses current anisotropic inertia and contact arms after pose integration
+✖ prismatic relaxation refreshes both moving frames but retains physical-step spring error
+✖ prismatic row-kind boundary rejects changed missing or duplicate mappings
+✖ rigid-body: a box resting across an off-centre point of a tilted beam edge still balances on the crossing
+✖ rigid-body: a box resting across the edge of a tilted static box balances on the genuine edge-edge crossing
+✖ rigid-body: a box resting on a static box face holds through the box-box manifold without sinking or launching
+✖ rigid-body: a box tipped past its support topples through 60 deg and settles flat without jitter
+✖ rigid-body: a sphere dropped onto a standing box topples it past 60 deg and every tick stays inside the real-time budget
+✖ rigid-body: a sphere dropped onto the bench bounces dissipatively and comes to rest at its radius
+✖ rigid-body: a zero declared moment reads as infinite inertia and the body stays finite
+✖ rigid-body: an f32 remainder rounding to0.5 carries into the next cell
+✖ rigid-body: an upright box set 1 cm above the bench settles on its face and stands within the rest tolerances
+✖ rigid-body: friction on the bench turns a sliding sphere into a rolling one through the declared inertia
+✖ rigid-body: rolling speed follows the declared principal moments, not a shape formula (solid vs hollow sphere)
+✖ rigid-body: speeds beyond the game-grade envelope clamp inside the exact host bound (64 m/s, 128 rad/s) in every direction and the tick continues
+✖ rigid-body: the motion description is written at the offset the host declares after the orientation sensor table
+✖ rigid-body: zero restitution never rebounds and zero friction never spins up (declared values, no fallback)
+✖ rolling resistance: a ball resting on the bench spinning about the contact normal keeps its spin (two tangent axes only)
+✖ rolling resistance: a ball rolling along +Z (spin about X, the second tangent axis) also comes to rest
+✖ rolling resistance: a ball rolling on a dynamic box slab also comes to rest (every contact, reaction on the partner)
+✖ rolling resistance: a ball rolling on a static box slab (not the bench plane) comes to rest within 5 s
+✖ rolling resistance: a free partner ball receives the equal and opposite angular impulse (zero gravity, tangential spin at impact)
+✖ rolling resistance: a rolling Bowling ball pushing a resting Basketball (the larger radius as the second collider) brings both to rest together
+✖ rolling resistance: at 60/120/240 Hz a ball of either kind struck to 1 m/s stops at the same time and no committed tick erases its decrement
+✖ rolling resistance: each ball rolling at 0.7 m/s decelerates at (5/7)·(Crr·g + drag·v), rests within 5 s at its radius height and never reverses
+✖ rolling resistance: with zero declared drag and coefficient a rolling ball keeps its speed (control)
+✖ tools/workshop-observation.test.mjs

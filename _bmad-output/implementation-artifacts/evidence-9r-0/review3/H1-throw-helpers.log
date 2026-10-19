@@ -1,0 +1,10 @@
+### H1b non-pinned helper throwing ArgumentException, called from pinned ApplyClockInterval
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 150 ms - CuriousContraptions.tests.dll (net10.0)
+### H1c plus 'using AE = System.ArgumentException' and 'throw new AE(...)' inside the pinned method
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 121 ms - CuriousContraptions.tests.dll (net10.0)
+--- a/ui/WorkshopConfiguration.cs
++++ b/ui/WorkshopConfiguration.cs
++using AE = System.ArgumentException;
++    private static void ReviewRefuse(float value) { if (value < -1e30f) throw new ArgumentException("helper refusal"); }
++            ReviewRefuse(seconds);
++            if (seconds < -1e30f) throw new AE("alias refusal");

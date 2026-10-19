@@ -95,7 +95,7 @@ The current carrier is `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.
 - **Defaults:** `capacity` 45, `charge_power` 30.
 - **Description:** "Load a ball through the open muzzle. A separate electrical supply charges the finite store; an activation fires only a fully charged, seated single ball through a clear muzzle. Empty or obstructed attempts retain charge. It never creates ammunition." (H34)
 
-No level in `content/puzzles.json` places the cannon or stocks it in an inventory (`git grep '"cannon"' a6c914e -- content/puzzles.json` returns nothing). Inventory admission needs a `WorkshopPartKind` and `PartInventory` entry (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+No level in `content/puzzles.json` places the cannon or stocks it in an inventory (`git grep '"cannon"' a6c914e -- content/puzzles.json` returns nothing). Inventory admission needs a `WorkshopPartKind` and `PartInventoryDictionary` entry (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 

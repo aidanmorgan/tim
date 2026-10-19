@@ -14,6 +14,10 @@ public readonly record struct PartId : IComparable<PartId>
     }
 
     public int CompareTo(PartId other) => string.Compare(Value, other.Value, StringComparison.Ordinal);
+    public static bool operator <(PartId left, PartId right) => left.CompareTo(right) < 0;
+    public static bool operator <=(PartId left, PartId right) => left.CompareTo(right) <= 0;
+    public static bool operator >(PartId left, PartId right) => left.CompareTo(right) > 0;
+    public static bool operator >=(PartId left, PartId right) => left.CompareTo(right) >= 0;
 
     public override string ToString() => Value ?? string.Empty;
 

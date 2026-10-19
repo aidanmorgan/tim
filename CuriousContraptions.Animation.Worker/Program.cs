@@ -6,6 +6,8 @@ using CuriousContraptions.Presentation;
 
 [assembly: SupportedOSPlatform("browser")]
 
+namespace CuriousContraptions.Animation.Worker;
+
 /// <summary>Independent owner of the declared animation channels; all evaluation uses S master time.</summary>
 public static partial class Program
 {

@@ -59,10 +59,12 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
 
     public void Validate(WorkshopConstruction construction)
     {
-        if (!Enum.IsDefined(Id) || Placement != WorkshopPlacementMode.Manual) throw new ArgumentException("Unsupported puzzle or placement mode.");
+        if (!Enum.IsDefined(Id) || Placement != WorkshopPlacementMode.Manual)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported puzzle or placement mode.");
         if (Id == WorkshopPuzzleId.Free)
         {
-            if (this != default) throw new ArgumentException("Free Workshop has no authored puzzle settings.");
+            if (this != default)
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Free Workshop has no authored puzzle settings.");
             return;
         }
         // Authored puzzles name the Basketball kind explicitly; no other ball kind is offered or admitted.
@@ -70,10 +72,12 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
         foreach (var instance in construction.Instances)
         {
             if (instance is not WorkshopBall ball) continue;
-            if (ball.PartId != PartId.Basketball) throw new ArgumentException("Authored puzzles admit only their named Basketball.");
+            if (ball.PartId != PartId.Basketball)
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Authored puzzles admit only their named Basketball.");
             ballCount++;
         }
-        if (ballCount != 1) throw new ArgumentException("Authored puzzles require their one named Basketball.");
+        if (ballCount != 1)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Authored puzzles require their one named Basketball.");
         Goal.Validate();
         if (Id is WorkshopPuzzleId.SpringForward or WorkshopPuzzleId.ReadyToRebound) { SpringboardLessons.Validate(this, construction); return; }
         if (Id == WorkshopPuzzleId.DelayedSignal) { DelayedSignal.Validate(this, construction); return; }
@@ -86,22 +90,23 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
         PhysicsDeclarationBounds.Range(Precision.Value, (Half)0, (Half)1);
         if (construction.Connections.Count != 0 || InventoryPart != PartId.Ramp || InventoryCount != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
             BallAssistance != FirstPrinciples.BallAssistance || ReceiverAssistance != FirstPrinciples.ReceiverAssistance || RampAssistance != FirstPrinciples.RampAssistance)
-            throw new ArgumentException("Unsupported First principles authored settings.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported First principles authored settings.");
         var expectedBall = FirstPrinciples.Ball(Goal.Body);
         var expectedReceiver = FirstPrinciples.Receiver(Goal.Target, Precision);
         if (construction.Ball != expectedBall || construction.Receiver != expectedReceiver ||
             Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(expectedReceiver))
-            throw new ArgumentException("Fixed puzzle declarations changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed puzzle declarations changed.");
         var receivers = 0; var ramps = 0;
         foreach (var instance in construction.Instances)
         {
             if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopRamp) || instance is WorkshopRamp { Locked: true })
-                throw new ArgumentException("Unsupported puzzle inventory instance.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported puzzle inventory instance.");
             if (instance is WorkshopReceiver) receivers++;
             if (instance is WorkshopRamp) ramps++;
         }
-        if (receivers != 1) throw new ArgumentException("Authored puzzles require their one named Receiver.");
-        if (ramps > InventoryCount) throw new ArgumentException("Ramp inventory exhausted.");
+        if (receivers != 1)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Authored puzzles require their one named Receiver.");
+        if (ramps > InventoryCount) throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Ramp inventory exhausted.");
     }
 }
 

@@ -5,7 +5,7 @@ using Godot;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class PoweredGateTests(NativeSceneFixture godot)
 {
     [Fact]
@@ -147,7 +147,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         // Invalid: Activation connection to gate PowerIn must be rejected
         var invalidConn = new WorkshopConnection(switchPart.Id, WorkshopSocket.ActivationOut, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Activation);
         var invalidConnections = new WorkshopConnections(invalidConn);
-        Assert.Throws<ArgumentException>(() => invalidConnections.Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(instances));
     }
 
     [Fact]

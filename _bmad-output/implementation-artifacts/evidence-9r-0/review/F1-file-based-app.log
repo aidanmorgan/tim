@@ -1,0 +1,5 @@
+## F1 file-based app probe tools/anvil/ReviewProbe.cs (empty catch + unused local)
+exit=1
+tools/anvil/ReviewProbe.cs(1,5): error CS0219: The variable 'unused' is assigned but its value is never used
+tools/anvil/ReviewProbe.cs(1,5): error IDE0059: Unnecessary assignment of a value to 'unused'
+tools/anvil/ReviewProbe.cs(3,1): error CA1031: Modify '<Main>$' to catch a more specific allowed exception type, or rethrow the exception

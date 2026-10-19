@@ -68,7 +68,7 @@ runtime.setModuleImports('workshopAnimation', {
     }
 });
 const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
-host = exports.Program;
+host = exports.CuriousContraptions.Animation.Worker.Program;
 outputKinds = Array.from(host.OutputKinds());
 targetCapacity = host.TargetCapacity();
 if (!Number.isSafeInteger(targetCapacity) || targetCapacity <= 0) throw new Error('Invalid declared Animation target capacity.');

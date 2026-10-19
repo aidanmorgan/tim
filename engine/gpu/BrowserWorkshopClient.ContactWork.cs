@@ -116,7 +116,7 @@ public sealed partial class BrowserWorkshopClient
                 request.EventOrdinal == sample.EventOrdinal && HalfBits.Equal(request.EventPhase, sample.EventPhase))
                 pulse.Requested = null;
     }
-    private void ReceiveContactSample(WorkshopAnimationSample sample, AnimationOutputKind kind, WorkshopSchedule active)
+    private void ReceiveContactSample(WorkshopAnimationSample sample, WorkshopSchedule active)
     {
         if (sample.World.Value < active.World.WorldGeneration.Value) return;
         foreach (var pulse in _contactPulses)

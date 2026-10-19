@@ -76,7 +76,7 @@ test('actual worker writer publishes globally newest frames across wraps and shr
         Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, DataView, Atomics, MessageChannel: HarnessMessageChannel });
     const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56],
         ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
-    const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ Program: host }),
+    const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
         getConfig: () => ({ mainAssemblyName: 'PoseWriterControl' }) };
     const worker = new vm.SourceTextModule(workerSource + `
 export function bindTestRing(ring) {

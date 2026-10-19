@@ -1,0 +1,97 @@
+probe: H1b-same-type-helper-throws-ArgumentException
+expected refusal (ERE): Workshop.ApplyClockInterval reaches Workshop.ProbeRefuse, which creates new ArgumentException\("helper refusal"\)
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ ui/WorkshopConfiguration.cs | 2 ++
+ 1 file changed, 2 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+ui/WorkshopConfiguration.cs:64: Workshop.ApplyClockInterval reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+--- full commit output:
+Anvil snapshot 0.ts: ui/WorkshopConfiguration.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T14:39:36.221763+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.HY8GP4/solution.binlog
+
+Time Elapsed 00:00:11.11
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.HY8GP4/playtest.binlog
+
+Time Elapsed 00:00:11.45
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.HY8GP4/web.binlog
+
+Time Elapsed 00:00:05.28
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.72]     CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [532 ms]
+  Error Message:
+   15 C# static gate violation(s):
+ui/WorkshopConfiguration.cs:64: Workshop.ToggleRun reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ResetRun reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.Save reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.LoadSave reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ApplyBatterySettings reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ApplyBatteryEnable reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ApplyClockInterval reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ApplyDelayDuration reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ApplyBumperStrength reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ApplySpringboardSettings reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ChangeConnection reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.CommitSelected reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.SubmitConstruction reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.SelectModeFromPicker reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+ui/WorkshopConfiguration.cs:64: Workshop.ChangePrecision reaches Workshop.ProbeRefuse, which creates new ArgumentException("helper refusal") (refuse with WorkshopEditRejectedException)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1r0Kcj/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 788
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   102, Skipped:     0, Total:   103, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

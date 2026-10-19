@@ -1,0 +1,158 @@
+#!/bin/zsh
+# Round-2 review attacks on the Story 9R.0 gate. Each attack is applied to the worktree, the affected build and the
+# CSharpStaticGateTests guard are run, then everything is reverted.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+diag() { grep -E "(error|warning) [A-Z]+[0-9]+" $1 | grep -v IL2125 | sed -E 's#^/[^ ]*/agent-a08aebc94d551b53b/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -8; }
+build() { dotnet build ${1:-elements/Ball/Ball.csproj} -nologo -v q > $W/.a.raw 2>&1; echo "  build ${1:-elements/Ball/Ball.csproj} exit=$?"; diag $W/.a.raw; }
+guard() {
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -nologo -p:TreatWarningsAsErrors=false \
+    --filter "FullyQualifiedName~CuriousContraptions.Tests.CSharpStaticGateTests" > $W/.g.raw 2>&1; echo "  guard exit=$?"
+  grep -E "Passed!|Failed!" $W/.g.raw; grep -E "violation|^\s+(elements|archives|tools|\.claude|CuriousContraptions)/" $W/.g.raw | head -4
+}
+reset() {
+  git checkout -- . 2>/dev/null; git clean -fdq -e _bmad-output/implementation-artifacts/evidence-9r-0 -e _bmad-output/implementation-artifacts/review-9r-0-csharp-static-gate.md -- elements tools archives .claude CuriousContraptions.tests Directory.Build.rsp 2>/dev/null
+  rm -f Directory.Build.rsp
+}
+P=elements/Ball/ReviewAttack.cs
+
+echo "### G1 #if DEBUG around #pragma warning disable CA2000 + undisposed FileStream; and #if DEBUG around an empty typed catch"
+cat > $P <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+#if DEBUG
+#pragma warning disable CA2000
+#endif
+    public static long Leak(string path) => new System.IO.FileStream(path, System.IO.FileMode.Open).Length;
+    public static int Parse(string text)
+    {
+#if DEBUG
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.FormatException) { }
+#endif
+        return -1;
+    }
+}
+EOF
+build; guard; reset
+
+echo "### G1-control same file without the #if DEBUG wrappers (guard must fail)"
+cat > $P <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+#pragma warning disable CA2000
+    public static long Leak(string path) => new System.IO.FileStream(path, System.IO.FileMode.Open).Length;
+    public static int Parse(string text)
+    {
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.FormatException) { }
+        return -1;
+    }
+}
+EOF
+build; guard; reset
+
+echo "### G2 [SuppressMessage] through a using alias (SM) on an undisposed FileStream"
+cat > $P <<'EOF'
+using SM = System.Diagnostics.CodeAnalysis.SuppressMessageAttribute;
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+    [SM("Reliability", "CA2000", Justification = "probe")]
+    public static long Leak(string path) => new System.IO.FileStream(path, System.IO.FileMode.Open).Length;
+}
+EOF
+build; guard; reset
+
+echo "### G3 #nullable disable"
+cat > $P <<'EOF'
+#nullable disable
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack { public static string Name(string text) => text; }
+EOF
+build; guard; reset
+
+echo "### G4 root Directory.Build.rsp with -p:TreatWarningsAsErrors=false and an unused local"
+cat > $P <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack { public static int Parse() { var unused = 0; return 1; } }
+EOF
+printf '%s\n' '-p:TreatWarningsAsErrors=false' > Directory.Build.rsp
+dotnet build CuriousContraptions.slnx -nologo -v q > .a.raw 2>&1; echo "  build CuriousContraptions.slnx exit=$?"; diag .a.raw
+guard; reset
+
+echo "### G5 csproj target removing every analyzer before CoreCompile, plus an undisposed FileStream and a dead store"
+cat > $P <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+    public static long Leak(string path) { var dead = 1; dead = 2; return new System.IO.FileStream(path, System.IO.FileMode.Open).Length + dead; }
+}
+EOF
+sed -i '' 's#</Project>#  <Target Name="ReviewDropAnalyzers" BeforeTargets="CoreCompile"><ItemGroup><Analyzer Remove="@(Analyzer)" /></ItemGroup></Target>\
+</Project>#' elements/Ball/Ball.csproj
+build; guard; reset
+
+echo "### G8 nested elements/Ball/Directory.Build.targets removing every analyzer (same probe as G5)"
+cat > $P <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+    public static long Leak(string path) { var dead = 1; dead = 2; return new System.IO.FileStream(path, System.IO.FileMode.Open).Length + dead; }
+}
+EOF
+cat > elements/Ball/Directory.Build.targets <<'EOF'
+<Project>
+  <Target Name="ReviewDropAnalyzers" BeforeTargets="CoreCompile"><ItemGroup><Analyzer Remove="@(Analyzer)" /></ItemGroup></Target>
+</Project>
+EOF
+build; guard; reset
+
+echo "### G6a uncompiled .cs under a new tools/ subfolder (unused local, undisposed stream)"
+mkdir -p tools/ReviewLoose
+cat > tools/ReviewLoose/Loose.cs <<'EOF'
+internal static class Loose { public static long Leak(string path) { var unused = 0; return new System.IO.FileStream(path, System.IO.FileMode.Open).Length; } }
+EOF
+dotnet build CuriousContraptions.slnx -nologo -v q > .a.raw 2>&1; echo "  build CuriousContraptions.slnx exit=$?"; diag .a.raw
+guard; reset
+
+echo "### G6b new test file in CuriousContraptions.tests not listed in its csproj (EnableDefaultCompileItems=false)"
+cat > CuriousContraptions.tests/ReviewLooseTests.cs <<'EOF'
+namespace CuriousContraptions.Tests;
+public sealed class ReviewLooseTests { [Fact] public void NeverRuns() { var unused = 0; Assert.True(false); } }
+EOF
+build CuriousContraptions.tests/CuriousContraptions.tests.csproj; guard; reset
+
+echo "### G7 new C# project not in the slnx"
+mkdir -p tools/ReviewOrphan
+printf '%s\n' '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable></PropertyGroup></Project>' > tools/ReviewOrphan/ReviewOrphan.csproj
+printf '%s\n' 'internal static class Orphan { public static int M() { var unused = 0; return 1; } }' > tools/ReviewOrphan/Orphan.cs
+guard; reset
+
+echo "### G12 tracked source in the guard-skipped archives/ directory, compiled into Ball via Compile Include, with #pragma + undisposed stream"
+mkdir -p archives/review
+cat > archives/review/Hidden.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+#pragma warning disable CA2000, IDE0059, CS0219
+internal static class Hidden { public static long Leak(string path) { var unused = 0; return new System.IO.FileStream(path, System.IO.FileMode.Open).Length; } }
+EOF
+sed -i '' 's#</Project>#  <ItemGroup><Compile Include="../../archives/review/Hidden.cs" /></ItemGroup>\
+</Project>#' elements/Ball/Ball.csproj
+build; guard; reset
+
+echo "### G12b the same under the tracked, guard-skipped .claude/ directory"
+mkdir -p .claude/review
+sed -e 's#Hidden#Hidden2#' /dev/null > /dev/null
+cat > .claude/review/Hidden2.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+#pragma warning disable CA2000, IDE0059, CS0219
+internal static class Hidden2 { public static long Leak(string path) { var unused = 0; return new System.IO.FileStream(path, System.IO.FileMode.Open).Length; } }
+EOF
+sed -i '' 's#</Project>#  <ItemGroup><Compile Include="../../.claude/review/Hidden2.cs" /></ItemGroup>\
+</Project>#' elements/Ball/Ball.csproj
+build; guard; rm -rf .claude/review; reset
+
+rm -f .a.raw .g.raw
+git status --short

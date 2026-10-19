@@ -1,0 +1,30 @@
+### A typed empty catch: catch (FormatException) { }
+exit=0
+### B catch-all with a trivially true filter: catch (Exception e) when (e is not null) { }
+exit=1
+elements/Ball/ReviewBypass.cs(7,46): error CA1508: 'error is not null' is always 'true'. Remove or refactor the condition
+### C #pragma warning disable CA1031 around a swallowing catch-all
+exit=0
+### D [SuppressMessage(CA1031)] on the method
+exit=0
+### E assembly-level GlobalSuppressions.cs (namespaceanddescendants)
+exit=0
+### F nested elements/Ball/.editorconfig with CA1031/IDE0059 = none (CS0219 remains a compiler warning)
+exit=1
+elements/Ball/ReviewBypass.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used 
+### G csproj <NoWarn>CA1031;IDE0059;CS0219</NoWarn>
+exit=0
+### H csproj <TreatWarningsAsErrors>false</TreatWarningsAsErrors> (warnings print, exit code?)
+exit=0
+elements/Ball/ReviewBypass.cs(6,13): warning CS0219: The variable 'unused' is assigned but its value is never used 
+elements/Ball/ReviewBypass.cs(6,13): warning IDE0059: Unnecessary assignment of a value to 'unused' 
+elements/Ball/ReviewBypass.cs(8,9): warning CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 
+### I nested elements/Ball/Directory.Build.props with CSharpStaticGate=false (the documented vendored opt-out)
+exit=0
+elements/Ball/ReviewBypass.cs(6,13): warning CS0219: The variable 'unused' is assigned but its value is never used 
+### J control: logging catch-all in a non-excluded file must fail
+exit=1
+elements/Ball/ReviewBypass.cs(7,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 
+?? _bmad-output/implementation-artifacts/evidence-9r-0/
+### K catch-all with a non-constant filter: catch (Exception e) when (e.HResult != 0) { }
+exit=0

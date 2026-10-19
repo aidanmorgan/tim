@@ -1,0 +1,44 @@
+Story 9R.0 negative control (native proof; no Chrome)
+=====================================================
+
+N1. Temporary CuriousContraptions.Abstractions/NegativeControlProbe.cs (a default-glob project in the slnx):
+
+    internal static class NegativeControlProbe
+    {
+        public static int Parse(string text)
+        {
+            var unused = 0;
+            try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+            catch { }
+            return -1;
+        }
+    }
+
+  $ dotnet build CuriousContraptions.slnx -nologo        -> exit 1
+    CuriousContraptions.Abstractions/NegativeControlProbe.cs(10,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception
+    CuriousContraptions.Abstractions/NegativeControlProbe.cs(8,13): error CS0219: The variable 'unused' is assigned but its value is never used
+    CuriousContraptions.Abstractions/NegativeControlProbe.cs(8,13): error IDE0059: Unnecessary assignment of a value to 'unused'
+
+  $ sh .githooks/pre-commit                              -> exit 1 (the build step fails; `anvil hook pre-commit` never runs)
+    same three errors
+
+N2. Exclusion scope: with N1 removed, a temporary catch-all added to a non-excluded method of ui/Workshop.cs
+    (the file whose async-void handlers are CA1031 boundary exclusions):
+
+    private static int NegativeControlProbe(string text)
+    {
+        try { return int.Parse(text, CultureInfo.InvariantCulture); }
+        catch (Exception error) { GD.Print(error.Message); return -1; }
+    }
+
+  $ dotnet build CuriousContraptions.slnx -nologo        -> exit 1
+    ui/Workshop.cs(678,9): error CA1031: Modify 'NegativeControlProbe' to catch a more specific allowed exception type, or rethrow the exception
+
+N3. Both probes removed; unchanged tree:
+  $ dotnet build CuriousContraptions.slnx --no-incremental -nologo   -> exit 0; 32 projects; 1 Warning(s) (IL2125), 0 Error(s)
+
+Gate probes run before the fixes (same mechanism, also removed):
+  - `catch (Exception e) when (e is FormatException)` and `catch { ...; throw; }` produce no CA1031 (typed filter and rethrow pass).
+  - `dotnet_code_quality.CA1031.excluded_symbol_names` excludes exactly the named method; a sibling method in the same
+    file still reports CA1031. Per-file .editorconfig sections scope the option to that file.
+  - IDE0051/IDE0059/IDE0060 and CA1823 fire with EnforceCodeStyleInBuild=true (the code-style layer is active).

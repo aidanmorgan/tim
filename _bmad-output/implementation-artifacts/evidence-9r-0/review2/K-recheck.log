@@ -1,0 +1,31 @@
+HEAD before: 193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+### K1 CA2000 positive control: undisposed FileStream (non-Godot) and new Godot.StandardMaterial3D (a Resource, not a Node) in elements/Ball
+  build exit=0
+  game build (Godot Resource created and dropped) exit=1
+ui/ReviewCtlGodot.cs(2,85): error CA2000: Call System.IDisposable.Dispose on object created by 'new Godot.StandardMaterial3D()' before all references to it are out of scope
+### F1-recheck real commit: empty catch + unused local in CuriousContraptions.web/Program.cs
+  git commit exit=1
+CuriousContraptions.web/Program.cs(46,13): error CS0219: The variable 'unused' is assigned but its value is never used
+CuriousContraptions.web/Program.cs(46,13): error IDE0059: Unnecessary assignment of a value to 'unused'
+CuriousContraptions.web/Program.cs(48,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception
+  HEAD after: 193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+  undone: HEAD=193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+### F2-recheck real commit: staged warning behind a clean working copy
+  git commit exit=1
+CuriousContraptions.Abstractions/ReviewIdx.cs(2,63): error CS0219: The variable 'unused' is assigned but its value is never used
+CuriousContraptions.Abstractions/ReviewIdx.cs(2,63): error IDE0059: Unnecessary assignment of a value to 'unused'
+  HEAD after: 193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+  undone: HEAD=193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+?? _bmad-output/implementation-artifacts/evidence-9r-0/review2/
+### K2 CA2000 in elements/Ball: inline, local and Timer forms
+  build exit=1
+elements/Ball/ReviewCtl.cs(12,21): error CA2000: Call System.IDisposable.Dispose on object created by 'new System.Threading.Timer(_ => { })' before all references to it are out of scope
+### K2b same in CuriousContraptions.Abstractions
+  build exit=1
+CuriousContraptions.Abstractions/ReviewCtl.cs(12,21): error CA2000: Call System.IDisposable.Dispose on object created by 'new System.Threading.Timer(_ => { })' before all references to it are out of scope
+{
+  "Properties": {
+    "AnalysisLevel": "10.0-recommended",
+    "EffectiveAnalysisLevel": "10.0"
+  }
+}

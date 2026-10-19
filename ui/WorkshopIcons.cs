@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
@@ -117,7 +118,7 @@ public static class WorkshopIcons
 
     public static void Apply(Button button, string action)
     {
-        var (label, icon) = action switch
+        var (_, icon) = action switch
         {
             "▶  Run machine" => ("Run machine", "play"),
             "■  Back to building" => ("Back to building", "square"),
@@ -151,13 +152,13 @@ public static class WorkshopIcons
             "3D view" => ("3D view", "custom:cube"),
             "Move selected here" => ("Move to layer", "custom:move"),
             "Fine rotate" => ("Fine rotate", "sliders-horizontal"),
-            _ when action.EndsWith(" −") => (action[..^2], "minus"),
-            _ when action.EndsWith(" +") => (action[..^2], "plus"),
+            _ when action.EndsWith(" −", StringComparison.Ordinal) => (action[..^2], "minus"),
+            _ when action.EndsWith(" +", StringComparison.Ordinal) => (action[..^2], "plus"),
             _ => (action, "")
         };
         button.SetMeta("action_label", action);
         button.Text = "";
-        button.Icon = icon.StartsWith("custom:") ? Pictogram(icon[7..]) : icon.Length > 0 ? Load(icon) : Pictogram("move");
+        button.Icon = icon.StartsWith("custom:", StringComparison.Ordinal) ? Pictogram(icon[7..]) : icon.Length > 0 ? Load(icon) : Pictogram("move");
         button.ExpandIcon = false;
         button.TooltipText = "";
         button.AddThemeConstantOverride("icon_max_width", 20);

@@ -65,20 +65,21 @@ public static class GentleBend
             puzzle.BallAssistance != FirstPrinciples.BallAssistance ||
             puzzle.ReceiverAssistance != FirstPrinciples.ReceiverAssistance || puzzle.RampAssistance != BendAssistance ||
             construction.Connections.Count != 0)
-            throw new ArgumentException("Unsupported gentle bend authored settings.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported gentle bend authored settings.");
         var receiver = Receiver(puzzle.Goal.Target, puzzle.Precision);
         if (construction.Ball != Ball(puzzle.Goal.Body) || construction.Receiver != receiver ||
             puzzle.Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(receiver))
-            throw new ArgumentException("Fixed gentle bend declarations changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed gentle bend declarations changed.");
         var receivers = 0; var bends = 0;
         foreach (var instance in construction.Instances)
         {
             if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopGenericInstance { PartId.Value: "pipe_bend_45" }) ||
                 instance is WorkshopGenericInstance { PartId.Value: "pipe_bend_45", Locked: true })
-                throw new ArgumentException("Unsupported gentle bend inventory.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported gentle bend inventory.");
             if (instance is WorkshopReceiver) receivers++;
             if (instance is WorkshopGenericInstance { PartId.Value: "pipe_bend_45" }) bends++;
         }
-        if (receivers != 1 || bends > 1) throw new ArgumentException("Gentle bend inventory exceeded.");
+        if (receivers != 1 || bends > 1)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Gentle bend inventory exceeded.");
     }
 }

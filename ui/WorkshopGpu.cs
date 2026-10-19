@@ -7,7 +7,7 @@ namespace CuriousContraptions;
 
 public partial class Workshop
 {
-    private static Button PlaybackButton(string label, Action action)
+    private static WorkshopButton PlaybackButton(string label, Action action)
     {
         var button = Button(label, action);
         button.Text = label;
@@ -38,7 +38,7 @@ public partial class Workshop
             if (!_workshopUiRemoved) _status.Text = result.Result.Outcome == WorkshopCommandOutcome.Applied
                 ? "Playback updated." : $"Playback rejected: {result.Result.Reason}";
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
         finally { if (!_workshopUiRemoved) _gpuPending = false; }
     }
 
@@ -72,11 +72,15 @@ public partial class Workshop
             _state.Text = "BUILD MODE";
             return true;
         }
+        // Every construction edit ends here, including from async void handlers with no catch of their own (place,
+        // delete, undo): a declared refusal is a rejection, anything else a logged fault with a fault status
+        // (WorkshopUiFailure.Report). Either way the presentation is restored and the edit is not accepted.
         catch (Exception error)
         {
+            var failure = WorkshopUiFailure.Report(error);
             if (_workshopUiRemoved) return false;
             World.RestoreConstructionPresentation();
-            _status.Text = error.Message;
+            _status.Text = failure;
             return false;
         }
         finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); RefreshLayers(); RefreshConnectionChoices(); RefreshConnectionArtwork(); } }
@@ -92,16 +96,16 @@ public partial class Workshop
         if (!CanEdit || _selected is null) return;
         try
         {
-            if (_selected.Locked) throw new ArgumentException("Fixed puzzle instances cannot be edited.");
+            if (_selected.Locked) throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed puzzle instances cannot be edited.");
             var proposed = World.Construction.WithInstance(World.CaptureInstance(_selected.PartId,
                 _selected.AuthoredId, _selected.Position, _selected.Quaternion,
-                _selected?.RampDimensions,
-                _selected?.WallDimensions));
+                _selected.RampDimensions,
+                _selected.WallDimensions));
             // Live pointer motion is an input preview, never retained canonical construction.
             World.RestoreConstructionPresentation();
             var accepted = await SubmitConstruction(proposed);
             if (!_workshopUiRemoved && !accepted && _undo.Count > 0) _undo.RemoveAt(_undo.Count - 1);
         }
-        catch (Exception error) { if (_workshopUiRemoved) return; World.RestoreConstructionPresentation(); _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (_workshopUiRemoved) return; World.RestoreConstructionPresentation(); _status.Text = failure; }
     }
 }

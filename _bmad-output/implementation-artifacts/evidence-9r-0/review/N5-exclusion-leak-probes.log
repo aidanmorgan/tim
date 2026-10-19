@@ -1,0 +1,21 @@
+### L1 overload Reset(int) with catch-all, beside the excluded Reset()
+build exit=0 (TWAE off so every CA1031 is listed)
+CA1031 diagnostics:
+engine/gpu/WorkshopSimulation.cs(284,81): warning CA1031: Modify 'Reset' to catch a more specific allowed exception type, or rethrow the exception 
+### L2 lambda with a swallowing catch-all inside excluded Reset(); the remaining body moved to ResetBody() (not excluded)
+build exit=0 (TWAE off so every CA1031 is listed)
+CA1031 diagnostics:
+engine/gpu/WorkshopSimulation.cs(316,9): warning CA1031: Modify 'ResetBody' to catch a more specific allowed exception type, or rethrow the exception 
+### L3 local function with a swallowing catch-all inside excluded AdvanceCore(bool); remaining body moved to AdvanceBody(bool)
+build exit=0 (TWAE off so every CA1031 is listed)
+CA1031 diagnostics:
+engine/gpu/WorkshopSimulation.cs(281,9): warning CA1031: Modify 'AdvanceBody' to catch a more specific allowed exception type, or rethrow the exception 
+### L4 a new swallowing catch-all statement directly inside excluded Reset(); remaining body moved to ResetBody()
+build exit=0 (TWAE off so every CA1031 is listed)
+CA1031 diagnostics:
+engine/gpu/WorkshopSimulation.cs(315,9): warning CA1031: Modify 'ResetBody' to catch a more specific allowed exception type, or rethrow the exception 
+?? _bmad-output/implementation-artifacts/evidence-9r-0/
+### L5 control: lambda and local-function catch-alls in a NON-excluded method (elements/Ball)
+exit=1
+elements/Ball/ReviewBypass.cs(6,126): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception
+elements/Ball/ReviewBypass.cs(7,118): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception

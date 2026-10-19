@@ -1,0 +1,63 @@
+probe: R3-target-writes-generated-source-into-obj
+expected refusal (ERE): elements/Ball/Ball.csproj compiles elements/Ball/obj/Debug/net10.0/Evil.GlobalUsings.g.cs from a build output directory
+head_before: 6ad43423046e370bf62971ba0b8b7a1591c5b841
+--- staged:
+ elements/Ball/Ball.csproj | 5 +++++
+ 1 file changed, 5 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+elements/Ball/Ball.csproj compiles elements/Ball/obj/Debug/net10.0/Evil.GlobalUsings.g.cs from a build output directory
+--- full commit output:
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.87
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:11.16
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.19
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.61]     CuriousContraptions.Tests.CSharpStaticGateTests.TheBuildOutputSourcesAreOnlyTheSdkGeneratedOnes [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.TheBuildOutputSourcesAreOnlyTheSdkGeneratedOnes [8 ms]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/Ball.csproj compiles elements/Ball/obj/Debug/net10.0/Evil.GlobalUsings.g.cs from a build output directory
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 215
+   at CuriousContraptions.Tests.CSharpStaticGateTests.TheBuildOutputSourcesAreOnlyTheSdkGeneratedOnes() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 368
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.69]     CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers [1 s]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/obj/Debug/net10.0/Evil.GlobalUsings.g.cs: generated-code file name
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 215
+   at CuriousContraptions.Tests.CSharpStaticGateTests.NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.2H6MSM/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 445
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    77, Skipped:     0, Total:    79, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=6ad43423046e370bf62971ba0b8b7a1591c5b841 moved=no refusal_named=yes

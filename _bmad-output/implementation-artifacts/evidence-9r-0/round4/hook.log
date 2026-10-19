@@ -1,0 +1,114 @@
+Anvil snapshot 0.ts: CuriousContraptions.tests/CSharpStaticGateTests.cs
+Anvil snapshot 1.ts: CuriousContraptions.tests/ClearPipeLevelTests.cs
+Anvil snapshot 2.ts: CuriousContraptions.tests/ClockTests.cs
+Anvil snapshot 3.ts: CuriousContraptions.tests/CounterTests.cs
+Anvil snapshot 4.ts: CuriousContraptions.tests/DelayedSignalTests.cs
+Anvil snapshot 5.ts: CuriousContraptions.tests/DominoEffectTests.cs
+Anvil snapshot 6.ts: CuriousContraptions.tests/EditRefusal.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/ElectricalSupplyTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/OrientationSensorTests.cs
+Anvil snapshot 9.ts: CuriousContraptions.tests/PipeBend45Tests.cs
+Anvil snapshot 10.ts: CuriousContraptions.tests/PipeBend90Tests.cs
+Anvil snapshot 11.ts: CuriousContraptions.tests/PoweredGateTests.cs
+Anvil snapshot 12.ts: CuriousContraptions.tests/PressurePlateTests.cs
+Anvil snapshot 13.ts: CuriousContraptions.tests/StateLatchTests.cs
+Anvil snapshot 14.ts: CuriousContraptions.tests/WorkbenchCapacityTests.cs
+Anvil snapshot 15.ts: CuriousContraptions.tests/WorkshopBowlingTests.cs
+Anvil snapshot 16.ts: CuriousContraptions.tests/WorkshopBumperTests.cs
+Anvil snapshot 17.ts: CuriousContraptions.tests/WorkshopDelayTests.cs
+Anvil snapshot 18.ts: CuriousContraptions.tests/WorkshopDominoTests.cs
+Anvil snapshot 19.ts: CuriousContraptions.tests/WorkshopSaveTests.cs
+Anvil snapshot 20.ts: CuriousContraptions.tests/WorkshopSpringboardTests.cs
+Anvil snapshot 21.ts: CuriousContraptions.tests/WorkshopWallTests.cs
+Anvil snapshot 22.ts: engine/gpu/BumperAdvanced.cs
+Anvil snapshot 23.ts: engine/gpu/SpringboardLessons.cs
+Anvil snapshot 24.ts: engine/gpu/WorkshopSaveCodec.cs
+Anvil snapshot 25.ts: ui/WorkshopConnections.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T14:30:42.888627+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 26,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0IODCF/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0IODCF/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.lXY9dp/solution.binlog
+
+Time Elapsed 00:00:11.61
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0IODCF/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0IODCF/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.lXY9dp/playtest.binlog
+
+Time Elapsed 00:00:10.55
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0IODCF/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0IODCF/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.lXY9dp/web.binlog
+
+Time Elapsed 00:00:05.32
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.0IODCF/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   103, Skipped:     0, Total:   103, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+real 37.41
+user 0.01
+sys 0.00

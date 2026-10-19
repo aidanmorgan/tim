@@ -1,0 +1,187 @@
+Story 9R.0 C# static gate: warning inventory
+=============================================
+
+Candidate base: 8f682f8 (worktree branch worktree-agent-a08aebc94d551b53b), SDK 10.0.401, macOS arm64.
+Gate under inventory: Directory.Build.props AnalysisLevel=latest-recommended, EnforceCodeStyleInBuild=true,
+Nullable=enable, plus the .editorconfig opt-ins (CA1031, CA1065, CA1508, CA1849, CA1823, CA2008,
+IDE0051, IDE0052, IDE0059, IDE0060). Inventory runs pass -p:TreatWarningsAsErrors=false so every
+diagnostic is listed instead of stopping at the first project.
+
+Commands (raw logs kept outside the tree; the counts below come from them):
+  B0  dotnet build CuriousContraptions.slnx                               (pre-gate baseline, original 5-project slnx)
+  B1  dotnet build CuriousContraptions.slnx --no-incremental -p:TreatWarningsAsErrors=false
+      (gate on, slnx expanded to all 32 buildable projects; Debug)
+  B2  dotnet build CuriousContraptions.slnx --no-incremental -c Release -p:PlaytestDiagnostics=true -p:TreatWarningsAsErrors=false
+  B3  dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false -p:TreatWarningsAsErrors=false
+  B4  dotnet build tools/anvil/CheckStagedTests.cs / tools/anvil/VerifyPolicy.cs -p:TreatWarningsAsErrors=false
+
+BEFORE
+------
+B0 pre-gate baseline: 1 warning (IL2125, CuriousContraptions.csproj), 0 errors; only 5 projects in the slnx
+(elements/*, Abstractions.*, both workers and tools/* were not built by `dotnet build CuriousContraptions.slnx`).
+
+B1 projects compiled (32): Ball BallDetector Battery Bumper BundleElements Counter Coverage Coverage.Tests
+CuriousContraptions CuriousContraptions.2dog CuriousContraptions.Abstractions (+ .Electrical .Fluid .Mechanical
+.Signal) CuriousContraptions.Animation CuriousContraptions.Animation.Worker CuriousContraptions.Simulation
+CuriousContraptions.tests Domino LifecycleContract Ownership PoweredGate PressurePlate Preview Ramp SignalLamp
+StateLatch SystemClock TraceAllocations Wall WireContract.
+CuriousContraptions.web keeps <Build Project="false"/> in the slnx (its build is the browser publish); B3 covers it.
+
+B1 totals: 458 diagnostics (per project, so a shared engine/gpu file counts once per compiling project);
+395 unique source sites.
+
+B1 per project and rule (diagnostic count):
+  CuriousContraptions                   CA1031 26, CA1859 11, CA1065 6, CA1305 6, CA1310 3, CA1508 3, CA1036 2, CA1711 2,
+                                        CA1725 2, CA1849 2, IDE0059 2, IDE0060 2, CA1050 1, CA1513 1, CA1710 1, CA1822 1,
+                                        CA2008 1, CA2208 1, IL2125 1                                         (= 74)
+  CuriousContraptions.Simulation        CA1051 139, CA1031 11, CA1859 10, CA1065 5, CA1036 2, CA1711 2, CA1050 1,
+                                        CA1508 1, CA1513 1, CA1710 1, CA1849 1, CA2208 1                     (= 175)
+  CuriousContraptions.Animation.Worker  CA1859 10, CA1031 5, CA1065 5, CA1036 2, CA1711 2, CA1050 1, CA1508 1,
+                                        CA1513 1, CA1710 1, CA1849 1, CA2208 1                               (= 30)
+  CuriousContraptions.Animation         CA1512 6                                                             (= 6)
+  CuriousContraptions.tests             CA1707 129, CA1711 5, CA1031 3, CA1861 3, IDE0059 3, CA1001 2, CA1832 1,
+                                        CA1852 1, CA1859 1, CA2208 1, IDE0051 1                              (= 150)
+  Coverage                              CA1859 3, CA1862 2, CA1861 1, CA1865 1, CA1875 1, CA2208 1           (= 9)
+  Ownership                             CA1823 2, IDE0051 2, CA1305 1, CA1859 1, CA1862 1, CA1865 1          (= 8)
+  WireContract                          CA1031 2, CA1305 1                                                   (= 3)
+  LifecycleContract                     CA1031 2, CA2201 1                                                   (= 3)
+  all other projects (elements/*, Abstractions*, BundleElements, Coverage.Tests, Preview, TraceAllocations,
+  CuriousContraptions.2dog)             0
+
+B1 unique sites per rule (395):
+  CA1051 139  CA1707 129  CA1031 36  CA1859 16  CA1305 8  CA1711 7  CA1512 6  CA1065 6  IDE0059 5  CA1861 4
+  IDE0051 3  CA2208 3  CA1508 3  CA1310 3  CA1050 3  IDE0060 2  CA1862 2  CA1849 2  CA1823 2  CA1725 2
+  CA1036 2  CA1001 2  IL2125 1  CA2201 1  CA2008 1  CA1875 1  CA1865 1  CA1852 1  CA1832 1  CA1822 1
+  CA1710 1  CA1513 1
+  CA1051 files: CuriousContraptions.Simulation/WorkshopCollisionKernels.cs 110, PrismaticConstraintSolver.cs 22,
+                WorkshopDynamicBvh.cs 7
+  CA1707: 129 xUnit test-method names in CuriousContraptions.tests (no production hits)
+  Of these, 5 CA1711 + 1 CA1001 sit in 2dog.xunit 4.7.2.91 compile-in sources under ~/.nuget (not repository code).
+
+B2 (Release + PLAYTEST) adds 3 sites that only compile with PLAYTEST:
+  CA1031 CuriousContraptions.Simulation/WorkshopGpuDevice.cs(164)  Stage
+  CA1031 CuriousContraptions.Simulation/WorkshopTrace.cs(82)       Append
+  CA1031 engine/gpu/WorkshopClockMapping.cs(318)                   FailRecovery
+  => 398 unique sites across configurations.
+
+B3 production publish: 285 diagnostics, no rule or site beyond B1 (CuriousContraptions.web/Program.cs is clean;
+CuriousContraptions.web/TwoDogWebBoot.cs CA1050 is compiled by the game project and already counted). No ILLink
+trim-analysis warnings other than IL2125.
+
+B4 file-based apps (Directory.Build.props applies to them too; CheckStagedTests.cs runs in the pre-commit hook):
+  tools/anvil/CheckStagedTests.cs  CA1859 1
+  tools/anvil/VerifyPolicy.cs      CA2208 1, CA1852 3
+  => 5 sites.
+
+Grand total BEFORE: 403 unique sites (398 project sites + 5 file-based-app sites), of which IL2125 = 1 (expected
+until the Story 9.4b rebase) and 6 are third-party 2dog.xunit sources.
+
+Non-naming sites, by rule (CA1051/CA1707 are summarised above):
+CA1001  ~nuget/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs(129,26)
+CA1001  CuriousContraptions.tests/WorkshopHintTests.cs(8,21)
+CA1031  CuriousContraptions.Simulation/Program.cs(110,9) (140,9) (392,9)
+CA1031  CuriousContraptions.Simulation/WorkshopGpuDevice.cs(164,13) [PLAYTEST]
+CA1031  CuriousContraptions.Simulation/WorkshopTrace.cs(63,9) (82,9)[PLAYTEST] (99,9) (162,9)
+CA1031  engine/gpu/BrowserWorkshopClient.cs(273,9)
+CA1031  engine/gpu/WorkshopClockMapping.cs(318,9) [PLAYTEST]
+CA1031  engine/gpu/WorkshopCommandRouter.cs(22,9)
+CA1031  engine/gpu/WorkshopSimulation.cs(139,9) (184,9) (271,9) (306,9)
+CA1031  engine/MachineWorld.Gpu.cs(282,9) (378,13)
+CA1031  tools/LifecycleContract/Program.cs(29,9); tools/LifecycleContract/RuntimeClockControls.cs(28,13)
+CA1031  tools/WireContract/Program.cs(25,9); tools/WireContract/RevisionTwoOracles.cs(163,13)
+CA1031  ui/Workshop.cs(81,9) (641,9) (657,13) (670,9) (800,9) (844,9)
+CA1031  ui/WorkshopBattery.cs(116,9) (137,9)
+CA1031  ui/WorkshopConfiguration.cs(60,9) (76,9) (109,9) (157,9)
+CA1031  ui/WorkshopConnections.cs(109,9)
+CA1031  ui/WorkshopGpu.cs(36,9) (60,9) (85,9)
+CA1031  ui/WorkshopPuzzle.cs(101,9) (186,9)
+CA1036  engine/gpu/ActivationTimers.cs(10,31); engine/PartId.cs(5,31)
+CA1050  CuriousContraptions.Animation.Worker/Program.cs(10,29); CuriousContraptions.Simulation/Program.cs(10,29);
+        CuriousContraptions.web/TwoDogWebBoot.cs(23,21)
+CA1065  engine/gpu/BrowserWorkshopClient.cs(40,41); engine/gpu/WorkshopCadence.cs(57,14) (66,14) (74,14);
+        engine/gpu/WorkshopGpuProfile.cs(14,14); engine/gpu/WorkshopUi.cs(20,14)
+CA1305  tools/Ownership/SourceInventory.cs(202,17); tools/WireContract/Program.cs(69,57); ui/Workshop.cs(357,83);
+        ui/WorkshopBattery.cs(44,48) (69,48); ui/WorkshopConfiguration.cs(18,46) (33,53) (81,53)
+CA1310  ui/WorkshopIcons.cs(154,20) (155,20) (160,23)
+CA1508  engine/gpu/WorkshopCadence.cs(87,13); ui/WorkshopGpu.cs(78,17) (79,17)
+CA1512  engine/presentation/AnimationBatch.cs(19,9) (28,9) (132,9) (441,9);
+        engine/presentation/AnimationImpulseDefinition.cs(15,9); engine/presentation/AnimationValues.cs(17,9)
+CA1513  engine/gpu/WorkshopPoseHistory.cs(88,9)
+CA1710  engine/gpu/WorkshopInventory.cs(23,21)
+CA1711  ~nuget/2dog.xunit/4.7.2.91/build/GodotCollection.cs, GodotHeadlessCollection.cs, HeadlessCollection.cs,
+        RenderingCollection.cs; CuriousContraptions.tests/NativeSceneFixture.cs(151,21);
+        engine/gpu/WorkshopPresentationWire.cs(7,13) (9,13)
+CA1725  ui/Workshop.cs(410,53); ui/WorkshopGuidance.cs(404,44)
+CA1822  engine/MachineWorld.Gpu.cs(84,29)
+CA1823  tools/Ownership/SourceInventory.cs(17,26) (18,26)
+CA1832  CuriousContraptions.tests/WorkshopSaveTests.cs(136,73)
+CA1849  engine/gpu/BrowserWorkshopClient.cs(145,13); engine/gpu/WorkshopSimulation.cs(141,13)
+CA1852  CuriousContraptions.tests/BasketballResourceTests.cs(162,27)
+CA1859  CuriousContraptions.tests/WorkerAbiTests.cs(11,62); engine/gpu/WorkshopCanonicalColliders.cs (10 methods:
+        38 54 70 92 144 182 435 873 950 994); tools/Coverage/CapabilityInputs.cs(183,57) (241,68);
+        tools/Coverage/CurrentOwnerRelations.cs(72,66); tools/Ownership/OwnershipPolicy.cs(18,52); ui/Workshop.cs(145,27)
+CA1861  CuriousContraptions.tests/ElectricalSupplyTests.cs(120,22) (150,22) (153,22); tools/Coverage/CurrentOwnerRelations.cs(15,25)
+CA1862  tools/Coverage/CurrentCatalogue.cs(97,33); tools/Ownership/CurrentOwnerMembership.cs(78,33)
+CA1865  tools/Ownership/CurrentOwnerMembership.cs(74,84)
+CA1875  tools/Coverage/CurrentOwnerRelations.cs(39,43)
+CA2008  engine/gpu/BrowserWorkshopClient.cs(379,22)
+CA2201  tools/LifecycleContract/RuntimeClockControls.cs(250,15)
+CA2208  CuriousContraptions.tests/CanonicalBodyTests.cs(61,28); engine/gpu/CanonicalBody.cs(96,19); tools/Coverage/Program.cs(44,23)
+IDE0051 CuriousContraptions.tests/PortableAnimationTests.cs(19,27); tools/Ownership/SourceInventory.cs(17,26) (18,26)
+IDE0059 CuriousContraptions.tests/ActivationTimerTests.cs(59,13); CuriousContraptions.tests/StraightPipeTests.cs(202,13);
+        CuriousContraptions.tests/WorkshopWireTests.cs(1043,45); ui/WorkshopGuidance.cs(390,13); ui/WorkshopIcons.cs(120,14)
+IDE0060 engine/gpu/BrowserWorkshopClient.ContactWork.cs(119,91); ui/WorkshopGuidance.cs(132,76)
+IL2125  CuriousContraptions.csproj (Google.FlatBuffers trim; removed by Story 9.4b)
+
+For comparison only: AnalysisLevel=latest-All on the same tree reports 2,445 diagnostics, led by CA1515 (879, make
+types internal), CA1028 (214, enum storage), CA2007 (192, ConfigureAwait), CA2000 (165), CA1062 (159, redundant
+with nullable reference types) and CA1008 (111). See the spec for why the gate is latest-recommended plus opt-ins.
+
+AFTER
+-----
+Same commands with the gate on (TreatWarningsAsErrors=true; no -p override):
+  B1  dotnet build CuriousContraptions.slnx --no-incremental            exit 0; 32 projects; 1 warning (IL2125), 0 errors
+  B2  ... -c Release -p:PlaytestDiagnostics=true --no-incremental        exit 0; 1 warning (IL2125), 0 errors
+  B3  dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false   exit 0; 1 warning (IL2125)
+      dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=true    exit 0; 1 warning (IL2125)
+  B4  dotnet build tools/anvil/CheckStagedTests.cs / VerifyPolicy.cs     exit 0; 0 warnings each
+
+Totals: 403 unique sites BEFORE -> 1 AFTER (IL2125, expected until the Story 9.4b rebase; WarningsNotAsErrors in
+CuriousContraptions.csproj keeps it a visible warning and must be deleted in that rebase).
+
+How each BEFORE rule was resolved (fixed at source unless marked EXCLUDED; the spec gives each justification):
+  CA1051 139  Simulation worker SoA/BVH/solver types made internal (they were public only by default in an Exe).
+  CA1707 129  EXCLUDED for CuriousContraptions.tests and tools/Coverage.Tests only (.editorconfig; test-method names).
+  CA1031  39  8 narrowed to the exception types their bodies throw (codec sniffing x2 measured, trace x3,
+              PLAYTEST diagnostics x2, observation clock x1); 1 dead try removed (RecordTickDuration); 4 tool
+              harness Check catches narrowed; 26 sites in 25 deliberate fault/UI/disposal boundary methods EXCLUDED
+              per symbol (.editorconfig), each reporting the exception; Construct and Reset now log the exception
+              they used to drop.
+  CA1859  16  concrete return/field types (ReadOnlyCollection, WorkshopButton, FrozenSet/FrozenDictionary, Dictionary).
+  CA1305   8  CurrentCulture for UI display text (unchanged behaviour); InvariantCulture for tool/parse paths.
+  CA1711   7  PresentationEvidenceFlags/PresentationEndpointFlags -> *Bits; NativeSceneCollection ->
+              NativeSceneCollectionDefinition; 4 in 2dog.xunit compile-in sources EXCLUDED (package files only).
+  CA1512   6  ArgumentOutOfRangeException.ThrowIf* helpers (same type and parameter name).
+  CA1065   6  property getters throw InvalidOperationException instead of ArgumentException.
+  IDE0059  5  2 dead locals removed (snapMove, test offset); label discarded; 2 test values were dropped
+              assertions and are now asserted (ActivationTimerTests finished, StraightPipeTests rims).
+  CA1861   4  static readonly arrays.
+  IDE0051  3  dead test helper and two dead Ownership constants removed.
+  CA2208   3  (+1 VerifyPolicy) real parameter names; CanonicalBody passed its message as the paramName (fixed).
+  CA1508   3  WorkshopCadence constant self-check moved to a unit test; two never-null ?. removed.
+  CA1310   3  StringComparison.Ordinal.
+  CA1050   3  worker Program classes and TwoDogWebBoot moved into namespaces; worker.js and node mocks updated.
+  IDE0060  2  unused parameters removed (contact sample kind, rotation-row explanation).
+  CA1862 2, CA1865 1, CA1875 1, CA1832 1, CA1822 1, CA1852 1 (+3 VerifyPolicy), CA1710 1, CA1725 2, CA1036 2,
+  CA2201 1, CA2008 1, CA1849 2, CA1513 1, CA1823 2: fixed at source (see spec section 4).
+  CA1001   2  WorkshopHintTests disposes its injected client; the 2dog.xunit QueueContext site is EXCLUDED (package file).
+  IL2125   1  unchanged (Story 9.4b owns the fix).
+
+ROUND 2 (CA2000 and CA2213 opted in with the Godot exclusion; raw/CA2000-CA2213-before.txt)
+  BEFORE 35 sites (33 CA2000, 2 CA2213): CuriousContraptions.tests/WorkshopSimulationTests.cs 26,
+    BasketballResourceTests.cs 2, WorkshopGpuDeviceTests.cs 1, WorkshopSpringboardTests.cs 1, WorkshopTraceTests.cs 1 (CA2213),
+    CuriousContraptions.Simulation/Program.cs 1, CuriousContraptions.Simulation/WorkshopGpuDevice.cs 1 (CA2213),
+    engine/gpu/BrowserWorkshopClient.cs 1, tools/Preview/Program.cs 1; then CuriousContraptions.web/Program.cs 1 (found by
+    the new web compile).
+  AFTER 0 (only IL2125 remains). Without the Godot exclusion the reviewer measured 215 sites (review N7b).
+  Raw before-site lists are in raw/ (B1, B2 PLAYTEST, B3 publish, latest-All comparison).

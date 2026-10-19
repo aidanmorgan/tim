@@ -9,7 +9,7 @@ using Xunit;
 namespace CuriousContraptions.Tests;
 
 /// <summary>CAT-037 State Latch: catalogue, typed sockets, Reset-dominant bistable memory, switched supply route and persistence.</summary>
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class StateLatchTests(NativeSceneFixture godot)
 {
     private static readonly Color Slate = new("#556573");
@@ -120,16 +120,16 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other);
         var output = Signal(latch.Id, lamp.Id, WorkshopSocket.ActivationIn);
         new WorkshopConnections(output).Validate(instances);
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(Signal(latch.Id, counter.Id, WorkshopSocket.ActivationIn)).Validate(instances));
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(Signal(latch.Id, other.Id, WorkshopSocket.SetIn)).Validate(instances));
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(output, Signal(other.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.LatchDrivesLampOnly, () => new WorkshopConnections(Signal(latch.Id, counter.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.LatchDrivesLampOnly, () => new WorkshopConnections(Signal(latch.Id, other.Id, WorkshopSocket.SetIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLatch, () => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLatch, () => new WorkshopConnections(output, Signal(other.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
 
         // The save codec rejects an invalid stored shape atomically: a latch output aimed at a Counter.
         var valid = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new(output));
         var bytes = WorkshopSaveCodec.Encode(new(valid, new(6)));
         var invalid = valid with { Connections = new(Signal(latch.Id, counter.Id, WorkshopSocket.ActivationIn)) };
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(new(invalid, new(6))));
+        EditRefusal.Is(WorkshopEditRejection.LatchDrivesLampOnly, () => WorkshopSaveCodec.Encode(new(invalid, new(6))));
         Assert.Equal(output, Assert.Single(WorkshopSaveCodec.Decode(bytes).Construction.Connections.ToArray()));
     }
 
@@ -184,10 +184,10 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var power = Power(battery.Id, latch.Id);
         new WorkshopConnections(set, reset, power).Validate(instances);
 
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(Signal(source.Id, latch.Id, WorkshopSocket.ActivationIn)).Validate(instances));
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(Signal(source.Id, lamp.Id, WorkshopSocket.SetIn)).Validate(instances));
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(power, Power(second.Id, latch.Id)).Validate(instances));
-        Assert.Throws<ArgumentException>(() => new WorkshopConnections(set with { Domain = WorkshopConnectionDomain.Electrical }).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(Signal(source.Id, latch.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(Signal(source.Id, lamp.Id, WorkshopSocket.SetIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => new WorkshopConnections(power, Power(second.Id, latch.Id)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => new WorkshopConnections(set with { Domain = WorkshopConnectionDomain.Electrical }).Validate(instances));
     }
 
     [Fact]

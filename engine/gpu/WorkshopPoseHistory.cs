@@ -85,7 +85,7 @@ public sealed class WorkshopPoseHistory
     private Prepared PrepareCore(WorkshopResponse response, MappedCapture? mapped, PresentationBoundary boundary,
         ulong clockEpoch, WorkshopSchedule? installing)
     {
-        if (_retired) throw new ObjectDisposedException(nameof(WorkshopPoseHistory));
+        ObjectDisposedException.ThrowIf(_retired, this);
         if (!Enum.IsDefined(boundary) || clockEpoch == 0 || _version == ulong.MaxValue)
             throw new ArgumentException("Invalid presentation ownership.");
         if (response.Read.Capture is not { } capture) throw new ArgumentException("Physical history requires a capture.");

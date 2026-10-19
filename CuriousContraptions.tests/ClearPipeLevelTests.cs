@@ -53,22 +53,22 @@ public sealed class ClearPipeLevelTests
 
         // Second pipe exceeds inventory limit
         var pipe2 = WorkshopInput.Pipe(new(4), 1, 3, 0, 0, 0, 0, 1);
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(pipe2).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(pipe2).Validate());
 
         // Locked player pipe is rejected
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(pipe with { Locked = true }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => construction.WithInstance(pipe with { Locked = true }).Validate());
 
         // Unlocking fixed ball or receiver is rejected
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(construction.Receiver!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Receiver!.Value with { Locked = false }).Validate());
 
         // Unauthorized parts are rejected
         var ramp = WorkshopInput.Ramp(new(5), 0, 1, 0, 0, 0, 0, 1, RampDimensions.Default);
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(ramp).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(ramp).Validate());
 
         // Tampering with assistance profiles is rejected
-        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
-        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
     }
 
     [Theory]

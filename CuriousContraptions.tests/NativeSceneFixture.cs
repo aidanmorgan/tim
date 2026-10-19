@@ -148,4 +148,4 @@ public sealed class NativeSceneFixture : FixtureBase
 }
 
 [CollectionDefinition(DisableParallelization = true)]
-public sealed class NativeSceneCollection : ICollectionFixture<NativeSceneFixture>;
+public sealed class NativeSceneCollectionDefinition : ICollectionFixture<NativeSceneFixture>;

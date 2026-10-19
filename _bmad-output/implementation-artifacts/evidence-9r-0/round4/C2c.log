@@ -1,0 +1,121 @@
+probe: C2c-shadowing-nested-targets-analyzer-remove
+expected refusal (ERE): solution.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.NetAnalyzers.dll
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ elements/Ball/Directory.Build.targets | 3 +++
+ elements/Ball/ProbeLeak.cs            | 5 +++++
+ 2 files changed, 8 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+solution.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.NetAnalyzers.dll
+--- full commit output:
+Anvil snapshot 0.ts: elements/Ball/ProbeLeak.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T14:47:53.975818+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 9,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.2MyobK/solution.binlog
+
+Time Elapsed 00:00:11.88
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.2MyobK/playtest.binlog
+
+Time Elapsed 00:00:09.79
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.2MyobK/web.binlog
+
+Time Elapsed 00:00:05.18
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.40]     CuriousContraptions.Tests.CSharpStaticGateTests.EveryNestedDirectoryBuildFileImportsTheRootOne [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.EveryNestedDirectoryBuildFileImportsTheRootOne [1 ms]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/Directory.Build.targets: does not import the root Directory.Build.targets
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.EveryNestedDirectoryBuildFileImportsTheRootOne() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1069
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.04]     CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesNameAnalysisWarningAnalyzerOrGateSettings [FAIL]
+[xUnit.net 00:00:03.05]     CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesNameAnalysisWarningAnalyzerOrGateSettings [5 ms]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/Directory.Build.targets: [<Target Name="ProbeDropAnalyzers" BeforeTargets="CoreCompile"><ItemGroup><Analyzer Remove="@(Analyzer)" /></ItemGroup></Target>] expected []
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.OnlyThePinnedMsBuildLinesNameAnalysisWarningAnalyzerOrGateSettings() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 963
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports [5 ms]
+  Error Message:
+   1 C# static gate violation(s):
+elements/Ball/Directory.Build.targets:ProbeDropAnalyzers: unpinned target (hash 7c90aac9e78589aff844fcdda64332ef5d794a2ddb55b96fd70f71a2790423d5)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1033
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.85]     CuriousContraptions.Tests.CSharpStaticGateTests.EveryLoggedCompileReceivedThePinnedCompilerInputs [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.EveryLoggedCompileReceivedThePinnedCompilerInputs [47 ms]
+  Error Message:
+   8 C# static gate violation(s):
+playtest.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.NetAnalyzers.dll
+playtest.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+playtest.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.CodeStyle.dll
+playtest.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.CSharp.CodeStyle.dll
+solution.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.NetAnalyzers.dll
+solution.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+solution.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.CodeStyle.dll
+solution.binlog: elements/Ball/Ball.csproj: compiled without Microsoft.CodeAnalysis.CSharp.CodeStyle.dll
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.EveryLoggedCompileReceivedThePinnedCompilerInputs() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.C8udzK/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 634
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:    99, Skipped:     0, Total:   103, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

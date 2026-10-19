@@ -76,7 +76,7 @@ async function loadWorker(host, additionalGlobals = {}) {
     const messages = [];
     const runtime = {
         setModuleImports: (_, methods) => { imports = methods; },
-        getAssemblyExports: async () => ({ Program: host }),
+        getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
         getConfig: () => ({ mainAssemblyName: 'BoundaryControl' })
     };
     const self = {

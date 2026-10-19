@@ -1,0 +1,93 @@
+probe: F7d-validator-target-typed-ArgumentException
+expected refusal (ERE): WorkshopConnections.Validate reaches WorkshopConnections.Validate, which creates new\("Connection capacity exceeded."\)
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ engine/gpu/WorkshopConnections.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+engine/gpu/WorkshopConnections.cs:154: WorkshopConnections.Validate reaches WorkshopConnections.Validate, which creates new("Connection capacity exceeded.") (refuse with WorkshopEditRejectedException)
+--- full commit output:
+Anvil snapshot 0.ts: engine/gpu/WorkshopConnections.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T15:03:24.311853+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.4blBLp/solution.binlog
+
+Time Elapsed 00:00:09.05
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.4blBLp/playtest.binlog
+
+Time Elapsed 00:00:11.82
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.csproj]
+
+Build succeeded.
+
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming. [/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.4blBLp/web.binlog
+
+Time Elapsed 00:00:05.11
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.75]     CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [540 ms]
+  Error Message:
+   1 C# static gate violation(s):
+engine/gpu/WorkshopConnections.cs:154: WorkshopConnections.Validate reaches WorkshopConnections.Validate, which creates new("Connection capacity exceeded.") (refuse with WorkshopEditRejectedException)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   at CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 788
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.85]     CuriousContraptions.Tests.WorkshopUiFailureTests.AConnectionRuleRefusalIsAStdoutRejection [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopUiFailureTests.AConnectionRuleRefusalIsAStdoutRejection [3 ms]
+  Error Message:
+   Assert.IsType() Failure: Value is not the exact type
+Expected: typeof(CuriousContraptions.Gpu.WorkshopEditRejectedException)
+Actual:   typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopUiFailureTests.AConnectionRuleRefusalIsAStdoutRejection() in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.1kNr9C/CuriousContraptions.tests/WorkshopUiFailureTests.cs:line 51
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:   101, Skipped:     0, Total:   103, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

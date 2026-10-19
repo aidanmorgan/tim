@@ -1,0 +1,28 @@
+HEAD before: 193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+### C1 one commit: alias SuppressMessage (G2) + DEBUG-only empty typed catch (G1c) + csproj Analyzer Remove (G5) + archives/ source with #pragma (G12)
+ archives/review/Hidden.cs     |  3 +++
+ elements/Ball/Ball.csproj     |  2 ++
+ elements/Ball/ReviewAttack.cs | 15 +++++++++++++++
+ 3 files changed, 20 insertions(+)
+  git commit exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+  HEAD after: 8b7c0354ca20e7837e981ca1ed3564f0e219a9ee
+  undone: HEAD=193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+### C2 G5 alone, active: Ball.csproj target removing every analyzer + undisposed FileStream and dead store
+  git commit exit=0
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+  HEAD after: 654b4dac0fb2811f46154b3217c9364f8ae3c01c
+  undone: HEAD=193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+### C3 G4: root Directory.Build.rsp (-p:TreatWarningsAsErrors=false) + unused local
+  git commit exit=0
+elements/Ball/ReviewRsp.cs(2,67): warning CS0219: The variable 'unused' is assigned but its value is never used
+elements/Ball/ReviewRsp.cs(2,67): warning IDE0059: Unnecessary assignment of a value to 'unused'
+Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+  HEAD after: 23a429f453f94fff7acf79101a465420d2f08c3d
+  undone: HEAD=193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+### C4 --no-verify: an empty catch {} commits without the hook (expected); then the CI gate step on that tree
+  git commit --no-verify exit=0; HEAD=1b2f7cf
+  CI step 'dotnet build CuriousContraptions.slnx --no-restore --no-incremental' exit=1
+elements/Ball/ReviewAttack.cs(2,154): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception
+  undone: HEAD=193bfd51d95a60fcf6c4bf6410a7c03c403b445c
+?? _bmad-output/implementation-artifacts/evidence-9r-0/review2/

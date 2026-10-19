@@ -4,4 +4,38 @@
          deleting it during Clean breaks Rebuild even after a successful restore.
          Register custom generated outputs with FileWrites instead of deleting
          entire intermediate or output roots. -->
+
+    <!-- C# static gate (Story 9R.0): some packages (2dog.xunit) compile their own source files into the
+         consuming project from the NuGet package root. That third-party source cannot be fixed in this
+         repository, so the analyzer rules it trips are turned off for exactly those files; compiler
+         diagnostics still apply to them, and every repository source file keeps the full gate.
+         CA1711: 2dog.xunit names its xUnit collection definitions *Collection.
+         CA1001: 2dog.xunit's GodotTestFramework.QueueContext owns a disposable queue. -->
+    <PropertyGroup>
+        <PackageCompileSourceExcludedRules>CA1711;CA1001</PackageCompileSourceExcludedRules>
+    </PropertyGroup>
+    <Target Name="ExcludePackageCompileSourcesFromAnalyzers" BeforeTargets="CoreCompile" AfterTargets="GenerateMSBuildEditorConfigFile"
+            Condition="'$(NuGetPackageRoot)' != ''">
+        <ItemGroup>
+            <_PackageCompileSource Include="@(Compile->'%(FullPath)')"
+                                   Condition="$([System.String]::Copy('%(Compile.FullPath)').StartsWith('$(NuGetPackageRoot)'))" />
+            <_PackageCompileSourceRule Include="$(PackageCompileSourceExcludedRules)" />
+        </ItemGroup>
+        <PropertyGroup>
+            <_PackageCompileSourceRuleLines>@(_PackageCompileSourceRule->'dotnet_diagnostic.%(Identity).severity = none', '%0A')</_PackageCompileSourceRuleLines>
+        </PropertyGroup>
+        <ItemGroup>
+            <_PackageCompileSourceSection Include="@(_PackageCompileSource->'[%(Identity)]%0A$(_PackageCompileSourceRuleLines)')" />
+        </ItemGroup>
+        <PropertyGroup>
+            <_PackageCompileSourcesConfig>$(IntermediateOutputPath)$(MSBuildProjectName).PackageSources.globalconfig</_PackageCompileSourcesConfig>
+        </PropertyGroup>
+        <WriteLinesToFile Condition="'@(_PackageCompileSource)' != ''" File="$(_PackageCompileSourcesConfig)"
+                          Lines="is_global = true;@(_PackageCompileSourceSection)"
+                          Overwrite="true" WriteOnlyWhenDifferent="true" />
+        <ItemGroup Condition="'@(_PackageCompileSource)' != ''">
+            <EditorConfigFiles Include="$(_PackageCompileSourcesConfig)" />
+            <FileWrites Include="$(_PackageCompileSourcesConfig)" />
+        </ItemGroup>
+    </Target>
 </Project>

@@ -1,4 +1,5 @@
 #:property TargetFramework=net10.0
+using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -9,13 +10,13 @@ enum SourceKind { CSharp, JavaScript, JavaScriptModule, JavaScriptCommon, JavaSc
 static class StagedTestPolicy
 {
     // External filename boundary; internal choices remain enum-typed.
-    static readonly IReadOnlyDictionary<string, SourceKind> Extensions = new Dictionary<string, SourceKind>
+    static readonly FrozenDictionary<string, SourceKind> Extensions = new Dictionary<string, SourceKind>
     {
         [".cs"] = SourceKind.CSharp, [".js"] = SourceKind.JavaScript,
         [".mjs"] = SourceKind.JavaScriptModule, [".cjs"] = SourceKind.JavaScriptCommon,
         [".jsx"] = SourceKind.JavaScriptReact, [".ts"] = SourceKind.TypeScript,
         [".tsx"] = SourceKind.TypeScriptReact
-    };
+    }.ToFrozenDictionary();
     const string RegistryPath = "tools/anvil/no-skipped-tests.json";
     const string ScannerSuffix = ".ts";
 

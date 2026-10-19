@@ -15,13 +15,16 @@ namespace GodotPlugins.Game
     }
 }
 
-/// <summary>
-/// Public entry point for the web host assemblies. It cannot live in <c>Main</c>: the generated part declares
-/// that class internal and partial parts may not disagree on accessibility. Compiled into the Godot project's
-/// assembly (Compile Include in the root csproj) because scripts resolve from the assembly holding the initializer.
-/// </summary>
-public static class TwoDogWebBoot
+namespace CuriousContraptions
 {
-    public static IntPtr PluginsInitializer() => GodotPlugins.Game.Main.TwoDogGetInitializePointer();
+    /// <summary>
+    /// Public entry point for the web host assemblies. It cannot live in <c>Main</c>: the generated part declares
+    /// that class internal and partial parts may not disagree on accessibility. Compiled into the Godot project's
+    /// assembly (Compile Include in the root csproj) because scripts resolve from the assembly holding the initializer.
+    /// </summary>
+    public static class TwoDogWebBoot
+    {
+        public static IntPtr PluginsInitializer() => GodotPlugins.Game.Main.TwoDogGetInitializePointer();
+    }
 }
 #endif

@@ -45,7 +45,7 @@ flowchart LR
   - Converts existing implementations forward into each element's own `.tscn` scene and generic `MachinePart` instances, immediately deleting procedural code with zero backwards compatibility shims.
   - Authors reusable, pure TypeScript Playwright E2E tests in `tools/e2e/<suite>.test.ts`.
   - Runs pre-commit checks:
-    1. `anvil check --changed` $\implies$ must have **0 warnings**.
+    1. `dotnet build CuriousContraptions.slnx` $\implies$ **0 warnings, 0 errors**. This is the C# static gate (Story 9R.0): `Directory.Build.props` builds every C# project with the .NET analyzers (`AnalysisLevel` latest-recommended plus the `.editorconfig` correctness rules) and warnings as errors. The repository pre-commit hook builds a from-scratch snapshot of the staged index: the solution (default and `-p:PlaytestDiagnostics=true`), the web host's own sources and both `tools/anvil` apps. It then runs `CSharpStaticGateTests`, which rejects suppressions, widened exemptions and swallowed exceptions the analyzers skip. CI (`pages.yml`) runs the same builds. `anvil check --changed` covers non-C# files only; anvil does not analyse C#, so it is never evidence for C# code.
     2. `dotnet test CuriousContraptions.slnx` $\implies$ must pass **100%** (557+ tests).
     3. Browser-based E2E verification in Chrome at the tier the story requires (see [Verification tiers](#verification-tiers)), with a **100% pass rate**.
   - **A story CANNOT be marked complete or handed off without authoring and running its own browser-based E2E test in Chrome (`tools/e2e/<suite>.test.ts`) and the Tier 2 impact-selected suites, plus the Tier 3 full run when the story makes a material engine change.**
@@ -56,14 +56,14 @@ flowchart LR
 - **Rules of Engagement:**
   - Independently inspects the git diff against all Acceptance Criteria in `_bmad-output/planning-artifacts/epics.md`.
   - Proves zero legacy remnants via codebase grep: confirms complete deletion of procedural mesh routines (`PartArt.cs`), hardcoded collider tables, closed part enums (`WorkshopPartKind`), bespoke per-part scripts, and backwards-compatibility shims.
-  - Independently executes `anvil check --changed` and `dotnet test CuriousContraptions.slnx`.
+  - Independently executes `dotnet build CuriousContraptions.slnx` (the C# static gate: analyzers and warnings as errors, 0 warnings) and `dotnet test CuriousContraptions.slnx`, plus `anvil check --changed` for non-C# files only (anvil does not analyse C#).
   - Reuses the implementer's Chrome runs after independently verifying they ran on the exact source and bundle identity under review, with per-file results. Independently runs only the probes and mutants for the changed behaviour; never repeats a full run (see [Verification tiers](#verification-tiers)).
   - Tests exact authoring Reset restoration and Save/Load persistence in Chrome.
   - **Enforces a 100% pass rate on every required tier before granting Pass. Any browser failure, timeout or regression blocks completion.**
   - Issues terminal scoped verdict:
     - **Fail:** Known regression, test failure, browser crash, or broken invariant $\to$ returns findings to Amelia.
     - **Incomplete:** Stale, missing, or unverified proof $\to$ requests required evidence.
-    - **Pass:** 100% verified with zero unresolved regressions across unit tests, Anvil, slice E2E test, and all cumulative regression E2E suites in Chrome $\to$ updates `sprint-status.yaml` and signs off.
+    - **Pass:** 100% verified with zero unresolved regressions across unit tests, the C# static gate, non-C# Anvil checks, slice E2E test, and all cumulative regression E2E suites in Chrome $\to$ updates `sprint-status.yaml` and signs off.
 
 ---
 
@@ -72,7 +72,7 @@ flowchart LR
 No story can be marked complete (`done`) in `_bmad-output/implementation-artifacts/sprint-status.yaml` without satisfying all eight mandatory completion criteria:
 
 1. **C# Unit Tests Pass 100%:** `dotnet test CuriousContraptions.slnx` passes 100% with 0 failures (557+ tests).
-2. **Anvil Static Analysis Clean:** `anvil check --changed` passes with **0 warnings**.
+2. **C# Static Gate Clean:** `dotnet build CuriousContraptions.slnx` reports **0 warnings and 0 errors** with the .NET analyzers and warnings as errors (`Directory.Build.props`, Story 9R.0), in the default configuration and with `-p:PlaytestDiagnostics=true`, and the web host's own sources compile clean. `CSharpStaticGateTests` passes (no suppression, no widened exemption, no swallowed exception). The repository pre-commit hook checks all of this on a from-scratch snapshot of the staged index and refuses a commit that fails; CI repeats the builds. Until the Story 9.4b rebase, the one expected warning is IL2125. Anvil does not analyse C#: `anvil check --changed` with 0 warnings applies to non-C# files only and is never evidence for C# code.
 3. **Browser-Based Playwright E2E Suite Passes 100%:** The story's dedicated browser-based E2E test (`tools/e2e/<suite>.test.ts`) is authored and executed in actual Chrome via the Playwright browser connector with a **100% pass rate**.
 4. **Required E2E Tiers Pass 100%:** The Tier 2 impact-selected suites pass 100%, and the Tier 3 full run passes 100% when the story makes a material engine change ([Verification tiers](#verification-tiers)). Any browser failure or regression blocks completion.
 5. **Exact Reset and Save/Load Persistence Roundtrip:** Exact initial state restoration before Run and after Reset, as well as JSON Save/Load roundtrip, is verified in Chrome.
@@ -140,7 +140,7 @@ sequenceDiagram
     Coord->>QA: Invoke Independent Review Subagent with diff
     activate QA
     QA->>QA: Grep for zero legacy remnants
-    QA->>QA: Run anvil check --changed
+    QA->>QA: Run dotnet build CuriousContraptions.slnx (C# gate) and anvil check --changed (non-C# only)
     QA->>QA: Run dotnet test CuriousContraptions.slnx
     QA->>QA: Run slice & cumulative E2E regression tests in Chrome (100% pass)
     QA->>QA: Validate exact Reset & Save/Load in Chrome
@@ -173,7 +173,7 @@ sequenceDiagram
 1. Write/update unit tests in `CuriousContraptions.tests` and author the corresponding browser-based Playwright E2E test in `tools/e2e/<suite>.test.ts`.
 2. Implement the forward functionality in C# / WASM SIMD / TypeScript.
 3. Delete the superseded legacy code completely.
-4. Execute `anvil check --changed`. Fix all warnings until **0 warnings** remain.
+4. Execute `dotnet build CuriousContraptions.slnx` (the C# static gate: analyzers and warnings as errors) and `anvil check --changed` (non-C# files only; anvil does not analyse C#). Fix every warning at its source until **0 warnings** remain.
 5. Execute `dotnet test CuriousContraptions.slnx`. Ensure all tests pass **100%** (557+ tests).
 6. Execute the browser-based Playwright E2E test in actual Chrome via the Playwright connector: `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`.
 7. Execute the Tier 2 impact-selected suites, plus the Tier 3 full run for a material engine change ([Verification tiers](#verification-tiers)).
@@ -184,7 +184,8 @@ sequenceDiagram
 1. The coordinator invokes a separate, independent subagent conversation for Murdoch.
 2. Murdoch reads the git diff and the specific story acceptance criteria from `epics.md`.
 3. Murdoch runs automated static checks:
-   - `anvil check --changed` (0 warnings required)
+   - `dotnet build CuriousContraptions.slnx` (the C# static gate: analyzers and warnings as errors; 0 warnings required)
+   - `anvil check --changed` (non-C# files only, 0 warnings required; anvil does not analyse C#)
    - `dotnet test CuriousContraptions.slnx` (100% pass required)
 4. Murdoch runs active grep searches to ensure zero legacy references remain.
 5. Murdoch verifies the browser-based E2E evidence in actual Chrome via the Playwright browser connector:
@@ -210,9 +211,9 @@ sequenceDiagram
 
 | Gate | Tool / Command | Passing Threshold | Blocking Condition |
 | :--- | :--- | :--- | :--- |
-| **Static Code Quality** | `anvil check --changed` | **0 warnings** | Any warning blocks review |
+| **C# Static Gate** | `dotnet build CuriousContraptions.slnx` (.NET analyzers, warnings as errors; run by the pre-commit hook) | **0 warnings, 0 errors** | Any C# warning fails the build and refuses the commit |
+| **Non-C# Static Quality** | `anvil check --changed` (anvil does not analyse C#) | **0 warnings** | Any warning blocks review |
 | **Unit & Regression** | `dotnet test CuriousContraptions.slnx` | **100% Pass** (0 failed, 557+ passed) | Any test failure blocks review |
 | **Browser-Based E2E Gate** | `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts` (and all prior cumulative regression suites) | **100% Pass across all tests in Chrome** (serial runs) | Any browser failure or regression strictly blocks completion |
 | **Zero Legacy Verification**| `git grep "<superseded_symbol>"` | **0 matches** in active code | Any active reference blocks review |
 | **Exact State Reset** | Browser E2E Playwright assertion in Chrome | Bitwise / coordinate match before Run and after Reset | Pose drift or dirty state blocks review |
-| **Format & Build Cleanliness** | `dotnet build CuriousContraptions.slnx` | **0 errors, 0 warnings** | Build failure blocks review |

@@ -1,0 +1,6 @@
+REVIEW_CODEC_PROBE2 ack electrical+contact | fixture rejected by WorkshopWire: An installed physical read requires its original capture. = 1
+REVIEW_CODEC_PROBE2 fixed-binary response (Encode) -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 4
+REVIEW_CODEC_PROBE2 fixed-binary response (Write into reused ReadOutput) -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 4
+REVIEW_CODEC_PROBE2 fixtures encoded = 4 = 1
+REVIEW_CODEC_PROBE2 mutated fixed-binary response -> FB response decoder | System.ArgumentException (caught by narrowed catch) = 15574
+REVIEW_CODEC_PROBE2 mutated fixed-binary response -> FB response decoder | System.ArgumentOutOfRangeException (caught by narrowed catch) = 426

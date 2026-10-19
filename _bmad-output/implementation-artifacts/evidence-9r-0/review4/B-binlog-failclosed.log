@@ -1,0 +1,38 @@
+solution build exit=0
+playtest build exit=0
+web build exit=0
+check-staged build exit=0
+verify-policy build exit=0
+### guard with CSHARP_STATIC_GATE_BINLOGS=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4/good (all five logs)
+  exit=0
+Passed!  - Failed:     0, Passed:    80, Skipped:     0, Total:    80, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+### guard with CSHARP_STATIC_GATE_BINLOGS=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4/empty (empty directory)
+  exit=1
+Failed!  - Failed:     2, Passed:    78, Skipped:     0, Total:    80, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   267 C# static gate violation(s):
+   35 C# static gate violation(s):
+CuriousContraptions.2dog/CuriousContraptions.2dog.csproj: no Csc run in the gate builds' binary logs (every compile must be logged)
+### guard with CSHARP_STATIC_GATE_BINLOGS=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4/truncated (solution log truncated to half)
+  exit=1
+Failed!  - Failed:     8, Passed:    72, Skipped:     0, Total:    80, Duration: 822 ms - CuriousContraptions.tests.dll (net10.0)
+   System.IO.EndOfStreamException : Unable to read beyond the end of the stream.
+### guard with CSHARP_STATIC_GATE_BINLOGS=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4/partial (solution log only)
+  exit=1
+Failed!  - Failed:     2, Passed:    78, Skipped:     0, Total:    80, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   3 C# static gate violation(s):
+CuriousContraptions.web/CuriousContraptions.web.csproj: no Csc run in the gate builds' binary logs (every compile must be logged)
+tools/anvil/CheckStagedTests.cs.csproj: no Csc run in the gate builds' binary logs (every compile must be logged)
+### guard with CSHARP_STATIC_GATE_BINLOGS=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4/garbage (solution log replaced by garbage)
+  exit=1
+Failed!  - Failed:     8, Passed:    72, Skipped:     0, Total:    80, Duration: 761 ms - CuriousContraptions.tests.dll (net10.0)
+   System.IO.InvalidDataException : The archive entry was compressed using an unsupported compression method.
+### guard with CSHARP_STATIC_GATE_BINLOGS=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4/nonexistent (directory does not exist)
+  exit=1
+Failed!  - Failed:     8, Passed:    72, Skipped:     0, Total:    80, Duration: 632 ms - CuriousContraptions.tests.dll (net10.0)
+   System.IO.DirectoryNotFoundException : Could not find a part of the path '/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/bl4/nonexistent'.
+?? _bmad-output/implementation-artifacts/evidence-9r-0/review4/
+DONE
+### guard with every log except playtest.binlog
+Passed!  - Failed:     0, Passed:    80, Skipped:     0, Total:    80, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

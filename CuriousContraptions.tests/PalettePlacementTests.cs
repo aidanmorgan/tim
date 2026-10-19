@@ -185,7 +185,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
         SetField(scene, "_gpuPending", false); // a ready Workshop: natively the browser client never initialises
         SetField(scene, "_buildView", false);
-        SetField<IReadOnlyDictionary<PartId, PartAllowance>>(scene, "_inventory", new PartInventory((tool, PartAllowance.Unlimited)));
+        SetField<IReadOnlyDictionary<PartId, PartAllowance>>(scene, "_inventory", new PartInventoryDictionary((tool, PartAllowance.Unlimited)));
         SetField<PartId?>(scene, "_tool", tool);
         return (scene, client);
     }

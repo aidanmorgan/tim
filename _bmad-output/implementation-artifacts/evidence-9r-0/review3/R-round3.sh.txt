@@ -1,0 +1,92 @@
+#!/bin/zsh
+# Round-3 review: real commits through the hook. Each probe is staged alone, committed, then undone.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+BASE=$(git rev-parse HEAD); echo "HEAD before: $BASE"
+undo() {
+  if [ "$(git rev-parse HEAD)" != "$BASE" ]; then git reset -q --soft $BASE; fi
+  git reset -q; git checkout -- .
+  rm -rf archives/review Directory.Build.rsp elements/Ball/Review*.cs elements/Ball/Review*.cs.uid elements/Ball/Directory.Build.targets
+  echo "  undone: HEAD=$(git rev-parse HEAD) status=[$(git status --short | grep -v 'evidence-9r-0/review3' | tr '\n' ' ')]"
+}
+commit() {
+  git commit -m "review probe $1 (to be reset)" > $W/.c.raw 2>&1; rc=$?
+  echo "  git commit exit=$rc  HEAD after: $(git rev-parse --short HEAD)"
+  grep -E "(error|warning) [A-Z]+[0-9]+|C# static gate|violation|Failed!|Passed!" $W/.c.raw | grep -v IL2125 |
+    sed -E 's#^/[^ ]*/(csharp-gate\.[A-Za-z0-9]+|agent-a08aebc94d551b53b)/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -6
+}
+LOCAL='namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewLocal { public static int M() { var unused = 0; return 1; } }'
+
+echo "### R1 Ball.csproj: CreateProperty sets TreatWarningsAsErrors=false before CoreCompile and true after it (gate reads the restored value) + unused local"
+printf '%s\n' "$LOCAL" > elements/Ball/ReviewLocal.cs
+sed -i '' 's#</Project>#  <Target Name="ReviewOff" BeforeTargets="CoreCompile"><CreateProperty Value="false"><Output TaskParameter="Value" PropertyName="TreatWarningsAsErrors" /></CreateProperty></Target>\
+  <Target Name="ReviewOn" AfterTargets="CoreCompile"><CreateProperty Value="true"><Output TaskParameter="Value" PropertyName="TreatWarningsAsErrors" /></CreateProperty></Target>\
+</Project>#' elements/Ball/Ball.csproj
+git add elements/Ball/ReviewLocal.cs elements/Ball/Ball.csproj; commit R1; undo
+
+echo "### R2 Ball.csproj: CreateProperty appends CA1031;IDE0059;CS0219 to NoWarn before CoreCompile, restores it after + swallowing catch-all and unused local"
+cat > elements/Ball/ReviewLocal.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewLocal { public static int M(string t) { var unused = 0; try { return int.Parse(t, System.Globalization.CultureInfo.InvariantCulture); } catch (System.Exception e) { System.Console.WriteLine(e); return -1; } } }
+EOF
+sed -i '' 's#</Project>#  <Target Name="ReviewSave" BeforeTargets="CoreCompile"><CreateProperty Value="$(NoWarn)"><Output TaskParameter="Value" PropertyName="ReviewKept" /></CreateProperty><CreateProperty Value="$(NoWarn);CA1031;IDE0059;CS0219"><Output TaskParameter="Value" PropertyName="NoWarn" /></CreateProperty></Target>\
+  <Target Name="ReviewRestore" AfterTargets="CoreCompile"><CreateProperty Value="$(ReviewKept)"><Output TaskParameter="Value" PropertyName="NoWarn" /></CreateProperty></Target>\
+</Project>#' elements/Ball/Ball.csproj
+git add elements/Ball/ReviewLocal.cs elements/Ball/Ball.csproj; commit R2; undo
+
+echo "### R3 csproj DefineConstants adds REVIEWSNEAKY; an empty typed catch under #if REVIEWSNEAKY"
+cat > elements/Ball/ReviewLocal.cs <<'EOF'
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewLocal
+{
+    public static int M(string t)
+    {
+#if REVIEWSNEAKY
+        try { return int.Parse(t, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.FormatException) { }
+#endif
+        return -1;
+    }
+}
+EOF
+sed -i '' 's#<IsTrimmable>true</IsTrimmable>#<IsTrimmable>true</IsTrimmable><DefineConstants>$(DefineConstants);REVIEWSNEAKY</DefineConstants>#' elements/Ball/Ball.csproj
+git add elements/Ball/ReviewLocal.cs elements/Ball/Ball.csproj; commit R3; undo
+
+echo "### R4 round-2 C1 again: alias SuppressMessage + DEBUG empty catch + archives/ pragma source"
+cat > elements/Ball/ReviewAttack.cs <<'EOF'
+using SM = System.Diagnostics.CodeAnalysis.SuppressMessageAttribute;
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewAttack
+{
+    [SM("Reliability", "CA2000", Justification = "probe")]
+    public static long Leak() { var t = new System.Threading.Timer(_ => { }); return t.GetHashCode(); }
+    public static int Parse(string text)
+    {
+#if DEBUG
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.FormatException) { }
+#endif
+        return -1;
+    }
+}
+EOF
+mkdir -p archives/review
+printf '%s\n' 'namespace CuriousContraptions.Elements.Ball;' '#pragma warning disable IDE0059, CS0219' 'internal static class Hidden { public static int M() { var unused = 0; return 1; } }' > archives/review/Hidden.cs
+sed -i '' 's#</Project>#  <ItemGroup><Compile Include="../../archives/review/Hidden.cs" /></ItemGroup>\
+</Project>#' elements/Ball/Ball.csproj
+git add elements/Ball/ReviewAttack.cs archives/review/Hidden.cs elements/Ball/Ball.csproj; commit R4; undo
+
+echo "### R5 round-2 C2 again: Analyzer Remove target + undisposed Timer"
+printf '%s\n' 'namespace CuriousContraptions.Elements.Ball;' 'internal static class ReviewAttack { public static int M() { var t = new System.Threading.Timer(_ => { }); return t.GetHashCode(); } }' > elements/Ball/ReviewAttack.cs
+sed -i '' 's#</Project>#  <Target Name="ReviewDropAnalyzers" BeforeTargets="CoreCompile"><ItemGroup><Analyzer Remove="@(Analyzer)" /></ItemGroup></Target>\
+</Project>#' elements/Ball/Ball.csproj
+git add elements/Ball/ReviewAttack.cs elements/Ball/Ball.csproj; commit R5; undo
+
+echo "### R6 round-2 C3 again: root Directory.Build.rsp -p:TreatWarningsAsErrors=false + unused local"
+printf '%s\n' '-p:TreatWarningsAsErrors=false' > Directory.Build.rsp
+printf '%s\n' "$LOCAL" > elements/Ball/ReviewLocal.cs
+git add Directory.Build.rsp elements/Ball/ReviewLocal.cs; commit R6; undo
+
+rm -f $W/.c.raw
+echo "DONE"

@@ -6,7 +6,7 @@ using Godot;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class StraightPipeTests(NativeSceneFixture godot)
 {
     [Fact]
@@ -200,12 +200,21 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
 
         // Rim colliders: aperture in Y and Z is exactly [-0.65, 0.65]
         var rims = colliders.Skip(16).ToArray();
+        Assert.Equal(8, rims.Length);
         // Top and bottom rims span Y in [0.65, 0.95] and [-0.95, -0.65]
         // Left and right rims span Z in [-0.95, -0.65] and [0.65, 0.95]
         // Oversized sphere centered at (X, 0, 0) has cross section of radius 0.75 m at the mouth entrance,
         // which overlaps all 4 rim colliders by 0.75 - 0.65 = 0.10 m.
-        const float overlap = oversizedRadius - 0.65f;
-        Assert.True(overlap > 0f, "Oversized ball overlaps collar rim and is blocked");
+        foreach (var rim in rims)
+        {
+            var y = (float)rim.LocalPose.Translation.Y;
+            var z = (float)rim.LocalPose.Translation.Z;
+            var innerFace = MathF.Abs(y) > MathF.Abs(z)
+                ? MathF.Abs(y) - (float)rim.HalfExtents.Y
+                : MathF.Abs(z) - (float)rim.HalfExtents.Z;
+            Assert.InRange(innerFace, 0.648f, 0.652f);
+            Assert.True(oversizedRadius > innerFace, "Oversized ball overlaps collar rim and is blocked");
+        }
     }
 
     [Fact]

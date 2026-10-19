@@ -95,7 +95,7 @@ public sealed class WorkshopWallTests
                 CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
                 var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
                 builder.Finish(end.Value);
-                Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+                EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
             }
         }
         Assert.Equal(valid, WorkshopSaveCodec.Encode(Saved(WallDimensions.Default)));
@@ -114,7 +114,7 @@ public sealed class WorkshopWallTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
         builder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Saved(WallDimensions.Default).Construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(command);
@@ -132,14 +132,14 @@ public sealed class WorkshopWallTests
         // Free play has no per-kind wall count; only the compiled table capacities limit the population.
         new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
         var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(4), new(5), new((Half)1));
-        Assert.Throws<ArgumentException>(() => puzzle.WithInstance(wall).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(wall).Validate());
         var construction = Saved(WallDimensions.Default).Construction.WithInstance(
             WorkshopInput.Lamp(new(3), 3, 2, 0, 0, 0, 0, 1)) with
         {
             Connections = new(new WorkshopConnection(wall.Id, WorkshopSocket.ActivationOut,
                 new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation))
         };
-        Assert.Throws<ArgumentException>(() => construction.Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => construction.Validate());
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public sealed class WorkshopWallTests
     }
 }
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
 {
     [Fact]

@@ -1,0 +1,2 @@
+CuriousContraptions.tests/WorkshopHintTests.cs(334,36): warning CA2000: Call System.IDisposable.Dispose on object created by 'new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed, Position = centre, GlobalPosition = centre }' before all references to it are out of scope 
+engine/PartDefinition.cs(28,26): warning CA2213: 'PartDefinition' contains field '_scene' that is of IDisposable type 'PackedScene?', but it is never disposed. Change the Dispose method on 'PartDefinition' to call Close or Dispose on this field. 

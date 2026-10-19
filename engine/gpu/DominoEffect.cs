@@ -37,20 +37,22 @@ public static class DominoEffect
             puzzle.BallAssistance != default || puzzle.ReceiverAssistance != default || puzzle.RampAssistance != default ||
             construction.Ball is not { } ball || ball != Ball(ball.Id) ||
             construction.Instances.Find<WorkshopLamp>() != Lamp(new(puzzle.Goal.TargetNode.Value)))
-            throw new ArgumentException("Changed domino effect fixture or goal.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Changed domino effect fixture or goal.");
         var dominoes = 0; var endFound = false;
         foreach (var instance in construction.Instances)
         {
             if (instance is WorkshopDomino tile && tile.Id == end)
             {
-                if (tile != EndDomino(end)) throw new ArgumentException("Changed domino effect end Domino.");
+                if (tile != EndDomino(end))
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Changed domino effect end Domino.");
                 endFound = true; continue;
             }
             if (instance is WorkshopDomino { Locked: false }) { dominoes++; continue; }
             if (instance is WorkshopBall || instance is WorkshopLamp lamp && lamp.Id.Value == puzzle.Goal.TargetNode.Value) continue;
-            throw new ArgumentException("Unsupported domino effect inventory.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported domino effect inventory.");
         }
-        if (!endFound) throw new ArgumentException("The domino effect requires its fixed end Domino.");
-        if (dominoes > puzzle.InventoryCount) throw new ArgumentException("Domino inventory exhausted.");
+        if (!endFound) throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "The domino effect requires its fixed end Domino.");
+        if (dominoes > puzzle.InventoryCount)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Domino inventory exhausted.");
     }
 }

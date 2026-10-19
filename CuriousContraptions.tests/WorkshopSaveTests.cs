@@ -5,6 +5,56 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopSaveTests
 {
+    // Every malformed stored save, in a deterministic corpus (each truncation, each single-bit flip and seeded random
+    // buffers of a valid save with parts and connections), decodes or is the typed save refusal; nothing else escapes.
+    [Fact]
+    public void EveryMalformedSaveIsTheTypedRefusal()
+    {
+        var valid = WorkshopSaveCodec.Encode(ActivationSaved());
+        var random = new Random(9);
+        var corpus = new List<byte[]>();
+        for (var length = 0; length < valid.Length; length++) corpus.Add(valid[..length]);
+        for (var bit = 0; bit < valid.Length * 8; bit++)
+        {
+            var flipped = (byte[])valid.Clone();
+            flipped[bit / 8] ^= (byte)(1 << (bit % 8));
+            corpus.Add(flipped);
+        }
+        for (var count = 0; count < 1000; count++)
+        {
+            var noise = new byte[random.Next(0, valid.Length * 2)];
+            random.NextBytes(noise);
+            corpus.Add(noise);
+        }
+        var escaped = new List<string>();
+        foreach (var bytes in corpus)
+        {
+            var error = Record.Exception(() => WorkshopSaveCodec.Decode(bytes));
+            if (error is not (null or WorkshopEditRejectedException)) escaped.Add($"{bytes.Length} bytes: {error.GetType().FullName}: {error.Message}");
+        }
+        Assert.Empty(escaped);
+    }
+
+    // Only the failures malformed bytes produce become the refusal, each only where it can mean that; a defect stays a
+    // defect. The reader's bounds failures count only while reading records, never during construction validation.
+    // Exact ArgumentException and ArgumentOutOfRangeException are the structural validators' declared input rejection
+    // (shared argument guards), the untrusted-input boundary the coordinator ruled on (spec §10).
+    [Theory]
+    [InlineData(typeof(ArgumentException), true, true)]
+    [InlineData(typeof(ArgumentOutOfRangeException), true, true)]
+    [InlineData(typeof(IndexOutOfRangeException), false, true)]
+    [InlineData(typeof(OverflowException), false, true)]
+    [InlineData(typeof(ArgumentNullException), false, false)]
+    [InlineData(typeof(System.ComponentModel.InvalidEnumArgumentException), false, false)]
+    [InlineData(typeof(InvalidOperationException), false, false)]
+    [InlineData(typeof(NullReferenceException), false, false)]
+    [InlineData(typeof(KeyNotFoundException), false, false)]
+    public void OnlyMalformedInputFailuresBecomeTheSaveRefusal(Type failure, bool invalidStoredValue, bool malformedRecord)
+    {
+        var error = (Exception)Activator.CreateInstance(failure)!;
+        Assert.Equal((invalidStoredValue, malformedRecord), (WorkshopSaveCodec.IsInvalidStoredValue(error), WorkshopSaveCodec.IsMalformedRecord(error)));
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(.45)]
@@ -36,7 +86,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(oldBuilder, oldCr);
         var oldEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(oldBuilder);
         oldBuilder.Finish(oldEnd.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(oldBuilder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(oldBuilder.SizedByteArray()));
     }
 
     [Theory]
@@ -83,7 +133,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
         builder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
     }
 
@@ -125,15 +175,15 @@ public sealed class WorkshopSaveTests
         if (crOffset.HasValue) CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset.Value);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
         builder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 
     [Fact]
     public void TruncatedTrailingAndInvalidAllocatorReject()
     {
         var bytes = WorkshopSaveCodec.Encode(Saved());
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes.AsSpan(1)));
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes[..10]));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes.AsSpan(1)));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes.AsSpan(..10)));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
@@ -143,7 +193,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
         builder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(Saved() with { NextBodyId = new(3) }));
     }
 
@@ -175,7 +225,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
         builder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 
     [Fact]
@@ -314,7 +364,9 @@ public sealed class WorkshopSaveTests
             PuzzleDamage.Lock => construction.WithInstance(construction.Ball!.Value with { Locked = false }),
             _ => throw new ArgumentOutOfRangeException(nameof(damage))
         };
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(new(changed, new(10))));
+        // A puzzle rule refuses the change; a non-finite precision is a structural bound (an argument guard).
+        var error = Assert.ThrowsAny<ArgumentException>(() => WorkshopSaveCodec.Encode(new(changed, new(10))));
+        Assert.Equal(damage == PuzzleDamage.Precision ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), error.GetType());
         construction.Validate();
     }
 
@@ -324,10 +376,10 @@ public sealed class WorkshopSaveTests
         var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)1));
         var bytes = WorkshopSaveCodec.Encode(new(construction, new(3)));
         bytes[24 + 48 + 246] = 1;
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes));
         bytes[24 + 48 + 246] = 0;
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), 1);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes));
     }
 
     [Fact]
@@ -411,8 +463,8 @@ public sealed class WorkshopSaveTests
             link with { Target = new(99) }, link with { Target = link.Source },
             link with { Input = (WorkshopSocket)99 }
         })
-            Assert.Throws<ArgumentException>(() => (construction with { Connections = new(invalid) }).Validate());
-        Assert.Throws<ArgumentException>(() => (construction with { Connections = new(link, link) }).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with { Connections = new(invalid) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (construction with { Connections = new(link, link) }).Validate());
         var source = new[] { link }; var immutable = new WorkshopConnections(source); source[0] = default;
         Assert.Equal(link, immutable[0]);
         Assert.Single(construction.Connections);
@@ -433,7 +485,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(previousBuilder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(previousBuilder);
         previousBuilder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(previousBuilder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(previousBuilder.SizedByteArray()));
 
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), save.Construction,
             Session: new(1, 2), Cadence: new(1), Projection: new(1));
@@ -449,8 +501,8 @@ public sealed class WorkshopSaveTests
         var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(11), new(12), new((Half)1));
         var activation = ActivationSaved().Construction;
         foreach (var instance in activation.Instances)
-            Assert.Throws<ArgumentException>(() => puzzle.WithInstance(instance).Validate());
-        Assert.Throws<ArgumentException>(() => (puzzle with { Connections = activation.Connections }).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(instance).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (puzzle with { Connections = activation.Connections }).Validate());
     }
 
     [Theory]
@@ -495,6 +547,6 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
         builder.Finish(end.Value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 }

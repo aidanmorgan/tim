@@ -1,0 +1,37 @@
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions/ReviewHookProbe.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T09:36:11.706865+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 9,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewHookProbe.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewHookProbe.cs(8,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewHookProbe.cs(6,13): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewHookProbe.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewHookProbe.cs(8,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/ReviewHookProbe.cs(6,13): error IDE0059: Unnecessary assignment of a value to 'unused' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:01.89

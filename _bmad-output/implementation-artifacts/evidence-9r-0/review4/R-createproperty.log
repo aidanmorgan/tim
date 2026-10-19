@@ -1,0 +1,43 @@
+HEAD before: 6c1cb9c2a371a3f6e057e1bd473eb4a5d1ee9939
+### CreateProperty toggle of TreatWarningsAsErrors (during CoreCompile: 'false', restored: 'true') + unused local
+  git commit exit=1  HEAD after: 6c1cb9c2
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.PSNd18/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   4 C# static gate violation(s):
+   6 C# static gate violation(s):
+elements/Ball/Ball.csproj: <CreateProperty> outside a pinned target
+elements/Ball/Ball.csproj: <Output> outside a pinned target
+elements/Ball/Ball.csproj:ReviewOff: unpinned target (hash 2e4c1242fb79835721e8004e500e9d53d7ca8174efb40c8aa11d32d0d330715d)
+  undone: HEAD=6c1cb9c2a371a3f6e057e1bd473eb4a5d1ee9939 status=[?? .probe.cs ]
+### CreateProperty toggle of NoWarn (during CoreCompile: '$(NoWarn);CS0219;IDE0059', restored: '1701;1702') + unused local
+  git commit exit=1  HEAD after: 6c1cb9c2
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Kw5Mz8/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   4 C# static gate violation(s):
+   6 C# static gate violation(s):
+elements/Ball/Ball.csproj: <CreateProperty> outside a pinned target
+elements/Ball/Ball.csproj: <Output> outside a pinned target
+elements/Ball/Ball.csproj:ReviewOff: unpinned target (hash 2b34968cf0b7ce1b5032f7357e737cafb9231185ea9784d45794713ebf97dd9b)
+  undone: HEAD=6c1cb9c2a371a3f6e057e1bd473eb4a5d1ee9939 status=[?? .probe.cs ]
+### CreateProperty toggle of WarningsNotAsErrors (during CoreCompile: 'CS0219;IDE0059', restored: '') + unused local
+  git commit exit=1  HEAD after: 6c1cb9c2
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.aid3rE/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   2 C# static gate violation(s):
+   6 C# static gate violation(s):
+elements/Ball/Ball.csproj: <CreateProperty> outside a pinned target
+elements/Ball/Ball.csproj: <Output> outside a pinned target
+elements/Ball/Ball.csproj:ReviewOff: unpinned target (hash d479012f11491b7509c80e7913edc3aa946797c0851a97b3356c4fa6f834db06)
+  undone: HEAD=6c1cb9c2a371a3f6e057e1bd473eb4a5d1ee9939 status=[?? .probe.cs ]
+### CreateProperty toggle of WarningLevel (during CoreCompile: '0', restored: '10') + unused local
+  git commit exit=1  HEAD after: 6c1cb9c2
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.tTrKIQ/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 207
+   2 C# static gate violation(s):
+   6 C# static gate violation(s):
+elements/Ball/Ball.csproj: <CreateProperty> outside a pinned target
+elements/Ball/Ball.csproj: <Output> outside a pinned target
+elements/Ball/Ball.csproj:ReviewOff: unpinned target (hash aadcde683fc31b361de803e7ded5606a17dbd83a55cdcd2d4a00599a61140c2f)
+  undone: HEAD=6c1cb9c2a371a3f6e057e1bd473eb4a5d1ee9939 status=[?? .probe.cs ]
+### CreateProperty toggle of Nullable (during CoreCompile: 'disable', restored: 'enable') + unused local
+  git commit exit=1  HEAD after: 6c1cb9c2
+elements/Ball/ReviewLocal.cs(2,65): error CS0219: The variable 'unused' is assigned but its value is never used
+elements/Ball/ReviewLocal.cs(2,65): error IDE0059: Unnecessary assignment of a value to 'unused'
+  undone: HEAD=6c1cb9c2a371a3f6e057e1bd473eb4a5d1ee9939 status=[?? .probe.cs ]
+DONE

@@ -33,6 +33,19 @@
         <Using Include="Xunit" />
     </ItemGroup>
 
+    <!-- CSharpStaticGateTests parses every C# source with the SDK's own Roslyn (as tools/Ownership does). -->
+    <ItemGroup>
+        <Reference Include="Microsoft.CodeAnalysis"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath></Reference>
+        <Reference Include="Microsoft.CodeAnalysis.CSharp"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath></Reference>
+    </ItemGroup>
+
+    <!-- CSharpStaticGateTests replays the gate builds' binary logs with the SDK's own MSBuild, which reads its format. -->
+    <ItemGroup>
+        <Reference Include="Microsoft.Build"><HintPath>$(MSBuildSDKsPath)/../Microsoft.Build.dll</HintPath></Reference>
+        <Reference Include="Microsoft.Build.Framework"><HintPath>$(MSBuildSDKsPath)/../Microsoft.Build.Framework.dll</HintPath></Reference>
+        <Reference Include="Microsoft.NET.StringTools"><HintPath>$(MSBuildSDKsPath)/../Microsoft.NET.StringTools.dll</HintPath></Reference>
+    </ItemGroup>
+
     <ItemGroup>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
@@ -68,6 +81,10 @@
         <Compile Include="ActivationTimerTests.cs" />
         <Compile Include="WorkshopWireTests.cs" />
         <Compile Include="CompiledMemoryLayoutTests.cs" />
+        <Compile Include="WorkshopWireDecodeBoundaryTests.cs" />
+        <Compile Include="CSharpStaticGateTests.cs" />
+        <Compile Include="WorkshopUiFailureTests.cs" />
+        <Compile Include="EditRefusal.cs" />
         <Compile Include="WorkshopReadTests.cs" />
         <Compile Include="WorkshopWireFlatBuffersTests.cs" />
         <Compile Include="NativeSceneFixture.cs" />

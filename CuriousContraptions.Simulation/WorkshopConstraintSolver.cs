@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace CuriousContraptions.Simulation;
 
-public readonly record struct SoftCoefficients(float BiasRate, float MassScale, float ImpulseScale)
+internal readonly record struct SoftCoefficients(float BiasRate, float MassScale, float ImpulseScale)
 {
     public static SoftCoefficients MakeSoft(float hertz, float zeta, float h)
     {
@@ -16,7 +16,7 @@ public readonly record struct SoftCoefficients(float BiasRate, float MassScale, 
     }
 }
 
-public static class WorkshopConstraintSolver
+internal static class WorkshopConstraintSolver
 {
     public const float SubstepSeconds = 1.0f / 480.0f;
     public const float ContactSlop = 0.0002f;

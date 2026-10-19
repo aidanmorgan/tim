@@ -20,10 +20,10 @@ public readonly record struct PartAllowance(PartAllowanceKind Kind, int Count)
 }
 
 /// <summary>Palette rows in their declared order; lookups derive from the same sequence so enumeration order is the contract.</summary>
-public sealed class PartInventory : IReadOnlyDictionary<PartId, PartAllowance>
+public sealed class PartInventoryDictionary : IReadOnlyDictionary<PartId, PartAllowance>
 {
     private readonly (PartId Id, PartAllowance Allowance)[] _rows;
-    public PartInventory(params (PartId Id, PartAllowance Allowance)[] rows)
+    public PartInventoryDictionary(params (PartId Id, PartAllowance Allowance)[] rows)
     {
         if (rows.Select(row => row.Id).Distinct().Count() != rows.Length) throw new ArgumentException("Inventory rows must name distinct parts.");
         _rows = rows;
@@ -87,21 +87,21 @@ public static class WorkshopInventoryPolicy
         return _free;
     }
 
-    internal static PartInventory FreeRows(IEnumerable<PartId> available, IReadOnlySet<PartId> undelivered)
+    internal static PartInventoryDictionary FreeRows(IEnumerable<PartId> available, IReadOnlySet<PartId> undelivered)
     {
         var set = available.ToHashSet();
         var ordered = _canonicalOrder.Where(id => set.Contains(id) && !undelivered.Contains(id));
         var list = ordered.Select(id => (id, PartAllowance.Unlimited)).ToArray();
         if (list.Length == 0) throw new ArgumentException("Empty registry cannot populate Free inventory.");
-        return new PartInventory(list);
+        return new PartInventoryDictionary(list);
     }
 
     public static IReadOnlyDictionary<PartId, PartAllowance> Authored(WorkshopPuzzle puzzle)
     {
         if (puzzle.Id == WorkshopPuzzleId.Free) throw new ArgumentException("Free Workshop has no authored inventory.");
         if (puzzle.Id == WorkshopPuzzleId.WallAndBumper)
-            return new PartInventory((PartId.Wall, PartAllowance.Counted(1)),
+            return new PartInventoryDictionary((PartId.Wall, PartAllowance.Counted(1)),
                 (PartId.PinballBumper, PartAllowance.Counted(1)));
-        return new PartInventory((puzzle.InventoryPart, PartAllowance.Counted(checked((int)puzzle.InventoryCount))));
+        return new PartInventoryDictionary((puzzle.InventoryPart, PartAllowance.Counted(checked((int)puzzle.InventoryCount))));
     }
 }

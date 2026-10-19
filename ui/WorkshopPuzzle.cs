@@ -44,67 +44,67 @@ public partial class Workshop
                 candidate = new(World.Construction.Revision, World.Construction.Settings, WorkshopInstances.Empty);
             else if (index == 0)
             {
-                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = FirstPrinciples.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
             else if (index == BumperSidekickIndex)
             {
-                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = BumperSidekick.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
             else if (index is BumperDepthIndex or WallAndBumperIndex)
             {
-                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = BumperAdvanced.Create(index == BumperDepthIndex ? WorkshopPuzzleId.BumperDepth : WorkshopPuzzleId.WallAndBumper,
                     World.Construction.Revision, World.Construction.Settings, first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
             else if (index is SpringForwardIndex or ReadyToReboundIndex)
             {
-                if (first.Value >= ulong.MaxValue - 2) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 2) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = SpringboardLessons.Create(index == SpringForwardIndex ? WorkshopPuzzleId.SpringForward : WorkshopPuzzleId.ReadyToRebound,
                     World.Construction.Revision, World.Construction.Settings, first, new(first.Value + 1), new(first.Value + 2),
                     new((Half)(_precision.Value / 100)));
             }
             else if (index == DelayedSignalIndex)
             {
-                if (first.Value >= ulong.MaxValue - 2) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 2) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = DelayedSignal.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new(first.Value + 2), new((Half)(_precision.Value / 100)));
             }
             else if (index == DominoEffectIndex)
             {
-                if (first.Value >= ulong.MaxValue - 2) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 2) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = DominoEffect.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new(first.Value + 2), new((Half)(_precision.Value / 100)));
             }
             else if (index == ClearPipeIndex)
             {
-                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = ClearPipe.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
             else if (index == GentleBendIndex)
             {
-                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = GentleBend.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
             else if (index == QuarterBendIndex)
             {
-                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                if (first.Value >= ulong.MaxValue - 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Part identity is exhausted.");
                 candidate = QuarterBend.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
-            else throw new ArgumentException("Unsupported Workshop puzzle.");
+            else throw new System.Diagnostics.UnreachableException("The mode picker offers only the puzzles above.");
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
             if (index is 0 or BumperSidekickIndex or BumperDepthIndex or WallAndBumperIndex or SpringForwardIndex or ReadyToReboundIndex or ClearPipeIndex or GentleBendIndex or QuarterBendIndex) _nextId = new(first.Value + 2);
             else if (index is DelayedSignalIndex or DominoEffectIndex) _nextId = new(first.Value + 3);
             Select(null); _tool = null; ClearPreview(); _undo.Clear();
             ResetUiAnimations(); PresentMode();
         }
-        catch (Exception error) { if (!_workshopUiRemoved) { PresentMode(); _status.Text = error.Message; } }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) { PresentMode(); _status.Text = failure; } }
     }
     private void PresentMode()
     {
@@ -180,7 +180,7 @@ public partial class Workshop
                 WorkshopPuzzleId.ClearPipe => ClearPipe.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.GentleBend => GentleBend.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.QuarterBend => QuarterBend.WithPrecision(World.Construction, precision),
-                _ => throw new ArgumentException("Unsupported authored assistance.")
+                _ => throw new System.Diagnostics.UnreachableException("Every authored puzzle has its assistance case; Free returns earlier.")
             };
             if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
             _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
@@ -194,6 +194,6 @@ public partial class Workshop
                 _ => "Receiver assistance updated. Ramp placement remains manual."
             };
         }
-        catch (Exception error) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); _status.Text = failure; }
     }
 }

@@ -1,0 +1,34 @@
+## N1-3: probes (empty catch, unused local, undisposed FileStream) in CuriousContraptions.Abstractions/ReviewProbe.cs, elements/Ball/ReviewProbe.cs, appended to CuriousContraptions.tests/ClockTests.cs
+$ dotnet build CuriousContraptions.slnx -nologo -v q   (gate on)
+exit=1
+CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+$ dotnet build CuriousContraptions.slnx -nologo -v q -p:TreatWarningsAsErrors=false   (every diagnostic)
+exit=0
+CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj]
+CuriousContraptions.csproj]
+CuriousContraptions.tests/CuriousContraptions.tests.csproj]
+elements/Ball/Ball.csproj]
+-- gate on (errors), parsed:
+CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used 
+CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): error IDE0059: Unnecessary assignment of a value to 'unused' 
+CuriousContraptions.Abstractions/ReviewProbe.cs(8,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 
+-- TWAE off (all diagnostics), parsed:
+CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): warning CS0219: The variable 'unused' is assigned but its value is never used 
+CuriousContraptions.Abstractions/ReviewProbe.cs(6,13): warning IDE0059: Unnecessary assignment of a value to 'unused' 
+CuriousContraptions.Abstractions/ReviewProbe.cs(8,9): warning CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.tests/ClockTests.cs(376,13): warning CS0219: The variable 'unused' is assigned but its value is never used 
+CuriousContraptions.tests/ClockTests.cs(376,13): warning IDE0059: Unnecessary assignment of a value to 'unused' 
+CuriousContraptions.tests/ClockTests.cs(378,9): warning CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 
+elements/Ball/ReviewProbe.cs(6,13): warning CS0219: The variable 'unused' is assigned but its value is never used 
+elements/Ball/ReviewProbe.cs(6,13): warning IDE0059: Unnecessary assignment of a value to 'unused' 
+elements/Ball/ReviewProbe.cs(8,9): warning CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 
+$ dotnet build elements/Ball/Ball.csproj -nologo -v q
+exit=1
+elements/Ball/ReviewProbe.cs(6,13): error CS0219: The variable 'unused' is assigned but its value is never used 
+elements/Ball/ReviewProbe.cs(6,13): error IDE0059: Unnecessary assignment of a value to 'unused' 
+elements/Ball/ReviewProbe.cs(8,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 
+$ dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -nologo -v q
+exit=1
+CuriousContraptions.tests/ClockTests.cs(376,13): error CS0219: The variable 'unused' is assigned but its value is never used 
+CuriousContraptions.tests/ClockTests.cs(376,13): error IDE0059: Unnecessary assignment of a value to 'unused' 
+CuriousContraptions.tests/ClockTests.cs(378,9): error CA1031: Modify 'Parse' to catch a more specific allowed exception type, or rethrow the exception 

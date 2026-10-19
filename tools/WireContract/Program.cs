@@ -22,7 +22,7 @@ static class Program
     static void Check(Oracle oracle,Action action)
     {
         try { action();Results.Add(new(oracle,true,"Passed")); }
-        catch(Exception error){Results.Add(new(oracle,false,error.Message));}
+        catch(Exception error) when(error is InvalidOperationException or ArgumentException){Results.Add(new(oracle,false,error.Message));}
     }
     static void Require(bool predicate)
     {if(!predicate)throw new InvalidOperationException("Oracle mismatch.");}
@@ -66,7 +66,7 @@ static class Program
             foreach(var value in new[]{long.MinValue,-9007199254740993,-1,0,1,9007199254740993,long.MaxValue})
                 Require(BinaryPrimitives.ReadInt64LittleEndian(ContractFixture.SignedBytes(value))==value);
         });
-        Check(Oracle.IntegerOverflow,()=>Reject(()=>_ = ulong.Parse("18446744073709551616")));
+        Check(Oracle.IntegerOverflow,()=>Reject(()=>_ = ulong.Parse("18446744073709551616", System.Globalization.CultureInfo.InvariantCulture)));
         Check(Oracle.PhysicalBudget,()=>Require(ContractFixture.PhysicalBytes(257,256,256,0,0,0)==23497));
         Check(Oracle.AnimationBudget,()=>Require(ContractFixture.AnimationBytes(256)==6773));
         Check(Oracle.AggregateBudget,()=>Require(6L*ContractFixture.MaximumEdgeBytes+

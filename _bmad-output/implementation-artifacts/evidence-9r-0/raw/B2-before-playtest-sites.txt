@@ -1,0 +1,398 @@
+/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotCollection.cs(9,14): warning CA1711: Rename type name GodotCollection so that it does not end in 'Collection' 
+/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotHeadlessCollection.cs(9,14): warning CA1711: Rename type name GodotHeadlessCollection so that it does not end in 'Collection' 
+/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs(129,26): warning CA1001: Type 'QueueContext' owns disposable field(s) '_queue' but is not disposable 
+/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/HeadlessCollection.cs(8,14): warning CA1711: Rename type name HeadlessCollection so that it does not end in 'Collection' 
+/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/RenderingCollection.cs(8,14): warning CA1711: Rename type name RenderingCollection so that it does not end in 'Collection' 
+CSC : warning IL2125: Referenced assembly 'Google.FlatBuffers' is not built with `true` and may not be compatible with trimming.
+CuriousContraptions.Animation.Worker/Program.cs(10,29): warning CA1050: Declare types in namespaces 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(11,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(12,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(13,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(14,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(15,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(16,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(17,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(18,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(23,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(24,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(25,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(26,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(27,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(28,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(29,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(30,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(31,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(32,39): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(33,17): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(35,17): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(36,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(37,32): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/Program.cs(10,29): warning CA1050: Declare types in namespaces 
+CuriousContraptions.Simulation/Program.cs(110,9): warning CA1031: Modify 'WarmupSimulation' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.Simulation/Program.cs(140,9): warning CA1031: Modify 'ObservationMilliseconds' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.Simulation/Program.cs(392,9): warning CA1031: Modify 'RunLoop' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(100,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(101,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(102,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(103,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(104,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(105,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(106,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(107,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(108,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(109,17): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(117,31): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(118,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(119,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(120,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(121,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(122,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(16,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(17,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(18,17): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(19,17): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(20,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(21,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(22,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(23,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(24,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(25,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(26,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(27,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(27,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(27,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(28,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(28,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(28,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(28,30): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(29,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(29,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(29,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(30,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(30,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(30,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(31,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(32,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(33,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(33,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(33,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(34,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(35,19): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(36,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(37,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(38,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(39,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(40,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(40,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(40,28): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(41,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(42,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(43,17): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(45,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(46,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(48,25): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(59,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(60,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(61,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(62,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(63,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(64,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(64,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(64,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(65,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(66,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(66,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(66,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(67,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(67,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(67,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(67,30): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(68,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(69,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(70,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(71,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(72,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(72,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(72,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(73,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(74,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(75,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(76,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(84,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(85,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(86,24): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(87,24): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(88,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(88,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(88,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(89,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(89,22): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(89,26): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(90,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(91,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(93,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(93,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(93,28): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(94,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(94,23): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(94,28): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(95,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(96,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(97,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(98,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopCollisionKernels.cs(99,18): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopDynamicBvh.cs(10,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopDynamicBvh.cs(11,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopDynamicBvh.cs(12,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopDynamicBvh.cs(13,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopDynamicBvh.cs(14,20): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopDynamicBvh.cs(15,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopDynamicBvh.cs(9,16): warning CA1051: Do not declare visible instance fields 
+CuriousContraptions.Simulation/WorkshopGpuDevice.cs(164,13): warning CA1031: Modify 'Stage' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.Simulation/WorkshopTrace.cs(162,9): warning CA1031: Modify 'FlushSealed' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.Simulation/WorkshopTrace.cs(63,9): warning CA1031: Modify 'Begin' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.Simulation/WorkshopTrace.cs(82,9): warning CA1031: Modify 'Append' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.Simulation/WorkshopTrace.cs(99,9): warning CA1031: Modify 'RecordTickDuration' to catch a more specific allowed exception type, or rethrow the exception 
+CuriousContraptions.tests/ActivationTimerTests.cs(59,13): warning IDE0059: Unnecessary assignment of a value to 'finished' 
+CuriousContraptions.tests/BallDetectorTests.cs(114,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.WorkshopPhysicsCompiler_CompilesBallDetectorAndActivationNetwork() 
+CuriousContraptions.tests/BallDetectorTests.cs(15,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.PartRegistry_DiscoversBallDetectorDefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/BallDetectorTests.cs(164,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.PassageSensorTracker_PositiveForwardPass_RotatedAndVariousSpeeds(float, float) 
+CuriousContraptions.tests/BallDetectorTests.cs(277,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.PassageSensorTracker_NegativeControls_ReverseOutsideStationary() 
+CuriousContraptions.tests/BallDetectorTests.cs(354,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.PassageSensorTracker_JitterAcrossPlane_DoesNotRetriggerWithoutClearance() 
+CuriousContraptions.tests/BallDetectorTests.cs(432,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.PassageSensorTracker_MultipleBodies_TwoSeparatedBalls() 
+CuriousContraptions.tests/BallDetectorTests.cs(46,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.BallDetectorScene_ExtractsExact17CollidersAndThreePortLocators() 
+CuriousContraptions.tests/BallDetectorTests.cs(486,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.WorkbenchCapacity_AdmitsBallDetectorsWithoutColliderLimit() 
+CuriousContraptions.tests/BallDetectorTests.cs(507,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.BallDetectorTests.SaveCodec_RoundTripsBallDetectorAndPreservesDeclaredColliders() 
+CuriousContraptions.tests/BasketballResourceTests.cs(162,27): warning CA1852: Type 'ProbePart' can be sealed because it has no subtypes in its containing assembly and is not externally visible 
+CuriousContraptions.tests/CanonicalBodyTests.cs(61,28): warning CA2208: Call the ArgumentOutOfRangeException constructor that contains a message and/or paramName parameter 
+CuriousContraptions.tests/ClockTests.cs(113,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.CanonicalColliders_MatchSceneExtractedColliders() 
+CuriousContraptions.tests/ClockTests.cs(121,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.Ports_DeclareExactSocketsAndDirections() 
+CuriousContraptions.tests/ClockTests.cs(139,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.WorkshopClock_ValidationAndTicks() 
+CuriousContraptions.tests/ClockTests.cs(14,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.PartRegistry_DiscoversClockDefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/ClockTests.cs(169,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.Connections_AcceptsValidActivationAndElectricalLinks() 
+CuriousContraptions.tests/ClockTests.cs(189,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.ActivationNetwork_ClockPoweredPeriodicPulses_5PulsesIn5Seconds() 
+CuriousContraptions.tests/ClockTests.cs(239,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.ActivationNetwork_UnpoweredClock_EmitsZeroPulses() 
+CuriousContraptions.tests/ClockTests.cs(271,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.ActivationNetwork_PowerLossAtDeadlineAndRestoration() 
+CuriousContraptions.tests/ClockTests.cs(337,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.WireSerialization_BinaryAndFlatBuffersRoundtrip() 
+CuriousContraptions.tests/ClockTests.cs(74,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.ClockTests.ClockScene_ExtractsExactTwoCollidersAndPortLocators() 
+CuriousContraptions.tests/CounterTests.cs(118,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.CanonicalColliders_MatchSceneExtractedColliders() 
+CuriousContraptions.tests/CounterTests.cs(126,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.Ports_DeclareExactSocketsAndDirections() 
+CuriousContraptions.tests/CounterTests.cs(14,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.PartRegistry_DiscoversCounterDefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/CounterTests.cs(154,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.WorkshopCounter_Validation() 
+CuriousContraptions.tests/CounterTests.cs(174,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.Connections_AcceptsValidActivationAndElectricalLinks() 
+CuriousContraptions.tests/CounterTests.cs(198,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.PhysicsCompiler_CompilesCollidersAndCounterPower() 
+CuriousContraptions.tests/CounterTests.cs(240,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.ActivationNetwork_CountingProgression_SingleEmission_AndSaturation() 
+CuriousContraptions.tests/CounterTests.cs(322,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.WorkshopWire_SerializesAndDeserializesCounter() 
+CuriousContraptions.tests/CounterTests.cs(337,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.WorkshopWireFlatBuffers_SerializesAndDeserializesCounter() 
+CuriousContraptions.tests/CounterTests.cs(351,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.WorkbenchCapacity_ValidatesCounterFootprint() 
+CuriousContraptions.tests/CounterTests.cs(75,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.CounterTests.CounterScene_ExtractsExactTwoCollidersAndPortLocators() 
+CuriousContraptions.tests/ElectricalSupplyTests.cs(120,22): warning CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array 
+CuriousContraptions.tests/ElectricalSupplyTests.cs(150,22): warning CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array 
+CuriousContraptions.tests/ElectricalSupplyTests.cs(153,22): warning CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array 
+CuriousContraptions.tests/EventRingBufferTests.cs(11,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.EventRingBufferTests.EventRingBuffer_InitializesCorrectly() 
+CuriousContraptions.tests/EventRingBufferTests.cs(23,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.EventRingBufferTests.EventRingBuffer_PublishesAndReadsWithIndependentConsumers() 
+CuriousContraptions.tests/EventRingBufferTests.cs(67,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.EventRingBufferTests.EventRingBuffer_OverrunDetectedWhenCapacityExceeded() 
+CuriousContraptions.tests/FunnelTests.cs(111,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.WorkshopPhysicsCompiler_CompilesFunnelIntoStaticBodyWith72Colliders() 
+CuriousContraptions.tests/FunnelTests.cs(135,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.SaveCodec_RoundTripsFunnelAndPreservesDeclaredColliders() 
+CuriousContraptions.tests/FunnelTests.cs(15,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.PartRegistry_DiscoversFunnelDefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/FunnelTests.cs(162,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.WorkbenchCapacity_AdmitsFunnelsWithoutColliderLimit() 
+CuriousContraptions.tests/FunnelTests.cs(177,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtOutlet() 
+CuriousContraptions.tests/FunnelTests.cs(193,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.PhysicsGpuAbi_AdmissionAcceptsFunnelSceneDeclaration() 
+CuriousContraptions.tests/FunnelTests.cs(46,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.FunnelScene_ExtractsExact72CollidersAndTwoMouthPortLocators() 
+CuriousContraptions.tests/FunnelTests.cs(99,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.FunnelTests.WorkshopCanonicalColliders_MatchesFunnelColliders() 
+CuriousContraptions.tests/NativeSceneFixture.cs(151,21): warning CA1711: Rename type name NativeSceneCollection so that it does not end in 'Collection' 
+CuriousContraptions.tests/PartRegistryTests.cs(12,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PartRegistryTests.Discover_LoadsAllCanonicalParts_AndExcludesLegacyParameters() 
+CuriousContraptions.tests/PartRegistryTests.cs(126,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PartRegistryTests.WorkshopInventoryPolicy_Free_PopulatesFromDiscoveredDefinitions() 
+CuriousContraptions.tests/PartRegistryTests.cs(66,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PartRegistryTests.Create_InstantiatesAndConfiguresEachDiscoveredPart() 
+CuriousContraptions.tests/PartRegistryTests.cs(90,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PartRegistryTests.Create_ThrowsArgumentException_OnUnknownOrUnregisteredPartId() 
+CuriousContraptions.tests/PartRegistryTests.cs(99,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PartRegistryTests.PartId_ValidatesValuesAndSupportsEqualityAndComparison() 
+CuriousContraptions.tests/PipeBend45Tests.cs(105,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.WorkshopCanonicalColliders_MatchesPipeBend45Colliders() 
+CuriousContraptions.tests/PipeBend45Tests.cs(117,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.WorkshopPhysicsCompiler_CompilesPipeBend45IntoStaticBodyWith40Colliders() 
+CuriousContraptions.tests/PipeBend45Tests.cs(142,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.SaveCodec_RoundTripsPipeBend45AndPreservesDeclaredColliders() 
+CuriousContraptions.tests/PipeBend45Tests.cs(169,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.WorkbenchCapacity_AdmitsPipeBendsWithoutColliderLimit() 
+CuriousContraptions.tests/PipeBend45Tests.cs(186,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth() 
+CuriousContraptions.tests/PipeBend45Tests.cs(19,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.PartRegistry_DiscoversPipeBend45DefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/PipeBend45Tests.cs(200,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.PhysicsGpuAbi_AdmissionAcceptsPipeBend45SceneDeclaration() 
+CuriousContraptions.tests/PipeBend45Tests.cs(216,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.GentleBend_AuthoredSettingsAndFixturesMatchPuzzlesJson() 
+CuriousContraptions.tests/PipeBend45Tests.cs(245,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.GentleBend_ValidateEnforcesFixturesAndInventory() 
+CuriousContraptions.tests/PipeBend45Tests.cs(278,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.GentleBend_PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double, double, double, double, double) 
+CuriousContraptions.tests/PipeBend45Tests.cs(302,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.GentleBend_CompilerEmitsCompoundCollidersAndSensors() 
+CuriousContraptions.tests/PipeBend45Tests.cs(50,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend45Tests.PipeBend45Scene_ExtractsExact40CollidersAndTwoMouthPortLocators() 
+CuriousContraptions.tests/PipeBend90Tests.cs(105,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.WorkshopCanonicalColliders_MatchesPipeBend90Colliders() 
+CuriousContraptions.tests/PipeBend90Tests.cs(117,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.WorkshopPhysicsCompiler_CompilesPipeBend90IntoStaticBodyWith72Colliders() 
+CuriousContraptions.tests/PipeBend90Tests.cs(142,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.SaveCodec_RoundTripsPipeBend90AndPreservesDeclaredColliders() 
+CuriousContraptions.tests/PipeBend90Tests.cs(169,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.WorkbenchCapacity_AdmitsPipeBendsWithoutColliderLimit() 
+CuriousContraptions.tests/PipeBend90Tests.cs(186,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth() 
+CuriousContraptions.tests/PipeBend90Tests.cs(19,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.PartRegistry_DiscoversPipeBend90DefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/PipeBend90Tests.cs(200,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.PhysicsGpuAbi_AdmissionAcceptsPipeBend90SceneDeclaration() 
+CuriousContraptions.tests/PipeBend90Tests.cs(216,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.QuarterBend_AuthoredSettingsAndFixturesMatchPuzzlesJson() 
+CuriousContraptions.tests/PipeBend90Tests.cs(245,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.QuarterBend_ValidateEnforcesFixturesAndInventory() 
+CuriousContraptions.tests/PipeBend90Tests.cs(278,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.QuarterBend_PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double, double, double, double, double) 
+CuriousContraptions.tests/PipeBend90Tests.cs(302,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.QuarterBend_CompilerEmitsCompoundCollidersAndSensors() 
+CuriousContraptions.tests/PipeBend90Tests.cs(50,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PipeBend90Tests.PipeBend90Scene_ExtractsExact72CollidersAndTwoMouthPortLocators() 
+CuriousContraptions.tests/PortableAnimationTests.cs(19,27): warning IDE0051: Private member 'PortableAnimationTests.Number' is unused 
+CuriousContraptions.tests/PoweredGateTests.cs(112,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.CanonicalColliders_MatchSceneExtractedColliders() 
+CuriousContraptions.tests/PoweredGateTests.cs(12,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.PartRegistry_DiscoversPoweredGateDefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/PoweredGateTests.cs(120,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.Ports_DeclareSinglePowerInInput() 
+CuriousContraptions.tests/PoweredGateTests.cs(134,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.Connections_AcceptsElectricalAndRejectsActivation() 
+CuriousContraptions.tests/PoweredGateTests.cs(154,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_CompilesGateWithDynamicBladeAndPrismaticJoint() 
+CuriousContraptions.tests/PoweredGateTests.cs(198,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_WiredToBattery_SetsBladeLinearDragAndExcludesFromElectricalBindings() 
+CuriousContraptions.tests/PoweredGateTests.cs(223,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.WorkbenchCapacity_ValidatesPoweredGateFootprint() 
+CuriousContraptions.tests/PoweredGateTests.cs(57,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PoweredGateTests.PoweredGateScene_ExtractsExact19CollidersAndThreePortLocators() 
+CuriousContraptions.tests/PressurePlateTests.cs(102,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.Ports_DeclarePowerInAndSupplySockets() 
+CuriousContraptions.tests/PressurePlateTests.cs(123,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.Connections_AcceptsElectricalAndRejectsActivation() 
+CuriousContraptions.tests/PressurePlateTests.cs(143,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.WorkshopPressurePlate_Validation() 
+CuriousContraptions.tests/PressurePlateTests.cs(15,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.PartRegistry_DiscoversPressurePlateDefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/PressurePlateTests.cs(163,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.ContactLoadSensorDeclaration_Validation() 
+CuriousContraptions.tests/PressurePlateTests.cs(193,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.ContactLoadSensorTracker_MeasuresPhasesAndRestingMass() 
+CuriousContraptions.tests/PressurePlateTests.cs(249,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.ContactLoadSensorTracker_RejectsOffFaceAndUndersideContacts() 
+CuriousContraptions.tests/PressurePlateTests.cs(279,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.ContactLoadSensorTracker_TransformsRotatedFrameCoordinates() 
+CuriousContraptions.tests/PressurePlateTests.cs(305,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.ContactLoadSensorTracker_RemovalRestoresEmptyPhase() 
+CuriousContraptions.tests/PressurePlateTests.cs(327,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.PhysicsCompiler_CompilesPressurePlateCollidersAndConnectsToPoweredGate() 
+CuriousContraptions.tests/PressurePlateTests.cs(356,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.WorkshopWire_SerializesAndDeserializesPressurePlate() 
+CuriousContraptions.tests/PressurePlateTests.cs(371,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.WorkshopWireFlatBuffers_SerializesAndDeserializesPressurePlate() 
+CuriousContraptions.tests/PressurePlateTests.cs(385,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.WorkbenchCapacity_ValidatesPressurePlateFootprint() 
+CuriousContraptions.tests/PressurePlateTests.cs(54,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.PressurePlateScene_ExtractsExactTwoCollidersAndTwoPortLocators() 
+CuriousContraptions.tests/PressurePlateTests.cs(94,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.PressurePlateTests.CanonicalColliders_MatchSceneExtractedColliders() 
+CuriousContraptions.tests/StateLatchTests.cs(113,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes() 
+CuriousContraptions.tests/StateLatchTests.cs(137,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff() 
+CuriousContraptions.tests/StateLatchTests.cs(174,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Connections_AdmitOneSourceOnBothInputsAndRejectForeignSockets() 
+CuriousContraptions.tests/StateLatchTests.cs(19,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.PartRegistry_DiscoversLatchAndPresentationRestoresRestOnReset() 
+CuriousContraptions.tests/StateLatchTests.cs(194,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff() 
+CuriousContraptions.tests/StateLatchTests.cs(234,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_OneSourceWiredToBothInputsNeverTurnsOn() 
+CuriousContraptions.tests/StateLatchTests.cs(262,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_SetThenResetOnAdjacentTicks_TurnsOnThenOff() 
+CuriousContraptions.tests/StateLatchTests.cs(279,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_SameTickConflictResolvesOffWhicheverSourceIsOrderedFirst() 
+CuriousContraptions.tests/StateLatchTests.cs(296,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_FailedOrDiscardedTickNeverCommitsAPendingSet() 
+CuriousContraptions.tests/StateLatchTests.cs(332,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_RejectsUntypedOrForeignLatchEdges() 
+CuriousContraptions.tests/StateLatchTests.cs(347,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Compiler_SwitchedSupplyRoutesCompileOnceAndTickInputsCloseOnlyWithContactAndEnabledBattery() 
+CuriousContraptions.tests/StateLatchTests.cs(385,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute() 
+CuriousContraptions.tests/StateLatchTests.cs(432,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach() 
+CuriousContraptions.tests/StateLatchTests.cs(458,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Compiler_DeclaresStaticLatchBodyWithCanonicalColliders() 
+CuriousContraptions.tests/StateLatchTests.cs(471,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Persistence_BinaryFlatBuffersAndSaveCodecPreserveDistinctSockets() 
+CuriousContraptions.tests/StateLatchTests.cs(72,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.LatchScene_ExtractsHousingFootAndFivePortLocators() 
+CuriousContraptions.tests/StateLatchTests.cs(93,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StateLatchTests.Ports_DeclareDistinctSetAndResetInputsAndSwitchedSupply() 
+CuriousContraptions.tests/StraightPipeTests.cs(109,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StraightPipeTests.WorkshopPhysicsCompiler_CompilesPipeIntoStaticBodyWith24Colliders() 
+CuriousContraptions.tests/StraightPipeTests.cs(13,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StraightPipeTests.PartRegistry_DiscoversPipeDefinitionAndConfiguresInstance() 
+CuriousContraptions.tests/StraightPipeTests.cs(134,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StraightPipeTests.SaveCodec_RoundTripsPipeAndPreservesDeclaredColliders() 
+CuriousContraptions.tests/StraightPipeTests.cs(161,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StraightPipeTests.WorkbenchCapacity_AdmitsCompoundPipesWithoutColliderLimit() 
+CuriousContraptions.tests/StraightPipeTests.cs(179,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StraightPipeTests.BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth() 
+CuriousContraptions.tests/StraightPipeTests.cs(202,13): warning IDE0059: Unnecessary assignment of a value to 'rims' 
+CuriousContraptions.tests/StraightPipeTests.cs(212,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StraightPipeTests.PhysicsGpuAbi_AdmissionAcceptsPipeSceneDeclaration() 
+CuriousContraptions.tests/StraightPipeTests.cs(44,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.StraightPipeTests.PipeScene_ExtractsExact24CollidersAndTwoMouthPortLocators() 
+CuriousContraptions.tests/WorkerAbiTests.cs(11,62): warning CA1859: Change type of field 'Owned' from 'System.Collections.Generic.IReadOnlyDictionary<string, int>' to 'System.Collections.Generic.Dictionary<string, int>' for improved performance 
+CuriousContraptions.tests/WorkshopHintTests.cs(8,21): warning CA1001: Type 'WorkshopHintTests' owns disposable field(s) '_client' but is not disposable 
+CuriousContraptions.tests/WorkshopPoseRingTests.cs(10,17): warning CA1707: Remove the underscores from member name CuriousContraptions.tests.WorkshopPoseRingTests.PoseRingLayout_MatchesSpecificationAndSimdAlignment() 
+CuriousContraptions.tests/WorkshopPoseRingTests.cs(40,17): warning CA1707: Remove the underscores from member name CuriousContraptions.tests.WorkshopPoseRingTests.PoseRing_WriteAndReadSlot_SingleAndDualBodies(ulong) 
+CuriousContraptions.tests/WorkshopPoseRingTests.cs(96,17): warning CA1707: Remove the underscores from member name CuriousContraptions.tests.WorkshopPoseRingTests.PoseRing_RejectsOddSequence_IndicatingWriteInProgress() 
+CuriousContraptions.tests/WorkshopSaveTests.cs(136,73): warning CA1832: Use 'AsSpan' instead of the 'System.Range'-based indexer on 'byte[]' to avoid creating unnecessary data copies 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(106,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_InvalidInputs_Throw() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(12,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_SimpleRunAndReset_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(121,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_Acknowledgement_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(138,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_PhysicalRead_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(33,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_InitializeWithSettings_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(46,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_ConfigureCadence_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(61,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_ConfigureElectrical_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(75,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_CancelWithTarget_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs(89,17): warning CA1707: Remove the underscores from member name CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_ConstructWithInstances_RoundTrips() 
+CuriousContraptions.tests/WorkshopWireTests.cs(1043,45): warning IDE0059: Unnecessary assignment of a value to 'offset' 
+CuriousContraptions.web/TwoDogWebBoot.cs(23,21): warning CA1050: Declare types in namespaces 
+engine/gpu/ActivationTimers.cs(10,31): warning CA1036: ActivationTime should define operator(s) '<, <=, >, >=' since it implements IComparable 
+engine/gpu/BrowserWorkshopClient.ContactWork.cs(119,91): warning IDE0060: Remove unused parameter 'kind' 
+engine/gpu/BrowserWorkshopClient.cs(145,13): warning CA1849: 'TextWriter.WriteLine(string?)' synchronously blocks. Await 'TextWriter.WriteLineAsync()' instead. 
+engine/gpu/BrowserWorkshopClient.cs(273,9): warning CA1031: Modify 'ReceiveRead' to catch a more specific allowed exception type, or rethrow the exception 
+engine/gpu/BrowserWorkshopClient.cs(379,22): warning CA2008: Do not create tasks without passing a TaskScheduler 
+engine/gpu/BrowserWorkshopClient.cs(40,41): warning CA1065: get_TransportState creates an exception of type ArgumentException, an exception type that should not be raised in a property. If this exception instance might be raised, use a different exception type, convert this property into a method, or change this property's logic so that it no longer raises an exception. 
+engine/gpu/CanonicalBody.cs(96,19): warning CA2208: Method ValidateAxis passes 'Canonical body axis exceeds admitted profile.' as the paramName argument to a ArgumentOutOfRangeException constructor. Replace this argument with one of the method's parameter names. Note that the provided parameter name should have the exact casing as declared on the method. 
+engine/gpu/WorkshopCadence.cs(57,14): warning CA1065: get_SimulationRate creates an exception of type ArgumentException, an exception type that should not be raised in a property. If this exception instance might be raised, use a different exception type, convert this property into a method, or change this property's logic so that it no longer raises an exception. 
+engine/gpu/WorkshopCadence.cs(66,14): warning CA1065: get_AnimationRate creates an exception of type ArgumentException, an exception type that should not be raised in a property. If this exception instance might be raised, use a different exception type, convert this property into a method, or change this property's logic so that it no longer raises an exception. 
+engine/gpu/WorkshopCadence.cs(74,14): warning CA1065: get_PhysicalStepsPerCommit creates an exception of type ArgumentException, an exception type that should not be raised in a property. If this exception instance might be raised, use a different exception type, convert this property into a method, or change this property's logic so that it no longer raises an exception. 
+engine/gpu/WorkshopCadence.cs(87,13): warning CA1508: '(uint)(Half)PhysicalFrequency != PhysicalFrequency' is always 'false'. Remove or refactor the condition(s) to avoid dead code. 
+engine/gpu/WorkshopCanonicalColliders.cs(144,53): warning CA1859: Change return type of method 'CreateBallDetectorColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(182,53): warning CA1859: Change return type of method 'CreatePipeBend45Colliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(38,53): warning CA1859: Change return type of method 'CreateLatchColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(435,53): warning CA1859: Change return type of method 'CreatePipeBend90Colliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(54,53): warning CA1859: Change return type of method 'CreateClockColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(70,53): warning CA1859: Change return type of method 'CreateCounterColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(873,53): warning CA1859: Change return type of method 'CreateFunnelColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(92,53): warning CA1859: Change return type of method 'CreatePipeColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(950,53): warning CA1859: Change return type of method 'CreatePoweredGateColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopCanonicalColliders.cs(994,53): warning CA1859: Change return type of method 'CreatePressurePlateColliders' from 'System.Collections.Generic.IReadOnlyList<CuriousContraptions.Gpu.ExtractedCollider>' to 'System.Collections.ObjectModel.ReadOnlyCollection<CuriousContraptions.Gpu.ExtractedCollider>' for improved performance 
+engine/gpu/WorkshopClockMapping.cs(318,9): warning CA1031: Modify 'FailRecovery' to catch a more specific allowed exception type, or rethrow the exception 
+engine/gpu/WorkshopCommandRouter.cs(22,9): warning CA1031: Modify 'Dispatch' to catch a more specific allowed exception type, or rethrow the exception 
+engine/gpu/WorkshopGpuProfile.cs(14,14): warning CA1065: get_Substeps creates an exception of type ArgumentException, an exception type that should not be raised in a property. If this exception instance might be raised, use a different exception type, convert this property into a method, or change this property's logic so that it no longer raises an exception. 
+engine/gpu/WorkshopInventory.cs(23,21): warning CA1710: Rename CuriousContraptions.Gpu.PartInventory to end in either 'Dictionary' or 'Collection' 
+engine/gpu/WorkshopPoseHistory.cs(88,9): warning CA1513: Use 'ObjectDisposedException.ThrowIf' instead of explicitly throwing a new exception instance 
+engine/gpu/WorkshopPresentationWire.cs(7,13): warning CA1711: Rename type name PresentationEvidenceFlags so that it does not end in 'Flags' 
+engine/gpu/WorkshopPresentationWire.cs(9,13): warning CA1711: Rename type name PresentationEndpointFlags so that it does not end in 'Flags' 
+engine/gpu/WorkshopSimulation.cs(139,9): warning CA1031: Modify 'Initialize' to catch a more specific allowed exception type, or rethrow the exception 
+engine/gpu/WorkshopSimulation.cs(141,13): warning CA1849: 'TextWriter.WriteLine(string?)' synchronously blocks. Await 'TextWriter.WriteLineAsync()' instead. 
+engine/gpu/WorkshopSimulation.cs(184,9): warning CA1031: Modify 'Construct' to catch a more specific allowed exception type, or rethrow the exception 
+engine/gpu/WorkshopSimulation.cs(271,9): warning CA1031: Modify 'AdvanceCore' to catch a more specific allowed exception type, or rethrow the exception 
+engine/gpu/WorkshopSimulation.cs(306,9): warning CA1031: Modify 'Reset' to catch a more specific allowed exception type, or rethrow the exception 
+engine/gpu/WorkshopUi.cs(20,14): warning CA1065: get_AnimationTarget creates an exception of type ArgumentException, an exception type that should not be raised in a property. If this exception instance might be raised, use a different exception type, convert this property into a method, or change this property's logic so that it no longer raises an exception. 
+engine/MachineWorld.Gpu.cs(282,9): warning CA1031: Modify 'PresentWorkshopRead' to catch a more specific allowed exception type, or rethrow the exception 
+engine/MachineWorld.Gpu.cs(378,13): warning CA1031: Modify 'DisposeWorkshop' to catch a more specific allowed exception type, or rethrow the exception 
+engine/MachineWorld.Gpu.cs(84,29): warning CA1822: Member 'CaptureReceiver' does not access instance data and can be marked as static 
+engine/PartId.cs(5,31): warning CA1036: PartId should define operator(s) '<, <=, >, >=' since it implements IComparable 
+engine/presentation/AnimationBatch.cs(132,9): warning CA1512: Use 'ArgumentOutOfRangeException.ThrowIfNegativeOrZero' instead of explicitly throwing a new exception instance 
+engine/presentation/AnimationBatch.cs(19,9): warning CA1512: Use 'ArgumentOutOfRangeException.ThrowIfZero' instead of explicitly throwing a new exception instance 
+engine/presentation/AnimationBatch.cs(28,9): warning CA1512: Use 'ArgumentOutOfRangeException.ThrowIfZero' instead of explicitly throwing a new exception instance 
+engine/presentation/AnimationBatch.cs(441,9): warning CA1512: Use 'ArgumentOutOfRangeException.ThrowIfLessThanOrEqual' instead of explicitly throwing a new exception instance 
+engine/presentation/AnimationImpulseDefinition.cs(15,9): warning CA1512: Use 'ArgumentOutOfRangeException.ThrowIfZero' instead of explicitly throwing a new exception instance 
+engine/presentation/AnimationValues.cs(17,9): warning CA1512: Use 'ArgumentOutOfRangeException.ThrowIfNegativeOrZero' instead of explicitly throwing a new exception instance 
+tools/Coverage/CapabilityInputs.cs(183,57): warning CA1859: Change type of field 'WorkflowGaps' from 'System.Collections.Generic.IReadOnlySet<CuriousContraptions.Coverage.RequirementId>' to 'System.Collections.Generic.HashSet<CuriousContraptions.Coverage.RequirementId>' for improved performance 
+tools/Coverage/CapabilityInputs.cs(241,68): warning CA1859: Change return type of method 'SourceRelations' from 'System.Collections.Generic.IReadOnlyDictionary<CuriousContraptions.Coverage.SourceKey, CuriousContraptions.Coverage.SourceRelation[]>' to 'System.Collections.Generic.Dictionary<CuriousContraptions.Coverage.SourceKey, CuriousContraptions.Coverage.SourceRelation[]>' for improved performance 
+tools/Coverage/CurrentCatalogue.cs(97,33): warning CA1862: Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase' 
+tools/Coverage/CurrentOwnerRelations.cs(15,25): warning CA1861: Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array 
+tools/Coverage/CurrentOwnerRelations.cs(39,43): warning CA1875: Use 'Regex.Count' instead of 'Regex.Matches(...).Count' 
+tools/Coverage/CurrentOwnerRelations.cs(72,66): warning CA1859: Change return type of method 'Freeze' from 'System.Collections.Generic.IReadOnlyDictionary<CuriousContraptions.Coverage.SourceKey, CuriousContraptions.Coverage.WorkOrderId[]>' to 'System.Collections.Generic.Dictionary<CuriousContraptions.Coverage.SourceKey, CuriousContraptions.Coverage.WorkOrderId[]>' for improved performance 
+tools/Coverage/Program.cs(44,23): warning CA2208: Method <Main>$ passes 'operation' as the paramName argument to a ArgumentOutOfRangeException constructor. Replace this argument with one of the method's parameter names. Note that the provided parameter name should have the exact casing as declared on the method. 
+tools/LifecycleContract/Program.cs(29,9): warning CA1031: Modify 'Check' to catch a more specific allowed exception type, or rethrow the exception 
+tools/LifecycleContract/RuntimeClockControls.cs(250,15): warning CA2201: Exception type System.Exception is not sufficiently specific 
+tools/LifecycleContract/RuntimeClockControls.cs(28,13): warning CA1031: Modify 'Run' to catch a more specific allowed exception type, or rethrow the exception 
+tools/Ownership/CurrentOwnerMembership.cs(74,84): warning CA1865: Use 'string.StartsWith(char)' instead of 'string.StartsWith(string)' when you have a string with a single char 
+tools/Ownership/CurrentOwnerMembership.cs(78,33): warning CA1862: Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase' 
+tools/Ownership/OwnershipPolicy.cs(18,52): warning CA1859: Change type of field 'AnimationFreeCallers' from 'System.Collections.Generic.IReadOnlySet<Ownership.CallerId>' to 'System.Collections.Generic.HashSet<Ownership.CallerId>' for improved performance 
+tools/Ownership/SourceInventory.cs(17,26): warning CA1823: Unused field 'DiagnosticSymbol' 
+tools/Ownership/SourceInventory.cs(17,26): warning IDE0051: Private member 'SourceInventory.DiagnosticSymbol' is unused 
+tools/Ownership/SourceInventory.cs(18,26): warning CA1823: Unused field 'WebSymbol' 
+tools/Ownership/SourceInventory.cs(18,26): warning IDE0051: Private member 'SourceInventory.WebSymbol' is unused 
+tools/Ownership/SourceInventory.cs(202,17): warning CA1305: The behavior of 'Diagnostic.GetMessage([IFormatProvider])' could vary based on the current user's locale settings. Provide a value for the 'IFormatProvider' argument. 
+tools/WireContract/Program.cs(25,9): warning CA1031: Modify 'Check' to catch a more specific allowed exception type, or rethrow the exception 
+tools/WireContract/Program.cs(69,57): warning CA1305: The behavior of 'ulong.Parse(string)' could vary based on the current user's locale settings. Replace this call in 'Program.Main()' with a call to 'ulong.Parse(string, IFormatProvider)'. 
+tools/WireContract/RevisionTwoOracles.cs(163,13): warning CA1031: Modify 'Run' to catch a more specific allowed exception type, or rethrow the exception 
+ui/Workshop.cs(145,27): warning CA1859: Change return type of method 'Button' from 'Godot.Button' to 'CuriousContraptions.WorkshopButton' for improved performance 
+ui/Workshop.cs(357,83): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'Workshop.RefreshPalette()' with a call to 'int.ToString(IFormatProvider)'. 
+ui/Workshop.cs(410,53): warning CA1725: In member void Workshop._UnhandledInput(InputEvent input), change parameter name input to event in order to match the identifier as it has been declared in void Node._UnhandledInput(InputEvent @event) 
+ui/Workshop.cs(641,9): warning CA1031: Modify 'ToggleRun' to catch a more specific allowed exception type, or rethrow the exception 
+ui/Workshop.cs(657,13): warning CA1031: Modify 'ResetRun' to catch a more specific allowed exception type, or rethrow the exception 
+ui/Workshop.cs(670,9): warning CA1031: Modify 'ResetRun' to catch a more specific allowed exception type, or rethrow the exception 
+ui/Workshop.cs(800,9): warning CA1031: Modify 'Save' to catch a more specific allowed exception type, or rethrow the exception 
+ui/Workshop.cs(81,9): warning CA1031: Modify '_Ready' to catch a more specific allowed exception type, or rethrow the exception 
+ui/Workshop.cs(844,9): warning CA1031: Modify 'LoadSave' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopBattery.cs(116,9): warning CA1031: Modify 'ApplyBatterySettings' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopBattery.cs(137,9): warning CA1031: Modify 'ApplyBatteryEnable' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopBattery.cs(44,48): warning CA1305: The behavior of 'float.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'Workshop.RefreshBatteryObservation()' with a call to 'float.ToString(string, IFormatProvider)'. 
+ui/WorkshopBattery.cs(69,48): warning CA1305: The behavior of 'float.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'Workshop.AddBatteryConfiguration(MachinePart)' with a call to 'float.ToString(string, IFormatProvider)'. 
+ui/WorkshopConfiguration.cs(109,9): warning CA1031: Modify 'ApplyBumperStrength' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopConfiguration.cs(157,9): warning CA1031: Modify 'ApplySpringboardSettings' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopConfiguration.cs(18,46): warning CA1305: The behavior of 'double.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'Workshop.AddConfigurationChoices(MachinePart)' with a call to 'double.ToString(string, IFormatProvider)'. 
+ui/WorkshopConfiguration.cs(33,53): warning CA1305: The behavior of 'float.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'Workshop.AddClockConfiguration(MachinePart)' with a call to 'float.ToString(string, IFormatProvider)'. 
+ui/WorkshopConfiguration.cs(60,9): warning CA1031: Modify 'ApplyClockInterval' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopConfiguration.cs(76,9): warning CA1031: Modify 'ApplyDelayDuration' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopConfiguration.cs(81,53): warning CA1305: The behavior of 'double.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'Workshop.AddBumperConfiguration(MachinePart)' with a call to 'double.ToString(string, IFormatProvider)'. 
+ui/WorkshopConnections.cs(109,9): warning CA1031: Modify 'ChangeConnection' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopGpu.cs(36,9): warning CA1031: Modify 'Playback' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopGpu.cs(60,9): warning CA1031: Modify 'SubmitConstruction' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopGpu.cs(78,17): warning CA1508: '_selected' is never 'null'. Remove or refactor the condition(s) to avoid dead code. 
+ui/WorkshopGpu.cs(79,17): warning CA1508: '_selected' is never 'null'. Remove or refactor the condition(s) to avoid dead code. 
+ui/WorkshopGpu.cs(85,9): warning CA1031: Modify 'CommitSelected' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopGuidance.cs(132,76): warning IDE0060: Remove unused parameter 'explanation' 
+ui/WorkshopGuidance.cs(390,13): warning IDE0059: Unnecessary assignment of a value to 'snapMove' 
+ui/WorkshopGuidance.cs(404,44): warning CA1725: In member void Workshop._Input(InputEvent input), change parameter name input to event in order to match the identifier as it has been declared in void Node._Input(InputEvent @event) 
+ui/WorkshopIcons.cs(120,14): warning IDE0059: Unnecessary assignment of a value to 'label' 
+ui/WorkshopIcons.cs(154,20): warning CA1310: The behavior of 'string.EndsWith(string)' could vary based on the current user's locale settings. Replace this call in 'CuriousContraptions.WorkshopIcons.Apply(Godot.Button, string)' with a call to 'string.EndsWith(string, System.StringComparison)'. 
+ui/WorkshopIcons.cs(155,20): warning CA1310: The behavior of 'string.EndsWith(string)' could vary based on the current user's locale settings. Replace this call in 'CuriousContraptions.WorkshopIcons.Apply(Godot.Button, string)' with a call to 'string.EndsWith(string, System.StringComparison)'. 
+ui/WorkshopIcons.cs(160,23): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'CuriousContraptions.WorkshopIcons.Apply(Godot.Button, string)' with a call to 'string.StartsWith(string, System.StringComparison)'. 
+ui/WorkshopPuzzle.cs(101,9): warning CA1031: Modify 'SelectModeFromPicker' to catch a more specific allowed exception type, or rethrow the exception 
+ui/WorkshopPuzzle.cs(186,9): warning CA1031: Modify 'ChangePrecision' to catch a more specific allowed exception type, or rethrow the exception 

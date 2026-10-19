@@ -26,7 +26,7 @@ static class Program
         FailurePoint? point=null,MutationFamily? mutation=null)
     {
         try {action();Results.Add(new(oracle,mode,command,point,mutation,true,"Passed"));}
-        catch(Exception error){Results.Add(new(oracle,mode,command,point,mutation,false,error.Message));}
+        catch(Exception error)when(error is InvalidOperationException or ArgumentException){Results.Add(new(oracle,mode,command,point,mutation,false,error.Message));}
     }
     static void Require(bool condition)
     {if(!condition)throw new InvalidOperationException("Oracle mismatch.");}

@@ -54,7 +54,7 @@ public readonly record struct WorkshopCadenceSettings(
         SimulationCadence.Hz60 => new(60, 1),
         SimulationCadence.Hz120 => new(120, 1),
         SimulationCadence.Hz240 => new(240, 1),
-        _ => throw new ArgumentException("Unknown simulation cadence.")
+        _ => throw new InvalidOperationException("Unknown simulation cadence.")
     };
 
     public PulseRate AnimationRate => Animation switch
@@ -63,7 +63,7 @@ public readonly record struct WorkshopCadenceSettings(
         AnimationCadence.Hz60 => new(60, 1),
         AnimationCadence.Hz90 => new(90, 1),
         AnimationCadence.Hz120 => new(120, 1),
-        _ => throw new ArgumentException("Unknown animation cadence.")
+        _ => throw new InvalidOperationException("Unknown animation cadence.")
     };
 
     public uint PhysicalStepsPerCommit => Simulation switch
@@ -71,7 +71,7 @@ public readonly record struct WorkshopCadenceSettings(
         SimulationCadence.Hz60 => 8,
         SimulationCadence.Hz120 => 4,
         SimulationCadence.Hz240 => 2,
-        _ => throw new ArgumentException("Unknown simulation cadence.")
+        _ => throw new InvalidOperationException("Unknown simulation cadence.")
     };
 
     public ulong RunTickLimit => checked(30UL * SimulationRate.Numerator);
@@ -83,8 +83,9 @@ public readonly record struct WorkshopCadenceSettings(
         if (!Enum.IsDefined(Simulation) || Physical != PhysicalStepProfile.Canonical480Hz ||
             !Enum.IsDefined(Animation) || !Enum.IsDefined(Presentation))
             throw new ArgumentException("Unsupported cadence selection.");
-        if ((ulong)SimulationRate.Numerator * PhysicalStepsPerCommit != PhysicalFrequency ||
-            (uint)(Half)PhysicalFrequency != PhysicalFrequency)
+        // PhysicalFrequency's exact binary16 representation is a compile-time fact, asserted by
+        // WorkshopWireTests.PhysicalFrequencyIsExactlyRepresentableInTheHalfWireField.
+        if ((ulong)SimulationRate.Numerator * PhysicalStepsPerCommit != PhysicalFrequency)
             throw new ArgumentException("Physical profile rate is not exactly representable.");
         PresentationRate.Validate();
         var fixedRate = Presentation switch

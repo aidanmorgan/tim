@@ -61,20 +61,21 @@ public static class ClearPipe
             puzzle.BallAssistance != FirstPrinciples.BallAssistance ||
             puzzle.ReceiverAssistance != FirstPrinciples.ReceiverAssistance || puzzle.RampAssistance != PipeAssistance ||
             construction.Connections.Count != 0)
-            throw new ArgumentException("Unsupported clear pipe authored settings.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported clear pipe authored settings.");
         var receiver = Receiver(puzzle.Goal.Target, puzzle.Precision);
         if (construction.Ball != Ball(puzzle.Goal.Body) || construction.Receiver != receiver ||
             puzzle.Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(receiver))
-            throw new ArgumentException("Fixed clear pipe declarations changed.");
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed clear pipe declarations changed.");
         var receivers = 0; var pipes = 0;
         foreach (var instance in construction.Instances)
         {
             if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopGenericInstance { PartId.Value: "pipe" }) ||
                 instance is WorkshopGenericInstance { PartId.Value: "pipe", Locked: true })
-                throw new ArgumentException("Unsupported clear pipe inventory.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported clear pipe inventory.");
             if (instance is WorkshopReceiver) receivers++;
             if (instance is WorkshopGenericInstance { PartId.Value: "pipe" }) pipes++;
         }
-        if (receivers != 1 || pipes > 1) throw new ArgumentException("Clear pipe inventory exceeded.");
+        if (receivers != 1 || pipes > 1)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Clear pipe inventory exceeded.");
     }
 }

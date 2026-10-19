@@ -1,0 +1,176 @@
+#!/bin/zsh
+# Review probes for Story 9R.0: each variant is written into elements/Ball, built with the gate on, then removed.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+P=elements/Ball/ReviewBypass.cs
+diag() { grep -E "(error|warning) [A-Z]+[0-9]+" $1 | grep -v IL2125 | sed -E 's#^/[^ ]*/agent-a08aebc94d551b53b/##' | sed -E 's#: (error|warning) ([A-Z]+[0-9]+): ([^(\[]*).*#: \1 \2: \3#' | sort -u; }
+run() {
+  echo "### $1"
+  dotnet build elements/Ball/Ball.csproj -nologo -v q > $W/.rv.raw 2>&1; rc=$?
+  echo "exit=$rc"; diag $W/.rv.raw; rm -f $W/.rv.raw
+}
+cleanup() { rm -f $P $P.uid elements/Ball/GlobalSuppressions.cs elements/Ball/GlobalSuppressions.cs.uid elements/Ball/.editorconfig elements/Ball/Directory.Build.props; git checkout -- elements/Ball/Ball.csproj; }
+
+body_catchall='        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception) { return -1; }'
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.FormatException) { }
+        return -1;
+    }
+}
+EOF
+run "A typed empty catch: catch (FormatException) { }"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception error) when (error is not null) { }
+        return -1;
+    }
+}
+EOF
+run "B catch-all with a trivially true filter: catch (Exception e) when (e is not null) { }"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+#pragma warning disable CA1031
+        catch (System.Exception) { }
+#pragma warning restore CA1031
+        return -1;
+    }
+}
+EOF
+run "C #pragma warning disable CA1031 around a swallowing catch-all"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031", Justification = "probe")]
+    public static int Parse(string text)
+    {
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception) { }
+        return -1;
+    }
+}
+EOF
+run "D [SuppressMessage(CA1031)] on the method"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception) { }
+        return -1;
+    }
+}
+EOF
+cat > elements/Ball/GlobalSuppressions.cs <<EOF
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031", Justification = "probe", Scope = "namespaceanddescendants", Target = "~N:CuriousContraptions.Elements.Ball")]
+EOF
+run "E assembly-level GlobalSuppressions.cs (namespaceanddescendants)"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        var unused = 0;
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception) { }
+        return -1;
+    }
+}
+EOF
+printf '[*.cs]\ndotnet_diagnostic.CA1031.severity = none\ndotnet_diagnostic.IDE0059.severity = none\n' > elements/Ball/.editorconfig
+run "F nested elements/Ball/.editorconfig with CA1031/IDE0059 = none (CS0219 remains a compiler warning)"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        var unused = 0;
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception) { }
+        return -1;
+    }
+}
+EOF
+sed -i '' 's#<IsTrimmable>true</IsTrimmable>#<IsTrimmable>true</IsTrimmable><NoWarn>$(NoWarn);CA1031;IDE0059;CS0219</NoWarn>#' elements/Ball/Ball.csproj
+run "G csproj <NoWarn>CA1031;IDE0059;CS0219</NoWarn>"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        var unused = 0;
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception) { }
+        return -1;
+    }
+}
+EOF
+sed -i '' 's#<IsTrimmable>true</IsTrimmable>#<IsTrimmable>true</IsTrimmable><TreatWarningsAsErrors>false</TreatWarningsAsErrors>#' elements/Ball/Ball.csproj
+run "H csproj <TreatWarningsAsErrors>false</TreatWarningsAsErrors> (warnings print, exit code?)"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        var unused = 0;
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception) { }
+        return -1;
+    }
+}
+EOF
+cat > elements/Ball/Directory.Build.props <<'EOF'
+<Project>
+  <PropertyGroup><CSharpStaticGate>false</CSharpStaticGate></PropertyGroup>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+</Project>
+EOF
+run "I nested elements/Ball/Directory.Build.props with CSharpStaticGate=false (the documented vendored opt-out)"; cleanup
+
+cat > $P <<EOF
+namespace CuriousContraptions.Elements.Ball;
+internal static class ReviewBypass
+{
+    public static int Parse(string text)
+    {
+        try { return int.Parse(text, System.Globalization.CultureInfo.InvariantCulture); }
+        catch (System.Exception error) { System.Console.Error.WriteLine(error.Message); }
+        return -1;
+    }
+}
+EOF
+run "J control: logging catch-all in a non-excluded file must fail"; cleanup
+
+git status --short

@@ -3,6 +3,7 @@ using CuriousContraptions.Gpu;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 
@@ -83,7 +84,12 @@ public partial class Workshop : Node3D
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
-        catch (Exception error) { if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "GPU UNAVAILABLE"; }
+        catch (Exception error)
+        {
+            // A Workshop that cannot start is a fault, not a refused edit.
+            WorkshopDiagnostics.Fault(FaultSite.Startup, error);
+            if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "GPU UNAVAILABLE";
+        }
     }
 
     private void MakeStage()
@@ -147,7 +153,7 @@ public partial class Workshop : Node3D
         label.AddThemeColorOverride("font_color", color ?? Cream);
         return label;
     }
-    private static Button Button(string text, Action action, bool accent = false, Texture2D? icon = null)
+    private static WorkshopButton Button(string text, Action action, bool accent = false, Texture2D? icon = null)
     {
         var button = new WorkshopButton { Text = text, CustomMinimumSize = new(40, 40), MouseDefaultCursorShape = Control.CursorShape.PointingHand };
         button.AddThemeFontSizeOverride("font_size", 15);
@@ -359,7 +365,7 @@ public partial class Workshop : Node3D
         {
             var definition = World.Registry.Definitions[key];
             var remaining = Remaining(key);
-            var countText = remaining.Kind == PartAllowanceKind.Unlimited ? "∞" : remaining.Count.ToString();
+            var countText = remaining.Kind == PartAllowanceKind.Unlimited ? "∞" : remaining.Count.ToString(CultureInfo.CurrentCulture);
             var button = Button(definition.Title + "  × " + countText, () => ChooseTool(key));
             button.Disabled = remaining.Exhausted || !CanEdit;
             button.TooltipText = ""; // Description already appears in the drawer when chosen.
@@ -412,9 +418,9 @@ public partial class Workshop : Node3D
         if (!_inRun) SetLayer(part.Position.Z);
         _detail.Text = part.Definition.Title + (part.Locked ? " · fixed" : "");
     }
-    public override void _UnhandledInput(InputEvent input)
+    public override void _UnhandledInput(InputEvent @event)
     {
-        if (input is InputEventKey panKey)
+        if (@event is InputEventKey panKey)
         {
             var code = panKey.PhysicalKeycode != Key.None ? panKey.PhysicalKeycode : panKey.Keycode;
             if (code is Key.W or Key.A or Key.S or Key.D or Key.Q or Key.E)
@@ -427,7 +433,7 @@ public partial class Workshop : Node3D
             }
         }
         if (_rotationGizmo != null && _rotationGizmo.Dragging) return;
-        if (input is InputEventMouseButton mouse)
+        if (@event is InputEventMouseButton mouse)
         {
             if (mouse.ButtonIndex == MouseButton.Right) { _orbiting = mouse.Pressed; if (_orbiting) { _buildView = false; RefreshLayerAppearance(); } }
             if (mouse.Pressed && mouse.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
@@ -443,7 +449,7 @@ public partial class Workshop : Node3D
                 else if (_inRun && !_gpuPending) Select(Pick(mouse.Position));
             }
         }
-        else if (input is InputEventMouseMotion motion)
+        else if (@event is InputEventMouseMotion motion)
         {
             if (_lifting) return; // Lift motion is handled globally, including over UI.
             if (_orbiting)
@@ -469,7 +475,7 @@ public partial class Workshop : Node3D
                 }
             }
         }
-        else if (input is InputEventKey { Pressed: true, Echo: false } key)
+        else if (@event is InputEventKey { Pressed: true, Echo: false } key)
         {
             if (key.Keycode == Key.Space) ToggleRun();
             else if (key.Keycode == Key.Escape) { _optionsPanel.Visible = false; CancelTool(); }
@@ -679,7 +685,7 @@ public partial class Workshop : Node3D
             _precision.Editable = false; _friction.Disabled = true;
             _status.Text = "Reset restores the starting arrangement.";
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
         finally { if (!_workshopUiRemoved) { _gpuPending = false; ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance(); } }
     }
 
@@ -700,7 +706,7 @@ public partial class Workshop : Node3D
                 var cancelled = await World.CancelPendingWorkshop();
                 if (!_workshopUiRemoved && cancelled.Applicable) _status.Text = $"Cancel outcome: {cancelled.Result.Outcome}. The original request remains tracked.";
             }
-            catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+            catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
             finally { _cancelPending = false; }
             return;
         }
@@ -713,7 +719,7 @@ public partial class Workshop : Node3D
             if (result.Result.Outcome != WorkshopCommandOutcome.Applied) { _status.Text = $"Reset rejected: {result.Result.Reason}"; return; }
             ResetUiAnimations(); _inRun = false; SetBuildUi();
         }
-        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
         finally { if (!_workshopUiRemoved) { _gpuPending = false; ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance();  } }
     }
 
@@ -850,9 +856,10 @@ public partial class Workshop : Node3D
         }
         catch (Exception error)
         {
+            var failure = WorkshopUiFailure.Report(error);
             if (!_workshopUiRemoved) _status.Text = stored
-                ? "Construction stored. Session acknowledgement is indeterminate: " + error.Message
-                : "Save failed; the previous save is unchanged. " + error.Message;
+                ? "Construction stored. Session acknowledgement is indeterminate: " + failure
+                : "Save failed; the previous save is unchanged. " + failure;
         }
         finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); } }
     }
@@ -873,9 +880,13 @@ public partial class Workshop : Node3D
             var encoded = await BrowserWorkshopSaveStore.Load(0);
             if (_workshopUiRemoved) return;
             if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
-            var saved = WorkshopSaveCodec.Decode(Convert.FromBase64String(encoded));
+            // Browser storage is untrusted input: text that is not base64 is the save codec's typed rejection.
+            var stored = new byte[encoded.Length];
+            if (!Convert.TryFromBase64String(encoded, stored, out var storedLength))
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
+            var saved = WorkshopSaveCodec.Decode(stored.AsSpan(0, storedLength));
             if (saved.Construction.Settings != World.Construction.Settings)
-                throw new ArgumentException("This save uses different simulation settings.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.SaveSettingsMismatch, "This save uses different simulation settings.");
             // SubmitConstruction owns the existing GPU admission and installation barrier.
             var priorRevision = World.Construction.Revision;
             _gpuPending = false;
@@ -899,10 +910,11 @@ public partial class Workshop : Node3D
         }
         catch (Exception error)
         {
+            var failure = WorkshopUiFailure.Report(error);
             if (!_workshopUiRemoved) _status.Text = applied
-                ? "Construction loaded; presentation could not finish. " + error.Message
-                : submitted ? "Load acknowledgement is incomplete; recover the session. " + error.Message
-                : "Load rejected; construction unchanged. " + error.Message;
+                ? "Construction loaded; presentation could not finish. " + failure
+                : submitted ? "Load acknowledgement is incomplete; recover the session. " + failure
+                : "Load rejected; construction unchanged. " + failure;
         }
         finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); RefreshLayers(); } }
     }

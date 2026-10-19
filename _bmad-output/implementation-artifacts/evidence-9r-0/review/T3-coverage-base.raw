@@ -1,0 +1,8 @@
+## base 8f682f8 (git archive into scratchpad): tools/Coverage.Tests
+    0 Error(s)
+
+Time Elapsed 00:00:00.84
+[0m[91m    CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [FAIL]
+[0m[91m    CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [FAIL]
+[0m[91m    CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [FAIL]
+[0m[37m   Coverage.Tests  Total: 68, Errors: 0, Failed: 3, Skipped: 0, Not Run: 0, Time: 0.219s

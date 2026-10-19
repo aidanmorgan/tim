@@ -43,20 +43,20 @@ public sealed class WorkshopBumperTests
             CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "wall").GetProperty("difficulty"),
                 construction.Puzzle.WallAssistance);
             placed = placed.WithInstance(wall);
-            Assert.Throws<ArgumentException>(() => placed.WithInstance(wall with { Id = new(5) }).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(wall with { Id = new(5) }).Validate());
         }
         else
         {
             Assert.Single(inventory);
             Assert.Equal(default, construction.Puzzle.WallAssistance);
-            Assert.Throws<ArgumentException>(() => placed.WithInstance(wall).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(wall).Validate());
         }
         placed.Validate();
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(bumper with { Id = new(5) }).Validate());
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(bumper with { Locked = true }).Validate());
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
-        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
-        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(5) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(bumper with { Locked = true }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => placed.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
         {
             var next = BumperAdvanced.WithPrecision(placed, new(precision));
@@ -107,10 +107,15 @@ public sealed class WorkshopBumperTests
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
             builder.Finish(end.Value);
             var badSave = builder.SizedByteArray();
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(badSave));
+            // A puzzle rule's refusal keeps its reason; a non-finite precision is a malformed stored value.
+            EditRefusal.Is(Half.IsNaN(badPuzzle.Precision.Value) ? WorkshopEditRejection.UnsupportedSave : WorkshopEditRejection.PuzzleSettings,
+                () => WorkshopSaveCodec.Decode(badSave));
 
             var badCommand = command with { Construction = badConstruction };
-            Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(badCommand));
+            // The wire encoder validates the construction it carries: a puzzle rule's typed refusal, or for a
+            // non-finite precision the structural bound (an argument guard).
+            var refused = Assert.ThrowsAny<ArgumentException>(() => WorkshopWire.Encode(badCommand));
+            Assert.Equal(Half.IsNaN(badPuzzle.Precision.Value) ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), refused.GetType());
         }
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(original));
@@ -164,8 +169,8 @@ public sealed class WorkshopBumperTests
         Assert.Equal(2, sourceReceiver[0].GetDouble()); Assert.Equal(.9, sourceReceiver[1].GetDouble());
         var bumper = new WorkshopBumper(new(3), new(-51, 24, 0), default, CanonicalRotation.Identity, BumperWork.Default);
         var placed = construction.WithInstance(bumper); placed.Validate();
-        Assert.Throws<ArgumentException>(() => placed.WithInstance(bumper with { Id = new(4) }).Validate());
-        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(4) }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
         var unpaid = placed.WithInstance(bumper with { Work = BumperWork.FromCanonicalStrength(0) }); unpaid.Validate();
         Assert.Equal(0f, ((WorkshopBumper)unpaid.Instances.Single(value => value.Id == bumper.Id)).Work.Preload.Value);
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
@@ -508,7 +513,7 @@ public sealed class WorkshopBumperTests
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
             builder.Finish(end.Value);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
 
             var priorBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var priorCr = WorkshopWireFlatBuffers.EncodeConstructionRecord(priorBuilder, save.Construction);
@@ -519,7 +524,7 @@ public sealed class WorkshopBumperTests
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(priorBuilder, priorCr);
             var priorEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(priorBuilder);
             priorBuilder.Finish(priorEnd.Value);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(priorBuilder.SizedByteArray()));
+            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(priorBuilder.SizedByteArray()));
         }
     }
 

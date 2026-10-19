@@ -58,7 +58,7 @@ public sealed class CanonicalBodyTests
                 BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(72), 50f); break;
             case InvalidField.EmptyIdentity: Array.Clear(bytes, 24, 8); break;
             case InvalidField.OutwardPosition: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(64), .25f); break;
-            default: throw new ArgumentOutOfRangeException();
+            default: throw new ArgumentOutOfRangeException(nameof(field));
         }
         var before = (byte[])bytes.Clone();
         Assert.ThrowsAny<ArgumentException>(() => CanonicalBody.Decode(bytes));

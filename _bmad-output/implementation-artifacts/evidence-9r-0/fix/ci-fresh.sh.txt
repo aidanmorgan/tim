@@ -1,0 +1,25 @@
+#!/bin/sh
+# Story 9R.0: run pages.yml's C# steps exactly as written against a fresh snapshot of the index.
+# Usage: ci-fresh.sh <worktree> <log>
+set -eu
+wt="$1"; log="$2"
+snapshot=$(cd "$(mktemp -d "${TMPDIR:-/tmp}/ci-fresh.XXXXXX")" && pwd -P)
+git -C "$wt" checkout-index --all --prefix="$snapshot/"
+cd "$snapshot"
+start=$(date +%s)
+{
+  echo "snapshot=$snapshot"
+  dotnet restore CuriousContraptions.slnx --nologo --disable-parallel
+  dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental
+  dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental -p:PlaytestDiagnostics=true
+  dotnet restore CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --disable-parallel
+  dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false
+  dotnet build tools/anvil/CheckStagedTests.cs --nologo
+  dotnet build tools/anvil/VerifyPolicy.cs --nologo
+  dotnet test CuriousContraptions.tests --nologo
+  dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
+  test -s CuriousContraptions.web/AppBundle/index.html
+  test -s CuriousContraptions.web/AppBundle/godot.pck
+  echo "CI_FRESH_OK seconds=$(( $(date +%s) - start ))"
+} > "$log" 2>&1
+echo "exit=0 snapshot=$snapshot"

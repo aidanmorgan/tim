@@ -1,0 +1,34 @@
+#!/bin/zsh
+# Round-4 review: CreateProperty toggles of each gate property, as real commits through the hook.
+setopt NULL_GLOB
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+BASE=$(git rev-parse HEAD); echo "HEAD before: $BASE"
+undo() {
+  if [ "$(git rev-parse HEAD)" != "$BASE" ]; then git reset -q --soft $BASE; fi
+  git reset -q; git checkout -- .
+  rm -f elements/Ball/Review*.cs elements/Ball/Review*.cs.uid $W/.c.raw
+  echo "  undone: HEAD=$(git rev-parse HEAD) status=[$(git status --short | grep -v 'evidence-9r-0/review4' | tr '\n' ' ')]"
+}
+commit() {
+  git commit -m "review probe $1 (to be reset)" > $W/.c.raw 2>&1; rc=$?
+  echo "  git commit exit=$rc  HEAD after: $(git rev-parse --short HEAD)"
+  grep -E "(error|warning) [A-Z]+[0-9]+|violation|unpinned|outside a pinned|nowarn|warnaserror|/warn|/nullable|Failed!|Passed!" $W/.c.raw | grep -v IL2125 |
+    sed -E 's#^/[^ ]*/(csharp-gate\.[A-Za-z0-9]+|agent-a08aebc94d551b53b)/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -6
+}
+toggle() { # $1 property, $2 value during compile, $3 restored value
+  sed -i '' "s#</Project>#  <Target Name=\"ReviewOff\" BeforeTargets=\"CoreCompile\"><CreateProperty Value=\"$2\"><Output TaskParameter=\"Value\" PropertyName=\"$1\" /></CreateProperty></Target>\\
+  <Target Name=\"ReviewOn\" AfterTargets=\"CoreCompile\"><CreateProperty Value=\"$3\"><Output TaskParameter=\"Value\" PropertyName=\"$1\" /></CreateProperty></Target>\\
+</Project>#" elements/Ball/Ball.csproj
+}
+printf '%s\n' 'namespace CuriousContraptions.Elements.Ball;' 'internal static class ReviewLocal { public static int M() { var unused = 0; return 1; } }' > $W/.probe.cs
+
+for spec in "TreatWarningsAsErrors|false|true" "NoWarn|\$(NoWarn);CS0219;IDE0059|1701;1702" "WarningsNotAsErrors|CS0219;IDE0059|" "WarningLevel|0|10" "Nullable|disable|enable"; do
+  IFS='|' read prop during after <<< "$spec"
+  echo "### CreateProperty toggle of $prop (during CoreCompile: '$during', restored: '$after') + unused local"
+  cp $W/.probe.cs elements/Ball/ReviewLocal.cs
+  toggle "$prop" "$during" "$after"
+  git add elements/Ball/ReviewLocal.cs elements/Ball/Ball.csproj; commit "$prop"; undo
+done
+rm -f $W/.probe.cs
+echo DONE

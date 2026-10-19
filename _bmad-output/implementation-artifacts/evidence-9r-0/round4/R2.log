@@ -1,0 +1,39 @@
+probe: R2-forged-generated-source-in-obj
+expected refusal (ERE): pre-commit: committed files in a bin/, obj/ or .godot/ directory
+head_before: 401528e180606dd89ebfa2962e72029f28a80ce4
+--- staged:
+ elements/Ball/Ball.csproj                               | 1 +
+ elements/Ball/obj/Debug/net10.0/Probe.GlobalUsings.g.cs | 6 ++++++
+ 2 files changed, 7 insertions(+)
+--- unstaged:
+--- commit output:
+--- refusal lines matching the expected pattern:
+pre-commit: committed files in a bin/, obj/ or .godot/ directory (listed above) are not allowed
+--- full commit output:
+Anvil snapshot 0.ts: elements/Ball/obj/Debug/net10.0/Probe.GlobalUsings.g.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-18T14:59:20.299502+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 9,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+elements/Ball/obj/Debug/net10.0/Probe.GlobalUsings.g.cs
+pre-commit: committed files in a bin/, obj/ or .godot/ directory (listed above) are not allowed
+--- result: commit_exit=1 head_after=401528e180606dd89ebfa2962e72029f28a80ce4 moved=no refusal_named=yes

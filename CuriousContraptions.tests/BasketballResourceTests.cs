@@ -3,7 +3,7 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class BasketballResourceTests(NativeSceneFixture godot)
 {
     [Fact]
@@ -159,7 +159,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         }
     }
 
-    private partial class ProbePart : MachinePart
+    private sealed partial class ProbePart : MachinePart
     {
         public Action<ProbePart>? Bindings;
         protected override void Build() { PickRadius=.5f; Bindings?.Invoke(this); }
@@ -225,7 +225,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [InlineData(WorkshopSimulationPhase.Faulted, false)]
     public async Task ActualWorldKeepsLaterCommittedPhaseWhenOriginalRunAckArrives(WorkshopSimulationPhase phase, bool sceneBeforeAck)
     {
-        var client = new HeldWorkshopClient();
+        await using var client = new HeldWorkshopClient();
         var world = new MachineWorld();
         try
         {
@@ -267,7 +267,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public async Task ActualWorldDoesNotReviveAfterRemovedSceneReceivesOriginalAppliedAck()
     {
-        var client = new HeldWorkshopClient();
+        await using var client = new HeldWorkshopClient();
         var world = new MachineWorld();
         try
         {

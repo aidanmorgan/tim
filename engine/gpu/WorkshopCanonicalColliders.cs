@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace CuriousContraptions.Gpu;
 
@@ -35,7 +36,7 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _latchColliders;
     public static IReadOnlyList<ExtractedCollider> LatchColliders => _latchColliders ??= CreateLatchColliders();
 
-    private static IReadOnlyList<ExtractedCollider> CreateLatchColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreateLatchColliders()
     {
         var housingPose = new RigidLocalPose(new MetreVector((Half)0, (Half)0, (Half)0), CanonicalRotation.Identity);
         housingPose.Validate();
@@ -51,7 +52,7 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _clockColliders;
     public static IReadOnlyList<ExtractedCollider> ClockColliders => _clockColliders ??= CreateClockColliders();
 
-    private static IReadOnlyList<ExtractedCollider> CreateClockColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreateClockColliders()
     {
         var housingPose = new RigidLocalPose(new MetreVector((Half)0, (Half)0, (Half)0), CanonicalRotation.Identity);
         housingPose.Validate();
@@ -67,7 +68,7 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _counterColliders;
     public static IReadOnlyList<ExtractedCollider> CounterColliders => _counterColliders ??= CreateCounterColliders();
 
-    private static IReadOnlyList<ExtractedCollider> CreateCounterColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreateCounterColliders()
     {
         var housingPose = new RigidLocalPose(new MetreVector((Half)0, (Half)0, (Half)0), CanonicalRotation.Identity);
         housingPose.Validate();
@@ -89,7 +90,7 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _funnelColliders;
     public static IReadOnlyList<ExtractedCollider> FunnelColliders => _funnelColliders ??= CreateFunnelColliders();
 
-    private static IReadOnlyList<ExtractedCollider> CreatePipeColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreatePipeColliders()
     {
         var list = new List<ExtractedCollider>(24);
 
@@ -141,7 +142,7 @@ public static class WorkshopCanonicalColliders
         return list.AsReadOnly();
     }
 
-    private static IReadOnlyList<ExtractedCollider> CreateBallDetectorColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreateBallDetectorColliders()
     {
         var list = new List<ExtractedCollider>(17);
 
@@ -179,7 +180,7 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _pipeBend45Colliders;
     public static IReadOnlyList<ExtractedCollider> PipeBend45Colliders => _pipeBend45Colliders ??= CreatePipeBend45Colliders();
 
-    private static IReadOnlyList<ExtractedCollider> CreatePipeBend45Colliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreatePipeBend45Colliders()
     {
         var list = new List<ExtractedCollider>(40);
         var wallHalfExtents = new MetreVector((Half)0.26, (Half)0.025, (Half)0.29);
@@ -432,7 +433,7 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _pipeBend90Colliders;
     public static IReadOnlyList<ExtractedCollider> PipeBend90Colliders => _pipeBend90Colliders ??= CreatePipeBend90Colliders();
 
-    private static IReadOnlyList<ExtractedCollider> CreatePipeBend90Colliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreatePipeBend90Colliders()
     {
         var list = new List<ExtractedCollider>(72);
         var wallHalfExtents = new MetreVector((Half)0.26, (Half)0.025, (Half)0.29);
@@ -870,7 +871,7 @@ public static class WorkshopCanonicalColliders
         return list.AsReadOnly();
     }
 
-    private static IReadOnlyList<ExtractedCollider> CreateFunnelColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreateFunnelColliders()
     {
         var list = new List<ExtractedCollider>(72);
 
@@ -947,7 +948,7 @@ public static class WorkshopCanonicalColliders
         return list.AsReadOnly();
     }
 
-    private static IReadOnlyList<ExtractedCollider> CreatePoweredGateColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreatePoweredGateColliders()
     {
         var list = new List<ExtractedCollider>(19);
 
@@ -991,7 +992,7 @@ public static class WorkshopCanonicalColliders
         return list.AsReadOnly();
     }
 
-    private static IReadOnlyList<ExtractedCollider> CreatePressurePlateColliders()
+    private static ReadOnlyCollection<ExtractedCollider> CreatePressurePlateColliders()
     {
         var basePose = new RigidLocalPose(new MetreVector((Half)0, (Half)(-0.12f), (Half)0), CanonicalRotation.Identity);
         basePose.Validate();

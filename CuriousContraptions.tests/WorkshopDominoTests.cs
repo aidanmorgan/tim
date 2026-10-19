@@ -95,7 +95,7 @@ public sealed class WorkshopDominoTests
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
             builder.Finish(end.Value);
             var forgedBytes = builder.SizedByteArray();
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(forgedBytes));
+            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(forgedBytes));
         }
         var bb = new Google.FlatBuffers.ByteBuffer(bytes);
         var fbSave = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(bb);

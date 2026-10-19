@@ -19,8 +19,9 @@ public sealed class WorkshopCommandRouter(Func<WorkshopCommand, byte[], Task<byt
             command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
             isFlatBuffer = true;
         }
-        catch
+        catch (ArgumentException)
         {
+            // Not a FlatBuffers command (its decoder rejects foreign bytes with ArgumentException): fixed binary.
             command = WorkshopWire.DecodeCommand(bytes);
         }
         if (_retained.TryGetValue(command.Sequence.Value, out var existing))

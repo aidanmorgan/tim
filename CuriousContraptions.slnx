@@ -4,6 +4,42 @@
     <BuildType Name="Editor" />
     <BuildType Name="Release" />
   </Configurations>
+  <Folder Name="/abstractions/">
+    <Project Path="CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
+    <Project Path="CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj" />
+    <Project Path="CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
+    <Project Path="CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+  </Folder>
+  <Folder Name="/elements/">
+    <Project Path="elements/Ball/Ball.csproj" />
+    <Project Path="elements/BallDetector/BallDetector.csproj" />
+    <Project Path="elements/Battery/Battery.csproj" />
+    <Project Path="elements/Bumper/Bumper.csproj" />
+    <Project Path="elements/Counter/Counter.csproj" />
+    <Project Path="elements/Domino/Domino.csproj" />
+    <Project Path="elements/PoweredGate/PoweredGate.csproj" />
+    <Project Path="elements/PressurePlate/PressurePlate.csproj" />
+    <Project Path="elements/Ramp/Ramp.csproj" />
+    <Project Path="elements/SignalLamp/SignalLamp.csproj" />
+    <Project Path="elements/StateLatch/StateLatch.csproj" />
+    <Project Path="elements/SystemClock/SystemClock.csproj" />
+    <Project Path="elements/Wall/Wall.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/BundleElements/BundleElements.csproj" />
+    <Project Path="tools/Coverage/Coverage.csproj" />
+    <Project Path="tools/Coverage.Tests/Coverage.Tests.csproj" />
+    <Project Path="tools/LifecycleContract/LifecycleContract.csproj" />
+    <Project Path="tools/Ownership/Ownership.csproj" />
+    <Project Path="tools/Preview/Preview.csproj" />
+    <Project Path="tools/TraceAllocations/TraceAllocations.csproj" />
+    <Project Path="tools/WireContract/WireContract.csproj" />
+  </Folder>
+  <Folder Name="/workers/">
+    <Project Path="CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
+    <Project Path="CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj" />
+    <Project Path="CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj" />
+  </Folder>
   <Project Path="CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
   <Project Path="CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
   <Project Path="CuriousContraptions.2dog/CuriousContraptions.2dog.csproj" />
