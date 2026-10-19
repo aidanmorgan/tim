@@ -49,6 +49,15 @@ Full serial Chrome run (Tier 3; AC6 "one serial Chrome run")
   full-run-serial/                   full --workers 1 on 042a1de0, clean tree, bundle e7797f1b…: verdict Pass,
                                      34/34 files, 166/166 tests (clock-master's declared fault only)
 
+After the evidence commit 5015326d (code identical to 042a1de0; clean tree in every run below)
+  cat-017-x5/run-<n>/                five consecutive runner runs (run --changed cat-017; cat-017 + smoke pair), all
+                                     Pass, never retried; each run republishes, so each has its own bundle identity
+                                     (publish is not byte-deterministic: identical source gives a new manifest hash)
+  full-run-parallel/                 run --diff e36467b8 (Mode: Full, N=2 workers), bundle 1a21b871…: verdict Fail,
+                                     33/34 files; 166/166 tests ok, but cat-020 closed with one session fault:
+                                     CCGPU_CLOCK_RECALIBRATED cause Elapsed ~2 s after boot, during test 1's placements
+                                     (before any snapshot code runs). Not retried. The serial run passed cat-020; filed.
+
 Identities: the unit, mutant and first manual suite runs were taken on working-tree builds before the commit; their
 code equals 042a1de0 except the mutant under test (reverted before the commit). Their bundle identities were not
 recorded; the identity-bound proof is full-run-serial/ and run-alone/.
