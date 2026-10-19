@@ -104,6 +104,11 @@
         <Copy SourceFiles="@(_WorkshopAnimationBundle)"
               DestinationFiles="@(_WorkshopAnimationBundle->'$(WasmAppDir)/animation/%(BundleRelativePath)')" />
     </Target>
+    <!-- Story 9R.0b: the final simulation/ and animation/ folders, and their .br/.gz siblings, are the AOT-verified worker bundles. -->
+    <PropertyGroup>
+        <WorkerAotRole>Host</WorkerAotRole>
+    </PropertyGroup>
+    <Import Project="WorkerAot.targets" />
     <Target Name="DeepClean" AfterTargets="Clean">
         <RemoveDir Directories="AppBundle"/>
     </Target>

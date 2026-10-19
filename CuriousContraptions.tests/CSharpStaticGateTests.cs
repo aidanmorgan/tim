@@ -138,7 +138,7 @@ public sealed class CSharpStaticGateTests
     };
     private static readonly string[] XunitProjects =
         ["CuriousContraptions.tests/CuriousContraptions.tests.csproj", "tools/Coverage.Tests/Coverage.Tests.csproj",
-         "tools/E2eRunner.Tests/E2eRunner.Tests.csproj"];
+         "tools/E2eRunner.Tests/E2eRunner.Tests.csproj", "tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj"];
 
     /// <summary>The root .editorconfig, key by key (comments and blank lines excluded).</summary>
     private static readonly string[] EditorConfig =
@@ -1072,6 +1072,13 @@ public sealed class CSharpStaticGateTests
         ["CuriousContraptions.web/CuriousContraptions.web.csproj:BuildWorkshopAnimation"] = "d1774dd011e62892eebfb5ac80cf83b6c9edc67afa35e69de9545270f6cf5f2a",
         ["CuriousContraptions.web/CuriousContraptions.web.csproj:CopyWorkshopAnimation"] = "e338b57574b2bc439c31ded9d4dc3b3dabd2881a01122ceadef0198dce43edbb",
         ["CuriousContraptions.web/CuriousContraptions.web.csproj:DeepClean"] = "274968494e58e10a4602963871d8ad2b716955c4601dbe50acf0d596cc220c86",
+        // Story 9R.0b worker AOT guard: publish-only checks (no compile settings); the inspections run tools/WorkerAotGuard.
+        ["CuriousContraptions.web/WorkerAot.targets:BuildWorkerAotGuard"] = "6fd5b8eeb088f3580597ea0656cdaa529c57b63a4c2b8ce602106ff3b80f3d30",
+        ["CuriousContraptions.web/WorkerAot.targets:VerifyWorkerAotProperties"] = "e40f49d2f6ba94c90ff338a4d76831b3aa74debddae839b1c1ab9ae9997e8275",
+        ["CuriousContraptions.web/WorkerAot.targets:VerifyWorkerAotCompile"] = "381bfc16589f7a1b8216277f0c01574fc8191dacbabe1b9488448806dbb56f28",
+        ["CuriousContraptions.web/WorkerAot.targets:VerifyWorkerAotLink"] = "70d329d768668a948b60dcf9e07437bd288b25a9c1a4fc076af901c55c38fe57",
+        ["CuriousContraptions.web/WorkerAot.targets:VerifyWorkerAot"] = "ff4f42bc34e32c7da5b56aa3df816af28a20e1444fd1eff14ecab3845c1e1625",
+        ["CuriousContraptions.web/WorkerAot.targets:VerifyWorkerAotHostBundle"] = "fe0e77972cbe307d17c901dc13c1ca77e395b942eea9ae66c06cd3a29d83a884",
     };
 
     /// <summary>The only imports a repository MSBuild file may declare (file to Project attribute). A nested
@@ -1079,6 +1086,9 @@ public sealed class CSharpStaticGateTests
     private static readonly Dictionary<string, string[]> PinnedImports = new(StringComparer.Ordinal)
     {
         ["CuriousContraptions.web/Directory.Build.props"] = ["$(_TwoDogParentProps)"],
+        ["CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"] = ["../CuriousContraptions.web/WorkerAot.targets"],
+        ["CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj"] = ["../CuriousContraptions.web/WorkerAot.targets"],
+        ["CuriousContraptions.web/CuriousContraptions.web.csproj"] = ["WorkerAot.targets"],
     };
 
     // Elements that run or load build logic.

@@ -55,6 +55,12 @@
   <Project Path="tools/E2eRunner.Tests/E2eRunner.Tests.csproj">
     <BuildType Solution="Editor|*" Project="Debug" />
   </Project>
+  <Project Path="tools/WorkerAotGuard/WorkerAotGuard.csproj">
+    <BuildType Solution="Editor|*" Project="Debug" />
+  </Project>
+  <Project Path="tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj">
+    <BuildType Solution="Editor|*" Project="Debug" />
+  </Project>
   <Project Path="CuriousContraptions.web/CuriousContraptions.web.csproj">
     <BuildType Solution="Editor|*" Project="Debug" />
     <Build Project="false" />

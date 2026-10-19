@@ -10,12 +10,17 @@
     <WasmMainJSPath>wwwroot/worker.js</WasmMainJSPath>
   </PropertyGroup>
   <!-- The shipped worker is the trimmed Publish bundle only: Build produces no bundle, and the publish carries
-       no symbol map, source maps, debugger metadata or ICU shards. -->
+       no symbol map, source maps, debugger metadata or ICU shards. Every method is Mono AOT-compiled (LLVM, full AOT with no
+       interpreter) to wasm-simd128 code with its IL stripped; WorkerAot.targets fails the publish unless that holds. -->
   <PropertyGroup>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
     <WasmBuildOnlyAfterPublish>true</WasmBuildOnlyAfterPublish>
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <AOTMode>LLVMOnly</AOTMode>
+    <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
     <WasmEnableSIMD>true</WasmEnableSIMD>
+    <WorkerAotRole>Worker</WorkerAotRole>
     <InvariantGlobalization>true</InvariantGlobalization>
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
     <WasmEmitSourceMap>false</WasmEmitSourceMap>
@@ -35,6 +40,7 @@
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
   </ItemGroup>
+  <Import Project="../CuriousContraptions.web/WorkerAot.targets" />
   <!-- Return this project's actual trimmed publish bundle; the WebAssembly SDK writes it to $(OutputPath)AppBundle during Publish. -->
   <Target Name="GetWorkshopAnimationBundle" DependsOnTargets="Publish" Returns="@(_WorkshopAnimationBundleFiles)">
     <PropertyGroup>
