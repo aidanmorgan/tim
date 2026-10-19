@@ -244,5 +244,8 @@ rebase/chrome-ca6dcb68/bundle-manifest.sha256): the failed suite, the smoke pair
       index.html's notice of the same error (as on main), nothing else
     UI labels: checklist-build.png, checklist-menu.png (Workshop panel, Playback Pause/Resume/Step, Difficulty,
       Camera, palette rows)
+  PLAYTEST suites: no tools/e2e suite reads CCGPU_TRACE_*, CCGPU_TICK_TIMES_* or needs a PlaytestDiagnostics
+    bundle (tools/e2e/README.md: that variant "is never a gate"); every file in both runs skipped 0 tests (38 TAP
+    files). The PLAYTEST code is gated by the hook's and CI's playtest.binlog build (4 projects with the PLAYTEST define).
   Not re-run on ca6dcb68: the other 33 files of the full run (passed on 6c8f7dc3). The fix changes only the two
   boundaries' logging when the transport has already retired, which only the fault suites reach.

@@ -148,7 +148,7 @@ That is 49 sites in 47 methods, including `Workshop.SubmitConstruction` (F8), wh
    - `CCGPU_ADVANCE_EXCEPTION` moved from stdout to stderr.
    - `FAULT 1:` is now `CCGPU_RUN_LOOP_EXCEPTION` on stderr.
    - `WarmupSimulation non-fatal:` is now `CCGPU_WARMUP_EXCEPTION` on stderr.
-   - New stderr lines: `STALE_RUN_LOOP`, `INSTALLATION`, `PRESENTATION`, `DISPOSAL`, `TRACE_FLUSH` and `LATE_DISPOSE`.
+   - New stderr lines: `STALE_RUN_LOOP`, `INSTALLATION`, `PRESENTATION`, `DISPOSAL`, `TRACE_FLUSH` and `LATE_DISPOSE`. *Since §13 item 6:* a `PRESENTATION` or `DISPOSAL` failure caused by a transport that has already retired (and reported `CCGPU_TRANSPORT_FAILURE`) is a stdout `CCGPU_PRESENTATION_AFTER_RETIREMENT` or `CCGPU_DISPOSAL_AFTER_RETIREMENT` line instead.
    - New stdout line: `CCGPU_UI_REJECTION`, for declared refusals only; it now names `CuriousContraptions.Gpu.WorkshopEditRejectedException` where it named `System.ArgumentException` (no suite matches on the type). A plain `ArgumentException` reaching a handler, such as `DelayDuration.FromInput` outside its spin-box range, is now a stderr fault.
    - New stderr line: `CCGPU_UI_HANDLER_EXCEPTION`, for any other exception a UI handler catches (round 3). An `InvalidOperationException` reaching a handler, such as `MachineWorld`'s "A Workshop command is pending.", is now a fault: the UI's `_gpuPending` guard should make it unreachable, and the e2e suites will show whether it is.
 
