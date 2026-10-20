@@ -9,30 +9,34 @@ namespace CuriousContraptions.Elements.PressurePlate;
 
 public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElectricalElement, ISignalElement
 {
+    private static readonly MaterialProperties Surface = new(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
+
     public ElementMetadata Metadata => new(
         Id: "pressure_plate",
-        Category: "Control",
+        Category: ElementCategory.Control,
         DisplayNameKey: "part_pressure_plate",
-        IconPath: "res://parts/icons/pressure_plate.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/pressure_plate.tscn",
-        Parameters: new Dictionary<string, object>());
+        Parameters:
+        [
+            new("minimum_mass", ParameterUnit.Kilogram, ParameterKind.Real, Minimum: 0.1f, Maximum: 16f, Default: 0.5f, Options: [])
+        ]);
 
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+
+    /// <summary>Story 9R.5 D3/D4: the level ActivationOut on the +Z edge, level with the supply sockets, precedes Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("power_in", SimulationDomain.Electrical, PortDirection.Input, new Vector3(-0.6f, 0, 0), -Vector3.UnitX),
-        new("power_out", SimulationDomain.Electrical, PortDirection.Output, new Vector3(0.6f, 0, 0), Vector3.UnitX),
-        // Story 9R.5 D3: the level ActivationOut on the +Z edge, level with the supply sockets (scene Loc_Port_activation_out).
-        new("signal_out", SimulationDomain.Signal, PortDirection.Output, new Vector3(0, -0.08f, 1.18f), Vector3.UnitZ)
+        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-1.18f, -.08f, 0f), -Vector3.UnitX),
+        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Level, new Vector3(0f, -.08f, 1.18f), Vector3.UnitZ),
+        new("Supply", SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
     ];
 
+    /// <summary>The base slab and the top face that carries the contact load.</summary>
     public IReadOnlyList<ColliderDescriptor> Colliders =>
     [
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.9f, 0.05f, 0.9f),
-            Offset: new Vector3(0, 0.03f, 0),
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.5f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(ColliderShapeKind.Box, HalfExtents: new Vector3(1.1f, 0.1f, 1.1f), Offset: new Vector3(0, -0.12f, 0), Rotation: Quaternion.Identity, Material: Surface),
+        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.9f, 0.05f, 0.9f), Offset: new Vector3(0, 0.03f, 0), Rotation: Quaternion.Identity, Material: Surface)
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

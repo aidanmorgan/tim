@@ -1,0 +1,3 @@
+    2 Error(s)
+Build FAILED.
+BundleElements : error BUNDLE002: Wall.Colliders[0].HalfExtents.x: not finite [tools/BundleElements/BundleElements.csproj]

@@ -8,37 +8,32 @@ namespace CuriousContraptions.Elements.SystemClock;
 
 public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement
 {
+    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
+
     public ElementMetadata Metadata => new(
         Id: "clock",
-        Category: "Control",
+        Category: ElementCategory.Control,
         DisplayNameKey: "part_clock",
-        IconPath: "res://parts/icons/clock.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/clock.tscn",
-        Parameters: new Dictionary<string, object>
-        {
-            ["interval_seconds"] = 1.0f
-        });
+        Parameters:
+        [
+            new("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])
+        ]);
+
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("power_in", SimulationDomain.Electrical, PortDirection.Input, new Vector3(-0.78f, 0, 0), -Vector3.UnitX),
-        new("activation_out", SimulationDomain.Signal, PortDirection.Output, new Vector3(0.78f, 0, 0), Vector3.UnitX)
+        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.78f, 0f, 0f), -Vector3.UnitX),
+        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.78f, 0f, 0f), Vector3.UnitX)
     ];
 
+    /// <summary>The housing and its foot.</summary>
     public IReadOnlyList<ColliderDescriptor> Colliders =>
     [
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.7f, 0.85f, 0.3f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f)),
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.8f, 0.1f, 0.425f),
-            Offset: new Vector3(0, -0.95f, 0),
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.7f, 0.85f, 0.3f), Offset: Vector3.Zero, Rotation: Quaternion.Identity, Material: Surface),
+        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.8f, 0.1f, 0.425f), Offset: new Vector3(0, -0.95f, 0), Rotation: Quaternion.Identity, Material: Surface)
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

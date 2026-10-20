@@ -13,6 +13,9 @@ node_modules/
 **/AppBundle/
 TestResults/
 
+# The element bundle is a build output of tools/BundleElements (Story 9A.4), never a tracked source.
+/parts/elements.bundle.json
+
 # Local agent state and browser evidence are not publication inputs.
 .playwright-mcp/
 docs/playtest-results/

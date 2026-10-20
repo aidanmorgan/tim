@@ -10,25 +10,30 @@ public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalEl
 {
     public ElementMetadata Metadata => new(
         Id: "bumper",
-        Category: "Obstacles",
+        Category: ElementCategory.Motion,
         DisplayNameKey: "part_bumper",
-        IconPath: "res://parts/icons/bumper.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/bumper.tscn",
-        Parameters: new Dictionary<string, object>());
+        Parameters:
+        [
+            new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [])
+        ]);
+
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("power_in", SimulationDomain.Electrical, PortDirection.Input, new Vector3(0, -0.3f, 0), -Vector3.UnitY)
+        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 0f, .65f), Vector3.UnitZ)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders =>
     [
         new(
             ColliderShapeKind.Sphere,
-            Dimensions: new Vector3(0.65f, 0, 0),
+            HalfExtents: new Vector3(0.65f, 0.65f, 0.65f),
             Offset: Vector3.Zero,
             Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 1.0f, Friction: 0.1f, RollingResistance: 0f, BounceThreshold: 0.1f))
+            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

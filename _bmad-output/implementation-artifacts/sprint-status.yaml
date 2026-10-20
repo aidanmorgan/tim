@@ -178,7 +178,7 @@ development_status:
   # merged into 9a-1 (coordinator ruling, 21 Oct 2026); filed by 9a-0 (owner: no format versioning)
   f-10-retire-remaining-format-versions: done # merged into 9a-1
   # 5
-  9a-4-lossless-bundle-build-gate: backlog
+  9a-4-lossless-bundle-build-gate: review
   # 6
   9a-pkg-1-receiver-bowling-springboard-packages: backlog
   # merged into 9a-pkg-1 (21 Oct 2026)
@@ -456,5 +456,7 @@ development_status:
   f-11-joined-pipe-follow-ups: backlog
   f-12-architecture-doc-follow-ups: backlog
   f-13-legacy-purge-follow-ups: backlog
+  # filed by 9a-4 (21 Oct 2026) as F.13; renumbered F.14 at the merge with main's F.13: Full precedence over NoPrimarySuite; ball has no Primary suite
+  f-14-e2e-runner-selection-follow-ups: backlog
 
 action_items: []

@@ -2,7 +2,7 @@
 title: 'Story 9A.4: Lossless Bundle Build Gate'
 type: 'feature'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'review'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -171,7 +171,67 @@ context:
 
 ## Implementation Notes
 
+Amelia-16, 21 Oct 2026. Evidence: [evidence-9a-4/](evidence-9a-4/).
+
+**Deletes:**
+- the hand list of 13 declarations, the 13 element `using`s, the anonymous-object serialiser, `GeneratedAt` and the two `AppBundle` copies in `tools/BundleElements/Program.cs`;
+- the 13 hand-written element `ProjectReference`s in `BundleElements.csproj` (now one `elements/*/*.csproj` glob);
+- the tracked lossy `parts/elements.bundle.json` (`git rm --cached`, git-ignored);
+- `ElementMetadata.Parameters` (`IReadOnlyDictionary<string, object>`) and the string `ElementMetadata.Category`;
+- `ColliderDescriptor.Dimensions` (now `HalfExtents`);
+- the E2eRunner `ElementBundle` rule and impact kind, and its "GeneratedAt only" case and tests (CL8).
+
+`rg` proof: [deletion-rg-proof.txt](evidence-9a-4/deletion-rg-proof.txt). Every pattern returns 0 hits.
+
+**What was built:**
+- `tools/BundleElements` holds `PackageDiscovery` (glob plus reflection, BUNDLE005), `BundleValidator` (BUNDLE001 to BUNDLE006), `BundleSchema` (typed records, vector and quaternion array converters, named enums, strict reading) and `BundleGenerator`.
+- `RunElementBundleGenerator` runs the generator after every build of the tool. `GenerateElementBundle` in the web host builds the tool before `TwoDogExportGamePack` and `_WasmGenerateAppBundle`. Both targets are pinned in `CSharpStaticGateTests`.
+- New `tools/BundleElements.Tests`: the validator matrix, the round trip of every package (including -0 and the smallest subnormal), determinism, rejection of malformed input, solution membership, the glob with no hand list, and the web target.
+- `CuriousContraptions.tests/BundleCatalogueParityTests` compares metadata and category with the `.tres`, ports with `WorkshopPorts.For`/`LocalPosition`, footprint, colliders and materials with a one-instance compile (and `WorkshopCanonicalColliders.For` where it exists), and parameter defaults and bounds. It also checks the 11 unpackaged ids.
+
+**Package values adopted from the runtime (D2; no runtime value changed):**
+- Categories come from the `.tres`.
+- Ports are named by socket, in runtime order, with their positions and signal kinds. The lamp now has only its Level `ActivationIn`.
+- Static materials (restitution 1, friction 0.3, threshold 0.1, rolling 0); the plate's restitution is 0.1.
+- The Basketball is a 0.34 m sphere of 1 kg with restitution 0.55, from the catalogue bits.
+- Domino: (0.125, 0.55, 0.325) half-extents, 0.4 kg.
+- Wall: (1.5, 1, 0.125) half-extents.
+- Bumper: a 0.65 m sphere.
+- Plate: 2 boxes. Detector: 17 colliders. Gate frame: 19 colliders, authored with the runtime's own ring expressions, so the rotations match bit for bit.
+- Footprints: gate (2, 1, 1); ball and domino (1, 1, 0); every other package (1, 0, 0).
+
+**Filed (back of queue, non-blocking):**
+- Story 9A.16 (bundle-only colliders, CL4):
+  - the gate's blade body (collider (0.06, 0.72, 0.72), restitution 0.1) has no declaration in the Abstractions;
+  - the detector's scene-extracted ring, which `CaptureInstance` prefers, differs from the canonical table in its rotation signs. The package equals the canonical table, which is the comparator the AC names.
+- Story F.14 (runner; filed as F.13, renumbered at the merge with main's F.13): `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball` (no suite declares the ball as its Primary). The refusal comes before the Full triggers the same diff contains.
+
+**Chrome (implementer's single full run, on `c948fec6`):** the task named `run --diff 844981c9`, which refuses (above), so the `full` verb was run. Full is mandatory here on three grounds, not a judgement call:
+- the Abstractions (SharedRuntime);
+- `tools/BundleElements` (SharedDriverInfrastructure);
+- `tools/E2eRunner`, which this story changes (RunnerItself).
+
+Results:
+- 43/43 files, 223/223 tests, 0 failures ([summary](evidence-9a-4/full-run/summary.txt)).
+- The verdict was Incomplete(Contended) only because both clock-master records were Contended by other agents' load. Both passed.
+- clock-master was rerun alone on `c948fec6` and passed Clean, with the smoke pair 15/15 ([rerun](evidence-9a-4/clock-master-rerun/summary.txt)).
+- The publish log shows `GenerateElementBundle` producing the 13-element bundle during `dotnet publish` ([publish lines](evidence-9a-4/full-run/publish-bundle-lines.txt)).
+
+The A13 (build) row moved to Closed in the isolation authority in this candidate. That follows the Story 9A.1 precedent, ahead of terminal review.
+
 ## Spec Change Log
+
+Amelia-16, 21 Oct 2026, implementation (owner delegation: decide small gaps; the frozen block is unchanged).
+- **CL1. No schema number or timestamp.** Task 4's `SchemaVersion = 1` and the Approach's "versioned" are superseded by the epics AC and invariant 8 (owner, 21 Oct 2026). The bundle is `{ "Elements": [...] }` with one schema. `WorkshopFormatTests.NoProductionSourceNamesAFormatVersion` already scans `elements/`, the Abstractions and `tools/BundleElements`, so the generator never names one.
+- **CL2. Footprint comparator.** Story 9R.5b deleted `WorkbenchFootprint` (commit `007a65ed`, no fixed capacities), so `WorkbenchFootprint.Of` no longer exists. `ElementFootprint` declares what the collider list cannot: the bodies, moving bodies and prismatic constraints one placed instance adds to the compiled scene. Parity compares it with a one-instance `WorkshopPhysicsCompiler` compile. It is a per-part row count, not a table capacity.
+- **CL3. One runtime comparator for colliders and materials.** `WorkshopCanonicalColliders.For` covers only 6 of the 13 packages; the compiler builds the rest inline. Parity therefore compares each package with the owning body's colliders and contact material in the same one-instance compile, at the runtime lane's precision (D2). Where `WorkshopCanonicalColliders.For` exists, it is compared too.
+- **CL4. The gate's blade body.** The powered gate compiles a second, moving blade body and a prismatic constraint. The Abstractions cannot declare a second body. The package declares the frame's colliders and a footprint of 2 bodies, 1 moving and 1 prismatic. The blade's collider and material are filed for Story 9A.16 (bundle-only colliders).
+- **CL5. The display-name key is not compared.** The `.tres` files carry a `Title`, not a `part_*` key, and there is no strings table. Parity compares id, category and scene path. The key stays declared for Story 9A.14 (strings).
+- **CL6. Parameter schemas.** `ParameterKind` is {Real, WholeNumber, Boolean, Choice}; `ParameterUnit` is {None, Metre, Kilogram, Second, MetrePerSecond}. A Choice parameter's options are names, its minimum is 0, its maximum is the last index and its default is an index. The bumper's `strength` (m/s, 0 to 20, default 8) is added: it has a runtime default and an editor panel. Parity compares defaults with the runtime constants, and bounds by behaviour (`Validate` admits the minimum and maximum and rejects one step outside).
+- **CL7. Ports carry their signal kind.** `PortDescriptor` gains a nullable `PortSignalKind` (Pulse, Level), so the port parity covers everything `WorkshopPorts.For` declares. Ports are compared as ordered sequences.
+- **CL8. E2eRunner is a bundle consumer.** `tools/E2eRunner` reads `parts/elements.bundle.json` for connected-suite selection. Its parser moves to the new schema. Once the file is untracked it can never appear in a diff, so the `ElementBundle` rule and impact kind are deleted.
+- **CL9. Discovery.** Packages are found by globbing `elements/*/*.csproj` under the repository root (`--root`, from `$(MSBuildThisFileDirectory)`), with each assembly loaded by its project name from the generator's output. The deps file is not parsed.
+- **CL10. Validation codes.** BUNDLE001 to BUNDLE005 are as in the matrix. BUNDLE006 is a value outside its declared range: a parameter's minimum above its maximum, a default outside them, a Choice whose bounds do not match its options, or a negative footprint count.
 
 ## Review Triage Log
 

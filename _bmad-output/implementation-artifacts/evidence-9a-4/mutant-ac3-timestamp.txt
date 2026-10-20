@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.GenerationIsDeterministicAndCarriesNoTimestamp [9 ms]
+Failed!  - Failed:     1, Passed:    33, Skipped:     0, Total:    34, Duration: 154 ms - BundleElements.Tests.dll (net10.0)

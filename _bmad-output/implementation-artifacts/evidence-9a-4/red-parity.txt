@@ -1,0 +1,8 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a701795d6eefb0fce/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.27]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [FAIL]
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [43 ms]
+  Error Message:
+   Ball: footprint ElementFootprint { Bodies = 1, MovingBodies = 0, PrismaticConstraints = 0 } declared.
+  Stack Trace:
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 98 ms - CuriousContraptions.tests.dll (net10.0)

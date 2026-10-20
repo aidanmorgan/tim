@@ -1,0 +1,5 @@
+BundleElements : error BUNDLE005: BallDetector: the package assembly does not load (Could not load file or assembly 'BallDetector, Culture=neutral, PublicKeyToken=null'. The system cannot find the file specified. [tools/BundleElements/BundleElements.csproj]
+BundleElements : error BUNDLE005: Battery: the package assembly does not load (Could not load file or assembly 'Battery, Culture=neutral, PublicKeyToken=null'. The system cannot find the file specified. [tools/BundleElements/BundleElements.csproj]
+BundleElements : error BUNDLE005: Bumper: the package assembly does not load (Could not load file or assembly 'Bumper, Culture=neutral, PublicKeyToken=null'. The system cannot find the file specified. [tools/BundleElements/BundleElements.csproj]
+  Failed CuriousContraptions.BundleElements.Tests.SolutionMembershipTests.EveryPackageIsDiscoveredByGlobWithNoHandList [16 ms]
+Failed!  - Failed:     1, Passed:    33, Skipped:     0, Total:    34, Duration: 144 ms - BundleElements.Tests.dll (net10.0)

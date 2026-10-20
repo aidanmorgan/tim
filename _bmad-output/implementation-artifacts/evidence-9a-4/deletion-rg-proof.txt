@@ -1,0 +1,18 @@
+$ rg -c IReadOnlyDictionary<string, object> CuriousContraptions.Abstractions/ElementMetadata.cs
+exit 1 (1 = no hits)
+$ rg -n string Category|GeneratedAt|AppBundle|new Dictionary<string, object>|ElementDeclaration\(\)|using CuriousContraptions.Elements tools/BundleElements elements CuriousContraptions.Abstractions -g !**/bin/** -g !**/obj/**
+exit 1 (1 = no hits)
+$ rg -n Dimensions:|Vector3 Dimensions elements CuriousContraptions.Abstractions
+exit 1 (1 = no hits)
+$ rg -n ImpactKind.ElementBundle|GeneratedAt tools/E2eRunner tools/E2eRunner.Tests -g !**/bin/** -g !**/obj/**
+exit 1 (1 = no hits)
+$ rg -c \{\} parts/elements.bundle.json
+exit 1 (1 = no hits)
+$ rg -n ProjectReference tools/BundleElements/BundleElements.csproj
+14:    <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+15:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
+16:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj" />
+17:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
+18:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+20:    <ProjectReference Include="../../elements/*/*.csproj" />
+exit 0 (1 = no hits)
