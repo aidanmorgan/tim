@@ -168,14 +168,14 @@ public sealed class WorkshopBowlingTests
         foreach (var (id, drag, rolling) in new[] { (3UL, (ushort)10527, (ushort)10363), (4UL, (ushort)10527, (ushort)10158), (1UL, (ushort)0, (ushort)0), (2UL, (ushort)0, (ushort)0) })
         {
             var slot = Array.FindIndex(bodies, b => b.Id == new GpuBodyId(id));
-            Assert.Equal(drag, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes + PhysicsGpuAbi.BodyDragOffset)));
+            Assert.Equal(drag, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(scene.World.BodyOffset(slot) + PhysicsGpuAbi.BodyDragOffset)));
             Assert.Equal(90, PhysicsGpuAbi.BodyDragOffset);
             var collider = Assert.Single(colliders, c => c.Body == new GpuBodyId(id));
             var material = Array.FindIndex(materials, m => m.Id == collider.Material);
-            Assert.Equal(rolling, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.MaterialsOffset + material * PhysicsGpuAbi.MaterialBytes + 14)));
+            Assert.Equal(rolling, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(scene.World.MaterialOffset(material) + 14)));
         }
         // The bench plane (the first material record) declares zero.
-        Assert.Equal((ushort)0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.MaterialsOffset + 14)));
+        Assert.Equal((ushort)0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(scene.World.MaterialOffset(0) + 14)));
         // The coefficient is a bounded, finite declaration in [0, 0.1].
         var declared = materials[0];
         foreach (var admitted in new[] { (Half)0, (Half).1 }) (declared with { RollingResistance = new(admitted) }).Validate();
@@ -190,13 +190,18 @@ public sealed class WorkshopBowlingTests
         for (var i = 0; i < 8; i++) items.Add(WorkshopInput.Basketball(new((ulong)(i + 1)), -6 + i * .8, 3, -2, 0, 0, 0, 1));
         for (var i = 0; i < 8; i++) items.Add(Bowling((ulong)(i + 9), -6 + i * .8, 3, 2));
         new WorkshopInstances([.. items]).Validate();
+        // Story 9R.5b: the retired 16-row moving-body table no longer refuses; a seventeenth ball of either kind builds and
+        // compiles as one more moving body.
         foreach (var seventeenth in new IWorkshopInstance[] { Bowling(17, 7), WorkshopInput.Basketball(new(17), 7, 3, 0, 0, 0, 0, 1) })
         {
-            var error = Assert.Throws<WorkbenchFullException>(() => new WorkshopInstances([.. items, seventeenth]).Validate());
-            Assert.Equal(WorkbenchTable.DynamicBodies, error.Table);
-            Assert.Equal("Workbench is full: moving body table", error.Message);
+            var seventeen = new WorkshopInstances([.. items, seventeenth]);
+            seventeen.Validate();
+            var bench = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2)).World;
+            Assert.Equal(17, bench.Dynamic);
         }
-        Assert.Equal(new WorkbenchFootprint(1, 1, 1, 0, 0, 0), WorkbenchFootprint.Of(PartId.BowlingBall));
+        // The compiled scene is the footprint authority; the workbench plane adds one static body and collider.
+        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(Bowling(1, 0))), new(1, 2)).World;
+        Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Empty(WorkshopPorts.For(PartId.BowlingBall).ToArray());
         Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.BowlingBall]);
         Assert.Contains(PartId.BowlingBall, WorkshopInventoryPolicy.Free.Keys);

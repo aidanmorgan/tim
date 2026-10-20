@@ -5,23 +5,25 @@ namespace CuriousContraptions.Gpu;
 
 public readonly struct PhysicsContactWorkRead
 {
-    public const int OccurrenceCapacity = PhysicsSceneDeclaration.ContactWorkCapacity * PhysicsBodyReadSet.Capacity;
+    // Story 9R.5b: exactly the compiled work and occurrence populations; no fixed table capacity.
     private readonly ContactWorkRead[]? _values;
     private readonly ContactWorkOccurrence[]? _occurrences;
-    public byte Count { get; }
-    public byte OccurrenceCount { get; }
+    public int Count => _values?.Length ?? 0;
+    public int OccurrenceCount => _occurrences?.Length ?? 0;
     public PhysicsContactWorkRead(ReadOnlySpan<ContactWorkRead> values, ReadOnlySpan<ContactWorkOccurrence> occurrences)
+        : this(values.ToArray(), occurrences.ToArray()) { }
+
+    /// <summary>Takes ownership of freshly decoded arrays (no copy); the caller never touches them again.</summary>
+    internal static PhysicsContactWorkRead Adopt(ContactWorkRead[] values, ContactWorkOccurrence[] occurrences) => new(values, occurrences);
+
+    private PhysicsContactWorkRead(ContactWorkRead[] values, ContactWorkOccurrence[] occurrences)
     {
-        if (values.Length > PhysicsSceneDeclaration.ContactWorkCapacity || occurrences.Length > OccurrenceCapacity)
-            throw new ArgumentException("Contact-work read capacity exceeded.");
-        Count = checked((byte)values.Length); OccurrenceCount = checked((byte)occurrences.Length);
-        _values = new ContactWorkRead[values.Length]; _occurrences = new ContactWorkOccurrence[occurrences.Length];
+        _values = values; _occurrences = occurrences;
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
             if (i != 0 && values[i - 1].Id.Value >= values[i].Id.Value)
                 throw new ArgumentException("Contact-work identities must be unique and ordered.");
-            _values![i] = values[i];
         }
         for (var i = 0; i < occurrences.Length; i++)
         {
@@ -30,10 +32,10 @@ public readonly struct PhysicsContactWorkRead
                 (i > 0 && (occurrences[i-1].Work.Value > value.Work.Value ||
                     (occurrences[i-1].Work == value.Work && occurrences[i-1].Target.Value >= value.Target.Value))))
                 throw new ArgumentException("Contact targets require ordered unique identities and owned sequences.");
-            for (var j=0; j<i; j++)
-                if (value.Sequence != 0 && occurrences[j].Work == value.Work && occurrences[j].Sequence == value.Sequence)
+            // Occurrences are ordered by owner, so only this owner's earlier rows can share its sequence.
+            for (var j=i-1; j>=0 && occurrences[j].Work == value.Work; j--)
+                if (value.Sequence != 0 && occurrences[j].Sequence == value.Sequence)
                     throw new ArgumentException("A contact-work owner sequence was duplicated.");
-            _occurrences![i] = value;
         }
     }
     public ContactWorkRead this[int index] => index >= 0 && index < Count ? _values![index] :
@@ -115,8 +117,8 @@ public readonly struct PhysicsContactWorkRead
                     _occurrences![occurrence].Target != id)
                     throw new ArgumentException("Contact target population differs from declaration.");
                 var value=_occurrences![occurrence++];
-                if (value.Sequence != 0 && (value.Collider.Value >= scene.Colliders.Length ||
-                    scene.Colliders[value.Collider.Value].Body != declared.Owner || value.ApproachSpeed.Value < declared.Threshold.Value))
+                if (value.Sequence != 0 && (value.Collider.Value >= (uint)scene.Colliders.Length ||
+                    scene.Colliders[(int)value.Collider.Value].Body != declared.Owner || value.ApproachSpeed.Value < declared.Threshold.Value))
                     throw new ArgumentException("Contact occurrence collider or approach speed violates its declaration.");
             }
         }

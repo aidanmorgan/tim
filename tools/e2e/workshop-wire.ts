@@ -424,11 +424,11 @@ export class ContactWorkOccurrenceRecord {
 }
 
 work():number {
-  return this.bb!.readUint16(this.bb_pos);
+  return this.bb!.readUint32(this.bb_pos);
 }
 
 collider():number {
-  return this.bb!.readUint16(this.bb_pos + 2);
+  return this.bb!.readUint32(this.bb_pos + 4);
 }
 
 target():bigint {
@@ -473,9 +473,8 @@ static createContactWorkOccurrenceRecord(builder:flatbuffers.Builder, work: numb
   builder.writeInt32(event_ordinal);
   builder.writeInt32(sequence);
   builder.writeInt64(BigInt(target ?? 0));
-  builder.pad(4);
-  builder.writeInt16(collider);
-  builder.writeInt16(work);
+  builder.writeInt32(collider);
+  builder.writeInt32(work);
   return builder.offset();
 }
 

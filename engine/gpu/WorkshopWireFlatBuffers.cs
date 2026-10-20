@@ -40,7 +40,7 @@ public static class WorkshopWireFlatBuffers
         if (command.Construction is { } construction)
         {
             crOffset = EncodeConstructionRecord(builder, construction);
-            var constructionBytes = new byte[WorkshopWire.ConstructionBytes];
+            var constructionBytes = new byte[WorkshopWire.ConstructionBytes(construction)];
             WorkshopWire.WriteConstruction(constructionBytes, construction);
             constructionOffset = CuriousContraptions.Wire.WorkshopCommand.CreateConstructionVectorBlock(builder, constructionBytes);
         }
@@ -573,8 +573,9 @@ public static class WorkshopWireFlatBuffers
         }
         var timers = new PhysicsTimerRead(timerValues);
 
-        var storeCount = (byte)fb.ContactWorksLength;
-        var occCount = (byte)fb.OccurrencesLength;
+        // The record's own vector lengths (Story 9R.5b: never narrowed; a byte cast here truncated past 255 occurrences).
+        var storeCount = fb.ContactWorksLength;
+        var occCount = fb.OccurrencesLength;
         var stores = new ContactWorkRead[storeCount];
         for (var i = 0; i < storeCount; i++)
         {
@@ -628,7 +629,7 @@ public static class WorkshopWireFlatBuffers
         var memory = new PhysicsMemoryRead(memoryValues);
 
         PhysicsMotionRead? motion = tick.Value == 0
-            ? PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength], bodies, tick)
+            ? PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(bodies.Count)], bodies, tick)
             : null;
         var read = new WorkshopRead(
             epoch,
@@ -881,8 +882,8 @@ public static class WorkshopWireFlatBuffers
             }
         }
 
+        // No instance or connection limit (Story 9R.5b): the record's own vectors are the population.
         var instCount = cr.InstancesLength;
-        if (instCount > WorkshopInstances.Capacity) throw new ArgumentException("Invalid construction count.");
         var instances = new IWorkshopInstance[instCount];
         for (var i = 0; i < instCount; i++)
         {
@@ -951,7 +952,6 @@ public static class WorkshopWireFlatBuffers
         }
 
         var linkCount = cr.ConnectionsLength;
-        if (linkCount > WorkshopConnections.Capacity) throw new ArgumentException("Invalid connection count.");
         var links = new WorkshopConnection[linkCount];
         for (var i = 0; i < linkCount; i++)
         {

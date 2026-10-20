@@ -20,7 +20,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(8.000001f, System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
-            admitted.AsSpan(PhysicsGpuAbi.ContactWorksOffset + 16)));
+            admitted.AsSpan(scene.World.ContactWorkOffset(0) + 16)));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
         Assert.Throws<ArgumentException>(() => new BumperWork(new(8f), new(0f), new(32f)).Validate());

@@ -18,20 +18,25 @@ public readonly record struct ElectricalSourceRead(ElectricalSourceId Id, GpuBod
 
 public readonly struct PhysicsElectricalRead
 {
+    // Story 9R.5b: exactly the compiled source population; no fixed source capacity.
     private readonly ElectricalSourceRead[]? _values;
-    public byte Count { get; }
+    public int Count => _values?.Length ?? 0;
     public ElectricalSourceRead this[int index] => index >= 0 && index < Count ? _values![index] :
         throw new ArgumentOutOfRangeException(nameof(index));
-    public PhysicsElectricalRead(ReadOnlySpan<ElectricalSourceRead> values)
+    public PhysicsElectricalRead(ReadOnlySpan<ElectricalSourceRead> values) : this(values.ToArray()) { }
+
+    /// <summary>Takes ownership of a freshly decoded array (no copy).</summary>
+    internal static PhysicsElectricalRead Adopt(ElectricalSourceRead[] values) => new(values);
+
+    private PhysicsElectricalRead(ElectricalSourceRead[] values)
     {
-        if (values.Length > ElectricalSupplyPlan.SourceCapacity) throw new ArgumentException("Electrical observation capacity exceeded.");
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
             if (i > 0 && values[i - 1].Id.Value >= values[i].Id.Value)
                 throw new ArgumentException("Electrical observations require ordered unique identities.");
         }
-        _values = values.ToArray(); Count = checked((byte)values.Length);
+        _values = values;
     }
     public bool HasSameBits(PhysicsElectricalRead other)
     {
@@ -60,10 +65,11 @@ public readonly struct PhysicsElectricalRead
 internal static class WorkshopElectricalWire
 {
     internal const int RecordBytes = 32;
-    internal const int ByteLength = ElectricalSupplyPlan.SourceCapacity * RecordBytes;
+    /// <summary>The section is exactly its population (Story 9R.5b).</summary>
+    internal static int ByteLength(int count) => WorkshopWire.Width((long)count * RecordBytes);
     internal static void Write(PhysicsElectricalRead read, Span<byte> bytes)
     {
-        if (bytes.Length != ByteLength) throw new ArgumentException("Invalid electrical wire width.");
+        if (bytes.Length != ByteLength(read.Count)) throw new ArgumentException("Invalid electrical wire width.");
         bytes.Clear();
         for (var i = 0; i < read.Count; i++)
         {
@@ -75,12 +81,11 @@ internal static class WorkshopElectricalWire
             slot[24] = (byte)v.Enabled; slot[25] = v.Available ? (byte)1 : (byte)0;
         }
     }
-    internal static PhysicsElectricalRead Read(ReadOnlySpan<byte> bytes, byte count)
+    internal static PhysicsElectricalRead Read(ReadOnlySpan<byte> bytes, int count)
     {
-        if (bytes.Length != ByteLength || count > ElectricalSupplyPlan.SourceCapacity ||
-            bytes[(count * RecordBytes)..].IndexOfAnyExcept((byte)0) >= 0)
+        if (count < 0 || bytes.Length != ByteLength(count))
             throw new ArgumentException("Invalid electrical wire population.");
-        Span<ElectricalSourceRead> values = stackalloc ElectricalSourceRead[ElectricalSupplyPlan.SourceCapacity];
+        var values = new ElectricalSourceRead[count];
         for (var i = 0; i < count; i++)
         {
             var slot = bytes.Slice(i * RecordBytes, RecordBytes);
@@ -92,6 +97,6 @@ internal static class WorkshopElectricalWire
                 throw new ArgumentException("Invalid electrical wire availability or padding.");
             values[i] = v;
         }
-        return new(values[..count]);
+        return PhysicsElectricalRead.Adopt(values);
     }
 }

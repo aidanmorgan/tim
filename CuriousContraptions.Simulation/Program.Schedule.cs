@@ -17,7 +17,6 @@ public static partial class Program
     private static TaskCompletionSource? _receipts;
     private static bool _browserReceived, _animationReceived;
     private static MasterTimeNanoseconds _browserApplied, _animationApplied;
-    private static readonly byte[] ControlOutput = new byte[WorkshopScheduleWire.MaximumControlBytes];
     [JSImport("scheduleControl", "workshopGpu")] private static partial void SendScheduleControl(byte[] bytes, int recipient);
 
     [JSExport] public static int[] ScheduleRoles() => [(int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Animation];
@@ -112,9 +111,11 @@ public static partial class Program
 
     private static void SendPrepare(WorkshopRuntimeRole recipient, byte[] endpoint)
     {
-        ControlOutput.AsSpan().Clear();
-        WorkshopScheduleWire.WriteHeader(Header(ScheduleControlKind.Prepare, recipient), ControlOutput.AsSpan(0, 64));
-        var data = ControlOutput.AsSpan(64);
+        // One control per Prepare (per installation, not per tick), exactly as wide as its endpoint read (Story 9R.5b).
+        var payload = WorkshopScheduleWire.PrepareBytes(endpoint.Length);
+        var control = new byte[WorkshopScheduleWire.HeaderBytes + payload];
+        WorkshopScheduleWire.WriteHeader(Header(ScheduleControlKind.Prepare, recipient), control.AsSpan(0, WorkshopScheduleWire.HeaderBytes), payload);
+        var data = control.AsSpan(WorkshopScheduleWire.HeaderBytes);
         WorkshopCadenceWire.Write(_preparedSettings, data[..32]);
         BinaryPrimitives.WriteUInt64LittleEndian(data[32..], _schedule?.Revision.Value ?? 0);
         BinaryPrimitives.WriteUInt64LittleEndian(data[40..], _schedule?.World.Epoch.Value ?? 0);
@@ -123,8 +124,8 @@ public static partial class Program
         BinaryPrimitives.WriteUInt64LittleEndian(data[56..], read.Read.Epoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[64..], read.Read.Tick.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[72..], read.Publication.Value);
-        endpoint.CopyTo(data[80..]);
-        SendScheduleControl(ControlOutput, (int)recipient);
+        endpoint.CopyTo(data[WorkshopScheduleWire.PrepareFieldBytes..]);
+        SendScheduleControl(control, (int)recipient);
     }
 
     private static void BeginReceipts(ScheduleControlKind kind)

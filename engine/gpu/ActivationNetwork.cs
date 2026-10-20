@@ -56,14 +56,13 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
 }
 
 /// <summary>The committed activation population, sized exactly from the compiled network (no fixed activation table; owner
-/// decision, 20 Oct 2026). Each instance owns at most one node, so it never exceeds the instance bound.</summary>
+/// decision, 20 Oct 2026; Story 9R.5b: no instance bound either).</summary>
 public readonly struct PhysicsActivationRead
 {
     private readonly ActivationLatch[]? _values;
-    public byte Count => checked((byte)(_values?.Length ?? 0));
+    public int Count => _values?.Length ?? 0;
     public PhysicsActivationRead(ReadOnlySpan<ActivationLatch> values)
     {
-        if (values.Length > WorkshopInstances.Capacity) throw new ArgumentException("More activation nodes than instances.");
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
@@ -90,6 +89,14 @@ public sealed class ActivationNetwork
     // Declaration data only: the memory-row index of each node (-1 for a node without Counter/Clock memory).
     private readonly int[] _memorySlots;
     private readonly ActivationNodeDeclaration[] _memoryNodes;
+    // Story 9R.5b: Consume's working tables, sized from this compiled network once (per Run, never per tick) instead of stack
+    // allocations that grow with an unbounded population. Consume clears each before use; the pending queue grows on demand.
+    private readonly ActivationLatch[] _scratchValues;
+    private readonly ActivationTimerState[] _scratchTimers;
+    private readonly ActivationMemory[] _scratchRows;
+    private readonly StateLatchRequest[] _latchRequests;
+    private readonly ActivationOccurrence[] _latchSetBy;
+    private ActivationOccurrence[] _pending;
     public ReadOnlySpan<ActivationNodeDeclaration> Nodes => _nodes;
     public ReadOnlySpan<ActivationEdge> Edges => _edges;
     public ReadOnlySpan<PassageSensorDeclaration> PassageSensors => _passageSensors;
@@ -98,10 +105,7 @@ public sealed class ActivationNetwork
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default)
     {
         _ = ActivationTime.Boundary(new(0), substeps); _substeps = substeps;
-        // Owner decision, 20 Oct 2026: no activation-slot limit. Each instance owns at most one node (owners are unique below),
-        // so the instance bound is the only bound; it never refuses a machine Build admitted.
-        if (nodes.Length > WorkshopInstances.Capacity || edges.Length > WorkshopConnections.Capacity)
-            throw new ArgumentException("More activation nodes than instances, or more edges than connections.");
+        // Owner decision, 20 Oct 2026: no activation-slot limit, and (Story 9R.5b) no instance or connection bound.
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
         _passageSensors = passageSensors.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
@@ -140,6 +144,12 @@ public sealed class ActivationNetwork
             if (!passages.Contains(passage.Id)) throw new ArgumentException("Passage sensor has no owning node.");
         }
         _timers = timers.ToArray();
+        _scratchValues = new ActivationLatch[_nodes.Length];
+        _scratchTimers = new ActivationTimerState[_timers.Length];
+        _scratchRows = new ActivationMemory[_memoryNodes.Length];
+        _latchRequests = new StateLatchRequest[_nodes.Length];
+        _latchSetBy = new ActivationOccurrence[_nodes.Length];
+        _pending = new ActivationOccurrence[Math.Max(16, _nodes.Length * 4)];
         var links = new HashSet<ActivationEdge>();
         foreach (var edge in _edges)
             if (edge.Source == edge.Target || !links.Add(edge) || Slot(edge.Source) < 0 || Slot(edge.Target) < 0 ||
@@ -159,22 +169,29 @@ public sealed class ActivationNetwork
     }
     public PhysicsActivationRead Clear()
     {
-        Span<ActivationLatch> values = stackalloc ActivationLatch[_nodes.Length];
+        var values = new ActivationLatch[_nodes.Length];
         for (var i = 0; i < _nodes.Length; i++) values[i] = ActivationLatch.Clear(_nodes[i]);
         return new(values);
     }
     public PhysicsTimerRead ClearTimers()
     {
-        Span<ActivationTimerState> values = stackalloc ActivationTimerState[_timers.Length];
+        var values = new ActivationTimerState[_timers.Length];
         for (var i = 0; i < _timers.Length; i++) values[i] = ActivationTimerState.Ready(_timers[i].Node);
         return new(values);
     }
     /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every Clock Stopped with no due tick.</summary>
     public PhysicsMemoryRead ClearMemory()
     {
-        Span<ActivationMemory> values = stackalloc ActivationMemory[_memoryNodes.Length];
+        var values = new ActivationMemory[_memoryNodes.Length];
         for (var i = 0; i < _memoryNodes.Length; i++) values[i] = ActivationMemory.Clear(_memoryNodes[i]);
         return new(values);
+    }
+
+    /// <summary>Queues one pending occurrence, growing the queue when a tick's fanout exceeds it (no fanout capacity).</summary>
+    private void Push(ref int count, ActivationOccurrence occurrence)
+    {
+        if (count == _pending.Length) Array.Resize(ref _pending, _pending.Length * 2);
+        _pending[count++] = occurrence;
     }
     /// <summary>The committed Counter or Clock memory row of one owner (a query over the checkpoint; the network holds none).</summary>
     public ActivationMemory Memory(PhysicsMemoryRead values, GpuBodyId owner)
@@ -219,20 +236,19 @@ public sealed class ActivationNetwork
     {
         ValidatePopulation(committed, committedTimers);
         ValidateMemory(memory);
-        // Every table is sized from this compiled network's own population (no fixed activation table).
-        Span<ActivationMemory> rows = stackalloc ActivationMemory[_memoryNodes.Length];
+        // Every table is sized from this compiled network's own population (no fixed activation, contact or orientation table);
+        // the working tables are this network's own, cleared here.
+        Span<ActivationMemory> rows = _scratchRows; rows.Clear();
         for (var i = 0; i < memory.Count; i++) rows[i] = memory[i];
-        if (events.Length > PhysicsSceneDeclaration.TriggerCapacity) throw new ArgumentException("Contact capacity exceeded.");
-        if (orientations.Length > PhysicsSceneDeclaration.OrientationSensorCapacity) throw new ArgumentException("Orientation capacity exceeded.");
         var end = ActivationTime.Boundary(boundary, _substeps);
-        Span<ActivationLatch> values = stackalloc ActivationLatch[_nodes.Length];
-        Span<ActivationTimerState> timers = stackalloc ActivationTimerState[_timers.Length];
+        Span<ActivationLatch> values = _scratchValues; values.Clear();
+        Span<ActivationTimerState> timers = _scratchTimers; timers.Clear();
         for (var i = 0; i < committed.Count; i++) values[i] = committed[i];
         for (var i = 0; i < committedTimers.Count; i++) timers[i] = committedTimers[i];
-        Span<ActivationOccurrence> pending = stackalloc ActivationOccurrence[_nodes.Length * 4];
+        Array.Clear(_pending);
         // Requests routed to each State Latch within this tick; they resolve once at the boundary below.
-        Span<StateLatchRequest> latchRequests = stackalloc StateLatchRequest[_nodes.Length];
-        Span<ActivationOccurrence> latchSetBy = stackalloc ActivationOccurrence[_nodes.Length];
+        Span<StateLatchRequest> latchRequests = _latchRequests; latchRequests.Clear();
+        Span<ActivationOccurrence> latchSetBy = _latchSetBy; latchSetBy.Clear();
         var count = 0;
         for (var i = 0; i < events.Length; i++)
         {
@@ -256,7 +272,7 @@ public sealed class ActivationNetwork
                 if (order < 0 || (order == 0 && occurrence != prior)) throw new ArgumentException("Stale or changed occurrence.");
                 continue;
             }
-            pending[count++] = occurrence;
+            Push(ref count, occurrence);
         }
         // Every orientation source must be read each tick: a missing read would silently leave its Domino unlatched.
         for (var i = 0; i < _nodes.Length; i++)
@@ -291,7 +307,7 @@ public sealed class ActivationNetwork
                 if (values[slot].Occurrence != occurrence) throw new ArgumentException("Changed orientation occurrence.");
                 continue;
             }
-            pending[count++] = occurrence;
+            Push(ref count, occurrence);
         }
         for (var i = 0; i < passages.Length; i++)
         {
@@ -315,13 +331,13 @@ public sealed class ActivationNetwork
                 if (order < 0 || (order == 0 && occurrence != prior)) throw new ArgumentException("Stale or changed occurrence.");
                 if (order == 0) continue;
             }
-            pending[count++] = occurrence;
+            Push(ref count, occurrence);
         }
         CommitContactLoads(values, rows, contactLoads, boundary, end);
         for (var i = 0; i < _timers.Length; i++)
         {
             timers[i] = timers[i].Complete(boundary, _substeps, out var elapsed);
-            if (elapsed is { } occurrence) pending[count++] = occurrence;
+            if (elapsed is { } occurrence) Push(ref count, occurrence);
         }
         for (var i = 0; i < _nodes.Length; i++)
         {
@@ -361,8 +377,7 @@ public sealed class ActivationNetwork
                 var cause = new ActivationCause(sourceId, node.Owner, colliderId, time, new((Half)0));
                 var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.OscillatorTick, node.Id, time, cause);
                 occurrence.Validate();
-                if (count == pending.Length) throw new ArgumentException("Activation fanout capacity exceeded.");
-                pending[count++] = occurrence;
+                Push(ref count, occurrence);
 
                 if (eventBuffer.Length >= CuriousContraptions.Abstractions.EventRingBuffer.HeaderBytes)
                 {
@@ -384,8 +399,8 @@ public sealed class ActivationNetwork
         while (count != 0)
         {
             var first = 0;
-            for (var i = 1; i < count; i++) if (Compare(pending[i], pending[first]) < 0) first = i;
-            var occurrence = pending[first]; pending[first] = pending[--count];
+            for (var i = 1; i < count; i++) if (Compare(_pending[i], _pending[first]) < 0) first = i;
+            var occurrence = _pending[first]; _pending[first] = _pending[--count];
             var source = Slot(occurrence.Emitter);
             if (values[source].Phase != ActivationPhase.Clear)
             {
@@ -432,8 +447,7 @@ public sealed class ActivationNetwork
                         {
                             var reached = new ActivationOccurrence(ActivationOccurrenceKind.CounterReached, _nodes[target].Id, occurrence.Time, occurrence.Cause);
                             values[target] = ActivationLatch.From(_nodes[target], reached);
-                            if (count == pending.Length) throw new ArgumentException("Activation fanout capacity exceeded.");
-                            pending[count++] = reached;
+                            Push(ref count, reached);
                         }
                     }
                 }
@@ -444,8 +458,7 @@ public sealed class ActivationNetwork
                     timers[index] = timers[index].Complete(boundary, _substeps, out var elapsed);
                     if (elapsed is { } due)
                     {
-                        if (count == pending.Length) throw new ArgumentException("Activation fanout capacity exceeded.");
-                        pending[count++] = due;
+                        Push(ref count, due);
                     }
                 }
             }
@@ -487,7 +500,6 @@ public sealed class ActivationNetwork
     private void CommitContactLoads(Span<ActivationLatch> values, Span<ActivationMemory> rows, ReadOnlySpan<ContactLoadSensorRead> contactLoads,
         SimulationTick boundary, ActivationTime end)
     {
-        if (contactLoads.Length > PhysicsSceneDeclaration.ContactLoadSensorCapacity) throw new ArgumentException("Contact-load capacity exceeded.");
         for (var i = 0; i < _nodes.Length; i++)
         {
             if (_nodes[i].Kind != ActivationNodeKind.ContactLoadSource) continue;

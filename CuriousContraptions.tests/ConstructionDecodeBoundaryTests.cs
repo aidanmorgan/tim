@@ -185,8 +185,9 @@ public sealed class ConstructionDecodeBoundaryTests
 
     private static byte[] Binary(Part part)
     {
-        var bytes = new byte[WorkshopWire.ConstructionBytes];
-        WorkshopWire.WriteConstruction(bytes, new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(Canonical(part))));
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(Canonical(part)));
+        var bytes = new byte[WorkshopWire.ConstructionBytes(construction)];
+        WorkshopWire.WriteConstruction(bytes, construction);
         return bytes;
     }
 

@@ -1,0 +1,33 @@
+Story 9R.5b red run on base c5336092 (+ new tests only), 2026-10-20T13:07:43Z
+[xUnit.net 00:00:00.71]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "contact-load-32") [FAIL]
+[xUnit.net 00:00:00.72]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "triggers-8") [FAIL]
+[xUnit.net 00:00:00.72]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "connections-8") [FAIL]
+[xUnit.net 00:00:00.72]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "instances-32") [FAIL]
+[xUnit.net 00:00:00.73]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "activation-timers-32") [FAIL]
+[xUnit.net 00:00:00.73]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "contact-work-8") [FAIL]
+[xUnit.net 00:00:00.73]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "electrical-8") [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "prismatics-16") [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "bodies-33") [FAIL]
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: part table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: impact trigger table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: impact trigger table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: part table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: part table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: moving body table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: electrical supply table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: body table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: body table
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "orientation-16") [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "dynamic-16") [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "sensors-guides-16") [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.NoFixedCapacityTests.AMachinePastEveryRetiredCeilingRunsResetsExactlyAndSurvivesSaveAndLoad [FAIL]
+[xUnit.net 00:00:00.82]     CuriousContraptions.Tests.NoFixedCapacityTests.TheLastOfFortySwitchesFiresItsOwnLampAndAnUnwiredSwitchDoesNot(struck: 0, lit: False) [FAIL]
+[xUnit.net 00:00:00.82]     CuriousContraptions.Tests.NoFixedCapacityTests.TheLastOfFortySwitchesFiresItsOwnLampAndAnUnwiredSwitchDoesNot(struck: 39, lit: True) [FAIL]
+[xUnit.net 00:00:00.83]     CuriousContraptions.Tests.NoFixedCapacityTests.TheFortySwitchBenchResetsExactlyAndSurvivesSaveAndLoad [FAIL]
+[xUnit.net 00:00:00.83]     CuriousContraptions.Tests.NoFixedCapacityTests.FortyImpactSwitchesBuildAndCompileFortyTriggers [FAIL]
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: moving body table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: moving body table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: moving body table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: part table
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: part table
+Failed!  - Failed:    17, Passed:     0, Skipped:     0, Total:    17, Duration: 146 ms - CuriousContraptions.tests.dll (net10.0)

@@ -18,10 +18,10 @@ public readonly record struct ElectricalSourceDeclaration(ElectricalSourceId Id,
 
 public readonly record struct ElectricalStorageBinding(ElectricalSourceId Source, GpuContactWorkId Storage);
 
-/// <summary>Immutable direct electrical routes. Each storage input has one source; a source may fan out.</summary>
+/// <summary>Immutable direct electrical routes. Each storage input has one source; a source may fan out. No source or route
+/// table has a fixed capacity (Story 9R.5b).</summary>
 public sealed class ElectricalSupplyPlan
 {
-    public const int SourceCapacity = 8;
     private readonly ElectricalSourceDeclaration[] _sources;
     private readonly ElectricalStorageBinding[] _bindings;
     public ReadOnlySpan<ElectricalSourceDeclaration> Sources => _sources;
@@ -31,8 +31,6 @@ public sealed class ElectricalSupplyPlan
         ReadOnlySpan<ElectricalStorageBinding> bindings, ReadOnlySpan<RigidBodyDeclaration> bodies,
         ReadOnlySpan<ContactWorkDeclaration> storages)
     {
-        if (sources.Length > SourceCapacity || bindings.Length > WorkshopConnections.Capacity)
-            throw new ArgumentException("Electrical table capacity exceeded.");
         for (var i = 0; i < sources.Length; i++)
         {
             var source = sources[i];

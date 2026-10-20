@@ -330,8 +330,8 @@ public struct ContactWorkOccurrenceRecord : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
   public ContactWorkOccurrenceRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public ushort Work { get { return __p.bb.GetUshort(__p.bb_pos + 0); } }
-  public ushort Collider { get { return __p.bb.GetUshort(__p.bb_pos + 2); } }
+  public uint Work { get { return __p.bb.GetUint(__p.bb_pos + 0); } }
+  public uint Collider { get { return __p.bb.GetUint(__p.bb_pos + 4); } }
   public ulong Target { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
   public uint Sequence { get { return __p.bb.GetUint(__p.bb_pos + 16); } }
   public uint EventOrdinal { get { return __p.bb.GetUint(__p.bb_pos + 20); } }
@@ -340,7 +340,7 @@ public struct ContactWorkOccurrenceRecord : IFlatbufferObject
   public float Debit { get { return __p.bb.GetFloat(__p.bb_pos + 32); } }
   public byte Effect { get { return __p.bb.Get(__p.bb_pos + 36); } }
 
-  public static Offset<CuriousContraptions.Wire.ContactWorkOccurrenceRecord> CreateContactWorkOccurrenceRecord(FlatBufferBuilder builder, ushort Work, ushort Collider, ulong Target, uint Sequence, uint EventOrdinal, float EventPhase, float ApproachSpeed, float Debit, byte Effect) {
+  public static Offset<CuriousContraptions.Wire.ContactWorkOccurrenceRecord> CreateContactWorkOccurrenceRecord(FlatBufferBuilder builder, uint Work, uint Collider, ulong Target, uint Sequence, uint EventOrdinal, float EventPhase, float ApproachSpeed, float Debit, byte Effect) {
     builder.Prep(8, 40);
     builder.Pad(3);
     builder.PutByte(Effect);
@@ -350,9 +350,8 @@ public struct ContactWorkOccurrenceRecord : IFlatbufferObject
     builder.PutUint(EventOrdinal);
     builder.PutUint(Sequence);
     builder.PutUlong(Target);
-    builder.Pad(4);
-    builder.PutUshort(Collider);
-    builder.PutUshort(Work);
+    builder.PutUint(Collider);
+    builder.PutUint(Work);
     return new Offset<CuriousContraptions.Wire.ContactWorkOccurrenceRecord>(builder.Offset);
   }
 }

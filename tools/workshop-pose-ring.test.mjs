@@ -6,7 +6,7 @@ import vm from 'node:vm';
 // Expose the existing private client registry only in this isolated test module.
 const source = await fs.readFile(new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', import.meta.url), 'utf8');
 const context = vm.createContext({ SharedArrayBuffer, BigInt64Array, DataView, Float32Array, Atomics });
-const module = new vm.SourceTextModule(source + '\nexport { clients };', { context });
+const module = new vm.SourceTextModule(source + '\nexport { clients, attachPoseRing };', { context });
 await module.link(async (specifier) => {
     const names = specifier.includes('native-clock') ?
         ['admitNativeClock', 'nativeNow', 'nativeProfile', 'nativeClockEvidence'] :
@@ -17,15 +17,16 @@ await module.link(async (specifier) => {
     }, { context });
 });
 await module.evaluate();
-const { clients, readPoseSlot, readLatestPoseSlot } = module.namespace;
-function client(bytes = 3120) {
-    const poseRing = new SharedArrayBuffer(bytes);
-    const value = { poseRing, poseSeqView: new BigInt64Array(poseRing),
-        poseDataView: new DataView(poseRing), poseFloatView: new Float32Array(poseRing) };
+const { clients, attachPoseRing, readPoseSlot, readLatestPoseSlot } = module.namespace;
+// Story 9R.5b: a ring's body capacity is its own length; the bootstrap ring holds 16 bodies (3 x (16 + 16 x 64) bytes).
+const ringBytes = capacity => 3 * (16 + capacity * 64);
+function client(bytes = ringBytes(16)) {
+    const value = {};
+    attachPoseRing(value, new SharedArrayBuffer(bytes));
     clients.set(1, value); return value;
 }
 function body(c, slot, index, id, x) {
-    const offset = slot * 1040 + 16 + index * 64;
+    const offset = slot * (16 + c.poseCapacity * 64) + 16 + index * 64;
     c.poseDataView.setFloat32(offset, x, true);
     c.poseDataView.setFloat32(offset + 28, 1, true);
     c.poseDataView.setUint32(offset + 44, 1, true);
@@ -55,9 +56,18 @@ test('actual latest reader ignores in-progress slot and uses new aligned stride'
     assert.equal(readPoseSlot(1, 3), null);
 });
 
-test('old ring layout rejects rather than truncating secondary identity', () => {
-    client(2352);
-    assert.equal(readPoseSlot(1, 0), null);
+test('a ring that is not a whole number of slots and body records is refused', () => {
+    assert.throws(() => client(ringBytes(16) + 3), /not a whole number of slots/);
+    assert.throws(() => client(ringBytes(16) + 48), /not a whole number of slots/);
+});
+
+test('a grown ring of any capacity reads every body (no fixed body capacity)', () => {
+    const c = client(ringBytes(40));
+    Atomics.store(c.poseSeqView, 0, 2n);
+    for (let index = 0; index < 40; index++) body(c, 0, index, BigInt(index + 1), index);
+    const result = readPoseSlot(1, 0);
+    assert.equal(result.bodies.length, 40);
+    assert.equal(result.bodies[39].id, '40');
 });
 
 // The worker's run-loop yield channel, unreferenced so the harness process can exit once its checks complete.
@@ -72,17 +82,15 @@ class HarnessMessageChannel {
 }
 test('actual worker writer publishes globally newest frames across wraps and shrinking populations', async () => {
     const workerSource = await fs.readFile(new URL('../CuriousContraptions.Simulation/wwwroot/worker.js', import.meta.url), 'utf8');
-    const workerContext = vm.createContext({ self: { postMessage() {} }, console, Uint8Array, Uint32Array,
+    const posted = [];
+    const workerContext = vm.createContext({ self: { postMessage(message) { if (message?.poseRing) posted.push(message); } }, console, Uint8Array, Uint32Array,
         Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, DataView, Atomics, MessageChannel: HarnessMessageChannel });
     const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56],
         ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
     const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
         getConfig: () => ({ mainAssemblyName: 'PoseWriterControl' }) };
     const worker = new vm.SourceTextModule(workerSource + `
-export function bindTestRing(ring) {
-    poseRing = ring; poseSeqView = new BigInt64Array(ring);
-    poseDataView = new DataView(ring); poseFloatView = new Float32Array(ring);
-}
+export function bindTestRing(ring) { attachPoseRing(ring); }
 export { writePoseRing };
 `, { context: workerContext });
     await worker.link(async name => {
@@ -100,20 +108,40 @@ export { writePoseRing };
     });
     await worker.evaluate();
     let c = client(); worker.namespace.bindTestRing(c.poseRing);
+    // The binary read: a 144-byte header whose u32 body count is at 112 (WorkshopWire), then 80-byte bodies.
+    const read = (ids, publication) => {
+        const bytes = new Uint8Array(144 + ids.length * 80), view = new DataView(bytes.buffer);
+        view.setUint32(112, ids.length, true); view.setBigInt64(72, BigInt(publication * 100), true);
+        ids.forEach((id, index) => {
+            const offset = 144 + index * 80;
+            view.setBigUint64(offset, id, true); view.setInt32(offset + 8, publication * 16, true);
+            view.setFloat32(offset + 44, 1, true);
+        });
+        return bytes;
+    };
     for (let publication = 1; publication <= 12; publication++) {
         // Build mode does not publish; this exercises actual committed population changes and fresh ring ownership.
         if (publication === 9) { c = client(); worker.namespace.bindTestRing(c.poseRing); }
         const ids = publication === 5 ? [] : publication < 5 ? [1n, 4294967296n] : [18446744073709551615n];
-        const bytes = new Uint8Array(128 + ids.length * 80), view = new DataView(bytes.buffer);
-        bytes[104] = ids.length; view.setBigInt64(72, BigInt(publication * 100), true);
-        ids.forEach((id, index) => {
-            const offset = 128 + index * 80;
-            view.setBigUint64(offset, id, true); view.setInt32(offset + 8, publication * 16, true);
-            view.setFloat32(offset + 44, 1, true);
-        });
-        worker.namespace.writePoseRing(bytes);
+        worker.namespace.writePoseRing(read(ids, publication));
         const observed = readLatestPoseSlot(1);
         assert.equal(observed.timestamp, BigInt(publication * 100), 'every publication must supersede all preceding slots');
         assert.deepEqual(Array.from(observed.bodies, b => b.id), ids.map(String), 'retired secondary IDs disappear');
     }
+    assert.equal(posted.length, 0, 'a world within the ring never replaces it');
+    // Story 9R.5b: seventeen moving bodies (one past the bootstrap ring) grow the ring; the worker posts the larger ring before
+    // the read that needs it, and every body is published (nothing is truncated).
+    const seventeen = Array.from({ length: 17 }, (_, index) => BigInt(index + 1));
+    worker.namespace.writePoseRing(read(seventeen, 13));
+    assert.equal(posted.length, 1, 'the worker posts exactly one grown ring');
+    assert.ok(posted[0].poseRing instanceof SharedArrayBuffer && posted[0].poseRing.byteLength >= ringBytes(17));
+    attachPoseRing(c, posted[0].poseRing);
+    const grown = readLatestPoseSlot(1);
+    assert.equal(grown.timestamp, 1300n);
+    assert.deepEqual(Array.from(grown.bodies, b => b.id), seventeen.map(String));
+    // A smaller world keeps the grown ring.
+    worker.namespace.writePoseRing(read([7n], 14));
+    assert.equal(posted.length, 1);
+    attachPoseRing(c, c.poseRing);
+    assert.deepEqual(Array.from(readLatestPoseSlot(1).bodies, b => b.id), ['7']);
 });

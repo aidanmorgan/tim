@@ -25,7 +25,7 @@ async function animationWorker() {
     let imports;
     const replies = [], messages = [], channel = new MessageChannel(), ring = clockRing.createClockRing();
     const host = {
-        OutputKinds: () => [1, 2, 3], TargetCapacity: () => 10, Bootstrap: () => {}, AnimationControl: () => {}, Service: () => {},
+        OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {}, Service: () => {},
         Reply: bytes => replies.push(bytes)
     };
     const runtime = {

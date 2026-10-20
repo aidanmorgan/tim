@@ -3,13 +3,14 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
+/// <summary>The response's activation section: exactly its population (Story 9R.5b: no fixed row capacity).</summary>
 internal static class WorkshopActivationWire
 {
     internal const int RecordBytes = 96;
-    internal const int ByteLength = WorkshopInstances.Capacity * RecordBytes;
+    internal static int ByteLength(int count) => WorkshopWire.Width((long)count * RecordBytes);
     internal static void Write(PhysicsActivationRead read, Span<byte> bytes)
     {
-        if (bytes.Length != ByteLength) throw new ArgumentException("Invalid activation read width.");
+        if (bytes.Length != ByteLength(read.Count)) throw new ArgumentException("Invalid activation read width.");
         bytes.Clear();
         for (var i = 0; i < read.Count; i++)
         {
@@ -23,12 +24,10 @@ internal static class WorkshopActivationWire
             BinaryPrimitives.WriteUInt32LittleEndian(slot[64..], value.CauseOrdinal); H(slot, 68, value.CausePhase);
         }
     }
-    internal static PhysicsActivationRead Read(ReadOnlySpan<byte> bytes, uint count)
+    internal static PhysicsActivationRead Read(ReadOnlySpan<byte> bytes, int count)
     {
-        if (bytes.Length != ByteLength || count > WorkshopInstances.Capacity ||
-            bytes[(checked((int)count) * RecordBytes)..].IndexOfAnyExcept((byte)0) >= 0)
-            throw new ArgumentException("Invalid activation count or padding.");
-        Span<ActivationLatch> values = stackalloc ActivationLatch[WorkshopInstances.Capacity];
+        if (count < 0 || bytes.Length != ByteLength(count)) throw new ArgumentException("Invalid activation count or padding.");
+        var values = new ActivationLatch[count];
         for (var i = 0; i < count; i++)
         {
             var slot = bytes.Slice(i * RecordBytes, RecordBytes);
@@ -38,7 +37,7 @@ internal static class WorkshopActivationWire
                 RH(slot, 48), new(RH(slot, 50)), (ActivationOccurrenceKind)BinaryPrimitives.ReadUInt32LittleEndian(slot[52..]),
                 new(R64(slot, 56)), BinaryPrimitives.ReadUInt32LittleEndian(slot[64..]), RH(slot, 68));
         }
-        return new(values[..checked((int)count)]);
+        return new(values);
     }
     private static void U64(Span<byte> value, int offset, ulong number) => BinaryPrimitives.WriteUInt64LittleEndian(value[offset..], number);
     private static ulong R64(ReadOnlySpan<byte> value, int offset) => BinaryPrimitives.ReadUInt64LittleEndian(value[offset..]);

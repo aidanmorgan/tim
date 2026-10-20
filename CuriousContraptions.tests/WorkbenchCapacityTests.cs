@@ -3,7 +3,8 @@ using CuriousContraptions.Simulation;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Free play has no per-kind population rule; the compiled table capacities are the only ceiling and reject with a typed reason.</summary>
+/// <summary>Free play has no population rule (Story 9R.5b, owner decision 20 Oct 2026: an unlimited Free Workshop; memory is the
+/// only bound). Every compiled table is sized at Run; the only Build refusal left is the guide document invariant.</summary>
 public sealed class WorkbenchCapacityTests
 {
     private static ulong _next = 1;
@@ -12,16 +13,12 @@ public sealed class WorkbenchCapacityTests
     private static IWorkshopInstance Make(PartId kind, int i)
     {
         if (kind == PartId.Basketball) return WorkshopInput.Basketball(Id(), X(i), 5, 0, 0, 0, 0, 1);
-        if (kind == PartId.Battery) return new WorkshopBattery(Id(), default, default, CanonicalRotation.Identity, ElectricalSourceSettings.Default);
-        if (kind == PartId.BowlingBall) return WorkshopInput.Ball(PartId.BowlingBall, Id(), X(i), 5, 0, 0, 0, 0, 1);
         if (kind == PartId.Receiver) return WorkshopInput.Receiver(Id(), X(i), 1, 2, 0, 0, 0, 1);
         if (kind == PartId.Ramp) return WorkshopInput.Ramp(Id(), X(i), 2, -2, 0, 0, 0, 1, RampDimensions.Default);
         if (kind == PartId.Wall) return WorkshopInput.Wall(Id(), X(i), 2, 4, 0, 0, 0, 1, WallDimensions.Default);
         if (kind == PartId.ImpactSwitch) return WorkshopInput.Switch(Id(), X(i), 1, -4, 0, 0, 0, 1, ContactTriggerSettings.Default);
         if (kind == PartId.SignalLamp) return WorkshopInput.Lamp(Id(), X(i), 1, 6, 0, 0, 0, 1);
         if (kind == PartId.Delay) return WorkshopInput.Delay(Id(), X(i), 1, -6, 0, 0, 0, 1, DelayDuration.Default);
-        if (kind == PartId.PinballBumper) return WorkshopInput.Bumper(Id(), X(i), 3, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength((float)8));
-        if (kind == PartId.Domino) return WorkshopInput.Domino(Id(), X(i), .09, 2, 0, 0, 0, 1);
         if (kind == PartId.Pipe) return WorkshopInput.Pipe(Id(), X(i), 3, 0, 0, 0, 0, 1);
         if (kind == PartId.PipeBend45) return WorkshopInput.PipeBend45(Id(), X(i), 3, 0, 0, 0, 0, 1);
         throw new ArgumentException($"Unsupported test part id '{kind}'.");
@@ -33,65 +30,22 @@ public sealed class WorkbenchCapacityTests
         return new([.. items]);
     }
     private static WorkshopConstruction Free(WorkshopInstances instances) => new(new(1), WorkshopCadenceSettings.Default(), instances);
-    private static int Dynamic(PhysicsSceneDeclaration scene) => scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic);
 
+    // The one Build refusal left is a document invariant, not a capacity: every Receiver declares a planar guide for each ball and
+    // the physics document admits one guide per moving body.
     [Fact]
-    public void FreePlayAcceptsManyOfEveryKindUpToTheCompiledTableLimits()
+    public void OnlyTheGuideInvariantRefusesAtBuild()
     {
-        // Sixteen moving bodies, one receiver (sixteen sensors and guides), eight triggers (the whole trigger table), seven walls: 32 parts.
-        var full = Population((PartId.Basketball, 16), (PartId.Receiver, 1), (PartId.ImpactSwitch, 8), (PartId.Wall, 7));
-        var scene = WorkshopPhysicsCompiler.Compile(Free(full), new(1, 2));
-        Assert.Equal(WorkshopInstances.Capacity, full.Count);
-        Assert.Equal(PhysicsSceneDeclaration.BodyCapacity, scene.Bodies.Length);
-        Assert.Equal(PhysicsBodyReadSet.Capacity, Dynamic(scene));
-        Assert.Equal(PhysicsSceneDeclaration.SensorCapacity, scene.Sensors.Length);
-        Assert.Equal(PhysicsSceneDeclaration.GuideCapacity, scene.Guides.Length);
-        Assert.Equal(PhysicsSceneDeclaration.TriggerCapacity, scene.Triggers.Length);
-        Assert.Equal(PhysicsSceneDeclaration.TriggerCapacity, (int)WorkshopActivationCompiler.Compile(Free(full)).Clear().Count);
-
-        // Eight bumpers (the whole contact-work table), eight activation nodes across three kinds, three ramps, five balls.
-        var mixed = Population((PartId.PinballBumper, 8), (PartId.Delay, 3), (PartId.SignalLamp, 3),
-            (PartId.ImpactSwitch, 2), (PartId.Ramp, 3), (PartId.Receiver, 1), (PartId.Basketball, 5));
-        scene = WorkshopPhysicsCompiler.Compile(Free(mixed), new(1, 2));
-        Assert.Equal(PhysicsSceneDeclaration.ContactWorkCapacity, scene.ContactWorks.Length);
-        Assert.Equal(5, scene.Sensors.Length);
-        Assert.Equal(8, (int)WorkshopActivationCompiler.Compile(Free(mixed)).Clear().Count);
-
-        // Several receivers compile while no ball needs guiding; each keeps its own body and walls.
-        var receivers = Population((PartId.Receiver, 3), (PartId.Ramp, 2));
-        var receiverIds = receivers.OfType<WorkshopReceiver>().Select(r => r.Id).ToHashSet();
-        scene = WorkshopPhysicsCompiler.Compile(Free(receivers), new(1, 2));
-        Assert.Equal(3, scene.Bodies.ToArray().Count(b => receiverIds.Contains(b.Id)));
-        Assert.Equal(3 * 5, scene.Colliders.ToArray().Count(c => receiverIds.Contains(c.Body)));
-        Assert.Empty(scene.Sensors.ToArray()); Assert.Empty(scene.Guides.ToArray());
-
-        // Thirty-two of one static kind fills the part table exactly.
-        WorkshopPhysicsCompiler.Compile(Free(Population((PartId.Wall, 32))), new(1, 2));
-    }
-
-    [Theory]
-    [InlineData(WorkbenchTable.Instances, "wall", 33, "wall", 0)]
-    [InlineData(WorkbenchTable.DynamicBodies, "ball", 17, "wall", 0)]
-    [InlineData(WorkbenchTable.DynamicBodies, "domino", 9, "ball", 8)]
-    [InlineData(WorkbenchTable.DynamicBodies, "bowling", 9, "ball", 8)]
-    [InlineData(WorkbenchTable.Sensors, "basket", 2, "ball", 9)]
-    [InlineData(WorkbenchTable.Sensors, "basket", 2, "bowling", 9)]
-    [InlineData(WorkbenchTable.Guides, "basket", 2, "ball", 1)]
-    [InlineData(WorkbenchTable.Guides, "basket", 2, "bowling", 1)]
-    [InlineData(WorkbenchTable.ElectricalSources, "battery", 9, "wall", 0)]
-    [InlineData(WorkbenchTable.Triggers, "switch", 9, "wall", 0)]
-    [InlineData(WorkbenchTable.ContactWork, "bumper", 9, "wall", 0)]
-    public void ExceedingOneCompiledTableRejectsWithThatTypedReason(WorkbenchTable table, string firstId, int firstCount, string secondId, int secondCount)
-    {
-        var first = new PartId(firstId);
-        var second = new PartId(secondId);
-        var instances = Population((first, firstCount), (second, secondCount));
-        var error = Assert.Throws<WorkbenchFullException>(() => instances.Validate());
-        Assert.Equal(table, error.Table);
-        Assert.StartsWith("Workbench is full: ", error.Message);
-        Assert.Throws<WorkbenchFullException>(() => Free(instances).Validate());
-        // One part fewer of the first kind fits again.
-        Free(Population((first, firstCount - 1), (second, secondCount))).Validate();
+        var error = Assert.Throws<WorkbenchFullException>(() => Population((PartId.Receiver, 2), (PartId.Basketball, 1)).Validate());
+        Assert.Equal(WorkbenchTable.Guides, error.Table);
+        Assert.Equal("Workbench is full: ball guide table (one Receiver guides the balls)", error.Message);
+        // Controls: several Receivers with no ball, and one Receiver guiding seventeen balls (the retired 16-row tables), both build.
+        Free(Population((PartId.Receiver, 3), (PartId.Ramp, 2))).Validate();
+        var guided = Population((PartId.Receiver, 1), (PartId.Basketball, 17));
+        Free(guided).Validate();
+        var scene = WorkshopPhysicsCompiler.Compile(Free(guided), new(1, 2));
+        Assert.Equal(17, scene.Sensors.Length);
+        Assert.Equal(17, scene.Guides.Length);
     }
 
     [Fact]
@@ -105,34 +59,6 @@ public sealed class WorkbenchCapacityTests
         // Story 9R.2: the 30-instance mixed bench also steps through the production engine.
         var reads = await WorkshopPhysicsEngineTests.Run(Bench(heavy), SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
-    }
-
-    [Theory]
-    [InlineData("ball")]
-    [InlineData("basket")]
-    [InlineData("ramp")]
-    [InlineData("wall")]
-    [InlineData("switch")]
-    [InlineData("lamp")]
-    [InlineData("delay")]
-    [InlineData("bumper")]
-    [InlineData("domino")]
-    [InlineData("battery")]
-    [InlineData("bowling")]
-    public void DeclaredFootprintMatchesWhatTheCompilersEmit(string kindId)
-    {
-        var kind = new PartId(kindId);
-        var construction = Free(Population((kind, 1)));
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var expected = WorkbenchFootprint.Plane + WorkbenchFootprint.Of(kind);
-        Assert.Equal(expected.Bodies, scene.Bodies.Length);
-        Assert.Equal(expected.Bodies, scene.Materials.Length);
-        Assert.Equal(expected.DynamicBodies, Dynamic(scene));
-        Assert.Equal(expected.Colliders, scene.Colliders.Length);
-        Assert.Equal(expected.Triggers, scene.Triggers.Length);
-        Assert.Equal(expected.ContactWorks, scene.ContactWorks.Length);
-        Assert.Equal(expected.ElectricalSources, scene.Electrical.Sources.Length);
-        Assert.Throws<ArgumentException>(() => WorkbenchFootprint.Of(PartId.Unsupported));
     }
 
     [Fact]
@@ -163,42 +89,15 @@ public sealed class WorkbenchCapacityTests
         Assert.Throws<ArgumentException>(() => WorkshopInventoryPolicy.Authored(default));
     }
 
-    // ---------- Story 9R.2: the collider table is sized at Run from the compiled construction ----------
+    // ---------- Story 9R.2 and 9R.5b: every table is sized at Run from the compiled construction ----------
 
     private const int SteppedTicks = 30;
+    /// <summary>One past the retired 32-part table.</summary>
+    private const int PastThePartTable = 33;
     private const double DominoUpright = -0.46 + .55;
     // A cradle: the bend rotated -135 degrees about Z (27 fine-rotate steps of -5 degrees in Chrome), so both mouths point up and
     // its tube's lowest wall is a valley.
     private const double CradleZ = -0.9238795, CradleW = 0.3826834;
-
-    /// <summary>Spec D2: per Free palette kind, the largest count Build admits within the 32-instance budget and, when that is
-    /// below 32, the declared budget whose existing message rejects one more.</summary>
-    private static readonly IReadOnlyDictionary<PartId, (int Largest, WorkbenchTable? Rejects)> Budgets = new Dictionary<PartId, (int, WorkbenchTable?)>
-    {
-        [PartId.Basketball] = (16, WorkbenchTable.DynamicBodies),
-        [PartId.BowlingBall] = (16, WorkbenchTable.DynamicBodies),
-        [PartId.Domino] = (16, WorkbenchTable.DynamicBodies),
-        [PartId.Springboard] = (16, WorkbenchTable.Bodies),
-        [PartId.PoweredGate] = (16, WorkbenchTable.Bodies),
-        [PartId.Battery] = (8, WorkbenchTable.ElectricalSources),
-        [PartId.ImpactSwitch] = (8, WorkbenchTable.Triggers),
-        [PartId.PinballBumper] = (8, WorkbenchTable.ContactWork),
-        // Owner decision, 20 Oct 2026: no activation-slot limit. Every activation part reaches the 32-instance palette maximum.
-        [PartId.SignalLamp] = (32, null),
-        [PartId.Delay] = (32, null),
-        [PartId.BallDetector] = (32, null),
-        [PartId.Counter] = (32, null),
-        [PartId.Clock] = (32, null),
-        [PartId.Latch] = (32, null),
-        [PartId.Receiver] = (32, null),
-        [PartId.Ramp] = (32, null),
-        [PartId.Wall] = (32, null),
-        [PartId.Pipe] = (32, null),
-        [PartId.PipeBend45] = (32, null),
-        [PartId.PipeBend90] = (32, null),
-        [PartId.Funnel] = (32, null),
-        [PartId.PressurePlate] = (32, null),
-    };
 
     public static TheoryData<string> FreeKinds => new(WorkshopInventoryPolicy.Free.Keys.Select(kind => kind.Value));
 
@@ -228,56 +127,48 @@ public sealed class WorkbenchCapacityTests
         _ => throw new ArgumentException($"Unsupported palette part '{kind}'.", nameof(kind)),
     };
 
-    // Eight columns by four rows, wide enough that no moving part starts inside a neighbour.
+    // Eight columns, rows 2.5 m apart, wide enough that no moving part starts inside a neighbour.
     private static WorkshopInstances Grid(PartId kind, int count) =>
         new([.. Enumerable.Range(0, count).Select(i => Place(kind, new((ulong)i + 1), -6 + i % 8 * 1.6, -5 + i / 8 * 2.5))]);
 
     // The Story 9.4b harness admits at revision 2 through the production WorkshopSimulation, WorkshopGpuDevice and BrowserGpuTransport.
     private static WorkshopConstruction Bench(WorkshopInstances instances) => new(new(2), WorkshopCadenceSettings.Default(), instances);
 
+    /// <summary>Story 9R.5b: every Free palette kind builds, compiles and steps one past the retired 32-part table (no kind is held
+    /// back by a body, moving-body, trigger, contact-work, source or prismatic table any more).</summary>
     [Theory]
     [MemberData(nameof(FreeKinds))]
-    public async Task EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(string kindId)
+    public async Task EveryFreePaletteKindCompilesAndStepsPastTheRetiredPartTable(string kindId)
     {
         var kind = new PartId(kindId);
-        var (largest, rejects) = Budgets[kind];
-        if (rejects is { } table)
-        {
-            // Another declared budget rejects 32 first, with its existing Build message; one fewer than the largest count fits.
-            foreach (var count in new[] { WorkshopInstances.Capacity, largest + 1 })
-            {
-                var error = Assert.Throws<WorkbenchFullException>(() => Bench(Grid(kind, count)).Validate());
-                Assert.Equal(table, error.Table);
-                Assert.StartsWith("Workbench is full: ", error.Message);
-            }
-        }
-        else Assert.Equal(WorkshopInstances.Capacity, largest);
-        var bench = Bench(Grid(kind, largest));
+        var perPart = WorkshopPhysicsCompiler.Compile(Bench(Grid(kind, 1)), new(1, 2)).Colliders.Length - 1;
+        var bench = Bench(Grid(kind, PastThePartTable));
         bench.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
-        Assert.Equal(1 + largest * WorkbenchFootprint.Of(kind).Colliders, scene.Colliders.Length);
+        Assert.Equal(1 + PastThePartTable * perPart, scene.Colliders.Length);
         var reads = await WorkshopPhysicsEngineTests.Run(bench, SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
     }
 
     [Fact]
-    public void TheBudgetTableCoversExactlyTheFreePaletteAndExcludesTheUndeliveredParts()
+    public void TheUndeliveredPartsStayOffTheFreePalette()
     {
-        Assert.Equal(WorkshopInventoryPolicy.Free.Keys.OrderBy(kind => kind.Value), Budgets.Keys.OrderBy(kind => kind.Value));
-        // Spec D2: Tennis and Balloon throw in CaptureInstance and Story 9R.0c removed them from the palette, so Build never admits them.
+        // Spec D2 (9R.2): Tennis and Balloon throw in CaptureInstance and Story 9R.0c removed them from the palette.
         foreach (var undelivered in new[] { PartId.Tennis, PartId.Balloon })
         {
             Assert.False(WorkshopInventoryPolicy.Free.ContainsKey(undelivered));
-            Assert.Throws<ArgumentException>(() => WorkbenchFootprint.Of(undelivered));
+            Assert.Throws<ArgumentException>(() => Place(undelivered, new(1), 0, 0));
         }
     }
 
-    // The plane alone, then 28 bends (2,017 colliders) and 29 bends (2,089) straddling the retired 2,048 ceiling, then the full bench.
+    // The plane alone, then 28 bends (2,017 colliders) and 29 bends (2,089) straddling the retired 2,048 ceiling, the full 9R.2 bench,
+    // and one past the retired part table.
     [Theory]
     [InlineData(0)]
     [InlineData(28)]
     [InlineData(29)]
     [InlineData(32)]
+    [InlineData(PastThePartTable)]
     public async Task BendBenchesAcrossTheRetiredColliderCeilingCompileAndStep(int bends)
     {
         var bench = Bench(Grid(PartId.PipeBend90, bends));
@@ -317,16 +208,7 @@ public sealed class WorkbenchCapacityTests
         else Assert.True(height < 0, $"without the cradle the ball falls to the bench (height {height})");
     }
 
-    [Fact]
-    public void ThirtyThreeBendsAreRejectedAtBuildWithThePartTableMessage()
-    {
-        var error = Assert.Throws<WorkbenchFullException>(() => Bench(Grid(PartId.PipeBend90, 32)).WithInstance(
-            WorkshopInput.PipeBend90(new(33), 6, 3, 4, 0, 0, 0, 1)).Validate());
-        Assert.Equal(WorkbenchTable.Instances, error.Table);
-        Assert.Equal("Workbench is full: part table", error.Message);
-    }
-
-    // One simulation, device and transport admit benches of changing size in turn: 1, 32, 1 and 32 bends, each Run, stepped and Reset.
+    // One simulation, device and transport admit benches of changing size in turn: 1, 33, 1 and 33 bends, each Run, stepped and Reset.
     [Fact]
     public async Task OneTransportAdmitsBenchesOfChangingColliderCount()
     {
@@ -335,7 +217,7 @@ public sealed class WorkbenchCapacityTests
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
         var revision = 1UL;
-        foreach (var bends in new[] { 1, 32, 1, 32 })
+        foreach (var bends in new[] { 1, PastThePartTable, 1, PastThePartTable })
         {
             var bench = new WorkshopConstruction(new(++revision), WorkshopCadenceSettings.Default(), Grid(PartId.PipeBend90, bends));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(bench)).Outcome);
@@ -346,12 +228,25 @@ public sealed class WorkbenchCapacityTests
         }
     }
 
+    /// <summary>Story 9R.5b: a work occurrence names its owner's collider and work slots in 32 bits, so a slot past 16 bits (a machine
+    /// with more than 65,536 colliders) crosses both response codecs unchanged.</summary>
     [Fact]
-    public void TheLargestBuildAdmittedColliderPopulationFitsSixteenBitColliderSlots()
+    public void AWorkOccurrenceSlotPastSixteenBitsCrossesBothResponseCodecs()
     {
-        var widest = WorkshopInventoryPolicy.Free.Keys.Max(kind => WorkbenchFootprint.Of(kind).Colliders);
-        Assert.True(WorkbenchFootprint.Plane.Colliders + WorkshopInstances.Capacity * widest <= ushort.MaxValue + 1,
-            $"{WorkshopInstances.Capacity} x {widest} colliders exceed the u16 collider slot");
+        var occurrence = new ContactWorkOccurrence(new(0), new(70_000), new(5), 1, 4, (Half)0, new(3f), new(1.5f), ContactWorkEffect.Paid);
+        var works = new PhysicsContactWorkRead([new(new(9), new(8), 1, new(30f))], [occurrence]);
+        var bodies = new PhysicsBodyReadSet([new PhysicsBodyRead(new CanonicalBody(new(5), 1, 0, default, default, default),
+            CanonicalRotation.Identity, default, default)]);
+        var read = new WorkshopRead(new(1), new(0), bodies, new(2),
+            new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100000000), new(100000)), ContactWorks: works);
+        var response = new WorkshopResponse(new(4), WorkshopResponseKind.Acknowledgement, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
+            WorkshopSimulationPhase.Building, read, new(1, 2), default, new(1), new(1), new(1), new(0));
+        foreach (var decoded in new[] { WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)),
+            WorkshopWire.DecodeResponse(WorkshopWire.Encode(response)) })
+        {
+            Assert.Equal(70_000u, decoded.Read.ContactWorks.Occurrence(0).Collider.Value);
+            Assert.True(occurrence.HasSameBits(decoded.Read.ContactWorks.Occurrence(0)));
+        }
     }
 
     [Fact]

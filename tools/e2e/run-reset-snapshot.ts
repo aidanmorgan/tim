@@ -25,7 +25,7 @@ export const SNAPSHOT_SCHEMA = {
             ['debit', 'float'], ['enabled', 'uint8'], ['available', 'bool']] },
         ContactWorkStoreRecord: { kind: 'struct', fields: [['id', 'uint64'], ['owner', 'uint64'], ['occurrence_count', 'uint32'],
             ['remaining_energy', 'float'], ['supplied_energy', 'float']] },
-        ContactWorkOccurrenceRecord: { kind: 'struct', fields: [['work', 'uint16'], ['collider', 'uint16'], ['target', 'uint64'],
+        ContactWorkOccurrenceRecord: { kind: 'struct', fields: [['work', 'uint32'], ['collider', 'uint32'], ['target', 'uint64'],
             ['sequence', 'uint32'], ['event_ordinal', 'uint32'], ['event_phase', 'float'], ['approach_speed', 'float'],
             ['debit', 'float'], ['effect', 'uint8']] },
         ActivationRecord: { kind: 'struct', fields: [['node', 'uint64'], ['owner', 'uint64'], ['source', 'uint64'], ['body', 'uint64'],

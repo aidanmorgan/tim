@@ -14,11 +14,9 @@ public readonly record struct WorkshopAnimationSample(AnimationTargetId Target, 
 public static class WorkshopAnimationWire
 {
     public const ushort Version = 5;
-    /// <summary>Activation + timer nodes, contact owners, one capture target per sensor and the two declared UI targets.</summary>
-    public const int TargetCapacity = 2 * WorkshopInstances.Capacity + ContactWorkCapacity + PhysicsSceneDeclaration.SensorCapacity + 2 + ElectricalSupplyPlan.SourceCapacity * 5;
-    /// <summary>Concurrent occurrences one impulse target retains; a declared cooldown keeps real overlap far below it.</summary>
+    /// <summary>Concurrent occurrences one impulse target retains; a declared cooldown keeps real overlap far below it (time, not a
+    /// machine population).</summary>
     public const int ImpulseCapacity = 64;
-    private const int ContactWorkCapacity = PhysicsSceneDeclaration.ContactWorkCapacity;
     public const int ControlBytes = 144;
     public const int OutputBytes = 144;
     public static byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,

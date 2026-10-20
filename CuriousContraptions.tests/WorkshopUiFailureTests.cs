@@ -26,7 +26,7 @@ public sealed class WorkshopUiFailureTests
     public static TheoryData<Exception> Refusals() => new()
     {
         new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed puzzle instances cannot be edited."),
-        new WorkbenchFullException(WorkbenchTable.Instances),
+        new WorkbenchFullException(WorkbenchTable.Guides),
         new WorkshopTransportException(new(new(1), new(1), default, default, default), WorkshopTransportState.TimedOut, new TimeoutException("late")),
     };
 
@@ -44,14 +44,14 @@ public sealed class WorkshopUiFailureTests
     [Fact]
     public void AConnectionRuleRefusalIsAStdoutRejection()
     {
-        var links = Enumerable.Range(0, WorkshopConnections.Capacity + 1)
-            .Select(index => new WorkshopConnection(new(1), WorkshopSocket.ActivationOut, new((ulong)index + 2), WorkshopSocket.ActivationIn,
-                WorkshopConnectionDomain.Activation)).ToArray();
-        var error = Record.Exception(() => new WorkshopConnections(links).Validate(WorkshopInstances.Empty));
+        // Story 9R.5b: there is no connection limit, so the rule exercised is the self-connection refusal.
+        var link = new WorkshopConnection(new(1), WorkshopSocket.ActivationOut, new(1), WorkshopSocket.ActivationIn,
+            WorkshopConnectionDomain.Activation);
+        var error = Record.Exception(() => new WorkshopConnections(link).Validate(WorkshopInstances.Empty));
         var rejection = Assert.IsType<WorkshopEditRejectedException>(error);
-        Assert.Equal(WorkshopEditRejection.ConnectionCapacity, rejection.Reason);
+        Assert.Equal(WorkshopEditRejection.InvalidConnection, rejection.Reason);
         var (status, output, errors) = Report(rejection);
-        Assert.Equal("Connection capacity exceeded.", status);
+        Assert.Equal("Unsupported or duplicate connection.", status);
         Assert.StartsWith("CCGPU_UI_REJECTION " + typeof(WorkshopEditRejectedException).FullName, output, StringComparison.Ordinal);
         Assert.Empty(errors);
     }

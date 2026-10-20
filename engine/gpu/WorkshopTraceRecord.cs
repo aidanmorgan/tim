@@ -2,9 +2,9 @@ using System;
 using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Trace schema 4: every committed body uses the 80-byte <see cref="PhysicsBodyWire"/> with canonical f32 pose and velocity.
+/// <summary>Trace schema 5 (Story 9R.5b: u32 population counts): every committed body uses the 80-byte <see cref="PhysicsBodyWire"/> with canonical f32 pose and velocity.
 /// Earlier pose encodings are rejected like any unknown version.</summary>
-public enum WorkshopTraceVersion : uint { CompleteBodySetF32Pose = 4 }
+public enum WorkshopTraceVersion : uint { CompleteBodySetF32Pose = 5 }
 
 /// <summary>Bounded observational projection of every committed body and capture latch.</summary>
 public static class WorkshopTraceRecord
@@ -13,9 +13,9 @@ public static class WorkshopTraceRecord
     public const int CaptureBytes = 24;
     public static int ByteLength(int bodies, int captures)
     {
-        if (bodies is < 0 or > PhysicsBodyReadSet.Capacity || captures < 0 || captures > PhysicsSceneDeclaration.SensorCapacity)
-            throw new ArgumentException("Unsupported diagnostic population.");
-        return HeaderBytes + bodies * PhysicsBodyWire.ByteLength + captures * CaptureBytes;
+        // No population bound (Story 9R.5b): the record is exactly its committed bodies and captures.
+        if (bodies < 0 || captures < 0) throw new ArgumentException("Unsupported diagnostic population.");
+        return checked(HeaderBytes + bodies * PhysicsBodyWire.ByteLength + captures * CaptureBytes);
     }
 
     public static byte[] Encode(WorkshopRead read, WorkshopGpuProfile profile)
@@ -27,7 +27,7 @@ public static class WorkshopTraceRecord
         var b = new byte[ByteLength(read.Bodies.Count, read.Captures.Count)];
         U32(b,0,(uint)WorkshopTraceVersion.CompleteBodySetF32Pose); U32(b,4,(uint)profile.Cadence);
         U64(b,8,profile.Revision.Value); U64(b,16,read.Epoch.Value); U64(b,24,read.Tick.Value);
-        U32(b,32,(uint)profile.Physical); b[36]=read.Bodies.Count; b[37]=read.Captures.Count;
+        U32(b,32,(uint)profile.Physical); U32(b,36,(uint)read.Bodies.Count); U32(b,40,(uint)read.Captures.Count);
         for (var i=0; i<read.Bodies.Count; i++)
             PhysicsBodyWire.Write(read.Bodies[i], b.AsSpan(HeaderBytes+i*PhysicsBodyWire.ByteLength,PhysicsBodyWire.ByteLength));
         var offset=HeaderBytes+read.Bodies.Count*PhysicsBodyWire.ByteLength;
@@ -44,7 +44,9 @@ public static class WorkshopTraceRecord
     public static WorkshopGpuProfile ReadProfile(ReadOnlySpan<byte> b)
     {
         if(b.Length<HeaderBytes || BinaryPrimitives.ReadUInt32LittleEndian(b)!=(uint)WorkshopTraceVersion.CompleteBodySetF32Pose ||
-            b.Length!=ByteLength(b[36],b[37]) || b[38..HeaderBytes].IndexOfAnyExcept((byte)0)>=0)
+            BinaryPrimitives.ReadUInt32LittleEndian(b[36..])>int.MaxValue || BinaryPrimitives.ReadUInt32LittleEndian(b[40..])>int.MaxValue ||
+            b.Length!=ByteLength((int)BinaryPrimitives.ReadUInt32LittleEndian(b[36..]),(int)BinaryPrimitives.ReadUInt32LittleEndian(b[40..])) ||
+            b[44..HeaderBytes].IndexOfAnyExcept((byte)0)>=0)
             throw new ArgumentException("Unsupported diagnostic record.");
         var p=new WorkshopGpuProfile((SimulationCadence)BinaryPrimitives.ReadUInt32LittleEndian(b[4..]),
             (PhysicalStepProfile)BinaryPrimitives.ReadUInt32LittleEndian(b[32..]),

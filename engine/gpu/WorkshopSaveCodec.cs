@@ -13,7 +13,6 @@ public static class WorkshopSaveCodec
 {
     public const uint Magic = 0x53574343; // CCWS
     public const uint Version = (uint)WorkshopSaveVersion.CanonicalConstruction;
-    public const int ByteLength = 24 + WorkshopWire.ConstructionBytes;
 
     public static byte[] Encode(WorkshopSavedConstruction save)
     {

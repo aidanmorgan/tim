@@ -16,7 +16,7 @@ public partial class MachineWorld
     private bool _workshopRemoved;
     private ulong _workshopOperation;
     private ulong _workshopWriteFrame;
-    private byte _workshopPositionWrites;
+    private uint _workshopPositionWrites;
     private WorkshopPresentationSample _workshopPresentation;
     public WorkshopPhase WorkshopPhase { get; private set; } = WorkshopPhase.Uninitialized;
     public WorkshopConstruction Construction { get; private set; } = new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty);
@@ -286,7 +286,7 @@ public partial class MachineWorld
             var position = ball?.Position ?? Vector3.Zero;
             var rotation = ball?.Quaternion ?? Quaternion.Identity;
             _workshopClient.RecordPresentation(presentation, selected, new(frame,
-                frame == _workshopWriteFrame ? _workshopPositionWrites : (byte)0, checked((byte)_parts.Count), DisplaySimulationTime,
+                frame == _workshopWriteFrame ? _workshopPositionWrites : 0u, checked((uint)_parts.Count), DisplaySimulationTime,
                 position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, rotation.W));
         }
         catch (Exception error)
@@ -370,7 +370,7 @@ public partial class MachineWorld
         var frame = Engine.GetProcessFrames();
         if (frame != _workshopWriteFrame) { _workshopWriteFrame = frame; _workshopPositionWrites = 0; }
         part.Position = position;
-        _workshopPositionWrites = checked((byte)(_workshopPositionWrites + 1));
+        _workshopPositionWrites = checked(_workshopPositionWrites + 1);
     }
 
     private static Vector3 RenderPosition(CellOrigin cell, LocalPosition local) =>

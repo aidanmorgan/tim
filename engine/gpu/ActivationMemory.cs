@@ -40,10 +40,9 @@ public readonly record struct ActivationMemory(ActivationNodeId Node, Activation
 public readonly struct PhysicsMemoryRead
 {
     private readonly ActivationMemory[]? _values;
-    public byte Count => checked((byte)(_values?.Length ?? 0));
+    public int Count => _values?.Length ?? 0;
     public PhysicsMemoryRead(ReadOnlySpan<ActivationMemory> values)
     {
-        if (values.Length > WorkshopInstances.Capacity) throw new ArgumentException("More memory rows than instances.");
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
@@ -64,14 +63,14 @@ public readonly struct PhysicsMemoryRead
     }
 }
 
-/// <summary>The B1 (fixed-layout) section of the committed activation memory rows.</summary>
+/// <summary>The B1 section of the committed activation memory rows: exactly its population (Story 9R.5b).</summary>
 internal static class WorkshopActivationMemoryWire
 {
     internal const int RecordBytes = 40;
-    internal const int ByteLength = WorkshopInstances.Capacity * RecordBytes;
+    internal static int ByteLength(int count) => WorkshopWire.Width((long)count * RecordBytes);
     internal static void Write(PhysicsMemoryRead read, Span<byte> bytes)
     {
-        if (bytes.Length != ByteLength) throw new ArgumentException("Invalid activation memory wire width.");
+        if (bytes.Length != ByteLength(read.Count)) throw new ArgumentException("Invalid activation memory wire width.");
         bytes.Clear();
         for (var i = 0; i < read.Count; i++)
         {
@@ -85,12 +84,11 @@ internal static class WorkshopActivationMemoryWire
             BinaryPrimitives.WriteUInt64LittleEndian(slot[32..], value.DueTick);
         }
     }
-    internal static PhysicsMemoryRead Read(ReadOnlySpan<byte> bytes, byte count)
+    internal static PhysicsMemoryRead Read(ReadOnlySpan<byte> bytes, int count)
     {
-        if (bytes.Length != ByteLength || count > WorkshopInstances.Capacity ||
-            bytes[(count * RecordBytes)..].IndexOfAnyExcept((byte)0) >= 0)
+        if (count < 0 || bytes.Length != ByteLength(count))
             throw new ArgumentException("Invalid activation memory population or padding.");
-        Span<ActivationMemory> values = stackalloc ActivationMemory[WorkshopInstances.Capacity];
+        var values = new ActivationMemory[count];
         for (var i = 0; i < count; i++)
         {
             var slot = bytes.Slice(i * RecordBytes, RecordBytes);
@@ -101,6 +99,6 @@ internal static class WorkshopActivationMemoryWire
                 new(BinaryPrimitives.ReadUInt32LittleEndian(slot[16..]), BitConverter.UInt16BitsToHalf(BinaryPrimitives.ReadUInt16LittleEndian(slot[20..]))),
                 (OscillatorPhase)BinaryPrimitives.ReadUInt32LittleEndian(slot[24..]), BinaryPrimitives.ReadUInt64LittleEndian(slot[32..]));
         }
-        return new(values[..count]);
+        return new(values);
     }
 }

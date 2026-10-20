@@ -4,8 +4,11 @@ using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
 
+/// <summary>The codec a command's acknowledgement answers in: the command's own.</summary>
+public enum WorkshopResponseCodec : uint { FlatBuffers = 1, Binary = 2 }
+
 /// <summary>Two bounded reliable original requests/results, including one cancellation control.</summary>
-public sealed class WorkshopCommandRouter(Func<WorkshopCommand, byte[], Task<byte[]>> execute)
+public sealed class WorkshopCommandRouter(Func<WorkshopCommand, WorkshopResponseCodec, Task<byte[]>> execute)
 {
     private ulong _lastSequence;
     private readonly Dictionary<ulong, (byte[] Request, Task<byte[]> Result)> _retained = new(2);
@@ -40,10 +43,11 @@ public sealed class WorkshopCommandRouter(Func<WorkshopCommand, byte[], Task<byt
             if (retired == 0) throw new InvalidOperationException("Reliable command result capacity is full.");
         }
         var owned = (byte[])bytes.Clone();
-        var reservedResult = isFlatBuffer ? Array.Empty<byte>() : new byte[WorkshopWire.ResponseBytes];
+        // The binary response's width is its read's populations (Story 9R.5b), so it is encoded when the result exists.
+        var codec = isFlatBuffer ? WorkshopResponseCodec.FlatBuffers : WorkshopResponseCodec.Binary;
         if (retired != 0) _retained.Remove(retired);
         _lastSequence = command.Sequence.Value;
-        var result = execute(command, reservedResult);
+        var result = execute(command, codec);
         _retained.Add(command.Sequence.Value, (owned, result));
         return result;
     }

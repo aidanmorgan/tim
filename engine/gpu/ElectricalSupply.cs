@@ -11,7 +11,9 @@ public static class ElectricalSupply
 {
     public const float PhaseSeconds = 1f / 120f;
     public const float MaximumCapacity = 14400f;
-    public const int LoadCapacity = WorkshopConnections.Capacity;
+    /// <summary>Loads up to this many keep their working rows on the stack; more use the heap. An allocation choice, not a limit:
+    /// a source feeds any number of loads (Story 9R.5b).</summary>
+    private const int StackLoads = 64;
 
     /// <summary>
     /// Admission validates every input before writing output. Runtime arithmetic clamps ordinary
@@ -22,7 +24,7 @@ public static class ElectricalSupply
     {
         if (!Enum.IsDefined(enabled) || !float.IsFinite(sourceBalance) || sourceBalance < 0 ||
             sourceBalance > MaximumCapacity || !float.IsFinite(maximumPower) || maximumPower is < 10f or > 480f ||
-            balances.Length != capacities.Length || balances.Length > LoadCapacity || nextBalances.Length != balances.Length ||
+            balances.Length != capacities.Length || nextBalances.Length != balances.Length ||
             balances.Overlaps(nextBalances) || capacities.Overlaps(nextBalances))
             throw new ArgumentException("Invalid finite electrical allocation.");
         for (var i = 0; i < balances.Length; i++)
@@ -31,7 +33,7 @@ public static class ElectricalSupply
                 throw new ArgumentException("Invalid electrical storage balance.");
 
         // All inputs have been admitted; demand and grants share one finite reservation.
-        Span<float> demand = stackalloc float[LoadCapacity];
+        Span<float> demand = balances.Length <= StackLoads ? stackalloc float[balances.Length] : new float[balances.Length];
         var totalDemand = 0f;
         for (var i = 0; i < balances.Length; i++)
         {
@@ -53,7 +55,7 @@ public static class ElectricalSupply
         if (!(reserved > 0f)) return new(sourceBalance, 0f);
 
         var scale = MathF.Min(1f, reserved / totalDemand);
-        Span<float> grants = stackalloc float[LoadCapacity];
+        Span<float> grants = balances.Length <= StackLoads ? stackalloc float[balances.Length] : new float[balances.Length];
         var slot = 0;
         for (; slot + 4 <= balances.Length; slot += 4)
         {

@@ -3,13 +3,14 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
+/// <summary>The response's timer section: exactly its population (Story 9R.5b: no fixed row capacity).</summary>
 internal static class WorkshopTimerWire
 {
     internal const int RecordBytes = 128;
-    internal const int ByteLength = WorkshopInstances.Capacity * RecordBytes;
+    internal static int ByteLength(int count) => WorkshopWire.Width((long)count * RecordBytes);
     internal static void Write(PhysicsTimerRead read, Span<byte> bytes)
     {
-        if (bytes.Length != ByteLength) throw new ArgumentException("Invalid timer read width.");
+        if (bytes.Length != ByteLength(read.Count)) throw new ArgumentException("Invalid timer read width.");
         bytes.Clear();
         for (var i = 0; i < read.Count; i++)
         {
@@ -24,12 +25,10 @@ internal static class WorkshopTimerWire
             U64(slot,72,input.Cause.Collider.Value); U32(slot,80,input.Cause.Time.Ordinal); H(slot,84,input.Cause.Time.Phase);
         }
     }
-    internal static PhysicsTimerRead Read(ReadOnlySpan<byte> bytes, uint count)
+    internal static PhysicsTimerRead Read(ReadOnlySpan<byte> bytes, int count)
     {
-        if (bytes.Length != ByteLength || count > WorkshopInstances.Capacity ||
-            bytes[(checked((int)count) * RecordBytes)..].IndexOfAnyExcept((byte)0) >= 0)
-            throw new ArgumentException("Invalid timer population or padding.");
-        Span<ActivationTimerState> values = stackalloc ActivationTimerState[WorkshopInstances.Capacity];
+        if (count < 0 || bytes.Length != ByteLength(count)) throw new ArgumentException("Invalid timer population or padding.");
+        var values = new ActivationTimerState[count];
         for (var i = 0; i < count; i++)
         {
             var slot = bytes.Slice(i * RecordBytes, RecordBytes);
@@ -45,7 +44,7 @@ internal static class WorkshopTimerWire
                 new(new(R64(slot,56)),new(R64(slot,64)),new(R64(slot,72)),new(R32(slot,80),RH(slot,84)),new(RH(slot,42))));
             values[i] = new(new(R64(slot,0)),phase,R64(slot,16),R64(slot,24),input);
         }
-        return new(values[..checked((int)count)]);
+        return new(values);
     }
     private static void U64(Span<byte> bytes,int offset,ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(bytes[offset..],value);
     private static void U32(Span<byte> bytes,int offset,uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes[offset..],value);

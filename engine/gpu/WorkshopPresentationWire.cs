@@ -7,13 +7,17 @@ namespace CuriousContraptions.Gpu;
 public enum PresentationEvidenceBits : byte { None = 0, Selected = 1, DisplayTiming = 2 }
 [Flags]
 public enum PresentationEndpointBits : uint { None = 0, Present = 1, Mapped = 2 }
-public readonly record struct PresentationScene(ulong Frame, byte PositionWrites, byte PartCount, double SimulationTime,
+/// <summary>Story 9R.5b: the write and part counts are u32 (a machine has no part limit).</summary>
+public readonly record struct PresentationScene(ulong Frame, uint PositionWrites, uint PartCount, double SimulationTime,
     float X, float Y, float Z, float Qx, float Qy, float Qz, float Qw);
 
 /// <summary>Read-only fixed diagnostic encoding; none of these values can enter physics or history.</summary>
 public static class WorkshopPresentationWire
 {
-    public const int Bytes = 352;
+    /// <summary>Story 9R.5b: 360 bytes; the u32 position-write and part counts sit at 352 and 356.</summary>
+    public const int Bytes = 360;
+    public const int PositionWritesOffset = 352;
+    public const int PartCountOffset = 356;
     public const int Capacity = 32;
     public const int RetainedBytes = Bytes * Capacity;
 
@@ -35,7 +39,8 @@ public static class WorkshopPresentationWire
         data[56] = checked((byte)sample.Quality);
         data[57] = (byte)((selected ? PresentationEvidenceBits.Selected : PresentationEvidenceBits.None) |
             (sample.DisplayWall is not null ? PresentationEvidenceBits.DisplayTiming : PresentationEvidenceBits.None));
-        data[58] = scene.PositionWrites; data[59] = scene.PartCount;
+        BinaryPrimitives.WriteUInt32LittleEndian(data[PositionWritesOffset..], scene.PositionWrites);
+        BinaryPrimitives.WriteUInt32LittleEndian(data[PartCountOffset..], scene.PartCount);
         BinaryPrimitives.WriteSingleLittleEndian(data[60..], scene.X);
         BinaryPrimitives.WriteSingleLittleEndian(data[64..], scene.Y);
         BinaryPrimitives.WriteSingleLittleEndian(data[68..], scene.Z);

@@ -3,17 +3,19 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
+/// <summary>The response's contact-work section: the stores, then the occurrence rows, each exactly its population (Story 9R.5b:
+/// no fixed work or occurrence capacity). Occurrence work and collider slots are u32.</summary>
 internal static class WorkshopContactWorkWire
 {
     internal const int StoreBytes = 32;
-    internal const int OccurrenceBytes = 32;
-    internal const int StoresByteLength = PhysicsSceneDeclaration.ContactWorkCapacity * StoreBytes;
-    internal const int OccurrencesByteLength = PhysicsContactWorkRead.OccurrenceCapacity * OccurrenceBytes;
-    internal const int ByteLength = StoresByteLength + OccurrencesByteLength;
+    internal const int OccurrenceBytes = 40;
+    internal static int ByteLength(int stores, int occurrences) =>
+        WorkshopWire.Width((long)stores * StoreBytes + (long)occurrences * OccurrenceBytes);
     internal static void Write(PhysicsContactWorkRead read, Span<byte> bytes)
     {
-        if (bytes.Length != ByteLength) throw new ArgumentException("Invalid contact-work read width.");
+        if (bytes.Length != ByteLength(read.Count, read.OccurrenceCount)) throw new ArgumentException("Invalid contact-work read width.");
         bytes.Clear();
+        var occurrencesOffset = read.Count * StoreBytes;
         for (var i=0; i<read.Count; i++)
         {
             var value=read[i]; value.Validate(); var slot=bytes.Slice(i*StoreBytes,StoreBytes);
@@ -24,23 +26,20 @@ internal static class WorkshopContactWorkWire
         for (var i=0; i<read.OccurrenceCount; i++)
         {
             var value=read.Occurrence(i); value.Validate();
-            var slot=bytes.Slice(StoresByteLength+i*OccurrenceBytes,OccurrenceBytes);
-            BinaryPrimitives.WriteUInt16LittleEndian(slot,value.Work.Value);
-            BinaryPrimitives.WriteUInt16LittleEndian(slot[2..],value.Collider.Value);
-            U64(slot,4,value.Target.Value); U32(slot,12,value.Sequence); U32(slot,16,value.EventOrdinal);
-            H(slot,20,value.EventPhase); BinaryPrimitives.WriteSingleLittleEndian(slot[22..],value.ApproachSpeed.Value); BinaryPrimitives.WriteSingleLittleEndian(slot[26..],value.Debit.Value);
-            slot[30]=checked((byte)value.Effect);
+            var slot=bytes.Slice(occurrencesOffset+i*OccurrenceBytes,OccurrenceBytes);
+            U32(slot,0,value.Work.Value); U32(slot,4,value.Collider.Value);
+            U64(slot,8,value.Target.Value); U32(slot,16,value.Sequence); U32(slot,20,value.EventOrdinal);
+            H(slot,24,value.EventPhase); BinaryPrimitives.WriteSingleLittleEndian(slot[26..],value.ApproachSpeed.Value); BinaryPrimitives.WriteSingleLittleEndian(slot[30..],value.Debit.Value);
+            slot[34]=checked((byte)value.Effect);
         }
     }
-    internal static PhysicsContactWorkRead Read(ReadOnlySpan<byte> bytes, byte count, byte occurrences)
+    internal static PhysicsContactWorkRead Read(ReadOnlySpan<byte> bytes, int count, int occurrences)
     {
-        if (bytes.Length != ByteLength || count > PhysicsSceneDeclaration.ContactWorkCapacity ||
-            occurrences > PhysicsContactWorkRead.OccurrenceCapacity ||
-            bytes.Slice(count*StoreBytes,StoresByteLength-count*StoreBytes).IndexOfAnyExcept((byte)0)>=0 ||
-            bytes[(StoresByteLength+occurrences*OccurrenceBytes)..].IndexOfAnyExcept((byte)0)>=0)
+        if (count < 0 || occurrences < 0 || bytes.Length != ByteLength(count, occurrences))
             throw new ArgumentException("Invalid contact-work population or padding.");
-        Span<ContactWorkRead> values=stackalloc ContactWorkRead[PhysicsSceneDeclaration.ContactWorkCapacity];
-        Span<ContactWorkOccurrence> events=stackalloc ContactWorkOccurrence[PhysicsContactWorkRead.OccurrenceCapacity];
+        var values=new ContactWorkRead[count];
+        var events=new ContactWorkOccurrence[occurrences];
+        var occurrencesOffset = count * StoreBytes;
         for (var i=0; i<count; i++)
         {
             var slot=bytes.Slice(i*StoreBytes,StoreBytes);
@@ -49,12 +48,12 @@ internal static class WorkshopContactWorkWire
         }
         for (var i=0; i<occurrences; i++)
         {
-            var slot=bytes.Slice(StoresByteLength+i*OccurrenceBytes,OccurrenceBytes);
-            if (slot[31..].IndexOfAnyExcept((byte)0)>=0) throw new ArgumentException("Invalid work-occurrence padding.");
-            events[i]=new(new(BinaryPrimitives.ReadUInt16LittleEndian(slot)),new(BinaryPrimitives.ReadUInt16LittleEndian(slot[2..])),
-                new(R64(slot,4)),R32(slot,12),R32(slot,16),RH(slot,20),new(BinaryPrimitives.ReadSingleLittleEndian(slot[22..])),new(BinaryPrimitives.ReadSingleLittleEndian(slot[26..])),(ContactWorkEffect)slot[30]);
+            var slot=bytes.Slice(occurrencesOffset+i*OccurrenceBytes,OccurrenceBytes);
+            if (slot[35..].IndexOfAnyExcept((byte)0)>=0) throw new ArgumentException("Invalid work-occurrence padding.");
+            events[i]=new(new(R32(slot,0)),new(R32(slot,4)),
+                new(R64(slot,8)),R32(slot,16),R32(slot,20),RH(slot,24),new(BinaryPrimitives.ReadSingleLittleEndian(slot[26..])),new(BinaryPrimitives.ReadSingleLittleEndian(slot[30..])),(ContactWorkEffect)slot[34]);
         }
-        return new(values[..count],events[..occurrences]);
+        return PhysicsContactWorkRead.Adopt(values,events);
     }
     private static void U64(Span<byte> bytes,int offset,ulong value)=>BinaryPrimitives.WriteUInt64LittleEndian(bytes[offset..],value);
     private static void U32(Span<byte> bytes,int offset,uint value)=>BinaryPrimitives.WriteUInt32LittleEndian(bytes[offset..],value);

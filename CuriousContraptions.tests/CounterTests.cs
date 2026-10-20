@@ -390,17 +390,19 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void WorkbenchCapacity_ValidatesCounterFootprint()
     {
-        var fp = WorkbenchFootprint.Of(PartId.Counter);
-        Assert.Equal(1, fp.Bodies);
-        Assert.Equal(0, fp.DynamicBodies);
-        Assert.Equal(2, fp.Colliders);
-        Assert.Equal(0, fp.Triggers);
-        Assert.Equal(0, fp.ContactWorks);
-        Assert.Equal(0, fp.ElectricalSources);
-        Assert.Equal(0, fp.PrismaticConstraints);
-
         var counter = WorkshopInput.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
         IWorkshopInstance[] instances = [counter];
         WorkbenchCapacity.Validate(instances);
+
+        // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
+        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(counter)), new(1, 2)).World;
+        Assert.Equal(1 + 1, world.Bodies);
+        Assert.Equal(0, world.Dynamic);
+        Assert.Equal(2 + 1, world.Colliders);
+        Assert.Equal(0, world.Triggers);
+        Assert.Equal(0, world.ContactWorks);
+        Assert.Equal(0, world.ElectricalSources);
+        Assert.Equal(0, world.Prismatics);
     }
 }

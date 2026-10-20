@@ -82,8 +82,9 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         var sensor = Sensor(final);
         Assert.Equal((OrientationSensorPhase.Armed, 0u, (Half)0), (sensor.Phase, sensor.EventOrdinal, sensor.EventPhase));
         const int DeclarationBytes = 34; // id, body slot, padding, initial rotation and threshold precede the event lanes
-        Assert.Equal(world.Admitted.AsSpan(PhysicsGpuAbi.OrientationSensorsOffset, DeclarationBytes).ToArray(),
-            final.World.AsSpan(PhysicsGpuAbi.OrientationSensorsOffset, DeclarationBytes).ToArray());
+        var sensorRecord = PhysicsGpuAbi.Layout(world.Admitted).OrientationSensorOffset(0);
+        Assert.Equal(world.Admitted.AsSpan(sensorRecord, DeclarationBytes).ToArray(),
+            final.World.AsSpan(sensorRecord, DeclarationBytes).ToArray());
         Assert.True(final[tile].Tilt < 2, $"settles upright (tilt {final[tile].Tilt})");
         // Control: tipped to 30 deg, past its support edge, the same tile topples and the same sensor fires.
         var (tipped, _) = TiltedTile(30);
@@ -250,10 +251,11 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
     {
         var bytes = s.World.Admitted;
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset), sourceOrdinal);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.ContactWorksOffset + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset), 1);
-        var at = PhysicsGpuAbi.WorkOccurrencesOffset + OccurrenceSlot(bytes, s.Ball) * PhysicsGpuAbi.WorkOccurrenceBytes;
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceColliderOffset),
-            (ushort)s.World.Scene.Layout.GetColliderSlot(s.Bumper));
+        var layout = PhysicsGpuAbi.Layout(bytes);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(layout.ContactWorkOffset(0) + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset), 1);
+        var at = layout.WorkOccurrenceOffset(OccurrenceSlot(bytes, s.Ball));
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceColliderOffset),
+            checked((uint)s.World.Scene.Layout.GetColliderSlot(s.Bumper)));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceSequenceOffset), 1);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceOrdinalOffset), 1);
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceApproachOffset), 4);

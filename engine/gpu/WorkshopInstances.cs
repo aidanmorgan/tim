@@ -62,10 +62,10 @@ public readonly record struct WorkshopRamp(GpuBodyId Id, CellOrigin Cell, LocalP
     }
 }
 
-/// <summary>One immutable collection is the construction's only instance storage.</summary>
+/// <summary>One immutable collection is the construction's only instance storage. There is no part limit (Story 9R.5b, owner
+/// decision 20 Oct 2026: an unlimited Free Workshop; memory is the only bound).</summary>
 public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquatable<WorkshopInstances>
 {
-    public const int Capacity = 32;
     private readonly IWorkshopInstance[] _items;
     public static WorkshopInstances Empty { get; } = new();
     public WorkshopInstances(params IWorkshopInstance[] items) => _items = (IWorkshopInstance[])items.Clone();
@@ -97,7 +97,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
         }
-        // No per-kind population rule: the compiled table capacities are the only ceiling.
+        // No population rule: only the compiled tables' document invariants apply.
         WorkbenchCapacity.Validate(this);
     }
     public bool Equals(WorkshopInstances? other) => other is not null && _items.SequenceEqual(other._items);

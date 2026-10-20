@@ -1,0 +1,31 @@
+Story 9R.5b mutants, 20 Oct 2026 (Amelia-11). Each mutant restores one retired cap with the Edit tool, rebuilds, runs
+`dotnet test CuriousContraptions.tests --filter "NoFixedCapacityTests|WorkbenchCapacityTests"` (53 tests; the pose-ring mutant
+adds WorkshopPoseRingTests), records the result and is reverted before the next. Every mutant is killed; `rg MUTANT` over
+engine/, the workers, web and tools is empty afterwards.
+
+| #   | Restored cap (site)                                                        | Result      | Killing tests (examples)                                               |
+|-----|----------------------------------------------------------------------------|-------------|------------------------------------------------------------------------|
+| M1  | triggers > 8 (PhysicsSceneDeclaration ctor)                                 | 8 failed    | triggers-8, connections-8, every forty-switch test, palette "switch"    |
+| M2  | bodies > 33 (PhysicsSceneDeclaration ctor)                                  | many failed | bodies-33, palette wall/latch/domino/lamp/bumper/switch/delay/ramp...  |
+| M3  | sensors > 16 (PhysicsSceneDeclaration ctor)                                 | 3 failed    | sensors-guides-16, OnlyTheGuideInvariantRefusesAtBuild, everything     |
+| M4  | guides > 16 (PhysicsSceneDeclaration ctor)                                  | 3 failed    | sensors-guides-16, OnlyTheGuideInvariantRefusesAtBuild, everything     |
+| M5  | contact works > 8 (PhysicsSceneDeclaration ctor)                            | 3 failed    | contact-work-8, everything, palette "bumper"                           |
+| M6  | prismatics > 16 (PhysicsSceneDeclaration ctor)                              | 5 failed    | prismatics-16, bodies-33, everything, palette powered_gate/spring      |
+| M7  | orientation sensors > 16 (PhysicsSceneDeclaration ctor)                     | 2 failed    | orientation-16, everything                                             |
+| M8  | contact-load rows > 32 (PhysicsSceneDeclaration ctor)                       | 3 failed    | contact-load-32, everything, palette "pressure_plate"                  |
+| M9  | electrical sources > 8 (PhysicsSceneDeclaration ctor)                       | 3 failed    | electrical-8, everything, palette "battery"                            |
+| M10 | moving-body read set > 16 (PhysicsBodyReadSet)                              | many failed | dynamic-16, contact-work-8, prismatics-16, palette ball/bowling/domino, ARingSizedPastTheRetiredCapacity... |
+| M11 | part table > 32 (WorkbenchCapacity.Validate)                                | 33 failed   | every forty-switch test, instances-32, palette (33 of every kind)      |
+| M12 | connections > 8 (WorkshopConnections.Validate)                              | 4 failed    | connections-8, electrical-8, orientation-16, everything                |
+| M13 | activation nodes > 32 (ActivationNetwork ctor)                              | 15 failed   | every forty-switch test, activation-timers-32, contact-load-32         |
+| M14 | binary response bodies > 16 or activations > 32 (WorkshopWire.Write)        | 10 failed   | dynamic-16, sensors-guides-16, everything, TheFortySwitchBench...       |
+| M15 | B1 occurrence collider slot narrowed to u16 (WorkshopContactWorkWire.Write)  | killed      | AWorkOccurrenceSlotPastSixteenBitsCrossesBothResponseCodecs            |
+| M16 | FlatBuffers occurrence count cast to byte (DecodeResponseRecord)            | killed      | AMachinePastEveryRetiredCeiling... ("FlatBuffers: contact work differs") |
+| M17 | pose ring never grows (Simulation worker.js writePoseRing)                  | killed      | tools/workshop-pose-ring.test.mjs: "the worker posts exactly one grown ring" |
+| M18 | Animation latest-sample table capped at 32 targets (Animation worker.js)    | killed      | tools/workshop-animation-output.test.mjs (40 targets): "MUTANT capacity exceeded." |
+
+(M15 and M16 were applied together and each was killed by a different test; "everything" is
+AMachinePastEveryRetiredCeilingRunsResetsExactlyAndSurvivesSaveAndLoad.)
+
+Not a mutant but found by the new tests during implementation: WorkshopWireFlatBuffers.DecodeResponseRecord cast both contact-work
+vector lengths to byte, silently truncating a read past 255 occurrences (fixed; M16 re-proves the kill).

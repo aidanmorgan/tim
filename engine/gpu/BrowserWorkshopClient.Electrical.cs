@@ -7,12 +7,14 @@ public sealed partial class BrowserWorkshopClient
 {
     private const int IndicatorsPerSource = 5;
     private const ulong ElectricalTargetBase = 4UL << 32;
-    private readonly WorkshopAnimationControl?[] _electricalRequested = new WorkshopAnimationControl?[ElectricalSupplyPlan.SourceCapacity * IndicatorsPerSource];
-    private readonly WorkshopAnimationSample?[] _electricalSamples = new WorkshopAnimationSample?[ElectricalSupplyPlan.SourceCapacity * IndicatorsPerSource];
-    private readonly bool[] _electricalRetry = new bool[ElectricalSupplyPlan.SourceCapacity * IndicatorsPerSource];
-    private readonly ulong[] _electricalOrdinals = new ulong[ElectricalSupplyPlan.SourceCapacity * IndicatorsPerSource];
-    private static bool IsElectricalTarget(AnimationTargetId target) =>
-        target.Value >= ElectricalTargetBase && target.Value < ElectricalTargetBase + ElectricalSupplyPlan.SourceCapacity * IndicatorsPerSource;
+    // Story 9R.5b: five indicator slots per committed source, grown to the read's population (FitFeedbackSlots).
+    private WorkshopAnimationControl?[] _electricalRequested = [];
+    private WorkshopAnimationSample?[] _electricalSamples = [];
+    private bool[] _electricalRetry = [];
+    private ulong[] _electricalOrdinals = [];
+    /// <summary>The electrical target range is its own 2^32 block (sources are unbounded); the slot must be one this client owns.</summary>
+    private bool IsElectricalTarget(AnimationTargetId target) =>
+        target.Value >> 32 == ElectricalTargetBase >> 32 && target.Value - ElectricalTargetBase < (ulong)_electricalRequested.Length;
     private void RetireElectricalFeedback()
     { Array.Clear(_electricalRequested); Array.Clear(_electricalSamples); Array.Clear(_electricalOrdinals); Array.Clear(_electricalRetry); }
 

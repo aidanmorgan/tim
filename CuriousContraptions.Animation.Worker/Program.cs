@@ -16,8 +16,11 @@ public static partial class Program
     private static WorkshopSchedule? _schedule;
     private static Preparation? _prepared;
     private static readonly AnimationControlDeferral Deferred = new();
-    private static readonly AnimationBatch Tracks = new(WorkshopAnimationWire.TargetCapacity);
-    private static readonly Track[] Instances = new Track[WorkshopAnimationWire.TargetCapacity];
+    // Story 9R.5b: one track per animated target of the machine; both tables grow when a new target finds no vacancy, so the
+    // machine's target population is the only bound (the initial size is only a starting allocation).
+    private const int InitialTracks = 64;
+    private static readonly AnimationBatch Tracks = new(InitialTracks);
+    private static Track[] Instances = new Track[InitialTracks];
     private struct Track
     {
         public AnimationHandle? Handle;
@@ -33,7 +36,6 @@ public static partial class Program
     private static WorkshopClockMapping Clock => _clock ?? throw new InvalidOperationException("Animation mapping is not installed.");
 
     public static void Main() { }
-    [JSExport] public static int TargetCapacity() => WorkshopAnimationWire.TargetCapacity;
     [JSExport] public static int[] OutputKinds() => [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected];
     [JSImport("now", "workshopAnimation")] private static partial double NativeMilliseconds();
     [JSImport("probe", "workshopAnimation")] private static partial void SendProbe(byte[] bytes);
@@ -210,7 +212,13 @@ public static partial class Program
             else if (Instances[i].Control.Target == control.Target) slot = i;
         }
         if (slot < 0) slot = vacant;
-        if (slot < 0) throw new InvalidOperationException("Animation target capacity exceeded.");
+        if (slot < 0)
+        {
+            // A new target with every track in use: grow both tables (no target capacity).
+            slot = Instances.Length;
+            Array.Resize(ref Instances, Instances.Length * 2);
+            Tracks.EnsureCapacity(Instances.Length);
+        }
         var previous = Instances[slot];
         if (previous.Handle is not null && (control.Property != previous.Control.Property || control.World != previous.Control.World ||
             control.Generation < previous.Control.Generation ||

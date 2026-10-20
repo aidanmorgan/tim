@@ -272,20 +272,21 @@ for (const control of Object.values(StartupControl)) {
     console.log(JSON.stringify({ startupControl: control, passed: true }));
 }
 
-// The transport width comes from the managed canonical ABI, including new declaration lanes.
+// The transport's minimum width comes from the managed canonical ABI. Story 9R.5b: a construction command is as wide as its own
+// machine, so there is no maximum; the managed decoder admits or rejects the exact shape.
 {
     let dispatched = 0;
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56],
+        CommandAbi: () => [72], ResponseAbi: () => [144, 40, 56],
         ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; }
     };
     const { self, messages } = await loadWorker(host);
-    for (const width of [72, 1672, 5768]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
-    assert.equal(dispatched, 3);
-    for (const width of [71, 5769]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
-    assert.equal(dispatched, 3);
+    for (const width of [72, 1672, 5768, 70000]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
+    assert.equal(dispatched, 4);
+    for (const width of [0, 71]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
+    assert.equal(dispatched, 4);
     assert.equal(messages.filter(message => message.rejected).length, 2);
-    console.log(JSON.stringify({ canonicalCommandWidth: true, accepted: [72, 1672, 5768], rejected: [71, 5769] }));
+    console.log(JSON.stringify({ canonicalCommandWidth: true, accepted: [72, 1672, 5768, 70000], rejected: [0, 71] }));
 }
 
 // Blind hunter 10 (Story 9.4b final round): a scheduler turn that cannot resume is reported through the failure envelope,

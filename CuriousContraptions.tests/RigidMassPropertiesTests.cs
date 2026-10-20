@@ -90,7 +90,10 @@ public sealed class PhysicsBodyReadSetTests
         Assert.True(last.HasSameBits(values[15]));
         Assert.False(set.TryGet(new(17), out _));
         Assert.True(set.HasSameBits(new(values)));
-        Assert.Throws<ArgumentException>(() => new PhysicsBodyReadSet([.. values, Read(17)]));
+        // Story 9R.5b: the read set has no fixed capacity; a seventeenth body is retained by name.
+        var seventeen = new PhysicsBodyReadSet([.. values, Read(17)]);
+        Assert.Equal(17, seventeen.Count);
+        Assert.True(seventeen.TryGet(new(17), out _));
     }
 
     [Fact]

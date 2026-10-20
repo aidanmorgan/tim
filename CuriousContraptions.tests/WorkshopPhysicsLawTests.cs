@@ -698,9 +698,11 @@ public sealed class WorkshopPhysicsLawTests
         var scene = new LawScene();
         scene.Ball(LawBall.Basketball, At(0, 3));
         var world = scene.Admit();
-        var bytes = world.Step(1).World.AsSpan(PhysicsGpuAbi.MotionOffset);
-        Assert.True(PhysicsGpuAbi.MotionOffset >= PhysicsGpuAbi.OrientationSensorsOffset +
-            PhysicsSceneDeclaration.OrientationSensorCapacity * PhysicsGpuAbi.OrientationSensorBytes);
+        var stepped = world.Step(1).World;
+        var layout = PhysicsGpuAbi.Layout(stepped);
+        var bytes = stepped.AsSpan(layout.MotionOffset);
+        // Story 9R.5b: the motion payload directly follows the exactly sized orientation-sensor table.
+        Assert.Equal(layout.OrientationSensorsOffset + layout.OrientationSensors * PhysicsGpuAbi.OrientationSensorBytes, layout.MotionOffset);
         Assert.Equal(4u, BinaryPrimitives.ReadUInt32LittleEndian(bytes)); // one dynamic body contributes four motion pieces
         Assert.Equal(4u, BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..])); // four substeps recorded
         Assert.Equal(4u, BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..])); // last ordinal recorded
@@ -768,7 +770,8 @@ public sealed class WorkshopPhysicsLawTests
             LawMaterial.Ball(LawBall.Bowling), At(2, 0, 0), default, .125f, 0);
         var free = scene.Ball(LawBall.Basketball, At(0, 1, -2), resistanceFree: true, gravity: 0);
         var world = scene.Admit();
-        var motion = world.Step(1).World.AsSpan(PhysicsGpuAbi.MotionOffset);
+        var stepped = world.Step(1).World;
+        var motion = stepped.AsSpan(PhysicsGpuAbi.Layout(stepped).MotionOffset);
         var declared = new Dictionary<ulong, Half> { [ball.Value] = (Half)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = (Half).125f,
             [free.Value] = (Half)0 };
         var count = (int)BinaryPrimitives.ReadUInt32LittleEndian(motion);

@@ -107,7 +107,7 @@ public sealed class ActivationTimerTests
         foreach(var (logical,tick) in new[]{(counting,3UL),(finished,123UL)})
         {
             var body=new CanonicalBody(new(1),1,tick,default,default,default);
-            var bytes=new byte[PhysicsMotionRead.ByteLength]; var p=PhysicsMotionRead.HeaderBytes;
+            var bytes=new byte[PhysicsMotionRead.ByteLength(1)]; var p=PhysicsMotionRead.HeaderBytes;
             void U(int offset,uint value)=>BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset),value);
             U(0,4);U(4,4);U(8,checked((uint)(tick-1)*4));U(12,checked((uint)tick*4));
             for (uint step=0;step<4;step++)
@@ -146,10 +146,11 @@ public sealed class ActivationTimerTests
         foreach(var invalid in new[]{value with {DueTick=122},value with {StartedTick=2},
             value with {Phase=ActivationTimerPhase.Finished},value with {Node=new(99)}})
             Assert.Throws<ArgumentException>(()=>network.ValidateRead(counting.Activations,new(new[]{invalid}),new(3),4,scene));
-        var bytes=new byte[WorkshopTimerWire.ByteLength];
+        var bytes=new byte[WorkshopTimerWire.ByteLength(1)];
         WorkshopTimerWire.Write(counting.Timers,bytes);
         Assert.Equal(value,WorkshopTimerWire.Read(bytes,1)[0]);
-        foreach(var offset in new[]{8,12,44,86,WorkshopTimerWire.RecordBytes})
+        Assert.Throws<ArgumentException>(()=>WorkshopTimerWire.Read(new byte[WorkshopTimerWire.ByteLength(1)+1],1));
+        foreach(var offset in new[]{8,12,44,86})
         {
             var changed=(byte[])bytes.Clone(); changed[offset]=255;
             Assert.Throws<ArgumentException>(()=>WorkshopTimerWire.Read(changed,1));

@@ -160,19 +160,10 @@ public readonly record struct PlanarGuideDeclaration(
     }
 }
 
-/// <summary>One immutable owner of compiled physical declarations. Array order is not public identity.</summary>
+/// <summary>One immutable owner of compiled physical declarations. Array order is not public identity.
+/// Story 9R.5b (owner decision, 20 Oct 2026): no table has a fixed capacity; every table is sized from this scene at Run.</summary>
 public sealed class PhysicsSceneDeclaration
 {
-    public const int PrismaticCapacity = 16;
-    public const int BodyCapacity = 33;
-    public const int MaterialCapacity = 33;
-    public const int SensorCapacity = 16;
-    public const int GuideCapacity = 16;
-    public const int TriggerCapacity = 8;
-    public const int ContactWorkCapacity = 8;
-    public const int OrientationSensorCapacity = PhysicsBodyReadSet.Capacity;
-    /// <summary>One contact-load row per plate instance: the instance bound is the only bound, so a row is never refused.</summary>
-    public const int ContactLoadSensorCapacity = WorkshopInstances.Capacity;
     private readonly ContactLoadSensorDeclaration[] _contactLoadSensors;
     /// <summary>The compiled per-plate contact-load rows (Story 9R.4), sorted by identity.</summary>
     public ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors => _contactLoadSensors;
@@ -191,6 +182,8 @@ public sealed class PhysicsSceneDeclaration
     private readonly OrientationSensorDeclaration[] _orientationSensors;
     public ElectricalSupplyPlan Electrical { get; }
     public CompiledMemoryLayout Layout { get; }
+    /// <summary>The world this scene admits: every table exactly its compiled population.</summary>
+    public PhysicsWorldLayout World { get; }
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
@@ -212,11 +205,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<SupplyRouteDeclaration> supplyRoutes = default,
         ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default)
     {
-        if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
-            prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity || contactLoadSensors.Length > ContactLoadSensorCapacity ||
-            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity ||
-            contactWorks.Length > ContactWorkCapacity || orientationSensors.Length > OrientationSensorCapacity)
-            throw new ArgumentException("Invalid physics document or capacity.");
+        if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
+            throw new ArgumentException("Invalid physics document.");
         var ids = new HashSet<ulong>();
         var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>();
         var materialIds = new HashSet<GpuMaterialId>();
@@ -227,7 +217,6 @@ public sealed class PhysicsSceneDeclaration
             bodyMap.Add(body.Id, body);
             if (body.Motion == RigidMotionKind.Dynamic) dynamicCount++;
         }
-        if (dynamicCount > PhysicsBodyReadSet.Capacity) throw new ArgumentException("Dynamic body capacity exceeded.");
         foreach (var material in materials)
         {
             material.Validate(); Identity(material.Id.Value, nextIdentity, ids);
@@ -357,7 +346,16 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_guides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_triggers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
-        Layout = CompiledMemoryLayout.Build(_bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, electricalSources, _prismatics);
+        // One occurrence row per (work, eligible dynamic target), as AdmitContactWorks writes them.
+        var occurrences = 0;
+        foreach (var work in _contactWorks)
+            foreach (var body in _bodies)
+                if (body.Motion == RigidMotionKind.Dynamic && work.Targets.Contains(body.Id)) occurrences++;
+        World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
+            _triggers.Length, _contactWorks.Length, occurrences, _orientationSensors.Length, Electrical.Sources.Length,
+            Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length);
+        _ = World.ByteLength;
+        Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics);
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)

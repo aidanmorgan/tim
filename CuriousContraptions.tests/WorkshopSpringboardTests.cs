@@ -33,7 +33,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         // Supplemental immutable-fixture boundary: the player cannot move this locked Receiver, but the compiled scene
         // admits it at the shifted pose. (The former SPRING_COMPILED_FIXTURES export fed the deleted JS-kernel harness.)
-        Assert.Equal(PhysicsGpuAbi.ByteLength(scene.Colliders.Length), bytes.Length);
+        Assert.Equal(scene.World.ByteLength, bytes.Length);
     }
 
 
@@ -302,15 +302,18 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void CompiledCapacitiesCountBaseAndPlateAndRejectNextPart()
+    public void CompiledPopulationsCountBaseAndPlateAndAdmitTheNextPart()
     {
         var parts = Enumerable.Range(1, 16).Select(i => (IWorkshopInstance)WorkshopInput.Springboard(new((ulong)i),
             i, 1, 0, 0, 0, 0, 1, SpringboardSettings.Default)).ToArray();
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(parts));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         Assert.Equal(33, scene.Bodies.Length); Assert.Equal(16, scene.Prismatics.Length);
-        Assert.Throws<WorkbenchFullException>(() => construction.WithInstance(
-            WorkshopInput.Springboard(new(17), 0, 1, 1, 0, 0, 0, 1, SpringboardSettings.Default)).Validate());
+        // Story 9R.5b: the retired 16-row prismatic and 33-row body tables no longer refuse the seventeenth Springboard.
+        var seventeen = construction.WithInstance(WorkshopInput.Springboard(new(17), 0, 1, 1, 0, 0, 0, 1, SpringboardSettings.Default));
+        seventeen.Validate();
+        var grown = WorkshopPhysicsCompiler.Compile(seventeen, new(1, 2));
+        Assert.Equal(35, grown.Bodies.Length); Assert.Equal(17, grown.Prismatics.Length);
     }
 
     [Fact]

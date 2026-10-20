@@ -4,11 +4,25 @@ import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } 
 
 // The session pose ring layout, owned by WorkshopPoseRing (WorkerAbiTests pins every value against its C# owner).
 const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
-const POSE_BODY_CAPACITY = 16;         // WorkshopPoseRing.BodyCapacity
 const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
 const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
-const POSE_SLOT_BYTES = 1040;          // WorkshopPoseRing.SlotBytes
-const POSE_RING_BYTES = 3120;          // WorkshopPoseRing.TotalBytes
+const POSE_INITIAL_BODIES = 16;        // WorkshopPoseRing.InitialBodyCapacity
+
+// Story 9R.5b: a ring's body capacity is its own length (no fixed capacity). The Simulation worker replaces the bootstrap ring
+// with a larger one at Run when a world holds more moving bodies; it is attached here before the read that needs it arrives.
+function poseRingCapacity(buffer) {
+    const slot = buffer.byteLength / POSE_SLOT_COUNT, capacity = (slot - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
+    if (!Number.isInteger(slot) || !Number.isInteger(capacity) || capacity < 0) throw new Error('The pose ring is not a whole number of slots.');
+    return capacity;
+}
+function attachPoseRing(client, buffer) {
+    if (!(buffer instanceof SharedArrayBuffer)) throw new Error('A pose ring must be shared.');
+    client.poseCapacity = poseRingCapacity(buffer);
+    client.poseRing = buffer;
+    client.poseSeqView = new BigInt64Array(buffer);
+    client.poseDataView = new DataView(buffer);
+    client.poseFloatView = new Float32Array(buffer);
+}
 
 const clients = new Map();
 let nextClient = 1, retiredSession = false, creating = false;
@@ -43,7 +57,8 @@ function sequence(bytes) {
 // The Simulation posts every physical read as one complete binary response (worker.js extractReadIdentity rejects any
 // other length), so its receipt identity is read at the binary ABI offsets only.
 function extractReadIdentity(bytes, responseAbi) {
-    if (bytes.length !== responseAbi[0]) throw new Error('A physical read must be one complete binary response.');
+    // responseAbi[0] is the response header: a read is as long as its own populations (Story 9R.5b).
+    if (bytes.length < responseAbi[0]) throw new Error('A physical read must be one complete binary response.');
     const id = new Uint8Array(24);
     id.set(bytes.subarray(responseAbi[1], responseAbi[1] + 16));
     id.set(bytes.subarray(responseAbi[2], responseAbi[2] + 8), 16);
@@ -136,9 +151,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
         // Cross-origin isolation is required before any client exists (requireIsolation), so the shared rings always exist.
-        const poseRing = new SharedArrayBuffer(POSE_RING_BYTES);
-        const poseSeqView = new BigInt64Array(poseRing), poseDataView = new DataView(poseRing);
-        const poseFloatView = new Float32Array(poseRing);
+        const poseRing = new SharedArrayBuffer(POSE_SLOT_COUNT * (POSE_HEADER_BYTES + POSE_INITIAL_BODIES * POSE_BODY_BYTES));
         const clockRing = createClockRing();
         const client = { displayRate, worker: undefined, pending: new Map(), acknowledgements: new Map(),
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
@@ -147,9 +160,9 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
             state: ready, stalled: false, candidateTimedOut: false,
             identity: undefined, clockAbi: { clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
             memory: undefined,
-            poseRing, poseSeqView, poseDataView, poseFloatView,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
-            presentations: captureMode === 2 ? new Uint8Array(32 * 352) : undefined, presentationSequence: 0n };
+            presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n };
+        attachPoseRing(client, poseRing);
         const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
         client.worker = worker;
         clients.set(id, client);
@@ -268,6 +281,10 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                         client.animationPort = undefined;
                         animationBootstrapped = true;
                         animation.postMessage({ bootstrap, masterPort, clockRing: client.clockRing }, [bootstrap.buffer, masterPort]);
+                    } else if (message.poseRing instanceof SharedArrayBuffer) {
+                        // The worker grew the ring for a world with more moving bodies (Story 9R.5b).
+                        if (!readyReceived) throw new Error('A pose ring arrived before the session was ready.');
+                        attachPoseRing(client, message.poseRing);
                     } else if (message.scheduleControl instanceof Uint8Array) {
                         deliver(client, message.scheduleControl, received, scheduleControl);
                     } else if (typeof message.candidateTimedOut === 'boolean') {
@@ -410,8 +427,8 @@ export function clockObservation(id, bytes) {
     client.observationCount = Math.min(128, client.observationCount + 1);
 
 }
-// Both fixed rings total29,696 retained payload bytes. Extraction visits at most8 records and does
-// not copy the ring; its largest Number payload is8*352*8=22,528 scratch bytes.
+// Both fixed diagnostic rings total 29,952 retained payload bytes. Extraction visits at most 8 records and does
+// not copy the ring; its largest Number payload is 8*360*8=23,040 scratch bytes.
 function evidence(client, ring, total, recordBytes, capacity, afterSequence) {
     if (typeof afterSequence !== 'string' || !/^(0|[1-9][0-9]{0,19})$/.test(afterSequence))
         throw new Error('Evidence cursor must be an exact unsigned decimal sequence.');
@@ -438,15 +455,15 @@ export function clockEvidence(id, afterSequence = '0') {
 export function presentationObservation(id, bytes) {
     const client = owner(id);
     if (!client.presentations) throw new Error('Presentation capture is unavailable in Production.');
-    if (!(bytes instanceof Uint8Array) || bytes.length !== 352)
+    if (!(bytes instanceof Uint8Array) || bytes.length !== 360)
         throw new Error('Invalid fixed presentation diagnostic record.');
     if (client.presentationSequence === 0xffffffffffffffffn) throw new Error('Presentation evidence sequence exhausted.');
-    client.presentations.set(bytes, Number(client.presentationSequence % 32n) * 352);
+    client.presentations.set(bytes, Number(client.presentationSequence % 32n) * 360);
     client.presentationSequence++;
 }
 export function presentationEvidence(id, afterSequence = '0') {
     const client = owner(id);
-    return evidence(client, client.presentations, client.presentationSequence, 352, 32, afterSequence);
+    return evidence(client, client.presentations, client.presentationSequence, 360, 32, afterSequence);
 }
 export function qualified(id) {
     const client = owner(id);
@@ -618,17 +635,17 @@ export async function loadConstruction(expectedBytes) {
 export function readPoseSlot(id, slotIndex) {
     const client = clients.get(id);
     if (!client || !client.poseRing || !client.poseSeqView || !client.poseDataView || !client.poseFloatView) return null;
-    if (client.poseRing.byteLength !== POSE_RING_BYTES || !Number.isInteger(slotIndex) || slotIndex < 0 ||
-        slotIndex >= POSE_SLOT_COUNT) return null;
+    if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= POSE_SLOT_COUNT) return null;
     const s = slotIndex;
-    const seqIndex = s * (POSE_SLOT_BYTES / 8);
+    const slotBytes = POSE_HEADER_BYTES + client.poseCapacity * POSE_BODY_BYTES;
+    const seqIndex = s * (slotBytes / 8);
     const seq1 = Atomics.load(client.poseSeqView, seqIndex);
     if ((seq1 & 1n) !== 0n) return null;
-    const slotByteOffset = s * POSE_SLOT_BYTES;
+    const slotByteOffset = s * slotBytes;
     const timestamp = client.poseDataView.getBigInt64(slotByteOffset + 8, true);
     const bodyFloatOffset = (slotByteOffset + POSE_HEADER_BYTES) / 4;
     const bodies = [];
-    for (let i = 0; i < POSE_BODY_CAPACITY; i++) {
+    for (let i = 0; i < client.poseCapacity; i++) {
         const b = bodyFloatOffset + i * (POSE_BODY_BYTES / 4);
         const bodyId = client.poseDataView.getBigUint64((b + 12) * 4, true);
         const flags = client.poseDataView.getUint32((b + 11) * 4, true);
@@ -659,7 +676,7 @@ export function readLatestPoseSlot(id) {
     let bestSlot = -1;
     let bestSeq = -1n;
     for (let s = 0; s < POSE_SLOT_COUNT; s++) {
-        const seq = Atomics.load(client.poseSeqView, s * (POSE_SLOT_BYTES / 8));
+        const seq = Atomics.load(client.poseSeqView, s * ((POSE_HEADER_BYTES + client.poseCapacity * POSE_BODY_BYTES) / 8));
         if ((seq & 1n) === 0n && seq > bestSeq) {
             bestSeq = seq;
             bestSlot = s;
@@ -672,7 +689,7 @@ export function readLatestPoseSlot(id) {
     let altSeq = -1n;
     for (let s = 0; s < POSE_SLOT_COUNT; s++) {
         if (s === bestSlot) continue;
-        const seq = Atomics.load(client.poseSeqView, s * (POSE_SLOT_BYTES / 8));
+        const seq = Atomics.load(client.poseSeqView, s * ((POSE_HEADER_BYTES + client.poseCapacity * POSE_BODY_BYTES) / 8));
         if ((seq & 1n) === 0n && seq > altSeq) {
             altSeq = seq;
             altSlot = s;

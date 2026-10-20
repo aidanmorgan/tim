@@ -5,15 +5,16 @@ namespace CuriousContraptions.Gpu;
 
 public sealed partial class BrowserWorkshopClient
 {
-    private readonly ActivationLatch?[] _activationRequested = new ActivationLatch?[WorkshopInstances.Capacity];
-    private readonly WorkshopAnimationSample?[] _activationSamples = new WorkshopAnimationSample?[WorkshopInstances.Capacity];
-    private readonly ulong[] _activationOrdinals = new ulong[WorkshopInstances.Capacity];
-    private readonly bool[] _activationFrameTaken = new bool[WorkshopInstances.Capacity];
+    // Story 9R.5b: one slot per committed activation node, grown to the read's population (FitFeedbackSlots), never a fixed table.
+    private ActivationLatch?[] _activationRequested = [];
+    private WorkshopAnimationSample?[] _activationSamples = [];
+    private ulong[] _activationOrdinals = [];
+    private bool[] _activationFrameTaken = [];
     // Bistable Memory feedback (State Latch): one Transition per committed On/Off change, on the node's own activation target.
-    private readonly WorkshopAnimationControl?[] _memoryRequested = new WorkshopAnimationControl?[WorkshopInstances.Capacity];
-    private readonly WorkshopAnimationSample?[] _memorySamples = new WorkshopAnimationSample?[WorkshopInstances.Capacity];
-    private readonly bool[] _memoryRetry = new bool[WorkshopInstances.Capacity];
-    private readonly ulong[] _memoryOrdinals = new ulong[WorkshopInstances.Capacity];
+    private WorkshopAnimationControl?[] _memoryRequested = [];
+    private WorkshopAnimationSample?[] _memorySamples = [];
+    private bool[] _memoryRetry = [];
+    private ulong[] _memoryOrdinals = [];
 
     private static AnimationTargetId ActivationTarget(ActivationNodeId node) => new(checked(node.Value + 2));
     private void RetireActivationFeedback()

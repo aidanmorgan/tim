@@ -51,7 +51,7 @@ public sealed class WorkshopDominoTests
         // The admission record carries exactly these moments (Half mantissa + int32 exponent) for the worker to read.
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var slot = Array.FindIndex(scene.Bodies.ToArray(), b => b.Id == body.Id);
-        var record = bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes, PhysicsGpuAbi.BodyBytes);
+        var record = bytes.AsSpan(scene.World.BodyOffset(slot), PhysicsGpuAbi.BodyBytes);
         Assert.Equal(BitConverter.HalfToUInt16Bits(properties.X.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[120..]));
         Assert.Equal(properties.X.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[124..]));
         Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Y.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[128..]));
@@ -121,20 +121,25 @@ public sealed class WorkshopDominoTests
         Assert.True(WorkshopPorts.Has(PartId.Domino, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
         Assert.False(WorkshopPorts.Has(PartId.Domino, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), WorkshopPorts.LocalPosition(PartId.Domino, WorkshopSocket.ActivationOut));
-        Assert.Equal(new WorkbenchFootprint(1, 1, 1, 0, 0, 0), WorkbenchFootprint.Of(PartId.Domino));
+        // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
+        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(WorkshopInput.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
+        Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.Domino]);
     }
 
     [Fact]
-    public void SeventeenDynamicBodiesRejectWithTheMovingBodyTableReason()
+    public void SeventeenDynamicBodiesBuildAndCompileWithoutAMovingBodyLimit()
     {
         var items = new List<IWorkshopInstance>();
         for (var i = 0; i < 16; i++) items.Add(WorkshopInput.Domino(new((ulong)(i + 1)), -6 + i * .8, Upright, 0, 0, 0, 0, 1));
         var sixteen = new WorkshopInstances([.. items]);
         sixteen.Validate();
+        // Story 9R.5b: the retired 16-row moving-body table no longer refuses the seventeenth moving body.
         items.Add(WorkshopInput.Basketball(new(17), 7, 3, 0, 0, 0, 0, 1));
-        var error = Assert.Throws<WorkbenchFullException>(() => new WorkshopInstances([.. items]).Validate());
-        Assert.Equal(WorkbenchTable.DynamicBodies, error.Table);
-        Assert.Equal("Workbench is full: moving body table", error.Message);
+        var seventeen = new WorkshopInstances([.. items]);
+        seventeen.Validate();
+        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2));
+        Assert.Equal(17, scene.World.Dynamic);
     }
 }

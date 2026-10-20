@@ -79,6 +79,7 @@ public sealed partial class BrowserWorkshopClient
                     schedule.World.Playback == WorldPlayback.Completed ? PresentationBoundary.Completed : PresentationBoundary.Seed;
                 var history = _history.PrepareInstall(schedule, prepared.Endpoint, mapped, boundary, Clock.DisplayEpoch);
                 var cursor = _cursor.PrepareInstallation(prepared.Endpoint);
+                FitFeedbackSlots(prepared.Endpoint.Read);
                 _history.Commit(history); _cursor.Commit(cursor);
                 ReconcileAnimationSchedule(schedule);
                 EnsureInstalledScene(_proposedConstruction ?? _construction);
