@@ -38,6 +38,10 @@ m8  level never clears after Loaded (ActivationNetwork.CommitContactLoads) (AC4)
 m9  level clears one tick late after a one-tick load (AC4 timing)
   Failed TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick
   Failed: 1, Passed: 32
+m11 save drops minimum_mass to the placed default (WorkshopWireFlatBuffers AddThreshold → min(mass, 0.5)) (AC7, Murdoch-10 B1)
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False)  Expected bits 1073741824 (2.0), actual 1056964608 (0.5)
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True)   same
+  Failed: 2, Passed: 2 (filter TheInstanceMinimumMass)
 m10 plate route compiled Direct with no switch (AC2)
   Failed PoweredGateTests.PhysicsCompiler_PlateChainCompilesASwitchedRowThroughThePlate(authored: Enabled)
   Failed PoweredGateTests.PhysicsCompiler_PlateChainCompilesASwitchedRowThroughThePlate(authored: Disabled)

@@ -423,7 +423,17 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, minimum);
         IWorkshopInstance[] load = balls == 1 ? [BallOn(4, -4, 0)] : [BallOn(4, -4.4, 0), BallOn(5, -3.6, 0)];
-        var reads = await RunBench(Bench([gate, battery, plate, .. load], Circuit(battery, plate, gate)));
+        var bench = Bench([gate, battery, plate, .. load], Circuit(battery, plate, gate));
+        if (minimum == 2f)
+        {
+            // AC7 (Murdoch-10 B1): the non-default 2.0 kg is saved and loaded through the real save codec, reloads bit for bit,
+            // and the reloaded construction is what runs.
+            var reloaded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(7)))).Construction;
+            var reloadedPlate = Assert.Single(reloaded.Instances.OfType<WorkshopPressurePlate>());
+            Assert.Equal(BitConverter.SingleToUInt32Bits(2f), BitConverter.SingleToUInt32Bits(reloadedPlate.MinimumMass));
+            bench = reloaded;
+        }
+        var reads = await RunBench(bench);
         if (opens) AssertGateOpened(reads, plate, gate, $"{balls} ball(s) at {minimum} kg");
         else AssertGateClosedThroughout(reads, plate, gate, $"{balls} ball(s) at {minimum} kg");
     }
