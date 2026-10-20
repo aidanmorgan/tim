@@ -99,3 +99,13 @@ All 9 browser suites executed serially in real Google Chrome via the Playwright 
 ## 6. Terminal Verdict
 
 **Pass** — Story 9.2b (Modular Element Package Isolation, Pure C# WASM Solver Consolidation & Multi-Consumer Event Ringbuffer, ENGINE-CORE-2e) fulfills all architectural, performance, test pass rate, and balanced coupling requirements without regressions.
+
+---
+
+## Addendum, 21 Oct 2026 (Story 9A.0 terminal review, Murdoch-15; append-only)
+
+The PASS above for AC1, AC3, AC4 and AC5 is not supported by the tree (conformance audit of 18 Oct 2026, finding G8). Findings A2–A13 and D1/D2 of that audit contradict them. In particular:
+- **MNA.** No Modified Nodal Analysis exists (`git grep -i 'nodal\|MNA'` finds no code). The electrical domain is compiled supply routes over a reachability graph (`engine/gpu/SupplyRoute.cs`); MNA is a named later capability.
+- **The "~50–80 line `worker.js`".** `CuriousContraptions.Simulation/wwwroot/worker.js` is 379 lines at `c7d5dbb0` (347 at the audit). It holds no solver code, but it is not the minimal shell claimed.
+
+The text above is kept unchanged as historical evidence. The open findings and their owners are in the [isolation authority's Current status](../../docs/architecture/element-package-isolation.md#current-status). Story 9.2b closes with the final Story 9A.45 gate.

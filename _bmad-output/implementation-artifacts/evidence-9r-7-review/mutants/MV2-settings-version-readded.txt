@@ -1,0 +1,25 @@
+== mutant MV2-settings-version-readded on 40eb7433
+diff --git a/engine/gpu/WorkshopCadence.cs b/engine/gpu/WorkshopCadence.cs
+index 7ccc2481..4ca4abfd 100644
+--- a/engine/gpu/WorkshopCadence.cs
++++ b/engine/gpu/WorkshopCadence.cs
+@@ -189,13 +189,14 @@ public static class WorkshopCadenceWire
+         BinaryPrimitives.WriteUInt32LittleEndian(destination[12..], (uint)settings.Presentation);
+         BinaryPrimitives.WriteUInt32LittleEndian(destination[16..], settings.PresentationRate.Numerator);
+         BinaryPrimitives.WriteUInt32LittleEndian(destination[20..], settings.PresentationRate.Denominator);
++        BinaryPrimitives.WriteUInt32LittleEndian(destination[24..], 1u);
+     }
+ 
+     /// <summary>Six u32 fields and 8 zero padding bytes (one bundle, one layout: no format version). Enum ranges and the canonical
+     /// ratio are checked by <see cref="WorkshopCadenceSettings.Validate"/>.</summary>
+     public static WorkshopCadenceSettings Read(ReadOnlySpan<byte> source)
+     {
+-        if (source.Length != ByteLength || BinaryPrimitives.ReadUInt64LittleEndian(source[24..]) != 0)
++        if (source.Length != ByteLength || BinaryPrimitives.ReadUInt32LittleEndian(source[24..]) != 1u || BinaryPrimitives.ReadUInt32LittleEndian(source[28..]) != 0)
+             throw new ArgumentException("Unsupported settings shape.");
+         var settings = new WorkshopCadenceSettings(
+             (SimulationCadence)BinaryPrimitives.ReadUInt32LittleEndian(source),
+exit 1
+  Failed CuriousContraptions.Tests.WorkshopFormatTests.TheBinaryHeadersRejectNonZeroPaddingWhereTheVersionWas [1 ms]
+Failed!  - Failed:     1, Passed:  1868, Skipped:     0, Total:  1869, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+porcelain after revert:

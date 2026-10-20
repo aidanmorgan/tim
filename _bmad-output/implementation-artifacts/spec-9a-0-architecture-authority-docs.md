@@ -2,7 +2,7 @@
 title: 'Story 9A.0: Architecture Authority Records the Sole Design'
 type: 'chore'
 created: '2026-10-18'
-status: 'review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -198,6 +198,11 @@ Amelia-14, 21 Oct 2026, on `c7d5dbb0`. All seven tasks done.
   - The **"Never edit review records; Story 9R.18 appends addenda"** constraint is superseded by the 21 Oct reopened-record closure. Story 9A.0's terminal review appends the review-9-2b addendum; the implementer does not edit it.
   - The `cat-062a` text was at `epics.md:663`, not `:464`.
   - `epics.md` lines that contradicted the no-versioning rule are each amended by one phrase: the 9A rules, 9A.2, 9A.4, 9A.14, 9A.24, 9A.26, and the conversion preamble.
+
+- **21 Oct 2026, merge with main `7d6dc38a` after Murdoch-15's Pass (coordinator ruling):**
+  - Story F.10 is merged into 9A.1, and its symbols are added to 9A.1's Deletes list.
+  - 9R.7 had already deleted the save, wire and cadence-settings versions. They move to Current status §4.2, and the 9A.2 Deletes bullet is dropped (M-1 to M-3).
+  - The §4 pin is updated (M-5), the follow-up range reads F.1–F.11, and `engine-contracts.md` keeps 9R.7's `UnsupportedSave` refusal (M-6).
 
 ## Review Triage Log
 

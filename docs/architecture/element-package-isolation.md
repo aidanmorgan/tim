@@ -126,7 +126,7 @@ $$\text{BALANCE} = (\text{STRENGTH} \oplus \text{DISTANCE}) \lor \neg\text{VOLAT
 
 <a id="current-status"></a>
 
-## 4. Current status (at `c7d5dbb0`, 21 Oct 2026)
+## 4. Current status (at the merge of main `7d6dc38a`, 21 Oct 2026)
 
 The tree does not yet meet the target invariants. Each row is an open finding from the [conformance audit of 18 Oct 2026](../../_bmad-output/planning-artifacts/architecture-conformance-audit-2026-10-18.md) (§8 mapping) or a later owner rule, with its owner under the [21 Oct 2026 delivery order](../../_bmad-output/planning-artifacts/epics.md#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination). A row leaves this table only when its owning story's terminal review passes. "C-*" names a family conversion story.
 
@@ -169,7 +169,8 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | B8 (directory), A17 dead skips: `scratch/` and the "unmigrated legacy" skips in `PartRegistry` | Gone from the tree |
 | Fixed table capacities | Story 9R.5b (findings filed to Story F.8) |
 | B7, B8 (remainder): the `MachinePart.Build()` subclassing hook, its only override (the test `ProbePart`) and the orphan root `scratch_test.cs.uid` | Story 9A.1: `MachinePart` is sealed and composes `CosmeticBindingSet`, whose rules are tested directly |
-| Format versions (owner, 21 Oct 2026): the save, wire and cadence settings versions; the clock, memory, schedule, animation channel, physics state, canonical body and trace versions; the trace timing version; the clock ring layout version; the isolation policy number; the bundle and WireContract fixture versions | Story 9R.7 (save, wire, settings) and Story 9A.1 with F.10 merged (the rest). A former version word is zero padding that rejects when set; `WorkshopFormatTests.NoProductionSourceNamesAFormatVersion` fails on any re-added version |
+| The remaining format versions (owner, 21 Oct 2026): the clock, memory, schedule, animation channel, physics state, canonical body and trace versions; the trace timing version; the clock ring layout version; the isolation policy number; the bundle and WireContract fixture versions | Story 9A.1, with F.10 merged. A former version word is zero padding that rejects when set; `WorkshopFormatTests.NoProductionSourceNamesAFormatVersion` fails on any re-added version |
+| Format versions of the Workshop wire, the construction save and the cadence settings (`WorkshopWireVersion`, `WorkshopSaveVersion`, `WorkshopSettingsVersion`) | Story 9R.7 |
 
 ### 4.3 The unsupported 9.2b Pass (G8)
 

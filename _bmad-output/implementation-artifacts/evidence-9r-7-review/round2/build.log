@@ -1,0 +1,100 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (18 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:11.50

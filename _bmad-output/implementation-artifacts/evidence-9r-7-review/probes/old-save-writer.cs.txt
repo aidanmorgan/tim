@@ -1,0 +1,30 @@
+// Murdoch-14 probe, run at c36c7e08 (Story 9R.6 merged with 9R.5b: the last versioned save codec, version 13) in the review-only
+// worktree .claude/worktrees/murdoch13-9r6-mut; added to CuriousContraptions.tests.csproj temporarily, then reverted (porcelain empty).
+// Command: dotnet test CuriousContraptions.tests --filter "FullyQualifiedName~M14OldSaveProbe"  ->  Passed 1/1.
+// Output: old-saves-v13.txt (three base64 saves: free bench, first_principles, quarter_bend).
+using System;
+using System.IO;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class M14OldSaveProbe
+{
+    [Fact]
+    public void WriteOldSaves()
+    {
+        var settings = WorkshopCadenceSettings.Default();
+        var precision = new PuzzlePrecision((Half)0.45);
+        var free = new WorkshopConstruction(new(1), settings, new(WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1)));
+        var first = FirstPrinciples.Create(new(1), settings, new(1), new(2), precision);
+        var quarter = QuarterBend.Create(new(1), settings, new(1), new(2), precision);
+        var lines = new[]
+        {
+            "free " + Convert.ToBase64String(WorkshopSaveCodec.Encode(new(free, new(2)))),
+            "first_principles " + Convert.ToBase64String(WorkshopSaveCodec.Encode(new(first, new(3)))),
+            "quarter_bend " + Convert.ToBase64String(WorkshopSaveCodec.Encode(new(quarter, new(3)))),
+        };
+        File.WriteAllLines("<scratchpad>/m14/old-saves-v13.txt", lines);
+        Assert.Equal(13u, WorkshopSaveCodec.Version);
+    }
+}
