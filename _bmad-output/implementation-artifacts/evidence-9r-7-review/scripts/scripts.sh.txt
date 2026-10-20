@@ -1,0 +1,37 @@
+#!/bin/zsh
+# Murdoch-14 review scripts for Story 9R.7 (copied from the session scratchpad; two scripts concatenated).
+
+# ===== tier1.sh: Tier 1 on the clean merge worktree (da91cffa + main 2adff597 = 40eb7433) =====
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-7-review/tier1
+mkdir -p $E
+cd $W
+{ git rev-parse HEAD; git log --oneline -1; echo "porcelain:"; git status --porcelain; } > $E/identity.txt
+dotnet build CuriousContraptions.slnx > $E/build.log 2>&1; echo "build exit $?" >> $E/exits.txt
+dotnet test CuriousContraptions.slnx > $E/test-full.log 2>&1; echo "test exit $?" >> $E/exits.txt
+node --experimental-vm-modules --test tools/*.test.mjs > $E/node-harness.log 2>&1; echo "node exit $?" >> $E/exits.txt
+node --import /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs --test tools/e2e/unit/*.test.ts > $E/e2e-unit.log 2>&1; echo "e2e unit exit $?" >> $E/exits.txt
+dotnet build -c Release CuriousContraptions.slnx > $E/release-build.log 2>&1; echo "release build exit $?" >> $E/exits.txt
+dotnet build -c Release tools/Ownership > $E/ownership-build.log 2>&1; echo "ownership build exit $?" >> $E/exits.txt
+dotnet restore CuriousContraptions.web > $E/web-restore.log 2>&1; echo "web restore exit $?" >> $E/exits.txt
+dotnet tools/Ownership/bin/Release/net10.0/Ownership.dll --oracles . > $E/ownership-oracles.log 2>&1; echo "ownership oracles exit $?" >> $E/exits.txt
+dotnet build tools/LifecycleContract/LifecycleContract.csproj -c Release --nologo > $E/lifecycle-build.log 2>&1
+dotnet tools/LifecycleContract/bin/Release/net10.0/LifecycleContract.dll > $E/lifecycle.log 2>&1; echo "lifecycle exit $?" >> $E/exits.txt
+dotnet build tools/WireContract/WireContract.csproj -c Release > $E/wire-build.log 2>&1
+dotnet tools/WireContract/bin/Release/net10.0/WireContract.dll > $E/wire.log 2>&1; echo "wire exit $?" >> $E/exits.txt
+dotnet run --project tools/E2eRunner -- select --diff da91cffa > $E/select-diff-da91cffa.txt 2>&1; echo "select exit $?" >> $E/exits.txt
+{ echo "post porcelain:"; git status --porcelain; } >> $E/identity.txt
+echo DONE >> $E/exits.txt
+
+# ===== mutant.sh <name>: run after applying one mutant (Edit tool) in murdoch14-9r7-mut =====
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch14-9r7-mut
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-7-review/mutants
+mkdir -p $E
+cd $W
+{ echo "== mutant $1 on $(git rev-parse --short HEAD)"; git diff; } > $E/$1.txt
+dotnet test CuriousContraptions.tests > $E/$1.log 2>&1
+echo "exit $?" >> $E/$1.txt
+grep -E "^\s+Failed |Passed!|Failed!|error CS|error IDE|error CA" $E/$1.log | sort -u | head -40 >> $E/$1.txt
+git checkout -- .
+echo "porcelain after revert:" >> $E/$1.txt
+git status --porcelain >> $E/$1.txt

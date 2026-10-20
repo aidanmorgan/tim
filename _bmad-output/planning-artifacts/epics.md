@@ -1605,6 +1605,15 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.11: Joined Pipe Follow-ups
+*Status: Backlog. Filed from the 9R.7 review on 21 Oct 2026 as items F10-1 to F10-10. F10-11, the placed-vs-loaded collider split, is owned by 9A.16.*
+
+**Acceptance Criteria:**
+- Every item in the review's F10-1 to F10-10 list is resolved or justified, including:
+  - a test for the bend in-cell offset check;
+  - a typed part id in `JoinedPipe.Validate`;
+  - a Chrome proof of the save-rejection message.
+
 ### Story F.9: Tube Snapping Follow-ups
 *Status: Backlog. Filed from the 9R.6 review on 21 Oct 2026.*
 
@@ -1718,7 +1727,11 @@ So that I can join tubes into a sealed route without fiddly alignment.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.7: `joined_pipe` Level Is Playable (Reopened Story 6.10)
-*Status: Backlog*
+*Status: Done (21 Oct 2026). Murdoch-14 gave a scoped Pass in round 2, on `914bbbf5` ([review](../implementation-artifacts/review-9r-7-joined-pipe-level-playable.md)).*
+- *The command/response wire, the save and the cadence settings no longer carry a format version (owner), and they reject foreign bytes by structure.*
+- *The full run passed 234/234.*
+- *Findings are filed to Story F.11.*
+- *The remaining format versions belong to 9A.1.*
 
 *Depends on: Story 9R.6. Closes report #4: `joined_pipe` exists only in `content/puzzles.json:7930`. It has no `WorkshopPuzzleId` member (`engine/gpu/WorkshopPuzzle.cs:5`), no driver level in `tools/e2e/workshop-driver.ts`, and no test.*
 

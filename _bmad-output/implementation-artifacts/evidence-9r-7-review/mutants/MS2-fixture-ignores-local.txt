@@ -1,0 +1,17 @@
+== mutant MS2-fixture-ignores-local on 40eb7433
+diff --git a/engine/gpu/JoinedPipe.cs b/engine/gpu/JoinedPipe.cs
+index 9b1b136b..dfed8a20 100644
+--- a/engine/gpu/JoinedPipe.cs
++++ b/engine/gpu/JoinedPipe.cs
+@@ -71,7 +71,7 @@ public static class JoinedPipe
+     private static bool IsFixture(WorkshopGenericInstance bend)
+     {
+         var expected = Bend(bend.Id);
+-        return bend.Locked && bend.PartId == expected.PartId && bend.Cell == expected.Cell && bend.Local == expected.Local &&
++        return bend.Locked && bend.PartId == expected.PartId && bend.Cell == expected.Cell &&
+             bend.Rotation == expected.Rotation && bend.DeclaredColliders.SequenceEqual(expected.DeclaredColliders);
+     }
+ 
+exit 0
+Passed!  - Failed:     0, Passed:  1869, Skipped:     0, Total:  1869, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+porcelain after revert:
