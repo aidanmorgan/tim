@@ -108,8 +108,8 @@ Authority: [CAT-037](../requirements.md#current-cat-037), [todo-267](../requirem
 
 ### Decided 18 Oct 2026 by coordinator under owner delegation (playability)
 
-- **ActivationOut drives Signal lamps only, as a level.** A lamp wired from a latch lights while the latch is On and goes dark when it is Off; occurrence consumers (Counter, Delay, another latch) reject the link with "A latch output can only light a Signal lamp." — rationale: a level shows remembered state at a glance, and edge-triggered semantics for occurrence parts are not defined.
-- **A lamp following a latch takes no other signal.** — rationale: one cause per indicator keeps cause and effect readable.
+- **ActivationOut drives Signal lamps only, as a level.** A lamp wired from a latch lights while the latch is On and goes dark when it is Off; occurrence consumers (Counter, Delay, another latch) reject the link with "A level output can only light a Signal lamp." (Story 9R.5: one rule on the declared output kind, shared with the Pressure Plate's level output) — rationale: a level shows remembered state at a glance, and edge-triggered semantics for occurrence parts are not defined.
+- **A lamp following a latch (any level output) takes no other signal** ("A lamp that follows a level output takes no other signal."). — rationale: one cause per indicator keeps cause and effect readable.
 - **ActivationOut socket at (0, −0.56, 0.38) on the lower front, gold sphere with a small navy downward chevron above it.** — rationale: output reads as "below the memory", away from the top Set/Reset controls and the side power sockets; no text or colour coding needed.
 - **Icon-only socket choices are a filled navy raised bar (Set) and a hollow navy ring (Reset), matching the on-part marks.** — rationale: the drawer choice and the part speak the same visual language.
 - **Every Signal lamp's presentation follows its committed value (one Memory cosmetic path).** A sticky lamp still lights once and stays lit. — rationale: one presentation path for all lamps; no visible change for existing levels.

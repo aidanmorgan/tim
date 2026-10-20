@@ -1,0 +1,41 @@
+#!/bin/zsh
+# Murdoch-11 Story 9R.5 mutants, re-run on the rebased code commit d6f5cacd. Each is applied alone to the scratch worktree
+# murdoch11-9r5-mut (detached at d6f5cacd), the filtered native suites run, and the tree is restored with `git checkout -- .`.
+# Usage: zsh mutants.sh.txt <mutant-id>...
+set -u
+M=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut
+OUT=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants
+FILTER='FullyQualifiedName~PressurePlateTests|FullyQualifiedName~PoweredGateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~CounterTests|FullyQualifiedName~ClockTests|FullyQualifiedName~WorkbenchCapacityTests|FullyQualifiedName~SignalLamp|FullyQualifiedName~WorkshopDominoTests'
+cd $M || exit 1
+N=engine/gpu/ActivationNetwork.cs
+apply() {
+  case $1 in
+    H13) # release at n = 13 instead of 12 (inclusive due boundary made exclusive)
+      sed -i '' 's/values\[slot\].Phase == ActivationPhase.Latched \&\& boundary.Value >= rows\[memory\].DueTick/values[slot].Phase == ActivationPhase.Latched \&\& boundary.Value > rows[memory].DueTick/' $N ;;
+    H11) # release at n = 11: the due boundary one tick early
+      sed -i '' 's/rows\[memory\] = rows\[memory\] with { DueTick = checked(boundary.Value + hold) };/rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold - 1) };/' $N ;;
+    ONSET) # the hold counts from the onset, not the last qualifying tick (a re-contact does not refresh it)
+      sed -i '' 's/rows\[memory\] = rows\[memory\] with { DueTick = checked(boundary.Value + hold) };/if (values[slot].Phase != ActivationPhase.Latched) rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };/' $N ;;
+    MIRROR) # the lamp mirror follows a State Latch only (the plate level does not reach its lamp)
+      sed -i '' 's/if (!IsLevelSource(_nodes\[source\].Kind)) continue;/if (_nodes[source].Kind != ActivationNodeKind.StateLatch) continue;/' $N ;;
+    VALID) # drop the committed-row/level consistency rejection
+      sed -i '' 's/throw new ArgumentException("Contact-load release hold differs from its committed level.");/hold += 0;/' $N ;;
+    HOLDS) # the plate takes no memory row (the hold has no sized table row)
+      sed -i '' 's/kind is ActivationNodeKind.Counter or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource;/kind is ActivationNodeKind.Counter or ActivationNodeKind.Oscillator;/' engine/gpu/ActivationMemory.cs ;;
+    REFUSE) # the level refusal keyed to one consumer part (Counter) instead of the declared input kind
+      sed -i '' 's/WorkshopPorts.Signal(target.PartId, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)/WorkshopPorts.Signal(target.PartId, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level \&\& target.PartId == PartId.Counter)/' engine/gpu/WorkshopConnections.cs ;;
+    ONELEVEL) # a lamp that follows a level output accepts a second signal
+      sed -i '' 's/if (feeds.Length > 1 \&\& feeds.Any(/if (feeds.Length > 2 \&\& feeds.Any(/' engine/gpu/WorkshopConnections.cs ;;
+    *) echo "unknown mutant $1"; return 1 ;;
+  esac
+}
+for id in "$@"; do
+  git checkout -- . && apply $id || continue
+  log=$OUT/$id.log
+  git diff > $log
+  if [ ! -s $log ]; then echo "$id: sed did not apply" | tee -a $log; continue; fi
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --filter "$FILTER" >> $log 2>&1
+  echo "exit $?" >> $log
+  echo "== $id"; grep -E "^\s+Failed |Failed!|Passed!|error CS|error IDE" $log | head -12
+done
+git checkout -- .

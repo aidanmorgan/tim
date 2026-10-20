@@ -900,10 +900,13 @@ export class WorkshopDriver {
         await this.closeMenu();
     }
 
-    async stepSimulation(): Promise<void> {
+    /** One Step from Paused through the Workshop menu. Returns that Step acknowledgement's committed read (Story 9R.5: the exact
+     *  per-tick activations and memory rows a suite reads tick by tick). */
+    async stepSimulation(): Promise<RunResetSnapshot> {
         await this.openMenu();
-        await this.command('stepSimulation', WorkshopCommand.Step, () => this.press(1212,246));
+        const acknowledgement = await this.command('stepSimulation', WorkshopCommand.Step, () => this.press(1212,246));
         await this.closeMenu();
+        return readSnapshot(acknowledgement);
     }
 
     async resumeSimulation(): Promise<void> {

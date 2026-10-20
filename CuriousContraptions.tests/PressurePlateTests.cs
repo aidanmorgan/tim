@@ -53,7 +53,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void PressurePlateScene_ExtractsExactTwoCollidersAndTwoPortLocators()
+    public void PressurePlateScene_ExtractsExactTwoCollidersAndThreePortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://parts/scenes/pressure_plate.tscn");
         Assert.NotNull(packedScene);
@@ -79,12 +79,16 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             Assert.Equal((Half)0.03f, topCol.LocalPose.Translation.Y);
             Assert.Equal((Half)0, topCol.LocalPose.Translation.Z);
 
-            Assert.Equal(2, ports.Count);
-            Assert.True(ports.ContainsKey("power_in"));
-            Assert.True(ports.ContainsKey("supply"));
-
+            Assert.Equal(3, ports.Count);
             Assert.Equal(new Godot.Vector3(-1.18f, -0.08f, 0), ports["power_in"].Position);
             Assert.Equal(new Godot.Vector3(1.18f, -0.08f, 0), ports["supply"].Position);
+            // Story 9R.5 D3: the level ActivationOut sits on the +Z edge, level with the ±X supply sockets.
+            Assert.Equal(new Godot.Vector3(0, -0.08f, 1.18f), ports["activation_out"].Position);
+            var socket = (MeshInstance3D)instance.FindChild("Visual", recursive: false)!.FindChild("Visual_Socket_ActivationOut", recursive: false)!;
+            Assert.Equal(new Godot.Vector3(0, -0.08f, 1.18f), socket.Position);
+            var sphere = Assert.IsType<SphereMesh>(socket.Mesh);
+            Assert.Equal(.075f, sphere.Radius);
+            Assert.Equal(new Color("#e8b764").ToHtml(false), ((StandardMaterial3D)sphere.Material).AlbedoColor.ToHtml(false));
         }
         finally
         {
@@ -101,24 +105,17 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void Ports_DeclarePowerInAndSupplySockets()
+    public void Ports_DeclarePowerInALevelActivationOutAndSupply()
     {
-        var ports = WorkshopPorts.For(PartId.PressurePlate).ToArray();
-        Assert.Equal(2, ports.Length);
-
-        var powerIn = ports.First(p => p.Socket == WorkshopSocket.PowerIn);
-        Assert.Equal(WorkshopConnectionDomain.Electrical, powerIn.Domain);
-        Assert.Equal(WorkshopPortDirection.Input, powerIn.Direction);
-
-        var supply = ports.First(p => p.Socket == WorkshopSocket.Supply);
-        Assert.Equal(WorkshopConnectionDomain.Electrical, supply.Domain);
-        Assert.Equal(WorkshopPortDirection.Output, supply.Direction);
-
-        var posIn = WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.PowerIn);
-        Assert.Equal(new System.Numerics.Vector3(-1.18f, -0.08f, 0f), posIn);
-
-        var posOut = WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.Supply);
-        Assert.Equal(new System.Numerics.Vector3(1.18f, -0.08f, 0f), posOut);
+        // Story 9R.5 D4: ActivationOut (a level) is listed before Supply, as on the latch, so the drawer keeps the Supply row.
+        Assert.Equal(
+            [new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null),
+             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level),
+             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null)],
+            WorkshopPorts.For(PartId.PressurePlate).ToArray());
+        Assert.Equal(new Vector3(-1.18f, -0.08f, 0f), WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.PowerIn));
+        Assert.Equal(new Vector3(1.18f, -0.08f, 0f), WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.Supply));
+        Assert.Equal(new Vector3(0f, -0.08f, 1.18f), WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.ActivationOut));
     }
 
     [Fact]
@@ -511,10 +508,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     }
 
     // Matrix rows Removal and the rotated plate (CAT-052 P12): a Basketball dropped on a plate tilted 30° rests on the face, then
-    // rolls off. The committed level follows that same tick's measurement, so the route opens on the next tick: closed on every
-    // tick the ball clearly rests on the face, open on every tick it is clearly off it, and the gate finally closes.
+    // rolls off. Story 9R.5: the committed level is high on every qualifying tick and is held for 11 more; it is low from the 12th
+    // tick after the last qualifying one. A Signal lamp on the plate's ActivationOut follows that same level on every tick.
     [Fact]
-    public async Task ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick()
+    public async Task ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0);
         var half = Math.PI / 12; // 30° about z
@@ -523,11 +520,22 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .345f, 0), rotation);
         var ball = WorkshopInput.Basketball(new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
-        var reads = await RunBench(Bench([gate, battery, plate, ball], Circuit(battery, plate, gate)), 4 * 120);
-        int resting = 0, off = 0;
+        var lamp = LampAt(5);
+        var reads = await RunBench(Bench([gate, battery, plate, ball, lamp], [.. Circuit(battery, plate, gate), Signal(plate.Id, lamp.Id)]), 4 * 120);
+        int resting = 0, off = 0, held = 0, released = 0; ulong? lastQualifying = null;
         var touchedBefore = false; // a landing tick's substeps measure the approach before the solve closes the gap
         foreach (var read in reads)
         {
+            var qualifying = Qualifying(read, plate);
+            if (qualifying) lastQualifying = read.Tick.Value;
+            Assert.Equal(ContactClosed(read, plate), Latched(read.Activations, lamp.Id));
+            if (lastQualifying is { } last)
+            {
+                var n = read.Tick.Value - last;
+                Assert.True(ContactClosed(read, plate) == n <= 11, $"tick {read.Tick.Value}: n = {n}, level {ContactClosed(read, plate)}");
+                if (n is > 0 and <= 11) held++; else if (n >= 12) released++;
+            }
+            else Assert.False(ContactClosed(read, plate), $"no qualifying tick yet at {read.Tick.Value}");
             Assert.True(read.Bodies.TryGet(ball.Id, out var body));
             var world = new System.Numerics.Vector3((body.Body.Cell.X + body.Body.Local.X) / 16f, (body.Body.Cell.Y + body.Body.Local.Y) / 16f,
                 (body.Body.Cell.Z + body.Body.Local.Z) / 16f) - new System.Numerics.Vector3(-4, (float)plateHeight, 0);
@@ -537,21 +545,22 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             if (touching && touchedBefore)
             {
                 resting++;
-                Assert.True(ContactClosed(read, plate), $"resting on the face at tick {read.Tick.Value} (local {local})");
+                Assert.True(qualifying, $"resting on the face qualifies at tick {read.Tick.Value} (local {local})");
             }
             else if (MathF.Abs(local.X) > .9f + .34f || clearance > .05f)
             {
                 off++;
-                Assert.False(ContactClosed(read, plate), $"off the face at tick {read.Tick.Value} (local {local})");
+                Assert.False(qualifying, $"off the face does not qualify at tick {read.Tick.Value} (local {local})");
             }
             touchedBefore = touching;
         }
         Assert.True(resting > 5 && off > 5, $"the ball rested ({resting} ticks) and then left ({off} ticks)");
+        Assert.True(held >= 11 && released > 12, $"the level was held ({held} ticks) and then released ({released} ticks)");
         Assert.True(Travel(reads[^1], gate) < ClosedTravel, $"the gate closes after removal, travel {Travel(reads[^1], gate)}");
     }
 
     // D3 and the removal timing: the plate's level commits from the same tick's phase (tick N); the next Advance composes that gate's
-    // route from it (tick N+1). An unloaded tick clears the level at once (Story 9R.5 later adds its release hold).
+    // route from it (tick N+1). Story 9R.5: release waits for the committed 12-tick hold.
     [Fact]
     public void TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick()
     {
@@ -581,15 +590,22 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal((ActivationOccurrenceKind.ContactLoad, row.Face, plate.Id), (onset.Kind, onset.Collider, onset.Body));
         state = Step(3, ContactLoadPhase.Loaded, 1);
         Assert.Equal(onset, Level(state)); // the level holds its onset while Loaded
-        state = Step(4, ContactLoadPhase.Empty, 0);
+        // Story 9R.5: after the last qualifying tick (3) the level is held through n = 11 (tick 14) and released at n = 12 (tick 15).
+        for (ulong tick = 4; tick <= 14; tick++)
+        {
+            state = Step(tick, ContactLoadPhase.Empty, 0);
+            Assert.True(network.ContactClosed(state.Activations, plate.Id), $"held at tick {tick}"); Assert.True(Next(state));
+            Assert.Equal(onset, Level(state)); // the held level keeps its onset
+        }
+        state = Step(15, ContactLoadPhase.Empty, 0);
         Assert.False(network.ContactClosed(state.Activations, plate.Id)); Assert.False(Next(state));
-        // A load present for one tick only: closed on that tick, open again on the very next one.
-        state = Step(5, ContactLoadPhase.Loaded, 1);
+        // A load present for one tick only is still held for the release hold; an Underweight tick does not qualify.
+        state = Step(16, ContactLoadPhase.Loaded, 1);
         Assert.True(Next(state));
-        state = Step(6, ContactLoadPhase.Empty, 0);
-        Assert.False(network.ContactClosed(state.Activations, plate.Id)); Assert.False(Next(state));
+        state = Step(17, ContactLoadPhase.Underweight, .4f);
+        Assert.True(network.ContactClosed(state.Activations, plate.Id)); Assert.True(Next(state));
         // Every row must be read each tick: a missing read would silently freeze the gate.
-        Assert.Throws<ArgumentException>(() => network.Consume(state.Activations, state.Timers, [], new(5), [], memory: state.Memory));
+        Assert.Throws<ArgumentException>(() => network.Consume(state.Activations, state.Timers, [], new(18), [], memory: state.Memory));
     }
 
     // Owner decision, 20 Oct 2026: no activation-slot limit. A bench of 28 activation parts (13 plates, 5 counters, 5 clocks,
@@ -647,7 +663,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         AssertGateOpened(reads, plates[^1], gate, "the 13th plate under its own load");
         foreach (var plate in plates[..^1]) Assert.All(reads, read => Assert.False(ContactClosed(read, plate), $"plate {plate.Id.Value} stays Clear"));
         Assert.Equal(28, reads[^1].Activations.Count);
-        Assert.True(reads[^1].Memory.Count == 10, $"counter and clock memory rows: {reads[^1].Memory.Count}");
+        // 10 Counter and Clock rows plus each plate's release-hold row (Story 9R.5 D6).
+        Assert.True(reads[^1].Memory.Count == 10 + 13, $"counter, clock and plate memory rows: {reads[^1].Memory.Count}");
         // Reset restores the Build-mode committed state exactly (every field the 9R.1 snapshot compares; the world epoch is
         // a new identity by design).
         AssertSameState(built, reset, "Reset");
@@ -698,5 +715,223 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var reads = await RunBench(Bench([plate, BallOn(4, -4, 0)]), 120);
         Assert.False(ContactClosed(reads[0], plate), "Empty at admission");
         Assert.True(ContactClosed(reads[^1], plate), "Loaded once the ball rests");
+    }
+
+    // ---- Story 9R.5: the plate's level ActivationOut and its committed 0.1 s (12-tick) release hold ----
+    private const int HoldTicks = 12; // ticks(0.1 s, 120 Hz); stated by the spec, not read back from the declaration under test
+    private const string LevelRefusal = "A level output can only light a Signal lamp.";
+    private static WorkshopLamp LampAt(ulong id, double z = 0) => WorkshopInput.Lamp(new(id), 6, GateHeight, z, 0, 0, 0, 1);
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
+        new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
+    private static bool Latched(PhysicsActivationRead values, GpuBodyId owner)
+    {
+        for (var i = 0; i < values.Count; i++) if (values[i].Owner == owner) return values[i].Phase == ActivationPhase.Latched;
+        throw new InvalidOperationException($"No activation node for {owner.Value}.");
+    }
+    private static ActivationMemory Hold(PhysicsMemoryRead memory, WorkshopPressurePlate plate)
+    {
+        for (var i = 0; i < memory.Count; i++) if (memory[i].Node == new ActivationNodeId(plate.Id.Value)) return memory[i];
+        throw new InvalidOperationException($"Plate {plate.Id.Value} commits no release hold.");
+    }
+    /// <summary>A qualifying (Loaded) tick commits the level high with its release due exactly 12 ticks later.</summary>
+    private static bool Qualifying(WorkshopRead read, WorkshopPressurePlate plate) =>
+        ContactClosed(read, plate) && Hold(read.Memory, plate).DueTick == read.Tick.Value + HoldTicks;
+
+    [Fact]
+    public void APlateActivationOutLightsOnlyASignalLamp()
+    {
+        var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2);
+        var counter = WorkshopInput.Counter(new(3), 0, GateHeight, -3, 0, 0, 0, 1, 3);
+        var delay = WorkshopInput.Delay(new(4), 0, GateHeight, 3, 0, 0, 0, 1, DelayDuration.Default);
+        var latch = WorkshopInput.Latch(new(5), 3, GateHeight, -3, 0, 0, 0, 1);
+        var hit = WorkshopInput.Switch(new(6), 3, GateHeight, 3, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var instances = new WorkshopInstances(plate, lamp, counter, delay, latch, hit);
+        new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);
+        foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (delay.Id, WorkshopSocket.ActivationIn),
+                     (latch.Id, WorkshopSocket.SetIn), (latch.Id, WorkshopSocket.ResetIn) })
+            Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly,
+                () => new WorkshopConnections(Signal(plate.Id, target, input)).Validate(instances)).Message);
+        // A lamp that follows the plate's level takes no other signal; a pulse source alone still drives a (sticky) lamp.
+        Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLevel,
+            () => new WorkshopConnections(Signal(plate.Id, lamp.Id), Signal(hit.Id, lamp.Id)).Validate(instances)).Message);
+        new WorkshopConnections(Signal(hit.Id, lamp.Id)).Validate(instances);
+    }
+
+    // Every activation port declares its signal kind (an output what it emits, an input what it admits); no electrical port has one.
+    // Exactly the latch and the plate emit a level, and only the Signal lamp admits one.
+    [Fact]
+    public void EveryActivationPortDeclaresItsSignalKind()
+    {
+        var levelOutputs = new List<PartId>(); var levelInputs = new List<PartId>();
+        foreach (var id in new[] { PartId.ImpactSwitch, PartId.SignalLamp, PartId.Delay, PartId.Domino, PartId.Battery, PartId.PinballBumper,
+                     PartId.BallDetector, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch })
+            foreach (var port in WorkshopPorts.For(id))
+            {
+                Assert.Equal(port.Domain == WorkshopConnectionDomain.Activation, port.Signal is { } kind && Enum.IsDefined(kind));
+                if (port.Signal != WorkshopSignalKind.Level) continue;
+                (port.Direction == WorkshopPortDirection.Output ? levelOutputs : levelInputs).Add(id);
+            }
+        Assert.Equal([PartId.PressurePlate, PartId.Latch], levelOutputs);
+        Assert.Equal([PartId.SignalLamp], levelInputs);
+    }
+
+    [Fact]
+    public void ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold()
+    {
+        var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2); var sticky = LampAt(3, 3);
+        var hit = WorkshopInput.Switch(new(4), 3, GateHeight, 3, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var nodes = WorkshopActivationCompiler.Compile(Bench([plate, lamp, sticky, hit], Signal(plate.Id, lamp.Id), Signal(hit.Id, sticky.Id)))
+            .Nodes.ToArray();
+        Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);
+        Assert.Equal(ActivationNodeKind.StickyFirstInput, nodes.Single(node => node.Owner == sticky.Id).Kind);
+        var source = nodes.Single(node => node.Owner == plate.Id);
+        Assert.Equal((ActivationNodeKind.ContactLoadSource, 12u), (source.Kind, source.ReleaseHoldTicks));
+        Assert.All(nodes.Where(node => node.Owner != plate.Id), node => Assert.Equal(0u, node.ReleaseHoldTicks));
+        Assert.Equal((6u, 12u, 24u), (WorkshopPressurePlate.ReleaseHoldTicks(SimulationCadence.Hz60),
+            WorkshopPressurePlate.ReleaseHoldTicks(SimulationCadence.Hz120), WorkshopPressurePlate.ReleaseHoldTicks(SimulationCadence.Hz240)));
+    }
+
+    [Fact]
+    public void TheNetworkAdmitsAContactLoadLevelOnlyIntoOneLevelIndicator()
+    {
+        var level = new ActivationNodeDeclaration(new(1), new(1), ActivationNodeKind.ContactLoadSource, default, ContactLoad: new(9), ReleaseHoldTicks: 12);
+        var lamp = new ActivationNodeDeclaration(new(2), new(2), ActivationNodeKind.LevelIndicator, default);
+        var timer = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.Timer, default, 5);
+        var hit = new ActivationNodeDeclaration(new(4), new(4), ActivationNodeKind.ContactSource, new(8));
+        _ = new ActivationNetwork([level, lamp], [new(level.Id, lamp.Id, WorkshopSocket.ActivationIn)]);
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([level, timer], [new(level.Id, timer.Id, WorkshopSocket.ActivationIn)]));
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([level, lamp, hit],
+            [new(level.Id, lamp.Id, WorkshopSocket.ActivationIn), new(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)]));
+        // The hold is declared exactly on a contact-load level.
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([level with { ReleaseHoldTicks = 0 }], []));
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([timer with { ReleaseHoldTicks = 12 }], []));
+    }
+
+    /// <summary>Drives the real compiled network (battery → plate → gate, plate ActivationOut → lamp) one committed tick per entry
+    /// with that tick's contact-load phase, and records the plate level, the lamp, and the route the next Advance composes.</summary>
+    private static List<(bool Plate, bool Lamp, bool NextRoute)> HoldTrace(params bool[] loaded)
+    {
+        var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(4);
+        var construction = Bench([gate, battery, plate, lamp], [.. Circuit(battery, plate, gate), Signal(plate.Id, lamp.Id)]);
+        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var row = Assert.Single(scene.ContactLoadSensors.ToArray());
+        var route = Assert.Single(scene.SupplyRoutes.ToArray());
+        var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
+        var trace = new List<(bool, bool, bool)>();
+        for (var i = 0; i < loaded.Length; i++)
+        {
+            state = network.Consume(state.Activations, state.Timers, [], new((ulong)i + 1), [], memory: state.Memory,
+                contactLoads: [new(row.Id, row.Frame, row.Face, loaded[i] ? 1f : 0f, loaded[i] ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
+            var committed = state;
+            var next = PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length, new([ElectricalEnable.Enabled]),
+                owner => network.ContactClosed(committed.Activations, owner)).SupplyClosed[route.Prismatic];
+            trace.Add((network.ContactClosed(state.Activations, plate.Id), Latched(state.Activations, lamp.Id), next));
+        }
+        return trace;
+    }
+    private static bool[] Phases(params (bool Loaded, int Count)[] runs) => [.. runs.SelectMany(run => Enumerable.Repeat(run.Loaded, run.Count))];
+
+    // Matrix row Rest (no dwell before activation): the plate, its lamp and the next route are high on the first Loaded tick.
+    [Fact]
+    public void TheLevelIsHighOnTheFirstQualifyingTick()
+    {
+        var trace = HoldTrace(Phases((false, 2), (true, 1)));
+        Assert.Equal([(false, false, false), (false, false, false), (true, true, true)], trace);
+    }
+
+    // Matrix row Hold boundary: with n ticks since the last qualifying tick, lit while n ≤ 11, dark from n = 12.
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(11, true)]
+    [InlineData(12, false)]
+    [InlineData(13, false)]
+    public void TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(int n, bool lit) =>
+        Assert.Equal((lit, lit, lit), HoldTrace(Phases((true, 1), (false, n)))[^1]);
+
+    // Matrix rows Leave and Both domains: on every tick the plate level, its lamp and the gate route composed for the next Advance
+    // are one committed value.
+    [Fact]
+    public void TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick()
+    {
+        var trace = HoldTrace(Phases((true, 3), (false, 14)));
+        Assert.Equal([.. Enumerable.Repeat(true, 3 + 11), .. Enumerable.Repeat(false, 3)], trace.Select(tick => tick.Plate).ToArray());
+        Assert.All(trace, tick => Assert.True(tick.Plate == tick.Lamp && tick.Plate == tick.NextRoute, $"{tick}"));
+    }
+
+    // Matrix row Bounce: re-contact within 11 non-qualifying ticks keeps the level steadily high; a gap of 12 shows one dark tick.
+    [Theory]
+    [InlineData(11, 0)]
+    [InlineData(12, 1)]
+    public void ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(int gap, int dark)
+    {
+        var trace = HoldTrace(Phases((true, 2), (false, gap), (true, 2), (false, gap), (true, 1)));
+        Assert.Equal(2 * dark, trace.Count(tick => !tick.Plate));
+        Assert.All(trace, tick => Assert.True(tick.Plate == tick.Lamp && tick.Plate == tick.NextRoute, $"{tick}"));
+    }
+
+    // The hold is committed checkpoint state: a second compiled network continuing from the committed checkpoint (as after a
+    // superseded candidate, or a fresh worker) releases on the same tick; Clear() admits it released.
+    [Fact]
+    public void TheReleaseHoldIsCommittedCheckpointState()
+    {
+        var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(4);
+        var construction = Bench([plate, lamp], Signal(plate.Id, lamp.Id));
+        var networks = new[] { WorkshopActivationCompiler.Compile(construction), WorkshopActivationCompiler.Compile(construction) };
+        var row = Assert.Single(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)).ContactLoadSensors.ToArray());
+        var state = new ActivationCheckpoint(networks[0].Clear(), networks[0].ClearTimers(), networks[0].ClearMemory());
+        Assert.Equal(0ul, Hold(state.Memory, plate).DueTick);
+        var lit = new List<bool>();
+        for (ulong tick = 1; tick <= 14; tick++)
+        {
+            var loaded = tick == 1;
+            var network = networks[tick % 2];
+            var candidate = network.Consume(state.Activations, state.Timers, [], new(tick), [], memory: state.Memory,
+                contactLoads: [new(row.Id, row.Frame, row.Face, loaded ? 1f : 0f, loaded ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
+            // A superseded candidate (a Loaded read never committed) leaves the committed hold unchanged.
+            _ = network.Consume(state.Activations, state.Timers, [], new(tick), [], memory: state.Memory,
+                contactLoads: [new(row.Id, row.Frame, row.Face, 1f, ContactLoadPhase.Loaded)]);
+            state = candidate;
+            lit.Add(Latched(state.Activations, lamp.Id));
+            Assert.Equal(lit[^1] ? 1ul + HoldTicks : 0ul, Hold(state.Memory, plate).DueTick);
+        }
+        Assert.Equal([.. Enumerable.Repeat(true, 12), false, false], lit);
+    }
+
+    // Matrix rows Rest and Underweight through the real compile and Advance path: a resting Basketball lights the lamp on the plate's
+    // first Loaded tick; a 0.4 kg Domino leaves both dark.
+    [Fact]
+    public async Task ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick()
+    {
+        var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(5);
+        var reads = await RunBench(Bench([plate, BallOn(4, -4, 0), lamp], Signal(plate.Id, lamp.Id)), 120);
+        var first = reads.FindIndex(read => ContactClosed(read, plate));
+        Assert.True(first > 0, "the plate loads during the run");
+        Assert.True(Qualifying(reads[first], plate), "the first high tick is a qualifying tick (no dwell)");
+        Assert.All(reads.Take(first), read => Assert.False(Latched(read.Activations, lamp.Id), $"dark before load at tick {read.Tick.Value}"));
+        Assert.All(reads.Skip(first), read => Assert.True(Latched(read.Activations, lamp.Id), $"lit while the ball rests at tick {read.Tick.Value}"));
+    }
+
+    // Matrix row Bounce through the real path: a Basketball dropped 2 m onto the plate rebounds (a gap of non-qualifying ticks
+    // between contacts, 7 in evidence-9r-5/probe-bounce-native.txt) yet the lamp stays lit from the first contact on.
+    [Fact]
+    public async Task ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit()
+    {
+        var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(5);
+        var ball = WorkshopInput.Basketball(new(4), -4, Face + .34 + 2, 0, 0, 0, 0, 1);
+        var reads = await RunBench(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), 240);
+        var first = reads.FindIndex(read => Qualifying(read, plate));
+        Assert.True(first > 0, "the ball lands on the plate");
+        var landed = reads.Skip(first).ToList();
+        Assert.Contains(landed, read => !Qualifying(read, plate)); // control: the ball left the face between contacts
+        Assert.All(landed, read => Assert.True(Latched(read.Activations, lamp.Id), $"lit through the bounce at tick {read.Tick.Value}"));
+    }
+
+    [Fact]
+    public async Task AnUnderweightDominoLeavesThePlateLampDark()
+    {
+        var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(5);
+        var reads = await RunBench(Bench([plate, StandingOn(4, -4, 0), lamp], Signal(plate.Id, lamp.Id)), 120);
+        Assert.All(reads, read => Assert.False(ContactClosed(read, plate) || Latched(read.Activations, lamp.Id), $"dark at tick {read.Tick.Value}"));
     }
 }

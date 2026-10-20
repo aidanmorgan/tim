@@ -1310,7 +1310,19 @@ So that two plates switch two gates independently.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.5: Pressure Plate ActivationOut Lights a Signal Lamp (Reopened Story 9.1)
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-11 gave a scoped Pass on `d6f5cacd` ([review](../implementation-artifacts/review-9r-5-pressure-plate-activation-out-level.md)).*
+- *The level is held for 12 ticks: lit through tick 11, dark at tick 12.*
+- *The contact and the lamp share one held level.*
+- *Wiring the plate to anything other than a lamp is refused.*
+- *Findings are filed to Story F.7.*
+
+### Story F.7: Plate Signal Follow-ups
+*Status: Backlog. Filed from the 9R.5 review on 20 Oct 2026.*
+
+**Acceptance Criteria:**
+- A test that a stored hold disagreeing with the plate level is rejected (F7-1).
+- One statement per line at `ActivationNetwork.cs:473` (F7-2).
+- A dedicated test for the "lifted" case (F7-3).
 
 *Depends on: Story 9R.4. Closes report #5: the plate declares only `PowerIn`/`Supply` and the lamp only `ActivationIn` (`WorkshopConnections.cs:62-66`, `:87-90`), so Story 9.1's headline AC ("plate wired to a Signal lamp") was impossible.*
 

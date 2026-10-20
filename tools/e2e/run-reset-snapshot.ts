@@ -287,8 +287,9 @@ export interface ActivationMemoryRow {
     readonly node: string; readonly kind: string; readonly count: string; readonly last_ordinal: string; readonly last_phase: string;
     readonly phase: string; readonly due_tick: string;
 }
-/** ActivationNodeKind values of the rows (engine/gpu/ActivationNetwork.cs). */
-export const MemoryKind = { Counter: '6', Oscillator: '7' } as const;
+/** ActivationNodeKind values of the rows (engine/gpu/ActivationNetwork.cs). A ContactLoadSource row (a Pressure Plate) holds its
+ *  release hold's due tick (Story 9R.5). */
+export const MemoryKind = { Counter: '6', Oscillator: '7', ContactLoadSource: '10' } as const;
 
 /** The committed activation memory rows of a snapshot's read, in wire order. */
 export function activationMemoryRows(snapshot: RunResetSnapshot): ActivationMemoryRow[] {

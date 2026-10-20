@@ -1,0 +1,3 @@
+tools/e2e/cat-052-lamp.test.ts
+tools/e2e/cat-052.test.ts
+tools/e2e/cat-037.test.ts

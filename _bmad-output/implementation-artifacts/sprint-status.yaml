@@ -147,9 +147,9 @@ development_status:
   9r-2-collider-table-sized-at-run: done
   9r-3-direct-gate-own-supply-route: done
   9r-4-pressure-plate-per-instance-load-rows: done
-  9r-5-pressure-plate-activation-out-level: backlog
-  # coordinator 20 Oct 2026 (owner: no arbitrary engine caps): Impact Switch trigger table limited to 8
-  9r-5b-physics-trigger-table-sized-at-run: backlog
+  9r-5-pressure-plate-activation-out-level: done
+  # coordinator 20 Oct 2026 (owner: no arbitrary engine caps): every physics table sized at Run
+  9r-5b-physics-trigger-table-sized-at-run: in-progress
   9r-6-typed-mouth-snapping: backlog
   9r-7-joined-pipe-level-playable: backlog
   9r-8-spring-forward-lesson-chrome-proof: backlog
@@ -319,5 +319,6 @@ development_status:
   f-4-collider-table-follow-ups: backlog
   f-5-supply-route-follow-ups: backlog
   f-6-contact-load-follow-ups: backlog
+  f-7-plate-signal-follow-ups: backlog
 
 action_items: []

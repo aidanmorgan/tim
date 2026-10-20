@@ -23,10 +23,10 @@ public enum WorkshopEditRejection : uint
     ConnectionCapacity,
     /// <summary>A connection is duplicated or does not join matching declared ports.</summary>
     InvalidConnection,
-    /// <summary>A latch output may light only a Signal lamp.</summary>
-    LatchDrivesLampOnly,
-    /// <summary>A lamp that follows a latch takes no other signal.</summary>
-    LampFollowsOneLatch,
+    /// <summary>A level output (State Latch, Pressure Plate) may light only a Signal lamp.</summary>
+    LevelDrivesLampOnly,
+    /// <summary>A lamp that follows a level output takes no other signal.</summary>
+    LampFollowsOneLevel,
     /// <summary>The power input already has a supplier.</summary>
     PowerInputSupplied,
     /// <summary>The puzzle's inventory is used up.</summary>
