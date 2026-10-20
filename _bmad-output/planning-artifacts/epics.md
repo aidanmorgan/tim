@@ -1605,6 +1605,16 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.12: Architecture Doc Follow-ups
+*Status: Backlog. Filed from the 9A.0 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-0-architecture-authority-docs.md)).*
+
+**Acceptance Criteria:**
+- Items F.12-1 to F.12-7 are resolved:
+  - the deleted D4 JS reader is recorded;
+  - the `PartRegistry` source-map row is shown as historical;
+  - the doc-consistency test checks `#anchors`;
+  - the wording fixes.
+
 ### Story F.11: Joined Pipe Follow-ups
 *Status: Backlog. Filed from the 9R.7 review on 21 Oct 2026 as items F10-1 to F10-10. F10-11, the placed-vs-loaded collider split, is owned by 9A.16.*
 
