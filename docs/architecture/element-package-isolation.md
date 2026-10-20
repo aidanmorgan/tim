@@ -135,7 +135,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | Finding | What the tree does today | Breaks invariant | Owner |
 | --- | --- | --- | --- |
 | A13 (runtime), A17, A18 | `engine/PartRegistry.cs` loads the `.tres` catalogue (`parts/catalog/*.tres`, scenes in `parts/scenes/`), not the bundle; Tennis and Balloon are offered but not constructible | 2 | 9A.14 (with 9A.18 icons merged) |
-| A15 | Nine delivered elements have no package: `basket`, `bowling`, `delay`, `funnel`, `pipe`, `pipe_bend_45`, `pipe_bend_90`, `spring`, `switch` | 1 | PKG-1, PKG-2, PKG-3 |
+| A15 | Six delivered elements have no package: `delay`, `funnel`, `pipe`, `pipe_bend_45`, `pipe_bend_90`, `switch` (PKG-1 packaged `basket`, `bowling` and `spring`) | 1 | PKG-2, PKG-3 |
 | A2 | `engine/PartId.cs` holds named constants and numeric id switches that are the save/wire identity | 2 | 9A.15 (numeric switches); 9A.45a then 9A.45 (constants) |
 | A3 (colliders), B2 | `WorkshopCanonicalColliders` tables and `?? WorkshopCanonicalColliders.For(...)` fallbacks | 1, 2, 9 | 9A.16 |
 | A3 (ports, footprints) | The `WorkshopPorts.For` switch table; the runtime does not yet read the footprints the packages declare (`WorkbenchFootprint.Of` was deleted by Story 9R.5b) | 1, 2 | 9A.17 |

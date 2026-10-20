@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
-[ext_resource type="PackedScene" path="res://parts/scenes/basket.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://elements/Receiver/basket.tscn" id="2"]
 
 [resource]
 script = ExtResource("1")

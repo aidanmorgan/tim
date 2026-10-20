@@ -1,0 +1,6 @@
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ASliderWhoseMovingBodyHasNoColliderIsRefused [4 ms]
+  Failed CuriousContraptions.BundleElements.Tests.PackageReferenceTests.TheReceiverBowlingBallAndSpringboardPackagesExist [1 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ASliderWithANonFiniteMovingMassIsRefused [< 1 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ASliderNamingAnUndeclaredParameterIsRefused [< 1 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ASliderMustTravelThroughItsRestFrame [< 1 ms]
+Failed!  - Failed:     5, Passed:    49, Skipped:     0, Total:    54, Duration: 171 ms - BundleElements.Tests.dll (net10.0)

@@ -49,6 +49,15 @@ public sealed class BundleRoundTripTests
     }
 
     [Fact]
+    public void ASliderRoundTripsBitForBit()
+    {
+        var fixture = new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider() with { BodiesCollide = true }] };
+        var entry = Assert.Single(BundleSchema.Read(BundleSchema.Write([fixture])).Elements);
+        AssertEntry(fixture, entry);
+        Assert.Single(entry.Mechanical!.Sliders);
+    }
+
+    [Fact]
     public void GenerationIsDeterministicAndCarriesNoTimestamp()
     {
         var first = BundleGenerator.Generate(TestRepository.Root);
@@ -100,6 +109,7 @@ public sealed class BundleRoundTripTests
             Assert.Equal(mechanical.KinematicMode, entry.Mechanical!.KinematicMode);
             AssertSame(mechanical.MassProperties, entry.Mechanical.MassProperties, "MassProperties");
             AssertSame(mechanical.AnchorPoints, entry.Mechanical.AnchorPoints, "AnchorPoints");
+            AssertSame(mechanical is ISliderElement slider ? slider.Sliders : [], entry.Mechanical.Sliders, "Sliders");
         }
         Assert.Equal(declaration is IElectricalElement, entry.Electrical is not null);
         if (declaration is IElectricalElement electrical) AssertSame(electrical.ElectricalNodes, entry.Electrical!.Nodes, "ElectricalNodes");

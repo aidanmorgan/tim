@@ -605,9 +605,10 @@ public sealed class CSharpStaticGateTests
         "CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj",
         "CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj",
         "elements/Ball/Ball.csproj", "elements/BallDetector/BallDetector.csproj", "elements/Battery/Battery.csproj",
-        "elements/Bumper/Bumper.csproj", "elements/Counter/Counter.csproj", "elements/Domino/Domino.csproj",
-        "elements/PoweredGate/PoweredGate.csproj", "elements/PressurePlate/PressurePlate.csproj", "elements/Ramp/Ramp.csproj",
-        "elements/SignalLamp/SignalLamp.csproj", "elements/StateLatch/StateLatch.csproj", "elements/SystemClock/SystemClock.csproj",
+        "elements/BowlingBall/BowlingBall.csproj", "elements/Bumper/Bumper.csproj", "elements/Counter/Counter.csproj",
+        "elements/Domino/Domino.csproj", "elements/PoweredGate/PoweredGate.csproj", "elements/PressurePlate/PressurePlate.csproj",
+        "elements/Ramp/Ramp.csproj", "elements/Receiver/Receiver.csproj", "elements/SignalLamp/SignalLamp.csproj",
+        "elements/Springboard/Springboard.csproj", "elements/StateLatch/StateLatch.csproj", "elements/SystemClock/SystemClock.csproj",
         "elements/Wall/Wall.csproj",
     ];
     private static readonly string[] RequiredAnalyzers =

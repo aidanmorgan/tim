@@ -1,0 +1,6 @@
+ownership exit=1   (attempt 1: no Release build of the solution in this fresh worktree, CS0006 missing ref assemblies; environmental)
+ownership exit=1   (attempt 2: CuriousContraptions.web not restored; environmental)
+ownership exit=0   (attempt 3, after `dotnet build CuriousContraptions.slnx -c Release` and `dotnet restore CuriousContraptions.web`): Positive true, 22/22 attacks rejected (ownership-oracles.log)
+wire exit=0        (wire-contract.json)
+lifecycle exit=0   (lifecycle-contract.log)
+node exit=0        `node --experimental-vm-modules --test tools/*.test.mjs`: 88/88 (tier1-node.txt)

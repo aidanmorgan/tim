@@ -15,7 +15,8 @@ public enum BundleErrorCode
     UndefinedEnum = 3,
     BodyWithoutCollider = 4,
     DeclarationCount = 5,
-    OutOfRange = 6
+    OutOfRange = 6,
+    UnresolvedReference = 7
 }
 
 /// <summary>One generation failure, naming the package and the field.</summary>
@@ -29,7 +30,7 @@ public sealed record BundleError(BundleErrorCode Code, string Detail)
 public sealed record BundlePackage(string Package, IPuzzleElementDeclaration Declaration);
 
 /// <summary>Admits packages into the bundle: unique ids, finite f32 values, defined enum values, a collider for every body and every
-/// value inside its declared range.</summary>
+/// value inside its declared range; a slider's parameter keys must name declared Real parameters.</summary>
 public static class BundleValidator
 {
     private const SimulationDomain AllDomains = SimulationDomain.Mechanical | SimulationDomain.Electrical | SimulationDomain.Signal |
@@ -131,6 +132,38 @@ public static class BundleValidator
             }
             if (mechanical.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{package}.Colliders: a mechanical body declares no collider"));
+            if (mechanical is ISliderElement slider)
+                for (var i = 0; i < slider.Sliders.Count; i++) Slider($"Sliders[{i}]", slider.Sliders[i], slider.Metadata.Parameters);
+        }
+
+        private void Slider(string path, PrismaticSliderDescriptor slider, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            Finite(path + ".BaseFrame.Position", slider.BaseFrame.Position);
+            Finite(path + ".BaseFrame.Rotation", slider.BaseFrame.Rotation);
+            Finite(path + ".MovingFrame.Position", slider.MovingFrame.Position);
+            Finite(path + ".MovingFrame.Rotation", slider.MovingFrame.Rotation);
+            if (Finite(path + ".LowerLimit", slider.LowerLimit) & Finite(path + ".UpperLimit", slider.UpperLimit))
+            {
+                if (slider.LowerLimit > 0f) OutOfRange(path + ".LowerLimit");
+                else if (slider.UpperLimit < 0f || slider.UpperLimit <= slider.LowerLimit) OutOfRange(path + ".UpperLimit");
+            }
+            Real(path + ".StiffnessParameter", slider.StiffnessParameter, parameters);
+            Real(path + ".DampingParameter", slider.DampingParameter, parameters);
+            Real(path + ".CompressionParameter", slider.CompressionParameter, parameters);
+            var body = slider.MovingBody;
+            if (Finite(path + ".MovingBody.Mass", body.Mass) && body.Mass <= 0f) OutOfRange(path + ".MovingBody.Mass");
+            Finite(path + ".MovingBody.Gravity", body.Gravity);
+            Finite(path + ".MovingBody.LinearDrag", body.LinearDrag);
+            for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
+            if (body.Colliders.Count == 0)
+                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{package}.{path}.MovingBody.Colliders: a mechanical body declares no collider"));
+        }
+
+        /// <summary>A key must name one of the element's declared Real parameters.</summary>
+        private void Real(string path, string key, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            if (!parameters.Any(parameter => parameter.Key == key && parameter.Kind == ParameterKind.Real))
+                errors.Add(new(BundleErrorCode.UnresolvedReference, $"{package}.{path}: '{key}' names no declared Real parameter"));
         }
 
         private void Electrical(IElectricalElement electrical)

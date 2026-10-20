@@ -15,9 +15,10 @@ internal static class ImpactRules
     public static readonly IReadOnlyDictionary<string, PartId> ElementPackages = new Dictionary<string, PartId>(StringComparer.Ordinal)
     {
         ["Ball"] = PartId.Basketball, ["BallDetector"] = PartId.BallDetector, ["Battery"] = PartId.Battery,
-        ["Bumper"] = PartId.PinballBumper, ["Counter"] = PartId.Counter, ["Domino"] = PartId.Domino,
+        ["BowlingBall"] = PartId.BowlingBall, ["Bumper"] = PartId.PinballBumper, ["Counter"] = PartId.Counter, ["Domino"] = PartId.Domino,
         ["PoweredGate"] = PartId.PoweredGate, ["PressurePlate"] = PartId.PressurePlate, ["Ramp"] = PartId.Ramp,
-        ["SignalLamp"] = PartId.SignalLamp, ["StateLatch"] = PartId.Latch, ["SystemClock"] = PartId.Clock, ["Wall"] = PartId.Wall,
+        ["Receiver"] = PartId.Receiver, ["SignalLamp"] = PartId.SignalLamp, ["Springboard"] = PartId.Springboard,
+        ["StateLatch"] = PartId.Latch, ["SystemClock"] = PartId.Clock, ["Wall"] = PartId.Wall,
     };
 
     /// <summary>Every engine/ (outside engine/gpu), ui/ and scenes/ source to its Workshop area. A file's Godot .uid sidecar follows

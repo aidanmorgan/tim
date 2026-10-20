@@ -1,0 +1,23 @@
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryBallPackageDeclaresItsCatalogueBallMaterial [15 ms]
+  Error Message:
+   BowlingBall: declared ball material differs from BallMaterial { Radius = Metres { Value = 0.28 }, Mass = Kilograms { Value = 4 }, Bounce = Restitution { Value = 0.14 }, Drag = InverseSeconds { Value = 0.04 }, Buoyancy = Acceleration { Value = 0 }, Friction = FrictionCoefficient { Value = 0.3 }, BounceThreshold = LinearSpeed { Value = 0.1 }, Rolling = RollingResistance { Value = 0.03 } }.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [9 ms]
+  Error Message:
+   BowlingBall.Colliders[0].Material: MaterialProperties { Restitution = 0.14, Friction = 0.3, RollingResistance = 0.035, BounceThreshold = 0.1 } declared, ContactMaterialDeclaration { Id = GpuMaterialId { Value = 4294967808 }, Restitution = Restitution { Value = 0.14 }, BounceThreshold = LinearSpeed { Value = 0.1 }, Friction = FrictionCoefficient { Value = 0.3 }, RollingResistance = RollingResistance { Value = 0.03 } } at runtime.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [8 ms]
+  Error Message:
+   Receiver.Metadata.Parameters[2] (capture_dwell): default 0.36 declared, 0.35009766 at runtime.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody [4 ms]
+  Error Message:
+   Springboard.Sliders[0].StiffnessParameter binds 1200.
+Failed!  - Failed:     5, Passed:     3, Skipped:     0, Total:     8, Duration: 127 ms - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [11 ms]
+  Error Message:
+   Receiver.Colliders[4]: half-extents <0.75, 0.35, 0.06> declared, radius 0 and MetreVector { X = 0.75, Y = 0.3, Z = 0.06 } at runtime.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody [4 ms]
+  Error Message:
+   Springboard.Sliders[0]: limits [-0.2, 0] declared, [-0.25, 0] compiled.
+Failed!  - Failed:     2, Passed:     6, Skipped:     0, Total:     8, Duration: 130 ms - CuriousContraptions.tests.dll (net10.0)

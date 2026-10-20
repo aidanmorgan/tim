@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.BundleElements;
 using CuriousContraptions.Gpu;
 using Godot;
@@ -52,8 +53,9 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         }
     }
 
+    /// <summary>PKG-1 (Stories 9A.5, 9A.6 and 9A.12) packaged basket, bowling and spring; Story 9A.4 listed eleven.</summary>
     [Fact]
-    public void TheCatalogueIdsWithoutAPackageAreExactlyTheElevenListed()
+    public void TheCatalogueIdsWithoutAPackageAreExactlyTheEightListed()
     {
         var catalogue = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var file in DirAccess.GetFilesAt("res://parts/catalog").Where(file => file.EndsWith(".tres", StringComparison.Ordinal)))
@@ -63,7 +65,7 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         }
         var packaged = Packages().Select(package => package.Declaration.Metadata.Id).ToHashSet(StringComparer.Ordinal);
         Assert.Subset(catalogue, packaged);
-        Assert.Equal(["balloon", "basket", "bowling", "delay", "funnel", "pipe", "pipe_bend_45", "pipe_bend_90", "spring", "switch", "tennis"],
+        Assert.Equal(["balloon", "delay", "funnel", "pipe", "pipe_bend_45", "pipe_bend_90", "switch", "tennis"],
             catalogue.Where(id => !packaged.Contains(id)));
     }
 
@@ -111,25 +113,16 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         {
             var declaration = package.Declaration;
             var id = new PartId(declaration.Metadata.Id);
-            var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-                new WorkshopInstances(Placed(id))), new(1, 2));
+            var scene = Compile(Placed(id));
             // The workbench plane (the body of the one plane collider) belongs to no part.
             var plane = scene.Colliders.ToArray().Single(collider => collider.Shape == RuntimeShape.Plane).Body;
             var bodies = scene.Bodies.ToArray().Where(body => body.Id != plane).ToArray();
             Assert.True(new ElementFootprint(bodies.Length, bodies.Count(body => body.Motion != RigidMotionKind.Static), scene.Prismatics.Length) ==
                 declaration.Footprint, $"{package.Package}: footprint {declaration.Footprint} declared.");
             var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == Owner).ToArray();
-            var materials = scene.Materials.ToArray();
             AssertColliders(package.Package, declaration.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose, collider.Radius.Value,
                 collider.HalfExtents)).ToArray());
-            for (var i = 0; i < colliders.Length; i++)
-            {
-                var runtime = materials.Single(material => material.Id == colliders[i].Material);
-                var declared = declaration.Colliders[i].Material;
-                Assert.True(Same(declared.Restitution, runtime.Restitution.Value) && Same(declared.BounceThreshold, runtime.BounceThreshold.Value) &&
-                    Same(declared.Friction, runtime.Friction.Value) && Same(declared.RollingResistance, runtime.RollingResistance.Value),
-                    $"{package.Package}.Colliders[{i}].Material: {declared} declared, {runtime} at runtime.");
-            }
+            AssertMaterials(package.Package, declaration.Colliders, colliders, scene.Materials.ToArray());
             if (Canonical.Contains(id.Value))
                 AssertColliders(package.Package, declaration.Colliders, WorkshopCanonicalColliders.For(id)
                     .Select(collider => (collider.ShapeKind, collider.LocalPose, collider.Radius, collider.HalfExtents)).ToArray());
@@ -162,6 +155,132 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
             // The catalogue's own untyped parameters (the clock's interval) agree with the typed schema.
             foreach (var (key, value) in registry.Definitions[new PartId(id)].Parameters)
                 Assert.Equal(value, declared.Single(parameter => parameter.Key == key).Default);
+        }
+    }
+
+    /// <summary>PKG-1: each mechanical package's body is the compiled owner body: its motion, mass, linear drag and gravity.</summary>
+    [Fact]
+    public void EveryMechanicalPackageDeclaresTheCompiledBodyMotionMassDragAndGravity()
+    {
+        _ = Registry();
+        foreach (var package in Packages())
+        {
+            if (package.Declaration is not IMechanicalElement mechanical) continue;
+            var scene = Compile(Placed(new PartId(mechanical.Metadata.Id)));
+            var mass = mechanical.MassProperties;
+            AssertBody(package.Package, mechanical.KinematicMode, mass.Mass, mass.LinearDrag, mass.Gravity,
+                scene.Bodies.ToArray().Single(body => body.Id == Owner));
+        }
+    }
+
+    /// <summary>Story 9A.6: the Basketball and Bowling ball packages declare their catalogue ball material (radius, mass, bounce, drag,
+    /// friction, bounce threshold, rolling resistance), equal to both BallMaterial.For and the .tres BallMaterialResource bits. Buoyancy
+    /// has no slot in the Abstractions; it is 0 at runtime for both kinds.</summary>
+    [Fact]
+    public void EveryBallPackageDeclaresItsCatalogueBallMaterial()
+    {
+        var registry = Registry();
+        var balls = Packages().Where(package => package.Declaration.Metadata.Id is "ball" or "bowling").ToArray();
+        Assert.Equal(["ball", "bowling"], balls.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal));
+        foreach (var package in balls)
+        {
+            var ball = (IMechanicalElement)package.Declaration;
+            var id = new PartId(ball.Metadata.Id);
+            var collider = Assert.Single(ball.Colliders);
+            Assert.Equal(AbstractShape.Sphere, collider.ShapeKind);
+            var catalogue = registry.Definitions[id].Ball ?? throw new ArgumentException($"{package.Package}: no catalogue ball material.");
+            foreach (var material in new[] { BallMaterial.For(id), catalogue.Capture(id) })
+            {
+                Assert.True(Same(collider.HalfExtents.X, material.Radius.Value) && Same(ball.MassProperties.Mass, material.Mass.Value) &&
+                    Same(collider.Material.Restitution, material.Bounce.Value) && Same(ball.MassProperties.LinearDrag, material.Drag.Value) &&
+                    Same(collider.Material.Friction, material.Friction.Value) && Same(collider.Material.BounceThreshold, material.BounceThreshold.Value) &&
+                    Same(collider.Material.RollingResistance, material.Rolling.Value), $"{package.Package}: declared ball material differs from {material}.");
+                Assert.True(Same(0f, material.Buoyancy.Value), $"{package.Package}: the runtime ball is buoyant, and the package cannot say so.");
+            }
+        }
+    }
+
+    /// <summary>Story 9A.12: each slider package declares the compiled prismatic joint and its moving body (frames, limits, collision,
+    /// mass, drag, gravity, colliders and material), and the joint's stiffness, damping and starting compression come from the parameters
+    /// the slider names. The part is compiled with every parameter at its declared maximum, so each key must bind its own value.</summary>
+    [Fact]
+    public void EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody()
+    {
+        var sliders = Packages().Where(package => package.Declaration is ISliderElement).ToArray();
+        Assert.Equal(["Springboard"], sliders.Select(package => package.Package));
+        foreach (var package in sliders)
+        {
+            var element = (ISliderElement)package.Declaration;
+            var id = new PartId(element.Metadata.Id);
+            var maxima = element.Metadata.Parameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Maximum, StringComparer.Ordinal);
+            var placed = Placed(id, maxima);
+            var scene = Compile(placed);
+            var joints = scene.Prismatics.ToArray();
+            Assert.True(joints.Length == element.Sliders.Count, $"{package.Package}: {element.Sliders.Count} sliders declared, {joints.Length} compiled.");
+            for (var i = 0; i < joints.Length; i++)
+            {
+                var (slider, joint, where) = (element.Sliders[i], joints[i], $"{package.Package}.Sliders[{i}]");
+                Assert.Equal(Owner, joint.BodyA);
+                AssertFrame(where + ".BaseFrame", slider.BaseFrame, joint.FrameA);
+                AssertFrame(where + ".MovingFrame", slider.MovingFrame, joint.FrameB);
+                Assert.True(Bits(slider.LowerLimit) == Bits(joint.Lower) && Bits(slider.UpperLimit) == Bits(joint.Upper),
+                    $"{where}: limits [{slider.LowerLimit}, {slider.UpperLimit}] declared, [{joint.Lower}, {joint.Upper}] compiled.");
+                Assert.True(Bits(maxima[slider.StiffnessParameter]) == Bits(joint.Stiffness), $"{where}.StiffnessParameter binds {joint.Stiffness}.");
+                Assert.True(Bits(maxima[slider.DampingParameter]) == Bits(joint.Damping), $"{where}.DampingParameter binds {joint.Damping}.");
+                Assert.Equal(slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
+                var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
+                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, slider.MovingBody.Mass, slider.MovingBody.LinearDrag,
+                    slider.MovingBody.Gravity, moving);
+                // The moving body starts at the base frame, CompressionParameter below it along local Y (an unrotated placement).
+                var compression = maxima[slider.CompressionParameter];
+                var start = slider.BaseFrame.Position - slider.MovingFrame.Position - new System.Numerics.Vector3(0f, compression, 0f);
+                var x = WorkshopInput.Position((placed.Cell.X + (float)placed.Local.X) / 16f + start.X);
+                var y = WorkshopInput.Position((placed.Cell.Y + (float)placed.Local.Y) / 16f + start.Y);
+                var z = WorkshopInput.Position((placed.Cell.Z + (float)placed.Local.Z) / 16f + start.Z);
+                Assert.True(moving.Cell == new CellOrigin(x.Cell, y.Cell, z.Cell) && moving.Local == new LocalPosition(x.Local, y.Local, z.Local),
+                    $"{where}.CompressionParameter: the moving body starts at {moving.Cell} {moving.Local}.");
+                var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == joint.BodyB).ToArray();
+                AssertColliders(where + ".MovingBody", slider.MovingBody.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose,
+                    collider.Radius.Value, collider.HalfExtents)).ToArray());
+                AssertMaterials(where + ".MovingBody", slider.MovingBody.Colliders, colliders, scene.Materials.ToArray());
+            }
+        }
+    }
+
+    private static PhysicsSceneDeclaration Compile(IWorkshopInstance instance) =>
+        WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(instance)), new(1, 2));
+
+    private static void AssertBody(string where, KinematicMode mode, float mass, float drag, System.Numerics.Vector3 gravity, RigidBodyDeclaration body)
+    {
+        Assert.True(body.Motion == mode switch
+        {
+            KinematicMode.Static => RigidMotionKind.Static,
+            KinematicMode.Dynamic => RigidMotionKind.Dynamic,
+            _ => throw new ArgumentException($"{where}: the runtime has no {mode} body.")
+        }, $"{where}: {mode} declared, {body.Motion} compiled.");
+        Assert.True(Same(mass, body.Mass.Value), $"{where}: mass {mass} declared, {body.Mass.Value} compiled.");
+        Assert.True(Same(drag, body.LinearDrag.Value), $"{where}: linear drag {drag} declared, {body.LinearDrag.Value} compiled.");
+        Assert.True(Same(gravity.X, body.Gravity.X) && Same(gravity.Y, body.Gravity.Y) && Same(gravity.Z, body.Gravity.Z),
+            $"{where}: gravity {gravity} declared, {body.Gravity} compiled.");
+    }
+
+    private static void AssertFrame(string where, SliderFrame declared, ConstraintFrame compiled) =>
+        Assert.True(Bits(declared.Position.X) == Bits(compiled.Position.X) && Bits(declared.Position.Y) == Bits(compiled.Position.Y) &&
+            Bits(declared.Position.Z) == Bits(compiled.Position.Z) && Bits(declared.Rotation.X) == Bits(compiled.Rotation.X) &&
+            Bits(declared.Rotation.Y) == Bits(compiled.Rotation.Y) && Bits(declared.Rotation.Z) == Bits(compiled.Rotation.Z) &&
+            Bits(declared.Rotation.W) == Bits(compiled.Rotation.W), $"{where}: {declared} declared, {compiled} compiled.");
+
+    private static void AssertMaterials(string where, IReadOnlyList<ColliderDescriptor> declared, ColliderDeclaration[] colliders,
+        ContactMaterialDeclaration[] materials)
+    {
+        for (var i = 0; i < colliders.Length; i++)
+        {
+            var runtime = materials.Single(material => material.Id == colliders[i].Material);
+            var material = declared[i].Material;
+            Assert.True(Same(material.Restitution, runtime.Restitution.Value) && Same(material.BounceThreshold, runtime.BounceThreshold.Value) &&
+                Same(material.Friction, runtime.Friction.Value) && Same(material.RollingResistance, runtime.RollingResistance.Value),
+                $"{where}.Colliders[{i}].Material: {material} declared, {runtime} at runtime.");
         }
     }
 
@@ -207,6 +326,12 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         Func<float, bool> Wall(Func<float, WallDimensions> dimensions) =>
             Admits(value => WorkshopInput.Wall(Owner, 0, 3, 0, 0, 0, 0, 1, dimensions(value)));
         var enables = Enum.GetValues<ElectricalEnable>();
+        var capture = ReceiverCaptureSettings.Free;
+        var region = ReceiverForceRegion.Free;
+        var participations = Enum.GetValues<SensorParticipation>();
+        Func<float, bool> Receiver(Func<WorkshopReceiver, float, WorkshopReceiver> edit) =>
+            Admits(value => edit(WorkshopInput.Receiver(Owner, 0, 3, 0, 0, 0, 0, 1), value).Validate());
+        var spring = SpringboardSettings.Default;
         return id switch
         {
             "ramp" =>
@@ -246,14 +371,45 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
                 ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, WorkshopClock.PlacedIntervalSeconds,
                     Admits(value => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
             ],
+            "basket" =>
+            [
+                ("capture_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)capture.Margin.Value,
+                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { Margin = new((Half)value) } }), []),
+                ("capture_speed_limit", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Half, (float)capture.SpeedLimit.Value,
+                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { SpeedLimit = new((Half)value) } }), []),
+                ("capture_dwell", ParameterUnit.Second, ParameterKind.Real, Lane.Half, (float)capture.Dwell.Value,
+                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { Dwell = new((Half)value) } }), []),
+                ("capture_participation", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, Array.IndexOf(participations, capture.Participation),
+                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { Participation = Option(participations, value) } }),
+                    Enum.GetNames<SensorParticipation>()),
+                ("force_support_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)region.SupportMargin.Value,
+                    Receiver((receiver, value) => receiver with { ForceRegion = ReceiverForceRegion.Create(new((Half)value), region.MaximumAcceleration) }), []),
+                ("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Half, (float)region.MaximumAcceleration.Value,
+                    Receiver((receiver, value) => receiver with { ForceRegion = ReceiverForceRegion.Create(region.SupportMargin, new((Half)value)) }), [])
+            ],
+            "spring" =>
+            [
+                ("stiffness", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, spring.Stiffness,
+                    Admits(value => (spring with { Stiffness = value }).Validate()), []),
+                ("damping", ParameterUnit.NewtonSecondPerMetre, ParameterKind.Real, Lane.Single, spring.Damping,
+                    Admits(value => (spring with { Damping = value }).Validate()), []),
+                ("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, spring.InitialCompression,
+                    Admits(value => (spring with { InitialCompression = value }).Validate()), [])
+            ],
             _ => []
         };
     }
+
+    private static T Option<T>(T[] options, float value) =>
+        float.IsInteger(value) && value >= 0 && value < options.Length ? options[(int)value] : throw new ArgumentException("No such option.");
 
     /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
     private static IWorkshopInstance Placed(PartId id) => id.Value switch
     {
         "ball" => WorkshopInput.Basketball(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "bowling" => WorkshopInput.Ball(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),
+        "basket" => WorkshopInput.Receiver(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default),
         "ramp" => WorkshopInput.Ramp(Owner, 0, 3, 0, 0, 0, 0, 1, RampDimensions.Default),
         "wall" => WorkshopInput.Wall(Owner, 0, 3, 0, 0, 0, 0, 1, WallDimensions.Default),
         "battery" => WorkshopInput.Battery(Owner, 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
@@ -267,6 +423,14 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
         _ => throw new ArgumentException($"No placement for packaged part '{id}'.")
+    };
+
+    /// <summary>One placed slider part with its declared parameters set to these values.</summary>
+    private static WorkshopSpringboard Placed(PartId id, Dictionary<string, float> parameters) => id.Value switch
+    {
+        "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1,
+            new SpringboardSettings(parameters["stiffness"], parameters["damping"], parameters["initial_compression"])),
+        _ => throw new ArgumentException($"No slider placement for packaged part '{id}'.")
     };
 
     private static void AssertColliders(string package, IReadOnlyList<ColliderDescriptor> declared,

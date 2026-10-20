@@ -27,8 +27,9 @@ public sealed record BundleEntry(
     SignalPayload? Signal,
     FluidPayload? Fluid);
 
+/// <summary>The mechanical payload. <see cref="Sliders"/> is empty unless the element is an <see cref="ISliderElement"/>.</summary>
 public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMassProperties MassProperties,
-    IReadOnlyList<AnchorPointDescriptor> AnchorPoints);
+    IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders);
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes);
 
@@ -57,7 +58,8 @@ public static class BundleSchema
         return new(declaration.Metadata, Domains(declaration.SupportedDomains), declaration.Footprint, declaration.Ports,
             declaration.Colliders, declaration.Events,
             declaration is IMechanicalElement mechanical
-                ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassProperties, mechanical.AnchorPoints) : null,
+                ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassProperties, mechanical.AnchorPoints,
+                    mechanical is ISliderElement slider ? slider.Sliders : []) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes) : null,
             declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null);

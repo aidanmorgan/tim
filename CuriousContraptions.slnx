@@ -14,13 +14,16 @@
     <Project Path="elements/Ball/Ball.csproj" />
     <Project Path="elements/BallDetector/BallDetector.csproj" />
     <Project Path="elements/Battery/Battery.csproj" />
+    <Project Path="elements/BowlingBall/BowlingBall.csproj" />
     <Project Path="elements/Bumper/Bumper.csproj" />
     <Project Path="elements/Counter/Counter.csproj" />
     <Project Path="elements/Domino/Domino.csproj" />
     <Project Path="elements/PoweredGate/PoweredGate.csproj" />
     <Project Path="elements/PressurePlate/PressurePlate.csproj" />
     <Project Path="elements/Ramp/Ramp.csproj" />
+    <Project Path="elements/Receiver/Receiver.csproj" />
     <Project Path="elements/SignalLamp/SignalLamp.csproj" />
+    <Project Path="elements/Springboard/Springboard.csproj" />
     <Project Path="elements/StateLatch/StateLatch.csproj" />
     <Project Path="elements/SystemClock/SystemClock.csproj" />
     <Project Path="elements/Wall/Wall.csproj" />

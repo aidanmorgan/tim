@@ -180,7 +180,8 @@ public sealed class SelectionTests
     [Theory]
     [InlineData("parts/catalog/springboard.tres", "spring")]
     [InlineData("parts/catalog/counter.tres", "counter")]
-    [InlineData("parts/scenes/springboard.tscn", "spring")]
+    [InlineData("parts/scenes/clock.tscn", "clock")]
+    [InlineData("elements/Springboard/springboard.tscn", "spring")]
     public void CatalogueAndScenesMapByContent(string path, string part) =>
         Assert.Equal(part, Assert.Single(Select([path]).Paths).Detail);
 

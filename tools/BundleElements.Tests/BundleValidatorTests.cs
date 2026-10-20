@@ -60,6 +60,34 @@ public sealed class BundleValidatorTests
     }
 
     [Fact]
+    public void AValidSliderIsAdmitted() =>
+        Assert.Empty(Errors(("Fixture", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider()] })));
+
+    [Fact]
+    public void ASliderNamingAnUndeclaredParameterIsRefused() =>
+        Assert.Equal(["BUNDLE007 FixtureSlider.Sliders[0].StiffnessParameter: 'spring_rate' names no declared Real parameter"],
+            Errors(("FixtureSlider", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider(stiffness: "spring_rate")] })));
+
+    [Fact]
+    public void ASliderWhoseMovingBodyHasNoColliderIsRefused() =>
+        Assert.Equal(["BUNDLE004 FixtureSlider.Sliders[0].MovingBody.Colliders: a mechanical body declares no collider"],
+            Errors(("FixtureSlider", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider(moving: [])] })));
+
+    [Fact]
+    public void ASliderMustTravelThroughItsRestFrame() =>
+        Assert.Equal(["BUNDLE006 FixtureSlider.Sliders[0].LowerLimit: outside its declared range"],
+            Errors(("FixtureSlider", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider() with { LowerLimit = .1f }] })));
+
+    [Fact]
+    public void ASliderWithANonFiniteMovingMassIsRefused() =>
+        Assert.Equal(["BUNDLE002 FixtureSlider.Sliders[0].MovingBody.Mass: not finite"],
+            Errors(("FixtureSlider", new Fixture
+            {
+                Parameters = Fixture.SpringParameters,
+                Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { Mass = float.NaN } }]
+            })));
+
+    [Fact]
     public void AnAssemblyWithTwoDeclarationsIsRefused() =>
         Assert.Equal(["BUNDLE005 FixturePair: declares 2 elements; a package declares exactly one"],
             PackageDiscovery.FromAssembly("FixturePair", typeof(Fixture).Assembly).Errors.Select(error => error.ToString()));
