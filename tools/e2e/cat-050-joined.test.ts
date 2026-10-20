@@ -305,6 +305,12 @@ describe('Story 9R.7: joined_pipe lesson (Meet in the middle)', () => {
         await driver.pressKey('Escape');
         const cancelled = await driver.captureSnapshot(BENCH);
         assert.deepEqual(snapshotEntries(cancelled, 'saved'), snapshotEntries(long, 'saved'), 'Escape left the 8 m pipe unchanged');
+        // Control: the same drag from the same handle point without Escape commits, so the cancelled gesture did grab the handle.
+        await driver.selectPartAt(at.x, at.y);
+        await driver.resizeSelectedPart(handle, METRE_X, -3);
+        await driver.pressKey('Escape');
+        const shortened = await driver.captureSnapshot(BENCH);
+        assert.equal(pipeLength(shortened, PIPE), 5, 'the uncancelled drag commits 5 m');
         noErrors();
     });
 });

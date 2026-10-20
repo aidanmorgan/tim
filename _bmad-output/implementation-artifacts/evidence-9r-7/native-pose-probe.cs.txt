@@ -1,0 +1,23 @@
+// Story 9R.7 native pose probe: temporarily added to CuriousContraptions.tests/JoinedPipeTests.cs, run once per variant set, then
+// removed. Its Assert.Fail message is native-pose-probe.txt. Production WorkshopSimulation on BrowserGpuTransport (RunAndReset),
+// 1,200 ticks at 120 Hz, Precise; the ball's committed position every 15 ticks.
+// Run 1 variants: ("snapped2", Snapped(lesson, 2)), ("unsnapped", the snapped pose + (0.72, 0)), ("default36", Snapped(lesson, 3.6f)).
+// Run 2 variants (below): offsets of 0.72 m from the snapped 2 m pose.
+[Fact]
+public async Task ProbeTrajectories()
+{
+    var lesson = Lesson((Half)1);
+    var lines = new List<string>();
+    var s = Snapped(lesson, 2);
+    var c = new Vector3((float)((s.Cell.X + (double)s.Local.X) / 16), (float)((s.Cell.Y + (double)s.Local.Y) / 16), 0);
+    foreach (var (name, pipe) in new[] { ("down", PipeAt(c + new Vector3(0, -.72f, 0), Rz(-45), 2)),
+                 ("axisUp", PipeAt(c + new Vector3(-.51f, .51f, 0), Rz(-45), 2)), ("up", PipeAt(c + new Vector3(0, .72f, 0), Rz(-45), 2)),
+                 ("left", PipeAt(c + new Vector3(-.72f, 0, 0), Rz(-45), 2)) })
+    {
+        var bench = lesson.WithInstance(pipe);
+        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
+        lines.Add($"{name}: pipe at {(pipe.Cell.X + (double)pipe.Local.X) / 16}, {(pipe.Cell.Y + (double)pipe.Local.Y) / 16} solved {Solved(bench, run)}");
+        for (var t = 0; t < run.Count; t += 15) lines.Add($"  t{t} {Ball(run[t])}");
+    }
+    Assert.Fail(string.Join("\n", lines));
+}

@@ -74,7 +74,7 @@ function saved(options: SavedOptions = {}): Uint8Array {
     const construction = ConstructionRecord.endConstructionRecord(builder);
     SavedConstruction.startSavedConstruction(builder);
     SavedConstruction.addMagic(builder, 0x53574343);
-    SavedConstruction.addVersion(builder, 13);
+    SavedConstruction.addVersion(builder, 14);
     SavedConstruction.addNextBodyId(builder, 3n);
     SavedConstruction.addConstruction(builder, construction);
     builder.finish(SavedConstruction.endSavedConstruction(builder));
