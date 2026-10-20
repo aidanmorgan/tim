@@ -143,3 +143,127 @@ mutation: sed -E 's/event.data\?.policyRequest !== true \|\|/event.data?.policyR
 ℹ pass 8
 ✖ the isolation worker answers only the structural policy request from an eligible client (1.036666ms)
 
+## F.10 M10: the memory request writes its retired version 1 again
+file: engine/gpu/WorkshopMemoryWire.cs
+mutation: sed -E 's/^        BinaryPrimitives.WriteUInt32LittleEndian\(bytes\[4..\], \(uint\)request.Kind\);$/        BinaryPrimitives.WriteUInt32LittleEndian(bytes, 1u); BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)request.Kind);/'
+48c48
+<         BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)request.Kind);
+---
+>         BinaryPrimitives.WriteUInt32LittleEndian(bytes, 1u); BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)request.Kind);
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.76]     CuriousContraptions.Tests.WorkshopWireTests.StoppedMemoryResultRejectsUnboundedOrFabricatedMetrics [FAIL]
+[xUnit.net 00:00:00.89]     CuriousContraptions.Tests.WorkshopWireTests.StoppedMemoryWirePreservesExactWideIdentitiesAndSeparateContext [FAIL]
+Failed!  - Failed:     2, Passed:    95, Skipped:     0, Total:    97, Duration: 317 ms - CuriousContraptions.tests.dll (net10.0)
+
+## F.10 M11: the schedule header writes its retired version 1 again
+file: engine/gpu/WorkshopSchedule.cs
+mutation: sed -E 's/^        BinaryPrimitives.WriteUInt32LittleEndian\(destination\[4..\], \(uint\)header.Kind\);$/        BinaryPrimitives.WriteUInt32LittleEndian(destination, 1u); BinaryPrimitives.WriteUInt32LittleEndian(destination[4..], (uint)header.Kind);/'
+133c133
+<         BinaryPrimitives.WriteUInt32LittleEndian(destination[4..], (uint)header.Kind);
+---
+>         BinaryPrimitives.WriteUInt32LittleEndian(destination, 1u); BinaryPrimitives.WriteUInt32LittleEndian(destination[4..], (uint)header.Kind);
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.88]     CuriousContraptions.Tests.WorkshopWireTests.SharedScheduleCommitBindsIdentitiesRoutesAndReservedFields [FAIL]
+Failed!  - Failed:     1, Passed:    96, Skipped:     0, Total:    97, Duration: 278 ms - CuriousContraptions.tests.dll (net10.0)
+
+## F.10 M12: the animation control writes its retired version 5 at 90 again
+file: engine/gpu/WorkshopHint.cs
+mutation: sed -E 's/^        WriteTimer\(bytes, control.Timer\);$/        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(90), 5); WriteTimer(bytes, control.Timer);/'
+41c41
+<         WriteTimer(bytes, control.Timer);
+---
+>         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(90), 5); WriteTimer(bytes, control.Timer);
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.70]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.CommittedTransitionAdmitsBothDirectionsAndRejectsForeignChannel(from: 0, to: 1) [FAIL]
+[xUnit.net 00:00:00.70]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.CommittedTransitionAdmitsBothDirectionsAndRejectsForeignChannel(from: 1, to: 0) [FAIL]
+[xUnit.net 00:00:00.78]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.CosmeticCurveDeclarationsValidateClosedSetsAndTheWireCarriesTheImpulseEnvelope [FAIL]
+[xUnit.net 00:00:00.79]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.ContactPumpForwardsTheDeclaredEnvelopeUnchangedBeforeHandingTheLeaseToTransport [FAIL]
+[xUnit.net 00:00:00.80]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.TimerAcknowledgementBindsExactIntervalAndResetCannotReviveIt [FAIL]
+[xUnit.net 00:00:00.80]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.TypedAnimationChannelRejectsRetiredSchemaUnknownPropertyAndForeignIdentity [FAIL]
+[xUnit.net 00:00:00.80]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.ContactPulseOwnsEachOccurrenceAndResetRetiresPendingAcknowledgements [FAIL]
+Failed!  - Failed:     7, Passed:    20, Skipped:     0, Total:    27, Duration: 147 ms - CuriousContraptions.tests.dll (net10.0)
+
+## F.10 M13: the trace record writes its retired version 5 again
+file: engine/gpu/WorkshopTraceRecord.cs
+mutation: sed -E 's/^        U32\(b,4,\(uint\)profile.Cadence\);$/        U32(b,0,5); U32(b,4,(uint)profile.Cadence);/'
+26c26
+<         U32(b,4,(uint)profile.Cadence);
+---
+>         U32(b,0,5); U32(b,4,(uint)profile.Cadence);
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.73]     CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Missing) [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Negative) [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Overflow) [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Duplicate) [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: NonFinite) [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.WorkshopTraceTests.DurationRetentionHasNoRoutineAllocationInNativeExecution [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: ProfileMismatch) [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: Session) [FAIL]
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: UndefinedProfile) [FAIL]
+[xUnit.net 00:00:00.76]     CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: Projection) [FAIL]
+[xUnit.net 00:00:00.76]     CuriousContraptions.Tests.WorkshopTraceTests.ATraceRecordsLeadingWordIsZeroPaddingAndAnyOtherValueRejects(leading: 5) [FAIL]
+[xUnit.net 00:00:00.76]     CuriousContraptions.Tests.WorkshopTraceTests.ATraceRecordsLeadingWordIsZeroPaddingAndAnyOtherValueRejects(leading: 2) [FAIL]
+
+## F.10 M14: the client checks the master peer for the retired clock wire version 4 again
+file: CuriousContraptions.web/wwwroot/workshop-client.js
+mutation: sed -E 's/if \(declared.getUint32\(0, true\) !== 0 \|\|/if (declared.getUint32(0, true) !== 4 ||/'
+262c262
+<                         if (declared.getUint32(0, true) !== 0 || declared.getUint32(4, true) !== clockProfile || // bytes 0..3: zero padding
+---
+>                         if (declared.getUint32(0, true) !== 4 || declared.getUint32(4, true) !== clockProfile || // bytes 0..3: zero padding
+✖ a Browser that was itself blocked never mistakes the Simulation for hung (0.294958ms)
+✖ a clock reply landing after disposal is never delivered (0.283041ms)
+✖ a clock reply landing after the client failed is never delivered (0.303625ms)
+✖ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.313916ms)
+✖ a failed client detaches its clock ring (0.319916ms)
+✖ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (0.306083ms)
+✖ both runtimes must be ready before the one qualification deadline (0,1) (0.468334ms)
+✖ both runtimes must be ready before the one qualification deadline (1,0) (0.412458ms)
+✖ completing an older ACK cannot clear another aged request or exceed two leases (0.67375ms)
+✖ default and missing IDs reject without scheduling or changing the ready owner (0.382959ms)
+✖ delayed managed publication has no callback until explicit activation (0.429625ms)
+✖ delayed valid ACK clears current stall only after managed validation completion (0.318458ms)
+
+## F.10 M15: the page sends a numbered isolation policy request again
+file: CuriousContraptions.web/wwwroot/workshop-isolation.js
+mutation: sed -E 's/expected.postMessage\(\{ policyRequest: true \}/expected.postMessage({ policyRequest: 1 }/'
+87c87
+<         try { expected.postMessage({ policyRequest: true }, [channel.port2]); }
+---
+>         try { expected.postMessage({ policyRequest: 1 }, [channel.port2]); }
+✖ a controller answering the handshake in another shape (the retired numbered reply) is refused (4999.625625ms)
+✖ at most one isolation reload remains permitted (5001.889209ms)
+✖ controller replacement retires booting ownership (5000.51875ms)
+✖ controller replacement retires qualified ownership (5000.717792ms)
+✖ established isolation permits delayed runtime loading and records actual usable time (5003.074625ms)
+ℹ fail 0
+✖ failing tests:
+✖ manual navigation after slow runtime loading starts a fresh isolation attempt (5003.741875ms)
+ℹ pass 3
+
+## F.10 M16: the bundle tool writes a Version field again
+file: tools/BundleElements/Program.cs
+mutation: sed -E 's/^    GeneratedAt = DateTime.UtcNow.ToString\("O"\),$/    Version = "1.0",\n    GeneratedAt = DateTime.UtcNow.ToString("O"),/'
+39a40
+>     Version = "1.0",
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.83]     CuriousContraptions.Tests.WorkshopFormatTests.NoProductionSourceNamesAFormatVersion [FAIL]
+Failed!  - Failed:     1, Passed:     6, Skipped:     0, Total:     7, Duration: 138 ms - CuriousContraptions.tests.dll (net10.0)
+
+## F.10 M17: the WireContract header fixture declares a Version field again
+file: tools/WireContract/ContractFixture.cs
+mutation: sed -E 's/^    \[property:JsonRequired\] MessageKind Kind,$/    [property:JsonRequired] ushort Version,\n    [property:JsonRequired] MessageKind Kind,/'
+43a44
+>     [property:JsonRequired] ushort Version,
+    0 Warning(s)
+    2 Error(s)
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a04bd550965f8b651/tools/WireContract/Program.cs(37,24): error CS7036: There is no argument given that corresponds to the required parameter 'Sequence' of 'HeaderFixture.HeaderFixture(ushort, MessageKind, RuntimeRole, RuntimeRole, uint, LeaseLeg, long, ulong)' [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a04bd550965f8b651/tools/WireContract/WireContract.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a04bd550965f8b651/tools/WireContract/RevisionTwoOracles.cs(232,13): error CS7036: There is no argument given that corresponds to the required parameter 'Sequence' of 'HeaderFixture.HeaderFixture(ushort, MessageKind, RuntimeRole, RuntimeRole, uint, LeaseLeg, long, ulong)' [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a04bd550965f8b651/tools/WireContract/WireContract.csproj]
+[xUnit.net 00:00:00.77]     CuriousContraptions.Tests.WorkshopFormatTests.NoProductionSourceNamesAFormatVersion [FAIL]
+Failed!  - Failed:     1, Passed:     6, Skipped:     0, Total:     7, Duration: 134 ms - CuriousContraptions.tests.dll (net10.0)
+
