@@ -196,7 +196,7 @@ From position 62, only the element lane remains, in its existing order:
 - 15.0–15.15;
 - 16.1–16.4.
 
-The filed follow-ups F.1–F.8 stay last.
+The filed follow-ups F.1–F.10 stay last.
 
 **The last deletion story is 9A.45, at position 54 overall: the 35th story after 9.5.**
 
@@ -660,7 +660,7 @@ So that spring dynamics follow real physical spring-damper laws.
 - **When** impact occurs,
 - **Then** the 1D prismatic slider compresses within limits ($-0.25\text{ m}$ to $0\text{ m}$) and rebounds elastically.
 - **And** hardcoded spring launch shims are deleted in favor of unified compliant soft constraints.
-- **And** `tools/e2e/cat-062a.test.ts` passes 100% in Chrome serially.
+- **And** `tools/e2e/cat-062.test.ts` passes 100% in Chrome serially. *(Suite name corrected from `cat-062a` by Story 9A.0, 21 Oct 2026.)*
 
 ### Story 6.5: Preload Energy Store & Springboard Launch (CAT-062b)
 *Status: Done — published commit 9107148; independent terminal scoped Pass*
@@ -1605,6 +1605,17 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.10: Retire the Remaining Format Version Fields
+*Status: Backlog. Filed by Story 9A.0 on 21 Oct 2026, under the owner's rule of the same day: "why are you versioning the wire format and the save formats, this isnt required and goes against the rule that says we dont have any backwards compatability". Story 9A.2 deletes the save and wire versions; this story deletes the rest. The coordinator may move it earlier under the delete-as-soon-as-possible rule.*
+
+*Deletes: `WorkshopClockWire.Version`, the `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` (and the worker's `STATE_VERSION`) and `BodyRecordVersion`, with every field that carries them and every check that compares them.*
+
+**Acceptance Criteria:**
+- **Given** the tree, **When** this story lands, **Then** `rg -w` for each deleted symbol returns 0 production hits, and no wire, ring, trace or record layout has a version field.
+- **And** each affected decoder rejects bad input by structural validation only (verifier or checked length, defined enums, finite ranged values), with a negative control per decoder (truncated, unknown-tag and out-of-range input).
+- **And** the [isolation authority's Current status](../../docs/architecture/element-package-isolation.md#current-status) row for these enums is removed.
+- **And** Tier 1 passes, plus the runner's Tier 2 selection (the clock, schedule and trace suites).
+
 ### Story F.9: Tube Snapping Follow-ups
 *Status: Backlog. Filed from the 9R.6 review on 21 Oct 2026.*
 
@@ -2049,7 +2060,7 @@ So that `done` means proven.
 
 **Rules for every 9A story.**
 - The story names the legacy it deletes and deletes it in the same slice.
-- No compatibility shim, fallback branch, alias, dual loader or automatic migration is permitted. An old save or wire version is rejected explicitly.
+- No compatibility shim, fallback branch, alias, dual loader or automatic migration is permitted. Formats carry no version (owner, 21 Oct 2026); structurally invalid save or wire input is rejected explicitly.
 - Every existing element keeps working.
 - Any lane the story rewrites lands as IEEE-754 f32; no story adds a `Half`.
 - Review-9-4 F6 (audit A8: the per-tick `Program.SwitchedSupplies`/`ElectricalState` walk of the authoring graph, `SwitchedSupplyRoutes` in `engine/gpu/WorkshopLatch.cs`) is fixed inside Story 9.4 (owner decision, 18 Oct 2026), so no 9A story owns it. If any part of it remains when 9A starts, Story 9A.19 deletes that remainder.
@@ -2337,7 +2348,7 @@ So that nobody builds on an end state that is described as if it already exists.
 - **Given** the tracked authoritative docs, **When** Story 9A.0 lands, **Then** `docs/architecture/element-package-isolation.md` is tracked and has two separate parts: **Target invariants** and **Current status**. Current status lists each open audit finding with its owning 9A story, and no unmet invariant is described as holding.
 - **And** the target invariants state:
   1. **Project per element.** Each `elements/<Name>/` project is the only declaration of its element: metadata, typed parameter schema, ports, colliders, body and material, domain payloads, events, presentation bindings, icon and scene asset. It references only `CuriousContraptions.Abstractions` and the domain Abstractions it needs, never the engine or a sibling.
-  2. **One declaration source.** `tools/BundleElements` discovers the packages at build time and writes one versioned bundle. The runtime loads only that bundle. There is no `.tres` catalogue, no per-element C# table and no `PartId` named constant.
+  2. **One declaration source.** `tools/BundleElements` discovers the packages at build time and writes one bundle with one schema and no version field (owner, 21 Oct 2026; superseding "versioned"). The runtime loads only that bundle. There is no `.tres` catalogue, no per-element C# table and no `PartId` named constant.
   3. **Command/query.** Every mutation is a typed command through `WorkshopCommandRouter` with a sequence and a receipt. The query side is the published committed read model (`WorkshopRead`), the pose ring and typed queries (this resolves G5). Raw `postMessage` flags and console channels are forbidden.
   4. **Event disruptor.** One-shot discrete occurrences travel only through the single-producer, multi-consumer event ring, and each consumer has its own cursor. Level states (activation level, latch memory, timer phase, electrical level) are committed-state queries (this resolves G6).
   5. **Kernels.** Capability-named kernels and `ActivationNodeKind` values selected by declared data are valid. Element-named event kinds such as `CounterReached` and `LatchSet` are not (this resolves G9).
@@ -2348,14 +2359,14 @@ So that nobody builds on an end state that is described as if it already exists.
   - a new AD-13, "Sole architecture", links the isolation doc;
   - the diagram text at lines 54 and 65 separates the ring from committed state;
   - the source map no longer cites `pose-ring.js`.
-- **And** `docs/engine-contracts.md` and `docs/general-engine-design.md` describe bundle loading and the bundle schema contract (G10): versioned; f32 vectors as `[x, y, z]` and quaternions as `[x, y, z, w]`; mechanical, electrical and signal payloads; a typed parameter schema with key, unit, enum kind, f32 range and default or enum options; and an enum category.
+- **And** `docs/engine-contracts.md` and `docs/general-engine-design.md` describe bundle loading and the bundle schema contract (G10): one schema with no version field, bad input rejected by structural validation (owner, 21 Oct 2026; superseding "versioned"); f32 vectors as `[x, y, z]` and quaternions as `[x, y, z, w]`; mechanical, electrical and signal payloads; a typed parameter schema with key, unit, enum kind, f32 range and default or enum options; and an enum category.
 - **And** the f32 table in `docs/gpu-f32-physics.md` names Story 9A.44 as the owner of every remaining binary16 lane.
 - **And** `AGENTS.md` links the isolation doc as the sole design authority from its engineering requirements, in one line.
 - **And** the Current status section records that review-9-2b's PASS for AC1, AC3, AC4 and AC5 is not supported by the tree (G8), including:
   - the MNA clause: no Modified Nodal Analysis exists, since `git grep -i 'nodal\|MNA'` returns 0 and the electrical domain is graph reachability with compiled supply routes;
   - the "~50–80 line `worker.js`" clause (347 lines).
   
-  The docs state the electrical model that actually exists (compiled supply routes over a reachability graph) as the current design. MNA becomes a named later capability, delivered only when an element first needs it (retro-verification #19). The review file is historical evidence and is not edited; Story 9R.18 appends its dated addendum.
+  The docs state the electrical model that actually exists (compiled supply routes over a reachability graph) as the current design. MNA becomes a named later capability, delivered only when an element first needs it (retro-verification #19). The review file is historical evidence and is not edited by the implementer; Story 9A.0's terminal review appends its dated addendum (reopened-record closure, 21 Oct 2026, which replaced Story 9R.18).
 - **And** the docs correct two stale text items found by the retro-verification. The Story 6.4 suite name `cat-062a.test.ts` becomes the actual `cat-062.test.ts` (§E). The spec-9-4 AC2 example "pressure plate wired to `SetIn`" is recorded as superseded: the plate's ActivationOut is a level that drives Signal lamps only (Story 9R.5).
 - **And** the new `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs` asserts that:
   - `AGENTS.md` links the isolation doc;
@@ -2399,6 +2410,7 @@ So that agents cannot copy or revive a dead pattern.
 - *the legacy binary codec `engine/gpu/WorkshopWire.cs` (command, response, construction and decode-per-id arms from `:400`);*
 - *the swallowing `catch { WorkshopWire.Decode* }` fallbacks in `engine/gpu/WorkshopCommandRouter.cs:17-25` and `engine/gpu/BrowserWorkshopClient.cs:268-275`;*
 - *in `worker.js:138-175`: the hand-written vtable decode in `extractReadIdentity` and its fixed-offset `responseAbi` fallback;*
+- *the save and wire format versions, `WorkshopSaveVersion` and `WorkshopWireVersion`, with their fields and checks (owner, 21 Oct 2026: no format versioning; Story 9A.0 Current status). The other version enums belong to Story F.10;*
 - *the Counter decode's silent default and float→int coercion, `inst.Threshold == 0 ? DefaultTargetCount : (int)Math.Round(inst.Threshold)` (`engine/gpu/WorkshopWireFlatBuffers.cs:896` at HEAD `8f682f8`; retro-verification #13). The target count becomes an integer field, and a missing or out-of-range value is rejected.*
 
 As a player,  
@@ -2412,7 +2424,7 @@ So that a malformed message fails visibly instead of being silently reinterprete
   - `engine/gpu/WorkshopSaveCodec.cs` (`ByteLength = 24 + WorkshopWire.ConstructionBytes`).
 - **And** `tools/e2e/workshop-wire.ts` decodes the FlatBuffers format only.
 - **And** (coordinator decision, 18 Oct 2026; from the Story 9R.0 review) saved-construction decoding does complete structural pre-validation before any domain construction runs. The checks:
-  - buffer verifier, version and root identifier;
+  - buffer verifier and root identifier (no version check: owner, 21 Oct 2026);
   - every enum is defined;
   - every numeric value is finite and within its declared range;
   - instance ids are unique and every reference resolves;
@@ -2457,7 +2469,8 @@ So that a stalled connection stops the run in a predictable way.
 *Deletes:*
 - *the hand-maintained list of 13 declarations in `tools/BundleElements/Program.cs:21-36` and the anonymous-object serialiser at `:38-50`;*
 - *the committed lossy `parts/elements.bundle.json`, which becomes a build output and is git-ignored;*
-- *the `ElementMetadata.Parameters` property bag (`IReadOnlyDictionary<string, object>`) and the string `ElementMetadata.Category` (`CuriousContraptions.Abstractions/ElementMetadata.cs`).*
+- *the `ElementMetadata.Parameters` property bag (`IReadOnlyDictionary<string, object>`) and the string `ElementMetadata.Category` (`CuriousContraptions.Abstractions/ElementMetadata.cs`);*
+- *the bundle's `Version` and `GeneratedAt` fields (owner, 21 Oct 2026: no format versioning).*
 
 As an element author,  
 I want my package to be built, validated and serialised without loss on every build,  
@@ -2466,7 +2479,7 @@ So that the bundle can become the only declaration the game loads.
 **Acceptance Criteria:**
 - **Given** the solution, **When** it builds, **Then** `CuriousContraptions.slnx` contains every `elements/*` project, the four domain Abstractions and `tools/BundleElements`.
 - **And** an MSBuild target runs `BundleElements` before the Godot export and before publish. The target discovers packages by globbing `elements/*/*.csproj` and reflecting over `IPuzzleElementDeclaration` implementations; there is no hand list.
-- **And** the bundle schema is typed and versioned:
+- **And** the bundle schema is typed, with one schema and no version field or generation timestamp (owner, 21 Oct 2026; superseding "versioned"):
   - f32 vectors as `[x, y, z]` and quaternions as `[x, y, z, w]`, written bit-exactly;
   - mechanical (mass, inertia, material, anchors), electrical (nodes) and signal (triggers, latch, counter) payloads;
   - a typed parameter schema: key, unit, an enum kind, f32 minimum, maximum and default, or enum options;
@@ -2679,7 +2692,7 @@ So that every part I pick can be placed and run.
 
 **Acceptance Criteria:**
 - **Given** the generated bundle, **When** the game starts, **Then** `PartRegistry` loads only the bundle. Each definition is a plain runtime record built from a bundle entry, and its scene loads from the package path (`res://elements/<Name>/…`).
-- **And** a missing, malformed or wrong-version bundle stops start-up with an explicit message naming the problem. Nothing is loaded from elsewhere.
+- **And** a missing or structurally invalid bundle stops start-up with an explicit message naming the problem. Nothing is loaded from elsewhere.
 - **And** the Free palette lists every bundle element, grouped by declared category, with the same titles, categories and order the player saw before (screenshot compared against the Story 9.4b baseline).
 - **And** Tennis and Balloon no longer appear.
 - **And** the new `tools/e2e/arch-9a-catalogue.test.ts` passes. In actual Chrome it:
@@ -2915,7 +2928,7 @@ I want one typed, read-only observation port,
 So that every e2e suite observes the production build without console scraping or ad-hoc globals.
 
 **Acceptance Criteria:**
-- **Given** the production build, **When** a page loads, **Then** a versioned, typed observation port exposes three things:
+- **Given** the production build, **When** a page loads, **Then** a typed observation port, with no version field (owner, 21 Oct 2026), exposes three things:
   - command receipts (sequence, kind, result);
   - a committed read-model query;
   - an independent event-ring cursor.
@@ -2966,7 +2979,7 @@ I want every lesson to play exactly as before while being loaded as data,
 So that the 150 campaign levels can be authored without engine code.
 
 **Acceptance Criteria:**
-- **Given** `content/puzzles.json`, extended with a typed, versioned schema, **When** a lesson loads, **Then** the lesson is built entirely from that data:
+- **Given** `content/puzzles.json`, extended with a typed schema with no version field (owner, 21 Oct 2026), **When** a lesson loads, **Then** the lesson is built entirely from that data:
   - an extensible typed puzzle id;
   - placements (part id, pose, locked flag, parameter values validated against each element's declared parameter schema);
   - inventory allowances;
@@ -2993,7 +3006,7 @@ Each story deletes, for its element:
 - its arm in `MachineWorld.Gpu.cs:318-338`;
 - its per-id FlatBuffers encode and decode arms (`engine/gpu/WorkshopWireFlatBuffers.cs:853+`).
 
-If the element is the first to need a capability (dynamic body, contact trigger, orientation sensor, timer, memory, counter, electrical source), that story adds the generic compile of that capability from declared data. Each story's golden compile test proves the compiled capability rows are unchanged. Each story bumps the save version and rejects older saves explicitly.
+If the element is the first to need a capability (dynamic body, contact trigger, orientation sensor, timer, memory, counter, electrical source), that story adds the generic compile of that capability from declared data. Each story's golden compile test proves the compiled capability rows are unchanged. No story bumps a format version (owner, 21 Oct 2026); a save that fails structural validation is rejected explicitly.
 
 *Delivery order, 21 Oct 2026.* These conversions are delivered as family stories (C-Switch, C-Ramp+Receiver, C-Balls, C-Bumper+Spring, C-Gate, C-Lamp+Detector, C-Plate, C-Clock and C-Memory), plus 9A.32 (Domino) and 9A.39 (Battery) alone. Story 9A.38 is delivered in 9.5a, and 9A.27 stays on the critical path.
 - They run right after Story 9.5 and alternate one for one with new elements, ordered by how much old code they delete.

@@ -89,6 +89,7 @@
   - Electrical ports `PowerIn` and `Supply` accept valid power connections.
 - **AC 2: Positive Set Trigger & Indefinite Latch:**
   - A Set pulse arrives (e.g. from a ball hitting a Switch or pressure plate wired to `SetIn`).
+    - *Superseded (Story 9A.0, 21 Oct 2026): the "pressure plate wired to `SetIn`" example no longer applies. The plate's ActivationOut is a level that drives Signal lamps only (Story 9R.5); a Set pulse comes from a one-shot source such as the Impact Switch. The text above is kept as history.*
   - Latch memory transitions to `On` and electrical contact closes.
   - Connected downstream consumer (e.g. Powered Gate wired to `Supply` with Battery wired to `PowerIn`) energizes and actuates.
   - Memory and contact remain closed indefinitely over multiple seconds without further input.
