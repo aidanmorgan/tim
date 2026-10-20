@@ -1,0 +1,75 @@
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index aec2068d..14ad58df 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -774,7 +774,7 @@ public static class WorkshopWireFlatBuffers
+                 case IWorkshopDeclaredColliders:
+                     break;
+                 case WorkshopPressurePlate plate:
+-                    CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, plate.MinimumMass);
++                    CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, MathF.Min(plate.MinimumMass, WorkshopPressurePlate.PlacedMinimumMass));
+                     break;
+                 case WorkshopCounter counter:
+                     CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, (float)counter.TargetCount);
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (2 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.82]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [FAIL]
+[xUnit.net 00:00:01.82]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False) [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1073741824
+Actual:   1056964608
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 432
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1073741824
+Actual:   1056964608
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 432
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.41]     CuriousContraptions.Tests.PressurePlateTests.WorkshopWireFlatBuffers_SerializesAndDeserializesPressurePlate [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.WorkshopWireFlatBuffers_SerializesAndDeserializesPressurePlate [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 4.25
+Actual:   0.5
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.WorkshopWireFlatBuffers_SerializesAndDeserializesPressurePlate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 346
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     3, Passed:   212, Skipped:     0, Total:   215, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)
+exit 1

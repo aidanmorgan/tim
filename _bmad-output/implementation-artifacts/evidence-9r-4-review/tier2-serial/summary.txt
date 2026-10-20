@@ -1,0 +1,37 @@
+run 20261020T132439Z-7653 verb=Run verdict=Pass
+started=2026-10-20T13:24:39.3253080+00:00 finished=2026-10-20T13:28:30.6752420+00:00 wallSeconds=231.3
+runnerSourceDigest: 2e0768f37dd5a09bb7ef0bc40c17df6082c62447b0bddea3400a53d542351902
+sourceHead: d7ab0e3e81985a261a5a15c686dd9d51192124ce
+sourceStatusDigest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+publish: dotnet publish CuriousContraptions.web: exit 0 in 27.1 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.85
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 1
+runId: 20261020T132439Z-7653
+workers: 1
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4/.anvil/e2e-runs/20261020T132439Z-7653
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: 356c3634869def54c38e22d97a2b6e3a2241eda6944c152895f8d8eed79ac280
+bundleIdentity.start: 45ff83c8878961e2f59dd139c75d3453717a085de64de13fa66a4882f9957d93
+bundleFiles: 288 (3 NotServed dot-files)
+preview: http://127.0.0.1:60587/
+servedCheck.start: pass (285 files)
+bundleIdentity.end: 45ff83c8878961e2f59dd139c75d3453717a085de64de13fa66a4882f9957d93
+servedCheck.end: pass
+suiteSourceDigest.end: 356c3634869def54c38e22d97a2b6e3a2241eda6944c152895f8d8eed79ac280
+peakRssBytes: 3517906944
+selection: Mode: Selected
+selection: Tier 3 required: no
+selection: path	tools/e2e/cat-052-two-plates.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052-two-plates
+selection: path	tools/e2e/cat-052.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052
+selection: cat-052-two-plates	suite: tools/e2e/cat-052-two-plates.test.ts changed
+selection: cat-052	suite: tools/e2e/cat-052.test.ts changed
+selection: engine-core-2a1	smoke pair
+selection: engine-core-2b1	smoke pair
+cat-052-two-plates outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=95942 phase=SerialAlone slot=- start=2026-10-20T13:24:40.7006830+00:00 end=2026-10-20T13:26:16.6429010+00:00 observation=Clean
+cat-052 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=106691 phase=Parallel slot=0 start=2026-10-20T13:26:16.7411420+00:00 end=2026-10-20T13:28:03.4322800+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18304 phase=Parallel slot=0 start=2026-10-20T13:28:03.5068120+00:00 end=2026-10-20T13:28:21.8106770+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8555 phase=Parallel slot=0 start=2026-10-20T13:28:21.8841950+00:00 end=2026-10-20T13:28:30.4387300+00:00 observation=Clean
+run totals: files=4 pass=4 nonzeroExit=0 tests=17 testsPassed=17 fail=0 notok=0 closeFindings=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0

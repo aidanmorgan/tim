@@ -1268,7 +1268,12 @@ So that two gates on two batteries behave as two separate circuits.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.4: Each Pressure Plate Honours Its Own Minimum Mass (Reopened Story 9.1)
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-10 gave a scoped Pass on `15b7431b` ([review](../implementation-artifacts/review-9r-4-pressure-plate-per-instance-load-rows.md)).*
+- *Each plate compiles its own contact-load row, using a normal-and-gap region and f32 mass.*
+- *The 8-slot activation limit is removed (owner decision).*
+- *The C# gate is re-pinned for SDK 10.0.402.*
+- *The reviewer's full run passed 185/185.*
+- *Findings are filed to Story F.6.*
 
 *Depends on: Story 9R.3. Closes report #1:*
 - *`_plateLoaded = currentPlateLoad >= 0.5f` ignores the instance's `MinimumMass` (`WorkshopPhysicsEngine.cs:856`).*
@@ -1287,10 +1292,16 @@ I want each Pressure Plate to respond to the weight on it and only to that,
 So that two plates switch two gates independently.
 
 **Acceptance Criteria:**
+- **Owner decision, 20 Oct 2026: there is no limit on activation slots.** In the owner's words, "there should be no restriction on the number of activation slots, this was not in the description and is an unreasonable limitation".
+  - The fixed 8-slot activation table is removed. Activation slots and activation memory are sized from the compiled scene at Run.
+  - Build never refuses a machine for its count of activation parts (plates, counters, clocks, latches, delays and so on), only for the ordinary Free-palette part maxima.
+  - Proven by a bench at the palette maximum of plates combined with counters, clocks and latches. It must compile, step, Reset exactly and survive Save/Load. In it, the last plate opens its own gate.
 - **Given** Pressure Plates built through real UI, **When** Run compiles the construction, **Then** each plate emits its own compiled contact-load row (owner body, region, normal, alignment, and `minimum_mass` from that instance; CAT-052 §2). `ContactLoadSensorTracker` evaluates those rows at runtime, so its native tests now prove the live path.
 - **And** each plate's supplied contact is a switch in the compiled switched-supply route table (Battery → plate contact → gate).
 - **And** a domino (0.4 kg) leaves the plate Underweight and the gate closed; a basketball (1 kg) closes it; mass exactly at the minimum closes it (inclusive ≥, CAT-052 §2); two bodies sum.
-- **And** removing the body opens the contact on the first tick after the 0.1 s (12-tick) release hold, the same hold that governs the plate's ActivationOut level (Story 9R.5; coordinator decision, 18 Oct 2026).
+- **And** removing the body opens the contact on the next tick.
+  - Story 9R.5 adds the 0.1 s (12-tick) release hold for both the contact and the plate's ActivationOut level.
+  - Coordinator decision, 20 Oct 2026: the hold is delivered once, in 9R.5, and not split across two stories.
 - **And** two plates wired to two gates are independent: loading one opens only its own gate (negative control for cross-talk).
 - **And** a static box with the plate's exact half-extents but no plate declaration never switches a gate (negative control for size detection).
 - **And** a native test with a non-default `minimum_mass` (2.0 kg, saved and loaded) proves the instance value governs. The UI editor for it arrives with the generic parameter editor (Story 9A.40).
@@ -1322,6 +1333,24 @@ So that the lamp shows when something heavy enough rests on the plate.
 - **And** Run/Reset matches the snapshot (lamp Slate), and Save/Load preserves the `activation_out` wire.
 - **And** the new `tools/e2e/cat-052-lamp.test.ts`, `cat-052` and `cat-037` pass 100% in Chrome serially.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+
+### Story 9R.5b: Every Physics Table Sized at Run (No Fixed Capacities)
+*Status: Backlog. Runs after Story 9R.5. Coordinator, 20 Oct 2026, under the owner's rule that there are no arbitrary engine caps. Amelia-9 found that the Impact Switch is limited to 8 by the fixed physics trigger table.*
+
+**Acceptance Criteria:**
+- **Given** a machine with any number of trigger-bearing parts up to the ordinary Free-palette maxima (Impact Switches and every other trigger user), **When** Run compiles it, **Then** the physics trigger table is sized from the compiled scene. The 9R.2 collider table and the 9R.4 activation slots are the pattern.
+- **And** Build never refuses a machine for its trigger count.
+- **And, by owner decision of 20 Oct 2026, the physics body table has no limit.** In the owner's words: "the physics body table needs to be infinite why would you restrict it".
+  - The body table, and every other fixed-capacity physics or worker table, is sized from the compiled scene at Run. That covers bodies, joints, prismatics, sensors, contact-work rows, electrical rows, motion and occurrence buffers.
+  - Memory is the only bound.
+  - The story begins with an audit that lists every fixed capacity constant in `engine/gpu`, the Simulation and Animation workers, and the wire. Each one is either removed or justified by a written requirement. "Historical" doesn't count as a justification.
+- **And** the per-part Build limit (32 instances) is kept only if a requirement states it. The goal is an "unlimited Free Workshop" (TODO.md). Otherwise it is removed, and the e2e and native benches prove a machine beyond it compiles, steps, Resets exactly and Saves/Loads.
+- **And** the fixed cap constant and its wording are deleted.
+- **Proof:**
+  - red today when a 9th Impact Switch is placed;
+  - a bench at the palette maximum of Impact Switches, where the last switch fires its own lamp, Reset is exact and Save/Load works;
+  - a mutant that restores a fixed cap fails.
+- **And** Tier 1 passes, plus the runner's Tier 2 selection.
 
 ### Story 9R.6: Typed Mouth Snapping for Tubes (Reopened Stories 6.9 and 6.10; Story 6.11 Repair)
 *Status: Backlog*
@@ -3507,6 +3536,19 @@ So that Curious Contraptions is ready for public release.
 ## Filed Follow-ups (back of the queue)
 
 *Owner decision, 19 Oct 2026, evening: review findings beyond a story's own acceptance criteria are filed here, after every other queued story, unless they are a player-visible crash. See the [verification tiers](autonomous-development-guide.md#verification-tiers).*
+
+### Story F.6: Contact-Load Follow-ups
+*Status: Backlog. Filed from the Story 9R.4 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-4-pressure-plate-per-instance-load-rows.md)).*
+
+**Acceptance Criteria:**
+- **Placement:** a domino placed from the palette onto a plate rests on top, not straddling it, so two dominoes open the gate. This is player-visible (F-1).
+- **Plate behaviour:**
+  - Underweight is proven directly (F-3);
+  - the plate's sensor id no longer shares the +6 offset with the passage sensor (F-4);
+  - the box-contact alignment tolerance covers slightly tilted resting boxes (F-6).
+- **Performance gate:** no per-tick array allocation for committed reads (F-7).
+- **Tests:** the face and alignment filters are killed by engine-path tests (F-8).
+- **Docs:** `CAT-052-pressure_plate.md` §2 describes the normal-and-gap region.
 
 ### Story F.5: Supply Route Follow-ups
 *Status: Backlog. Filed from the Story 9R.3 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-3-direct-gate-own-supply-route.md)).*

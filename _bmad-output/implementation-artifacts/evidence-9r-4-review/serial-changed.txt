@@ -1,0 +1,2 @@
+tools/e2e/cat-052.test.ts
+tools/e2e/cat-052-two-plates.test.ts

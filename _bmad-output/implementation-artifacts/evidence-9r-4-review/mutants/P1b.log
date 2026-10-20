@@ -1,0 +1,125 @@
+diff --git a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+index 1432b0be..42ad7dbd 100644
+--- a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
++++ b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+@@ -408,7 +408,7 @@ internal sealed class WorkshopPhysicsEngine
+             if (c.A.Motion == 0 && c.B.Motion == 1)
+                 _loadContacts.Add(new(new(c.A.Id), new(c.ColA.Id), new(c.B.Id), c.B.Mass, c.Point, -c.Normal, c.Gap));
+             else if (c.B.Motion == 0 && c.A.Motion == 1)
+-                _loadContacts.Add(new(new(c.B.Id), new(c.ColB.Id), new(c.A.Id), c.A.Mass, c.Point, c.Normal, c.Gap));
++                _loadContacts.Add(new(new(c.B.Id), new(c.ColB.Id), new(c.A.Id), c.A.Mass, c.Point, -c.Normal, c.Gap));
+         }
+         if (_loadCounted.Length < _loadContacts.Count) _loadCounted = new GpuBodyId[_loadContacts.Count * 2];
+         var records = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_loadContacts);
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (19 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | arrow-down.svg[39m[0m
+  [   5% ] [90m[1m_update_scan_actions[22m | arrow-up.svg[39m[0m
+  [  10% ] [90m[1m_update_scan_actions[22m | folder-open.svg[39m[0m
+  [  15% ] [90m[1m_update_scan_actions[22m | lightbulb.svg[39m[0m
+  [  20% ] [90m[1m_update_scan_actions[22m | link.svg[39m[0m
+  [  25% ] [90m[1m_update_scan_actions[22m | minus.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | move-vertical.svg[39m[0m
+  [  35% ] [90m[1m_update_scan_actions[22m | play.svg[39m[0m
+  [  40% ] [90m[1m_update_scan_actions[22m | plus.svg[39m[0m
+  [  45% ] [90m[1m_update_scan_actions[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1m_update_scan_actions[22m | rotate-cw.svg[39m[0m
+  [  55% ] [90m[1m_update_scan_actions[22m | save.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | sliders-horizontal.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | square.svg[39m[0m
+  [  70% ] [90m[1m_update_scan_actions[22m | trash.svg[39m[0m
+  [  75% ] [90m[1m_update_scan_actions[22m | undo-2.svg[39m[0m
+  [  80% ] [90m[1m_update_scan_actions[22m | x.svg[39m[0m
+  [  85% ] [90m[1m_update_scan_actions[22m | zoom-in.svg[39m[0m
+  [  90% ] [90m[1m_update_scan_actions[22m | zoom-out.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:14.17]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 0.5, balls: 1, opens: True) [FAIL]
+[xUnit.net 00:00:14.22]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 0.5, balls: 1, opens: True) [40 ms]
+  Error Message:
+   1 ball(s) at 0.5 kg: contact False, travel 0
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.AssertGateOpened(List`1 reads, WorkshopPressurePlate plate, WorkshopGenericInstance gate, String label) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 411
+   at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 436
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [50 ms]
+  Error Message:
+   2 ball(s) at 2 kg: contact False, travel 0
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.AssertGateOpened(List`1 reads, WorkshopPressurePlate plate, WorkshopGenericInstance gate, String label) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 411
+   at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 436
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.30]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 1, balls: 1, opens: True) [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 1, balls: 1, opens: True) [39 ms]
+  Error Message:
+   1 ball(s) at 1 kg: contact False, travel 0
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.AssertGateOpened(List`1 reads, WorkshopPressurePlate plate, WorkshopGenericInstance gate, String label) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 411
+   at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 436
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.43]     CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates [FAIL]
+[xUnit.net 00:00:14.48]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates [70 ms]
+  Error Message:
+   loaded P1: contact False, travel 0
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.AssertGateOpened(List`1 reads, WorkshopPressurePlate plate, WorkshopGenericInstance gate, String label) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 411
+   at CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 480
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick [51 ms]
+  Error Message:
+   resting on the face at tick 5 (local <-0.20400155, 0.4198723, 0>)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 540
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.70]     CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel [FAIL]
+[xUnit.net 00:00:14.89]     CuriousContraptions.Tests.PressurePlateTests.ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit [FAIL]
+[xUnit.net 00:00:14.93]     CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel [5 ms]
+  Error Message:
+   Loaded once the ball rests
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 700
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit [75 ms]
+  Error Message:
+   the 13th plate under its own load: contact False, travel 0
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.AssertGateOpened(List`1 reads, WorkshopPressurePlate plate, WorkshopGenericInstance gate, String label) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 411
+   at CuriousContraptions.Tests.PressurePlateTests.ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 647
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed [39 ms]
+  Error Message:
+   the unsupplied plate still senses its load
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 690
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     8, Passed:   207, Skipped:     0, Total:   215, Duration: 14 s - CuriousContraptions.tests.dll (net10.0)
+exit 1

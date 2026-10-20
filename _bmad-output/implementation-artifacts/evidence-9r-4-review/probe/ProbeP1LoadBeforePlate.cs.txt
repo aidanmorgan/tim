@@ -1,0 +1,32 @@
+    // ---- Murdoch-10 probe P1 (Story 9R.4 review): the load is placed BEFORE the plate (lower instance id, so lower collider
+    // index), which sends its contacts through the other branch of WorkshopPhysicsEngine.MeasureContactLoads. Pasted inside
+    // PressurePlateTests in a scratch worktree only; it reuses that class's bench helpers. ----
+    [Fact]
+    public async Task ProbeP1_ABasketballPlacedBeforeThePlateOpensItsGate()
+    {
+        var ball = BallOn(1, -4, 0); var gate = Gate(2, 0); var battery = Battery(3, 0); var plate = Plate(4, -4, 0, .5f);
+        var reads = await RunBench(Bench([ball, gate, battery, plate], Circuit(battery, plate, gate)));
+        AssertGateOpened(reads, plate, gate, "ball id 1 < plate id 4");
+    }
+
+    [Fact]
+    public async Task ProbeP1_TwoDominoesPlacedBeforeThePlateSumAndOpenItsGate()
+    {
+        var left = StandingOn(1, -4.4, 0); var right = StandingOn(2, -3.6, 0);
+        var gate = Gate(3, 0); var battery = Battery(4, 0); var plate = Plate(5, -4, 0, .5f);
+        var reads = await RunBench(Bench([left, right, gate, battery, plate], Circuit(battery, plate, gate)));
+        AssertGateOpened(reads, plate, gate, "domino ids 1, 2 < plate id 5");
+    }
+
+    [Fact]
+    public async Task ProbeP1_OneDominoPlacedBeforeThePlateIsCountedButUnderweight()
+    {
+        // Control for the sum row: one domino alone stays below 0.5 kg, and at 0.3 kg it is enough (so it is counted, not Empty).
+        var domino = StandingOn(1, -4, 0); var gate = Gate(2, 0); var battery = Battery(3, 0);
+        var light = Plate(4, -4, 0, .5f);
+        var closed = await RunBench(Bench([domino, gate, battery, light], Circuit(battery, light, gate)));
+        AssertGateClosedThroughout(closed, light, gate, "one domino before a 0.5 kg plate");
+        var sensitive = Plate(4, -4, 0, .3f);
+        var opened = await RunBench(Bench([domino, gate, battery, sensitive], Circuit(battery, sensitive, gate)));
+        AssertGateOpened(opened, sensitive, gate, "one domino before a 0.3 kg plate");
+    }
