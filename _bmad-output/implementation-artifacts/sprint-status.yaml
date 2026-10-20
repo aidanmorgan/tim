@@ -172,9 +172,11 @@ development_status:
   9r-6-typed-mouth-snapping: done
   9r-7-joined-pipe-level-playable: done
   # 3
-  9a-0-architecture-authority-docs: backlog
+  9a-0-architecture-authority-docs: done
   # 4: owner amendment 21 Oct 2026, right after 9a-0
   9a-1-dead-legacy-purge: backlog
+  # merged into 9a-1 (coordinator ruling, 21 Oct 2026); filed by 9a-0 (owner: no format versioning)
+  f-10-retire-remaining-format-versions: backlog
   # 5
   9a-4-lossless-bundle-build-gate: backlog
   # 6

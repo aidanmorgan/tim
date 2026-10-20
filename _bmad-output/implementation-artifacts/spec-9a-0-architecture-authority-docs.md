@@ -2,7 +2,7 @@
 title: 'Story 9A.0: Architecture Authority Records the Sole Design'
 type: 'chore'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -86,7 +86,7 @@ context:
 
 **Execution.** Docs only. [R:9R.0] the `Program` namespace changes source-map rows. [R:9.4b] `CuriousContraptions.FlatBuffers/`, `clock-master.js` and `clock-ring.js` must appear in the source map.
 
-1. [ ] **Test first (red).** `ArchitectureDocsConsistencyTests` holds three facts:
+1. [x] **Test first (red).** `ArchitectureDocsConsistencyTests` holds three facts:
    - **`AgentsLinksTheIsolationAuthority`:** checks for `docs/architecture/element-package-isolation.md`.
    - **`NoAuthorityPresentsRetiredDesignAsCurrent`:** over the five files, case-insensitive. Its ban list is a `static readonly` array:
      - `res://parts/catalog`;
@@ -98,7 +98,7 @@ context:
    - **`EveryRelativeLinkInTheAuthorityDocsResolves`:** parses `](relative)` targets in the six docs and requires each file to exist.
    
    The negative control `TheBanCheckRejectsAReinstatedPhrase` feeds the same pure function `FindRetiredPhrases(string)` a fixture containing `res://parts/catalog/*.tres` and asserts one or more hits. Read the repo through `twodog.Engine.ResolveProjectDir()`, as `WorkerAbiTests` does.
-2. [ ] Isolation doc. In **Target invariants**, state the AC's invariants 1–6 verbatim in meaning:
+2. [x] Isolation doc. In **Target invariants**, state the AC's invariants 1–6 verbatim in meaning:
    1. project per element;
    2. one declaration source, the bundle;
    3. command/query, with the query side = `WorkshopRead`, the pose ring and typed queries (G5);
@@ -112,16 +112,16 @@ context:
    - `worker.js` is 380 lines, not 50–80.
    
    Delete every stale claim listed in Intent.
-3. [ ] `architecture.md`:
+3. [x] `architecture.md`:
    - AD-06's zero-identifier rule binds all non-element code (G4);
    - AD-11 is renamed "Element scenes and the element bundle" and names the bundle and `.tscn`;
    - add AD-13 "Sole architecture", linking the isolation doc;
    - in the diagram, `PG -->|"SAB Event Ring (one-shots)"| AG` and a separate `PG -->|"Committed read (levels)"| AG`;
    - the source map no longer cites `pose-ring.js` or `engine/PartId.cs` as the discovery authority.
-4. [ ] `docs/engine-contracts.md` and `docs/general-engine-design.md`. Describe bundle loading and the schema contract: versioned; f32 vectors `[x, y, z]` and quaternions `[x, y, z, w]`; mechanical, electrical and signal payloads; a typed parameter schema (key, unit, enum kind, f32 range and default or enum options); an enum category. Replace the `.tres` and `.glb` sections and the MNA wording.
-5. [ ] `docs/gpu-f32-physics.md`: the table owner is 9A.44, `getF16` is removed, and the discovery and MNA wording is replaced.
-6. [ ] `AGENTS.md`: one line under "Engineering and gameplay requirements" reading: "Sole design authority: [element package isolation](docs/architecture/element-package-isolation.md) (target invariants and current status)."
-7. [ ] The `epics.md:464` fix and the spec-9-4 superseded note.
+4. [x] `docs/engine-contracts.md` and `docs/general-engine-design.md`. Describe bundle loading and the schema contract: versioned; f32 vectors `[x, y, z]` and quaternions `[x, y, z, w]`; mechanical, electrical and signal payloads; a typed parameter schema (key, unit, enum kind, f32 range and default or enum options); an enum category. Replace the `.tres` and `.glb` sections and the MNA wording.
+5. [x] `docs/gpu-f32-physics.md`: the table owner is 9A.44, `getF16` is removed, and the discovery and MNA wording is replaced.
+6. [x] `AGENTS.md`: one line under "Engineering and gameplay requirements" reading: "Sole design authority: [element package isolation](docs/architecture/element-package-isolation.md) (target invariants and current status)."
+7. [x] The `epics.md:464` fix and the spec-9-4 superseded note.
 
 **Acceptance Criteria (1:1 with epics 9A.0):**
 - **AC1.** Given the tracked docs, when 9A.0 lands, then the isolation doc has separate **Target invariants** and **Current status**. Current status lists each open finding with its owning story, and no unmet invariant is described as holding.
@@ -170,7 +170,39 @@ The stale claims listed in Intent, from the six authority docs. No code.
 
 ## Implementation Notes
 
+Amelia-14, 21 Oct 2026, on `c7d5dbb0`. All seven tasks done.
+- The isolation doc has §1 Target invariants (1–6 per the AC, plus the owner rules as 7–10) and §4 Current status: open findings with owners under the 21 Oct delivery order, the findings closed since the audit, and the G8 record.
+- `worker.js` is 379 lines at `c7d5dbb0`; the audit measured 347.
+- The test is `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs`, with 4 facts including the negative control.
+- Tier 1:
+  - `dotnet build CuriousContraptions.slnx`: 0 warnings;
+  - `dotnet test CuriousContraptions.slnx`: 1811 + 156 + 78 + 17, 0 failed;
+  - `node --experimental-vm-modules --test tools/*.test.mjs`: 83/83;
+  - `anvil_check` on every changed file: 0 warnings.
+- The relative links in the six docs resolve.
+- Red proof: the docs are read at run time, so each spec mutation was applied and the filtered class re-run with `--no-build`. All three failed as intended, then were reverted:
+  - removing the AGENTS line failed `AgentsLinksTheIsolationAuthority`;
+  - reinstating `pose-ring.js` in the `architecture.md` seed failed `NoAuthorityPresentsRetiredDesignAsCurrent`;
+  - breaking the `engine-contracts.md` link in `gpu-f32-physics.md` failed `EveryRelativeLinkInTheAuthorityDocsResolves`.
+  
+  With the mutants reverted, the class passes 4/4.
+- Gate call for this story (coordinator, 21 Oct 2026): Tier 1 only, because there is no runtime change. The authority itself restates the tiers exactly as the guide gives them.
+
 ## Spec Change Log
+
+- **21 Oct 2026, owner rules after the spec was frozen (implementer, under the owner's pace delegation):**
+  - **No format versioning** supersedes "versioned" in Task 4, AC4 and invariant 2. The bundle, wire, save and trace have one schema and no version field, and structural validation rejects bad input.
+  - The remaining version enums are listed in Current status. Story 9A.2 owns the save and wire versions (its Deletes list gains them). The rest are filed as **Story F.10** (`f-10-retire-remaining-format-versions`).
+  - **No fixed capacities** (Story 9R.5b): the construction caps and the lease and transport counts are deleted or voided in `engine-contracts.md`, and so is "Freeze workload limits" in `general-engine-design.md`.
+  - **Delete in the same story** and the **verification tiers** are stated as invariants 9 and 10, and are summarised in AD-05, AD-10 and AD-13.
+  - The **"Never edit review records; Story 9R.18 appends addenda"** constraint is superseded by the 21 Oct reopened-record closure. Story 9A.0's terminal review appends the review-9-2b addendum; the implementer does not edit it.
+  - The `cat-062a` text was at `epics.md:663`, not `:464`.
+  - `epics.md` lines that contradicted the no-versioning rule are each amended by one phrase: the 9A rules, 9A.2, 9A.4, 9A.14, 9A.24, 9A.26, and the conversion preamble.
+
+- **21 Oct 2026, merge with main `7d6dc38a` after Murdoch-15's Pass (coordinator ruling):**
+  - Story F.10 is merged into 9A.1, and its symbols are added to 9A.1's Deletes list.
+  - 9R.7 had already deleted the save, wire and cadence-settings versions. They move to Current status §4.2, and the 9A.2 Deletes bullet is dropped (M-1 to M-3).
+  - The §4 pin is updated (M-5), the follow-up range reads F.1–F.11, and `engine-contracts.md` keeps 9R.7's `UnsupportedSave` refusal (M-6).
 
 ## Review Triage Log
 
