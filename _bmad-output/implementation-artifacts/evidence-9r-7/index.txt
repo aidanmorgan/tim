@@ -1,0 +1,45 @@
+Story 9R.7 evidence (Amelia-13, 21 Oct 2026; base 63ba232c = Story 9R.6 rebased on 9R.5b)
+
+Red first.
+  Pipe length and lesson: the WorkshopPipeLengthTests and JoinedPipeTests files were written before most of the engine change; the
+  first build failed on the missing symbols (no captured log beyond the first engine error). The discriminating proof is the mutant set
+  below, not a reconstructed red.
+  Version removal: red-format-versionless.txt, WorkshopFormatTests 3/4 failing against the versioned codecs.
+
+Green (final tree): tier1-dotnet-versionless.txt, dotnet build 0 warnings / 0 errors; dotnet test CuriousContraptions.slnx
+  1869 + 156 + 78 + 17 pass. tier1-lifecycle.txt 510/0, tier1-wire.txt 109/0. tools/*.test.mjs 83/83, tools/e2e/unit 24/24.
+  anvil check --changed: no warnings. tier1-ownership.txt fails with "Animation free-list storage has an unreviewed caller or
+  reference recipient.", inherited from 9R.5b (the same message as evidence-9r-6/ownership-rebased-e4afb855.txt); this story touches
+  no animation or presentation file.
+
+Native real-path probes (production WorkshopSimulation on BrowserGpuTransport, 1,200 ticks, Precise):
+  native-pose-probe.txt (source native-pose-probe.cs.txt): the snapped 2 m pipe solves; the snapped 3.6 m pipe and the poses 0.72 m
+  left and right do not; poses about 0.72 m up, down or up the axis still deliver the ball, so the negative uses the left pose.
+
+Mutants (each applied alone with Edit, built, run, reverted; every one killed):
+  AC1 solve        mutant-6-mouths-ignore-length.txt    pipe mouths ignore the length: the snapped 2 m solve and 9 others fail
+                   mutant-2-length-fixed-at-3.6.txt      colliders fixed at 3.6: collider tests fail (the native solve still passes)
+  AC2 unsnapped    mutant-4-snap-not-refused.txt         capture 0.45 -> 0.8 m: the unsnapped native row fails
+  AC3 fixtures     mutant-1-no-locked-bend-check.txt     locked-bend check dropped: ALockedFixedBendIsRequired fails
+                   mutant-5-second-pipe-allowed.txt      a second pipe admitted: ValidateAdmitsTheGrantedPipeOnly fails
+  AC4 save/load    mutant-3-missing-length-defaults.txt  a missing saved length defaulted to 3.6: the rejection row fails
+                   mutant-9-save-verifier-skipped.txt    save verifier skipped: AnUnterminatedPartIdStringFailsTheVerifier fails
+                   mutant-8-header-padding-unchecked.txt binary command header padding unchecked: three padding rows fail
+  AC5 boundaries   mutant-2b-resize-keeps-3.6.txt        pointer input ignores the drag: clamp and artwork rows fail
+  commit paths     mutant-7-capture-resets-length.txt    capture resets a resized length: CaptureKeepsTheResizedLength fails
+
+Chrome suite notes (tools/e2e/cat-050-joined.test.ts, SerialAlone):
+  Test 1, second pipe: placePipe first clicks the drawer row (130, 155) and that click places the one granted pipe, so the same row
+    in the no-command window is the spent row, not a missed control.
+  Test 6, Escape cancel: the same handle drag without Escape then commits 5 m, so the cancelled gesture did grab the handle.
+
+Runner: recorded in runner-*.txt after the full run on the final candidate (Tier 3: the change removes the wire and save versions).
+Coordinator rule (21 Oct 2026, Full only for solver, clock, worker, wire or compiler changes): this story changes the wire and save
+  schema, so the full run stands.
+
+Filed (back of the queue, non-blocking):
+  - Two collider paths for the other generic tube parts: placed bends, funnel and powered gate compile scene-extracted boxes, loaded
+    ones the canonical boxes (the pipe now has one path).
+  - Remaining format versions outside this change: clock wire and clock ring, animation wire, physics state ABI, canonical body
+    record, schedule control.
+  - Lesson design note: joined_pipe tolerates a loose joint about 0.72 m up, down or up the axis (the ball still reaches the Receiver).

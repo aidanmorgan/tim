@@ -415,14 +415,13 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void SettingsBoundaryRejectsNoncanonicalRatiosUnknownEnumsVersionsAndPadding()
+    public void SettingsBoundaryRejectsNoncanonicalRatiosUnknownEnumsAndPadding()
     {
         var settings = WorkshopCadenceSettings.Default() with { Presentation = PresentationCadence.AdmittedDisplay, PresentationRate = new(60000, 1001) };
         var bytes = new byte[WorkshopCadenceWire.ByteLength];
         WorkshopCadenceWire.Write(settings, bytes);
         Assert.Equal(settings, WorkshopCadenceWire.Read(bytes));
-        Assert.Equal(WorkshopSettingsVersion.SharedMaster,
-            (WorkshopSettingsVersion)BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        Assert.Equal((uint)settings.Simulation, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
         Assert.Throws<ArgumentException>(() => new PulseRate(120, 2).Validate());
         Assert.Throws<ArgumentException>(() => new PulseRate(29, 1).Validate());
         Assert.Throws<ArgumentException>(() => new PulseRate(241, 1).Validate());
@@ -432,7 +431,7 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => (settings with { Physical = (PhysicalStepProfile)0 }).Validate());
         Assert.Throws<ArgumentException>(() => (settings with { Animation = (AnimationCadence)99 }).Validate());
         Assert.Throws<ArgumentException>(() => (settings with { Presentation = (PresentationCadence)99 }).Validate());
-        foreach (var offset in new[] { 0, 28 })
+        foreach (var offset in new[] { 0, 24, 28 }) // an unknown simulation cadence, then each padding word
         {
             var malformed = (byte[])bytes.Clone();
             BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(offset), 99);

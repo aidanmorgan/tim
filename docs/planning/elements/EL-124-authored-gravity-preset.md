@@ -44,7 +44,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 - **Exists now.** Each dynamic body already declares its own gravity vector (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`), the compiler fills it from the constant (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L36-L38`, `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L47-L49`), and the worker integrates it per body each substep (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1008-L1016`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`). Only the authoring and persistence layers are missing.
 - **Missing.**
-  - Construction-level preset, wire and save fields; the save codec has one version, `CanonicalConstruction = 9`, with no environment (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L43`). Forward-only: bump the schema and reject older saves, no migration. Decision owner LAW-ENVIRONMENT-I ([S635 environment](../invest/decisions.md#s635)); owner S678.
+  - Construction-level preset, wire and save fields; the save codec has one version, `CanonicalConstruction = 9`, with no environment (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L43`). Forward-only: change the one schema (the save has no format version since Story 9R.7); structurally invalid saves reject, no migration. Decision owner LAW-ENVIRONMENT-I ([S635 environment](../invest/decisions.md#s635)); owner S678.
   - The environment plaque UI.
 - **Dependencies.** None beyond existing dynamic elements.
 

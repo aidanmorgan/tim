@@ -39,7 +39,7 @@ export const SNAPSHOT_SCHEMA = {
         ActivationMemoryRecord: { kind: 'struct', fields: [['node', 'uint64'], ['kind', 'uint32'], ['count', 'uint32'],
             ['last_ordinal', 'uint32'], ['last_phase', 'float'], ['phase', 'uint32'], ['due_tick', 'uint64']] },
         ClockStamp: { kind: 'struct', fields: [['time', 'int64'], ['uncertainty', 'uint64'], ['domain', 'uint8']] },
-        CadenceSettingsRecord: { kind: 'struct', fields: [['version', 'uint32'], ['simulation', 'uint32'], ['physical', 'uint32'],
+        CadenceSettingsRecord: { kind: 'struct', fields: [['simulation', 'uint32'], ['physical', 'uint32'],
             ['animation', 'uint32'], ['presentation', 'uint32'], ['presentation_rate_numerator', 'uint32'],
             ['presentation_rate_denominator', 'uint32']] },
         ConnectionRecord: { kind: 'struct', fields: [['source', 'uint64'], ['target', 'uint64'], ['domain', 'uint32'],
@@ -58,10 +58,10 @@ export const SNAPSHOT_SCHEMA = {
             ['goal_target', 'uint64'], ['goal_event_source', 'uint64'], ['goal_delay', 'float'], ['raw_assistance', '[uint8]']] },
         ConstructionRecord: { kind: 'table', fields: [['revision', 'uint64'], ['settings', 'CadenceSettingsRecord'],
             ['puzzle', 'PuzzleRecord'], ['instances', '[InstanceRecord]'], ['connections', '[ConnectionRecord]']] },
-        SavedConstruction: { kind: 'table', fields: [['magic', 'uint32'], ['version', 'uint32'], ['next_body_id', 'uint64'],
+        SavedConstruction: { kind: 'table', fields: [['magic', 'uint32'], ['next_body_id', 'uint64'],
             ['construction', 'ConstructionRecord']] },
         WorkshopResponse: { kind: 'table', fields: [['sequence', 'uint64'], ['kind', 'ResponseKind'], ['outcome', 'CommandOutcome'],
-            ['reason', 'uint8'], ['phase', 'SimulationPhase'], ['version', 'uint32'], ['epoch', 'uint64'], ['tick', 'uint64'],
+            ['reason', 'uint8'], ['phase', 'SimulationPhase'], ['epoch', 'uint64'], ['tick', 'uint64'],
             ['revision', 'uint64'], ['publication', 'uint64'], ['master_generation', 'uint64'], ['cadence', 'uint64'],
             ['projection', 'uint64'], ['session', '[uint8]'], ['capture', 'ClockStamp'], ['bodies', '[BodyRead]'],
             ['captures', '[CaptureLatchRead]'], ['activations', '[ActivationRecord]'], ['timers', '[TimerRecord]'],
@@ -239,7 +239,7 @@ export function snapshotFrom(response: Uint8Array, savedBytes: Uint8Array, bench
     if (read.bodies !== bench.bodies)
         throw new Error(`run-reset snapshot: the committed read has ${read.bodies} bodies, the bench has ${bench.bodies}`);
     try { decodeSavedConstruction(savedBytes); }
-    catch (error) { throw new Error('run-reset snapshot: the save slot is not a version 14 CCWS construction', { cause: error }); }
+    catch (error) { throw new Error('run-reset snapshot: the save slot is not a CCWS construction', { cause: error }); }
     const bb = new flatbuffers.ByteBuffer(savedBytes);
     const flattener = new Flattener(bb);
     flattener.table('saved', 'SavedConstruction', rootPosition(bb));

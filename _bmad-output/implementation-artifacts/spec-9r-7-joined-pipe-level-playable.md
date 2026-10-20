@@ -127,8 +127,16 @@ Amelia-13, 21 Oct 2026, on 63ba232c (Story 9R.6 rebased on 9R.5b).
 - **Commit paths.** `CaptureInstance` takes the presented length (`MachinePart.PipeLength`), else the committed pipe's own length, else
   (a new pipe) the default. Rotate, move, snap-on-release, placement and every `CommitSelected` keep a resized length.
 - **Codecs.** The command wire writes the f32 length at slot bytes 112–115 (116+ must be zero); FlatBuffers uses the existing `length`
-  field, whose schema default is 0, so a record without it fails validation. Wire version 21 → 22 (slot layout), save version 13 → 14
-  (`workshop-driver.ts`, `workshop-wire.ts`, `run-reset-snapshot.ts`, `cat-062b.test.ts`). Older saves are refused as `UnsupportedSave`.
+  field, whose schema default is 0, so a record without it fails validation and is refused as `UnsupportedSave`, never defaulted.
+- **No format versions (owner decision, 21 Oct 2026).** The browser and its workers ship in one bundle with one schema, so the command
+  wire, the response wire, the cadence settings record and the save carry no version. The `version` fields are deleted from
+  `schemas/workshop_wire.fbs` and the generated C#/TS (field slots renumbered; checked line-for-line against flatc 25.12 output), with
+  `WorkshopWireVersion`, `WorkshopSaveVersion`, `WorkshopSettingsVersion` and every check. Foreign or malformed bytes are refused by
+  structure: the generated FlatBuffers verifier on the command, response and save, zero padding where the binary header's version word
+  was (bytes 12–15) and after the six-word settings record, enum ranges and construction validation. Tests that asserted version values
+  or old-version rejection are deleted or rewritten as structural rejections (`WorkshopFormatTests`); the malformed-input tests stay.
+  Other format versions (clock wire and ring, animation wire, physics state ABI, canonical body record, schedule control) are outside
+  this change and are filed as a follow-up.
 - **Art.** `MachinePart.ApplyPipeLength` stretches `Visual_Shell` along its long axis, moves the collars to ±length/2 and sets the pick radius
   √((length/2 + 0.09)² + 0.78²) (2.05 → 2.045 at the default). `pipe.tscn` is unchanged; `pipe.tres` declares no parameter.
 - **Lesson.** `JoinedPipe` (ids ball, bend, receiver = first, +1, +2; `_nextId` advances by 3). Validate requires exactly one locked
@@ -150,6 +158,9 @@ Amelia-13, 21 Oct 2026, on 63ba232c (Story 9R.6 rebased on 9R.5b).
     mouth. Poses about 0.72 m up, down or up the axis from the joint still deliver the ball (`evidence-9r-7/native-pose-probe.txt`), so
     the lesson tolerates a loose joint in those directions; the left pose demonstrably does not (the ball lands on the outer shell).
   - The positive row runs at the lesson's default Balanced precision; the negative rows run at Precise.
+- 21 Oct 2026 (owner decision, relayed by the coordinator): the task "Bump the save version per codec convention ... and reject old
+  saves explicitly" is replaced by removing format versioning from the wire and the save entirely (Implementation Notes, "No format
+  versions"). A save without a pipe length is still rejected explicitly by validation.
 
 ## Review Triage Log
 

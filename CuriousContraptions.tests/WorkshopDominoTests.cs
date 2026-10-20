@@ -89,7 +89,6 @@ public sealed class WorkshopDominoTests
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
             CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
             CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
             CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -97,9 +96,6 @@ public sealed class WorkshopDominoTests
             var forgedBytes = builder.SizedByteArray();
             EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(forgedBytes));
         }
-        var bb = new Google.FlatBuffers.ByteBuffer(bytes);
-        var fbSave = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(bb);
-        Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, fbSave.Version);
     }
 
     [Fact]

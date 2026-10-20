@@ -190,9 +190,8 @@ const PUBLICATION_TIMEOUT_MS = 10000;
 const CONSTRUCTION_DATABASE = 'curious-contraptions-workshop';
 const CONSTRUCTION_STORE = 'construction';
 const CONSTRUCTION_SLOT = 1;
-// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343), version 14 (Story 9R.7: the pipe declares its length).
+// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343). One bundle, one schema: there is no format version.
 const SAVE_MAGIC = 0x53574343;
-const SAVE_VERSION = 14;
 
 async function bounded<T>(work: Promise<T>, timeoutMs: number, message: string): Promise<T> {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -937,8 +936,8 @@ export class WorkshopDriver {
             throw new Error('save: the Save command was acknowledged but the IndexedDB slot is empty or invalid');
         const bytes = new Uint8Array(savedBytes);
         const saved = decodeSavedConstruction(bytes);
-        if (saved.magic() !== SAVE_MAGIC || saved.version() !== SAVE_VERSION)
-            throw new Error(`save: the Save command was acknowledged but the IndexedDB slot has invalid magic 0x${saved.magic().toString(16)} or version ${saved.version()}`);
+        if (saved.magic() !== SAVE_MAGIC || !saved.construction())
+            throw new Error(`save: the Save command was acknowledged but the IndexedDB slot has invalid magic 0x${saved.magic().toString(16)} or no construction`);
         return bytes;
     }
 

@@ -83,7 +83,7 @@ public sealed class ConstructionDecodeBoundaryTests
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
-            builder, (uint)WorkshopSettingsVersion.SharedMaster, (uint)settings.Simulation, (uint)settings.Physical,
+            builder, (uint)settings.Simulation, (uint)settings.Physical,
             (uint)settings.Animation, (uint)settings.Presentation, settings.PresentationRate.Numerator, settings.PresentationRate.Denominator));
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
         return CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
@@ -103,7 +103,6 @@ public sealed class ConstructionDecodeBoundaryTests
         var record = BuildRecord(builder, part, threshold);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 2);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, record);
         builder.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value);

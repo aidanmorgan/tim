@@ -90,7 +90,6 @@ public sealed class WorkshopWallTests
                 var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
                 CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
                 CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-                CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
                 CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
                 CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
                 var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -99,27 +98,6 @@ public sealed class WorkshopWallTests
             }
         }
         Assert.Equal(valid, WorkshopSaveCodec.Encode(Saved(WallDimensions.Default)));
-    }
-
-    [Fact]
-    public void PreviousSaveAndWireSchemasRejectRatherThanReinterpretNewKind()
-    {
-        var saved = Saved(WallDimensions.Default);
-        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, saved.Construction);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, 3);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
-        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
-            Saved(WallDimensions.Default).Construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        var bytes = WorkshopWire.Encode(command);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(12), 10);
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeCommand(bytes));
     }
 
     [Fact]

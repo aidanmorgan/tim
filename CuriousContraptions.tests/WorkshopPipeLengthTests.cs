@@ -270,13 +270,12 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         Assert.Throws<ArgumentException>(() => WorkshopWire.ReadConstruction(bytes));
     }
 
-    private static byte[] RawSave(WorkshopConstruction construction, uint version)
+    private static byte[] RawSave(WorkshopConstruction construction)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction, validate: false);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, record);
         builder.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value);
@@ -293,14 +292,8 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     {
         var bench = Bench(2);
         var stored = bench with { Instances = new(bench.Instances[0], (WorkshopPipe)bench.Instances[1] with { Length = new(metres) }) };
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(RawSave(stored, WorkshopSaveCodec.Version)));
-    }
-
-    [Fact]
-    public void ASaveFromThePreviousVersionIsRejected()
-    {
-        Assert.Equal(14u, WorkshopSaveCodec.Version);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(RawSave(Bench(3.6f), 13)));
-        Assert.Equal(Bench(3.6f), WorkshopSaveCodec.Decode(RawSave(Bench(3.6f), WorkshopSaveCodec.Version)).Construction);
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(RawSave(stored)));
+        // Control: the same hand-built record with an admitted length decodes.
+        Assert.Equal(bench, WorkshopSaveCodec.Decode(RawSave(bench)).Construction);
     }
 }
