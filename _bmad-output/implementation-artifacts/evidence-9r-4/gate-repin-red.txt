@@ -1,0 +1,28 @@
+C# static gate RED on .NET SDK 10.0.402 (Homebrew upgrade at 08:35 on 20 Oct 2026; runtime 10.0.13; wasm-tools workload
+manifest 10.0.112 in band 10.0.400), before the re-pin. Source: the repository pre-commit hook, run by `git commit` of the
+Story 9R.4 B1 test (index = c5a1cdda + PressurePlateTests.cs), about 18:51. The three gate builds succeeded with 0 warnings;
+the binlog replay then failed:
+
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.EveryLoggedCompileReceivedThePinnedCompilerInputs [38 ms]
+  Error Message:
+   30 C# static gate violation(s):
+  {playtest,solution}.binlog: CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj,
+  {playtest,solution}.binlog: CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj,
+  web.binlog: CuriousContraptions.web/CuriousContraptions.web.csproj:
+    unpinned analyzer ~/.nuget/packages/microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/<file> (package microsoft.netcore.app.ref)
+    for each <file> of Microsoft.Interop.ComInterfaceGenerator.dll, Microsoft.Interop.JavaScript.JSImportGenerator.dll,
+    Microsoft.Interop.LibraryImportGenerator.dll, Microsoft.Interop.SourceGeneration.dll, System.Text.Json.SourceGeneration.dll,
+    System.Text.RegularExpressions.Generator.dll  (5 compiles x 6 files = 30)
+  Failed!  - Failed: 1, Passed: 122, Skipped: 0, Total: 123
+
+Cause: the SDK now bundles the 10.0.13 targeting pack, while the browser-wasm projects take the wasm-tools workload's
+10.0.12 targeting pack, which restores from NuGet; its source generators therefore load from the NuGet root, where the
+gate admits only pinned (package, file, project) entries.
+
+SHA-256 of the six analyzers (shasum -a 256 ~/.nuget/packages/microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/*.dll):
+e8fc0b901cf3b754f348cdd0585dc3e661c964b1c1d340c88a7cb06121ff007b  Microsoft.Interop.ComInterfaceGenerator.dll
+0e75fd9ff6e100b207163fa492d8b505521a2998d1292d11ea43e307606293b5  Microsoft.Interop.JavaScript.JSImportGenerator.dll
+de58417fe04b0bec752a775ebac17d9fa0dfd6027eabe9310dc5c9d93e6c7ed5  Microsoft.Interop.LibraryImportGenerator.dll
+448cddcdccd7db7ba1e5de80234c137a6d1fcf0ed90687245109a6dc09dfe82b  Microsoft.Interop.SourceGeneration.dll
+bdef5ce75fa321acf8d2c2a5b2a9f9eb2a30ef4a28b1694fbca978176c8dd6c9  System.Text.Json.SourceGeneration.dll
+54d379bd109821792120cedd832495d38bc0048f4dd5366fba860d5ecb3a21dd  System.Text.RegularExpressions.Generator.dll
