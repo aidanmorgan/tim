@@ -259,7 +259,8 @@ public sealed class WorkshopWireTests
         WorkshopScheduleWire.WriteCommit(header, schedule, bytes);
         Assert.Equal(schedule, WorkshopScheduleWire.ReadCommit(bytes, out var decoded));
         Assert.Equal(header, decoded);
-        foreach (var offset in new[] { 60, 64 + 124, 64 + 136 })
+        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes)); // Story 9A.1 (F.10): the former version word is zero padding
+        foreach (var offset in new[] { 0, 60, 64 + 124, 64 + 136 })
         {
             var malformed = (byte[])bytes.Clone(); malformed[offset] = 1;
             Assert.Throws<ArgumentException>(() => WorkshopScheduleWire.ReadCommit(malformed, out _));
@@ -550,15 +551,16 @@ public sealed class WorkshopWireTests
         var peer = new WorkshopClockPeer(Session, new(ulong.MaxValue), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser);
         var bytes = WorkshopClockWire.EncodePeer(peer);
         Assert.Equal(peer, WorkshopClockWire.DecodePeer(bytes));
-        Assert.Equal(4U, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        // Story 9A.1 (F.10): the leading word is zero padding, and any other value (the retired 1, 3 or 4 included) rejects.
+        Assert.Equal(0U, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
         Assert.Equal(NativeClockProfile.IsolatedWitnessedPerformanceNow,
             (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)));
-        var oldVersion = (byte[])bytes.Clone();
-        BinaryPrimitives.WriteUInt32LittleEndian(oldVersion, 1);
-        Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(oldVersion));
-        // v3 replies carried no derivation epoch; they are unsupported current input (no migration).
-        BinaryPrimitives.WriteUInt32LittleEndian(oldVersion, 3);
-        Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(oldVersion));
+        foreach (var leading in new uint[] { 1, 3, 4 })
+        {
+            var padded = (byte[])bytes.Clone();
+            BinaryPrimitives.WriteUInt32LittleEndian(padded, leading);
+            Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(padded));
+        }
         var oldProfile = (byte[])bytes.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(oldProfile.AsSpan(4), 1);
         Assert.Throws<ArgumentException>(() => WorkshopClockWire.DecodePeer(oldProfile));
@@ -1004,7 +1006,10 @@ public sealed class WorkshopWireTests
         Assert.Equal(new MetreVector((Half)1.1, (Half)1.5, (Half)1.1), guide.Maximum);
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
-        Assert.Equal((uint)PhysicsStateVersion.GenericMechanical, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        // Story 9A.1 (F.10): the header's leading word is zero padding; the retired state version 13 (or any other value) rejects.
+        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        var versioned = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(versioned, 13);
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(versioned, versioned, new(0)));
         Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(96)));
         var layout = PhysicsGpuAbi.Layout(bytes);
         for (var offset = layout.GuidesOffset; offset < layout.MotionOffset; offset++)
@@ -1060,7 +1065,7 @@ public sealed class WorkshopWireTests
     }
 
     [Theory]
-    [InlineData(0, 0u)]
+    [InlineData(0, 13u)] // the retired physics state version, where zero padding now stands
     [InlineData(0, 2u)]
     [InlineData(4, 1u)]
     [InlineData(8, uint.MaxValue)]
@@ -1411,6 +1416,7 @@ public sealed class WorkshopWireTests
     {
         var bytes = WorkshopMemoryWire.Encode(MemoryRequest);
         Assert.Equal(64, bytes.Length);
+        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes)); // Story 9A.1 (F.10): the former version word is zero padding
         Assert.Equal(MemoryRequest, WorkshopMemoryWire.DecodeRequest(bytes));
         Assert.Equal(ulong.MaxValue, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32)));
         var sample = new WorkshopMemoryResult(MemoryRequest, WorkshopMemoryStatus.Accepted,
@@ -1427,6 +1433,8 @@ public sealed class WorkshopWireTests
     public void StoppedMemoryRequestsRejectUnknownEnumsReservedBytesAndInvalidIdentity()
     {
         var valid = WorkshopMemoryWire.Encode(MemoryRequest);
+        var retired = (byte[])valid.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(retired, 1); // the retired version 1
+        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeRequest(retired));
         foreach (var offset in new[] { 0, 4, 8, 12 })
         {
             var malformed = (byte[])valid.Clone();

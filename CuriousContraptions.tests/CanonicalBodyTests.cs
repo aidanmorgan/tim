@@ -7,7 +7,7 @@ namespace CuriousContraptions.Tests;
 
 public sealed class CanonicalBodyTests
 {
-    public enum InvalidField { Version, Status, CellScale, TimeScale, Reserved, LocalInfinity, LocalBeyondRange, LocalNan, VelocityInfinity, VelocityNan, VelocityBeyondEnvelope, EmptyIdentity, OutwardPosition }
+    public enum InvalidField { LeadingPadding, Status, CellScale, TimeScale, Reserved, LocalInfinity, LocalBeyondRange, LocalNan, VelocityInfinity, VelocityNan, VelocityBeyondEnvelope, EmptyIdentity, OutwardPosition }
     // Velocity is f32 in m/s: 1e-7 m/s (far below a binary16 step at 1 m/s) survives the round trip.
     private static CanonicalBody Body => new(new(0xfedcba9876543210), 0xfedcba9876543210, 0x20000000000001,
         new(160, -1024, 1024), new((float)(-0.5), (float)0, (float)0),
@@ -24,7 +24,7 @@ public sealed class CanonicalBodyTests
     }
 
     [Theory]
-    [InlineData(InvalidField.Version)]
+    [InlineData(InvalidField.LeadingPadding)]
     [InlineData(InvalidField.Status)]
     [InlineData(InvalidField.CellScale)]
     [InlineData(InvalidField.TimeScale)]
@@ -42,7 +42,7 @@ public sealed class CanonicalBodyTests
         var bytes = Body.Encode();
         switch (field)
         {
-            case InvalidField.Version: bytes[0] = 255; break;
+            case InvalidField.LeadingPadding: bytes[0] = 255; break;
             case InvalidField.Status: bytes[4] = 255; break;
             case InvalidField.CellScale: bytes[48] = 0; break;
             case InvalidField.TimeScale: bytes[52] = 0; break;
@@ -66,15 +66,14 @@ public sealed class CanonicalBodyTests
     }
 
     [Theory]
-    [InlineData(0u)]
     [InlineData(1u)]
-    [InlineData(2u)]
-    public void OnlyTheF32PoseVelocitySchemaDecodes(uint version)
+    [InlineData(3u)] // the retired record version: a structurally invalid record now, never decoded as before
+    public void TheLeadingWordIsZeroPaddingAndAnyOtherValueRejects(uint leading)
     {
         var bytes = Body.Encode();
-        Assert.Equal((uint)BodyRecordVersion.F32PoseVelocity, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
-        Assert.Equal(3u, (uint)BodyRecordVersion.F32PoseVelocity); // old schemas reject; no compatibility decoding
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes, version);
+        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        Assert.Equal(Body, CanonicalBody.Decode(bytes)); // control
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes, leading);
         Assert.Throws<ArgumentException>(() => CanonicalBody.Decode(bytes));
     }
 

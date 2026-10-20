@@ -1625,7 +1625,7 @@ So that two plates switch two gates independently.
   - a Chrome proof of the save-rejection message.
 
 ### Story F.10: Retire the Remaining Format Version Fields
-*Status: Backlog. Merged into Story 9A.1 (coordinator ruling, 21 Oct 2026, matching Story 9R.7's "the remaining format versions belong to 9A.1"); these ACs stay here and apply there. Filed by Story 9A.0 on 21 Oct 2026, under the owner's rule of the same day: "why are you versioning the wire format and the save formats, this isnt required and goes against the rule that says we dont have any backwards compatability". Story 9R.7 already deleted the wire, save and cadence-settings versions.*
+*Status: Review, with Story 9A.1. Merged into Story 9A.1 (coordinator ruling, 21 Oct 2026, matching Story 9R.7's "the remaining format versions belong to 9A.1"); these ACs stay here and apply there. Filed by Story 9A.0 on 21 Oct 2026, under the owner's rule of the same day: "why are you versioning the wire format and the save formats, this isnt required and goes against the rule that says we dont have any backwards compatability". Story 9R.7 already deleted the wire, save and cadence-settings versions.*
 
 *Deletes: `WorkshopClockWire.Version`, the `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `PhysicsStateVersion` (and the worker's `STATE_VERSION`) and `BodyRecordVersion`, with every field that carries them and every check that compares them.*
 
@@ -2399,7 +2399,7 @@ So that nobody builds on an end state that is described as if it already exists.
 - **And** every relative link in the changed docs resolves, and `dotnet test CuriousContraptions.slnx --filter ArchitectureDocsConsistencyTests` passes (native proof; this documentation-only story needs no Chrome run).
 
 ### Story 9A.1: Dead Legacy Purge
-*Status: Backlog*
+*Status: Review. Story F.10 is merged in (coordinator, 21 Oct 2026): its Deletes list and ACs are this story's too.*
 
 *Depends on: Story 9A.0. Position 4, right after 9A.0 (owner amendment, 21 Oct 2026). Audit: B3, B4, B5, B7, B8, D4 (JS producer) and the dead parts of A17.*
 

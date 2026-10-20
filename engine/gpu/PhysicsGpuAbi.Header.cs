@@ -6,7 +6,8 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public static partial class PhysicsGpuAbi
 {
-    public const int HeaderVersionOffset = 0;
+    /// <summary>Bytes 0..3 are zero padding (one bundle, one schema); a non-zero word rejects the record.</summary>
+    public const int HeaderLeadingPaddingOffset = 0;
     public const int HeaderStatusOffset = 4;
     public const int HeaderFailureOffset = 8;
     /// <summary>Header word holding the admitted body count.</summary>

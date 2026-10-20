@@ -2,11 +2,9 @@ using System;
 using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Trace schema 5 (Story 9R.5b: u32 population counts): every committed body uses the 80-byte <see cref="PhysicsBodyWire"/> with canonical f32 pose and velocity.
-/// Earlier pose encodings are rejected like any unknown version.</summary>
-public enum WorkshopTraceVersion : uint { CompleteBodySetF32Pose = 5 }
-
-/// <summary>Bounded observational projection of every committed body and capture latch.</summary>
+/// <summary>Bounded observational projection of every committed body and capture latch. Every committed body uses the 80-byte
+/// <see cref="PhysicsBodyWire"/> with canonical f32 pose and velocity, and the population counts are u32 (Story 9R.5b). Header bytes
+/// 0..3 are zero padding (one bundle, one schema); a record that is not structurally valid for this layout is rejected.</summary>
 public static class WorkshopTraceRecord
 {
     public const int HeaderBytes = 48;
@@ -25,7 +23,7 @@ public static class WorkshopTraceRecord
             throw new ArgumentException("Unsupported diagnostic time.");
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         var b = new byte[ByteLength(read.Bodies.Count, read.Captures.Count)];
-        U32(b,0,(uint)WorkshopTraceVersion.CompleteBodySetF32Pose); U32(b,4,(uint)profile.Cadence);
+        U32(b,4,(uint)profile.Cadence);
         U64(b,8,profile.Revision.Value); U64(b,16,read.Epoch.Value); U64(b,24,read.Tick.Value);
         U32(b,32,(uint)profile.Physical); U32(b,36,(uint)read.Bodies.Count); U32(b,40,(uint)read.Captures.Count);
         for (var i=0; i<read.Bodies.Count; i++)
@@ -43,7 +41,7 @@ public static class WorkshopTraceRecord
 
     public static WorkshopGpuProfile ReadProfile(ReadOnlySpan<byte> b)
     {
-        if(b.Length<HeaderBytes || BinaryPrimitives.ReadUInt32LittleEndian(b)!=(uint)WorkshopTraceVersion.CompleteBodySetF32Pose ||
+        if(b.Length<HeaderBytes || BinaryPrimitives.ReadUInt32LittleEndian(b)!=0 ||
             BinaryPrimitives.ReadUInt32LittleEndian(b[36..])>int.MaxValue || BinaryPrimitives.ReadUInt32LittleEndian(b[40..])>int.MaxValue ||
             b.Length!=ByteLength((int)BinaryPrimitives.ReadUInt32LittleEndian(b[36..]),(int)BinaryPrimitives.ReadUInt32LittleEndian(b[40..])) ||
             b[44..HeaderBytes].IndexOfAnyExcept((byte)0)>=0)

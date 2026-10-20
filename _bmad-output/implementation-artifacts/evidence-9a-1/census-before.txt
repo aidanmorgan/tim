@@ -1,0 +1,254 @@
+# 9A.1 original items (rg -n -w, excluding _bmad-output)
+## AllocateElectrical
+./docs/architecture/element-package-isolation.md:169:| B3: the JS-boundary exports (`AllocateElectrical` … `AbiOffsets`) in `CuriousContraptions.Simulation/Program.cs` | Gone from the tree (`rg` returns 0) |
+./tools/workshop-rigid-body.test.mjs:859:            AllocateElectrical: (enabled, balance, power, debit, balances, capacities, credits) => {
+## PaidContactImpulse
+./tools/workshop-rigid-body.test.mjs:907:    const {imports} = await loadWorker({PaidContactImpulse: (speed, target, inverseMass, available, x, y, z) => {
+## PrismaticRowKinds
+./tools/workshop-rigid-body.test.mjs:26:        StateBytes: () => STATE_BYTES, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1, ...overrides
+./tools/workshop-rigid-body.test.mjs:1196:        await assert.rejects(loadWorker({PrismaticRowKinds:()=>mapping}), /Invalid prismatic row kind mapping/);
+## SpringCoefficients
+./tools/workshop-rigid-body.test.mjs:956:        SpringCoefficients: () => [.25, 20],
+./tools/workshop-rigid-body.test.mjs:1095:        lower:-.25,upper:0,soft:Array.from(Program.SpringCoefficients(400,.2)),impulses:Array(8).fill(0)};
+./tools/workshop-rigid-body.test.mjs:1209:        lower:-.25,upper:0,soft:Array.from(Program.SpringCoefficients(120+seed*50,.2)),impulses:Array(8).fill(0)};
+## PrismaticJacobians
+./tools/workshop-rigid-body.test.mjs:957:        PrismaticJacobians: data => {
+./tools/workshop-rigid-body.test.mjs:1324:            const row=Program.PrismaticJacobians([...base.p,...base.q,...base.p,...plate.p,...plate.q,...plate.p,
+## ConstraintRows
+./tools/workshop-rigid-body.test.mjs:962:        ConstraintRows: data => { solves.push({ frame: frames.length, data: Array.from(data) }); return Array(8).fill(0); }
+./tools/workshop-rigid-body.test.mjs:1079:    const { kernels } = await loadWorker({ ...Program, ConstraintRows: input => {
+./tools/workshop-rigid-body.test.mjs:1080:        if(calls++===0){firstInput=Array.from(input);firstResult=Array.from(Program.ConstraintRows(input));return firstResult;}
+./tools/workshop-rigid-body.test.mjs:1229:            const result=Program.ConstraintRows(input);j.impulses[row]=result[0];kernels.applyConstraintImpulse(j,r,result[4]);
+## OperationAbi
+./tools/workshop-rigid-body.test.mjs:25:        CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56], OperationAbi: () => [0, 1],
+## StateBytes
+./tools/workshop-rigid-body.test.mjs:26:        StateBytes: () => STATE_BYTES, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1, ...overrides
+## AbiOffsets
+./docs/architecture/element-package-isolation.md:169:| B3: the JS-boundary exports (`AllocateElectrical` … `AbiOffsets`) in `CuriousContraptions.Simulation/Program.cs` | Gone from the tree (`rg` returns 0) |
+## EarlyLoss
+./docs/architecture/element-package-isolation.md:171:| B5: `tools/workshop-rigid-body.test.mjs`, its README reference and the `workshop-observation` EarlyLoss case | Gone from the tree |
+## writeEventRing
+./docs/architecture/element-package-isolation.md:168:| D4 (JS producer): `writeEventRing` and the never-written JS ring scaffold | Story 9.4b |
+## WORKER_ABI_CANDIDATE
+0 hits
+## WORKER_SOURCE
+./tools/workshop-rigid-body.test.mjs:10:const source = await readFile(process.env.WORKER_SOURCE ?? 'CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
+## WorkerDynamicOffsetFallbacksDeclareValidTableOffsets
+0 hits
+## PRISMATIC_BYTES
+0 hits
+## MOTION_GRAVITY
+0 hits
+## COLLIDERS_OFFSET
+0 hits
+## MATERIALS_OFFSET
+0 hits
+## TRIGGERS_OFFSET
+0 hits
+## CONTACT_WORKS_OFFSET
+0 hits
+## ProbePart
+./CuriousContraptions.tests/BasketballResourceTests.cs:163:    private sealed partial class ProbePart : MachinePart
+./CuriousContraptions.tests/BasketballResourceTests.cs:165:        public Action<ProbePart>? Bindings;
+./CuriousContraptions.tests/BasketballResourceTests.cs:180:        foreach (var bindings in new Action<ProbePart>[] {
+./CuriousContraptions.tests/BasketballResourceTests.cs:185:            var rejected=new ProbePart { Bindings=bindings }; rejected.Configure(definition);
+./CuriousContraptions.tests/BasketballResourceTests.cs:188:        var accepted=new ProbePart { Bindings=probe=>{ probe.Bind(CosmeticCurves.Delay); probe.Bind(CosmeticCurves.Delay,CuriousContraptions.Presentation.AnimationTimerPhase.Finished); } };
+./docs/architecture/element-package-isolation.md:157:| B7, B8 (remainder) | The `MachinePart.Build()` subclassing hook (`engine/MachinePart.cs:236`) and its only override, the test `ProbePart` (`BasketballResourceTests.cs:166`); the orphan root `scratch_test.cs.uid` | 9 | 9A.1 |
+## CosmeticBindingSet
+0 hits
+## files
+ls: scratch: No such file or directory
+scratch_test.cs.uid
+tools/workshop-rigid-body.test.mjs
+## MachinePart.Build / PartRegistry skips
+engine/MachinePart.cs:12:public partial class MachinePart : Node3D, IResizablePart
+engine/MachinePart.cs:257:    protected virtual void Build() { }
+engine/MachinePart.cs:547:        Build();
+## worker.js layout constants (all owned and pinned by WorkerAbiTests)
+17:const READ_CAPTURE_TIME = 72;          // WorkshopWire.ResponseCaptureTimeOffset
+18:const READ_BODY_COUNT = 112;           // WorkshopWire.ResponseBodyCountOffset
+19:const READ_BODIES_OFFSET = 144;        // WorkshopWire.ReadBodiesOffset
+20:const BODY_WIRE_BYTES = 80;            // PhysicsBodyWire.ByteLength
+21:const BODY_WIRE_CELL = 8;              // PhysicsBodyWire.CellOffset
+22:const BODY_WIRE_LOCAL = 20;            // PhysicsBodyWire.LocalOffset
+23:const BODY_WIRE_ROTATION = 32;         // PhysicsBodyWire.RotationOffset
+24:const BODY_WIRE_VELOCITY = 56;         // PhysicsBodyWire.VelocityOffset
+25:const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
+26:const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
+27:const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
+# F.10 deleted symbols (rg -n -w over the active tree, excluding _bmad-output and docs history)
+## BodyRecordVersion
+./CuriousContraptions.tests/CanonicalBodyTests.cs:75:        Assert.Equal((uint)BodyRecordVersion.F32PoseVelocity, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+./CuriousContraptions.tests/CanonicalBodyTests.cs:76:        Assert.Equal(3u, (uint)BodyRecordVersion.F32PoseVelocity); // old schemas reject; no compatibility decoding
+./engine/gpu/CanonicalBody.cs:8:public enum BodyRecordVersion : uint { F32PoseVelocity = 3 }
+./engine/gpu/CanonicalBody.cs:44:        BinaryPrimitives.WriteUInt32LittleEndian(data, (uint)BodyRecordVersion.F32PoseVelocity);
+./engine/gpu/CanonicalBody.cs:62:            BinaryPrimitives.ReadUInt32LittleEndian(data) != (uint)BodyRecordVersion.F32PoseVelocity ||
+./docs/architecture/element-package-isolation.md:159:| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
+./docs/planning/delivered-slices.md:26:- **Versions:** the trace version is now 3. `BodyRecordVersion.HalfPoseF32Velocity` keeps the value 2.
+## PhysicsStateVersion
+./engine/gpu/PhysicsGpuAbi.cs:7:public enum PhysicsStateVersion : uint { GenericMechanical = 13 }
+./engine/gpu/PhysicsGpuAbi.cs:84:        U32(data, HeaderVersionOffset, (uint)PhysicsStateVersion.GenericMechanical);
+./engine/gpu/PhysicsGpuAbi.cs:446:const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
+./engine/gpu/PhysicsGpuAbi.cs:478:            R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
+./docs/architecture/element-package-isolation.md:159:| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
+./CuriousContraptions.tests/WorkshopWireTests.cs:985:        Assert.Equal((uint)PhysicsStateVersion.GenericMechanical, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+## STATE_VERSION
+./engine/gpu/PhysicsGpuAbi.cs:446:const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
+## HeaderVersionOffset
+./engine/gpu/PhysicsGpuAbi.Header.cs:9:    public const int HeaderVersionOffset = 0;
+./engine/gpu/PhysicsGpuAbi.cs:84:        U32(data, HeaderVersionOffset, (uint)PhysicsStateVersion.GenericMechanical);
+./engine/gpu/PhysicsGpuAbi.cs:478:            R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
+## WorkshopScheduleVersion
+./engine/gpu/WorkshopSchedule.cs:6:public enum WorkshopScheduleVersion : uint { SharedMaster = 1 }
+./engine/gpu/WorkshopSchedule.cs:134:        BinaryPrimitives.WriteUInt32LittleEndian(destination, (uint)WorkshopScheduleVersion.SharedMaster);
+./engine/gpu/WorkshopSchedule.cs:148:            BinaryPrimitives.ReadUInt32LittleEndian(control) != (uint)WorkshopScheduleVersion.SharedMaster ||
+./docs/architecture/element-package-isolation.md:159:| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
+## WorkshopTraceVersion
+./CuriousContraptions.Simulation/WorkshopTrace.cs:146:            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.CompleteBodySetF32Pose} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
+./engine/gpu/WorkshopTraceRecord.cs:7:public enum WorkshopTraceVersion : uint { CompleteBodySetF32Pose = 5 }
+./engine/gpu/WorkshopTraceRecord.cs:28:        U32(b,0,(uint)WorkshopTraceVersion.CompleteBodySetF32Pose); U32(b,4,(uint)profile.Cadence);
+./engine/gpu/WorkshopTraceRecord.cs:46:        if(b.Length<HeaderBytes || BinaryPrimitives.ReadUInt32LittleEndian(b)!=(uint)WorkshopTraceVersion.CompleteBodySetF32Pose ||
+./CuriousContraptions.tests/WorkshopTraceTests.cs:49:        Assert.Equal((uint)WorkshopTraceVersion.CompleteBodySetF32Pose, BinaryPrimitives.ReadUInt32LittleEndian(record));
+./docs/architecture/element-package-isolation.md:159:| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
+## TraceTimingVersion
+./CuriousContraptions.Simulation/WorkshopTrace.cs:11:internal enum TraceTimingVersion : uint { NativeMilliseconds = 2 }
+./CuriousContraptions.Simulation/WorkshopTrace.cs:162:            Console.WriteLine($"CCGPU_TICK_TIMES_BEGIN {_identity} {_epoch.Value} {(uint)TraceTimingVersion.NativeMilliseconds} {sizeof(double)} {(uint)_profile.Cadence} {(uint)_profile.Physical} {_profile.Revision.Value} {_expectedCount - 1} {_durationCount} {durationChunks} {(int)status} {Convert.ToBase64String(_construction)} {(int)reason}");
+./docs/architecture/element-package-isolation.md:159:| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
+## ClockRingVersion
+./CuriousContraptions.web/wwwroot/clock-ring.js:12:export const ClockRingVersion = 3;
+./CuriousContraptions.web/wwwroot/clock-ring.js:35:    Atomics.store(new Int32Array(buffer), Version, ClockRingVersion);
+./CuriousContraptions.web/wwwroot/clock-ring.js:43:    if (Atomics.load(words, Version) !== ClockRingVersion) throw new Error('Unsupported clock ring version.');
+./tools/workshop-clock-ring.test.mjs:153:    assert.equal(clockRing.ClockRingVersion, 3);
+## policyVersion
+./CuriousContraptions.web/wwwroot/workshop-isolation-worker.js:2:const policyVersion = 1;
+./CuriousContraptions.web/wwwroot/workshop-isolation-worker.js:11:        if (event.ports.length !== 1 || event.data?.policyRequest !== policyVersion ||
+./CuriousContraptions.web/wwwroot/workshop-isolation-worker.js:13:        port.postMessage({ policyVersion });
+./CuriousContraptions.web/wwwroot/workshop-isolation.js:1:const policyVersion = 1;
+./CuriousContraptions.web/wwwroot/workshop-isolation.js:82:            event.data?.policyVersion !== policyVersion || navigator.serviceWorker.controller !== expected
+./CuriousContraptions.web/wwwroot/workshop-isolation.js:85:        try { expected.postMessage({ policyRequest: policyVersion }, [channel.port2]); }
+./CuriousContraptions.web/wwwroot/workshop-isolation.js:96:        const attempt = saved === null ? [policyVersion, performance.timeOrigin, 0, performance.timeOrigin] : JSON.parse(saved);
+./CuriousContraptions.web/wwwroot/workshop-isolation.js:97:        if (!Array.isArray(attempt) || attempt.length !== 4 || attempt[0] !== policyVersion ||
+./CuriousContraptions.web/wwwroot/workshop-isolation.js:123:            sessionStorage.setItem(markerKey, JSON.stringify([policyVersion, attempt[1], 1, lastNavigation]));
+./CuriousContraptions.web/wwwroot/workshop-isolation.js:154:    return { policyVersion, phase, isolated: globalThis.crossOriginIsolated === true,
+./tools/workshop-isolation.test.mjs:16:        postMessage(_message, ports) { queueMicrotask(() => ports[0].peer.onmessage({ data: { policyVersion: 1 } })); }
+## clockVersion
+./CuriousContraptions.web/wwwroot/workshop-client.js:149:        const [clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole] = clockAbi;
+./CuriousContraptions.web/wwwroot/workshop-client.js:161:            identity: undefined, clockAbi: { clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
+./CuriousContraptions.web/wwwroot/workshop-client.js:262:                        if (declared.getUint32(0, true) !== clockVersion || declared.getUint32(4, true) !== clockProfile ||
+## WorkshopSaveVersion
+./CuriousContraptions.tests/WorkshopFormatTests.cs:26:        Assert.DoesNotContain("WorkshopSaveVersion", engine);
+./docs/architecture/element-package-isolation.md:158:| Format versions (owner, 21 Oct 2026) | `WorkshopSaveVersion` and `WorkshopWireVersion` | 8 | 9A.2 |
+## WorkshopWireVersion
+./CuriousContraptions.tests/WorkshopFormatTests.cs:25:        Assert.DoesNotContain("WorkshopWireVersion", engine);
+./docs/architecture/element-package-isolation.md:158:| Format versions (owner, 21 Oct 2026) | `WorkshopSaveVersion` and `WorkshopWireVersion` | 8 | 9A.2 |
+## WorkshopSettingsVersion
+./CuriousContraptions.tests/WorkshopFormatTests.cs:27:        Assert.DoesNotContain("WorkshopSettingsVersion", engine);
+./docs/architecture/element-package-isolation.md:159:| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
+## UnknownVersion
+./tools/WireContract/Program.cs:7:    HeaderPositive, UnknownVersion, UnknownMessage, UnknownSender, UnknownRecipient,
+./tools/WireContract/Program.cs:40:        Invalid(Oracle.UnknownVersion,header with{Version=2});
+# F.10 format versions (rg -n -i version over production trees, tools and schemas)
+CuriousContraptions.Simulation/Program.cs:4:using System.Runtime.Versioning;
+tools/BundleElements/Program.cs:40:    Version = "1.0",
+CuriousContraptions.Animation.Worker/Program.cs:3:using System.Runtime.Versioning;
+CuriousContraptions.Animation.Worker/Program.cs:341:        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(86), WorkshopAnimationWire.Version);
+CuriousContraptions.web/wwwroot/favicon.svg:1:<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="567.96075" height="573.18744"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="567.96075" height="573.18744"><svg width="567.96075" height="573.18744" viewBox="0 0 567.96076 573.18744" version="1.1" id="svg17" sodipodi:docname="icon.svg" inkscape:version="1.4.3 (0d15f75042, 2025-12-25)" inkscape:export-filename="logo.png" inkscape:export-xdpi="53.501602" inkscape:export-ydpi="53.501602" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+tools/workshop-clock-ring.test.mjs:55:        'another wire version (v3)': (() => { const p = probe(owner); p[0] = 3; return [p, 3_000_000n, 3_000_000n, 0]; })(),
+tools/workshop-clock-ring.test.mjs:153:    assert.equal(clockRing.ClockRingVersion, 3);
+tools/workshop-clock-ring.test.mjs:155:    assert.throws(() => clockRing.attachClockRing(buffer), /Unsupported clock ring version/);
+CuriousContraptions.web/wwwroot/native-clock.js:40:        const identity = await navigator.userAgentData.getHighEntropyValues(['fullVersionList', 'platform']);
+CuriousContraptions.web/wwwroot/native-clock.js:41:        const brands = (identity.fullVersionList ?? []).map(value => value.brand + ' ' + value.version).join(', ');
+CuriousContraptions.Simulation/WorkshopTrace.cs:11:internal enum TraceTimingVersion : uint { NativeMilliseconds = 2 }
+CuriousContraptions.Simulation/WorkshopTrace.cs:146:            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.CompleteBodySetF32Pose} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
+CuriousContraptions.Simulation/WorkshopTrace.cs:160:            // Version 2 binds original little-endian binary64 milliseconds to the construction and terminal reason.
+CuriousContraptions.Simulation/WorkshopTrace.cs:162:            Console.WriteLine($"CCGPU_TICK_TIMES_BEGIN {_identity} {_epoch.Value} {(uint)TraceTimingVersion.NativeMilliseconds} {sizeof(double)} {(uint)_profile.Cadence} {(uint)_profile.Physical} {_profile.Revision.Value} {_expectedCount - 1} {_durationCount} {durationChunks} {(int)status} {Convert.ToBase64String(_construction)} {(int)reason}");
+CuriousContraptions.web/wwwroot/workshop-isolation-worker.js:2:const policyVersion = 1;
+CuriousContraptions.web/wwwroot/workshop-isolation-worker.js:11:        if (event.ports.length !== 1 || event.data?.policyRequest !== policyVersion ||
+CuriousContraptions.web/wwwroot/workshop-isolation-worker.js:13:        port.postMessage({ policyVersion });
+tools/workshop-isolation.test.mjs:16:        postMessage(_message, ports) { queueMicrotask(() => ports[0].peer.onmessage({ data: { policyVersion: 1 } })); }
+CuriousContraptions.web/wwwroot/workshop-isolation.js:1:const policyVersion = 1;
+CuriousContraptions.web/wwwroot/workshop-isolation.js:82:            event.data?.policyVersion !== policyVersion || navigator.serviceWorker.controller !== expected
+CuriousContraptions.web/wwwroot/workshop-isolation.js:85:        try { expected.postMessage({ policyRequest: policyVersion }, [channel.port2]); }
+CuriousContraptions.web/wwwroot/workshop-isolation.js:96:        const attempt = saved === null ? [policyVersion, performance.timeOrigin, 0, performance.timeOrigin] : JSON.parse(saved);
+CuriousContraptions.web/wwwroot/workshop-isolation.js:97:        if (!Array.isArray(attempt) || attempt.length !== 4 || attempt[0] !== policyVersion ||
+CuriousContraptions.web/wwwroot/workshop-isolation.js:123:            sessionStorage.setItem(markerKey, JSON.stringify([policyVersion, attempt[1], 1, lastNavigation]));
+CuriousContraptions.web/wwwroot/workshop-isolation.js:154:    return { policyVersion, phase, isolated: globalThis.crossOriginIsolated === true,
+engine/presentation/AnimationBatch.cs:38:    public ulong Version { get; }
+engine/presentation/AnimationBatch.cs:39:    internal AnimationHandle(AnimationBatch owner, AnimationGeneration generation, int slot, ulong version)
+engine/presentation/AnimationBatch.cs:41:        Owner = owner; Generation = generation; Slot = slot; Version = version;
+engine/presentation/AnimationBatch.cs:118:    private ulong[] _versions;
+engine/presentation/AnimationBatch.cs:133:        _slots = new Slot[capacity]; _versions = new ulong[capacity];
+engine/presentation/AnimationBatch.cs:147:        Array.Resize(ref _slots, capacity); Array.Resize(ref _versions, capacity);
+engine/presentation/AnimationBatch.cs:248:        var index=_free[_freeCount-1];var version=checked(_versions[index]+1);
+engine/presentation/AnimationBatch.cs:249:        _sampleCount=0;_freeCount--;_versions[index]=version;
+engine/presentation/AnimationBatch.cs:253:        return new(this,Generation,index,version);
+engine/presentation/AnimationBatch.cs:550:        Array.Clear(_versions);
+engine/presentation/AnimationBatch.cs:567:            (_slots[handle.Slot].Definition is null&&_slots[handle.Slot].Follow is null&&_slots[handle.Slot].Impulses is null&&_slots[handle.Slot].Oscillation is null) || handle.Version != _versions[handle.Slot])
+CuriousContraptions.web/wwwroot/clock-ring.js:8:// Header (32 bytes): doorbell, layout version, derivation seqlock word (odd while the Simulation writes), derivation
+CuriousContraptions.web/wwwroot/clock-ring.js:12:export const ClockRingVersion = 3;
+CuriousContraptions.web/wwwroot/clock-ring.js:22:const Doorbell = 0, Version = 1, DerivationSequence = 2, DerivationEpoch = 3, Heartbeat = 4, CorrectionBits = 3;
+CuriousContraptions.web/wwwroot/clock-ring.js:35:    Atomics.store(new Int32Array(buffer), Version, ClockRingVersion);
+CuriousContraptions.web/wwwroot/clock-ring.js:43:    if (Atomics.load(words, Version) !== ClockRingVersion) throw new Error('Unsupported clock ring version.');
+CuriousContraptions.web/wwwroot/workshop-client.js:149:        const [clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole] = clockAbi;
+CuriousContraptions.web/wwwroot/workshop-client.js:161:            identity: undefined, clockAbi: { clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
+CuriousContraptions.web/wwwroot/workshop-client.js:262:                        if (declared.getUint32(0, true) !== clockVersion || declared.getUint32(4, true) !== clockProfile ||
+tools/e2e/workshop-driver.ts:193:// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343). One bundle, one schema: there is no format version.
+tools/WireContract/Program.cs:7:    HeaderPositive, UnknownVersion, UnknownMessage, UnknownSender, UnknownRecipient,
+tools/WireContract/Program.cs:40:        Invalid(Oracle.UnknownVersion,header with{Version=2});
+tools/WireContract/Program.cs:55:        Check(Oracle.DuplicateField,()=>Reject(()=>ContractFixture.ReadHeader(validJson[..^1]+",\"Version\":1}")));
+tools/WireContract/ContractFixture.cs:44:    [property:JsonRequired] ushort Version,
+tools/WireContract/ContractFixture.cs:79:        if(value.Version!=1 || !Enum.IsDefined(value.Kind) || !Enum.IsDefined(value.Sender) ||
+engine/gpu/PhysicsGpuAbi.Header.cs:9:    public const int HeaderVersionOffset = 0;
+engine/gpu/WorkshopHint.cs:16:    public const ushort Version = 5;
+engine/gpu/WorkshopHint.cs:42:        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(90), Version);
+engine/gpu/WorkshopHint.cs:53:        if (visible > 1 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[132..]) != 0 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[90..]) != Version)
+engine/gpu/WorkshopHint.cs:93:        if (BinaryPrimitives.ReadUInt16LittleEndian(bytes[86..]) != Version || BinaryPrimitives.ReadUInt64LittleEndian(bytes[88..]) != 0) throw new ArgumentException("Invalid animation channel padding.");
+engine/gpu/WorkshopClockWire.cs:12:    public const uint Version = 4;
+engine/gpu/WorkshopClockWire.cs:24:        BinaryPrimitives.WriteUInt32LittleEndian(data, Version);
+engine/gpu/WorkshopClockWire.cs:38:        if (data.Length != PeerBytes || BinaryPrimitives.ReadUInt32LittleEndian(data) != Version ||
+engine/gpu/WorkshopPoseHistory.cs:27:    private ulong _version, _clockEpoch, _displayEpoch;
+engine/gpu/WorkshopPoseHistory.cs:68:        internal readonly ulong Version, ClockEpoch;
+engine/gpu/WorkshopPoseHistory.cs:73:        internal Prepared(WorkshopPoseHistory owner, ulong version, ulong clockEpoch,
+engine/gpu/WorkshopPoseHistory.cs:76:            Owner = owner; Version = version; ClockEpoch = clockEpoch; Response = response;
+engine/gpu/WorkshopPoseHistory.cs:88:        if (!Enum.IsDefined(boundary) || clockEpoch == 0 || _version == ulong.MaxValue)
+engine/gpu/WorkshopPoseHistory.cs:141:        return new(this, _version, clockEpoch, response, mapped, reseed, replace,
+engine/gpu/WorkshopPoseHistory.cs:147:        if (!ReferenceEquals(prepared.Owner, this) || prepared.Version != _version || _retired)
+engine/gpu/WorkshopPoseHistory.cs:149:        // Schedule and its matching seed cross one versioned, synchronous commit boundary.
+engine/gpu/WorkshopPoseHistory.cs:167:        _version++; _dirty = true;
+engine/gpu/WorkshopCadence.cs:194:    /// <summary>Six u32 fields and 8 zero padding bytes (one bundle, one layout: no format version). Enum ranges and the canonical
+engine/gpu/CanonicalBody.cs:8:public enum BodyRecordVersion : uint { F32PoseVelocity = 3 }
+engine/gpu/CanonicalBody.cs:44:        BinaryPrimitives.WriteUInt32LittleEndian(data, (uint)BodyRecordVersion.F32PoseVelocity);
+engine/gpu/CanonicalBody.cs:62:            BinaryPrimitives.ReadUInt32LittleEndian(data) != (uint)BodyRecordVersion.F32PoseVelocity ||
+engine/gpu/WorkshopClientCursor.cs:18:    private ulong _version;
+engine/gpu/WorkshopClientCursor.cs:22:    public readonly record struct Prepared(WorkshopClientCursor Owner, ulong Version,
+engine/gpu/WorkshopClientCursor.cs:33:        if (applicable && (ReadOrder == ulong.MaxValue || _version == ulong.MaxValue))
+engine/gpu/WorkshopClientCursor.cs:35:        return new(this, _version, response, applicable, applicable ? ReadOrder + 1 : ReadOrder,
+engine/gpu/WorkshopClientCursor.cs:56:        if (applicable && _version == ulong.MaxValue) throw new InvalidOperationException("Presentation cursor exhausted.");
+engine/gpu/WorkshopClientCursor.cs:57:        return new(this, _version, response, applicable, ReadOrder, _publication);
+engine/gpu/WorkshopClientCursor.cs:63:            response.Read.Revision.Value < Revision.Value || _version == ulong.MaxValue)
+engine/gpu/WorkshopClientCursor.cs:65:        return new(this, _version, response, true, ReadOrder, _publication);
+engine/gpu/WorkshopClientCursor.cs:70:        if (!ReferenceEquals(prepared.Owner, this) || prepared.Version != _version)
+engine/gpu/WorkshopClientCursor.cs:79:        _version++;
+engine/gpu/WorkshopNativeClock.cs:8:/// The configured native error plus this at-most-half-nanosecond conversion remains unqualified
+engine/gpu/WorkshopSaveCodec.cs:11:/// ship in one bundle with one schema and no format version (owner decision, 21 Oct 2026): bytes that are not a structurally valid
+engine/gpu/WorkshopMemoryWire.cs:31:    private const uint Version = 1;
+engine/gpu/WorkshopMemoryWire.cs:49:        BinaryPrimitives.WriteUInt32LittleEndian(bytes, Version);
+engine/gpu/WorkshopMemoryWire.cs:68:        if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != Version)
+engine/gpu/WorkshopMemoryWire.cs:69:            throw new ArgumentException("Unsupported memory observation version.");
+engine/gpu/WorkshopTraceRecord.cs:6:/// Earlier pose encodings are rejected like any unknown version.</summary>
+engine/gpu/WorkshopTraceRecord.cs:7:public enum WorkshopTraceVersion : uint { CompleteBodySetF32Pose = 5 }
+engine/gpu/WorkshopTraceRecord.cs:28:        U32(b,0,(uint)WorkshopTraceVersion.CompleteBodySetF32Pose); U32(b,4,(uint)profile.Cadence);
+engine/gpu/WorkshopTraceRecord.cs:46:        if(b.Length<HeaderBytes || BinaryPrimitives.ReadUInt32LittleEndian(b)!=(uint)WorkshopTraceVersion.CompleteBodySetF32Pose ||
+engine/gpu/WorkshopWire.cs:123:        // Bytes 12..15 are alignment padding before the 8-byte epoch (one bundle, one layout: no format version).
+engine/gpu/WorkshopDelay.cs:5:/// <summary>Authored Half seconds; exact integer conversion exists only at the discrete scheduling boundary.</summary>
+engine/gpu/BrowserWorkshopClient.cs:112:                identity, [(int)WorkshopClockWire.Version, (int)NativeClockProfile.IsolatedWitnessedPerformanceNow,
+engine/gpu/WorkshopSchedule.cs:6:public enum WorkshopScheduleVersion : uint { SharedMaster = 1 }
+engine/gpu/WorkshopSchedule.cs:134:        BinaryPrimitives.WriteUInt32LittleEndian(destination, (uint)WorkshopScheduleVersion.SharedMaster);
+engine/gpu/WorkshopSchedule.cs:148:            BinaryPrimitives.ReadUInt32LittleEndian(control) != (uint)WorkshopScheduleVersion.SharedMaster ||
+engine/gpu/WorkshopWall.cs:17:    /// <summary>Named pointer-input boundary: preserve finite source clamp before binary16 conversion.</summary>
+engine/gpu/PhysicsGpuAbi.cs:7:public enum PhysicsStateVersion : uint { GenericMechanical = 13 }
+engine/gpu/PhysicsGpuAbi.cs:84:        U32(data, HeaderVersionOffset, (uint)PhysicsStateVersion.GenericMechanical);
+engine/gpu/PhysicsGpuAbi.cs:446:const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
+engine/gpu/PhysicsGpuAbi.cs:478:            R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
+## generated FlatBuffers runtime guard (not a format field)
+6

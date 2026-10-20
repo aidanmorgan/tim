@@ -4,7 +4,6 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 13 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -81,7 +80,6 @@ public static partial class PhysicsGpuAbi
         ArgumentNullException.ThrowIfNull(scene); profile.Validate();
         if (epoch.Value == 0) throw new ArgumentException("A world epoch is required.");
         var bytes = new byte[scene.World.ByteLength]; var data = bytes.AsSpan();
-        U32(data, HeaderVersionOffset, (uint)PhysicsStateVersion.GenericMechanical);
         scene.World.WriteCounts(data);
         U64(data, HeaderEpochOffset, epoch.Value); U32(data, HeaderCadenceOffset, (uint)profile.Cadence);
         U32(data, HeaderPhysicalProfileOffset, (uint)profile.Physical); U64(data, HeaderRevisionOffset, profile.Revision.Value);
@@ -443,7 +441,6 @@ public static partial class PhysicsGpuAbi
 enable f16;
 const PHYSICAL_RATE:f16={WorkshopCadenceSettings.PhysicalFrequency}h;
 const PRIMARY_SEGMENT_STEPS:u32={PrimarySegmentSteps}u;
-const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
 const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
 const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
 const FAILURE_NONE:u32={(uint)PhysicsFailure.None}u;
@@ -475,7 +472,7 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
     private static void Header(ReadOnlySpan<byte> data)
     {
         if (data.Length < HeaderBytes || data.Length != ByteLength(data) ||
-            R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
+            R32(data, HeaderLeadingPaddingOffset) != 0 ||
             (R64(data, HeaderDocumentLowOffset) == 0 && R64(data, HeaderDocumentHighOffset) == 0) || R64(data, HeaderNextIdentityOffset) == 0 ||
             // No capacity bounds a population (Story 9R.5b); only the populations' own relations do.
             R32(data, HeaderDynamicCountOffset) > R32(data, HeaderBodyCountOffset) ||

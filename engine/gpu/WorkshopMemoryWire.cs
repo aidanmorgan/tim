@@ -28,7 +28,6 @@ public readonly record struct WorkshopMemoryResult(WorkshopMemoryRequest Request
 public static class WorkshopMemoryWire
 {
     public const int RequestBytes = 64, ResultBytes = 128;
-    private const uint Version = 1;
 
     public static bool IsStopped(WorkshopSimulationPhase phase) =>
         phase is WorkshopSimulationPhase.Building or WorkshopSimulationPhase.Completed or WorkshopSimulationPhase.Faulted;
@@ -46,7 +45,6 @@ public static class WorkshopMemoryWire
             request.Id.Value == 0 || request.Epoch.Value == 0)
             throw new ArgumentException("Invalid memory observation identity.");
         request.Session.Validate();
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes, Version);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)request.Kind);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[8..], (uint)request.Context);
         WorkshopWire.WriteSession(bytes[16..32], request.Session);
@@ -65,8 +63,8 @@ public static class WorkshopMemoryWire
 
     private static WorkshopMemoryRequest ReadIdentity(ReadOnlySpan<byte> bytes)
     {
-        if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != Version)
-            throw new ArgumentException("Unsupported memory observation version.");
+        if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0) // bytes 0..3: zero padding (one bundle, one schema)
+            throw new ArgumentException("Invalid memory observation padding.");
         var request = new WorkshopMemoryRequest((WorkshopMemoryKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]),
             (WorkshopMemoryContext)BinaryPrimitives.ReadUInt32LittleEndian(bytes[8..]), WorkshopWire.ReadSession(bytes[16..32]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..])), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..])),

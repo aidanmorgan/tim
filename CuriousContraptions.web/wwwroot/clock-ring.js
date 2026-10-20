@@ -1,15 +1,14 @@
-// Session clock ring: the typed ClockProbe/ClockReply query (WorkshopClockWire v4) between each requester and the
+// Session clock ring: the typed ClockProbe/ClockReply query (WorkshopClockWire) between each requester and the
 // Simulation-owned clock master context, through one SharedArrayBuffer with one request/reply slot per role.
 // The master context never runs solver work, so a probe is stamped when it arrives, not when the Simulation's event
 // loop next becomes free (Story 9.4b R5). The reply is the receipt: it carries the probe's own session, generation,
 // role and sequence, plus the master derivation epoch its stamps were taken under. Each slot owns at most one
 // outstanding exchange; a reply is consumed exactly once.
 //
-// Header (32 bytes): doorbell, layout version, derivation seqlock word (odd while the Simulation writes), derivation
+// Header (32 bytes): doorbell, zero padding, derivation seqlock word (odd while the Simulation writes), derivation
 // epoch, Simulation heartbeat (advanced by the Simulation's own event loop between tick turns), reserved, and the f64
 // derivation correction (milliseconds, as raw bits) the master adds to every stamp.
 export const ClockRingBytes = 1024;
-export const ClockRingVersion = 3;
 export const PeerBytes = 64, ProbeBytes = 80, ReplyBytes = 104;
 // A requester waits for its reply at most WorkshopClockMapping.ProbeLifetime (250 ms): the mapping expires the probe
 // then, so the wait is released instead of lingering after a failure or disposal (pinned by WorkerAbiTests).
@@ -19,7 +18,7 @@ export const SlotState = Object.freeze({ Idle: 0, Requested: 1, Replied: 2, Reje
 export const ClockRole = Object.freeze({ Browser: 1, Simulation: 2, Animation: 3 });
 
 // Int32 word indices; BigInt64 index 3 = bytes 24..31.
-const Doorbell = 0, Version = 1, DerivationSequence = 2, DerivationEpoch = 3, Heartbeat = 4, CorrectionBits = 3;
+const Doorbell = 0, DerivationSequence = 2, DerivationEpoch = 3, Heartbeat = 4, CorrectionBits = 3;
 const HeaderBytes = 32, SlotBytes = 256, ProbeOffset = 8, ReplyOffset = 96;
 const SlotOrder = Object.freeze({ [ClockRole.Browser]: 0, [ClockRole.Animation]: 1, [ClockRole.Simulation]: 2 });
 
@@ -31,16 +30,13 @@ function slotBase(role) {
 
 export function createClockRing() {
     if (typeof SharedArrayBuffer === 'undefined') throw new Error('The clock ring requires cross-origin isolation.');
-    const buffer = new SharedArrayBuffer(ClockRingBytes);
-    Atomics.store(new Int32Array(buffer), Version, ClockRingVersion);
-    return buffer;
+    return new SharedArrayBuffer(ClockRingBytes);
 }
 
 export function attachClockRing(buffer) {
     if (!(buffer instanceof SharedArrayBuffer) || buffer.byteLength !== ClockRingBytes)
         throw new Error('Unsupported clock ring layout.');
     const words = new Int32Array(buffer), bytes = new Uint8Array(buffer);
-    if (Atomics.load(words, Version) !== ClockRingVersion) throw new Error('Unsupported clock ring version.');
     return { buffer, words, bytes, wide: new BigInt64Array(buffer), view: new DataView(buffer) };
 }
 

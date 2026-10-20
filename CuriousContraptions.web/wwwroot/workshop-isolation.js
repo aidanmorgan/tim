@@ -1,4 +1,6 @@
-const policyVersion = 1;
+// The policy handshake is structural: one bundle ships the page and its worker, and the browser re-fetches the worker script on
+// every update (updateViaCache 'none'), so another deploy's changed worker installs as a waiting worker, which is refused below,
+// and a controller answering in any other shape is refused by the handshake.
 const Phase = Object.freeze({ waiting: 0, booting: 1, qualified: 2, failed: 3 });
 const scope = new URL('./', document.baseURI);
 const script = new URL('workshop-isolation-worker.js', scope);
@@ -79,10 +81,10 @@ function handshake(expected) {
         };
         pendingCleanup = finish;
         channel.port1.onmessage = event => finish(
-            event.data?.policyVersion !== policyVersion || navigator.serviceWorker.controller !== expected
+            event.data?.policyReady !== true || navigator.serviceWorker.controller !== expected
                 ? new Error('Unsupported Workshop isolation policy.') : undefined);
         channel.port1.onmessageerror = () => finish(new Error('Invalid isolation policy response.'));
-        try { expected.postMessage({ policyRequest: policyVersion }, [channel.port2]); }
+        try { expected.postMessage({ policyRequest: true }, [channel.port2]); }
         catch (error) { finish(error); }
     });
 }
@@ -93,14 +95,15 @@ export async function prepareIsolation(displayFailure) {
             throw new Error('Unsupported: secure service-worker isolation is required.');
         const saved = sessionStorage.getItem(markerKey);
         if (saved !== null && saved.length > 96) throw new Error('Invalid isolation startup attempt size.');
-        const attempt = saved === null ? [policyVersion, performance.timeOrigin, 0, performance.timeOrigin] : JSON.parse(saved);
-        if (!Array.isArray(attempt) || attempt.length !== 4 || attempt[0] !== policyVersion ||
-            !Number.isFinite(attempt[1]) || attempt[1] <= 0 || (attempt[2] !== 0 && attempt[2] !== 1) ||
-            !Number.isFinite(attempt[3]) || attempt[3] < attempt[1]) throw new Error('Invalid isolation startup attempt.');
-        lastNavigation = attempt[3];
-        deadline = attempt[1] + 5000;
+        // The startup attempt: its navigation origin, whether the isolated reload was spent, and the last navigation time.
+        const attempt = saved === null ? [performance.timeOrigin, 0, performance.timeOrigin] : JSON.parse(saved);
+        if (!Array.isArray(attempt) || attempt.length !== 3 ||
+            !Number.isFinite(attempt[0]) || attempt[0] <= 0 || (attempt[1] !== 0 && attempt[1] !== 1) ||
+            !Number.isFinite(attempt[2]) || attempt[2] < attempt[0]) throw new Error('Invalid isolation startup attempt.');
+        lastNavigation = attempt[2];
+        deadline = attempt[0] + 5000;
         checkDeadline();
-        attempt[3] = lastNavigation;
+        attempt[2] = lastNavigation;
         sessionStorage.setItem(markerKey, JSON.stringify(attempt));
         timer = setTimeout(() => stopIsolation(new Error('StartupFailed: isolation handshake exceeded five seconds.')),
             Math.max(0, deadline - navigationTime()));
@@ -119,8 +122,8 @@ export async function prepareIsolation(displayFailure) {
         checkDeadline();
         if (registration.waiting) throw new Error('A waiting isolation policy requires closing all game tabs and reopening.');
         if (!globalThis.crossOriginIsolated) {
-            if (attempt[2] !== 0) throw new Error('Unsupported: the isolated reload did not establish isolation.');
-            sessionStorage.setItem(markerKey, JSON.stringify([policyVersion, attempt[1], 1, lastNavigation]));
+            if (attempt[1] !== 0) throw new Error('Unsupported: the isolated reload did not establish isolation.');
+            sessionStorage.setItem(markerKey, JSON.stringify([attempt[0], 1, lastNavigation]));
             location.reload();
             return false;
         }
@@ -151,7 +154,7 @@ export function isolationQualified() {
 }
 export function waitForQualification() { return qualification; }
 export function isolationEvidence() {
-    return { policyVersion, phase, isolated: globalThis.crossOriginIsolated === true,
+    return { phase, isolated: globalThis.crossOriginIsolated === true,
         controlled: navigator.serviceWorker.controller === controller, scope: scope.href,
         navigationToUsableMilliseconds };
 }

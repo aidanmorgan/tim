@@ -3,7 +3,6 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopScheduleVersion : uint { SharedMaster = 1 }
 public enum ScheduleControlKind : uint { Prepare = 1, Prepared = 2, Commit = 3, Applied = 4, Abort = 5, Presented = 6 }
 public enum ScheduleTransition : uint { Configure = 1, Run = 2, Pause = 3, Resume = 4, Step = 5, Completed = 6, Reset = 7 }
 
@@ -131,7 +130,6 @@ public static class WorkshopScheduleWire
             throw new ArgumentException("Invalid schedule-control payload width.");
         if (destination.Length != HeaderBytes) throw new ArgumentException("Invalid control header length.");
         destination.Clear();
-        BinaryPrimitives.WriteUInt32LittleEndian(destination, (uint)WorkshopScheduleVersion.SharedMaster);
         BinaryPrimitives.WriteUInt32LittleEndian(destination[4..], (uint)header.Kind);
         WorkshopWire.WriteSession(destination[8..24], header.Session);
         BinaryPrimitives.WriteUInt64LittleEndian(destination[24..], header.MasterGeneration.Value);
@@ -145,7 +143,7 @@ public static class WorkshopScheduleWire
     public static ScheduleControlHeader ReadHeader(ReadOnlySpan<byte> control)
     {
         if (control.Length < HeaderBytes ||
-            BinaryPrimitives.ReadUInt32LittleEndian(control) != (uint)WorkshopScheduleVersion.SharedMaster ||
+            BinaryPrimitives.ReadUInt32LittleEndian(control) != 0 || // bytes 0..3: zero padding (one bundle, one schema)
             BinaryPrimitives.ReadUInt32LittleEndian(control[60..]) != 0)
             throw new ArgumentException("Unsupported schedule-control header.");
         var kind = (ScheduleControlKind)BinaryPrimitives.ReadUInt32LittleEndian(control[4..]);

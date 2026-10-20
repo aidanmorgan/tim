@@ -41,7 +41,6 @@ public readonly record struct Binding(BodyId Id, StorageSlot Slot);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record HeaderFixture(
-    [property:JsonRequired] ushort Version,
     [property:JsonRequired] MessageKind Kind,
     [property:JsonRequired] RuntimeRole Sender,
     [property:JsonRequired] RuntimeRole Recipient,
@@ -76,7 +75,7 @@ public static class ContractFixture
     }
     public static void Validate(HeaderFixture value)
     {
-        if(value.Version!=1 || !Enum.IsDefined(value.Kind) || !Enum.IsDefined(value.Sender) ||
+        if(!Enum.IsDefined(value.Kind) || !Enum.IsDefined(value.Sender) ||
            !Enum.IsDefined(value.Recipient) || value.Sender==value.Recipient ||
            value.TotalBytes<94 || value.TotalBytes>MaximumEnvelopeBytes ||
            !Enum.IsDefined(value.Flags) || (value.Kind==MessageKind.Credit)!=(value.Flags==LeaseLeg.Return) || value.Generation<0 || value.Sequence==0)

@@ -146,7 +146,7 @@ public sealed class WorkshopPoseHistory
     {
         if (!ReferenceEquals(prepared.Owner, this) || prepared.Version != _version || _retired)
             throw new InvalidOperationException("Prepared history no longer owns this recipient.");
-        // Schedule and its matching seed cross one versioned, synchronous commit boundary.
+        // Schedule and its matching seed cross one stamped, synchronous commit boundary.
         if (prepared.Installing is { } installed) _schedule = installed;
         if (prepared.Reseed)
         {

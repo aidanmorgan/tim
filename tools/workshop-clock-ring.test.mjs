@@ -1,6 +1,6 @@
-// Story 9.4b R5/P10 and Murdoch-2 H1/M1/M2: the session clock ring (layout v3), its master-side reply checks (the JS port
+// Story 9.4b R5/P10 and Murdoch-2 H1/M1/M2: the session clock ring, its master-side reply checks (the JS port
 // of WorkshopClockWire.EncodeReply), the Simulation heartbeat and the Simulation's derivation exchange, slew and
-// re-derivation. The peer, probe and reply bytes follow WorkshopClockWire v4 exactly; the
+// re-derivation. The peer, probe and reply bytes follow WorkshopClockWire exactly (bytes 0..3 of a peer are zero padding); the
 // managed decoder (DecodeReply) consumes these replies in every Chrome suite, and WorkshopWireTests pins the same layout
 // on the C# side. WorkshopClockDerivationTests decide drift natively; this file proves the ring mechanics they rely on.
 import assert from 'node:assert/strict';
@@ -12,7 +12,7 @@ const { ClockRole, ProbeBytes, ReplyBytes } = clockRing;
 
 function peer(role, origin = 1_000_000n) {
     const bytes = new Uint8Array(64), view = new DataView(bytes.buffer);
-    view.setUint32(0, 4, true); view.setUint32(4, 2, true);
+    view.setUint32(4, 2, true);                                   // bytes 0..3: zero padding
     for (let i = 0; i < 16; i++) bytes[8 + i] = i + 1;            // session
     view.setBigUint64(24, 1n, true); view.setBigInt64(32, origin, true);
     view.setBigUint64(40, 1n, true); view.setBigUint64(48, 100_000n, true);
@@ -52,7 +52,7 @@ test('the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeRep
     const cases = {
         'another session': (() => { const p = probe(owner); p[8] ^= 1; return [p, 3_000_000n, 3_000_000n, 0]; })(),
         'another generation': (() => { const p = probe(owner); p[24] ^= 1; return [p, 3_000_000n, 3_000_000n, 0]; })(),
-        'another wire version (v3)': (() => { const p = probe(owner); p[0] = 3; return [p, 3_000_000n, 3_000_000n, 0]; })(),
+        'non-zero leading padding (the retired wire version 4)': (() => { const p = probe(owner); p[0] = 4; return [p, 3_000_000n, 3_000_000n, 0]; })(),
         'another requester role': [probe(peer(ClockRole.Animation)), 3_000_000n, 3_000_000n, 0],
         'another origin': [probe(peer(ClockRole.Browser, 5n)), 3_000_000n, 3_000_000n, 0],
         'a zero sequence': [probe(owner, 0n), 3_000_000n, 3_000_000n, 0],
@@ -150,9 +150,11 @@ test('the Simulation heartbeat advances only when the Simulation beats, and a ri
     clockRing.beat(clock); clockRing.beat(clock);
     assert.equal(clockRing.heartbeat(clock), 2, 'the Browser reads exactly the beats of the Simulation event loop');
     assert.equal(clockRing.readDerivation(clock).epoch, 0, 'the heartbeat word is separate from the derivation epoch');
-    assert.equal(clockRing.ClockRingVersion, 3);
-    Atomics.store(new Int32Array(buffer), 1, 2);
-    assert.throws(() => clockRing.attachClockRing(buffer), /Unsupported clock ring version/);
+    // Story 9A.1 (F.10): the ring carries no layout version; a ring of another layout is refused by its structure.
+    assert.equal('ClockRingVersion' in clockRing, false);
+    assert.equal(new Int32Array(buffer)[1], 0, 'header word 1 is zero padding');
+    assert.throws(() => clockRing.attachClockRing(new SharedArrayBuffer(clockRing.ClockRingBytes + 4)), /Unsupported clock ring layout/);
+    assert.throws(() => clockRing.attachClockRing(new ArrayBuffer(clockRing.ClockRingBytes)), /Unsupported clock ring layout/);
 });
 
 test('a newer probe of the same requester supersedes an unconsumed answer, which resolves to null', async () => {

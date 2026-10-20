@@ -109,7 +109,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             client._construction = new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty);
             client._id = new(await CreateClient([(int)WorkshopTransportState.Ready, (int)WorkshopTransportState.Backpressure,
                 (int)WorkshopTransportState.TimedOut, (int)WorkshopTransportState.Indeterminate, (int)WorkshopTransportState.RecoveryBlocked],
-                identity, [(int)WorkshopClockWire.Version, (int)NativeClockProfile.IsolatedWitnessedPerformanceNow,
+                identity, [(int)NativeClockProfile.IsolatedWitnessedPerformanceNow,
                     WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
                     WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
                 WorkshopWire.ResponseAbi(), (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
