@@ -31,6 +31,7 @@ public static class WorkshopPhysicsCompiler
         var supplyRoutes = new List<SupplyRouteDeclaration>();
         var electricalSources = new List<ElectricalSourceDeclaration>();
         var orientationSensors = new List<OrientationSensorDeclaration>();
+        var contactLoads = new List<ContactLoadSensorDeclaration>();
         var plane = new GpuBodyId(InternalIdentityBase);
         var planeMaterial = new GpuMaterialId(InternalIdentityBase + 1);
         var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
@@ -195,11 +196,9 @@ public static class WorkshopPhysicsCompiler
                 if (feed is { } supplied)
                     supplyRoutes.Add(new(new(checked(first + 5)), ElectricalSource(supplied.Battery), supplied.Kind,
                         supplied.Kind == SupplyRouteKind.Switched ? supplied.Via : default));
-                // Story 9R.3 D3 interim, deleted by Story 9R.4: a plate-fed gate's blade drag still marks the plate-load band.
-                var bladeDrag = feed is { Kind: SupplyRouteKind.Direct } plateFed && plateFed.Via != default ? (Half)0.09375f : (Half)0f;
                 bodies.Add(new(blade, RigidMotionKind.Dynamic, instance.Cell, instance.Local, instance.Rotation,
                     default, default, new((Half)1f),
-                    new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new InverseSeconds(bladeDrag)));
+                    new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new InverseSeconds((Half)0f)));
                 colliders.Add(new(new(first + 4), blade, bladeMaterial, ColliderShapeKind.Box,
                     RigidLocalPose.Identity, new((Half)0), new MetreVector((Half)0.06f, (Half)0.72f, (Half)0.72f)));
                 prismatics.Add(new(new(first + 5), instance.Id, blade,
@@ -235,6 +234,12 @@ public static class WorkshopPhysicsCompiler
             colliders.Add(new(new(first + 2), plate.Id, material, ColliderShapeKind.Box,
                 new(new((Half)0, (Half)0.03f, (Half)0), CanonicalRotation.Identity), new((Half)0),
                 new((Half)0.9f, (Half)0.05f, (Half)0.9f)));
+            // CAT-052 §2: the plate's own contact-load row on its top face (collider first + 2), from this instance's minimum_mass.
+            contactLoads.Add(new(ContactLoadSensor(plate.Id), plate.Id, new(first + 2),
+                -.9f - WorkshopPressurePlate.ContactDistance, .9f + WorkshopPressurePlate.ContactDistance,
+                -.9f - WorkshopPressurePlate.FootprintDepthMargin, .9f + WorkshopPressurePlate.FootprintDepthMargin,
+                System.Numerics.Vector3.UnitY, WorkshopPressurePlate.MinimumAlignment, WorkshopPressurePlate.ContactDistance,
+                plate.MinimumMass));
         }
         foreach (var counter in construction.Instances.OfType<WorkshopCounter>().OrderBy(c => c.Id.Value))
         {
@@ -279,14 +284,13 @@ public static class WorkshopPhysicsCompiler
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray(), prismatics.ToArray(),
-            supplyRoutes.ToArray());
+            supplyRoutes.ToArray(), contactLoads.ToArray());
     }
     /// <summary>The one supply feeding a consumer's PowerIn (a PowerIn has at most one supplier):
     /// <list type="bullet">
     /// <item>a Battery → <see cref="SupplyRouteKind.Direct"/>, no intermediate;</item>
-    /// <item>a State Latch or Counter whose PowerIn ← a Battery → <see cref="SupplyRouteKind.Switched"/> via that switch;</item>
-    /// <item>a Pressure Plate whose PowerIn ← a Battery → <see cref="SupplyRouteKind.Direct"/> via that plate (Story 9R.3 D3
-    /// interim; Story 9R.4 makes it a per-plate row).</item>
+    /// <item>a State Latch, Counter or Pressure Plate whose PowerIn ← a Battery → <see cref="SupplyRouteKind.Switched"/> via that
+    /// switch, closed by the switch's own committed contact.</item>
     /// </list>Null when the consumer, or its intermediate, has no battery supply.</summary>
     private static (SupplyRouteKind Kind, GpuBodyId Battery, GpuBodyId Via)? SupplyFeed(WorkshopConstruction construction, GpuBodyId consumer)
     {
@@ -305,9 +309,7 @@ public static class WorkshopPhysicsCompiler
             return (SupplyRouteKind.Direct, supplier, default);
         var battery = Source(supplier, IsBattery);
         if (battery == default) return null;
-        var kind = construction.Instances.Any(instance => instance.Id == supplier && instance is WorkshopPressurePlate)
-            ? SupplyRouteKind.Direct : SupplyRouteKind.Switched;
-        return (kind, battery, supplier);
+        return (SupplyRouteKind.Switched, battery, supplier);
     }
     public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
     {
@@ -327,6 +329,8 @@ public static class WorkshopPhysicsCompiler
     public static GpuOrientationSensorId OrientationSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuPassageSensorId PassageSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
+
+    public static GpuContactLoadSensorId ContactLoadSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuContactWorkId ContactWork(GpuBodyId owner) => new(checked(PartIdentities(owner) + 8));
 

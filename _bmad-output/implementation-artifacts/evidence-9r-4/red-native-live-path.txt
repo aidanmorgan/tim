@@ -1,0 +1,1391 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.76]     CuriousContraptions.Tests.PressurePlateTests.ABoxBridgingTwoPlatesLoadsBoth [FAIL]
+[xUnit.net 00:00:01.83]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick [FAIL]
+[xUnit.net 00:00:01.85]     CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABoxBridgingTwoPlatesLoadsBoth [226 ms]
+  Error Message:
+   bridged P1 3: travel 0
+  Stack Trace:
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick [64 ms]
+  Error Message:
+   System.InvalidOperationException : Plate 3 commits no contact-load level.
+  Stack Trace:
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel [8 ms]
+  Error Message:
+   System.InvalidOperationException : Plate 3 commits no contact-load level.
+  Stack Trace:
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.18]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False) [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False) [55 ms]
+  Error Message:
+   Assert.All() Failure: 333 out of 360 items in the collection did not pass.
+       Error: 1 ball(s) at 2 kg 3: travel 0.21390963 at tick 28
+       Error: 1 ball(s) at 2 kg 3: travel 0.22991371 at tick 29
+       Error: 1 ball(s) at 2 kg 3: travel 0.24633121 at tick 30
+       Error: 1 ball(s) at 2 kg 3: travel 0.2631483 at tick 31
+       Error: 1 ball(s) at 2 kg 3: travel 0.28035116 at tick 32
+       Error: 1 ball(s) at 2 kg 3: travel 0.2979269 at tick 33
+       Error: 1 ball(s) at 2 kg 3: travel 0.3158629 at tick 34
+       Error: 1 ball(s) at 2 kg 3: travel 0.33414745 at tick 35
+       Error: 1 ball(s) at 2 kg 3: travel 0.35276842 at tick 36
+       Error: 1 ball(s) at 2 kg 3: travel 0.37171483 at tick 37
+       Error: 1 ball(s) at 2 kg 3: travel 0.39097524 at tick 38
+       Error: 1 ball(s) at 2 kg 3: travel 0.41053963 at tick 39
+       Error: 1 ball(s) at 2 kg 3: travel 0.43039775 at tick 40
+       Error: 1 ball(s) at 2 kg 3: travel 0.45053935 at tick 41
+       Error: 1 ball(s) at 2 kg 3: travel 0.4709549 at tick 42
+       Error: 1 ball(s) at 2 kg 3: travel 0.49163508 at tick 43
+       Error: 1 ball(s) at 2 kg 3: travel 0.5125716 at tick 44
+       Error: 1 ball(s) at 2 kg 3: travel 0.5337553 at tick 45
+       Error: 1 ball(s) at 2 kg 3: travel 0.5551779 at tick 46
+       Error: 1 ball(s) at 2 kg 3: travel 0.57683134 at tick 47
+       Error: 1 ball(s) at 2 kg 3: travel 0.59870815 at tick 48
+       Error: 1 ball(s) at 2 kg 3: travel 0.62080073 at tick 49
+       Error: 1 ball(s) at 2 kg 3: travel 0.6431017 at tick 50
+       Error: 1 ball(s) at 2 kg 3: travel 0.6656041 at tick 51
+       Error: 1 ball(s) at 2 kg 3: travel 0.6883011 at tick 52
+       Error: 1 ball(s) at 2 kg 3: travel 0.7111862 at tick 53
+       Error: 1 ball(s) at 2 kg 3: travel 0.7342529 at tick 54
+       Error: 1 ball(s) at 2 kg 3: travel 0.75738716 at tick 55
+       Error: 1 ball(s) at 2 kg 3: travel 0.7805214 at tick 56
+       Error: 1 ball(s) at 2 kg 3: travel 0.8036556 at tick 57
+       Error: 1 ball(s) at 2 kg 3: travel 0.82678986 at tick 58
+       Error: 1 ball(s) at 2 kg 3: travel 0.8499241 at tick 59
+       Error: 1 ball(s) at 2 kg 3: travel 0.8730583 at tick 60
+       Error: 1 ball(s) at 2 kg 3: travel 0.89619255 at tick 61
+       Error: 1 ball(s) at 2 kg 3: travel 0.9193268 at tick 62
+       Error: 1 ball(s) at 2 kg 3: travel 0.942461 at tick 63
+       Error: 1 ball(s) at 2 kg 3: travel 0.96559525 at tick 64
+       Error: 1 ball(s) at 2 kg 3: travel 0.9887295 at tick 65
+       Error: 1 ball(s) at 2 kg 3: travel 1.0118637 at tick 66
+       Error: 1 ball(s) at 2 kg 3: travel 1.0349979 at tick 67
+       Error: 1 ball(s) at 2 kg 3: travel 1.0581322 at tick 68
+       Error: 1 ball(s) at 2 kg 3: travel 1.0812664 at tick 69
+       Error: 1 ball(s) at 2 kg 3: travel 1.1044006 at tick 70
+       Error: 1 ball(s) at 2 kg 3: travel 1.1275349 at tick 71
+       Error: 1 ball(s) at 2 kg 3: travel 1.1506691 at tick 72
+       Error: 1 ball(s) at 2 kg 3: travel 1.1738033 at tick 73
+       Error: 1 ball(s) at 2 kg 3: travel 1.1969376 at tick 74
+       Error: 1 ball(s) at 2 kg 3: travel 1.2200718 at tick 75
+       Error: 1 ball(s) at 2 kg 3: travel 1.243206 at tick 76
+       Error: 1 ball(s) at 2 kg 3: travel 1.2663403 at tick 77
+       Error: 1 ball(s) at 2 kg 3: travel 1.2892284 at tick 78
+       Error: 1 ball(s) at 2 kg 3: travel 1.3111935 at tick 79
+       Error: 1 ball(s) at 2 kg 3: travel 1.3321981 at tick 80
+       Error: 1 ball(s) at 2 kg 3: travel 1.3522406 at tick 81
+       Error: 1 ball(s) at 2 kg 3: travel 1.3713217 at tick 82
+       Error: 1 ball(s) at 2 kg 3: travel 1.3894415 at tick 83
+       Error: 1 ball(s) at 2 kg 3: travel 1.406599 at tick 84
+       Error: 1 ball(s) at 2 kg 3: travel 1.4227943 at tick 85
+       Error: 1 ball(s) at 2 kg 3: travel 1.4380264 at tick 86
+       Error: 1 ball(s) at 2 kg 3: travel 1.4522948 at tick 87
+       Error: 1 ball(s) at 2 kg 3: travel 1.4655991 at tick 88
+       Error: 1 ball(s) at 2 kg 3: travel 1.4779387 at tick 89
+       Error: 1 ball(s) at 2 kg 3: travel 1.4893126 at tick 90
+       Error: 1 ball(s) at 2 kg 3: travel 1.4997206 at tick 91
+       Error: 1 ball(s) at 2 kg 3: travel 1.509161 at tick 92
+       Error: 1 ball(s) at 2 kg 3: travel 1.5176325 at tick 93
+       Error: 1 ball(s) at 2 kg 3: travel 1.5251341 at tick 94
+       Error: 1 ball(s) at 2 kg 3: travel 1.5316634 at tick 95
+       Error: 1 ball(s) at 2 kg 3: travel 1.5372176 at tick 96
+       Error: 1 ball(s) at 2 kg 3: travel 1.5417929 at tick 97
+       Error: 1 ball(s) at 2 kg 3: travel 1.5453835 at tick 98
+       Error: 1 ball(s) at 2 kg 3: travel 1.5479784 at tick 99
+       Error: 1 ball(s) at 2 kg 3: travel 1.549562 at tick 100
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 101
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 102
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 103
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 104
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 105
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 106
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 107
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 108
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 109
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 110
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 111
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 112
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 113
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 114
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 115
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 116
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 117
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 118
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 119
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 120
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 121
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 122
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 123
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 124
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 125
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 126
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 127
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 128
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 129
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 130
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 131
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 132
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 133
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 134
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 135
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 136
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 137
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 138
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 139
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 140
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 141
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 142
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 143
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 144
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 145
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 146
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 147
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 148
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 149
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 150
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 151
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 152
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 153
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 154
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 155
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 156
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 157
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 158
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 159
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 160
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 161
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 162
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 163
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 164
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 165
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 166
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 167
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 168
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 169
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 170
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 171
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 172
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 173
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 174
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 175
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 176
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 177
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 178
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 179
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 180
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 181
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 182
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 183
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 184
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 185
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 186
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 187
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 188
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 189
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 190
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 191
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 192
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 193
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 194
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 195
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 196
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 197
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 198
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 199
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 200
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 201
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 202
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 203
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 204
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 205
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 206
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 207
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 208
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 209
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 210
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 211
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 212
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 213
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 214
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 215
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 216
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 217
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 218
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 219
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 220
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 221
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 222
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 223
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 224
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 225
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 226
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 227
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 228
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 229
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 230
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 231
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 232
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 233
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 234
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 235
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 236
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 237
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 238
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 239
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 240
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 241
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 242
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 243
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 244
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 245
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 246
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 247
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 248
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 249
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 250
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 251
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 252
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 253
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 254
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 255
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 256
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 257
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 258
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 259
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 260
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 261
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 262
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 263
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 264
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 265
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 266
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 267
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 268
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 269
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 270
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 271
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 272
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 273
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 274
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 275
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 276
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 277
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 278
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 279
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 280
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 281
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 282
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 283
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 284
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 285
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 286
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 287
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 288
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 289
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 290
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 291
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 292
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 293
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 294
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 295
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 296
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 297
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 298
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 299
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 300
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 301
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 302
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 303
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 304
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 305
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 306
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 307
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 308
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 309
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 310
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 311
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 312
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 313
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 314
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 315
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 316
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 317
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 318
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 319
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 320
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 321
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 322
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 323
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 324
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 325
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 326
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 327
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 328
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 329
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 330
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 331
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 332
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 333
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 334
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 335
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 336
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 337
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 338
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 339
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 340
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 341
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 342
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 343
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 344
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 345
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 346
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 347
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 348
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 349
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 350
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 351
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 352
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 353
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 354
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 355
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 356
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 357
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 358
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 359
+       Error: 1 ball(s) at 2 kg 3: travel 1.549995 at tick 360
+  Stack Trace:
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.37]     CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed [FAIL]
+[xUnit.net 00:00:02.43]     CuriousContraptions.Tests.PressurePlateTests.ASizeImpostorNeverSwitchesAGate [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed [53 ms]
+  Error Message:
+   System.InvalidOperationException : Plate 3 commits no contact-load level.
+  Stack Trace:
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ASizeImpostorNeverSwitchesAGate [55 ms]
+  Error Message:
+   Assert.All() Failure: 333 out of 360 items in the collection did not pass.
+       Error: ball on the impostor 3: travel 0.21390963 at tick 28
+       Error: ball on the impostor 3: travel 0.22991371 at tick 29
+       Error: ball on the impostor 3: travel 0.24633121 at tick 30
+       Error: ball on the impostor 3: travel 0.2631483 at tick 31
+       Error: ball on the impostor 3: travel 0.28035116 at tick 32
+       Error: ball on the impostor 3: travel 0.2979269 at tick 33
+       Error: ball on the impostor 3: travel 0.3158629 at tick 34
+       Error: ball on the impostor 3: travel 0.33414745 at tick 35
+       Error: ball on the impostor 3: travel 0.35276842 at tick 36
+       Error: ball on the impostor 3: travel 0.37171483 at tick 37
+       Error: ball on the impostor 3: travel 0.39097524 at tick 38
+       Error: ball on the impostor 3: travel 0.41053963 at tick 39
+       Error: ball on the impostor 3: travel 0.43039775 at tick 40
+       Error: ball on the impostor 3: travel 0.45053935 at tick 41
+       Error: ball on the impostor 3: travel 0.4709549 at tick 42
+       Error: ball on the impostor 3: travel 0.49163508 at tick 43
+       Error: ball on the impostor 3: travel 0.5125716 at tick 44
+       Error: ball on the impostor 3: travel 0.5337553 at tick 45
+       Error: ball on the impostor 3: travel 0.5551779 at tick 46
+       Error: ball on the impostor 3: travel 0.57683134 at tick 47
+       Error: ball on the impostor 3: travel 0.59870815 at tick 48
+       Error: ball on the impostor 3: travel 0.62080073 at tick 49
+       Error: ball on the impostor 3: travel 0.6431017 at tick 50
+       Error: ball on the impostor 3: travel 0.6656041 at tick 51
+       Error: ball on the impostor 3: travel 0.6883011 at tick 52
+       Error: ball on the impostor 3: travel 0.7111862 at tick 53
+       Error: ball on the impostor 3: travel 0.7342529 at tick 54
+       Error: ball on the impostor 3: travel 0.75738716 at tick 55
+       Error: ball on the impostor 3: travel 0.7805214 at tick 56
+       Error: ball on the impostor 3: travel 0.8036556 at tick 57
+       Error: ball on the impostor 3: travel 0.82678986 at tick 58
+       Error: ball on the impostor 3: travel 0.8499241 at tick 59
+       Error: ball on the impostor 3: travel 0.8730583 at tick 60
+       Error: ball on the impostor 3: travel 0.89619255 at tick 61
+       Error: ball on the impostor 3: travel 0.9193268 at tick 62
+       Error: ball on the impostor 3: travel 0.942461 at tick 63
+       Error: ball on the impostor 3: travel 0.96559525 at tick 64
+       Error: ball on the impostor 3: travel 0.9887295 at tick 65
+       Error: ball on the impostor 3: travel 1.0118637 at tick 66
+       Error: ball on the impostor 3: travel 1.0349979 at tick 67
+       Error: ball on the impostor 3: travel 1.0581322 at tick 68
+       Error: ball on the impostor 3: travel 1.0812664 at tick 69
+       Error: ball on the impostor 3: travel 1.1044006 at tick 70
+       Error: ball on the impostor 3: travel 1.1275349 at tick 71
+       Error: ball on the impostor 3: travel 1.1506691 at tick 72
+       Error: ball on the impostor 3: travel 1.1738033 at tick 73
+       Error: ball on the impostor 3: travel 1.1969376 at tick 74
+       Error: ball on the impostor 3: travel 1.2200718 at tick 75
+       Error: ball on the impostor 3: travel 1.243206 at tick 76
+       Error: ball on the impostor 3: travel 1.2663403 at tick 77
+       Error: ball on the impostor 3: travel 1.2892284 at tick 78
+       Error: ball on the impostor 3: travel 1.3111935 at tick 79
+       Error: ball on the impostor 3: travel 1.3321981 at tick 80
+       Error: ball on the impostor 3: travel 1.3522406 at tick 81
+       Error: ball on the impostor 3: travel 1.3713217 at tick 82
+       Error: ball on the impostor 3: travel 1.3894415 at tick 83
+       Error: ball on the impostor 3: travel 1.406599 at tick 84
+       Error: ball on the impostor 3: travel 1.4227943 at tick 85
+       Error: ball on the impostor 3: travel 1.4380264 at tick 86
+       Error: ball on the impostor 3: travel 1.4522948 at tick 87
+       Error: ball on the impostor 3: travel 1.4655991 at tick 88
+       Error: ball on the impostor 3: travel 1.4779387 at tick 89
+       Error: ball on the impostor 3: travel 1.4893126 at tick 90
+       Error: ball on the impostor 3: travel 1.4997206 at tick 91
+       Error: ball on the impostor 3: travel 1.509161 at tick 92
+       Error: ball on the impostor 3: travel 1.5176325 at tick 93
+       Error: ball on the impostor 3: travel 1.5251341 at tick 94
+       Error: ball on the impostor 3: travel 1.5316634 at tick 95
+       Error: ball on the impostor 3: travel 1.5372176 at tick 96
+       Error: ball on the impostor 3: travel 1.5417929 at tick 97
+       Error: ball on the impostor 3: travel 1.5453835 at tick 98
+       Error: ball on the impostor 3: travel 1.5479784 at tick 99
+       Error: ball on the impostor 3: travel 1.549562 at tick 100
+       Error: ball on the impostor 3: travel 1.549995 at tick 101
+       Error: ball on the impostor 3: travel 1.549995 at tick 102
+       Error: ball on the impostor 3: travel 1.549995 at tick 103
+       Error: ball on the impostor 3: travel 1.549995 at tick 104
+       Error: ball on the impostor 3: travel 1.549995 at tick 105
+       Error: ball on the impostor 3: travel 1.549995 at tick 106
+       Error: ball on the impostor 3: travel 1.549995 at tick 107
+       Error: ball on the impostor 3: travel 1.549995 at tick 108
+       Error: ball on the impostor 3: travel 1.549995 at tick 109
+       Error: ball on the impostor 3: travel 1.549995 at tick 110
+       Error: ball on the impostor 3: travel 1.549995 at tick 111
+       Error: ball on the impostor 3: travel 1.549995 at tick 112
+       Error: ball on the impostor 3: travel 1.549995 at tick 113
+       Error: ball on the impostor 3: travel 1.549995 at tick 114
+       Error: ball on the impostor 3: travel 1.549995 at tick 115
+       Error: ball on the impostor 3: travel 1.549995 at tick 116
+       Error: ball on the impostor 3: travel 1.549995 at tick 117
+       Error: ball on the impostor 3: travel 1.549995 at tick 118
+       Error: ball on the impostor 3: travel 1.549995 at tick 119
+       Error: ball on the impostor 3: travel 1.549995 at tick 120
+       Error: ball on the impostor 3: travel 1.549995 at tick 121
+       Error: ball on the impostor 3: travel 1.549995 at tick 122
+       Error: ball on the impostor 3: travel 1.549995 at tick 123
+       Error: ball on the impostor 3: travel 1.549995 at tick 124
+       Error: ball on the impostor 3: travel 1.549995 at tick 125
+       Error: ball on the impostor 3: travel 1.549995 at tick 126
+       Error: ball on the impostor 3: travel 1.549995 at tick 127
+       Error: ball on the impostor 3: travel 1.549995 at tick 128
+       Error: ball on the impostor 3: travel 1.549995 at tick 129
+       Error: ball on the impostor 3: travel 1.549995 at tick 130
+       Error: ball on the impostor 3: travel 1.549995 at tick 131
+       Error: ball on the impostor 3: travel 1.549995 at tick 132
+       Error: ball on the impostor 3: travel 1.549995 at tick 133
+       Error: ball on the impostor 3: travel 1.549995 at tick 134
+       Error: ball on the impostor 3: travel 1.549995 at tick 135
+       Error: ball on the impostor 3: travel 1.549995 at tick 136
+       Error: ball on the impostor 3: travel 1.549995 at tick 137
+       Error: ball on the impostor 3: travel 1.549995 at tick 138
+       Error: ball on the impostor 3: travel 1.549995 at tick 139
+       Error: ball on the impostor 3: travel 1.549995 at tick 140
+       Error: ball on the impostor 3: travel 1.549995 at tick 141
+       Error: ball on the impostor 3: travel 1.549995 at tick 142
+       Error: ball on the impostor 3: travel 1.549995 at tick 143
+       Error: ball on the impostor 3: travel 1.549995 at tick 144
+       Error: ball on the impostor 3: travel 1.549995 at tick 145
+       Error: ball on the impostor 3: travel 1.549995 at tick 146
+       Error: ball on the impostor 3: travel 1.549995 at tick 147
+       Error: ball on the impostor 3: travel 1.549995 at tick 148
+       Error: ball on the impostor 3: travel 1.549995 at tick 149
+       Error: ball on the impostor 3: travel 1.549995 at tick 150
+       Error: ball on the impostor 3: travel 1.549995 at tick 151
+       Error: ball on the impostor 3: travel 1.549995 at tick 152
+       Error: ball on the impostor 3: travel 1.549995 at tick 153
+       Error: ball on the impostor 3: travel 1.549995 at tick 154
+       Error: ball on the impostor 3: travel 1.549995 at tick 155
+       Error: ball on the impostor 3: travel 1.549995 at tick 156
+       Error: ball on the impostor 3: travel 1.549995 at tick 157
+       Error: ball on the impostor 3: travel 1.549995 at tick 158
+       Error: ball on the impostor 3: travel 1.549995 at tick 159
+       Error: ball on the impostor 3: travel 1.549995 at tick 160
+       Error: ball on the impostor 3: travel 1.549995 at tick 161
+       Error: ball on the impostor 3: travel 1.549995 at tick 162
+       Error: ball on the impostor 3: travel 1.549995 at tick 163
+       Error: ball on the impostor 3: travel 1.549995 at tick 164
+       Error: ball on the impostor 3: travel 1.549995 at tick 165
+       Error: ball on the impostor 3: travel 1.549995 at tick 166
+       Error: ball on the impostor 3: travel 1.549995 at tick 167
+       Error: ball on the impostor 3: travel 1.549995 at tick 168
+       Error: ball on the impostor 3: travel 1.549995 at tick 169
+       Error: ball on the impostor 3: travel 1.549995 at tick 170
+       Error: ball on the impostor 3: travel 1.549995 at tick 171
+       Error: ball on the impostor 3: travel 1.549995 at tick 172
+       Error: ball on the impostor 3: travel 1.549995 at tick 173
+       Error: ball on the impostor 3: travel 1.549995 at tick 174
+       Error: ball on the impostor 3: travel 1.549995 at tick 175
+       Error: ball on the impostor 3: travel 1.549995 at tick 176
+       Error: ball on the impostor 3: travel 1.549995 at tick 177
+       Error: ball on the impostor 3: travel 1.549995 at tick 178
+       Error: ball on the impostor 3: travel 1.549995 at tick 179
+       Error: ball on the impostor 3: travel 1.549995 at tick 180
+       Error: ball on the impostor 3: travel 1.549995 at tick 181
+       Error: ball on the impostor 3: travel 1.549995 at tick 182
+       Error: ball on the impostor 3: travel 1.549995 at tick 183
+       Error: ball on the impostor 3: travel 1.549995 at tick 184
+       Error: ball on the impostor 3: travel 1.549995 at tick 185
+       Error: ball on the impostor 3: travel 1.549995 at tick 186
+       Error: ball on the impostor 3: travel 1.549995 at tick 187
+       Error: ball on the impostor 3: travel 1.549995 at tick 188
+       Error: ball on the impostor 3: travel 1.549995 at tick 189
+       Error: ball on the impostor 3: travel 1.549995 at tick 190
+       Error: ball on the impostor 3: travel 1.549995 at tick 191
+       Error: ball on the impostor 3: travel 1.549995 at tick 192
+       Error: ball on the impostor 3: travel 1.549995 at tick 193
+       Error: ball on the impostor 3: travel 1.549995 at tick 194
+       Error: ball on the impostor 3: travel 1.549995 at tick 195
+       Error: ball on the impostor 3: travel 1.549995 at tick 196
+       Error: ball on the impostor 3: travel 1.549995 at tick 197
+       Error: ball on the impostor 3: travel 1.549995 at tick 198
+       Error: ball on the impostor 3: travel 1.549995 at tick 199
+       Error: ball on the impostor 3: travel 1.549995 at tick 200
+       Error: ball on the impostor 3: travel 1.549995 at tick 201
+       Error: ball on the impostor 3: travel 1.549995 at tick 202
+       Error: ball on the impostor 3: travel 1.549995 at tick 203
+       Error: ball on the impostor 3: travel 1.549995 at tick 204
+       Error: ball on the impostor 3: travel 1.549995 at tick 205
+       Error: ball on the impostor 3: travel 1.549995 at tick 206
+       Error: ball on the impostor 3: travel 1.549995 at tick 207
+       Error: ball on the impostor 3: travel 1.549995 at tick 208
+       Error: ball on the impostor 3: travel 1.549995 at tick 209
+       Error: ball on the impostor 3: travel 1.549995 at tick 210
+       Error: ball on the impostor 3: travel 1.549995 at tick 211
+       Error: ball on the impostor 3: travel 1.549995 at tick 212
+       Error: ball on the impostor 3: travel 1.549995 at tick 213
+       Error: ball on the impostor 3: travel 1.549995 at tick 214
+       Error: ball on the impostor 3: travel 1.549995 at tick 215
+       Error: ball on the impostor 3: travel 1.549995 at tick 216
+       Error: ball on the impostor 3: travel 1.549995 at tick 217
+       Error: ball on the impostor 3: travel 1.549995 at tick 218
+       Error: ball on the impostor 3: travel 1.549995 at tick 219
+       Error: ball on the impostor 3: travel 1.549995 at tick 220
+       Error: ball on the impostor 3: travel 1.549995 at tick 221
+       Error: ball on the impostor 3: travel 1.549995 at tick 222
+       Error: ball on the impostor 3: travel 1.549995 at tick 223
+       Error: ball on the impostor 3: travel 1.549995 at tick 224
+       Error: ball on the impostor 3: travel 1.549995 at tick 225
+       Error: ball on the impostor 3: travel 1.549995 at tick 226
+       Error: ball on the impostor 3: travel 1.549995 at tick 227
+       Error: ball on the impostor 3: travel 1.549995 at tick 228
+       Error: ball on the impostor 3: travel 1.549995 at tick 229
+       Error: ball on the impostor 3: travel 1.549995 at tick 230
+       Error: ball on the impostor 3: travel 1.549995 at tick 231
+       Error: ball on the impostor 3: travel 1.549995 at tick 232
+       Error: ball on the impostor 3: travel 1.549995 at tick 233
+       Error: ball on the impostor 3: travel 1.549995 at tick 234
+       Error: ball on the impostor 3: travel 1.549995 at tick 235
+       Error: ball on the impostor 3: travel 1.549995 at tick 236
+       Error: ball on the impostor 3: travel 1.549995 at tick 237
+       Error: ball on the impostor 3: travel 1.549995 at tick 238
+       Error: ball on the impostor 3: travel 1.549995 at tick 239
+       Error: ball on the impostor 3: travel 1.549995 at tick 240
+       Error: ball on the impostor 3: travel 1.549995 at tick 241
+       Error: ball on the impostor 3: travel 1.549995 at tick 242
+       Error: ball on the impostor 3: travel 1.549995 at tick 243
+       Error: ball on the impostor 3: travel 1.549995 at tick 244
+       Error: ball on the impostor 3: travel 1.549995 at tick 245
+       Error: ball on the impostor 3: travel 1.549995 at tick 246
+       Error: ball on the impostor 3: travel 1.549995 at tick 247
+       Error: ball on the impostor 3: travel 1.549995 at tick 248
+       Error: ball on the impostor 3: travel 1.549995 at tick 249
+       Error: ball on the impostor 3: travel 1.549995 at tick 250
+       Error: ball on the impostor 3: travel 1.549995 at tick 251
+       Error: ball on the impostor 3: travel 1.549995 at tick 252
+       Error: ball on the impostor 3: travel 1.549995 at tick 253
+       Error: ball on the impostor 3: travel 1.549995 at tick 254
+       Error: ball on the impostor 3: travel 1.549995 at tick 255
+       Error: ball on the impostor 3: travel 1.549995 at tick 256
+       Error: ball on the impostor 3: travel 1.549995 at tick 257
+       Error: ball on the impostor 3: travel 1.549995 at tick 258
+       Error: ball on the impostor 3: travel 1.549995 at tick 259
+       Error: ball on the impostor 3: travel 1.549995 at tick 260
+       Error: ball on the impostor 3: travel 1.549995 at tick 261
+       Error: ball on the impostor 3: travel 1.549995 at tick 262
+       Error: ball on the impostor 3: travel 1.549995 at tick 263
+       Error: ball on the impostor 3: travel 1.549995 at tick 264
+       Error: ball on the impostor 3: travel 1.549995 at tick 265
+       Error: ball on the impostor 3: travel 1.549995 at tick 266
+       Error: ball on the impostor 3: travel 1.549995 at tick 267
+       Error: ball on the impostor 3: travel 1.549995 at tick 268
+       Error: ball on the impostor 3: travel 1.549995 at tick 269
+       Error: ball on the impostor 3: travel 1.549995 at tick 270
+       Error: ball on the impostor 3: travel 1.549995 at tick 271
+       Error: ball on the impostor 3: travel 1.549995 at tick 272
+       Error: ball on the impostor 3: travel 1.549995 at tick 273
+       Error: ball on the impostor 3: travel 1.549995 at tick 274
+       Error: ball on the impostor 3: travel 1.549995 at tick 275
+       Error: ball on the impostor 3: travel 1.549995 at tick 276
+       Error: ball on the impostor 3: travel 1.549995 at tick 277
+       Error: ball on the impostor 3: travel 1.549995 at tick 278
+       Error: ball on the impostor 3: travel 1.549995 at tick 279
+       Error: ball on the impostor 3: travel 1.549995 at tick 280
+       Error: ball on the impostor 3: travel 1.549995 at tick 281
+       Error: ball on the impostor 3: travel 1.549995 at tick 282
+       Error: ball on the impostor 3: travel 1.549995 at tick 283
+       Error: ball on the impostor 3: travel 1.549995 at tick 284
+       Error: ball on the impostor 3: travel 1.549995 at tick 285
+       Error: ball on the impostor 3: travel 1.549995 at tick 286
+       Error: ball on the impostor 3: travel 1.549995 at tick 287
+       Error: ball on the impostor 3: travel 1.549995 at tick 288
+       Error: ball on the impostor 3: travel 1.549995 at tick 289
+       Error: ball on the impostor 3: travel 1.549995 at tick 290
+       Error: ball on the impostor 3: travel 1.549995 at tick 291
+       Error: ball on the impostor 3: travel 1.549995 at tick 292
+       Error: ball on the impostor 3: travel 1.549995 at tick 293
+       Error: ball on the impostor 3: travel 1.549995 at tick 294
+       Error: ball on the impostor 3: travel 1.549995 at tick 295
+       Error: ball on the impostor 3: travel 1.549995 at tick 296
+       Error: ball on the impostor 3: travel 1.549995 at tick 297
+       Error: ball on the impostor 3: travel 1.549995 at tick 298
+       Error: ball on the impostor 3: travel 1.549995 at tick 299
+       Error: ball on the impostor 3: travel 1.549995 at tick 300
+       Error: ball on the impostor 3: travel 1.549995 at tick 301
+       Error: ball on the impostor 3: travel 1.549995 at tick 302
+       Error: ball on the impostor 3: travel 1.549995 at tick 303
+       Error: ball on the impostor 3: travel 1.549995 at tick 304
+       Error: ball on the impostor 3: travel 1.549995 at tick 305
+       Error: ball on the impostor 3: travel 1.549995 at tick 306
+       Error: ball on the impostor 3: travel 1.549995 at tick 307
+       Error: ball on the impostor 3: travel 1.549995 at tick 308
+       Error: ball on the impostor 3: travel 1.549995 at tick 309
+       Error: ball on the impostor 3: travel 1.549995 at tick 310
+       Error: ball on the impostor 3: travel 1.549995 at tick 311
+       Error: ball on the impostor 3: travel 1.549995 at tick 312
+       Error: ball on the impostor 3: travel 1.549995 at tick 313
+       Error: ball on the impostor 3: travel 1.549995 at tick 314
+       Error: ball on the impostor 3: travel 1.549995 at tick 315
+       Error: ball on the impostor 3: travel 1.549995 at tick 316
+       Error: ball on the impostor 3: travel 1.549995 at tick 317
+       Error: ball on the impostor 3: travel 1.549995 at tick 318
+       Error: ball on the impostor 3: travel 1.549995 at tick 319
+       Error: ball on the impostor 3: travel 1.549995 at tick 320
+       Error: ball on the impostor 3: travel 1.549995 at tick 321
+       Error: ball on the impostor 3: travel 1.549995 at tick 322
+       Error: ball on the impostor 3: travel 1.549995 at tick 323
+       Error: ball on the impostor 3: travel 1.549995 at tick 324
+       Error: ball on the impostor 3: travel 1.549995 at tick 325
+       Error: ball on the impostor 3: travel 1.549995 at tick 326
+       Error: ball on the impostor 3: travel 1.549995 at tick 327
+       Error: ball on the impostor 3: travel 1.549995 at tick 328
+       Error: ball on the impostor 3: travel 1.549995 at tick 329
+       Error: ball on the impostor 3: travel 1.549995 at tick 330
+       Error: ball on the impostor 3: travel 1.549995 at tick 331
+       Error: ball on the impostor 3: travel 1.549995 at tick 332
+       Error: ball on the impostor 3: travel 1.549995 at tick 333
+       Error: ball on the impostor 3: travel 1.549995 at tick 334
+       Error: ball on the impostor 3: travel 1.549995 at tick 335
+       Error: ball on the impostor 3: travel 1.549995 at tick 336
+       Error: ball on the impostor 3: travel 1.549995 at tick 337
+       Error: ball on the impostor 3: travel 1.549995 at tick 338
+       Error: ball on the impostor 3: travel 1.549995 at tick 339
+       Error: ball on the impostor 3: travel 1.549995 at tick 340
+       Error: ball on the impostor 3: travel 1.549995 at tick 341
+       Error: ball on the impostor 3: travel 1.549995 at tick 342
+       Error: ball on the impostor 3: travel 1.549995 at tick 343
+       Error: ball on the impostor 3: travel 1.549995 at tick 344
+       Error: ball on the impostor 3: travel 1.549995 at tick 345
+       Error: ball on the impostor 3: travel 1.549995 at tick 346
+       Error: ball on the impostor 3: travel 1.549995 at tick 347
+       Error: ball on the impostor 3: travel 1.549995 at tick 348
+       Error: ball on the impostor 3: travel 1.549995 at tick 349
+       Error: ball on the impostor 3: travel 1.549995 at tick 350
+       Error: ball on the impostor 3: travel 1.549995 at tick 351
+       Error: ball on the impostor 3: travel 1.549995 at tick 352
+       Error: ball on the impostor 3: travel 1.549995 at tick 353
+       Error: ball on the impostor 3: travel 1.549995 at tick 354
+       Error: ball on the impostor 3: travel 1.549995 at tick 355
+       Error: ball on the impostor 3: travel 1.549995 at tick 356
+       Error: ball on the impostor 3: travel 1.549995 at tick 357
+       Error: ball on the impostor 3: travel 1.549995 at tick 358
+       Error: ball on the impostor 3: travel 1.549995 at tick 359
+       Error: ball on the impostor 3: travel 1.549995 at tick 360
+  Stack Trace:
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.67]     CuriousContraptions.Tests.PressurePlateTests.AMinimumOneF32AboveTheBodyMassStaysUnderweight [FAIL]
+[xUnit.net 00:00:02.77]     CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.AMinimumOneF32AboveTheBodyMassStaysUnderweight [73 ms]
+  Error Message:
+   Assert.All() Failure: 333 out of 360 items in the collection did not pass.
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.21390963 at tick 28
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.22991371 at tick 29
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.24633121 at tick 30
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.2631483 at tick 31
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.28035116 at tick 32
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.2979269 at tick 33
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.3158629 at tick 34
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.33414745 at tick 35
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.35276842 at tick 36
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.37171483 at tick 37
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.39097524 at tick 38
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.41053963 at tick 39
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.43039775 at tick 40
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.45053935 at tick 41
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.4709549 at tick 42
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.49163508 at tick 43
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.5125716 at tick 44
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.5337553 at tick 45
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.5551779 at tick 46
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.57683134 at tick 47
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.59870815 at tick 48
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.62080073 at tick 49
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.6431017 at tick 50
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.6656041 at tick 51
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.6883011 at tick 52
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.7111862 at tick 53
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.7342529 at tick 54
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.75738716 at tick 55
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.7805214 at tick 56
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.8036556 at tick 57
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.82678986 at tick 58
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.8499241 at tick 59
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.8730583 at tick 60
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.89619255 at tick 61
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.9193268 at tick 62
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.942461 at tick 63
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.96559525 at tick 64
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 0.9887295 at tick 65
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.0118637 at tick 66
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.0349979 at tick 67
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.0581322 at tick 68
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.0812664 at tick 69
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.1044006 at tick 70
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.1275349 at tick 71
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.1506691 at tick 72
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.1738033 at tick 73
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.1969376 at tick 74
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.2200718 at tick 75
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.243206 at tick 76
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.2663403 at tick 77
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.2892284 at tick 78
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.3111935 at tick 79
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.3321981 at tick 80
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.3522406 at tick 81
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.3713217 at tick 82
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.3894415 at tick 83
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.406599 at tick 84
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.4227943 at tick 85
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.4380264 at tick 86
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.4522948 at tick 87
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.4655991 at tick 88
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.4779387 at tick 89
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.4893126 at tick 90
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.4997206 at tick 91
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.509161 at tick 92
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.5176325 at tick 93
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.5251341 at tick 94
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.5316634 at tick 95
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.5372176 at tick 96
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.5417929 at tick 97
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.5453835 at tick 98
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.5479784 at tick 99
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549562 at tick 100
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 101
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 102
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 103
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 104
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 105
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 106
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 107
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 108
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 109
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 110
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 111
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 112
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 113
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 114
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 115
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 116
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 117
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 118
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 119
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 120
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 121
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 122
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 123
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 124
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 125
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 126
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 127
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 128
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 129
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 130
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 131
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 132
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 133
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 134
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 135
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 136
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 137
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 138
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 139
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 140
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 141
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 142
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 143
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 144
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 145
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 146
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 147
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 148
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 149
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 150
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 151
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 152
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 153
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 154
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 155
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 156
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 157
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 158
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 159
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 160
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 161
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 162
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 163
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 164
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 165
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 166
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 167
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 168
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 169
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 170
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 171
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 172
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 173
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 174
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 175
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 176
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 177
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 178
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 179
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 180
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 181
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 182
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 183
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 184
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 185
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 186
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 187
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 188
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 189
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 190
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 191
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 192
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 193
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 194
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 195
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 196
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 197
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 198
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 199
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 200
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 201
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 202
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 203
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 204
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 205
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 206
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 207
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 208
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 209
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 210
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 211
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 212
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 213
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 214
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 215
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 216
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 217
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 218
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 219
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 220
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 221
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 222
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 223
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 224
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 225
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 226
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 227
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 228
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 229
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 230
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 231
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 232
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 233
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 234
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 235
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 236
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 237
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 238
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 239
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 240
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 241
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 242
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 243
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 244
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 245
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 246
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 247
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 248
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 249
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 250
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 251
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 252
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 253
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 254
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 255
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 256
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 257
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 258
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 259
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 260
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 261
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 262
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 263
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 264
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 265
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 266
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 267
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 268
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 269
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 270
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 271
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 272
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 273
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 274
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 275
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 276
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 277
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 278
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 279
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 280
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 281
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 282
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 283
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 284
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 285
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 286
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 287
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 288
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 289
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 290
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 291
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 292
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 293
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 294
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 295
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 296
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 297
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 298
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 299
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 300
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 301
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 302
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 303
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 304
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 305
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 306
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 307
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 308
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 309
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 310
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 311
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 312
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 313
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 314
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 315
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 316
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 317
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 318
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 319
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 320
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 321
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 322
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 323
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 324
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 325
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 326
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 327
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 328
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 329
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 330
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 331
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 332
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 333
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 334
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 335
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 336
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 337
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 338
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 339
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 340
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 341
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 342
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 343
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 344
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 345
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 346
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 347
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 348
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 349
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 350
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 351
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 352
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 353
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 354
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 355
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 356
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 357
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 358
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 359
+       Error: 1 kg on a minimum one f32 above 1 kg 3: travel 1.549995 at tick 360
+  Stack Trace:
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates [94 ms]
+  Error Message:
+   Assert.All() Failure: 333 out of 360 items in the collection did not pass.
+       Error: empty P2 6: travel 0.21390963 at tick 28
+       Error: empty P2 6: travel 0.22991371 at tick 29
+       Error: empty P2 6: travel 0.24633121 at tick 30
+       Error: empty P2 6: travel 0.2631483 at tick 31
+       Error: empty P2 6: travel 0.28035116 at tick 32
+       Error: empty P2 6: travel 0.2979269 at tick 33
+       Error: empty P2 6: travel 0.3158629 at tick 34
+       Error: empty P2 6: travel 0.33414745 at tick 35
+       Error: empty P2 6: travel 0.35276842 at tick 36
+       Error: empty P2 6: travel 0.37171483 at tick 37
+       Error: empty P2 6: travel 0.39097524 at tick 38
+       Error: empty P2 6: travel 0.41053963 at tick 39
+       Error: empty P2 6: travel 0.43039775 at tick 40
+       Error: empty P2 6: travel 0.45053935 at tick 41
+       Error: empty P2 6: travel 0.4709549 at tick 42
+       Error: empty P2 6: travel 0.49163508 at tick 43
+       Error: empty P2 6: travel 0.5125716 at tick 44
+       Error: empty P2 6: travel 0.5337553 at tick 45
+       Error: empty P2 6: travel 0.5551779 at tick 46
+       Error: empty P2 6: travel 0.57683134 at tick 47
+       Error: empty P2 6: travel 0.59870815 at tick 48
+       Error: empty P2 6: travel 0.62080073 at tick 49
+       Error: empty P2 6: travel 0.6431017 at tick 50
+       Error: empty P2 6: travel 0.6656041 at tick 51
+       Error: empty P2 6: travel 0.6883011 at tick 52
+       Error: empty P2 6: travel 0.7111862 at tick 53
+       Error: empty P2 6: travel 0.7342529 at tick 54
+       Error: empty P2 6: travel 0.75738716 at tick 55
+       Error: empty P2 6: travel 0.7805214 at tick 56
+       Error: empty P2 6: travel 0.8036556 at tick 57
+       Error: empty P2 6: travel 0.82678986 at tick 58
+       Error: empty P2 6: travel 0.8499241 at tick 59
+       Error: empty P2 6: travel 0.8730583 at tick 60
+       Error: empty P2 6: travel 0.89619255 at tick 61
+       Error: empty P2 6: travel 0.9193268 at tick 62
+       Error: empty P2 6: travel 0.942461 at tick 63
+       Error: empty P2 6: travel 0.96559525 at tick 64
+       Error: empty P2 6: travel 0.9887295 at tick 65
+       Error: empty P2 6: travel 1.0118637 at tick 66
+       Error: empty P2 6: travel 1.0349979 at tick 67
+       Error: empty P2 6: travel 1.0581322 at tick 68
+       Error: empty P2 6: travel 1.0812664 at tick 69
+       Error: empty P2 6: travel 1.1044006 at tick 70
+       Error: empty P2 6: travel 1.1275349 at tick 71
+       Error: empty P2 6: travel 1.1506691 at tick 72
+       Error: empty P2 6: travel 1.1738033 at tick 73
+       Error: empty P2 6: travel 1.1969376 at tick 74
+       Error: empty P2 6: travel 1.2200718 at tick 75
+       Error: empty P2 6: travel 1.243206 at tick 76
+       Error: empty P2 6: travel 1.2663403 at tick 77
+       Error: empty P2 6: travel 1.2892284 at tick 78
+       Error: empty P2 6: travel 1.3111935 at tick 79
+       Error: empty P2 6: travel 1.3321981 at tick 80
+       Error: empty P2 6: travel 1.3522406 at tick 81
+       Error: empty P2 6: travel 1.3713217 at tick 82
+       Error: empty P2 6: travel 1.3894415 at tick 83
+       Error: empty P2 6: travel 1.406599 at tick 84
+       Error: empty P2 6: travel 1.4227943 at tick 85
+       Error: empty P2 6: travel 1.4380264 at tick 86
+       Error: empty P2 6: travel 1.4522948 at tick 87
+       Error: empty P2 6: travel 1.4655991 at tick 88
+       Error: empty P2 6: travel 1.4779387 at tick 89
+       Error: empty P2 6: travel 1.4893126 at tick 90
+       Error: empty P2 6: travel 1.4997206 at tick 91
+       Error: empty P2 6: travel 1.509161 at tick 92
+       Error: empty P2 6: travel 1.5176325 at tick 93
+       Error: empty P2 6: travel 1.5251341 at tick 94
+       Error: empty P2 6: travel 1.5316634 at tick 95
+       Error: empty P2 6: travel 1.5372176 at tick 96
+       Error: empty P2 6: travel 1.5417929 at tick 97
+       Error: empty P2 6: travel 1.5453835 at tick 98
+       Error: empty P2 6: travel 1.5479784 at tick 99
+       Error: empty P2 6: travel 1.549562 at tick 100
+       Error: empty P2 6: travel 1.549995 at tick 101
+       Error: empty P2 6: travel 1.549995 at tick 102
+       Error: empty P2 6: travel 1.549995 at tick 103
+       Error: empty P2 6: travel 1.549995 at tick 104
+       Error: empty P2 6: travel 1.549995 at tick 105
+       Error: empty P2 6: travel 1.549995 at tick 106
+       Error: empty P2 6: travel 1.549995 at tick 107
+       Error: empty P2 6: travel 1.549995 at tick 108
+       Error: empty P2 6: travel 1.549995 at tick 109
+       Error: empty P2 6: travel 1.549995 at tick 110
+       Error: empty P2 6: travel 1.549995 at tick 111
+       Error: empty P2 6: travel 1.549995 at tick 112
+       Error: empty P2 6: travel 1.549995 at tick 113
+       Error: empty P2 6: travel 1.549995 at tick 114
+       Error: empty P2 6: travel 1.549995 at tick 115
+       Error: empty P2 6: travel 1.549995 at tick 116
+       Error: empty P2 6: travel 1.549995 at tick 117
+       Error: empty P2 6: travel 1.549995 at tick 118
+       Error: empty P2 6: travel 1.549995 at tick 119
+       Error: empty P2 6: travel 1.549995 at tick 120
+       Error: empty P2 6: travel 1.549995 at tick 121
+       Error: empty P2 6: travel 1.549995 at tick 122
+       Error: empty P2 6: travel 1.549995 at tick 123
+       Error: empty P2 6: travel 1.549995 at tick 124
+       Error: empty P2 6: travel 1.549995 at tick 125
+       Error: empty P2 6: travel 1.549995 at tick 126
+       Error: empty P2 6: travel 1.549995 at tick 127
+       Error: empty P2 6: travel 1.549995 at tick 128
+       Error: empty P2 6: travel 1.549995 at tick 129
+       Error: empty P2 6: travel 1.549995 at tick 130
+       Error: empty P2 6: travel 1.549995 at tick 131
+       Error: empty P2 6: travel 1.549995 at tick 132
+       Error: empty P2 6: travel 1.549995 at tick 133
+       Error: empty P2 6: travel 1.549995 at tick 134
+       Error: empty P2 6: travel 1.549995 at tick 135
+       Error: empty P2 6: travel 1.549995 at tick 136
+       Error: empty P2 6: travel 1.549995 at tick 137
+       Error: empty P2 6: travel 1.549995 at tick 138
+       Error: empty P2 6: travel 1.549995 at tick 139
+       Error: empty P2 6: travel 1.549995 at tick 140
+       Error: empty P2 6: travel 1.549995 at tick 141
+       Error: empty P2 6: travel 1.549995 at tick 142
+       Error: empty P2 6: travel 1.549995 at tick 143
+       Error: empty P2 6: travel 1.549995 at tick 144
+       Error: empty P2 6: travel 1.549995 at tick 145
+       Error: empty P2 6: travel 1.549995 at tick 146
+       Error: empty P2 6: travel 1.549995 at tick 147
+       Error: empty P2 6: travel 1.549995 at tick 148
+       Error: empty P2 6: travel 1.549995 at tick 149
+       Error: empty P2 6: travel 1.549995 at tick 150
+       Error: empty P2 6: travel 1.549995 at tick 151
+       Error: empty P2 6: travel 1.549995 at tick 152
+       Error: empty P2 6: travel 1.549995 at tick 153
+       Error: empty P2 6: travel 1.549995 at tick 154
+       Error: empty P2 6: travel 1.549995 at tick 155
+       Error: empty P2 6: travel 1.549995 at tick 156
+       Error: empty P2 6: travel 1.549995 at tick 157
+       Error: empty P2 6: travel 1.549995 at tick 158
+       Error: empty P2 6: travel 1.549995 at tick 159
+       Error: empty P2 6: travel 1.549995 at tick 160
+       Error: empty P2 6: travel 1.549995 at tick 161
+       Error: empty P2 6: travel 1.549995 at tick 162
+       Error: empty P2 6: travel 1.549995 at tick 163
+       Error: empty P2 6: travel 1.549995 at tick 164
+       Error: empty P2 6: travel 1.549995 at tick 165
+       Error: empty P2 6: travel 1.549995 at tick 166
+       Error: empty P2 6: travel 1.549995 at tick 167
+       Error: empty P2 6: travel 1.549995 at tick 168
+       Error: empty P2 6: travel 1.549995 at tick 169
+       Error: empty P2 6: travel 1.549995 at tick 170
+       Error: empty P2 6: travel 1.549995 at tick 171
+       Error: empty P2 6: travel 1.549995 at tick 172
+       Error: empty P2 6: travel 1.549995 at tick 173
+       Error: empty P2 6: travel 1.549995 at tick 174
+       Error: empty P2 6: travel 1.549995 at tick 175
+       Error: empty P2 6: travel 1.549995 at tick 176
+       Error: empty P2 6: travel 1.549995 at tick 177
+       Error: empty P2 6: travel 1.549995 at tick 178
+       Error: empty P2 6: travel 1.549995 at tick 179
+       Error: empty P2 6: travel 1.549995 at tick 180
+       Error: empty P2 6: travel 1.549995 at tick 181
+       Error: empty P2 6: travel 1.549995 at tick 182
+       Error: empty P2 6: travel 1.549995 at tick 183
+       Error: empty P2 6: travel 1.549995 at tick 184
+       Error: empty P2 6: travel 1.549995 at tick 185
+       Error: empty P2 6: travel 1.549995 at tick 186
+       Error: empty P2 6: travel 1.549995 at tick 187
+       Error: empty P2 6: travel 1.549995 at tick 188
+       Error: empty P2 6: travel 1.549995 at tick 189
+       Error: empty P2 6: travel 1.549995 at tick 190
+       Error: empty P2 6: travel 1.549995 at tick 191
+       Error: empty P2 6: travel 1.549995 at tick 192
+       Error: empty P2 6: travel 1.549995 at tick 193
+       Error: empty P2 6: travel 1.549995 at tick 194
+       Error: empty P2 6: travel 1.549995 at tick 195
+       Error: empty P2 6: travel 1.549995 at tick 196
+       Error: empty P2 6: travel 1.549995 at tick 197
+       Error: empty P2 6: travel 1.549995 at tick 198
+       Error: empty P2 6: travel 1.549995 at tick 199
+       Error: empty P2 6: travel 1.549995 at tick 200
+       Error: empty P2 6: travel 1.549995 at tick 201
+       Error: empty P2 6: travel 1.549995 at tick 202
+       Error: empty P2 6: travel 1.549995 at tick 203
+       Error: empty P2 6: travel 1.549995 at tick 204
+       Error: empty P2 6: travel 1.549995 at tick 205
+       Error: empty P2 6: travel 1.549995 at tick 206
+       Error: empty P2 6: travel 1.549995 at tick 207
+       Error: empty P2 6: travel 1.549995 at tick 208
+       Error: empty P2 6: travel 1.549995 at tick 209
+       Error: empty P2 6: travel 1.549995 at tick 210
+       Error: empty P2 6: travel 1.549995 at tick 211
+       Error: empty P2 6: travel 1.549995 at tick 212
+       Error: empty P2 6: travel 1.549995 at tick 213
+       Error: empty P2 6: travel 1.549995 at tick 214
+       Error: empty P2 6: travel 1.549995 at tick 215
+       Error: empty P2 6: travel 1.549995 at tick 216
+       Error: empty P2 6: travel 1.549995 at tick 217
+       Error: empty P2 6: travel 1.549995 at tick 218
+       Error: empty P2 6: travel 1.549995 at tick 219
+       Error: empty P2 6: travel 1.549995 at tick 220
+       Error: empty P2 6: travel 1.549995 at tick 221
+       Error: empty P2 6: travel 1.549995 at tick 222
+       Error: empty P2 6: travel 1.549995 at tick 223
+       Error: empty P2 6: travel 1.549995 at tick 224
+       Error: empty P2 6: travel 1.549995 at tick 225
+       Error: empty P2 6: travel 1.549995 at tick 226
+       Error: empty P2 6: travel 1.549995 at tick 227
+       Error: empty P2 6: travel 1.549995 at tick 228
+       Error: empty P2 6: travel 1.549995 at tick 229
+       Error: empty P2 6: travel 1.549995 at tick 230
+       Error: empty P2 6: travel 1.549995 at tick 231
+       Error: empty P2 6: travel 1.549995 at tick 232
+       Error: empty P2 6: travel 1.549995 at tick 233
+       Error: empty P2 6: travel 1.549995 at tick 234
+       Error: empty P2 6: travel 1.549995 at tick 235
+       Error: empty P2 6: travel 1.549995 at tick 236
+       Error: empty P2 6: travel 1.549995 at tick 237
+       Error: empty P2 6: travel 1.549995 at tick 238
+       Error: empty P2 6: travel 1.549995 at tick 239
+       Error: empty P2 6: travel 1.549995 at tick 240
+       Error: empty P2 6: travel 1.549995 at tick 241
+       Error: empty P2 6: travel 1.549995 at tick 242
+       Error: empty P2 6: travel 1.549995 at tick 243
+       Error: empty P2 6: travel 1.549995 at tick 244
+       Error: empty P2 6: travel 1.549995 at tick 245
+       Error: empty P2 6: travel 1.549995 at tick 246
+       Error: empty P2 6: travel 1.549995 at tick 247
+       Error: empty P2 6: travel 1.549995 at tick 248
+       Error: empty P2 6: travel 1.549995 at tick 249
+       Error: empty P2 6: travel 1.549995 at tick 250
+       Error: empty P2 6: travel 1.549995 at tick 251
+       Error: empty P2 6: travel 1.549995 at tick 252
+       Error: empty P2 6: travel 1.549995 at tick 253
+       Error: empty P2 6: travel 1.549995 at tick 254
+       Error: empty P2 6: travel 1.549995 at tick 255
+       Error: empty P2 6: travel 1.549995 at tick 256
+       Error: empty P2 6: travel 1.549995 at tick 257
+       Error: empty P2 6: travel 1.549995 at tick 258
+       Error: empty P2 6: travel 1.549995 at tick 259
+       Error: empty P2 6: travel 1.549995 at tick 260
+       Error: empty P2 6: travel 1.549995 at tick 261
+       Error: empty P2 6: travel 1.549995 at tick 262
+       Error: empty P2 6: travel 1.549995 at tick 263
+       Error: empty P2 6: travel 1.549995 at tick 264
+       Error: empty P2 6: travel 1.549995 at tick 265
+       Error: empty P2 6: travel 1.549995 at tick 266
+       Error: empty P2 6: travel 1.549995 at tick 267
+       Error: empty P2 6: travel 1.549995 at tick 268
+       Error: empty P2 6: travel 1.549995 at tick 269
+       Error: empty P2 6: travel 1.549995 at tick 270
+       Error: empty P2 6: travel 1.549995 at tick 271
+       Error: empty P2 6: travel 1.549995 at tick 272
+       Error: empty P2 6: travel 1.549995 at tick 273
+       Error: empty P2 6: travel 1.549995 at tick 274
+       Error: empty P2 6: travel 1.549995 at tick 275
+       Error: empty P2 6: travel 1.549995 at tick 276
+       Error: empty P2 6: travel 1.549995 at tick 277
+       Error: empty P2 6: travel 1.549995 at tick 278
+       Error: empty P2 6: travel 1.549995 at tick 279
+       Error: empty P2 6: travel 1.549995 at tick 280
+       Error: empty P2 6: travel 1.549995 at tick 281
+       Error: empty P2 6: travel 1.549995 at tick 282
+       Error: empty P2 6: travel 1.549995 at tick 283
+       Error: empty P2 6: travel 1.549995 at tick 284
+       Error: empty P2 6: travel 1.549995 at tick 285
+       Error: empty P2 6: travel 1.549995 at tick 286
+       Error: empty P2 6: travel 1.549995 at tick 287
+       Error: empty P2 6: travel 1.549995 at tick 288
+       Error: empty P2 6: travel 1.549995 at tick 289
+       Error: empty P2 6: travel 1.549995 at tick 290
+       Error: empty P2 6: travel 1.549995 at tick 291
+       Error: empty P2 6: travel 1.549995 at tick 292
+       Error: empty P2 6: travel 1.549995 at tick 293
+       Error: empty P2 6: travel 1.549995 at tick 294
+       Error: empty P2 6: travel 1.549995 at tick 295
+       Error: empty P2 6: travel 1.549995 at tick 296
+       Error: empty P2 6: travel 1.549995 at tick 297
+       Error: empty P2 6: travel 1.549995 at tick 298
+       Error: empty P2 6: travel 1.549995 at tick 299
+       Error: empty P2 6: travel 1.549995 at tick 300
+       Error: empty P2 6: travel 1.549995 at tick 301
+       Error: empty P2 6: travel 1.549995 at tick 302
+       Error: empty P2 6: travel 1.549995 at tick 303
+       Error: empty P2 6: travel 1.549995 at tick 304
+       Error: empty P2 6: travel 1.549995 at tick 305
+       Error: empty P2 6: travel 1.549995 at tick 306
+       Error: empty P2 6: travel 1.549995 at tick 307
+       Error: empty P2 6: travel 1.549995 at tick 308
+       Error: empty P2 6: travel 1.549995 at tick 309
+       Error: empty P2 6: travel 1.549995 at tick 310
+       Error: empty P2 6: travel 1.549995 at tick 311
+       Error: empty P2 6: travel 1.549995 at tick 312
+       Error: empty P2 6: travel 1.549995 at tick 313
+       Error: empty P2 6: travel 1.549995 at tick 314
+       Error: empty P2 6: travel 1.549995 at tick 315
+       Error: empty P2 6: travel 1.549995 at tick 316
+       Error: empty P2 6: travel 1.549995 at tick 317
+       Error: empty P2 6: travel 1.549995 at tick 318
+       Error: empty P2 6: travel 1.549995 at tick 319
+       Error: empty P2 6: travel 1.549995 at tick 320
+       Error: empty P2 6: travel 1.549995 at tick 321
+       Error: empty P2 6: travel 1.549995 at tick 322
+       Error: empty P2 6: travel 1.549995 at tick 323
+       Error: empty P2 6: travel 1.549995 at tick 324
+       Error: empty P2 6: travel 1.549995 at tick 325
+       Error: empty P2 6: travel 1.549995 at tick 326
+       Error: empty P2 6: travel 1.549995 at tick 327
+       Error: empty P2 6: travel 1.549995 at tick 328
+       Error: empty P2 6: travel 1.549995 at tick 329
+       Error: empty P2 6: travel 1.549995 at tick 330
+       Error: empty P2 6: travel 1.549995 at tick 331
+       Error: empty P2 6: travel 1.549995 at tick 332
+       Error: empty P2 6: travel 1.549995 at tick 333
+       Error: empty P2 6: travel 1.549995 at tick 334
+       Error: empty P2 6: travel 1.549995 at tick 335
+       Error: empty P2 6: travel 1.549995 at tick 336
+       Error: empty P2 6: travel 1.549995 at tick 337
+       Error: empty P2 6: travel 1.549995 at tick 338
+       Error: empty P2 6: travel 1.549995 at tick 339
+       Error: empty P2 6: travel 1.549995 at tick 340
+       Error: empty P2 6: travel 1.549995 at tick 341
+       Error: empty P2 6: travel 1.549995 at tick 342
+       Error: empty P2 6: travel 1.549995 at tick 343
+       Error: empty P2 6: travel 1.549995 at tick 344
+       Error: empty P2 6: travel 1.549995 at tick 345
+       Error: empty P2 6: travel 1.549995 at tick 346
+       Error: empty P2 6: travel 1.549995 at tick 347
+       Error: empty P2 6: travel 1.549995 at tick 348
+       Error: empty P2 6: travel 1.549995 at tick 349
+       Error: empty P2 6: travel 1.549995 at tick 350
+       Error: empty P2 6: travel 1.549995 at tick 351
+       Error: empty P2 6: travel 1.549995 at tick 352
+       Error: empty P2 6: travel 1.549995 at tick 353
+       Error: empty P2 6: travel 1.549995 at tick 354
+       Error: empty P2 6: travel 1.549995 at tick 355
+       Error: empty P2 6: travel 1.549995 at tick 356
+       Error: empty P2 6: travel 1.549995 at tick 357
+       Error: empty P2 6: travel 1.549995 at tick 358
+       Error: empty P2 6: travel 1.549995 at tick 359
+       Error: empty P2 6: travel 1.549995 at tick 360
+  Stack Trace:
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     8, Passed:    35, Skipped:     0, Total:    43, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

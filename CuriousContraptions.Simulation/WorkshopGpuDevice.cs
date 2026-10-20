@@ -150,9 +150,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 _candidatePassageTracker = _committedPassageTracker.Advance(expectedTick, bodies, validated.Motion, passages, out passageCount);
             }
             var electrical = PhysicsGpuAbi.ReadElectrical(bytes);
+            // Story 9R.4: every contact-load row's committed phase (tick N) feeds its plate's level; its route closes at tick N+1.
+            var loadCount = PhysicsGpuAbi.ReadContactLoadCount(bytes);
+            Span<ContactLoadSensorRead> loads = stackalloc ContactLoadSensorRead[PhysicsSceneDeclaration.ContactLoadSensorCapacity];
+            for (var i = 0; i < loadCount; i++) loads[i] = PhysicsGpuAbi.ReadContactLoadSensor(bytes, i);
             var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory()) :
                 network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical,
-                    memory: _committedMemory);
+                    memory: _committedMemory, contactLoads: loads[..loadCount]);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers; _candidateMemory = logical.Memory;            _candidateNetwork = network; _candidateSupply = supply;
             var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),

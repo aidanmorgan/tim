@@ -259,21 +259,42 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.True(closed[route2.Prismatic]);
     }
 
-    // Story 9R.3 D3 interim (until Story 9R.4): a Battery → Plate → Gate chain compiles a Direct row from the plate's battery and
-    // the plate band's blade drag, whatever the battery's authored enable.
+    // Story 9R.4: a Battery → Plate → Gate chain compiles a Switched row from the plate's battery through the plate's own contact,
+    // whatever the battery's authored enable; it closes only while that battery is enabled and that plate's contact is closed.
     [Theory]
     [InlineData(ElectricalEnable.Disabled)]
     [InlineData(ElectricalEnable.Enabled)]
-    public void PhysicsCompiler_PlateChainCompilesADirectRowFromThePlatesBattery(ElectricalEnable authored)
+    public void PhysicsCompiler_PlateChainCompilesASwitchedRowThroughThePlate(ElectricalEnable authored)
     {
         var gate = Gate(1); var battery = Battery(2, authored);
         var plate = WorkshopInput.PressurePlate(new(3), -2, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([gate, battery, plate]),
             Connections: new([Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)])), new(1, 1));
         var route = Assert.Single(scene.SupplyRoutes.ToArray());
-        Assert.Equal((SupplyRouteKind.Direct, default(GpuBodyId)), (route.Kind, route.Switch));
+        Assert.Equal((SupplyRouteKind.Switched, plate.Id), (route.Kind, route.Switch));
         Assert.Equal(battery.Id, scene.Electrical.Sources[route.Source].Owner);
-        Assert.Equal((Half)0.09375f, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
+        Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
+        bool Closed(ElectricalEnable enable, bool contact) => PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length,
+            new([enable]), owner => owner == plate.Id ? contact : throw new InvalidOperationException($"asked for {owner.Value}")).SupplyClosed[route.Prismatic];
+        Assert.True(Closed(ElectricalEnable.Enabled, true));
+        Assert.False(Closed(ElectricalEnable.Enabled, false));
+        Assert.False(Closed(ElectricalEnable.Disabled, true));
+    }
+
+    // Controls: a plate with no battery supplies no route, and a plate wired to no gate compiles no route but still its own row.
+    [Fact]
+    public void PhysicsCompiler_APlateWithoutABatteryOrWithoutAGateCompilesNoRoute()
+    {
+        var gate = Gate(1);
+        var plate = WorkshopInput.PressurePlate(new(3), -2, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
+        var unsupplied = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([gate, plate]),
+            Connections: new([Supply(plate.Id, gate.Id)])), new(1, 1));
+        Assert.Empty(unsupplied.SupplyRoutes.ToArray());
+        var battery = Battery(2, ElectricalEnable.Enabled);
+        var ungated = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, plate]),
+            Connections: new([Supply(battery.Id, plate.Id)])), new(1, 1));
+        Assert.Empty(ungated.SupplyRoutes.ToArray());
+        Assert.Equal(plate.Id, Assert.Single(ungated.ContactLoadSensors.ToArray()).Frame);
     }
 
     // Per-kind admission: a Direct row names no switch, a Switched row names a static switch, an undefined kind is rejected.

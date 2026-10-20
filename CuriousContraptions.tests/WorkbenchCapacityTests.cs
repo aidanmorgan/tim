@@ -198,7 +198,7 @@ public sealed class WorkbenchCapacityTests
         [PartId.PipeBend45] = (32, null),
         [PartId.PipeBend90] = (32, null),
         [PartId.Funnel] = (32, null),
-        [PartId.PressurePlate] = (32, null),
+        [PartId.PressurePlate] = (8, WorkbenchTable.ActivationNodes), // Story 9R.4 D3: each plate commits one ContactLoadSource level
     };
 
     public static TheoryData<string> FreeKinds => new(WorkshopInventoryPolicy.Free.Keys.Select(kind => kind.Value));

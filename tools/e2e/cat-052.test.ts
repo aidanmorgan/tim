@@ -10,6 +10,10 @@
 //    actuator retracts gate blade to ~1.55 m, and basketball rolls through downstream.
 // 5. State persistence: Save / reload / Load preserves gate, battery, pressure plate, and electrical
 //    connections bit-identically; replay traverses.
+// Story 9R.4 (each plate evaluates its own compiled contact-load row):
+// 6. Sum: two 0.4 kg dominoes standing on the plate sum to 0.8 kg >= 0.5 kg, so the gate opens and the ball passes.
+// 7. Removal: on a plate tilted 30° (six fine-rotate steps) the bowling ball lands, loads the plate (the blade rises), then rolls
+//    off; the contact opens on the next tick, so the blade returns closed. Reset matches the snapshot (plate Empty, gate closed).
 // Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
 // (driver.expectResetMatches) against the snapshot taken before the first Run; each Run cycle first proves it advanced.
 import assert from 'node:assert/strict';
@@ -76,15 +80,22 @@ function assertPressurePlateWiring(bytes: Buffer, batterySlot: number, plateSlot
     assert.equal(plateInst.threshold(), 0.5);
 }
 
-// What rests on the plate: nothing, a light domino, or a 5 kg bowling ball lifted just above it.
-type PlateLoad = 'none' | 'domino' | 'bowling';
+// What rests on the plate: nothing, a light domino, two dominoes, a 4 kg bowling ball lifted just above it, or that ball lifted
+// above the plate tilted 30° so that it rolls off.
+type PlateLoad = 'none' | 'domino' | 'dominoes' | 'bowling' | 'rolloff';
+// Two standing dominoes on the plate face (plate centre world (3, -1.05)), 0.8 m apart along x.
+const DOMINO_LEFT = screen(2.6, -1.05);
+const DOMINO_RIGHT = screen(3.4, -1.05);
+// Move-gizmo lift (about 56 px/m): 0.68 m raises a standing domino's centre from the 3 m plane to 3.68 m, its foot 0.05 m above
+// the plate face.
+const DOMINO_LIFT_PX = 38;
 
 describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
     let driver: WorkshopDriver;
     const errors: string[] = [];
     const BLADE_BODY_ID = '4294967810'; // GpuBodyId: (1n << 32n) + 256n + 1n * 256n + 2n
     // The committed (dynamic) bodies: the basketball and the gate blade, plus the domino or bowling ball when one is placed.
-    const bench = (load: PlateLoad) => ({ bodies: load === 'none' ? 2 : 3 });
+    const bench = (load: PlateLoad) => ({ bodies: load === 'none' ? 2 : load === 'dominoes' ? 4 : 3 });
 
     before(async () => {
         driver = await WorkshopDriver.launch();
@@ -125,10 +136,22 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
         await driver.clickAt(920, 510); // Click pressure plate
         await driver.clickAt(133, 736); // "Supply → PowerIn"
 
-        if (load === 'domino') {
-            await driver.selectTool('domino');
-            await driver.placeOnCanvas(920, 510);
-        } else if (load === 'bowling') {
+        if (load === 'rolloff') {
+            await driver.selectPartAt(920, 510);
+            await driver.tiltSelectedByFineRotate(6);
+        }
+        if (load === 'domino' || load === 'dominoes') {
+            // A domino placed at the 3 m placement plane straddles the plate's top; the move gizmo lifts it so its foot rests
+            // just above the face (y 3.08) and it stands on the plate.
+            for (const at of load === 'domino' ? [{ x: 920, y: 510 }] : [DOMINO_LEFT, DOMINO_RIGHT]) {
+                await driver.selectTool('domino');
+                await driver.placeOnCanvas(at.x, at.y);
+                await driver.setPartMode('move');
+                await driver.liftSelectedPart(DOMINO_LIFT_PX, at.x, at.y);
+                await driver.page.keyboard.press('Escape');
+                await driver.page.waitForTimeout(200);
+            }
+        } else if (load === 'bowling' || load === 'rolloff') {
             await driver.selectTool('bowling');
             await driver.placeOnCanvas(920, 510);
             await driver.setPartMode('move');
@@ -157,6 +180,19 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
         await driver.expectRunAdvanced(s0);
         assert.ok(samples.length > 20, `Expected >20 distinct pose publications, got ${samples.length}`);
         return samples;
+    }
+
+    // Control that a domino row is not vacuous: after the run each domino (instances 5 and 6, after gate, ball, plate and battery)
+    // still stands on the plate face, its centre 0.55 m above y 3.08 and inside the face's x extent [2.1, 3.9].
+    async function assertDominoesStand(ids: string[]): Promise<void> {
+        const slot = await driver.readLatestPose();
+        assert.ok(slot, 'the paused run publishes a pose');
+        for (const id of ids) {
+            const domino = slot.bodies.find(b => b.id === id);
+            assert.ok(domino, `domino ${id} is in the pose ring`);
+            assert.ok(Math.abs(domino.py - 3.63) < 0.03 && domino.px > 2.1 && domino.px < 3.9,
+                `domino ${id} stands on the plate face, got (${domino.px}, ${domino.py}, ${domino.pz})`);
+        }
     }
 
     async function resetMatches(s0: RunResetSnapshot): Promise<void> {
@@ -206,6 +242,7 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
         assert.ok(final.px >= -0.5, `Ball must remain stopped upstream under light load, got px=${final.px}`);
         const blade = samples[samples.length - 1].blade;
         if (blade) assert.ok(blade.py < 3.2, `Blade must remain closed under light load, got py=${blade.py}`);
+        await assertDominoesStand(['5']);
         await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
@@ -239,6 +276,29 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
         const finalBall = samples[samples.length - 1].ball;
         assert.ok(finalBall.px < -0.6, `Reloaded/loaded simulation must allow ball downstream, got px=${finalBall.px}`);
         await resetMatches(loaded);
+        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+    });
+
+    test('6. Sum: two dominoes (0.8 kg) on the plate close its contact, the gate opens and the ball passes', { timeout: 150000 }, async () => {
+        const s0 = await buildPlateBench('dominoes');
+        const plate = decodeSavedConstruction(await saved(driver)).construction()!.instances(2)!;
+        assert.equal(plate.threshold(), 0.5, 'the plate keeps its 0.5 kg minimum');
+        assertOpened(await runAndSample(s0, 3500), 'two dominoes');
+        await assertDominoesStand(['5', '6']);
+        await resetMatches(s0);
+        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+    });
+
+    test('7. Removal: the ball rolls off a 30° plate, its contact opens and the gate closes again', { timeout: 150000 }, async () => {
+        const s0 = await buildPlateBench('rolloff');
+        const samples = await runAndSample(s0, 4500);
+        const blades = samples.map(s => s.blade).filter((b): b is WorkshopBodyPose => b !== undefined);
+        assert.ok(blades.length > 20, `blade poses observed, got ${blades.length}`);
+        const highest = Math.max(...blades.map(b => b.py));
+        const last = blades[blades.length - 1].py;
+        assert.ok(highest > 3.4, `the landed ball loads the plate and the blade rises, max py=${highest}`);
+        assert.ok(last < 3.2, `the ball rolled off, the contact opened and the blade returned closed, final py=${last}`);
+        await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

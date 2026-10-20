@@ -76,7 +76,7 @@ public static partial class PhysicsGpuAbi
     public const int MotionOffset = OrientationSensorsOffset + PhysicsSceneDeclaration.OrientationSensorCapacity * OrientationSensorBytes;
     /// <summary>Story 9R.2: the collider table is the buffer's tail, after every fixed-capacity table, sized by the scene's own
     /// collider count; there is no collider ceiling.</summary>
-    public const int CollidersOffset = PrismaticRecordsOffset + PhysicsSceneDeclaration.PrismaticCapacity * PrismaticBytes;
+    public const int CollidersOffset = ContactLoadRecordsOffset + PhysicsSceneDeclaration.ContactLoadSensorCapacity * ContactLoadSensorBytes;
     public const uint NoBody = uint.MaxValue;
 
     /// <summary>The one layout authority: the exact world length for a scene with this many colliders.</summary>
@@ -190,6 +190,7 @@ public static partial class PhysicsGpuAbi
         }
         WriteElectricalAdmission(data, scene);
         WritePrismaticAdmission(data, scene);
+        WriteContactLoadAdmission(data, scene);
         return bytes;
     }
 
@@ -440,6 +441,7 @@ public static partial class PhysicsGpuAbi
             throw new ArgumentException("Motion profile differs from its committed world.");
         ValidateElectricalCandidate(candidate,source);
         ValidatePrismaticCandidate(candidate,source);
+        ValidateContactLoadCandidate(candidate,source);
         return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(MotionOffset,PhysicsMotionRead.ByteLength), bodies, expectedTick));
     }
 

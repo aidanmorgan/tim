@@ -88,7 +88,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     public AuthorityRevision Revision => Committed.Revision;
     private ulong _epoch = 1;
     private int _pending;
-    // Bistable activation nodes (State Latch memory and the level indicators it drives) compile once per construction revision;
+    // Bistable activation nodes (State Latch memory, the level indicators it drives, and contact-load levels) compile once per construction revision;
     // read validation consults this set instead of walking the authored construction every tick.
     private (ConstructionRevision Revision, HashSet<ActivationNodeId> Nodes) _bistable;
     private HashSet<ActivationNodeId> BistableNodes()
@@ -97,7 +97,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         {
             var nodes = new HashSet<ActivationNodeId>();
             foreach (var node in WorkshopActivationCompiler.Compile(Construction).Nodes)
-                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator) nodes.Add(node.Id);
+                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
             _bistable = (Construction.Revision, nodes);
         }
         return _bistable.Nodes;

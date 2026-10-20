@@ -317,7 +317,7 @@ public sealed class WorkshopPhysicsEngineTests
 
     /// <summary>Steps the admitted world with the production tick inputs of an unswitched, battery-free scene: no source
     /// enables and every prismatic's switched supply open, as PhysicsTickInputs.Compose yields without routes.</summary>
-    private static void StepWorld(byte[] admitted, int ticks, Action<int, byte[]> observe, int prismatics = 0, int enabledSources = 0)
+    internal static void StepWorld(byte[] admitted, int ticks, Action<int, byte[]> observe, int prismatics = 0, int enabledSources = 0)
     {
         var engine = new WorkshopPhysicsEngine();
         engine.Reset();
@@ -548,7 +548,7 @@ public sealed class WorkshopPhysicsEngineTests
 
     /// <summary>Runs the construction through the production simulation in phases: each phase first applies its in-run supply
     /// controls through ConfigureElectrical, then advances its ticks. Returns every phase's committed reads.</summary>
-    private static async Task<List<List<WorkshopRead>>> RunPhases(WorkshopConstruction construction,
+    internal static async Task<List<List<WorkshopRead>>> RunPhases(WorkshopConstruction construction,
         params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
     {
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));

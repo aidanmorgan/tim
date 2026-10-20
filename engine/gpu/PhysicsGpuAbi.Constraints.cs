@@ -79,7 +79,7 @@ public static partial class PhysicsGpuAbi
                     throw new ArgumentException("Invalid prismatic impulse.");
             }
         }
-        if (!AllZero(candidate[(PrismaticRecordsOffset + (int)count * PrismaticBytes)..CollidersOffset]))
+        if (!AllZero(candidate[(PrismaticRecordsOffset + (int)count * PrismaticBytes)..ContactLoadSensorsOffset]))
             throw new ArgumentException("Unused prismatic rows changed.");
     }
 }

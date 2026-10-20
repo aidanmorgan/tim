@@ -249,7 +249,8 @@ public static class WorkshopWire
         for (var i=0; i<read.Activations.Count; i++)
         {
             var value=read.Activations[i]; value.Validate();
-            var requiresDynamicBody = value.Kind is not (ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.CounterReached or ActivationOccurrenceKind.TimerElapsed);
+            var requiresDynamicBody = value.Kind is not (ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.CounterReached or
+                ActivationOccurrenceKind.TimerElapsed or ActivationOccurrenceKind.ContactLoad);
             if (value.Phase == ActivationPhase.Latched && ((requiresDynamicBody && !read.Bodies.TryGet(value.Body,out _)) ||
                 value.EventOrdinal>read.Tick.Value*8 || read.Tick.Value==0))
                 throw new ArgumentException("Activation event does not belong to a running physical world.");

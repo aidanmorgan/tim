@@ -8,8 +8,9 @@ namespace CuriousContraptions.Gpu;
 public readonly record struct ActivationNodeId(ulong Value);
 /// <summary>StickyFirstInput is the Signal lamp's first-input-wins hold (never reset within a run); StateLatch is the bistable
 /// Set/Reset memory (CAT-037); LevelIndicator is a Signal lamp driven by a State Latch ActivationOut, mirroring its On/Off level.
+/// ContactLoadSource is a contact-load row's committed level (Story 9R.4 D3): Latched exactly while its committed phase is Loaded.
 /// The kinds are distinct and share no name.</summary>
-public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9 }
+public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10 }
 public enum ActivationPhase : uint { Clear, Latched }
 /// <summary>Committed bistable memory of one State Latch.</summary>
 public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
@@ -17,7 +18,8 @@ public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
 [Flags]
 public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
-    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default, GpuColliderId Collider = default);
+    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default, GpuColliderId Collider = default,
+    GpuContactLoadSensorId ContactLoad = default);
 /// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
 public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, WorkshopSocket Input);
 
@@ -114,6 +116,7 @@ public sealed class ActivationNetwork
         var owners = new HashSet<GpuBodyId>(); var triggers = new HashSet<GpuContactTriggerId>();
         var sensors = new HashSet<GpuOrientationSensorId>();
         var passages = new HashSet<GpuPassageSensorId>();
+        var loads = new HashSet<GpuContactLoadSensorId>();
         var timers = new List<ActivationTimerDeclaration>();
         for (var i = 0; i < _nodes.Length; i++)
         {
@@ -123,6 +126,7 @@ public sealed class ActivationNetwork
                 (node.Kind == ActivationNodeKind.ContactSource ? node.Trigger.Value == 0 || !triggers.Add(node.Trigger) : node.Trigger.Value != 0) ||
                 (node.Kind == ActivationNodeKind.OrientationSource ? node.Sensor.Value == 0 || !sensors.Add(node.Sensor) : node.Sensor.Value != 0) ||
                 (node.Kind == ActivationNodeKind.PassageSource ? node.Passage.Value == 0 || !passages.Add(node.Passage) : node.Passage.Value != 0) ||
+                (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ContactLoad.Value == 0 || !loads.Add(node.ContactLoad) : node.ContactLoad.Value != 0) ||
                 (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 || node.TargetCount > 9 : node.TargetCount != 0) ||
                 (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerSource.Value != 0 || node.Collider.Value != 0)))
@@ -138,10 +142,11 @@ public sealed class ActivationNetwork
         var links = new HashSet<ActivationEdge>();
         foreach (var edge in _edges)
             if (edge.Source == edge.Target || !links.Add(edge) || Slot(edge.Source) < 0 || Slot(edge.Target) < 0 ||
-                _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator ||
+                // A contact-load level has no activation port (CAT-052: its ActivationOut arrives with Story 9R.5).
+                _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource ||
                 // A State Latch output is a level: it drives level indicators only, and a level indicator listens to a latch only.
                 (_nodes[Slot(edge.Source)].Kind == ActivationNodeKind.StateLatch) != (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.LevelIndicator) ||
-                _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource or ActivationNodeKind.PassageSource or ActivationNodeKind.Oscillator ||
+                _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource or ActivationNodeKind.PassageSource or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource ||
                 (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.StateLatch
                     ? edge.Input is not (WorkshopSocket.SetIn or WorkshopSocket.ResetIn)
                     : edge.Input != WorkshopSocket.ActivationIn))
@@ -195,12 +200,12 @@ public sealed class ActivationNetwork
                 return values[i].Phase == ActivationPhase.Latched ? SimulationLatchPhase.On : SimulationLatchPhase.Off;
         throw new ArgumentException("State latch not found for owner.");
     }
-    /// <summary>A switched contact (State Latch or Counter) is closed exactly while its committed value is Latched.</summary>
+    /// <summary>A switched contact (State Latch, Counter or contact-load level) is closed exactly while its committed value is Latched.</summary>
     public bool ContactClosed(PhysicsActivationRead values, GpuBodyId owner)
     {
         ValidatePopulation(values, ClearTimers());
         for (var i = 0; i < _nodes.Length; i++)
-            if (_nodes[i].Owner == owner && _nodes[i].Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.Counter)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.Counter or ActivationNodeKind.ContactLoadSource)
                 return values[i].Phase == ActivationPhase.Latched;
         throw new ArgumentException("Switched contact not found for owner.");
     }
@@ -210,7 +215,7 @@ public sealed class ActivationNetwork
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
         ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
-        Span<byte> eventBuffer = default, PhysicsMemoryRead memory = default)
+        Span<byte> eventBuffer = default, PhysicsMemoryRead memory = default, ReadOnlySpan<ContactLoadSensorRead> contactLoads = default)
     {
         ValidatePopulation(committed, committedTimers);
         ValidateMemory(memory);
@@ -311,6 +316,7 @@ public sealed class ActivationNetwork
             }
             pending[count++] = occurrence;
         }
+        CommitContactLoads(values, contactLoads, end);
         for (var i = 0; i < _timers.Length; i++)
         {
             timers[i] = timers[i].Complete(boundary, _substeps, out var elapsed);
@@ -470,6 +476,36 @@ public sealed class ActivationNetwork
         return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]));
     }
 
+    /// <summary>Story 9R.4 D3: every contact-load level follows its own row's committed phase on this boundary. Loaded keeps (or
+    /// starts, at this boundary) a Latched level; any other phase clears it. Every row must be read each tick, exactly once.</summary>
+    private void CommitContactLoads(Span<ActivationLatch> values, ReadOnlySpan<ContactLoadSensorRead> contactLoads, ActivationTime end)
+    {
+        if (contactLoads.Length > PhysicsSceneDeclaration.ContactLoadSensorCapacity) throw new ArgumentException("Contact-load capacity exceeded.");
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            if (_nodes[i].Kind != ActivationNodeKind.ContactLoadSource) continue;
+            var found = false;
+            for (var j = 0; j < contactLoads.Length; j++) if (contactLoads[j].Sensor == _nodes[i].ContactLoad) found = true;
+            if (!found) throw new ArgumentException("Contact-load read is missing.");
+        }
+        for (var i = 0; i < contactLoads.Length; i++)
+        {
+            var item = contactLoads[i]; var slot = -1;
+            for (var j = 0; j < _nodes.Length; j++)
+                if (_nodes[j].Kind == ActivationNodeKind.ContactLoadSource && _nodes[j].ContactLoad == item.Sensor) slot = j;
+            if (slot < 0 || item.Frame != _nodes[slot].Owner || !Enum.IsDefined(item.Phase))
+                throw new ArgumentException("Unowned contact-load read.");
+            for (var j = 0; j < i; j++) if (contactLoads[j].Sensor == item.Sensor)
+                throw new ArgumentException("Duplicate contact-load read.");
+            if (item.Phase != ContactLoadPhase.Loaded) { values[slot] = ActivationLatch.Clear(_nodes[slot]); continue; }
+            if (values[slot].Phase == ActivationPhase.Latched) continue;
+            var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.ContactLoad, _nodes[slot].Id, end,
+                new(new(item.Sensor.Value), item.Frame, item.Face, end, new((Half)0)));
+            occurrence.Validate();
+            values[slot] = ActivationLatch.From(_nodes[slot], occurrence);
+        }
+    }
+
     /// <summary>The memory rows belong to exactly this network's Counter and Clock nodes, in node order.</summary>
     public void ValidateMemory(PhysicsMemoryRead memory)
     {
@@ -525,6 +561,9 @@ public sealed class ActivationNetwork
             if (node.Kind == ActivationNodeKind.PassageSource &&
                 (occurrence.Kind != ActivationOccurrenceKind.Passage || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.Passage.Value))
                 throw new ArgumentException("Passage activation does not own its sensor.");
+            if (node.Kind == ActivationNodeKind.ContactLoadSource &&
+                (occurrence.Kind != ActivationOccurrenceKind.ContactLoad || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.ContactLoad.Value))
+                throw new ArgumentException("Contact-load level does not own its row.");
             if (node.Kind == ActivationNodeKind.Counter &&
                 (occurrence.Kind != ActivationOccurrenceKind.CounterReached || occurrence.Emitter != node.Id))
                 throw new ArgumentException("Counter activation does not own its emission.");
@@ -576,6 +615,7 @@ public sealed class ActivationNetwork
             ActivationOccurrenceKind.Passage => ActivationNodeKind.PassageSource,
             ActivationOccurrenceKind.CounterReached => ActivationNodeKind.Counter,
             ActivationOccurrenceKind.OscillatorTick => ActivationNodeKind.Oscillator,
+            ActivationOccurrenceKind.ContactLoad => ActivationNodeKind.ContactLoadSource,
             _ => ActivationNodeKind.Timer
         };
         if (emitter < 0 || _nodes[emitter].Kind != expectedKind) throw new ArgumentException("Foreign activation emitter.");
@@ -584,6 +624,8 @@ public sealed class ActivationNetwork
         foreach (var candidate in scene.Triggers) if (candidate.Id.Value == occurrence.Cause.Source.Value) trigger = candidate;
         foreach (var candidate in scene.OrientationSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) sensor = candidate;
         foreach (var candidate in _passageSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) passage = candidate;
+        ContactLoadSensorDeclaration? load = null;
+        foreach (var candidate in scene.ContactLoadSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) load = candidate;
         var isOscillatorSource = false;
         for (var i = 0; i < _nodes.Length; i++)
         {
@@ -625,11 +667,19 @@ public sealed class ActivationNetwork
                 throw new ArgumentException("Activation cause differs from the declared oscillator.");
             colliderOwner = occurrence.Cause.Body;
         }
+        else if (load is { } row)
+        {
+            // A contact-load level is the plate's own state, so its cause names the static frame and its sensing face.
+            if (occurrence.Kind != ActivationOccurrenceKind.ContactLoad || row.Frame != _nodes[emitter].Owner ||
+                occurrence.Cause.Body != row.Frame || occurrence.Cause.Collider != row.Face)
+                throw new ArgumentException("Activation cause differs from the declared contact-load row.");
+            colliderOwner = row.Frame;
+        }
         else throw new ArgumentException("Activation cause names no declared source.");
         var dynamicTarget = false;
         foreach (var body in scene.Bodies)
             if (body.Id == occurrence.Cause.Body && body.Motion == RigidMotionKind.Dynamic) dynamicTarget = true;
-        if (!dynamicTarget && !isOscillatorSource) throw new ArgumentException("Activation cause target is not dynamic.");
+        if (!dynamicTarget && !isOscillatorSource && load is null) throw new ArgumentException("Activation cause target is not dynamic.");
         var owned = false;
         foreach (var collider in scene.Colliders)
             if (collider.Id == occurrence.Cause.Collider && collider.Body == colliderOwner) owned = true;
@@ -695,6 +745,10 @@ public static class WorkshopActivationCompiler
                 nodes.Add(new(new(counter.Id.Value), counter.Id, ActivationNodeKind.Counter, default, 0, default, default, (uint)counter.TargetCount));
             else if (instance is WorkshopLatch latch)
                 nodes.Add(new(new(latch.Id.Value), latch.Id, ActivationNodeKind.StateLatch, default));
+            // Every plate commits its own contact-load level (D3), wired or not, so its footprint is one activation node.
+            else if (instance is WorkshopPressurePlate plate)
+                nodes.Add(new(new(plate.Id.Value), plate.Id, ActivationNodeKind.ContactLoadSource, default,
+                    ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(plate.Id)));
             else if (instance is WorkshopClock clock)
             {
                 GpuBodyId powerSource = default;

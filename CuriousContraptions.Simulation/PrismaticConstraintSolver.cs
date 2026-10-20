@@ -237,43 +237,34 @@ internal static class PrismaticConstraintSolver
 
     /// <summary>Drives exactly the prismatics whose compiled supply route is closed this tick (SimJoint.SupplyClosed) toward their
     /// upper limit. Only Powered Gates compile routes, so no joint is recognised by its geometry.</summary>
-    public static void ActuatorSliderDrive(List<SimJoint> joints, bool plateLoaded, float dt)
+    public static void ActuatorSliderDrive(List<SimJoint> joints, float dt)
     {
         foreach (var joint in joints)
         {
-            if (joint.SupplyClosed)
-            {
-                var b = joint.B;
-                var frame = joint.A;
-                if (b == null || frame == null) continue;
+            if (!joint.SupplyClosed) continue;
+            var b = joint.B;
+            var frame = joint.A;
+            if (b == null || frame == null) continue;
 
-                // Story 9R.3 D3 interim (Story 9R.4 replaces it with a per-plate switched row): a plate-fed gate's supplied route
-                // drives only while the plate is loaded.
-                var gatePowered = !(b.Drag >= 0.08f && b.Drag < 0.11f) || plateLoaded;
+            var frameUp = Vector3.Transform(Vector3.UnitY, frame.Rotation);
+            var rel = b.Position - frame.Position;
+            var pos = Vector3.Dot(rel, frameUp);
+            var currentSpeed = Vector3.Dot(b.LinearVelocity, frameUp);
+            var d = joint.Upper - pos;
+            var targetSpeed = MathF.Sign(d) * MathF.Min(2.8f, MathF.Sqrt(2f * 14f * MathF.Abs(d)));
+            var desiredDeltaV = targetSpeed - currentSpeed;
+            var maxDeltaV = 14f * dt;
+            var deltaV = Math.Clamp(desiredDeltaV, -maxDeltaV, maxDeltaV);
 
-                if (gatePowered)
-                {
-                    var frameUp = Vector3.Transform(Vector3.UnitY, frame.Rotation);
-                    var rel = b.Position - frame.Position;
-                    var pos = Vector3.Dot(rel, frameUp);
-                    var currentSpeed = Vector3.Dot(b.LinearVelocity, frameUp);
-                    var d = joint.Upper - pos;
-                    var targetSpeed = MathF.Sign(d) * MathF.Min(2.8f, MathF.Sqrt(2f * 14f * MathF.Abs(d)));
-                    var desiredDeltaV = targetSpeed - currentSpeed;
-                    var maxDeltaV = 14f * dt;
-                    var deltaV = Math.Clamp(desiredDeltaV, -maxDeltaV, maxDeltaV);
+            var fAcc = b.Mass * (deltaV / dt);
+            var fSpring = 14f * pos;
+            var fGravity = -b.Mass * Vector3.Dot(new Vector3(b.Gx, b.Gy, b.Gz), frameUp);
+            var force = Math.Clamp(fAcc + fSpring + fGravity, -60f, 60f);
+            var finalDeltaV = (force / b.Mass) * dt;
 
-                    var fAcc = b.Mass * (deltaV / dt);
-                    var fSpring = 14f * pos;
-                    var fGravity = -b.Mass * Vector3.Dot(new Vector3(b.Gx, b.Gy, b.Gz), frameUp);
-                    var force = Math.Clamp(fAcc + fSpring + fGravity, -60f, 60f);
-                    var finalDeltaV = (force / b.Mass) * dt;
-
-                    b.Vx += frameUp.X * finalDeltaV;
-                    b.Vy += frameUp.Y * finalDeltaV;
-                    b.Vz += frameUp.Z * finalDeltaV;
-                }
-            }
+            b.Vx += frameUp.X * finalDeltaV;
+            b.Vy += frameUp.Y * finalDeltaV;
+            b.Vz += frameUp.Z * finalDeltaV;
         }
     }
 }

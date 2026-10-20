@@ -499,7 +499,7 @@ public sealed class WorkshopPhysicsLawTests
     // ---- element-free solver ratchet (Story 9.4b coordinator decision, 18 Oct 2026; hardened for Murdoch-2 F2) ----
 
     /// <summary>The scheduled stories that own the element-specific solver code 8f682f8 introduced.</summary>
-    public enum ViolationOwner { Story9R4, Story9A19 }
+    public enum ViolationOwner { Story9A19 }
 
     /// <summary>Whether the general scan can see a pinned violation (so deleting its entry fails as unowned code), or only
     /// its pin can (the frozen list hash below then guards the entry).</summary>
@@ -507,7 +507,6 @@ public sealed class WorkshopPhysicsLawTests
 
     private static string SprintKey(ViolationOwner owner) => owner switch
     {
-        ViolationOwner.Story9R4 => "9r-4-pressure-plate-per-instance-load-rows",
         ViolationOwner.Story9A19 => "9a-19-declared-prismatic-drive",
         _ => throw new ArgumentOutOfRangeException(nameof(owner), owner, "Undefined violation owner."),
     };
@@ -521,24 +520,8 @@ public sealed class WorkshopPhysicsLawTests
     // When 9A.19 is done this list must be empty (asserted below against sprint-status.yaml).
     private static readonly KnownViolation[] KnownViolations =
     [
-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"MathF\.Abs\(c\.Col[AB]\.(Hx|Hy|Hz|Ty) - 0?\.\d+f\) < 0\.01f", 8,
-            ViolationOwner.Story9R4, ScanVisibility.General, "pressure plate recognised by its collider dimensions"),
-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"localNorm\.Y >= 0\.7f|loc\.[XYZ] (>=|<=) -?0\.\d+f", 7,
-            ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "pressure plate load window (numbers only, no element token)"),
-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"currentPlateLoad >= 0\.5f", 1,
-            ViolationOwner.Story9R4, ScanVisibility.General, "pressure plate 0.5 kg threshold"),
-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"\b(?:_plateLoaded|currentPlateLoad|plateCol)\b", 12,
-            ViolationOwner.Story9R4, ScanVisibility.General, "plate-load state named for the element"),
-        new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\(Half\)0\.09375f", 1,
-            ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "plate-powered gate drag encoding (compiler, not scanned)"),
-        new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\bContactLoadSensorDeclaration\b", 0,
-            ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "ContactLoadSensorDeclaration never compiled (zero references)"),
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"b\.Drag >= 0\.08f && b\.Drag < 0\.11f", 1,
-            ViolationOwner.Story9A19, ScanVisibility.General, "plate-mode gate drag band"),
         new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\b2\.8f\b|\b14f\b", 4,
             ViolationOwner.Story9A19, ScanVisibility.PinnedOnly, "gate drive speed and acceleration literals (numbers only)"),
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\b(?:gatePowered|plateLoaded)\b", 4,
-            ViolationOwner.Story9A19, ScanVisibility.General, "gate drive parameters named for elements"),
         // Murdoch-2 R2-F5: found once the scanned names came from the catalogue (the gate drive's return force, named for
         // the spring family); the drive itself is 9A.19's, like its literals above.
         new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\bfSpring\b", 2,
@@ -547,10 +530,12 @@ public sealed class WorkshopPhysicsLawTests
 
     // Frozen: these change only when an owning story deletes entries (both totals may only fall). Raised once, by the
     // coordinator's R2-F5 instruction, for the catalogue-derived scan's one new finding (fSpring, 9A.19). Lowered by Story 9R.3,
-    // which deleted the direct drag encoding and band, the global battery flag and the travel-limit gate recognition.
-    private const int MaximumKnownViolations = 10;
-    private const int MaximumPinnedMatches = 40;
-    private const string KnownViolationsSha256 = "ea7190371cf07346ec88b326fa38456f553392879c990a0a67c32fd0f716b9d4";
+    // which deleted the direct drag encoding and band, the global battery flag and the travel-limit gate recognition. Lowered by
+    // Story 9R.4, which deleted the size-recognised plate, its load window, 0.5 kg threshold and global flag, the plate drag
+    // encoding and band, and the plate-named drive parameter (its gatePowered|plateLoaded entry fell to zero and was deleted).
+    private const int MaximumKnownViolations = 2;
+    private const int MaximumPinnedMatches = 6;
+    private const string KnownViolationsSha256 = "3314aae3aa7d104237eb5a09d8ddabedda736f3bf440f971ad2cb2a2388a5dac";
 
     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
     // "gate".
