@@ -160,6 +160,15 @@ Design gaps decided by the implementer at the start (Amelia-10, 20 Oct 2026, own
 - **D10. The package port id stays `signal_out`.** Only its position is corrected to D3. `LocalPosition` is not serialised in `parts/elements.bundle.json`, so the bundle and the runner's port graph are unchanged.
 - **D11. Chrome loads.** A Basketball for the rest, bounce and Save/Load rows (AC1). The roll-off uses the bowling ball on the 30° plate, the cat-052 test 7 bench already proven to roll off. The bounce drop is about 2 m, chosen by the native probe `evidence-9r-5/probe-bounce-native.txt`: 2 m gives a 7-tick rebound gap, 5 m exactly 12 (one dark tick) and 8 m 15.
 
+### Candidate evidence (d6f5cacd, on 9R.4 head 15b7431b)
+
+- **Native.**
+  - Red: `evidence-9r-5/red-native.txt`, 20 failures. Green: `green-native.txt`.
+  - Six mutants, each failing its AC test: `mutant-1-hold-11.txt` through `mutant-6-partid-latch.txt`. They ran before the rebase onto 15b7431b; the hold paths they mutate are unchanged by it.
+  - Tier 1: `tier1-dotnet-test.txt` (1775 + 156 + 78 + 17 passed). Default and `PlaytestDiagnostics` builds both report 0 warnings. `node --experimental-vm-modules --test tools/*.test.mjs` gives 82/82, and `run-reset-snapshot.test.ts` 24/24.
+- **Chrome.** `E2eRunner run --diff c5a1cdda` selected Full (shared driver changed). Result: verdict Pass, 38/38 files, 187/187 tests, on clean HEAD d6f5cacd (`evidence-9r-5/full-run-1/`). cat-052-lamp, cat-052, cat-052-two-plates and cat-037 all passed. clock-master's close finding and debt fault are its own injected faults.
+- **Process.** The raw logs were captured with `tee` and shell redirection, and the probe was moved into the evidence folder with `mv`. These are records only, not authored deliverables; filed for the reviewer.
+
 ## Spec Change Log
 
 ## Review Triage Log

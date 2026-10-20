@@ -1,0 +1,165 @@
+run 20261020T121826Z-82744 verb=Run verdict=Pass
+started=2026-10-20T12:18:26.1378520+00:00 finished=2026-10-20T12:50:51.3940010+00:00 wallSeconds=1945.3
+runnerSourceDigest: a1b757b4dc043b9fa404a02443021c6010ea2139ccdd3829002230cde835d877
+sourceHead: d6f5cacd8c365a3b20692d6a0d8ea44921a40c5b
+sourceStatusDigest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+publish: dotnet publish CuriousContraptions.web: exit 0 in 88.9 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.85
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 2
+runId: 20261020T121826Z-82744
+workers: 2
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/.anvil/e2e-runs/20261020T121826Z-82744
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: 00f14b14eaa4796ef69fb99a06a4c874b78cc8066860720be312bfb65780423e
+bundleIdentity.start: 870fa4d5b9f0bc37f12e0ec43e1bbd8c6842f25ae9a7ea03599a458cd3b00d14
+bundleFiles: 288 (3 NotServed dot-files)
+preview: http://127.0.0.1:53886/
+servedCheck.start: pass (285 files)
+bundleIdentity.end: 870fa4d5b9f0bc37f12e0ec43e1bbd8c6842f25ae9a7ea03599a458cd3b00d14
+servedCheck.end: pass
+suiteSourceDigest.end: 00f14b14eaa4796ef69fb99a06a4c874b78cc8066860720be312bfb65780423e
+peakRssBytes: 6770147328
+selection: Mode: Full
+selection: Tier 3 required: yes
+selection: path	CuriousContraptions.Simulation/WorkshopGpuDevice.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.tests/BallDetectorTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/CSharpStaticGateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/CounterTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/OrientationSensorTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/PoweredGateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/PressurePlateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/StateLatchTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkbenchCapacityTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopDominoTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopWireTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run-1-INTERRUPTED.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/gate-repin-green.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/gate-repin-red.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/manual-cat-052-two-plates-no-activation-limit.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/mutants-native.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/red-activation-cap.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/tier1-dotnet-test.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/Probe9R5Tests.cs.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/chrome-iteration-cat-052-lamp/cat-052-lamp.results.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/chrome-iteration-cat-052-lamp/cat-052-lamp.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/chrome-iteration-cat-052-lamp/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/chrome-iteration-cat-052-lamp/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/green-native.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/mutant-1-hold-11.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/mutant-2-hold-13.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/mutant-3-no-hold.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/mutant-4-dwell.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/mutant-5-hold-lamp-only.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/mutant-6-partid-latch.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/probe-bounce-native.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/red-native.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5/tier1-dotnet-test.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/spec-9r-4-pressure-plate-per-instance-load-rows.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/spec-9r-5-pressure-plate-activation-out-level.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/sprint-status.yaml	NoBrowserImpact	_bmad-output/**
+selection: path	docs/planning/elements/CAT-037-latch.md	NoBrowserImpact	docs/**
+selection: path	docs/planning/elements/CAT-052-pressure_plate.md	NoBrowserImpact	docs/**
+selection: path	elements/PressurePlate/PressurePlateElementDeclaration.cs	Element	elements/<package>/**: pressure_plate
+selection: path	engine/gpu/ActivationMemory.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/ActivationNetwork.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/ActivationTimers.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/BrowserWorkshopClient.Activation.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/BrowserWorkshopClient.Timer.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsDeclarations.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkbenchCapacity.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopActivationWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopConnections.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopConstruction.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopEditRejectedException.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopHint.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopPressurePlate.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopTimerWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	parts/scenes/pressure_plate.tscn	Element	parts/scenes/*.tscn: pressure_plate
+selection: path	tools/E2eRunner.Tests/SelectionTests.cs	Full(RunnerItself)	tools/E2eRunner*/**
+selection: path	tools/E2eRunner/SuiteCatalogue.cs	Full(RunnerItself)	tools/E2eRunner*/**
+selection: path	tools/e2e/README.md	NoBrowserImpact	tools/e2e/README.md
+selection: path	tools/e2e/cat-052-lamp.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052-lamp
+selection: path	tools/e2e/cat-052-two-plates.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052-two-plates
+selection: path	tools/e2e/cat-052.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052
+selection: path	tools/e2e/run-reset-snapshot.ts	Full(SharedDriverInfrastructure)	tools/e2e/*.ts (shared module): imported by every suite
+selection: path	tools/e2e/workshop-driver.ts	Full(SharedDriverInfrastructure)	tools/e2e/*.ts (shared module): imported by every suite
+selection: clock-master	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-017	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-023b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-037	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-014	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1c	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-023a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-020	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: capacity-9r	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-062	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-051-own-supply	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052-two-plates	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052-lamp	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-002	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-005	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015a-sidekick	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-030	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-048a	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-048b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-049	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-050	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-051	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-062b	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a1	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a2	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a3	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a4	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b1	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b2	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b3	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b4	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2c	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: palette-placement	full: CuriousContraptions.Simulation/WorkshopGpuDevice.cs (SharedRuntime, workers, client, contracts and schemas)
+clock-master outcome=Pass exit=0 tests=9 pass=9 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=1 unresponsive=1 rejected=0 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=0 debtFaults=1 durationMs=85559 phase=SerialAlone slot=- start=2026-10-20T12:20:03.5176800+00:00 end=2026-10-20T12:21:29.0762810+00:00 observation=Clean
+cat-017 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=88639 phase=SerialAlone slot=- start=2026-10-20T12:21:29.2730140+00:00 end=2026-10-20T12:22:57.9118110+00:00 observation=Clean
+cat-023b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=42760 phase=SerialAlone slot=- start=2026-10-20T12:22:58.0790710+00:00 end=2026-10-20T12:23:40.8387120+00:00 observation=Clean
+cat-037 outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=82937 phase=SerialAlone slot=- start=2026-10-20T12:23:41.0143410+00:00 end=2026-10-20T12:25:03.9509300+00:00 observation=Clean
+cat-014 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=53671 phase=SerialAlone slot=- start=2026-10-20T12:25:04.1142640+00:00 end=2026-10-20T12:25:57.7848110+00:00 observation=Clean
+anim-1a outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=25476 phase=SerialAlone slot=- start=2026-10-20T12:25:57.9575480+00:00 end=2026-10-20T12:26:23.4331260+00:00 observation=Clean
+anim-1b outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=31744 phase=SerialAlone slot=- start=2026-10-20T12:26:23.5935830+00:00 end=2026-10-20T12:26:55.3373080+00:00 observation=Clean
+anim-1c outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=33076 phase=SerialAlone slot=- start=2026-10-20T12:26:55.5008790+00:00 end=2026-10-20T12:27:28.5766170+00:00 observation=Clean
+cat-023a outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=28267 phase=SerialAlone slot=- start=2026-10-20T12:27:28.7412470+00:00 end=2026-10-20T12:27:57.0079500+00:00 observation=Clean
+cat-020 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=128657 phase=SerialAlone slot=- start=2026-10-20T12:27:57.1730300+00:00 end=2026-10-20T12:30:05.8301110+00:00 observation=Clean
+capacity-9r outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=113793 phase=SerialAlone slot=- start=2026-10-20T12:30:05.9926990+00:00 end=2026-10-20T12:31:59.7855890+00:00 observation=Clean
+cat-062 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=126552 phase=SerialAlone slot=- start=2026-10-20T12:31:59.9587740+00:00 end=2026-10-20T12:34:06.5106550+00:00 observation=Clean
+cat-051-own-supply outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=91718 phase=SerialAlone slot=- start=2026-10-20T12:34:06.6686280+00:00 end=2026-10-20T12:35:38.3867740+00:00 observation=Clean
+cat-052-two-plates outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=95922 phase=SerialAlone slot=- start=2026-10-20T12:35:38.5443230+00:00 end=2026-10-20T12:37:14.4664460+00:00 observation=Clean
+cat-052-lamp outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=171688 phase=SerialAlone slot=- start=2026-10-20T12:37:14.6212100+00:00 end=2026-10-20T12:40:06.3092820+00:00 observation=Clean
+cat-002 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=66849 phase=Parallel slot=0 start=2026-10-20T12:40:06.4111410+00:00 end=2026-10-20T12:41:13.2600620+00:00 observation=Clean
+cat-005 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=138185 phase=Parallel slot=1 start=2026-10-20T12:40:06.4664630+00:00 end=2026-10-20T12:42:24.6517870+00:00 observation=Clean
+cat-015a outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=24786 phase=Parallel slot=0 start=2026-10-20T12:41:13.3519670+00:00 end=2026-10-20T12:41:38.1376140+00:00 observation=Clean
+cat-015a-sidekick outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=41652 phase=Parallel slot=0 start=2026-10-20T12:41:38.2342750+00:00 end=2026-10-20T12:42:19.8858610+00:00 observation=Clean
+cat-015b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=101956 phase=Parallel slot=0 start=2026-10-20T12:42:19.9810550+00:00 end=2026-10-20T12:44:01.9367380+00:00 observation=Clean
+cat-030 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=102749 phase=Parallel slot=1 start=2026-10-20T12:42:24.7482540+00:00 end=2026-10-20T12:44:07.4968410+00:00 observation=Clean
+cat-048a outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=49775 phase=Parallel slot=0 start=2026-10-20T12:44:02.0505730+00:00 end=2026-10-20T12:44:51.8255110+00:00 observation=Clean
+cat-048b outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=47887 phase=Parallel slot=1 start=2026-10-20T12:44:07.5940490+00:00 end=2026-10-20T12:44:55.4814940+00:00 observation=Clean
+cat-049 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=49792 phase=Parallel slot=0 start=2026-10-20T12:44:51.9222710+00:00 end=2026-10-20T12:45:41.7142430+00:00 observation=Clean
+cat-050 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=52412 phase=Parallel slot=1 start=2026-10-20T12:44:55.5788300+00:00 end=2026-10-20T12:45:47.9904170+00:00 observation=Clean
+cat-051 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=57391 phase=Parallel slot=0 start=2026-10-20T12:45:41.8127580+00:00 end=2026-10-20T12:46:39.2038190+00:00 observation=Clean
+cat-052 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=106968 phase=Parallel slot=1 start=2026-10-20T12:45:48.0898110+00:00 end=2026-10-20T12:47:35.0576580+00:00 observation=Clean
+cat-062b outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=137451 phase=Parallel slot=0 start=2026-10-20T12:46:39.3003430+00:00 end=2026-10-20T12:48:56.7518160+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18310 phase=Parallel slot=1 start=2026-10-20T12:47:35.1570500+00:00 end=2026-10-20T12:47:53.4667300+00:00 observation=Clean
+engine-core-2a2 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=28248 phase=Parallel slot=1 start=2026-10-20T12:47:53.5633660+00:00 end=2026-10-20T12:48:21.8113320+00:00 observation=Clean
+engine-core-2a3 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=41951 phase=Parallel slot=1 start=2026-10-20T12:48:21.9081410+00:00 end=2026-10-20T12:49:03.8589230+00:00 observation=Clean
+engine-core-2a4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=19413 phase=Parallel slot=0 start=2026-10-20T12:48:56.8518380+00:00 end=2026-10-20T12:49:16.2647210+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8677 phase=Parallel slot=1 start=2026-10-20T12:49:03.9707840+00:00 end=2026-10-20T12:49:12.6473220+00:00 observation=Clean
+engine-core-2b2 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8681 phase=Parallel slot=1 start=2026-10-20T12:49:12.7586480+00:00 end=2026-10-20T12:49:21.4401440+00:00 observation=Clean
+engine-core-2b3 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=38015 phase=Parallel slot=0 start=2026-10-20T12:49:16.3638030+00:00 end=2026-10-20T12:49:54.3789350+00:00 observation=Clean
+engine-core-2b4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=16401 phase=Parallel slot=1 start=2026-10-20T12:49:21.5388680+00:00 end=2026-10-20T12:49:37.9402880+00:00 observation=Clean
+engine-core-2c outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=17884 phase=Parallel slot=1 start=2026-10-20T12:49:38.0418920+00:00 end=2026-10-20T12:49:55.9258900+00:00 observation=Clean
+palette-placement outcome=Pass exit=0 tests=25 pass=25 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=56650 phase=Parallel slot=0 start=2026-10-20T12:49:54.4770510+00:00 end=2026-10-20T12:50:51.1274080+00:00 observation=Clean
+run totals: files=38 pass=38 nonzeroExit=0 tests=187 testsPassed=187 fail=0 notok=0 closeFindings=1 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=0 debtFaults=1
