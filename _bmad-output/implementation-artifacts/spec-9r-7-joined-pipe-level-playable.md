@@ -112,7 +112,44 @@ context:
 
 ## Implementation Notes
 
+Amelia-13, 21 Oct 2026, on 63ba232c (Story 9R.6 rebased on 9R.5b).
+
+- **Pipe type.** The pipe is a typed `WorkshopPipe` with an f32 `PipeLength` (1–8 m, default 3.6; `engine/gpu/WorkshopPipe.cs`), never a
+  `WorkshopGenericInstance` (the generic instance now rejects `PartId.Pipe`). Its 24 boxes come from `WorkshopCanonicalColliders.Pipe(length)`
+  at compile time: 16 shell boxes of half length `length/2` and 8 rim boxes at ±`length/2`. Record equality is on the length, so equal
+  pipes compare equal (Undo, fixture checks, "bytes unchanged").
+- **One collider path.** Before this story a placed pipe compiled the scene-extracted boxes (`def.Colliders`, whose shell boxes declare the
+  opposite rotation sign about X) and a loaded pipe the canonical ones. Every pipe now compiles the generated boxes. The default length has
+  the scene tube's box centres and extents (`TheDefaultLengthHasTheSceneTubeShape`).
+- **Mouths.** 9R.6 moved the pipe mouths to the collar faces, so the length math is ±(length/2 + 0.09) (CAT-048 §2), not ±length/2. The
+  scene still declares the default pipe's locators at ±1.89; `TubeMouthSnap.LocalMouth` moves a pipe's mouths to its length. A pipe mover
+  must declare its length (`TubeMouthMover.Length`), and no other part may.
+- **Commit paths.** `CaptureInstance` takes the presented length (`MachinePart.PipeLength`), else the committed pipe's own length, else
+  (a new pipe) the default. Rotate, move, snap-on-release, placement and every `CommitSelected` keep a resized length.
+- **Codecs.** The command wire writes the f32 length at slot bytes 112–115 (116+ must be zero); FlatBuffers uses the existing `length`
+  field, whose schema default is 0, so a record without it fails validation. Wire version 21 → 22 (slot layout), save version 13 → 14
+  (`workshop-driver.ts`, `workshop-wire.ts`, `run-reset-snapshot.ts`, `cat-062b.test.ts`). Older saves are refused as `UnsupportedSave`.
+- **Art.** `MachinePart.ApplyPipeLength` stretches `Visual_Shell` along its long axis, moves the collars to ±length/2 and sets the pick radius
+  √((length/2 + 0.09)² + 0.78²) (2.05 → 2.045 at the default). `pipe.tscn` is unchanged; `pipe.tres` declares no parameter.
+- **Lesson.** `JoinedPipe` (ids ball, bend, receiver = first, +1, +2; `_nextId` advances by 3). Validate requires exactly one locked
+  `pipe_bend_90` equal to the authored fixture (pose, lock and colliders), else `FixedPart`; an extra bend, a locked pipe or any other part is
+  `InventoryUnsupported`; a second pipe is `InventoryExceeded`.
+- **Driver.** `joined_pipe` level, picker anchor (600, 413, measured), dock anchors. The clear_pipe dock anchors were stale and unused (y 285);
+  a selected pipe now shows Resize, so both pipe lessons use the measured row (y 244: move 60, rotate 104, resize 148, delete 192).
+  New helpers: `resizeSelectedPart` (the real square handle with Shift), `resizeSelectedPartCancelled` (Escape before release) and
+  `setPrecision` (the menu slider). `expectNoCommand` already existed (9R.6).
+
 ## Spec Change Log
+
+- 21 Oct 2026 (Amelia-13, stale references refreshed; frozen intent unchanged):
+  - The snap capture is 0.45 m and 20° (9R.6), not 0.72 m and 40°. "≥0.72 m off" stays the negative's distance, beyond the capture.
+  - The bend's mouth is at local (−1.787, 0.703); the content's −45° orientation is column-major (its first column is local +X's image).
+  - Geometry check: with collar-face mouths, the snapped 2 m pipe's centre is the content solution (−0.5373, 6.031442) within 2e-4 m, and
+    its upper mouth is at x −1.308, on the drop line. The Design Notes' (−1.18, 6.67) used ±length/2 mouths.
+  - Unsnapped pose: a refused snap keeps the 0.1 grid. The negative uses (−1.3, 6), whose lower mouth is 0.76 m left of the bend's upper
+    mouth. Poses about 0.72 m up, down or up the axis from the joint still deliver the ball (`evidence-9r-7/native-pose-probe.txt`), so
+    the lesson tolerates a loose joint in those directions; the left pose demonstrably does not (the ball lands on the outer shell).
+  - The positive row runs at the lesson's default Balanced precision; the negative rows run at Precise.
 
 ## Review Triage Log
 

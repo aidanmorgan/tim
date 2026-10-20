@@ -770,6 +770,9 @@ public static class WorkshopWireFlatBuffers
                     CuriousContraptions.Wire.InstanceRecord.AddBounce(builder, (float)domino.Material.Bounce.Value);
                     CuriousContraptions.Wire.InstanceRecord.AddFriction(builder, (float)domino.Material.Friction.Value);
                     break;
+                case WorkshopPipe pipe:
+                    CuriousContraptions.Wire.InstanceRecord.AddLength(builder, pipe.Length.Metres);
+                    break;
                 case WorkshopLamp:
                 case WorkshopLatch:
                 case IWorkshopDeclaredColliders:
@@ -938,7 +941,9 @@ public static class WorkshopWireFlatBuffers
                         new((Half)inst.Mass), new((Half)inst.Bounce), new((Half)inst.Friction)), locked),
                 "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
                 "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
-                "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => new WorkshopGenericInstance(partId, id, cell, local, rotation,
+                // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
+                "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
+                "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => new WorkshopGenericInstance(partId, id, cell, local, rotation,
                     WorkshopCanonicalColliders.For(partId), locked),
                 "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation,
                     WorkshopCanonicalColliders.BallDetectorColliders, locked),

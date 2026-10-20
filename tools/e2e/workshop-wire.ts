@@ -2217,7 +2217,7 @@ export function decodeSavedConstruction(data: Buffer | Uint8Array): SavedConstru
     if (saved.magic() !== 0x53574343) {
         throw new Error();
     }
-    if (saved.version() !== 13) {
+    if (saved.version() !== 14) {
         throw new Error();
     }
     return saved;

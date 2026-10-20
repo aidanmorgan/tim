@@ -239,7 +239,7 @@ export function snapshotFrom(response: Uint8Array, savedBytes: Uint8Array, bench
     if (read.bodies !== bench.bodies)
         throw new Error(`run-reset snapshot: the committed read has ${read.bodies} bodies, the bench has ${bench.bodies}`);
     try { decodeSavedConstruction(savedBytes); }
-    catch (error) { throw new Error('run-reset snapshot: the save slot is not a version 13 CCWS construction', { cause: error }); }
+    catch (error) { throw new Error('run-reset snapshot: the save slot is not a version 14 CCWS construction', { cause: error }); }
     const bb = new flatbuffers.ByteBuffer(savedBytes);
     const flattener = new Flattener(bb);
     flattener.table('saved', 'SavedConstruction', rootPosition(bb));

@@ -5,7 +5,7 @@ using CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopSaveVersion : uint { CanonicalConstruction = 13 }
+public enum WorkshopSaveVersion : uint { CanonicalConstruction = 14 }
 public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Construction, GpuBodyId NextBodyId);
 
 /// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission.</summary>

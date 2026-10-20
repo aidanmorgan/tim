@@ -147,7 +147,7 @@ async function construct(d: WorkshopDriver, route: Route) {
     const savedFb=decodeSavedConstruction(bytes);
     const boardIndex=ready?1:2;
     assert.equal(savedFb.magic(),0x53574343);
-    assert.equal(savedFb.version(),13);
+    assert.equal(savedFb.version(),14);
     assert.equal(savedFb.construction()!.puzzle()!.id(),ready?Lesson.ReadyToRebound:Lesson.SpringForward);
     const board=savedFb.construction()!.instances(boardIndex)!;
     const expectedCompression=route===Route.Passive||route===Route.Zero?0:.2;

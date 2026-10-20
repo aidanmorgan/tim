@@ -147,8 +147,9 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
 
-        var decodedPipe = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
+        var decodedPipe = Assert.IsType<WorkshopPipe>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.Pipe, decodedPipe.PartId);
+        Assert.Equal(PipeLength.Default, decodedPipe.Length);
         Assert.Equal(24, decodedPipe.DeclaredColliders.Count);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
@@ -184,7 +185,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth()
     {
-        var colliders = WorkshopCanonicalColliders.PipeColliders;
+        var colliders = WorkshopCanonicalColliders.Pipe(PipeLength.Default);
         Assert.Equal(24, colliders.Count);
 
         // 16 circumference colliders: inner face distance from X axis is >= 0.65 m

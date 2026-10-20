@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 21 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 22 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null, WorkshopElectricalControl? Electrical = null);
@@ -422,6 +422,8 @@ public static class WorkshopWire
                     BinaryPrimitives.WriteInt32LittleEndian(slot[112..], counter.TargetCount); break;
                 case WorkshopClock clock:
                     BinaryPrimitives.WriteSingleLittleEndian(slot[112..], clock.IntervalSeconds); break;
+                case WorkshopPipe pipe:
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], pipe.Length.Metres); break;
                 case IWorkshopDeclaredColliders: break;
                 default: throw new ArgumentException("Unsupported instance declaration.");
             }
@@ -488,7 +490,9 @@ public static class WorkshopWire
                     new(new(Read(slot[112..]), Read(slot[114..]), Read(slot[116..])), new(Read(slot[118..])), new(Read(slot[120..])), new(Read(slot[122..]))), locked == 1),
                 "lamp" when Zero(slot[112..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
                 "latch" when Zero(slot[112..]) => new WorkshopLatch(body.Id, body.Cell, body.Local, rotation, locked == 1),
-                ("pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate") when Zero(slot[112..]) => new WorkshopGenericInstance(partId, body.Id, body.Cell, body.Local, rotation,
+                "pipe" when Zero(slot[116..]) => new WorkshopPipe(body.Id, body.Cell, body.Local, rotation,
+                    new(BinaryPrimitives.ReadSingleLittleEndian(slot[112..])), locked == 1),
+                ("pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate") when Zero(slot[112..]) => new WorkshopGenericInstance(partId, body.Id, body.Cell, body.Local, rotation,
                     WorkshopCanonicalColliders.For(partId), locked == 1),
                 "ball_detector" when Zero(slot[112..]) => new WorkshopBallDetector(body.Id, body.Cell, body.Local, rotation,
                     WorkshopCanonicalColliders.BallDetectorColliders, locked == 1),

@@ -299,9 +299,17 @@ public static class WorkshopInput
     public static WorkshopGenericInstance Generic(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider> colliders) =>
         Generic(PartId.Unsupported, id, x, y, z, qx, qy, qz, qw, colliders);
-    public static WorkshopGenericInstance Pipe(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
-        Generic(PartId.Pipe, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.Pipe));
+    /// <summary>A straight pipe of the CAT-048 default length (3.6 m), the length a newly placed pipe starts from.</summary>
+    public static WorkshopPipe Pipe(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw) => Pipe(id, x, y, z, qx, qy, qz, qw, PipeLength.Default);
+    public static WorkshopPipe Pipe(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, PipeLength length)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopPipe(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), length);
+        result.Validate(); return result;
+    }
     public static WorkshopGenericInstance PipeBend45(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
         Generic(PartId.PipeBend45, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.PipeBend45));

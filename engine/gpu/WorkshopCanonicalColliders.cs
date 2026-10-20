@@ -12,15 +12,11 @@ public readonly record struct ExtractedCollider(
 
 public static class WorkshopCanonicalColliders
 {
-    private static IReadOnlyList<ExtractedCollider>? _pipeColliders;
-    public static IReadOnlyList<ExtractedCollider> PipeColliders => _pipeColliders ??= CreatePipeColliders();
-
     private static IReadOnlyList<ExtractedCollider>? _ballDetectorColliders;
     public static IReadOnlyList<ExtractedCollider> BallDetectorColliders => _ballDetectorColliders ??= CreateBallDetectorColliders();
 
     public static IReadOnlyList<ExtractedCollider> For(PartId partId) => partId.Value switch
     {
-        "pipe" => PipeColliders,
         "ball_detector" => BallDetectorColliders,
         "pipe_bend_45" => PipeBend45Colliders,
         "pipe_bend_90" => PipeBend90Colliders,
@@ -90,12 +86,15 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _funnelColliders;
     public static IReadOnlyList<ExtractedCollider> FunnelColliders => _funnelColliders ??= CreateFunnelColliders();
 
-    private static ReadOnlyCollection<ExtractedCollider> CreatePipeColliders()
+    /// <summary>The straight pipe's 24 boxes for its declared length (Story 9R.7): 16 shell boxes spanning ±length/2 around the 0.65 m
+    /// bore and 8 collar rim boxes at ±length/2. Generated per length at compile time; the count never changes.</summary>
+    public static IReadOnlyList<ExtractedCollider> Pipe(PipeLength length)
     {
+        length.Validate();
         var list = new List<ExtractedCollider>(24);
 
         const float rMid = 0.675f;
-        var circumferenceHalfExtents = new MetreVector((Half)1.8, (Half)0.025, (Half)0.14);
+        var circumferenceHalfExtents = new MetreVector((Half)length.HalfLength, (Half)0.025, (Half)0.14);
 
         for (var i = 0; i < 16; i++)
         {
@@ -120,7 +119,7 @@ public static class WorkshopCanonicalColliders
         var rimTbHalfExtents = new MetreVector((Half)0.05, (Half)0.15, (Half)0.8);
         var rimLrHalfExtents = new MetreVector((Half)0.05, (Half)0.65, (Half)0.15);
 
-        foreach (var x in new[] { -1.8f, 1.8f })
+        foreach (var x in new[] { -length.HalfLength, length.HalfLength })
         {
             var topPose = new RigidLocalPose(new MetreVector((Half)x, (Half)0.8, (Half)0), CanonicalRotation.Identity);
             topPose.Validate();

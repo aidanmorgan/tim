@@ -37,16 +37,21 @@ public partial class MachinePart : Node3D, IResizablePart
     public WallDimensions? WallDimensions { get; private set; }
     public RampDimensions? RampDimensions { get; private set; }
     public Vector3 Dimensions { get; private set; } = Vector3.One;
+    /// <summary>The straight pipe's declared length (Story 9R.7); null for every other part.</summary>
+    public PipeLength? PipeLength { get; private set; }
     public ResizeAxes ResizableAxes => Definition?.PartId.Value switch
     {
         "wall" => ResizeAxes.All,
         "ramp" => ResizeAxes.X | ResizeAxes.Z,
+        "pipe" => ResizeAxes.X,
         _ => ResizeAxes.None
     };
     public void SetDimensions(Vector3 dimensions)
     {
         if (Definition?.PartId == PartId.Wall)
             ApplyWallDimensions(Gpu.WallDimensions.FromInput(dimensions.X, dimensions.Y, dimensions.Z));
+        else if (Definition?.PartId == PartId.Pipe)
+            ApplyPipeLength(Gpu.PipeLength.FromInput(dimensions.X));
         else if (Definition?.PartId == PartId.Ramp)
         {
             if (!dimensions.IsFinite()) throw new ArgumentException("Nonfinite ramp dimensions.");
@@ -60,6 +65,22 @@ public partial class MachinePart : Node3D, IResizablePart
         Dimensions = new((float)dimensions.Width.Value, (float)dimensions.Height.Value, (float)dimensions.Thickness.Value);
         if (Visual is not null) Visual.Scale = Dimensions;
         PickRadius = Dimensions.Length() * .5f;
+    }
+    /// <summary>CAT-048 §2 art: the clear shell stretches along X with the length; the collars keep their width and move to ±length/2.</summary>
+    public void ApplyPipeLength(PipeLength length)
+    {
+        if (Definition?.PartId != PartId.Pipe) throw new InvalidOperationException("Only a pipe declares a length.");
+        length.Validate();
+        PipeLength = length;
+        Dimensions = new(length.Metres, 2 * Gpu.PipeLength.CollarRadius, 2 * Gpu.PipeLength.CollarRadius);
+        // The shell mesh's long axis is its local Y, turned onto the part's X.
+        if (FindChild("Visual_Shell", recursive: true, owned: false) is Node3D shell)
+            shell.Scale = new(1, length.Metres / Gpu.PipeLength.Default.Metres, 1);
+        if (FindChild("Visual_Collar_Start", recursive: true, owned: false) is Node3D start)
+            start.Position = new(-length.HalfLength, start.Position.Y, start.Position.Z);
+        if (FindChild("Visual_Collar_End", recursive: true, owned: false) is Node3D end)
+            end.Position = new(length.HalfLength, end.Position.Y, end.Position.Z);
+        PickRadius = length.PickRadius;
     }
     public void ApplyRampDimensions(RampDimensions dimensions)
     {
@@ -426,9 +447,7 @@ public partial class MachinePart : Node3D, IResizablePart
             }
         }
         else if (Definition?.PartId == PartId.Pipe)
-        {
-            PickRadius = 2.05f;
-        }
+            ApplyPipeLength(Gpu.PipeLength.Default);
         else if (Definition?.PartId == PartId.PipeBend45 || Definition?.PartId == PartId.PipeBend90)
         {
             PickRadius = 2.2f;

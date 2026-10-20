@@ -95,7 +95,8 @@ public partial class MachineWorld
         return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
     }
 
-    public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null, WallDimensions? wallDimensions = null)
+    public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null, WallDimensions? wallDimensions = null,
+        PipeLength? pipeLength = null)
     {
         var q = rotation.Normalized();
         return id.Value switch
@@ -124,7 +125,11 @@ public partial class MachineWorld
             "domino" => WorkshopInput.Domino(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Registry.Definitions.TryGetValue(id, out var detectorDef) && detectorDef.Colliders.Count > 0 ? detectorDef.Colliders : WorkshopCanonicalColliders.For(id)),
-            "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+            // The part's presented length; else the committed pipe keeps its own; a newly placed pipe starts at the declared default.
+            "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                pipeLength ?? (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
+                    PipeLength.Default)),
+            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Registry.Definitions.TryGetValue(id, out var def) && def.Colliders.Count > 0 ? def.Colliders : WorkshopCanonicalColliders.For(id)),
             // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
             // placement value (Story 9.4b: no factory or decoder default substitutes for either).
@@ -333,6 +338,7 @@ public partial class MachineWorld
             if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
             if (instance is WorkshopRamp ramp) part.ApplyRampDimensions(ramp.Dimensions);
             if (instance is WorkshopWall wall) part.ApplyWallDimensions(wall.Dimensions);
+            if (instance is WorkshopPipe pipe) part.ApplyPipeLength(pipe.Length);
             if (instance is WorkshopDelay delay) part.ApplyDuration(delay.Duration);
             if (instance is WorkshopBattery battery)
             {

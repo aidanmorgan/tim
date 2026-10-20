@@ -49,6 +49,7 @@ public sealed class TubeMouthSnapTests
         Vector3 position, Quaternion rotation, bool locked = false)
     {
         var q = rotation.Normalized();
+        if (part == PartId.Pipe) return WorkshopInput.Pipe(new(id), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W) with { Locked = locked };
         return WorkshopInput.Generic(part, new(id), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
             definitions[part].Colliders) with { Locked = locked };
     }
@@ -59,7 +60,8 @@ public sealed class TubeMouthSnapTests
 
     private static TubeMouthSnapResult? Find(IReadOnlyDictionary<PartId, PartDefinition> definitions, IReadOnlyList<IWorkshopInstance> placed,
         PartId part, ulong id, Vector3 position, Quaternion rotation, bool locked = false) =>
-        TubeMouthSnap.Find(definitions, placed, new TubeMouthMover(part, new(id), locked), position, rotation);
+        TubeMouthSnap.Find(definitions, placed, new TubeMouthMover(part, new(id), locked, part == PartId.Pipe ? PipeLength.Default : null),
+            position, rotation);
 
     /// <summary>The snapped pose after the canonical capture: both mouths coincide within 1e-4 m and face opposite.</summary>
     private static IWorkshopInstance AssertJoined(IReadOnlyDictionary<PartId, PartDefinition> definitions, IReadOnlyList<IWorkshopInstance> placed,
