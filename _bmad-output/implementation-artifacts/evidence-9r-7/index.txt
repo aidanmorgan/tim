@@ -33,7 +33,13 @@ Chrome suite notes (tools/e2e/cat-050-joined.test.ts, SerialAlone):
     in the no-command window is the spent row, not a missed control.
   Test 6, Escape cancel: the same handle drag without Escape then commits 5 m, so the cancelled gesture did grab the handle.
 
-Runner: recorded in runner-*.txt after the full run on the final candidate (Tier 3: the change removes the wire and save versions).
+Runner (Tier 3): full-run-da91cffa/ — `dotnet run --project tools/E2eRunner -- run --diff 63ba232c`, selection Mode: Full,
+  run 20261020T182947Z-96552, HEAD da91cffa, clean status (digest e3b0c442…), bundle 844cf93e… unchanged start to end, N=2 workers,
+  44 min. Verdict Pass: 45/45 files (contended SerialAlone files rerun clean by the runner), 234/234 tests. cat-050-joined 6/6
+  (SerialAlone, Clean), tube-snapping 13/13, cat-048a 4/4, cat-048b 5/5, cat-049 5/5, cat-050 5/5, cat-030 7/7, cat-005 7/7,
+  cat-062b passes. Copied: summary.txt/json and the pipe, tube, cadence-command and save-version-touching suites' TAP files.
+  An earlier attempt (commit 8fe7b883) was aborted unrun at the owner's no-versioning decision; its tree no longer exists as a
+  candidate.
 Coordinator rule (21 Oct 2026, Full only for solver, clock, worker, wire or compiler changes): this story changes the wire and save
   schema, so the full run stands.
 
