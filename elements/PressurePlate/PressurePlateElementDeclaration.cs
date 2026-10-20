@@ -21,7 +21,8 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElect
     [
         new("power_in", SimulationDomain.Electrical, PortDirection.Input, new Vector3(-0.6f, 0, 0), -Vector3.UnitX),
         new("power_out", SimulationDomain.Electrical, PortDirection.Output, new Vector3(0.6f, 0, 0), Vector3.UnitX),
-        new("signal_out", SimulationDomain.Signal, PortDirection.Output, new Vector3(0, 0, 0.6f), Vector3.UnitZ)
+        // Story 9R.5 D3: the level ActivationOut on the +Z edge, level with the supply sockets (scene Loc_Port_activation_out).
+        new("signal_out", SimulationDomain.Signal, PortDirection.Output, new Vector3(0, -0.08f, 1.18f), Vector3.UnitZ)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders =>

@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.Tests.PressurePlateTests.APlateActivationOutLightsOnlyASignalLamp [2 ms]
+Failed!  - Failed:     1, Passed:    64, Skipped:     0, Total:    65, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

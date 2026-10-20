@@ -9,7 +9,7 @@ internal enum SuiteId
     Anim1a = 1, Anim1b, Anim1c, Cat002, Cat005, Cat014, Cat015a, Cat015aSidekick, Cat015b, Cat017, Cat020, Cat023a, Cat023b,
     Cat030, Cat037, Cat048a, Cat048b, Cat049, Cat050, Cat051, Cat052, Cat062, Cat062b, ClockMaster, EngineCore2a1, EngineCore2a2,
     EngineCore2a3, EngineCore2a4, EngineCore2b1, EngineCore2b2, EngineCore2b3, EngineCore2b4, EngineCore2c, PalettePlacement,
-    Capacity9r, Cat051OwnSupply, Cat052TwoPlates,
+    Capacity9r, Cat051OwnSupply, Cat052TwoPlates, Cat052Lamp,
 }
 
 /// <summary>Parallel suites share the machine with N-1 other Chromes; SerialAlone suites run with no other runner Chrome or build.</summary>
@@ -77,7 +77,7 @@ internal static class SuiteCatalogue
         SuiteId.EngineCore2b3 => "engine-core-2b3", SuiteId.EngineCore2b4 => "engine-core-2b4",
         SuiteId.EngineCore2c => "engine-core-2c", SuiteId.PalettePlacement => "palette-placement",
         SuiteId.Capacity9r => "capacity-9r", SuiteId.Cat051OwnSupply => "cat-051-own-supply",
-        SuiteId.Cat052TwoPlates => "cat-052-two-plates",
+        SuiteId.Cat052TwoPlates => "cat-052-two-plates", SuiteId.Cat052Lamp => "cat-052-lamp",
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "Undefined suite."),
     };
 
@@ -192,6 +192,13 @@ internal static class SuiteCatalogue
             null, Set(PartId.Battery, PartId.BowlingBall, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
                 PartId.Latch), [], Set(Electrical),
             Set(Gizmo, Wire)),
+        Serial(SuiteId.Cat052Lamp,
+            [Owner("Coordinator decision, 20 Oct 2026 (Story 9R.5): a new suite starts SerialAlone until calibration qualifies " +
+                "it; it samples blade and ball poses and the lamp's cosmetic over wall-clock windows after each Run.", 1)],
+            // No primary: cat-052 stays the Pressure Plate's primary suite; a plate or lamp change still selects this suite as a placer.
+            null, Set(PartId.Basketball, PartId.Battery, PartId.BowlingBall, PartId.Counter, PartId.Delay, PartId.Domino, PartId.Latch,
+                PartId.PoweredGate, PartId.PressurePlate, PartId.SignalLamp), [], Set(Signal, Electrical),
+            Set(Gizmo, Guide, Wire, Present)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),
             Set(Gizmo, Guide, Wire, Present)),

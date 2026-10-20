@@ -13,7 +13,7 @@
 // Story 9R.4 (each plate evaluates its own compiled contact-load row):
 // 6. Sum: two 0.4 kg dominoes standing on the plate sum to 0.8 kg >= 0.5 kg, so the gate opens and the ball passes.
 // 7. Removal: on a plate tilted 30° (six fine-rotate steps) the bowling ball lands, loads the plate (the blade rises), then rolls
-//    off; the contact opens on the next tick, so the blade returns closed. Reset matches the snapshot (plate Empty, gate closed).
+//    off; the contact opens 0.1 s (12 ticks) after its last qualifying tick (Story 9R.5's release hold), so the blade returns closed. Reset matches the snapshot (plate Empty, gate closed).
 // Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
 // (driver.expectResetMatches) against the snapshot taken before the first Run; each Run cycle first proves it advanced.
 import assert from 'node:assert/strict';

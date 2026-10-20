@@ -94,11 +94,11 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var ports = WorkshopPorts.For(PartId.Latch).ToArray();
         Assert.Equal(
-            [new WorkshopPort(WorkshopSocket.SetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input),
-             new WorkshopPort(WorkshopSocket.ResetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input),
-             new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input),
-             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output),
-             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output)], ports);
+            [new WorkshopPort(WorkshopSocket.SetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse),
+             new WorkshopPort(WorkshopSocket.ResetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse),
+             new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null),
+             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level),
+             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null)], ports);
         Assert.Equal(2u, (uint)WorkshopSocket.SetIn);
         Assert.Equal(3u, (uint)WorkshopSocket.ResetIn);
         Assert.Equal(new System.Numerics.Vector3(-0.45f, 0.72f, 0f), WorkshopPorts.LocalPosition(PartId.Latch, WorkshopSocket.SetIn));
@@ -120,16 +120,18 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other);
         var output = Signal(latch.Id, lamp.Id, WorkshopSocket.ActivationIn);
         new WorkshopConnections(output).Validate(instances);
-        EditRefusal.Is(WorkshopEditRejection.LatchDrivesLampOnly, () => new WorkshopConnections(Signal(latch.Id, counter.Id, WorkshopSocket.ActivationIn)).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.LatchDrivesLampOnly, () => new WorkshopConnections(Signal(latch.Id, other.Id, WorkshopSocket.SetIn)).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLatch, () => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLatch, () => new WorkshopConnections(output, Signal(other.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        // Story 9R.5: the latch shares the plate's level-output rule and its exact message.
+        foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (other.Id, WorkshopSocket.SetIn), (other.Id, WorkshopSocket.ResetIn) })
+            Assert.Equal("A level output can only light a Signal lamp.", EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly,
+                () => new WorkshopConnections(Signal(latch.Id, target, input)).Validate(instances)).Message);
+        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLevel, () => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLevel, () => new WorkshopConnections(output, Signal(other.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
 
         // The save codec rejects an invalid stored shape atomically: a latch output aimed at a Counter.
         var valid = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new(output));
         var bytes = WorkshopSaveCodec.Encode(new(valid, new(6)));
         var invalid = valid with { Connections = new(Signal(latch.Id, counter.Id, WorkshopSocket.ActivationIn)) };
-        EditRefusal.Is(WorkshopEditRejection.LatchDrivesLampOnly, () => WorkshopSaveCodec.Encode(new(invalid, new(6))));
+        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly, () => WorkshopSaveCodec.Encode(new(invalid, new(6))));
         Assert.Equal(output, Assert.Single(WorkshopSaveCodec.Decode(bytes).Construction.Connections.ToArray()));
     }
 

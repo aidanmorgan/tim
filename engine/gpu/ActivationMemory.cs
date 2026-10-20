@@ -10,14 +10,16 @@ public enum OscillatorPhase : uint { Stopped = 0, Running = 1 }
 /// <summary>Committed discrete memory of one Counter or System Clock node (Story 9R.1 D3). It lives in the committed checkpoint:
 /// <see cref="ActivationNetwork.Consume"/> reads the committed row and returns the candidate's, so a superseded candidate never
 /// changes it, and admission (Reset) publishes it cleared. A Counter keeps its count and the time of the last counted input
-/// (its emission is its Latched activation); a Clock keeps its pulse count, its phase and its next due tick.</summary>
+/// (its emission is its Latched activation); a Clock keeps its pulse count, its phase and its next due tick; a contact-load level
+/// (Pressure Plate) keeps the due tick of its release hold (Story 9R.5).</summary>
 public readonly record struct ActivationMemory(ActivationNodeId Node, ActivationNodeKind Kind, uint Count, ActivationTime Last,
     OscillatorPhase Phase, ulong DueTick)
 {
     public static ActivationMemory Clear(ActivationNodeDeclaration node) =>
         new(node.Id, node.Kind, 0, default, OscillatorPhase.Stopped, 0);
 
-    public static bool Holds(ActivationNodeKind kind) => kind is ActivationNodeKind.Counter or ActivationNodeKind.Oscillator;
+    public static bool Holds(ActivationNodeKind kind) =>
+        kind is ActivationNodeKind.Counter or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource;
 
     public void Validate()
     {
@@ -25,6 +27,9 @@ public readonly record struct ActivationMemory(ActivationNodeId Node, Activation
         Last.Validate();
         if (Kind == ActivationNodeKind.Counter && (Phase != OscillatorPhase.Stopped || DueTick != 0))
             throw new ArgumentException("A counter's memory has no clock phase.");
+        // Story 9R.5: a contact-load level's memory is only its release hold, the boundary its held level is due to clear (0: released).
+        if (Kind == ActivationNodeKind.ContactLoadSource && (Count != 0 || Last != default || Phase != OscillatorPhase.Stopped))
+            throw new ArgumentException("A contact-load level's memory holds only its release tick.");
         if (Kind == ActivationNodeKind.Oscillator && (Last != default || (Phase == OscillatorPhase.Running) != (DueTick != 0)))
             throw new ArgumentException("A clock's memory is Running exactly while it has a due tick.");
     }

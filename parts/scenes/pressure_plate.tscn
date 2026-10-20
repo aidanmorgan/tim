@@ -80,6 +80,10 @@ mesh = SubResource("Mesh_Socket")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.18, -0.08, 0)
 mesh = SubResource("Mesh_Socket")
 
+[node name="Visual_Socket_ActivationOut" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 1.18)
+mesh = SubResource("Mesh_Socket")
+
 [node name="Visual_Ring" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.084, 0)
 mesh = SubResource("Mesh_Ring")
@@ -99,3 +103,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.18, -0.08, 0)
 
 [node name="Loc_Port_supply" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.18, -0.08, 0)
+
+[node name="Loc_Port_activation_out" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 1.18)

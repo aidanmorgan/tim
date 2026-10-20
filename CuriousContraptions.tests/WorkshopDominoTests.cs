@@ -117,7 +117,7 @@ public sealed class WorkshopDominoTests
             Assert.Throws<ArgumentException>(() => invalid.Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopInput.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentException>(() => WorkshopInput.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
-        Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output)], WorkshopPorts.For(PartId.Domino).ToArray());
+        Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse)], WorkshopPorts.For(PartId.Domino).ToArray());
         Assert.True(WorkshopPorts.Has(PartId.Domino, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
         Assert.False(WorkshopPorts.Has(PartId.Domino, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), WorkshopPorts.LocalPosition(PartId.Domino, WorkshopSocket.ActivationOut));

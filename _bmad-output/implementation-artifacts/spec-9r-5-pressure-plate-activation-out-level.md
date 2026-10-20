@@ -2,7 +2,7 @@
 title: 'Story 9R.5: Pressure Plate ActivationOut Lights a Signal Lamp (Reopened Story 9.1)'
 type: 'feature'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'review'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -147,6 +147,18 @@ Line numbers are from the working tree on 18 Oct 2026, before Story 9.4b's commi
   - every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ## Implementation Notes
+
+Design gaps decided by the implementer at the start (Amelia-10, 20 Oct 2026, owner pace rules). They refine the Tasks; the frozen intent is unchanged.
+
+- **D5. One port-kind enum for both directions.** `enum WorkshopSignalKind : uint { Pulse = 1, Level = 2 }` is declared on every activation port: an output declares what it emits, an input the strongest signal it admits. Only the Signal lamp's `ActivationIn` admits `Level`; every other activation input admits `Pulse`. Electrical ports carry `null` (no activation kind), so no 0-valued enum member exists. The Tasks' name `WorkshopOutputKind` is replaced because inputs declare it too. Rationale: "an input declared to accept a level" needs a typed declaration, and a separate input enum would duplicate the same closed set.
+- **D6. The hold is the plate node's memory row.** `ContactLoadSource` joins `ActivationMemory.Holds`. Its row holds only `DueTick`: the boundary on which the held level clears (last qualifying tick + `ReleaseHoldTicks`), or 0 when released. `Count`, `Last` and the phase stay zero. The row is committed checkpoint state: admission publishes it cleared, the B1 and FlatBuffers wire already carry it, and Chrome reads it as `read.activation_memory`. `Consume` rejects a committed row that disagrees with the committed level. The memory table is sized from the compiled nodes, so nothing new depends on a fixed slot count (coordinator, 20 Oct: the 8-slot cap is being removed by 9R.4).
+- **D7. `ReleaseHoldTicks` on `ActivationNodeDeclaration`.** It is required non-zero on `ContactLoadSource` and 0 on every other kind. The compiler sets it from `WorkshopPressurePlate.ReleaseHoldTicks(cadence)` (one tenth of the tick rate: 6, 12 or 24).
+- **D8. Refusal names and the second message.** `LatchDrivesLampOnly` → `LevelDrivesLampOnly` and `LampFollowsOneLatch` → `LampFollowsOneLevel`, with no alias. The second message becomes "A lamp that follows a level output takes no other signal.", because a plate-fed lamp is not following a latch.
+- **D9. Chrome observability.**
+  - The status line is drawn on the Godot canvas. The suite reads the refusal from the `CCGPU_UI_REJECTION` console record that `WorkshopUiFailure.Report` writes for the same exception whose message becomes the status text.
+  - Per-tick lamp and plate state comes from Pause, then Step: `WorkshopDriver.stepSimulation` now returns each Step acknowledgement's committed read.
+- **D10. The package port id stays `signal_out`.** Only its position is corrected to D3. `LocalPosition` is not serialised in `parts/elements.bundle.json`, so the bundle and the runner's port graph are unchanged.
+- **D11. Chrome loads.** A Basketball for the rest, bounce and Save/Load rows (AC1). The roll-off uses the bowling ball on the 30° plate, the cat-052 test 7 bench already proven to roll off. The bounce drop is about 2 m, chosen by the native probe `evidence-9r-5/probe-bounce-native.txt`: 2 m gives a 7-tick rebound gap, 5 m exactly 12 (one dark tick) and 8 m 15.
 
 ## Spec Change Log
 

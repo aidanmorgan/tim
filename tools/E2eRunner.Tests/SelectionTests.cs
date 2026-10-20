@@ -19,7 +19,8 @@ public sealed class SelectionTests
         var selection = Select(["elements/Counter/CounterElementDeclaration.cs"]);
         Assert.Equal(SelectionMode.Selected, selection.Mode);
         Assert.Equal(["cat-002", "cat-005", "cat-015a", "cat-017", "cat-020", "cat-023b", "cat-037", "cat-051", "cat-052",
-            "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "palette-placement"], Names(selection));
+            "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "palette-placement"], Names(selection));
+        Assert.Contains("cat-052-lamp\tintegration: places counter", selection.Suites.Select(suite => suite.ReasonLine));
         var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
         Assert.Contains("cat-020\town: elements/Counter/CounterElementDeclaration.cs changes counter; integration: places counter", lines);
         Assert.Contains("cat-052\tconnected: counter.signal_in Signal pressure_plate.signal_out", lines);
@@ -102,7 +103,7 @@ public sealed class SelectionTests
     {
         var selection = Select(["tools/workshop-console.mjs"]);
         Assert.Equal(["anim-1a", "capacity-9r", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
-            "cat-048b", "cat-049", "cat-050", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
+            "cat-048b", "cat-049", "cat-050", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
             "engine-core-2b4", "engine-core-2c"], Names(selection));
     }
 

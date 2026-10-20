@@ -7,8 +7,9 @@ namespace CuriousContraptions.Gpu;
 
 public readonly record struct ActivationNodeId(ulong Value);
 /// <summary>StickyFirstInput is the Signal lamp's first-input-wins hold (never reset within a run); StateLatch is the bistable
-/// Set/Reset memory (CAT-037); LevelIndicator is a Signal lamp driven by a State Latch ActivationOut, mirroring its On/Off level.
-/// ContactLoadSource is a contact-load row's committed level (Story 9R.4 D3): Latched exactly while its committed phase is Loaded.
+/// Set/Reset memory (CAT-037); LevelIndicator is a Signal lamp driven by a level ActivationOut (latch or plate), mirroring it.
+/// ContactLoadSource is a contact-load row's committed level (Story 9R.4 D3): Latched from its first Loaded tick until its
+/// committed release hold (Story 9R.5, ReleaseHoldTicks after the last Loaded tick) expires.
 /// The kinds are distinct and share no name.</summary>
 public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10 }
 public enum ActivationPhase : uint { Clear, Latched }
@@ -19,7 +20,7 @@ public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
 public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
     ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default, GpuColliderId Collider = default,
-    GpuContactLoadSensorId ContactLoad = default);
+    GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0);
 /// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
 public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, WorkshopSocket Input);
 
@@ -126,6 +127,7 @@ public sealed class ActivationNetwork
                 (node.Kind == ActivationNodeKind.OrientationSource ? node.Sensor.Value == 0 || !sensors.Add(node.Sensor) : node.Sensor.Value != 0) ||
                 (node.Kind == ActivationNodeKind.PassageSource ? node.Passage.Value == 0 || !passages.Add(node.Passage) : node.Passage.Value != 0) ||
                 (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ContactLoad.Value == 0 || !loads.Add(node.ContactLoad) : node.ContactLoad.Value != 0) ||
+                (node.Kind == ActivationNodeKind.ContactLoadSource ? node.ReleaseHoldTicks == 0 : node.ReleaseHoldTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0) ||
                 (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 || node.TargetCount > 9 : node.TargetCount != 0) ||
                 (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerSource.Value != 0 || node.Collider.Value != 0)))
@@ -141,10 +143,9 @@ public sealed class ActivationNetwork
         var links = new HashSet<ActivationEdge>();
         foreach (var edge in _edges)
             if (edge.Source == edge.Target || !links.Add(edge) || Slot(edge.Source) < 0 || Slot(edge.Target) < 0 ||
-                // A contact-load level has no activation port (CAT-052: its ActivationOut arrives with Story 9R.5).
-                _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource ||
-                // A State Latch output is a level: it drives level indicators only, and a level indicator listens to a latch only.
-                (_nodes[Slot(edge.Source)].Kind == ActivationNodeKind.StateLatch) != (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.LevelIndicator) ||
+                _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator ||
+                // A level source drives level indicators only, and a level indicator listens to a level source only.
+                IsLevelSource(_nodes[Slot(edge.Source)].Kind) != (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.LevelIndicator) ||
                 _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource or ActivationNodeKind.PassageSource or ActivationNodeKind.Oscillator or ActivationNodeKind.ContactLoadSource ||
                 (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.StateLatch
                     ? edge.Input is not (WorkshopSocket.SetIn or WorkshopSocket.ResetIn)
@@ -152,7 +153,7 @@ public sealed class ActivationNetwork
                 throw new ArgumentException("Unsupported activation edge.");
         foreach (var node in _nodes)
             if (node.Kind == ActivationNodeKind.LevelIndicator && _edges.Count(edge => edge.Target == node.Id) != 1)
-                throw new ArgumentException("A level indicator follows exactly one State Latch.");
+                throw new ArgumentException("A level indicator follows exactly one level source.");
         Array.Sort(_edges, (a,b) => a.Source != b.Source ? a.Source.Value.CompareTo(b.Source.Value) :
             a.Target != b.Target ? a.Target.Value.CompareTo(b.Target.Value) : a.Input.CompareTo(b.Input));
     }
@@ -316,7 +317,7 @@ public sealed class ActivationNetwork
             }
             pending[count++] = occurrence;
         }
-        CommitContactLoads(values, contactLoads, end);
+        CommitContactLoads(values, rows, contactLoads, boundary, end);
         for (var i = 0; i < _timers.Length; i++)
         {
             timers[i] = timers[i].Complete(boundary, _substeps, out var elapsed);
@@ -464,21 +465,27 @@ public sealed class ActivationNetwork
                     CuriousContraptions.Abstractions.SimulationEventKind.LatchSet, _nodes[i].Owner.Value, 0,
                     P0: next == SimulationLatchPhase.On ? 1f : 0f, P1: 0f));
         }
-        // A latch ActivationOut is a level: each level indicator mirrors its latch's settled value on the same boundary.
+        // A level ActivationOut (latch memory, held plate load): each level indicator mirrors its source's settled value on the same boundary.
         foreach (var edge in _edges)
         {
             var source = Slot(edge.Source);
-            if (_nodes[source].Kind != ActivationNodeKind.StateLatch) continue;
-            var target = Slot(edge.Target);
-            values[target] = values[source].Phase == ActivationPhase.Latched
+            if (!IsLevelSource(_nodes[source].Kind)) continue;
+            var target = Slot(edge.Target);            values[target] = values[source].Phase == ActivationPhase.Latched
                 ? ActivationLatch.From(_nodes[target], values[source].Occurrence) : ActivationLatch.Clear(_nodes[target]);
         }
         return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]));
     }
 
-    /// <summary>Story 9R.4 D3: every contact-load level follows its own row's committed phase on this boundary. Loaded keeps (or
-    /// starts, at this boundary) a Latched level; any other phase clears it. Every row must be read each tick, exactly once.</summary>
-    private void CommitContactLoads(Span<ActivationLatch> values, ReadOnlySpan<ContactLoadSensorRead> contactLoads, ActivationTime end)
+    /// <summary>The level sources: a State Latch's memory and a contact-load row's held level. Each drives level indicators only.</summary>
+    public static bool IsLevelSource(ActivationNodeKind kind) => kind is ActivationNodeKind.StateLatch or ActivationNodeKind.ContactLoadSource;
+
+    /// <summary>Story 9R.4 D3 with the Story 9R.5 release hold: every contact-load level follows its own row's committed phase on this
+    /// boundary. A Loaded tick keeps (or starts, at this boundary, with no dwell) a Latched level and commits its release due at
+    /// boundary + ReleaseHoldTicks in the node's memory row. Any other phase keeps the level until that due boundary, then clears the
+    /// level and the hold. With n ticks since the last Loaded tick the level is high while n &lt; ReleaseHoldTicks. Every row must be
+    /// read each tick, exactly once.</summary>
+    private void CommitContactLoads(Span<ActivationLatch> values, Span<ActivationMemory> rows, ReadOnlySpan<ContactLoadSensorRead> contactLoads,
+        SimulationTick boundary, ActivationTime end)
     {
         if (contactLoads.Length > PhysicsSceneDeclaration.ContactLoadSensorCapacity) throw new ArgumentException("Contact-load capacity exceeded.");
         for (var i = 0; i < _nodes.Length; i++)
@@ -497,7 +504,21 @@ public sealed class ActivationNetwork
                 throw new ArgumentException("Unowned contact-load read.");
             for (var j = 0; j < i; j++) if (contactLoads[j].Sensor == item.Sensor)
                 throw new ArgumentException("Duplicate contact-load read.");
-            if (item.Phase != ContactLoadPhase.Loaded) { values[slot] = ActivationLatch.Clear(_nodes[slot]); continue; }
+            var memory = _memorySlots[slot]; var hold = _nodes[slot].ReleaseHoldTicks;
+            // The committed hold agrees with the committed level: due exactly while Latched, and never beyond one full hold.
+            if ((values[slot].Phase == ActivationPhase.Latched) != (rows[memory].DueTick != 0) ||
+                (rows[memory].DueTick != 0 && (rows[memory].DueTick < boundary.Value || rows[memory].DueTick > boundary.Value - 1 + hold)))
+                throw new ArgumentException("Contact-load release hold differs from its committed level.");
+            if (item.Phase != ContactLoadPhase.Loaded)
+            {
+                if (values[slot].Phase == ActivationPhase.Latched && boundary.Value >= rows[memory].DueTick)
+                {
+                    values[slot] = ActivationLatch.Clear(_nodes[slot]);
+                    rows[memory] = ActivationMemory.Clear(_nodes[slot]);
+                }
+                continue;
+            }
+            rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };
             if (values[slot].Phase == ActivationPhase.Latched) continue;
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.ContactLoad, _nodes[slot].Id, end,
                 new(new(item.Sensor.Value), item.Frame, item.Face, end, new((Half)0)));
@@ -726,9 +747,11 @@ public static class WorkshopActivationCompiler
         {
             if (instance is WorkshopSwitch trigger)
                 nodes.Add(new(new(trigger.Id.Value), trigger.Id, ActivationNodeKind.ContactSource, WorkshopPhysicsCompiler.ContactTrigger(trigger.Id)));
+            // A lamp fed by a declared level output follows that level; otherwise it holds its first pulse.
             else if (instance is WorkshopLamp lamp)
                 nodes.Add(new(new(lamp.Id.Value), lamp.Id, construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
-                    link.Target == lamp.Id && construction.Instances.Any(source => source.Id == link.Source && source is WorkshopLatch))
+                    link.Target == lamp.Id && construction.Instances.Any(source => source.Id == link.Source &&
+                        WorkshopPorts.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
                     ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput, default));
             else if (instance is WorkshopDelay delay)
                 nodes.Add(new(new(delay.Id.Value), delay.Id, ActivationNodeKind.Timer, default, delay.Duration.Ticks(construction.Settings.Simulation)));
@@ -745,10 +768,12 @@ public static class WorkshopActivationCompiler
                 nodes.Add(new(new(counter.Id.Value), counter.Id, ActivationNodeKind.Counter, default, 0, default, default, (uint)counter.TargetCount));
             else if (instance is WorkshopLatch latch)
                 nodes.Add(new(new(latch.Id.Value), latch.Id, ActivationNodeKind.StateLatch, default));
-            // Every plate commits its own contact-load level (D3), wired or not, so its footprint is one activation node.
+            // Every plate commits its own contact-load level (D3), wired or not, so its footprint is one activation node; its
+            // release hold (Story 9R.5) is declared in ticks of this construction's cadence.
             else if (instance is WorkshopPressurePlate plate)
                 nodes.Add(new(new(plate.Id.Value), plate.Id, ActivationNodeKind.ContactLoadSource, default,
-                    ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(plate.Id)));
+                    ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(plate.Id),
+                    ReleaseHoldTicks: WorkshopPressurePlate.ReleaseHoldTicks(construction.Settings.Simulation)));
             else if (instance is WorkshopClock clock)
             {
                 GpuBodyId powerSource = default;

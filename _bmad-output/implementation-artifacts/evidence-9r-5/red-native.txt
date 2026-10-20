@@ -1,0 +1,245 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `FullyQualifiedName~PressurePlateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~WorkshopDominoTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+
+No test matches the given testcase filter `FullyQualifiedName~PressurePlateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~WorkshopDominoTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+
+No test matches the given testcase filter `FullyQualifiedName~PressurePlateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~WorkshopDominoTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+
+[xUnit.net 00:00:03.84]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [FAIL]
+[xUnit.net 00:00:03.84]     CuriousContraptions.Tests.PressurePlateTests.PressurePlateScene_ExtractsExactTwoCollidersAndThreePortLocators [FAIL]
+[xUnit.net 00:00:03.85]     CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [FAIL]
+[xUnit.net 00:00:03.87]     CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [FAIL]
+[xUnit.net 00:00:04.06]     CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 558
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 391
+   at CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 515
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.PressurePlateScene_ExtractsExactTwoCollidersAndThreePortLocators [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 3
+Actual:   2
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.PressurePlateScene_ExtractsExactTwoCollidersAndThreePortLocators() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 82
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [5 ms]
+  Error Message:
+   held at tick 4
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 588
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 558
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 391
+   at CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 809
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [2 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 759
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:04.12]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 13, lit: False) [FAIL]
+[xUnit.net 00:00:04.12]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 11, lit: True) [FAIL]
+[xUnit.net 00:00:04.12]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 1, lit: True) [FAIL]
+[xUnit.net 00:00:04.12]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 12, lit: False) [FAIL]
+[xUnit.net 00:00:04.13]     CuriousContraptions.Tests.PressurePlateTests.Ports_DeclarePowerInALevelActivationOutAndSupply [FAIL]
+[xUnit.net 00:00:04.13]     CuriousContraptions.Tests.PressurePlateTests.APlateActivationOutLightsOnlyASignalLamp [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 13, lit: False) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 752
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 11, lit: True) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 752
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 1, lit: True) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 752
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 12, lit: False) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 752
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.Ports_DeclarePowerInALevelActivationOutAndSupply [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                                                                                 ↓ (pos 1)
+Expected: [WorkshopPort { Socket = PowerIn, Domain = Electrical, Direction = Input, Signal =  }, WorkshopPort { Socket = ActivationOut, Domain = Activation, Direction = Output, Signal = Level }, WorkshopPort { Socket = Supply, Domain = Electrical, Direction = Output, Signal =  }]
+Actual:   [WorkshopPort { Socket = PowerIn, Domain = Electrical, Direction = Input, Signal =  }, WorkshopPort { Socket = Supply, Domain = Electrical, Direction = Output, Signal =  }]
+                                                                                                 ↑ (pos 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.Ports_DeclarePowerInALevelActivationOutAndSupply() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 111
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.APlateActivationOutLightsOnlyASignalLamp [1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Tests.PressurePlateTests.APlateActivationOutLightsOnlyASignalLamp() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 651
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:04.14]     CuriousContraptions.Tests.PressurePlateTests.EveryActivationPortDeclaresItsSignalKind [FAIL]
+[xUnit.net 00:00:04.14]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHighOnTheFirstQualifyingTick [FAIL]
+[xUnit.net 00:00:04.29]     CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.EveryActivationPortDeclaresItsSignalKind [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [pressure_plate, latch]
+Actual:   [latch]
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.EveryActivationPortDeclaresItsSignalKind() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 676
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHighOnTheFirstQualifyingTick [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHighOnTheFirstQualifyingTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 741
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 782
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:04.35]     CuriousContraptions.Tests.PressurePlateTests.AnUnderweightDominoLeavesThePlateLampDark [FAIL]
+[xUnit.net 00:00:04.35]     CuriousContraptions.Tests.PressurePlateTests.TheNetworkAdmitsAContactLoadLevelOnlyIntoOneLevelIndicator [FAIL]
+[xUnit.net 00:00:04.35]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [FAIL]
+[xUnit.net 00:00:04.35]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [FAIL]
+[xUnit.net 00:00:04.36]     CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.AnUnderweightDominoLeavesThePlateLampDark [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 558
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 391
+   at CuriousContraptions.Tests.PressurePlateTests.AnUnderweightDominoLeavesThePlateLampDark() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 821
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheNetworkAdmitsAContactLoadLevelOnlyIntoOneLevelIndicator [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 153
+   at CuriousContraptions.Tests.PressurePlateTests.TheNetworkAdmitsAContactLoadLevelOnlyIntoOneLevelIndicator() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 703
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 770
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 718
+   at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 770
+   at InvokeStub_PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Connection does not own matching declared ports.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConnections.cs:line 143
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/engine/gpu/ActivationNetwork.cs:line 722
+   at CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/PressurePlateTests.cs:line 685
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:04.64]     CuriousContraptions.Tests.StateLatchTests.Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes [FAIL]
+  Failed CuriousContraptions.Tests.StateLatchTests.Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+              ↓ (pos 3)
+Expected: "A level output can only light a Signal lamp."
+Actual:   "A latch output can only light a Signal lamp."
+              ↑ (pos 3)
+  Stack Trace:
+     at CuriousContraptions.Tests.StateLatchTests.Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ab1c08baf3533074d/CuriousContraptions.tests/StateLatchTests.cs:line 125
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    20, Passed:    50, Skipped:     0, Total:    70, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

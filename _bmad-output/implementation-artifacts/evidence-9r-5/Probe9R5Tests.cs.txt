@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Story 9R.5 probe (not a gate): a Basketball dropped from several heights onto a 0.5 kg plate wired to a lamp. Records
+/// each run's qualifying ticks (level high with its release due exactly 12 ticks later), the gaps between them and the lamp's
+/// dark ticks after the first contact, to choose a Chrome drop height whose bounce gaps all stay at or below 11 ticks.</summary>
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class Probe9R5Tests(ITestOutputHelper output)
+{
+    [Fact]
+    public async Task BounceGaps()
+    {
+        var plateY = (double)WorkshopConstruction.WorkbenchSurface.Value + .22; var face = plateY + .08;
+        foreach (var drop in new[] { .01, .05, .1, .2, .3, .5, .8, 1.2, 2, 3, 5, 8 })
+        {
+            var plate = WorkshopInput.PressurePlate(new(3), -4, plateY, 0, 0, 0, 0, 1, .5f);
+            var lamp = WorkshopInput.Lamp(new(5), 6, 3, 0, 0, 0, 0, 1);
+            var ball = WorkshopInput.Basketball(new(4), -4, face + .34 + drop, 0, 0, 0, 0, 1);
+            var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([plate, ball, lamp]),
+                Connections: new(new WorkshopConnection(plate.Id, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+            var reads = (await WorkshopPhysicsEngineTests.RunPhases(construction, ([], 240)))[0];
+            var qualifying = new List<ulong>(); var dark = new List<ulong>(); ulong? first = null;
+            foreach (var read in reads)
+            {
+                bool lit = false; ulong due = 0;
+                for (var i = 0; i < read.Activations.Count; i++) if (read.Activations[i].Owner == lamp.Id) lit = read.Activations[i].Phase == ActivationPhase.Latched;
+                for (var i = 0; i < read.Memory.Count; i++) if (read.Memory[i].Node == new ActivationNodeId(plate.Id.Value)) due = read.Memory[i].DueTick;
+                if (due == read.Tick.Value + 12) { qualifying.Add(read.Tick.Value); first ??= read.Tick.Value; }
+                if (first is not null && !lit) dark.Add(read.Tick.Value);
+            }
+            var gaps = qualifying.Zip(qualifying.Skip(1), (a, b) => b - a - 1).Where(g => g > 0).ToArray();
+            output.WriteLine($"drop {drop:0.00} m: first contact tick {first}, qualifying {qualifying.Count}, gaps [{string.Join(",", gaps)}], " +
+                $"dark after first contact [{string.Join(",", dark.Take(20))}]{(dark.Count > 20 ? "…" : "")}");
+        }
+    }
+}
