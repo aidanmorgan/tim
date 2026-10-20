@@ -1,0 +1,24 @@
+== mutant mutant-6-mouths-ignore-length (diff below), then: dotnet build tests; dotnet test --filter 'FullyQualifiedName~JoinedPipeTests|FullyQualifiedName~WorkshopPipeLengthTests'
+diff --git a/engine/TubeMouthSnap.cs b/engine/TubeMouthSnap.cs
+index a3ae1bd8..00a8a655 100644
+--- a/engine/TubeMouthSnap.cs
++++ b/engine/TubeMouthSnap.cs
+@@ -113,3 +113,3 @@ public static class TubeMouthSnap
+     private static Vector3 Local(ExtractedPortLocator mouth, PipeLength? length) => length is { } pipe
+-        ? new(MathF.Sign(mouth.Position.X) * pipe.MouthOffset, mouth.Position.Y, mouth.Position.Z)
++        ? new(MathF.Sign(mouth.Position.X) * PipeLength.Default.MouthOffset + 0 * pipe.MouthOffset, mouth.Position.Y, mouth.Position.Z)
+         : mouth.Position;
+== build
+    0 Error(s)
+== test
+  Failed CuriousContraptions.Tests.JoinedPipeTests.PrecisionEvaluatesTheReceiverAndTheLessonRoundTripsTheSaveCodec(precision: 0.45000000000000001, margin: 0.17399999999999999, speed: 2.3250000000000002, dwell: 0.23999999999999999, accel: 6.5999999999999996) 
+  Failed CuriousContraptions.Tests.JoinedPipeTests.PrecisionEvaluatesTheReceiverAndTheLessonRoundTripsTheSaveCodec(precision: 1, margin: 0.02, speed: 1.5, dwell: 0.34999999999999998, accel: 0) 
+  Failed CuriousContraptions.Tests.JoinedPipeTests.PrecisionEvaluatesTheReceiverAndTheLessonRoundTripsTheSaveCodec(precision: 0, margin: 0.29999999999999999, speed: 3, dwell: 0.14999999999999999, accel: 12) 
+  Failed CuriousContraptions.Tests.JoinedPipeTests.AnUnsnappedPipeLeavesTheGoalUnsolved 
+  Failed CuriousContraptions.Tests.JoinedPipeTests.TheSnappedTwoMetrePipeDeliversTheBallAndResetRestoresTheBench 
+  Failed CuriousContraptions.Tests.JoinedPipeTests.TheSnappedTwoMetrePipeIsTheContentSolution 
+  Failed CuriousContraptions.Tests.JoinedPipeTests.ValidateAdmitsTheGrantedPipeOnly 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.MouthsSitAtTheCollarFacesOfTheLength(metres: 2) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.MouthsSitAtTheCollarFacesOfTheLength(metres: 8) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.MouthsSitAtTheCollarFacesOfTheLength(metres: 1) 
+Failed!  - Failed:    10, Passed:    50, Skipped:     0, Total:    60, Duration: 617 ms - CuriousContraptions.tests.dll (net10.0)

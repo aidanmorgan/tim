@@ -1,0 +1,15 @@
+== mutant mutant-4-snap-not-refused (diff below), then: dotnet build tests; dotnet test --filter 'FullyQualifiedName~JoinedPipeTests'
+diff --git a/engine/TubeMouthSnap.cs b/engine/TubeMouthSnap.cs
+index a3ae1bd8..5efa341e 100644
+--- a/engine/TubeMouthSnap.cs
++++ b/engine/TubeMouthSnap.cs
+@@ -22,3 +22,3 @@ public static class TubeMouthSnap
+     /// <summary>DESIGN.md and CAT-048 facts 9–11: a mouth within 0.45 m and 20° of a free compatible mouth snaps.</summary>
+-    public const float CaptureDistance = .45f;
++    public const float CaptureDistance = .8f;
+     public static readonly float CaptureAngle = Mathf.DegToRad(20);
+== build
+    0 Error(s)
+== test
+  Failed CuriousContraptions.Tests.JoinedPipeTests.AnUnsnappedPipeLeavesTheGoalUnsolved 
+Failed!  - Failed:     1, Passed:     9, Skipped:     0, Total:    10, Duration: 837 ms - CuriousContraptions.tests.dll (net10.0)

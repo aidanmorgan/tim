@@ -1,0 +1,24 @@
+== mutant mutant-2b-resize-keeps-3.6 (diff below), then: dotnet build tests; dotnet test --filter 'FullyQualifiedName~JoinedPipeTests|FullyQualifiedName~WorkshopPipeLengthTests'
+diff --git a/engine/gpu/WorkshopPipe.cs b/engine/gpu/WorkshopPipe.cs
+index 5f58abfa..2fe3821f 100644
+--- a/engine/gpu/WorkshopPipe.cs
++++ b/engine/gpu/WorkshopPipe.cs
+@@ -33,3 +33,3 @@ public readonly record struct PipeLength(float Metres)
+         if (!float.IsFinite(metres)) throw new ArgumentException("Nonfinite pipe length.");
+-        var result = new PipeLength(Math.Clamp(metres, Minimum, Maximum));
++        var result = new PipeLength(Default.Metres + 0 * Math.Clamp(metres, Minimum, Maximum));
+         result.Validate(); return result;
+== build
+    0 Error(s)
+== test
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.ArtworkAndPickRadiusFollowTheLength(metres: 1) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.ArtworkAndPickRadiusFollowTheLength(metres: 8) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.ArtworkAndPickRadiusFollowTheLength(metres: 3.5999999) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.ArtworkAndPickRadiusFollowTheLength(metres: 2) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.PointerInputClampsFiniteLengths(input: 12, committed: 8) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.PointerInputClampsFiniteLengths(input: 8, committed: 8) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.PointerInputClampsFiniteLengths(input: 1, committed: 1) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.PointerInputClampsFiniteLengths(input: -3, committed: 1) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.PointerInputClampsFiniteLengths(input: 0.200000003, committed: 1) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.PointerInputClampsFiniteLengths(input: 2, committed: 2) 
+Failed!  - Failed:    10, Passed:    50, Skipped:     0, Total:    60, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
