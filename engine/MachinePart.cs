@@ -9,16 +9,16 @@ namespace CuriousContraptions;
 /// <summary>Render/input node only. Durable construction and motion are canonical worker values.</summary>
 public enum PhysicalVisualSlot : byte { Primary, Secondary }
 
-public partial class MachinePart : Node3D, IResizablePart
+public sealed partial class MachinePart : Node3D, IResizablePart
 {
     public PartDefinition Definition { get; private set; } = null!;
     public PartId PartId => Definition?.PartId ?? default;
     public string Uid => Name;
     public GpuBodyId AuthoredId { get; internal set; }
     public bool Locked { get; internal set; }
-    protected internal Node3D Visual { get; private set; } = null!;
+    internal Node3D Visual { get; private set; } = null!;
     private float _pickRadius;
-    protected internal float PickRadius
+    internal float PickRadius
     {
         get => _pickRadius;
         set
@@ -152,40 +152,20 @@ public partial class MachinePart : Node3D, IResizablePart
         _highlight.Visible = false;
         _built = true;
     }
-    /// <summary>One binding list keyed by the part's declared feedback and an optional timer phase. Phase None follows the blend;
-    /// a phase binding writes its value whenever the sampled phase matches. The shared worker owns every curve.</summary>
-    private readonly List<(WorkshopVisualBinding Binding, AnimationTimerPhase Phase)> _bindings = new();
-    private CosmeticCurveDeclaration _cosmetic;
-    internal bool HasCosmeticBindings => _bindings.Count != 0;
-    internal CosmeticCurveDeclaration Cosmetic => _cosmetic;
-    protected void BindVisual(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, Half neutral, Half active) =>
-        Bind(declaration, target, property, neutral, active, AnimationTimerPhase.None);
-    protected void BindPhaseVisual(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, AnimationTimerPhase phase, Half value)
+    private readonly CosmeticBindingSet _cosmetic = new();
+    internal bool HasCosmeticBindings => !_cosmetic.IsEmpty;
+    internal CosmeticCurveDeclaration Cosmetic => _cosmetic.Declaration;
+    private void BindVisual(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, Half neutral, Half active) =>
+        _cosmetic.Add(declaration, target, property, neutral, active, AnimationTimerPhase.None);
+    private void BindPhaseVisual(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, AnimationTimerPhase phase, Half value)
     {
         if (phase == AnimationTimerPhase.None) throw new ArgumentException("Phase bindings require a committed timer phase.");
-        Bind(declaration, target, property, value, value, phase);
+        _cosmetic.Add(declaration, target, property, value, value, phase);
     }
-    private void Bind(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, Half neutral, Half active, AnimationTimerPhase phase)
-    {
-        declaration.Validate();
-        if (!declaration.IsDeclared) throw new ArgumentException("Visual bindings require a declared cosmetic curve.");
-        if (_bindings.Count != 0 && _cosmetic != declaration) throw new ArgumentException("A part binds exactly one cosmetic declaration.");
-        if (phase != AnimationTimerPhase.None && declaration.Source != AnimationFeedbackSource.Timer)
-            throw new ArgumentException("Phase bindings require timer feedback.");
-        _cosmetic = declaration;
-        _bindings.Add((new(target, property, neutral, active), phase));
-    }
-    internal void ApplyCosmetic(WorkshopCosmeticSample sample)
-    {
-        // Game-grade: an out-of-range or non-finite blend keeps the last committed values.
-        if (!Half.IsFinite(sample.Blend) || sample.Blend < (Half)0 || sample.Blend > (Half)1 || !Enum.IsDefined(sample.Phase)) return;
-        foreach (var (binding, phase) in _bindings)
-            if (phase == AnimationTimerPhase.None) binding.Apply(new(sample.Blend));
-            else if (phase == sample.Phase) binding.Apply(new((Half)1));
-    }
+    internal void ApplyCosmetic(WorkshopCosmeticSample sample) => _cosmetic.Apply(sample);
     private readonly List<(ElectricalIndicator Indicator, WorkshopVisualBinding Binding)> _electricalBindings = new();
     internal bool HasElectricalBindings => _electricalBindings.Count != 0;
-    protected void BindElectricalIndicator(Node3D target, ElectricalIndicator indicator)
+    private void BindElectricalIndicator(Node3D target, ElectricalIndicator indicator)
     {
         if (!Enum.IsDefined(indicator)) throw new ArgumentException("Unknown electrical indicator binding.");
         _electricalBindings.Add((indicator, new(target, WorkshopVisualProperty.AlbedoRed, (Half)(85f / 255f), (Half)(247f / 255f))));
@@ -198,13 +178,13 @@ public partial class MachinePart : Node3D, IResizablePart
     }
     private readonly Dictionary<PhysicalVisualSlot, (GpuBodyId Id, Node3D Target, Transform3D RestPose)> _physicalBodies = new();
     private readonly List<(Node3D Moving, Vector3 MovingAnchor, Node3D Target, Vector3 FixedAnchor, float RestLength)> _physicalSpans = new();
-    protected void BindPhysicalBody(PhysicalVisualSlot slot, Node3D target)
+    private void BindPhysicalBody(PhysicalVisualSlot slot, Node3D target)
     {
         if (slot != PhysicalVisualSlot.Secondary || !IsAncestorOf(target) ||
             !_physicalBodies.TryAdd(slot, (default, target, target.Transform)))
             throw new ArgumentException("Invalid owned physical visual binding.");
     }
-    protected void BindPhysicalSpan(Node3D moving, Vector3 movingAnchor, Node3D target, Vector3 fixedAnchor, float restLength)
+    private void BindPhysicalSpan(Node3D moving, Vector3 movingAnchor, Node3D target, Vector3 fixedAnchor, float restLength)
     {
         if (!IsAncestorOf(moving) || !IsAncestorOf(target) || moving.GetParent() != target.GetParent() ||
             !float.IsFinite(restLength) || restLength <= 0)
@@ -226,7 +206,7 @@ public partial class MachinePart : Node3D, IResizablePart
         foreach (var binding in _physicalBodies.Values) if (id == binding.Id) return binding.Target;
         return null;
     }
-    protected void SetPhysicalRestPose(PhysicalVisualSlot slot, Transform3D pose)
+    private void SetPhysicalRestPose(PhysicalVisualSlot slot, Transform3D pose)
     {
         if (!_physicalBodies.TryGetValue(slot, out var binding))
             throw new ArgumentException("Absent physical visual binding.");
@@ -254,7 +234,6 @@ public partial class MachinePart : Node3D, IResizablePart
             binding.Target.Scale = new(1, length / binding.RestLength, 1);
         }
     }
-    protected virtual void Build() { }
     private void BuildDeclarative()
     {
         if (Definition?.Ball is not null && (Definition.PartId == PartId.Basketball || Definition.PartId == PartId.BowlingBall))
@@ -544,7 +523,6 @@ public partial class MachinePart : Node3D, IResizablePart
                 BindVisual(curve, lamp, WorkshopVisualProperty.AlbedoBlue, (Half)off.B, (Half)on.B);
             }
         }
-        Build();
     }
 
     public void UpdateClockLamp(bool active)
