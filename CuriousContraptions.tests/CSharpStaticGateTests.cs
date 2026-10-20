@@ -800,6 +800,7 @@ public sealed class CSharpStaticGateTests
         ("engine/gpu/ClearPipe.cs", "ClearPipe.Validate"),
         ("engine/gpu/GentleBend.cs", "GentleBend.Validate"),
         ("engine/gpu/QuarterBend.cs", "QuarterBend.Validate"),
+        ("engine/gpu/JoinedPipe.cs", "JoinedPipe.Validate"),
         ("engine/gpu/WorkshopSpringboard.cs", "SpringboardSettings.Validate"),
         ("engine/gpu/WorkshopSaveCodec.cs", "WorkshopSaveCodec.Decode"),
     ];

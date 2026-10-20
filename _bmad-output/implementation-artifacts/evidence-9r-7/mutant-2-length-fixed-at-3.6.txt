@@ -1,0 +1,18 @@
+== mutant mutant-2-length-fixed-at-3.6 (diff below), then: dotnet build tests; dotnet test --filter 'FullyQualifiedName~JoinedPipeTests|FullyQualifiedName~WorkshopPipeLengthTests'
+diff --git a/engine/gpu/WorkshopPipe.cs b/engine/gpu/WorkshopPipe.cs
+index 5f58abfa..b1d20de5 100644
+--- a/engine/gpu/WorkshopPipe.cs
++++ b/engine/gpu/WorkshopPipe.cs
+@@ -44,3 +44,3 @@ public readonly record struct WorkshopPipe(GpuBodyId Id, CellOrigin Cell, LocalP
+     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+-    public IReadOnlyList<ExtractedCollider> DeclaredColliders => WorkshopCanonicalColliders.Pipe(Length);
++    public IReadOnlyList<ExtractedCollider> DeclaredColliders => WorkshopCanonicalColliders.Pipe(PipeLength.Default);
+     public void Validate()
+== build
+    0 Error(s)
+== test
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.CollidersSpanTheLengthWithTheSame24Boxes(metres: 1) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.CollidersSpanTheLengthWithTheSame24Boxes(metres: 2) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.CollidersSpanTheLengthWithTheSame24Boxes(metres: 8) 
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.CollidersSpanTheLengthWithTheSame24Boxes(metres: 4.19999981) 
+Failed!  - Failed:     4, Passed:    56, Skipped:     0, Total:    60, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

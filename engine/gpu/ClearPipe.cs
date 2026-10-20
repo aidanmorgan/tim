@@ -69,11 +69,10 @@ public static class ClearPipe
         var receivers = 0; var pipes = 0;
         foreach (var instance in construction.Instances)
         {
-            if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopGenericInstance { PartId.Value: "pipe" }) ||
-                instance is WorkshopGenericInstance { PartId.Value: "pipe", Locked: true })
+            if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopPipe) || instance is WorkshopPipe { Locked: true })
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported clear pipe inventory.");
             if (instance is WorkshopReceiver) receivers++;
-            if (instance is WorkshopGenericInstance { PartId.Value: "pipe" }) pipes++;
+            if (instance is WorkshopPipe) pipes++;
         }
         if (receivers != 1 || pipes > 1)
             throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Clear pipe inventory exceeded.");

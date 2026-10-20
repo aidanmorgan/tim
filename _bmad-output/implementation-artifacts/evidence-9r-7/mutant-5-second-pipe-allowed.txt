@@ -1,0 +1,15 @@
+== mutant mutant-5-second-pipe-allowed (diff below), then: dotnet build tests; dotnet test --filter 'FullyQualifiedName~JoinedPipeTests'
+diff --git a/engine/gpu/JoinedPipe.cs b/engine/gpu/JoinedPipe.cs
+index 9b1b136b..d21e3331 100644
+--- a/engine/gpu/JoinedPipe.cs
++++ b/engine/gpu/JoinedPipe.cs
+@@ -101,3 +101,3 @@ public static class JoinedPipe
+         }
+-        if (receivers != 1 || pipes > puzzle.InventoryCount)
++        if (receivers != 1 || pipes > puzzle.InventoryCount + 1)
+             throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Joined pipe inventory exceeded.");
+== build
+    0 Error(s)
+== test
+  Failed CuriousContraptions.Tests.JoinedPipeTests.ValidateAdmitsTheGrantedPipeOnly 
+Failed!  - Failed:     1, Passed:     9, Skipped:     0, Total:    10, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

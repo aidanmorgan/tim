@@ -1,0 +1,26 @@
+== mutant MV1-response-header-version-readded on 40eb7433
+diff --git a/engine/gpu/WorkshopWire.cs b/engine/gpu/WorkshopWire.cs
+index dbb4f98a..a59f277d 100644
+--- a/engine/gpu/WorkshopWire.cs
++++ b/engine/gpu/WorkshopWire.cs
+@@ -201,7 +201,7 @@ public static class WorkshopWire
+         BinaryPrimitives.WriteUInt64LittleEndian(data,response.Sequence.Value);
+         data[8]=checked((byte)response.Kind); data[9]=checked((byte)response.Result.Outcome);
+         data[10]=checked((byte)response.Result.Reason); data[11]=checked((byte)response.Phase);
+-        // Bytes 12..15 are alignment padding (cleared above) before the 8-byte epoch.
++        BinaryPrimitives.WriteUInt32LittleEndian(data[12..],21u);
+         BinaryPrimitives.WriteUInt64LittleEndian(data[16..],response.Read.Epoch.Value);
+         BinaryPrimitives.WriteUInt64LittleEndian(data[24..],response.Read.Tick.Value);
+         BinaryPrimitives.WriteUInt64LittleEndian(data[32..],response.Read.Revision.Value);
+@@ -237,7 +237,7 @@ public static class WorkshopWire
+ 
+     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> data)
+     {
+-        if (data.Length < ResponseHeaderBytes || !Zero(data[104..110]) || !Zero(data[12..16]))
++        if (data.Length < ResponseHeaderBytes || !Zero(data[104..110]) || BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != 21u)
+             throw new ArgumentException("Unsupported Workshop response shape.");
+         var layout = ResponseLayout.Read(data);
+         if (data.Length != layout.ByteLength) throw new ArgumentException("Unsupported Workshop response shape.");
+exit 0
+Passed!  - Failed:     0, Passed:  1869, Skipped:     0, Total:  1869, Duration: 27 s - CuriousContraptions.tests.dll (net10.0)
+porcelain after revert:

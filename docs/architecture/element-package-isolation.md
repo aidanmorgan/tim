@@ -126,7 +126,7 @@ $$\text{BALANCE} = (\text{STRENGTH} \oplus \text{DISTANCE}) \lor \neg\text{VOLAT
 
 <a id="current-status"></a>
 
-## 4. Current status (at `c7d5dbb0`, 21 Oct 2026)
+## 4. Current status (at the merge of main `7d6dc38a`, 21 Oct 2026)
 
 The tree does not yet meet the target invariants. Each row is an open finding from the [conformance audit of 18 Oct 2026](../../_bmad-output/planning-artifacts/architecture-conformance-audit-2026-10-18.md) (§8 mapping) or a later owner rule, with its owner under the [21 Oct 2026 delivery order](../../_bmad-output/planning-artifacts/epics.md#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination). A row leaves this table only when its owning story's terminal review passes. "C-*" names a family conversion story.
 
@@ -155,8 +155,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | B1 | `WorkshopCommandRouter` and `BrowserWorkshopClient` fall back to the legacy `WorkshopWire.Decode*` codec | 3, 9 | 9A.2 |
 | B6 | `System.Half` binary16 lanes remain in production code (about 850 tokens) | f32 authority | 9A.44 (9.5a moves the timer lane first) |
 | B7, B8 (remainder) | The `MachinePart.Build()` subclassing hook (`engine/MachinePart.cs:236`) and its only override, the test `ProbePart` (`BasketballResourceTests.cs:166`); the orphan root `scratch_test.cs.uid` | 9 | 9A.1 |
-| Format versions (owner, 21 Oct 2026) | `WorkshopSaveVersion` and `WorkshopWireVersion` | 8 | 9A.2 |
-| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
+| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `PhysicsStateVersion` (and `STATE_VERSION`) and `BodyRecordVersion` | 8 | 9A.1 (Story F.10 merged in) |
 | MNA | No Modified Nodal Analysis exists (`git grep -i 'nodal\|MNA'` finds no code). The electrical model is compiled supply routes over a reachability graph (`engine/gpu/SupplyRoute.cs`, `WorkshopPhysicsCompiler` routes) | — (not a violation) | MNA is a named later capability, delivered by the first element story that needs it |
 
 ### 4.2 Closed since the audit
@@ -171,6 +170,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | B5: `tools/workshop-rigid-body.test.mjs`, its README reference and the `workshop-observation` EarlyLoss case | Gone from the tree |
 | B8 (directory), A17 dead skips: `scratch/` and the "unmigrated legacy" skips in `PartRegistry` | Gone from the tree |
 | Fixed table capacities | Story 9R.5b (findings filed to Story F.8) |
+| Format versions of the Workshop wire, the construction save and the cadence settings (`WorkshopWireVersion`, `WorkshopSaveVersion`, `WorkshopSettingsVersion`) | Story 9R.7 |
 
 ### 4.3 The unsupported 9.2b Pass (G8)
 

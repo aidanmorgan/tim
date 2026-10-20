@@ -1,0 +1,15 @@
+== mutant mutant-7-capture-resets-length (diff below), then: dotnet build tests; dotnet test --filter 'FullyQualifiedName~JoinedPipeTests|FullyQualifiedName~WorkshopPipeLengthTests'
+diff --git a/engine/MachineWorld.Gpu.cs b/engine/MachineWorld.Gpu.cs
+index 5f961993..fb3e8f70 100644
+--- a/engine/MachineWorld.Gpu.cs
++++ b/engine/MachineWorld.Gpu.cs
+@@ -129,3 +129,3 @@ public partial class MachineWorld
+             "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+-                pipeLength ?? (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
++                pipeLength ?? (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? PipeLength.Default :
+                     PipeLength.Default)),
+== build
+    0 Error(s)
+== test
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.CaptureKeepsTheResizedLengthThroughRotateAndMove 
+Failed!  - Failed:     1, Passed:    59, Skipped:     0, Total:    60, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

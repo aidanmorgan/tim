@@ -1,0 +1,60 @@
+// Murdoch-14 probe, run at 40eb7433 in the review-only worktree .claude/worktrees/murdoch14-9r7-mut. It was added to
+// CuriousContraptions.tests.csproj temporarily and then reverted (porcelain empty).
+// Question (coordinator): placed tube parts compile the scene-extracted boxes (MachineWorld.CaptureInstance), loaded ones the
+// canonical boxes (WorkshopWireFlatBuffers / WorkshopWire decode). Do they differ?
+// Command: dotnet test CuriousContraptions.tests --filter "FullyQualifiedName~M14ColliderPathProbe"  ->  Passed 1/1.
+// Result (box-corner mismatch = the largest distance from a scene box corner to the nearest corner of the canonical box):
+//   pipe_bend_45: 40 boxes, 4 bit-identical, max |dTranslation| 0 m, max quaternion angle 0 deg, max |dHalfExtent| 0 m, max box-corner mismatch 2.529E-07 m
+//   pipe_bend_90: 72 boxes, 8 bit-identical, max |dTranslation| 0 m, max quaternion angle 0 deg, max |dHalfExtent| 0 m, max box-corner mismatch 3.385E-07 m
+//   funnel: 72 boxes, 8 bit-identical, max |dTranslation| 1.192E-07 m, max quaternion angle 176.6 deg, max |dHalfExtent| 0 m, max box-corner mismatch 0.4426 m
+//   powered_gate: 19 boxes, 4 bit-identical, max |dTranslation| 5.96E-08 m, max quaternion angle 180 deg, max |dHalfExtent| 0 m, max box-corner mismatch 0.1627 m
+//   ball_detector: 17 boxes, 2 bit-identical, max |dTranslation| 5.96E-08 m, max quaternion angle 180 deg, max |dHalfExtent| 0 m, max box-corner mismatch 0.1627 m
+// Physics impact: none in the browser. Neither command wire carries colliders (WorkshopWire.WriteConstruction:
+// `case IWorkshopDeclaredColliders: break;`; WorkshopWireFlatBuffers.EncodeInstance writes no colliders). Both decoders rebuild
+// every tube part from WorkshopCanonicalColliders.For(partId), so the simulation worker compiles the canonical boxes for placed
+// and loaded parts alike. The difference lives only in the main-thread construction record (Undo, fixture and "bytes unchanged"
+// equality) and in native tests that compile CaptureInstance output directly.
+using System;
+using System.IO;
+using System.Linq;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class M14ColliderPathProbe(NativeSceneFixture godot)
+{
+    [Fact]
+    public void SceneAndCanonicalTubeColliders()
+    {
+        var registry = new PartRegistry();
+        registry.Discover();
+        var lines = new[] { PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.BallDetector }.Select(id =>
+        {
+            var scene = registry.Definitions[id].Colliders;
+            var canonical = WorkshopCanonicalColliders.For(id);
+            if (scene.Count != canonical.Count) return $"{id.Value}: count scene {scene.Count} canonical {canonical.Count}";
+            // ... per-box exact equality, translation, quaternion angle and half-extent deltas (as recorded above) ...
+            var maxCorner = 0f;
+            for (var i = 0; i < scene.Count; i++)
+            {
+                var a = Corners(scene[i]); var b = Corners(canonical[i]);
+                foreach (var p in a) maxCorner = Math.Max(maxCorner, b.Min(q => (p - q).Length()));
+            }
+            return $"{id.Value}: max box-corner mismatch {maxCorner:G4} m";
+        }).ToArray();
+        File.WriteAllLines("<scratchpad>/m14/collider-paths.txt", lines);
+        Assert.Equal(5, lines.Length);
+        Assert.NotNull(godot.Tree);
+    }
+
+    private static System.Numerics.Vector3[] Corners(ExtractedCollider collider)
+    {
+        var r = collider.LocalPose.Rotation;
+        var q = new System.Numerics.Quaternion((float)r.X, (float)r.Y, (float)r.Z, (float)r.W);
+        var t = new System.Numerics.Vector3((float)collider.LocalPose.Translation.X, (float)collider.LocalPose.Translation.Y, (float)collider.LocalPose.Translation.Z);
+        var h = new System.Numerics.Vector3((float)collider.HalfExtents.X, (float)collider.HalfExtents.Y, (float)collider.HalfExtents.Z);
+        return Enumerable.Range(0, 8).Select(k => t + System.Numerics.Vector3.Transform(
+            new System.Numerics.Vector3((k & 1) == 0 ? -h.X : h.X, (k & 2) == 0 ? -h.Y : h.Y, (k & 4) == 0 ? -h.Z : h.Z), q)).ToArray();
+    }
+}

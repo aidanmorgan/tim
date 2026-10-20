@@ -196,7 +196,7 @@ From position 62, only the element lane remains, in its existing order:
 - 15.0–15.15;
 - 16.1–16.4.
 
-The filed follow-ups F.1–F.10 stay last.
+The filed follow-ups F.1–F.11 stay last (F.10 is merged into 9A.1).
 
 **The last deletion story is 9A.45, at position 54 overall: the 35th story after 9.5.**
 
@@ -1605,10 +1605,19 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
-### Story F.10: Retire the Remaining Format Version Fields
-*Status: Backlog. Filed by Story 9A.0 on 21 Oct 2026, under the owner's rule of the same day: "why are you versioning the wire format and the save formats, this isnt required and goes against the rule that says we dont have any backwards compatability". Story 9A.2 deletes the save and wire versions; this story deletes the rest. The coordinator may move it earlier under the delete-as-soon-as-possible rule.*
+### Story F.11: Joined Pipe Follow-ups
+*Status: Backlog. Filed from the 9R.7 review on 21 Oct 2026 as items F10-1 to F10-10. F10-11, the placed-vs-loaded collider split, is owned by 9A.16.*
 
-*Deletes: `WorkshopClockWire.Version`, the `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` (and the worker's `STATE_VERSION`) and `BodyRecordVersion`, with every field that carries them and every check that compares them.*
+**Acceptance Criteria:**
+- Every item in the review's F10-1 to F10-10 list is resolved or justified, including:
+  - a test for the bend in-cell offset check;
+  - a typed part id in `JoinedPipe.Validate`;
+  - a Chrome proof of the save-rejection message.
+
+### Story F.10: Retire the Remaining Format Version Fields
+*Status: Backlog. Merged into Story 9A.1 (coordinator ruling, 21 Oct 2026, matching Story 9R.7's "the remaining format versions belong to 9A.1"); these ACs stay here and apply there. Filed by Story 9A.0 on 21 Oct 2026, under the owner's rule of the same day: "why are you versioning the wire format and the save formats, this isnt required and goes against the rule that says we dont have any backwards compatability". Story 9R.7 already deleted the wire, save and cadence-settings versions.*
+
+*Deletes: `WorkshopClockWire.Version`, the `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `PhysicsStateVersion` (and the worker's `STATE_VERSION`) and `BodyRecordVersion`, with every field that carries them and every check that compares them.*
 
 **Acceptance Criteria:**
 - **Given** the tree, **When** this story lands, **Then** `rg -w` for each deleted symbol returns 0 production hits, and no wire, ring, trace or record layout has a version field.
@@ -1729,7 +1738,11 @@ So that I can join tubes into a sealed route without fiddly alignment.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.7: `joined_pipe` Level Is Playable (Reopened Story 6.10)
-*Status: Backlog*
+*Status: Done (21 Oct 2026). Murdoch-14 gave a scoped Pass in round 2, on `914bbbf5` ([review](../implementation-artifacts/review-9r-7-joined-pipe-level-playable.md)).*
+- *The command/response wire, the save and the cadence settings no longer carry a format version (owner), and they reject foreign bytes by structure.*
+- *The full run passed 234/234.*
+- *Findings are filed to Story F.11.*
+- *The remaining format versions belong to 9A.1.*
 
 *Depends on: Story 9R.6. Closes report #4: `joined_pipe` exists only in `content/puzzles.json:7930`. It has no `WorkshopPuzzleId` member (`engine/gpu/WorkshopPuzzle.cs:5`), no driver level in `tools/e2e/workshop-driver.ts`, and no test.*
 
@@ -2330,7 +2343,7 @@ So that every new element from Story 9.5 on is declaration-only and every conver
 `cat-005-n19` and `cat-051-interrupt` exist from Story 9.4c (position 30), so the C-Gate, 9A.39 and C-Memory ACs that name them can be met.
 
 ### Story 9A.0: Architecture Authority Records the Sole Design
-*Status: Backlog*
+*Status: Done (21 Oct 2026). Murdoch-15 gave a scoped documentation Pass on `9e4d6d86` ([review](../implementation-artifacts/review-9a-0-architecture-authority-docs.md)). The merge items M-1 to M-6 are applied in the merge with main `7d6dc38a`; the other findings are filed to Story F.12.*
 
 *Depends on: Story 9R.5b (the current tree). Position 3. The former dependency on Story 9.4c recorded delivery order only (corrected 21 Oct 2026). Current status names each finding's owner under the 21 Oct 2026 Delivery order, including the merged stories. Audit: G1–G10. Documentation only; no runtime change.*
 
@@ -2388,7 +2401,8 @@ So that nobody builds on an end state that is described as if it already exists.
 - *in `CuriousContraptions.tests/WorkerAbiTests.cs`: the facts that pin those constants (`:35`, and `:52` `WorkerDynamicOffsetFallbacksDeclareValidTableOffsets`);*
 - *the JS-boundary exports in `CuriousContraptions.Simulation/Program.cs:175-264` (`AllocateElectrical`, `PaidContactImpulse`, `PrismaticRowKinds`, `SpringCoefficients`, `PrismaticJacobians`, `ConstraintRows`, `OperationAbi`, `StateBytes`, `AbiOffsets`) and their host stubs in `tools/workshop-pose-ring.test.mjs` and `tools/workshop-observation.test.mjs`;*
 - *the `MachinePart.Build()` subclassing hook (`engine/MachinePart.cs:236`, called at `:128`) and the test `ProbePart` override (`CuriousContraptions.tests/BasketballResourceTests.cs:162-165`);*
-- *the dead "unmigrated legacy" skips in `engine/PartRegistry.cs:28-29` and `:35-36`.*
+- *the dead "unmigrated legacy" skips in `engine/PartRegistry.cs:28-29` and `:35-36`;*
+- *the remaining format versions, merged in from Story F.10 (coordinator ruling, 21 Oct 2026): `WorkshopClockWire.Version`, the `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `PhysicsStateVersion` (and `STATE_VERSION`) and `BodyRecordVersion`. Story F.10's ACs apply here.*
 
 As a maintainer,  
 I want code that no current path can reach deleted,  
@@ -2410,7 +2424,6 @@ So that agents cannot copy or revive a dead pattern.
 - *the legacy binary codec `engine/gpu/WorkshopWire.cs` (command, response, construction and decode-per-id arms from `:400`);*
 - *the swallowing `catch { WorkshopWire.Decode* }` fallbacks in `engine/gpu/WorkshopCommandRouter.cs:17-25` and `engine/gpu/BrowserWorkshopClient.cs:268-275`;*
 - *in `worker.js:138-175`: the hand-written vtable decode in `extractReadIdentity` and its fixed-offset `responseAbi` fallback;*
-- *the save and wire format versions, `WorkshopSaveVersion` and `WorkshopWireVersion`, with their fields and checks (owner, 21 Oct 2026: no format versioning; Story 9A.0 Current status). The other version enums belong to Story F.10;*
 - *the Counter decode's silent default and float→int coercion, `inst.Threshold == 0 ? DefaultTargetCount : (int)Math.Round(inst.Threshold)` (`engine/gpu/WorkshopWireFlatBuffers.cs:896` at HEAD `8f682f8`; retro-verification #13). The target count becomes an integer field, and a missing or out-of-range value is rejected.*
 
 As a player,  

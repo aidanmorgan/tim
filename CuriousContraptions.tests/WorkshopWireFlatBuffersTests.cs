@@ -221,7 +221,7 @@ public sealed class WorkshopWireFlatBuffersTests
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
-            builder, (uint)WorkshopSettingsVersion.SharedMaster, (uint)settings.Simulation, (uint)settings.Physical,
+            builder, (uint)settings.Simulation, (uint)settings.Physical,
             (uint)settings.Animation, (uint)settings.Presentation, settings.PresentationRate.Numerator, settings.PresentationRate.Denominator));
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
         builder.Finish(CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder).Value);

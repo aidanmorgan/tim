@@ -49,6 +49,7 @@ public partial class Workshop : Node3D
     private const int ClearPipeIndex = 9;
     private const int GentleBendIndex = 10;
     private const int QuarterBendIndex = 11;
+    private const int JoinedPipeIndex = 12;
     private GpuBodyId _nextId = new(1);
     private IReadOnlyDictionary<PartId, PartAllowance> _inventory = new Dictionary<PartId, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
@@ -81,6 +82,7 @@ public partial class Workshop : Node3D
         _picker.AddItem("Through the looking tube");
         _picker.AddItem("A gentle turn");
         _picker.AddItem("Around the corner");
+        _picker.AddItem("Meet in the middle");
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -534,7 +536,7 @@ public partial class Workshop : Node3D
             var (position, rotation, _) = PlacementPose(chosen, at);            var placedId = _nextId;
             // The proposal is the typed rejection path: a part that cannot be captured or composed leaves no undo entry.
             var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
-                _preview?.RampDimensions, _preview?.WallDimensions, PushUndo);
+                _preview?.RampDimensions, _preview?.WallDimensions, _preview?.PipeLength, PushUndo);
             if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
             var accepted = false;
             try { accepted = await SubmitConstruction(placement.Construction); }
@@ -804,7 +806,9 @@ public partial class Workshop : Node3D
 
     private void ShowHint()
     {
-        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.QuarterBend
+        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.JoinedPipe
+            ? "Shorten the tube to fit, turn it downhill, then bring its lower mouth near the bend's upper mouth. A small move aligns the openings; the ball needs a continuous route."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.QuarterBend
             ? "Point one mouth upward and the other toward the left-hand basket. The curve redirects motion, but does not add speed."
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.GentleBend
             ? "Turn the first mouth upward under the ball. The second mouth sends it down and left; gravity carries it through the curve."

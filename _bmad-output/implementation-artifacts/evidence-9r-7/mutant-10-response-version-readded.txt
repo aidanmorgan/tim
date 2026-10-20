@@ -1,0 +1,23 @@
+Murdoch-14 R1 finding: a mutant that re-adds a version word to the RESPONSE wire header survived every test (the guard only checked
+names). Mutant (applied on 120bf876 with Edit, built, run, reverted):
+
+--- a/engine/gpu/WorkshopWire.cs
++++ b/engine/gpu/WorkshopWire.cs
+@@ -204,2 +204,3 @@ public static class WorkshopWire
+         // Bytes 12..15 are alignment padding (cleared above) before the 8-byte epoch.
++        BinaryPrimitives.WriteUInt32LittleEndian(data[12..], 22u); // MUTANT: response wire version re-added
+         BinaryPrimitives.WriteUInt64LittleEndian(data[16..],response.Read.Epoch.Value);
+@@ -239,3 +240,3 @@ public static class WorkshopWire
+     {
+-        if (data.Length < ResponseHeaderBytes || !Zero(data[104..110]) || !Zero(data[12..16]))
++        if (data.Length < ResponseHeaderBytes || !Zero(data[104..110]) || BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != 22u)
+             throw new ArgumentException("Unsupported Workshop response shape.");
+
+dotnet build CuriousContraptions.tests: 0 errors. dotnet test CuriousContraptions.tests (all 1,872):
+  Failed CuriousContraptions.Tests.WorkshopWireTests.TheResponseHeaderHasZeroPaddingAndNoVersionWord
+Failed!  - Failed:     1, Passed:  1871, Skipped:     0, Total:  1872 - CuriousContraptions.tests.dll (net10.0)
+
+The new guards: TheResponseHeaderHasZeroPaddingAndNoVersionWord (the encoded response header's bytes 12..15 are zero and any word
+there, including 21 and 22, is refused), TheVersionlessRecordsDeclareExactlyTheirFields (the exact schema field lists of the command,
+response, settings and save records, and the six-word settings constructor). Command header and settings padding were already guarded
+(TheBinaryHeadersRejectNonZeroPaddingWhereTheVersionWas, mutant 8).

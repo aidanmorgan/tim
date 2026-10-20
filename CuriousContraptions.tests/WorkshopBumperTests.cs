@@ -101,7 +101,6 @@ public sealed class WorkshopBumperTests
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
             CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
             CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
             CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -508,23 +507,11 @@ public sealed class WorkshopBumperTests
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
             CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
             CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
             CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
             builder.Finish(end.Value);
             EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
-
-            var priorBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var priorCr = WorkshopWireFlatBuffers.EncodeConstructionRecord(priorBuilder, save.Construction);
-            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(priorBuilder);
-            CuriousContraptions.Wire.SavedConstruction.AddMagic(priorBuilder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddVersion(priorBuilder, 6);
-            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(priorBuilder, save.NextBodyId.Value);
-            CuriousContraptions.Wire.SavedConstruction.AddConstruction(priorBuilder, priorCr);
-            var priorEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(priorBuilder);
-            priorBuilder.Finish(priorEnd.Value);
-            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(priorBuilder.SizedByteArray()));
         }
     }
 

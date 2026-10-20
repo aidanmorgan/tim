@@ -807,47 +807,42 @@ export class CadenceSettingsRecord {
   return this;
 }
 
-version():number {
+simulation():number {
   return this.bb!.readUint32(this.bb_pos);
 }
 
-simulation():number {
+physical():number {
   return this.bb!.readUint32(this.bb_pos + 4);
 }
 
-physical():number {
+animation():number {
   return this.bb!.readUint32(this.bb_pos + 8);
 }
 
-animation():number {
+presentation():number {
   return this.bb!.readUint32(this.bb_pos + 12);
 }
 
-presentation():number {
+presentationRateNumerator():number {
   return this.bb!.readUint32(this.bb_pos + 16);
 }
 
-presentationRateNumerator():number {
+presentationRateDenominator():number {
   return this.bb!.readUint32(this.bb_pos + 20);
 }
 
-presentationRateDenominator():number {
-  return this.bb!.readUint32(this.bb_pos + 24);
-}
-
 static sizeOf():number {
-  return 28;
+  return 24;
 }
 
-static createCadenceSettingsRecord(builder:flatbuffers.Builder, version: number, simulation: number, physical: number, animation: number, presentation: number, presentation_rate_numerator: number, presentation_rate_denominator: number):flatbuffers.Offset {
-  builder.prep(4, 28);
+static createCadenceSettingsRecord(builder:flatbuffers.Builder, simulation: number, physical: number, animation: number, presentation: number, presentation_rate_numerator: number, presentation_rate_denominator: number):flatbuffers.Offset {
+  builder.prep(4, 24);
   builder.writeInt32(presentation_rate_denominator);
   builder.writeInt32(presentation_rate_numerator);
   builder.writeInt32(presentation);
   builder.writeInt32(animation);
   builder.writeInt32(physical);
   builder.writeInt32(simulation);
-  builder.writeInt32(version);
   return builder.offset();
 }
 
@@ -1612,39 +1607,30 @@ magic():number {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-version():number {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
 nextBodyId():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 construction(obj?:ConstructionRecord):ConstructionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startSavedConstruction(builder:flatbuffers.Builder) {
-  builder.startObject(4);
+  builder.startObject(3);
 }
 
 static addMagic(builder:flatbuffers.Builder, magic:number) {
   builder.addFieldInt32(0, magic, 0);
 }
 
-static addVersion(builder:flatbuffers.Builder, version:number) {
-  builder.addFieldInt32(1, version, 0);
-}
-
 static addNextBodyId(builder:flatbuffers.Builder, nextBodyId:bigint) {
-  builder.addFieldInt64(2, nextBodyId, BigInt('0'));
+  builder.addFieldInt64(1, nextBodyId, BigInt('0'));
 }
 
 static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, constructionOffset, 0);
+  builder.addFieldOffset(2, constructionOffset, 0);
 }
 
 static endSavedConstruction(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -1702,148 +1688,143 @@ phase():SimulationPhase {
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : SimulationPhase.Uninitialized;
 }
 
-version():number {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
 epoch():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 tick():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 revision():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 publication():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 masterGeneration():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 cadence():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 projection():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 session(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
+  const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 sessionLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
+  const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 sessionArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
+  const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 capture(obj?:ClockStamp):ClockStamp|null {
-  const offset = this.bb!.__offset(this.bb_pos, 32);
+  const offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? (obj || new ClockStamp()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 bodies(index: number, obj?:BodyRead):BodyRead|null {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
+  const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? (obj || new BodyRead()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 88, this.bb!) : null;
 }
 
 bodiesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
+  const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 captures(index: number, obj?:CaptureLatchRead):CaptureLatchRead|null {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
+  const offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? (obj || new CaptureLatchRead()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 24, this.bb!) : null;
 }
 
 capturesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
+  const offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 activations(index: number, obj?:ActivationRecord):ActivationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
+  const offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? (obj || new ActivationRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 80, this.bb!) : null;
 }
 
 activationsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
+  const offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 timers(index: number, obj?:TimerRecord):TimerRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? (obj || new TimerRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 88, this.bb!) : null;
 }
 
 timersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 contactWorks(index: number, obj?:ContactWorkStoreRecord):ContactWorkStoreRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? (obj || new ContactWorkStoreRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
 }
 
 contactWorksLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 occurrences(index: number, obj?:ContactWorkOccurrenceRecord):ContactWorkOccurrenceRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? (obj || new ContactWorkOccurrenceRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
 }
 
 occurrencesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 electrical(index: number, obj?:ElectricalSourceRecord):ElectricalSourceRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? (obj || new ElectricalSourceRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
 }
 
 electricalLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 activationMemory(index: number, obj?:ActivationMemoryRecord):ActivationMemoryRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? (obj || new ActivationMemoryRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
 }
 
 activationMemoryLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(23);
+  builder.startObject(22);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1866,40 +1847,36 @@ static addPhase(builder:flatbuffers.Builder, phase:SimulationPhase) {
   builder.addFieldInt8(4, phase, SimulationPhase.Uninitialized);
 }
 
-static addVersion(builder:flatbuffers.Builder, version:number) {
-  builder.addFieldInt32(5, version, 0);
-}
-
 static addEpoch(builder:flatbuffers.Builder, epoch:bigint) {
-  builder.addFieldInt64(6, epoch, BigInt('0'));
+  builder.addFieldInt64(5, epoch, BigInt('0'));
 }
 
 static addTick(builder:flatbuffers.Builder, tick:bigint) {
-  builder.addFieldInt64(7, tick, BigInt('0'));
+  builder.addFieldInt64(6, tick, BigInt('0'));
 }
 
 static addRevision(builder:flatbuffers.Builder, revision:bigint) {
-  builder.addFieldInt64(8, revision, BigInt('0'));
+  builder.addFieldInt64(7, revision, BigInt('0'));
 }
 
 static addPublication(builder:flatbuffers.Builder, publication:bigint) {
-  builder.addFieldInt64(9, publication, BigInt('0'));
+  builder.addFieldInt64(8, publication, BigInt('0'));
 }
 
 static addMasterGeneration(builder:flatbuffers.Builder, masterGeneration:bigint) {
-  builder.addFieldInt64(10, masterGeneration, BigInt('0'));
+  builder.addFieldInt64(9, masterGeneration, BigInt('0'));
 }
 
 static addCadence(builder:flatbuffers.Builder, cadence:bigint) {
-  builder.addFieldInt64(11, cadence, BigInt('0'));
+  builder.addFieldInt64(10, cadence, BigInt('0'));
 }
 
 static addProjection(builder:flatbuffers.Builder, projection:bigint) {
-  builder.addFieldInt64(12, projection, BigInt('0'));
+  builder.addFieldInt64(11, projection, BigInt('0'));
 }
 
 static addSession(builder:flatbuffers.Builder, sessionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, sessionOffset, 0);
+  builder.addFieldOffset(12, sessionOffset, 0);
 }
 
 static createSessionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
@@ -1915,11 +1892,11 @@ static startSessionVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addCapture(builder:flatbuffers.Builder, captureOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(14, captureOffset, 0);
+  builder.addFieldStruct(13, captureOffset, 0);
 }
 
 static addBodies(builder:flatbuffers.Builder, bodiesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(15, bodiesOffset, 0);
+  builder.addFieldOffset(14, bodiesOffset, 0);
 }
 
 static startBodiesVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1927,7 +1904,7 @@ static startBodiesVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addCaptures(builder:flatbuffers.Builder, capturesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(16, capturesOffset, 0);
+  builder.addFieldOffset(15, capturesOffset, 0);
 }
 
 static startCapturesVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1935,7 +1912,7 @@ static startCapturesVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addActivations(builder:flatbuffers.Builder, activationsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(17, activationsOffset, 0);
+  builder.addFieldOffset(16, activationsOffset, 0);
 }
 
 static startActivationsVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1943,7 +1920,7 @@ static startActivationsVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addTimers(builder:flatbuffers.Builder, timersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(18, timersOffset, 0);
+  builder.addFieldOffset(17, timersOffset, 0);
 }
 
 static startTimersVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1951,7 +1928,7 @@ static startTimersVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addContactWorks(builder:flatbuffers.Builder, contactWorksOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(19, contactWorksOffset, 0);
+  builder.addFieldOffset(18, contactWorksOffset, 0);
 }
 
 static startContactWorksVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1959,7 +1936,7 @@ static startContactWorksVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addOccurrences(builder:flatbuffers.Builder, occurrencesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(20, occurrencesOffset, 0);
+  builder.addFieldOffset(19, occurrencesOffset, 0);
 }
 
 static startOccurrencesVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1967,7 +1944,7 @@ static startOccurrencesVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(21, electricalOffset, 0);
+  builder.addFieldOffset(20, electricalOffset, 0);
 }
 
 static startElectricalVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1975,7 +1952,7 @@ static startElectricalVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addActivationMemory(builder:flatbuffers.Builder, activationMemoryOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(22, activationMemoryOffset, 0);
+  builder.addFieldOffset(21, activationMemoryOffset, 0);
 }
 
 static startActivationMemoryVector(builder:flatbuffers.Builder, numElems:number) {
@@ -2030,88 +2007,83 @@ kind():CommandKind {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : CommandKind.Initialize;
 }
 
-version():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
 epoch():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 revision():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 revisionKind():number {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 session(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 sessionLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 sessionArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 cadence():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 projection():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 electrical(obj?:ElectricalControl):ElectricalControl|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? (obj || new ElectricalControl()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 settings(obj?:CadenceSettingsRecord):CadenceSettingsRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? (obj || new CadenceSettingsRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 target(obj?:CommandIdentityRecord):CommandIdentityRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? (obj || new CommandIdentityRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 construction(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 constructionLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 constructionArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 constructionRecord(obj?:ConstructionRecord):ConstructionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
+  const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopCommand(builder:flatbuffers.Builder) {
-  builder.startObject(14);
+  builder.startObject(13);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -2122,24 +2094,20 @@ static addKind(builder:flatbuffers.Builder, kind:CommandKind) {
   builder.addFieldInt32(1, kind, CommandKind.Initialize);
 }
 
-static addVersion(builder:flatbuffers.Builder, version:number) {
-  builder.addFieldInt32(2, version, 0);
-}
-
 static addEpoch(builder:flatbuffers.Builder, epoch:bigint) {
-  builder.addFieldInt64(3, epoch, BigInt('0'));
+  builder.addFieldInt64(2, epoch, BigInt('0'));
 }
 
 static addRevision(builder:flatbuffers.Builder, revision:bigint) {
-  builder.addFieldInt64(4, revision, BigInt('0'));
+  builder.addFieldInt64(3, revision, BigInt('0'));
 }
 
 static addRevisionKind(builder:flatbuffers.Builder, revisionKind:number) {
-  builder.addFieldInt32(5, revisionKind, 0);
+  builder.addFieldInt32(4, revisionKind, 0);
 }
 
 static addSession(builder:flatbuffers.Builder, sessionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, sessionOffset, 0);
+  builder.addFieldOffset(5, sessionOffset, 0);
 }
 
 static createSessionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
@@ -2155,27 +2123,27 @@ static startSessionVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addCadence(builder:flatbuffers.Builder, cadence:bigint) {
-  builder.addFieldInt64(7, cadence, BigInt('0'));
+  builder.addFieldInt64(6, cadence, BigInt('0'));
 }
 
 static addProjection(builder:flatbuffers.Builder, projection:bigint) {
-  builder.addFieldInt64(8, projection, BigInt('0'));
+  builder.addFieldInt64(7, projection, BigInt('0'));
 }
 
 static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(9, electricalOffset, 0);
+  builder.addFieldStruct(8, electricalOffset, 0);
 }
 
 static addSettings(builder:flatbuffers.Builder, settingsOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(10, settingsOffset, 0);
+  builder.addFieldStruct(9, settingsOffset, 0);
 }
 
 static addTarget(builder:flatbuffers.Builder, targetOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(11, targetOffset, 0);
+  builder.addFieldStruct(10, targetOffset, 0);
 }
 
 static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(12, constructionOffset, 0);
+  builder.addFieldOffset(11, constructionOffset, 0);
 }
 
 static createConstructionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
@@ -2191,7 +2159,7 @@ static startConstructionVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addConstructionRecord(builder:flatbuffers.Builder, constructionRecordOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, constructionRecordOffset, 0);
+  builder.addFieldOffset(12, constructionRecordOffset, 0);
 }
 
 static endWorkshopCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -2214,18 +2182,15 @@ export function decodeWorkshopCommand(data: Buffer | Uint8Array): WorkshopComman
 export function decodeSavedConstruction(data: Buffer | Uint8Array): SavedConstruction {
     const bb = new flatbuffers.ByteBuffer(data instanceof Uint8Array ? data : new Uint8Array(data));
     const saved = SavedConstruction.getRootAsSavedConstruction(bb);
-    if (saved.magic() !== 0x53574343) {
-        throw new Error();
-    }
-    if (saved.version() !== 13) {
-        throw new Error();
+    if (saved.magic() !== 0x53574343 || !saved.construction()) {
+        throw new Error('not a CCWS construction save');
     }
     return saved;
 }
 
 export function dumpAuthored(saved: SavedConstruction): object {
     const cr = saved.construction();
-    if (!cr) return { magic: saved.magic(), version: saved.version(), nextBodyId: String(saved.nextBodyId()), construction: null };
+    if (!cr) return { magic: saved.magic(), nextBodyId: String(saved.nextBodyId()), construction: null };
     const instances = [];
     for (let i = 0; i < cr.instancesLength(); i++) {
         const inst = cr.instances(i)!;
@@ -2297,7 +2262,6 @@ export function dumpAuthored(saved: SavedConstruction): object {
 
     return {
         magic: saved.magic(),
-        version: saved.version(),
         nextBodyId: String(saved.nextBodyId()),
         puzzle,
         instances,
@@ -2316,7 +2280,6 @@ export interface MockResponseParams {
     outcome?: CommandOutcome;
     reason?: number;
     phase?: SimulationPhase;
-    version?: number;
     epoch?: bigint;
     tick?: bigint;
     revision?: bigint;
@@ -2455,7 +2418,6 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     if (params.outcome !== undefined) WorkshopResponse.addOutcome(builder, params.outcome);
     if (params.reason !== undefined) WorkshopResponse.addReason(builder, params.reason);
     if (params.phase !== undefined) WorkshopResponse.addPhase(builder, params.phase);
-    if (params.version !== undefined) WorkshopResponse.addVersion(builder, params.version);
     if (params.epoch !== undefined) WorkshopResponse.addEpoch(builder, params.epoch);
     if (params.tick !== undefined) WorkshopResponse.addTick(builder, params.tick);
     if (params.revision !== undefined) WorkshopResponse.addRevision(builder, params.revision);
@@ -2478,7 +2440,6 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
 export interface MockCommandParams {
     sequence?: bigint;
     kind?: CommandKind;
-    version?: number;
     epoch?: bigint;
     revision?: bigint;
     revisionKind?: number;
@@ -2487,7 +2448,6 @@ export interface MockCommandParams {
     projection?: bigint;
     electrical?: { owner?: bigint; enabled?: number };
     settings?: {
-        version?: number;
         simulation?: number;
         physical?: number;
         animation?: number;
@@ -2518,7 +2478,6 @@ export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
     WorkshopCommand.startWorkshopCommand(builder);
     if (params.sequence !== undefined) WorkshopCommand.addSequence(builder, params.sequence);
     if (params.kind !== undefined) WorkshopCommand.addKind(builder, params.kind);
-    if (params.version !== undefined) WorkshopCommand.addVersion(builder, params.version);
     if (params.epoch !== undefined) WorkshopCommand.addEpoch(builder, params.epoch);
     if (params.revision !== undefined) WorkshopCommand.addRevision(builder, params.revision);
     if (params.revisionKind !== undefined) WorkshopCommand.addRevisionKind(builder, params.revisionKind);
@@ -2537,7 +2496,6 @@ export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
         const s = params.settings;
         const setOffset = CadenceSettingsRecord.createCadenceSettingsRecord(
             builder,
-            s.version ?? 0,
             s.simulation ?? 0,
             s.physical ?? 0,
             s.animation ?? 0,

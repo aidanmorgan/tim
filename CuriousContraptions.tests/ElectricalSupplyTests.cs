@@ -22,9 +22,16 @@ public sealed class ElectricalSupplyTests
         construction.Validate();
         var saved = new WorkshopSavedConstruction(construction, new(3));
         var original = WorkshopSaveCodec.Encode(saved);
-        var malformed = original.ToArray();
-        malformed[24 + WorkshopWire.ConstructionHeaderBytes + 124] = 2;
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(malformed));
+        // An undefined enable value in the stored battery record is refused (built through the schema, not a byte offset).
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction with
+            { Instances = new(battery with { Settings = settings with { Enabled = (ElectricalEnable)2 } }, bumper) }, validate: false);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, record);
+        builder.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value);
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         var restored = WorkshopSaveCodec.Decode(original);
         Assert.Equal(settings, Assert.IsType<WorkshopBattery>(restored.Construction.Instances[0]).Settings);
         Assert.Equal(original, WorkshopSaveCodec.Encode(restored));

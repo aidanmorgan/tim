@@ -190,7 +190,7 @@ const PUBLICATION_TIMEOUT_MS = 10000;
 const CONSTRUCTION_DATABASE = 'curious-contraptions-workshop';
 const CONSTRUCTION_STORE = 'construction';
 const CONSTRUCTION_SLOT = 1;
-// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343), version 13.
+// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343). One bundle, one schema: there is no format version.
 const SAVE_MAGIC = 0x53574343;
 
 async function bounded<T>(work: Promise<T>, timeoutMs: number, message: string): Promise<T> {
@@ -238,6 +238,7 @@ const UI_ANCHORS = {
         clear_pipe: { x: 600, y: 320 },
         gentle_bend: { x: 600, y: 345 },
         quarter_bend: { x: 600, y: 390 },
+        joined_pipe: { x: 600, y: 413 },
     },
     menu: {
         button: { x: 1394, y: 46 },
@@ -284,11 +285,18 @@ const UI_ANCHORS = {
             resize: { x: 104, y: 275 },
             delete: { x: 136, y: 275 },
         },
+        // Story 9R.7: the pipe is resizable, so a selected pipe's dock shows Resize before Delete (measured in Chrome).
         clear_pipe: {
-            move: { x: 60, y: 285 },
-            rotate: { x: 104, y: 285 },
-            resize: undefined,
-            delete: { x: 148, y: 285 },
+            move: { x: 60, y: 244 },
+            rotate: { x: 104, y: 244 },
+            resize: { x: 148, y: 244 },
+            delete: { x: 192, y: 244 },
+        },
+        joined_pipe: {
+            move: { x: 60, y: 244 },
+            rotate: { x: 104, y: 244 },
+            resize: { x: 148, y: 244 },
+            delete: { x: 192, y: 244 },
         },
         gentle_bend: {
             move: { x: 60, y: 285 },
@@ -341,7 +349,7 @@ const UI_ANCHORS = {
     undo: { x: 744, y: 836 },
 } as const;
 
-export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick' | 'bumper_depth' | 'wall_and_bumper' | 'clear_pipe' | 'gentle_bend' | 'quarter_bend';
+export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick' | 'bumper_depth' | 'wall_and_bumper' | 'clear_pipe' | 'gentle_bend' | 'quarter_bend' | 'joined_pipe';
 
 export class WorkshopDriver {
     readonly browser: Browser;
@@ -618,7 +626,7 @@ export class WorkshopDriver {
         await this.frames(UI_SETTLE_FRAMES);
         // The Bowling ball row exists only in the free-workshop palette; no authored level offers it.
         if ((kind === 'bowling' || kind === 'battery' || kind === 'ball_detector' || kind === 'powered_gate' || kind === 'pressure_plate' || kind === 'counter' || kind === 'clock' || kind === 'latch') && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer this free-workshop part`);
-        if (kind === 'pipe' && this.currentLevel !== 'free_workshop' && this.currentLevel !== 'clear_pipe') throw new Error(`Level ${this.currentLevel} does not offer this part`);
+        if (kind === 'pipe' && this.currentLevel !== 'free_workshop' && this.currentLevel !== 'clear_pipe' && this.currentLevel !== 'joined_pipe') throw new Error(`Level ${this.currentLevel} does not offer this part`);
         if (kind === 'pipe_bend_45' && this.currentLevel !== 'free_workshop' && this.currentLevel !== 'gentle_bend') throw new Error(`Level ${this.currentLevel} does not offer this part`);
         if (kind === 'pipe_bend_90' && this.currentLevel !== 'free_workshop' && this.currentLevel !== 'quarter_bend') throw new Error(`Level ${this.currentLevel} does not offer this part`);
         // Row centres with the free-workshop palette scrolled to its end (51 px rows; the Set/Reset latch is the last row).
@@ -656,7 +664,7 @@ export class WorkshopDriver {
             this.paletteScrolled = false;
         }
         let anchor: { x: number; y: number } = UI_ANCHORS.palette[kind];
-        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || ((this.currentLevel === 'bumper_sidekick' || this.currentLevel === 'bumper_depth') && kind === 'bumper') || (this.currentLevel === 'clear_pipe' && kind === 'pipe') || (this.currentLevel === 'gentle_bend' && kind === 'pipe_bend_45') || (this.currentLevel === 'quarter_bend' && kind === 'pipe_bend_90')) {
+        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || ((this.currentLevel === 'bumper_sidekick' || this.currentLevel === 'bumper_depth') && kind === 'bumper') || ((this.currentLevel === 'clear_pipe' || this.currentLevel === 'joined_pipe') && kind === 'pipe') || (this.currentLevel === 'gentle_bend' && kind === 'pipe_bend_45') || (this.currentLevel === 'quarter_bend' && kind === 'pipe_bend_90')) {
             anchor = { x: 130, y: 155 }; // the authored inventory's single palette row
         }
         if (this.currentLevel === 'wall_and_bumper' && (kind === 'wall' || kind === 'bumper')) {
@@ -792,6 +800,44 @@ export class WorkshopDriver {
         await this.construct('resizeSelectedWall', () => this.drag(fromX, fromY, fromX + deltaX, fromY + deltaY));
     }
 
+    /** Story 9R.7: stretch the selected part along one local axis by `deltaMetres` with that axis's real square handle. The dock's
+     *  Resize mode is chosen first; `handle` is the square's screen point and `metre` the projected screen vector of one metre along
+     *  the axis. Both faces move about the fixed centre, so the pointer travels half the change. Shift is held, so the committed size
+     *  snaps to 0.1 m. The release is one acknowledged edit. */
+    async resizeSelectedPart(handle: { x: number; y: number }, metre: { x: number; y: number }, deltaMetres: number): Promise<void> {
+        await this.setPartMode('resize');
+        const to = { x: Math.round(handle.x + metre.x * deltaMetres / 2), y: Math.round(handle.y + metre.y * deltaMetres / 2) };
+        await this.page.keyboard.down('Shift');
+        try { await this.construct('resizeSelectedPart', () => this.drag(handle.x, handle.y, to.x, to.y)); }
+        finally { await this.page.keyboard.up('Shift'); }
+    }
+
+    /** Story 9R.7: the same resize drag, cancelled with Escape before the release: no command is issued. */
+    async resizeSelectedPartCancelled(handle: { x: number; y: number }, metre: { x: number; y: number }, deltaMetres: number): Promise<void> {
+        await this.setPartMode('resize');
+        const to = { x: Math.round(handle.x + metre.x * deltaMetres / 2), y: Math.round(handle.y + metre.y * deltaMetres / 2) };
+        await this.expectNoCommand('resizeSelectedPartCancelled', async () => {
+            await this.page.mouse.move(handle.x, handle.y);
+            await this.page.mouse.down();
+            await this.frames(2);
+            await this.page.mouse.move(to.x, to.y, { steps: 10 });
+            await this.frames(2);
+            await this.pressKey('Escape');
+            await this.frames(2);
+            await this.page.mouse.up();
+        });
+    }
+
+    /** Story 9R.7: choose an authored lesson's precision with the Workshop menu's slider (Forgiving 0, Balanced 0.45, Precise 1); the
+     *  new receiver assistance is one acknowledged edit. */
+    async setPrecision(level: 'forgiving' | 'balanced' | 'precise'): Promise<void> {
+        if (this.currentLevel === 'free_workshop') throw new Error('setPrecision: the free workshop has no authored precision');
+        const x = level === 'forgiving' ? 1040 : level === 'balanced' ? 1200 : 1396;
+        await this.openMenu();
+        await this.construct(`setPrecision(${level})`, () => this.press(x, 350));
+        await this.closeMenu();
+    }
+
     async readCaptured(): Promise<number> {
         return this.capturedCount;
     }
@@ -890,8 +936,8 @@ export class WorkshopDriver {
             throw new Error('save: the Save command was acknowledged but the IndexedDB slot is empty or invalid');
         const bytes = new Uint8Array(savedBytes);
         const saved = decodeSavedConstruction(bytes);
-        if (saved.magic() !== SAVE_MAGIC || saved.version() !== 13)
-            throw new Error(`save: the Save command was acknowledged but the IndexedDB slot has invalid magic 0x${saved.magic().toString(16)} or version ${saved.version()}`);
+        if (saved.magic() !== SAVE_MAGIC || !saved.construction())
+            throw new Error(`save: the Save command was acknowledged but the IndexedDB slot has invalid magic 0x${saved.magic().toString(16)} or no construction`);
         return bytes;
     }
 

@@ -103,7 +103,7 @@ public sealed class SelectionTests
     {
         var selection = Select(["tools/workshop-console.mjs"]);
         Assert.Equal(["anim-1a", "capacity-9r", "capacity-9r5b", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
-            "cat-048b", "cat-049", "cat-050", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
+            "cat-048b", "cat-049", "cat-050", "cat-050-joined", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
             "engine-core-2b4", "engine-core-2c", "tube-snapping"], Names(selection));
     }
 

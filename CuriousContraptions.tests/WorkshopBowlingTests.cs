@@ -122,7 +122,6 @@ public sealed class WorkshopBowlingTests
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
             CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
             CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
             CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 5);
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -137,7 +136,6 @@ public sealed class WorkshopBowlingTests
         var cr1 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b1, swapped1, validate: false);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(b1);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(b1, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(b1, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b1, 5);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(b1, cr1);
         b1.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b1).Value);
@@ -150,12 +148,10 @@ public sealed class WorkshopBowlingTests
         var cr2 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b2, swapped2, validate: false);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(b2);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(b2, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(b2, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b2, 5);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(b2, cr2);
         b2.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b2).Value);
         EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(b2.SizedByteArray()));
-        Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, fbSave.Version);
     }
 
     [Fact]

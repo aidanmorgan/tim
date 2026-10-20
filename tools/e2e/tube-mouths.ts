@@ -61,12 +61,26 @@ export const sub = (a: Vec3, b: Vec3): Vec3 => [a[0] - b[0], a[1] - b[1], a[2] -
 export const dot = (a: Vec3, b: Vec3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 export const length = (a: Vec3): number => Math.sqrt(dot(a, a));
 
+/** Story 9R.7: the committed f32 `length` of pipe instance `id` (CAT-048 §2: 1–8 m). */
+export function pipeLength(snapshot: RunResetSnapshot, id: number): number {
+    const { part } = pose(snapshot, id);
+    if (part !== 'pipe') throw new Error(`instance ${id} is a ${part}, not a pipe`);
+    const bits = snapshotValue(snapshot, `saved.construction.instances[id=${id}].length`);
+    if (!/^0x[0-9a-f]{8}$/.test(bits)) throw new Error(`pipe ${id} saved no length (${bits})`);
+    return f32(bits);
+}
+
+/** The pipe's mouths sit at its collar faces, ±(length/2 + 0.09); the table above restates the scene's default 3.6 m pipe. */
+const COLLAR_HALF_WIDTH = 0.09;
+
 /** The world position and outward axis of one committed instance's mouth. */
 export function mouth(snapshot: RunResetSnapshot, id: number, end: MouthEnd): { at: Vec3; out: Vec3 } {
     const { position, rotation, part } = pose(snapshot, id);
     const declared = MOUTHS[part as TubePart];
     if (!declared) throw new Error(`instance ${id} is a ${part}, not a tube part`);
-    const local = declared[end];
+    const local = part === 'pipe'
+        ? { at: [(end === 'start' ? -1 : 1) * (pipeLength(snapshot, id) / 2 + COLLAR_HALF_WIDTH), 0, 0] as Vec3, out: declared[end].out }
+        : declared[end];
     const at = rotate(rotation, local.at);
     return { at: [position[0] + at[0], position[1] + at[1], position[2] + at[2]], out: rotate(rotation, local.out) };
 }

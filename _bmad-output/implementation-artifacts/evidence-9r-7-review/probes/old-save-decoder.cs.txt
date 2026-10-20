@@ -1,0 +1,38 @@
+// Murdoch-14 probe, run at 40eb7433 (candidate da91cffa merged with main 2adff597) in the review-only worktree
+// .claude/worktrees/murdoch14-9r7-mut; added to CuriousContraptions.tests.csproj temporarily, then reverted (porcelain empty).
+// Command: dotnet test CuriousContraptions.tests --filter "FullyQualifiedName~M14OldSaveProbe"  ->  Passed 1/1.
+// Result (old-saves-decoded.txt):
+//   free REFUSED UnsupportedSave: Unsupported construction save.
+//   first_principles REFUSED UnsupportedSave: Unsupported construction save.
+//   quarter_bend REFUSED UnsupportedSave: Unsupported construction save.
+using System;
+using System.IO;
+using System.Linq;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class M14OldSaveProbe
+{
+    private const string Scratch = "<scratchpad>/m14/";
+
+    [Fact]
+    public void OldVersionedSavesAreTheTypedRefusal()
+    {
+        var results = File.ReadAllLines(Scratch + "old-saves-v13.txt").Select(line =>
+        {
+            var parts = line.Split(' ');
+            try
+            {
+                var saved = WorkshopSaveCodec.Decode(Convert.FromBase64String(parts[1]));
+                return $"{parts[0]} ADMITTED next {saved.NextBodyId.Value}: {saved.Construction}";
+            }
+            catch (WorkshopEditRejectedException error) { return $"{parts[0]} REFUSED {error.Reason}: {error.Message}"; }
+#pragma warning disable CA1031 // review probe: record any other exception type as a finding
+            catch (Exception error) { return $"{parts[0]} THREW {error.GetType().Name}: {error.Message}"; }
+#pragma warning restore CA1031
+        }).ToArray();
+        File.WriteAllLines(Scratch + "old-saves-decoded.txt", results);
+        Assert.All(results, result => Assert.Contains(" REFUSED UnsupportedSave", result));
+    }
+}

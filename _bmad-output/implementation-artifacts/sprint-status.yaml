@@ -170,11 +170,13 @@ development_status:
   epic-9a: backlog
   # 1-2: in flight
   9r-6-typed-mouth-snapping: done
-  9r-7-joined-pipe-level-playable: review
+  9r-7-joined-pipe-level-playable: done
   # 3
-  9a-0-architecture-authority-docs: review
+  9a-0-architecture-authority-docs: done
   # 4: owner amendment 21 Oct 2026, right after 9a-0
   9a-1-dead-legacy-purge: backlog
+  # merged into 9a-1 (coordinator ruling, 21 Oct 2026); filed by 9a-0 (owner: no format versioning)
+  f-10-retire-remaining-format-versions: backlog
   # 5
   9a-4-lossless-bundle-build-gate: backlog
   # 6
@@ -451,7 +453,6 @@ development_status:
   f-7-plate-signal-follow-ups: backlog
   f-8-capacity-follow-ups: backlog
   f-9-tube-snapping-follow-ups: backlog
-  # filed by 9a-0, 21 Oct 2026 (owner: no format versioning); 9a-2 deletes the save and wire versions
-  f-10-retire-remaining-format-versions: backlog
+  f-11-joined-pipe-follow-ups: backlog
 
 action_items: []
