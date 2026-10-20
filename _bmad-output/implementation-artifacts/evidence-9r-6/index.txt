@@ -18,6 +18,14 @@ Tier 3 (runner selected Full): full-run-2e7cfb48/ — `dotnet run --project tool
   (tools/e2e/cat-005.test.ts), and Story 9R.5b bumped the wire to version 21, so the worker rejects it ("Unsupported Workshop
   command schema."). The failure is inherited from 007a65ed; this story touches neither the wire nor cat-005. Filed for 9R.5b.
   Chrome transit minimum speed over every observed publication: 3.81, 4.54, 3.57 and 3.49 m/s.
+
+Rebased onto e4afb855 (Story 9R.5b final: 0978b2a7 fixes cat-005's wire version), HEAD 3b4669ff:
+  Tier 1: tier1-dotnet-rebased-e4afb855.txt (0 warnings; 1807 + 156 + 78 + 17 tests pass) and
+  tier1-contracts-rebased-e4afb855.txt (Lifecycle 510/0, Wire 109/0, node 83/83 and 24/24). The Ownership oracle still fails
+  with the same AnimationBatch._free message (ownership-rebased-e4afb855.txt); the coordinator routes it to 9R.5b.
+  Runner (coordinator: cat-005 plus the tube suites; the 39/40 full run stands for the rest): suites-3b4669ff/ —
+  `run --changed` with cat-005, tube-snapping, cat-030, cat-048a, cat-048b, cat-049 and cat-050, plus the smoke pair;
+  run 20261020T162649Z-48630, verdict Pass, 9/9 files, 52/52 tests, bundle ac3eae48… unchanged.
 Native transit: native-transit-probe.txt — the four snapped joints, production WorkshopSimulation, every tick: min speed 3.41 m/s.
 
 AC1 per part: APipeSnapsOntoTheEndMouthOfEveryTubePart (pipe, both bends, funnel outlet, powered gate, ball detector) and

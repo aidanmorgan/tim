@@ -1,0 +1,14 @@
+== LifecycleContract
+"Count":510,"Failures":0
+== WireContract
+"Count":109,"Failures":0
+== Ownership
+exit 1
+Animation free-list storage has an unreviewed caller or reference recipient.
+== node
+ℹ pass 83
+ℹ fail 0
+ℹ pass 24
+ℹ fail 0
+== anvil
+  ℹ No changed files to analyse
