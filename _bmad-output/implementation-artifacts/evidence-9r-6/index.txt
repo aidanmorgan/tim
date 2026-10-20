@@ -11,6 +11,14 @@ Contracts: tier1-contracts.txt — LifecycleContract 510/0 failures, WireContrac
   engine/presentation file. It is filed for the 9R.5b owner.
 Native transit: native-transit-probe.txt — the four snapped joints, production WorkshopSimulation, every tick: min speed 3.41 m/s.
 
+AC1 per part: APipeSnapsOntoTheEndMouthOfEveryTubePart (pipe, both bends, funnel outlet, powered gate, ball detector) and
+  APoweredGateSnapsOntoAPipeMouth; TubeMouthSnapTests 29/29. godot.log of the native run: no UID warning for TubeMouthSnap.cs.uid.
+
+ACs without a mutant, and why: Run/Pause is gated by the existing CanEdit (Click, the preview and the release path are already
+  closed outside Building), so a mutant inside the new code is equivalent; Reset and Save/Load reuse the Story 9R.1 snapshot path
+  and the save codec with no new decision logic. Locked target in Chrome arrives with Story 9R.7's joined_pipe level (CAT-048
+  fact 21), which already requires it; it is proven natively here.
+
 Mutants (each applied alone, then reverted; every one killed):
   mutant-1-distance.txt            CaptureDistance 0.45 -> 0.73        : 0.46 and 0.72 rows fail
   mutant-2-bore.txt                bore check dropped                   : funnel inlet and 2e-6 bore rows fail

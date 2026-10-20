@@ -166,6 +166,42 @@ public sealed class TubeMouthSnapTests
         Assert.Null(Find(definitions, [first, joined], PartId.Pipe, 3, position, Quaternion.Identity));
     }
 
+    public static TheoryData<string> EveryTubePart => new() { "pipe", "pipe_bend_45", "pipe_bend_90", "funnel", "powered_gate", "ball_detector" };
+
+    /// <summary>AC1: every declared mouth owner joins. A pipe offered 0.1 m off and turned 5° from each tube part's free end mouth
+    /// snaps onto it exactly.</summary>
+    [Theory]
+    [MemberData(nameof(EveryTubePart))]
+    public void APipeSnapsOntoTheEndMouthOfEveryTubePart(string id)
+    {
+        var definitions = Definitions();
+        var part = new PartId(id);
+        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, part, 1, new(0, 3, 0), Quaternion.Identity)];
+        var (at, outward) = World(definitions, placed[0], TubeMouthEnd.End);
+        // The pipe's start mouth faces -X: turn its +X onto the target's outward axis, then 5° off it.
+        var rotation = (new Quaternion(Vector3.Back, Mathf.DegToRad(5)) * new Quaternion(Vector3.Right, outward)).Normalized();
+        var offset = outward.Cross(Vector3.Back).Normalized() * .1f;
+        var position = PlaceMouth(definitions, PartId.Pipe, TubeMouthEnd.Start, at + offset, rotation);
+
+        var snap = Find(definitions, placed, PartId.Pipe, 2, position, rotation);
+
+        Assert.NotNull(snap);
+        Assert.Equal((new GpuBodyId(1), TubeMouthEnd.End, TubeMouthEnd.Start), (snap.Value.TargetBody, snap.Value.TargetMouth, snap.Value.MoverMouth));
+        AssertJoined(definitions, placed, snap.Value, PartId.Pipe, 2);
+    }
+
+    [Fact]
+    public void APoweredGateSnapsOntoAPipeMouth()
+    {
+        var definitions = Definitions();
+        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, PartId.Pipe, 1, new(0, 3, 0), Quaternion.Identity)];
+        var position = PlaceMouth(definitions, PartId.PoweredGate, TubeMouthEnd.Start, new(2, 3.05f, 0), Quaternion.Identity);
+        var snap = Find(definitions, placed, PartId.PoweredGate, 2, position, Quaternion.Identity);
+        Assert.NotNull(snap);
+        Assert.Equal((TubeMouthEnd.End, TubeMouthEnd.Start), (snap.Value.TargetMouth, snap.Value.MoverMouth));
+        AssertJoined(definitions, placed, snap.Value, PartId.PoweredGate, 2);
+    }
+
     [Fact]
     public void ALockedMoverNeverSnapsAndALockedTargetsFreeMouthDoes()
     {
