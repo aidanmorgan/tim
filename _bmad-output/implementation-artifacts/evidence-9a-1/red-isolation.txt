@@ -1,0 +1,70 @@
+✖ established isolation permits delayed runtime loading and records actual usable time (5004.706792ms)
+✔ incomplete isolation handshake still fails at the existing deadline (3.119958ms)
+✖ controller replacement retires booting ownership (5000.32625ms)
+✖ controller replacement retires qualified ownership (5000.901084ms)
+✖ at most one isolation reload remains permitted (5002.481666ms)
+✖ manual navigation after slow runtime loading starts a fresh isolation attempt (5001.530334ms)
+✔ another deploy's changed isolation worker waiting behind the controller is refused (2.680875ms)
+✖ a controller answering the handshake in another shape (the retired numbered reply) is refused (5001.179875ms)
+✖ the isolation worker answers only the structural policy request from an eligible client (4.17475ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 6
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30085.019708
+
+✖ failing tests:
+
+test at tools/workshop-isolation.test.mjs:54:1
+✖ established isolation permits delayed runtime loading and records actual usable time (5004.706792ms)
+  'test timed out after 5000ms'
+
+test at tools/workshop-isolation.test.mjs:78:5
+✖ controller replacement retires booting ownership (5000.32625ms)
+  'test timed out after 5000ms'
+
+test at tools/workshop-isolation.test.mjs:78:5
+✖ controller replacement retires qualified ownership (5000.901084ms)
+  'test timed out after 5000ms'
+
+test at tools/workshop-isolation.test.mjs:88:1
+✖ at most one isolation reload remains permitted (5002.481666ms)
+  'test timed out after 5000ms'
+
+test at tools/workshop-isolation.test.mjs:97:1
+✖ manual navigation after slow runtime loading starts a fresh isolation attempt (5001.530334ms)
+  'test timed out after 5000ms'
+
+test at tools/workshop-isolation.test.mjs:118:1
+✖ a controller answering the handshake in another shape (the retired numbered reply) is refused (5001.179875ms)
+  'test timed out after 5000ms'
+
+test at tools/workshop-isolation.test.mjs:124:1
+✖ the isolation worker answers only the structural policy request from an eligible client (4.17475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   {
+  -     policyReady: true
+  -   }
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a04bd550965f8b651/tools/workshop-isolation.test.mjs:134:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ { policyReady: true } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

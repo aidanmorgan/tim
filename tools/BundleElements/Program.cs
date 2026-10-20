@@ -37,7 +37,6 @@ var declarations = new IPuzzleElementDeclaration[]
 
 var bundle = new
 {
-    Version = "1.0",
     GeneratedAt = DateTime.UtcNow.ToString("O"),
     Elements = declarations.Select(d => new
     {

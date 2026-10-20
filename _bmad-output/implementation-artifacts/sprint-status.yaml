@@ -174,7 +174,9 @@ development_status:
   # 3
   9a-0-architecture-authority-docs: review
   # 4: owner amendment 21 Oct 2026, right after 9a-0
-  9a-1-dead-legacy-purge: backlog
+  9a-1-dead-legacy-purge: review
+  # merged into 9a-1 (21 Oct 2026; owner: delete old code as soon as possible, no format versioning). Filed by 9a-0; 9r-7 deleted the save, wire and settings versions
+  f-10-retire-remaining-format-versions: review
   # 5
   9a-4-lossless-bundle-build-gate: backlog
   # 6
@@ -451,7 +453,5 @@ development_status:
   f-7-plate-signal-follow-ups: backlog
   f-8-capacity-follow-ups: backlog
   f-9-tube-snapping-follow-ups: backlog
-  # filed by 9a-0, 21 Oct 2026 (owner: no format versioning); 9a-2 deletes the save and wire versions
-  f-10-retire-remaining-format-versions: backlog
 
 action_items: []

@@ -9,10 +9,10 @@ public enum NativeClockProfile : uint { IsolatedWitnessedPerformanceNow = 2 }
 /// <summary>Exact native-clock control boundary; no clock timestamp is converted to a JS Number.</summary>
 public static class WorkshopClockWire
 {
-    public const uint Version = 4;
     public const int PeerBytes = 64;
     public const int ProbeBytes = 80;
-    /// <summary>The probe, the two master stamps and (since v4, Story 9.4b) the master derivation epoch they were taken under.</summary>
+    /// <summary>The probe, the two master stamps and (Story 9.4b) the master derivation epoch they were taken under. A peer's
+    /// bytes 0..3 are zero padding (one bundle, one schema).</summary>
     public const int ReplyBytes = 104;
     public const int ReceiptBytes = 24;
 
@@ -21,7 +21,6 @@ public static class WorkshopClockWire
         peer.Validate();
         if (peer.Uncertainty.Value != 100_000) throw new ArgumentException("Unsupported isolated native clock profile.");
         var bytes = new byte[PeerBytes]; var data = bytes.AsSpan();
-        BinaryPrimitives.WriteUInt32LittleEndian(data, Version);
         BinaryPrimitives.WriteUInt32LittleEndian(data[4..], (uint)NativeClockProfile.IsolatedWitnessedPerformanceNow);
         WorkshopWire.WriteSession(data[8..24], peer.Session);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..], peer.Generation.Value);
@@ -35,7 +34,7 @@ public static class WorkshopClockWire
 
     public static WorkshopClockPeer DecodePeer(ReadOnlySpan<byte> data)
     {
-        if (data.Length != PeerBytes || BinaryPrimitives.ReadUInt32LittleEndian(data) != Version ||
+        if (data.Length != PeerBytes || BinaryPrimitives.ReadUInt32LittleEndian(data) != 0 ||
             (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != NativeClockProfile.IsolatedWitnessedPerformanceNow ||
             (WorkshopRuntimeRole)BinaryPrimitives.ReadUInt32LittleEndian(data[60..]) != WorkshopRuntimeRole.Simulation)
             throw new ArgumentException("Unsupported clock bootstrap.");

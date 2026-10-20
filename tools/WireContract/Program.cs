@@ -4,7 +4,7 @@ using CuriousContraptions.WireDesign;
 
 enum Oracle
 {
-    HeaderPositive, UnknownVersion, UnknownMessage, UnknownSender, UnknownRecipient,
+    HeaderPositive, UnknownMessage, UnknownSender, UnknownRecipient,
     SameContext, WrongRoute, HeaderTruncated, EnvelopeTooLarge, UnknownFlags,
     NegativeGeneration, ZeroSequence, MissingField, UnknownField, DuplicateField, NullHeader,
     UnsignedGolden, SignedGolden, IntegerBoundaries, IntegerOverflow, PhysicalBudget,
@@ -34,10 +34,9 @@ static class Program
     }
     static int Main()
     {
-        var header=new HeaderFixture(1,MessageKind.Commands,RuntimeRole.Browser,RuntimeRole.Simulation,126,0,11,1);
+        var header=new HeaderFixture(MessageKind.Commands,RuntimeRole.Browser,RuntimeRole.Simulation,126,0,11,1);
         void Invalid(Oracle oracle,HeaderFixture value)=>Check(oracle,()=>Reject(()=>ContractFixture.Validate(value)));
         Check(Oracle.HeaderPositive,()=>Require(ContractFixture.ReadHeader(JsonSerializer.Serialize(header))==header));
-        Invalid(Oracle.UnknownVersion,header with{Version=2});
         Invalid(Oracle.UnknownMessage,header with{Kind=(MessageKind)65535});
         Invalid(Oracle.UnknownSender,header with{Sender=(RuntimeRole)0});
         Invalid(Oracle.UnknownRecipient,header with{Recipient=(RuntimeRole)255});
@@ -52,7 +51,7 @@ static class Program
         Check(Oracle.MissingField,()=>Reject(()=>ContractFixture.ReadHeader("{}")));
         var validJson=JsonSerializer.Serialize(header);
         Check(Oracle.UnknownField,()=>Reject(()=>ContractFixture.ReadHeader(validJson[..^1]+",\"Unsupported\":1}")));
-        Check(Oracle.DuplicateField,()=>Reject(()=>ContractFixture.ReadHeader(validJson[..^1]+",\"Version\":1}")));
+        Check(Oracle.DuplicateField,()=>Reject(()=>ContractFixture.ReadHeader(validJson[..^1]+",\"Sequence\":1}")));
         Check(Oracle.NullHeader,()=>Reject(()=>ContractFixture.ReadHeader("null")));
         Check(Oracle.UnsignedGolden,()=>Require(ContractFixture.UnsignedBytes(9007199254740993UL)
             .SequenceEqual(new byte[]{1,0,0,0,0,0,32,0})));

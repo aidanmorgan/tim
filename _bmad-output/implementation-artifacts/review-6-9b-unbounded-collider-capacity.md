@@ -139,3 +139,7 @@ Executed serially against active preview server `http://127.0.0.1:8060/`:
 Story 6.9b has been rigorously reviewed under adversarial principles. The artificial collider table limit in authoring is completely abolished, physics memory comfortably accommodates dense compound contraptions up to 2,048 colliders, simulation worker table offsets are dynamically queried from C# rather than hardcoded, all static analysis and automated unit tests pass cleanly, and real Chrome Playwright E2E test suites pass with 100% reliability.
 
 **Final Scoped Verdict: PASS**
+
+## Addendum, 21 Oct 2026 (Story 9A.1)
+
+AC-2's evidence describes a path that no longer exists. Story 9.4b deleted the `Program.AbiOffsets()` export and every `worker.js` table-offset binding (`COLLIDERS_OFFSET`, `PRISMATICS_OFFSET` and the rest); Story 9A.1 verified this with `rg -n -w` over the active tree, which finds them only in the isolation authority's closed-findings row. The worker reads no physics table at all. It copies committed poses from the read response, and `WorkerAbiTests.EveryScriptLayoutConstantEqualsItsCSharpOwnerAndIsUsed` pins each offset it declares to its C# owner. The fixed collider capacity that 6.9b raised is gone too: Story 9R.5b sizes every table from the compiled scene. The original verdict above remains historical evidence of its own snapshot.

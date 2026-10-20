@@ -48,7 +48,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     const api = vm.runInNewContext(executable, context, { filename: path.pathname });
     const session = new Uint8Array(16); session[0] = 1;
     const peer = new Uint8Array(64), view = new DataView(peer.buffer);
-    view.setUint32(0, 2, true); view.setUint32(4, 2, true); peer.set(session, 8);
+    view.setUint32(4, 2, true); peer.set(session, 8); // bytes 0..3: zero padding
     view.setBigUint64(24, 1n, true); view.setBigUint64(40, 1n, true); view.setBigUint64(48, 100000n, true);
     view.setUint32(56, 1, true); view.setUint32(60, 2, true);
     // The managed service sends one owned probe per tick and a stand-in clock master answers it through the ring, as the
@@ -66,7 +66,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
         // A running Simulation beats the ring between its tick turns (worker.js); a hung one stops.
         if (simulationRuns) clockRing.beat(clock);
     };
-    const creation = api.create(Object.values(state), session, [2, 2, 64, 72, 96, 160, 1, 2], [26640, 40, 56], 1, false,
+    const creation = api.create(Object.values(state), session, [2, 64, 72, 96, 160, 1, 2], [26640, 40, 56], 1, false,
         () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
     creation.catch(() => {});
     await workerCreated;

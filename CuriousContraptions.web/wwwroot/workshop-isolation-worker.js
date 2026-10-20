@@ -1,5 +1,4 @@
 // One scoped streaming header policy. No cache, offline path, skipWaiting or live-game reload.
-const policyVersion = 1;
 const scope = new URL(self.registration.scope);
 function eligible(url) {
     return url.origin === scope.origin && url.pathname.startsWith(scope.pathname);
@@ -8,9 +7,9 @@ self.addEventListener('activate', event => event.waitUntil(self.clients.claim())
 self.addEventListener('message', event => {
     const port = event.ports[0];
     try {
-        if (event.ports.length !== 1 || event.data?.policyRequest !== policyVersion ||
+        if (event.ports.length !== 1 || event.data?.policyRequest !== true ||
             !event.source || !eligible(new URL(event.source.url))) return;
-        port.postMessage({ policyVersion });
+        port.postMessage({ policyReady: true });
     } finally { for (const owned of event.ports) owned.close(); }
 });
 self.addEventListener('fetch', event => {

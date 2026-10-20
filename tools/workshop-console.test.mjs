@@ -16,7 +16,7 @@ test('a typed base64 envelope never fails on a NaN substring of its payload (Mur
     assert.ok(acknowledgement.includes('NaN'));
     assert.equal(isWorkshopConsoleFailure('log', acknowledgement), false, 'the exact logged acknowledgement');
     for (const text of ['CCGPU_RETAINED AAAANaNAAAAA', 'CCGPU_TICK_TIMES_CHUNK 1 0 4 1 128 AANaNAAA',
-        'CCGPU_TICK_TIMES_BEGIN 1 2 2 8 2 1 1 3600 436 4 1 AQAANaN=',
+        'CCGPU_TICK_TIMES_BEGIN 1 2 8 2 1 1 3600 436 4 1 AQAANaN=',
         'CCGPU_CLOCK_DERIVATION {"report":0,"detail":"a NaN in a string field"}'])
         assert.equal(isWorkshopConsoleFailure('log', text), false, text);
     // Controls: a NaN outside a well-formed envelope still fails.

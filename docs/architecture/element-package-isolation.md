@@ -135,7 +135,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | Finding | What the tree does today | Breaks invariant | Owner |
 | --- | --- | --- | --- |
 | A13 (runtime), A17, A18 | `engine/PartRegistry.cs` loads the `.tres` catalogue (`parts/catalog/*.tres`, scenes in `parts/scenes/`), not the bundle; Tennis and Balloon are offered but not constructible | 2 | 9A.14 (with 9A.18 icons merged) |
-| A13 (build), G10 | `tools/BundleElements` hand-lists 13 declarations, writes a lossy bundle (empty vectors) with `Version` and `GeneratedAt` fields, and is not a build target | 2, 8 | 9A.4 |
+| A13 (build), G10 | `tools/BundleElements` hand-lists 13 declarations, writes a lossy bundle (empty vectors) with a `GeneratedAt` field, and is not a build target | 2, 8 | 9A.4 |
 | A15 | Nine delivered elements have no package: `basket`, `bowling`, `delay`, `funnel`, `pipe`, `pipe_bend_45`, `pipe_bend_90`, `spring`, `switch` | 1 | PKG-1, PKG-2, PKG-3 |
 | A2 | `engine/PartId.cs` holds named constants and numeric id switches that are the save/wire identity | 2 | 9A.15 (numeric switches); 9A.45a then 9A.45 (constants) |
 | A3 (colliders), B2 | `WorkshopCanonicalColliders` tables and `?? WorkshopCanonicalColliders.For(...)` fallbacks | 1, 2, 9 | 9A.16 |
@@ -154,9 +154,6 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | C4, C5 | `CCGPU` and `CCGOAL_SOLVED` console lines and `globalThis.WorkshopPoseRing`/`WorkshopAnimation` test hooks | 3 | 9A.24 |
 | B1 | `WorkshopCommandRouter` and `BrowserWorkshopClient` fall back to the legacy `WorkshopWire.Decode*` codec | 3, 9 | 9A.2 |
 | B6 | `System.Half` binary16 lanes remain in production code (about 850 tokens) | f32 authority | 9A.44 (9.5a moves the timer lane first) |
-| B7, B8 (remainder) | The `MachinePart.Build()` subclassing hook (`engine/MachinePart.cs:236`) and its only override, the test `ProbePart` (`BasketballResourceTests.cs:166`); the orphan root `scratch_test.cs.uid` | 9 | 9A.1 |
-| Format versions (owner, 21 Oct 2026) | `WorkshopSaveVersion` and `WorkshopWireVersion` | 8 | 9A.2 |
-| Format versions (owner, 21 Oct 2026) | `WorkshopClockWire.Version`, `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` and `BodyRecordVersion` | 8 | F.10 |
 | MNA | No Modified Nodal Analysis exists (`git grep -i 'nodal\|MNA'` finds no code). The electrical model is compiled supply routes over a reachability graph (`engine/gpu/SupplyRoute.cs`, `WorkshopPhysicsCompiler` routes) | — (not a violation) | MNA is a named later capability, delivered by the first element story that needs it |
 
 ### 4.2 Closed since the audit
@@ -171,6 +168,8 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | B5: `tools/workshop-rigid-body.test.mjs`, its README reference and the `workshop-observation` EarlyLoss case | Gone from the tree |
 | B8 (directory), A17 dead skips: `scratch/` and the "unmigrated legacy" skips in `PartRegistry` | Gone from the tree |
 | Fixed table capacities | Story 9R.5b (findings filed to Story F.8) |
+| B7, B8 (remainder): the `MachinePart.Build()` subclassing hook, its only override (the test `ProbePart`) and the orphan root `scratch_test.cs.uid` | Story 9A.1: `MachinePart` is sealed and composes `CosmeticBindingSet`, whose rules are tested directly |
+| Format versions (owner, 21 Oct 2026): the save, wire and cadence settings versions; the clock, memory, schedule, animation channel, physics state, canonical body and trace versions; the trace timing version; the clock ring layout version; the isolation policy number; the bundle and WireContract fixture versions | Story 9R.7 (save, wire, settings) and Story 9A.1 with F.10 merged (the rest). A former version word is zero padding that rejects when set; `WorkshopFormatTests.NoProductionSourceNamesAFormatVersion` fails on any re-added version |
 
 ### 4.3 The unsupported 9.2b Pass (G8)
 

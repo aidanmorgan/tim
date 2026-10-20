@@ -2,7 +2,7 @@
 title: 'Story 9A.1: Dead Legacy Purge'
 type: 'chore'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'review'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -126,6 +126,31 @@ context:
 - Verified gone by 9.4b: `tools/workshop-rigid-body.test.mjs`, the nine exports and their stubs, and the `workshop-observation` `EarlyLoss` case.
 
 ## Implementation Notes
+
+Amelia-15, 21 Oct 2026, on 9R.7 (`120bf876`) merged with 9A.0 (`9e4d6d86`). Evidence: `evidence-9a-1/`.
+
+**Census (`census-before.txt`).** Story 9.4b already removed:
+- the nine exports;
+- `writeEventRing`;
+- the 20 dead constants and `WORKER_ABI_CANDIDATE`;
+- the `rigid-body` harness and `EarlyLoss`.
+
+The text scan and "unmigrated" skip in `PartRegistry` are gone as well; the remaining `.tres` filter and the Clock exemption (9A.14) are live. `worker.js` declares 11 owned constants, not 3. All 11 are live, and the existing theory `EveryScriptLayoutConstantEqualsItsCSharpOwnerAndIsUsed` already enforces Task 2's `WorkerDeclaresNoUnownedLayoutConstant`, so no duplicate fact was added.
+
+**`scratch/`** is untracked in the main checkout only and does not exist in this worktree. Deleting it is filed back to the coordinator (Task 1 hold point).
+
+**Tasks 4 and 5 (D1 held).**
+- `MachinePart` is `sealed`. Its `protected` members became `private` or `internal` (CS0628).
+- `Build()` is deleted.
+- `CosmeticBindingSet` holds the binding rules and is tested directly, including through a real Delay part.
+
+**F.10 merged** (owner: no format versioning).
+- **Binary layouts keep their offsets.** The bytes where a version stood are zero padding and a non-zero value rejects. This covers the canonical body, the physics state header, the trace record, and the clock peer, memory, schedule and animation channel words.
+- **The trace console begin lines drop their version field.**
+- **The clock ring drops its layout version.**
+- **The isolation handshake is structural** (`policyRequest: true` / `policyReady: true`). Another deploy's changed worker is refused as a waiting worker, and a foreign-shaped reply is refused. Node tests prove both.
+- **The bundle and the WireContract fixture lose their `Version` fields.**
+- **`WorkshopFormatTests.NoProductionSourceNamesAFormatVersion` is the ratchet.** Its allowlist names the non-format uses: the .NET `Versioning` attributes, FlatBuffers `ValidateVersion`, the user-agent `fullVersionList`, and three state generation stamps.
 
 ## Spec Change Log
 

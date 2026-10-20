@@ -8,7 +8,6 @@ namespace CuriousContraptions.Simulation;
 // Recorded trace values keep their numbers; 3 is undefined and rejects.
 internal enum TraceEnd { Complete = 0, Reset = 1, Disposed = 2, Fault = 4, InvalidRecord = 5, Overflow = 6 }
 internal enum TraceTimingStatus { Complete, Incomplete }
-internal enum TraceTimingVersion : uint { NativeMilliseconds = 2 }
 internal sealed class WorkshopTrace
 {
     private const int Capacity = 7201;
@@ -143,7 +142,7 @@ internal sealed class WorkshopTrace
             var chunks = (_count + ChunkRecords - 1) / ChunkRecords;
             var poseReason = _poseEnd ?? reason;
             // Closed discriminants are serialized numerically at this console boundary.
-            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.CompleteBodySetF32Pose} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
+            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
             for (var ordinal = 0; ordinal < chunks; ordinal++)
             {
                 var first = ordinal * ChunkRecords;
@@ -157,9 +156,9 @@ internal sealed class WorkshopTrace
             var durationChunks = (_durationCount + ChunkRecords - 1) / ChunkRecords;
             var status = reason == TraceEnd.Complete && _timingValid && _durationCount == _expectedCount - 1
                 ? TraceTimingStatus.Complete : TraceTimingStatus.Incomplete;
-            // Version 2 binds original little-endian binary64 milliseconds to the construction and terminal reason.
+            // The timing lines bind original little-endian binary64 milliseconds to the construction and terminal reason.
             // Tick IDs are exactly 1..count only when the capture is Complete.
-            Console.WriteLine($"CCGPU_TICK_TIMES_BEGIN {_identity} {_epoch.Value} {(uint)TraceTimingVersion.NativeMilliseconds} {sizeof(double)} {(uint)_profile.Cadence} {(uint)_profile.Physical} {_profile.Revision.Value} {_expectedCount - 1} {_durationCount} {durationChunks} {(int)status} {Convert.ToBase64String(_construction)} {(int)reason}");
+            Console.WriteLine($"CCGPU_TICK_TIMES_BEGIN {_identity} {_epoch.Value} {sizeof(double)} {(uint)_profile.Cadence} {(uint)_profile.Physical} {_profile.Revision.Value} {_expectedCount - 1} {_durationCount} {durationChunks} {(int)status} {Convert.ToBase64String(_construction)} {(int)reason}");
             for (var ordinal = 0; ordinal < durationChunks; ordinal++)
             {
                 var first = ordinal * ChunkRecords;

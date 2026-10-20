@@ -8,19 +8,20 @@ const source = readFileSync(new URL('../CuriousContraptions.web/wwwroot/workshop
 const executable = source.replace(/^export /gm, '') +
     '\n;({prepareIsolation, requireIsolation, watchIsolation, isolationQualified, isolationEvidence});';
 
-function harness({ isolated = true, heldRegistration = false, storage = new Map(), origin = 100000 } = {}) {
+function harness({ isolated = true, heldRegistration = false, storage = new Map(), origin = 100000,
+    reply = { policyReady: true }, waiting = undefined } = {}) {
     let elapsed = 0, nextTimer = 0, reloads = 0;
     const timers = new Map(), listeners = new Map(), failures = [];
     const controller = {
         scriptURL: 'https://example.test/tim/workshop-isolation-worker.js',
-        postMessage(_message, ports) { queueMicrotask(() => ports[0].peer.onmessage({ data: { policyVersion: 1 } })); }
+        postMessage(message, ports) { if (message?.policyRequest === true) queueMicrotask(() => ports[0].peer.onmessage({ data: reply })); }
     };
     const serviceWorker = {
         controller,
         addEventListener(name, callback) { listeners.set(name, callback); },
         removeEventListener(name, callback) { if (listeners.get(name) === callback) listeners.delete(name); },
         register: async () => heldRegistration ? await new Promise(() => {}) :
-            { scope: 'https://example.test/tim/', update: async () => {}, installing: undefined }
+            { scope: 'https://example.test/tim/', update: async () => {}, installing: undefined, waiting }
     };
     const api = vm.runInNewContext(executable, {
         URL, Map, Promise, Error, Array, Number, Math, JSON,
@@ -103,4 +104,34 @@ test('manual navigation after slow runtime loading starts a fresh isolation atte
     assert.equal(await next.prepare(), true);
     assert.equal(next.failures.length, 0);
     assert.equal(next.reloads, 0);
+});
+
+// Story 9A.1 (F.10): the handshake carries no policy number. Another deploy's worker is refused by identity and structure: the
+// browser re-fetches the worker script on update (updateViaCache 'none') and installs any worker whose bytes differ, so a changed
+// policy behind a live controller is a waiting worker, which is refused; a controller answering in another shape is refused.
+test("another deploy's changed isolation worker waiting behind the controller is refused", async () => {
+    const h = harness({ waiting: { state: 'installed' } });
+    assert.equal(await h.prepare(), false);
+    assert.match(h.failures[0].message, /waiting isolation policy requires closing all game tabs/);
+});
+
+test('a controller answering the handshake in another shape (the retired numbered reply) is refused', async () => {
+    const h = harness({ reply: { policyVersion: 1 } });
+    assert.equal(await h.prepare(), false);
+    assert.match(h.failures[0].message, /Unsupported Workshop isolation policy/);
+});
+
+test('the isolation worker answers only the structural policy request from an eligible client', () => {
+    const worker = readFileSync(new URL('../CuriousContraptions.web/wwwroot/workshop-isolation-worker.js', import.meta.url), 'utf8');
+    const handlers = new Map();
+    vm.runInNewContext(worker, { URL, self: { registration: { scope: 'https://example.test/tim/' },
+        addEventListener: (name, callback) => handlers.set(name, callback), clients: { claim: () => {} } } });
+    const ask = (data, url = 'https://example.test/tim/index.html') => {
+        const replies = [];
+        handlers.get('message')({ data, source: { url }, ports: [{ postMessage: reply => replies.push(reply), close() {} }] });
+        return JSON.parse(JSON.stringify(replies)); // the replies were built in the worker's realm
+    };
+    assert.deepEqual(ask({ policyRequest: true }), [{ policyReady: true }]);
+    assert.deepEqual(ask({ policyRequest: 1 }), [], 'the retired numbered request');
+    assert.deepEqual(ask({ policyRequest: true }, 'https://other.test/tim/'), [], 'an ineligible client');
 });

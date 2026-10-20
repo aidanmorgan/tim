@@ -141,12 +141,12 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
         if (typeof admitDisplay !== 'boolean') throw new Error('Invalid display admission selection.');
         const displayRate = admitDisplay ? await admitDisplayRate() : undefined;
         const session = new Uint8Array(bootstrapBytes);
-        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 8 || responseAbi.length !== 3 ||
+        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 7 || responseAbi.length !== 3 ||
             !responseAbi.every(Number.isInteger) || responseAbi[0] < 128 ||
             responseAbi[1] < 0 || responseAbi[1] + 16 > responseAbi[0] ||
             responseAbi[2] < 0 || responseAbi[2] + 8 > responseAbi[0])
             throw new Error('Unsupported session bootstrap.');
-        const [clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole] = clockAbi;
+        const [clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole] = clockAbi;
         if (clockProfile !== nativeProfile) throw new Error('Unsupported native clock profile.');
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
@@ -158,7 +158,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
             serviceCallback: service, service: undefined, clockReplyCallback: clockReply,
             clockRing, clock: attachClockRing(clockRing),
             state: ready, stalled: false, candidateTimedOut: false,
-            identity: undefined, clockAbi: { clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
+            identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
             memory: undefined,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
             presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n };
@@ -259,7 +259,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                         if (!(masterPeer instanceof Uint8Array) || masterPeer.length !== peerBytes)
                             throw new Error('Missing authoritative master bootstrap.');
                         const declared = new DataView(masterPeer.buffer, masterPeer.byteOffset, masterPeer.byteLength);
-                        if (declared.getUint32(0, true) !== clockVersion || declared.getUint32(4, true) !== clockProfile ||
+                        if (declared.getUint32(0, true) !== 0 || declared.getUint32(4, true) !== clockProfile || // bytes 0..3: zero padding
                             !session.every((value, index) => value === masterPeer[index + 8]) ||
                             declared.getBigUint64(24, true) !== 1n || declared.getBigInt64(32, true) < 0n ||
                             declared.getBigUint64(40, true) !== 1n || declared.getBigUint64(48, true) !== 100000n ||
