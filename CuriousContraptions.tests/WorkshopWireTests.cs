@@ -759,6 +759,28 @@ public sealed class WorkshopWireTests
         Assert.Equal(later.Read.Revision, cursor.Revision);
     }
 
+    /// <summary>Story 9R.7 (owner decision, 21 Oct 2026): the response header carries no format version. Bytes 12..15 are alignment
+    /// padding, written zero by every encoding, and a non-zero word there is refused as a malformed shape.</summary>
+    [Fact]
+    public void TheResponseHeaderHasZeroPaddingAndNoVersionWord()
+    {
+        var ack = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
+            Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+        foreach (var response in new[] { ack, ack with { Phase = WorkshopSimulationPhase.Building } })
+        {
+            var bytes = WorkshopWire.Encode(response);
+            Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(12)));
+            Assert.Equal(response, WorkshopWire.DecodeResponse(bytes)); // control
+            foreach (var word in new uint[] { 1, 21, 22 })
+            {
+                var versioned = (byte[])bytes.Clone();
+                BinaryPrimitives.WriteUInt32LittleEndian(versioned.AsSpan(12), word);
+                Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(versioned));
+            }
+        }
+    }
+
     [Fact]
     public void FutureReadCannotInstallEpochAndOnlyOwnedSuccessCanAdvanceIt()
     {
