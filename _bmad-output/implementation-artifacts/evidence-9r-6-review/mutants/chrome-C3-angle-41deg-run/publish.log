@@ -1,0 +1,249 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.csproj (in 112 ms).
+  4 of 5 projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/CuriousContraptions.web.dll
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.csproj (in 5 ms).
+  3 of 4 projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut
+  Optimizing assemblies for size. This process might take a while.
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1msavepack[22m | Started Packing (102 steps)[39m[0m
+  [   1% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-531077ab56a38e253d01bce60896f9a0-workshop.scn[39m[0m
+  [   2% ] [90m[1msavepack[22m | Storing File: res://ui/Workshop.cs[39m[0m
+  [   3% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-f790c6a296bb0f3d1fb7164f08a66679-ball.res[39m[0m
+  [   5% ] [90m[1msavepack[22m | Storing File: res://engine/PartDefinition.cs[39m[0m
+  [   6% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-45a0e8c34e6f41bd60972cfc3c021620-ball.scn[39m[0m
+  [   8% ] [90m[1msavepack[22m | Storing File: res://engine/MachinePart.cs[39m[0m
+  [   9% ] [90m[1msavepack[22m | Storing File: res://engine/BallMaterialResource.cs[39m[0m
+  [  10% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-4b27bc386a7a5b46ab98eeb9c127141b-basket.res[39m[0m
+  [  12% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-84b93656c74d91a6da8a25c5a87427fb-basket.scn[39m[0m
+  [  13% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-a26d711d8203f2b9392e14a2bbc6299b-ramp.res[39m[0m
+  [  15% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-e49a887cd7cb431dde20b686ca54d21d-ramp.scn[39m[0m
+  [  16% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-1939bbf7884cedbaae1400c728323272-switch.res[39m[0m
+  [  17% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-371d87371c009dd9473d7f956f6a33df-switch.scn[39m[0m
+  [  19% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-f0e7c693587b117e046cd47faf7f1a4b-lamp.res[39m[0m
+  [  20% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-1c65b33427fae77d76359612d7884842-lamp.scn[39m[0m
+  [  22% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-44c91b654b8e0bfa1342f860e8e09a58-wall.res[39m[0m
+  [  23% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-bc1f42d91709cb6e2da4b9bcbc25d1b9-wall.scn[39m[0m
+  [  24% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-3efdbee1025a6742b84b4a77d8d63699-delay.res[39m[0m
+  [  26% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-751e0fcd392c144f86d0cf23789ce9cf-delay.scn[39m[0m
+  [  27% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-8a0e472cc2dfd0a0a39d381b0dce026f-bumper.res[39m[0m
+  [  29% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-e597aaf68dfafca444a0ba0265e49105-bumper.scn[39m[0m
+  [  30% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-17650bfa421f71eccd1b7830c798064e-domino.res[39m[0m
+  [  31% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-64ccf6bd483dc51419f3407a747431ba-domino.scn[39m[0m
+  [  33% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-230b7cf8d62b7f918a1b26f537a3cf74-bowling.res[39m[0m
+  [  33% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-76e82a29c587ccf62acdb63f5178ce4c-bowling.scn[39m[0m
+  [  35% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-4041c97ea97a9d9acbeef6722b0d89c2-battery.res[39m[0m
+  [  36% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-1b6ef0d23e501fef7c07be57b0a82d60-battery.scn[39m[0m
+  [  38% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-c34ff259a58e5212ba222907b7dc5505-springboard.res[39m[0m
+  [  39% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-031b08d30254e6748d7aff748d85126b-springboard.scn[39m[0m
+  [  40% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-c53a69973bfa722ba88e2569e19537a4-tennis.res[39m[0m
+  [  42% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-f9ef7949f23983efd38da09017531f0a-balloon.res[39m[0m
+  [  43% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-d257bdafbe95953f9c4dd1ca5e50423e-pipe.res[39m[0m
+  [  45% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-10f4fa5426f8bce220fc67b9cc1da4e4-pipe.scn[39m[0m
+  [  46% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-95cd367cf94fe29c52aade9e488c2956-ball_detector.res[39m[0m
+  [  47% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-4555c0c61e8470288e533c5001fba033-ball_detector.scn[39m[0m
+  [  49% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-ace95a492dca6ac89a47833d72e3763f-pipe_bend_45.res[39m[0m
+  [  50% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-a062cf586666eca924d597c86299c2a6-pipe_bend_45.scn[39m[0m
+  [  52% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-489f26a4bdfd00eb3ed594f56714838c-pipe_bend_90.res[39m[0m
+  [  53% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-85cfabb44fb90a96cd2852cf4ede9549-pipe_bend_90.scn[39m[0m
+  [  54% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-432e66d9df07a68ffdceee8925bf32f7-funnel.res[39m[0m
+  [  56% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-753c0c0da4c3256f31cb562b10274af4-funnel.scn[39m[0m
+  [  57% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-066724b97ee69d18b1748218d37aec86-powered_gate.res[39m[0m
+  [  59% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-036aa1c40c1ac9dbfd797aaed8ecf8ec-powered_gate.scn[39m[0m
+  [  60% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-3e103ce85ebad58b42d8811f154ccc11-pressure_plate.res[39m[0m
+  [  61% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-0a42f3967f547bdeffc016609d41a94f-pressure_plate.scn[39m[0m
+  [  63% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-0c90a8ad0eca5ee46b21368e3bd4c419-counter.res[39m[0m
+  [  64% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-017045be76c1575121634afdfc2ff2bb-counter.scn[39m[0m
+  [  66% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-e4af676e468008e55171391bb2e509c3-clock.res[39m[0m
+  [  66% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-658a599f58bddcbff719b3dcee9db754-clock.scn[39m[0m
+  [  68% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-8940385d45310ae250537937416ca6da-latch.res[39m[0m
+  [  69% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-a823832ce5fc4120fd7bd0f49a1ce2e9-latch.scn[39m[0m
+  [  70% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/arrow-down.svg-c05bab584750d7558e6068fdff46136a.ctex[39m[0m
+  [  70% ] [90m[1msavepack[22m | Storing File: res://assets/icons/arrow-down.svg.import[39m[0m
+  [  72% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/minus.svg-60d7ca62d05d261dd2c33f2d69b057a2.ctex[39m[0m
+  [  72% ] [90m[1msavepack[22m | Storing File: res://assets/icons/minus.svg.import[39m[0m
+  [  73% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/save.svg-4436a386e8aa6786c3b87b76d11469d6.ctex[39m[0m
+  [  73% ] [90m[1msavepack[22m | Storing File: res://assets/icons/save.svg.import[39m[0m
+  [  75% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/zoom-out.svg-fa969df5f772a3937c1ae70c0bc4956e.ctex[39m[0m
+  [  75% ] [90m[1msavepack[22m | Storing File: res://assets/icons/zoom-out.svg.import[39m[0m
+  [  76% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/square.svg-d26425a344693024394447a10e6b49f3.ctex[39m[0m
+  [  76% ] [90m[1msavepack[22m | Storing File: res://assets/icons/square.svg.import[39m[0m
+  [  77% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/rotate-cw.svg-87bc9de6eb1bcc348990f7a8633f6713.ctex[39m[0m
+  [  77% ] [90m[1msavepack[22m | Storing File: res://assets/icons/rotate-cw.svg.import[39m[0m
+  [  79% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/play.svg-e9236ccb724ef92a26e89cd871a33e4f.ctex[39m[0m
+  [  79% ] [90m[1msavepack[22m | Storing File: res://assets/icons/play.svg.import[39m[0m
+  [  80% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/trash.svg-f38b5333a858794f2eaa17abdd7d010e.ctex[39m[0m
+  [  80% ] [90m[1msavepack[22m | Storing File: res://assets/icons/trash.svg.import[39m[0m
+  [  82% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/undo-2.svg-326c8d4e441b636631370306fa201def.ctex[39m[0m
+  [  82% ] [90m[1msavepack[22m | Storing File: res://assets/icons/undo-2.svg.import[39m[0m
+  [  83% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/folder-open.svg-2fec95b9e3935e03a514233b7db273ec.ctex[39m[0m
+  [  83% ] [90m[1msavepack[22m | Storing File: res://assets/icons/folder-open.svg.import[39m[0m
+  [  84% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/x.svg-521876a1ce6500a0794bff7c22c09e07.ctex[39m[0m
+  [  84% ] [90m[1msavepack[22m | Storing File: res://assets/icons/x.svg.import[39m[0m
+  [  86% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/link.svg-f9bf693e1d2edc894ba2c5dd30f49784.ctex[39m[0m
+  [  86% ] [90m[1msavepack[22m | Storing File: res://assets/icons/link.svg.import[39m[0m
+  [  87% ] [90m[1msavepack[22m | Storing File: res://assets/icons/LICENSE.txt[39m[0m
+  [  89% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/sliders-horizontal.svg-19dd15ef2c0b3b7758dde4d42531b2e9.ctex[39m[0m
+  [  89% ] [90m[1msavepack[22m | Storing File: res://assets/icons/sliders-horizontal.svg.import[39m[0m
+  [  90% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/arrow-up.svg-b58179c0aa7701f18ec5049fc5f1cabf.ctex[39m[0m
+  [  90% ] [90m[1msavepack[22m | Storing File: res://assets/icons/arrow-up.svg.import[39m[0m
+  [  91% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/move-vertical.svg-ddb978417a7cf062e11656d0595d4c89.ctex[39m[0m
+  [  91% ] [90m[1msavepack[22m | Storing File: res://assets/icons/move-vertical.svg.import[39m[0m
+  [  93% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/plus.svg-7395cd59506febf409a5c6656903f8e9.ctex[39m[0m
+  [  93% ] [90m[1msavepack[22m | Storing File: res://assets/icons/plus.svg.import[39m[0m
+  [  94% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/rotate-ccw.svg-81650ed3b7a1a89776d84f13a2b56bc9.ctex[39m[0m
+  [  94% ] [90m[1msavepack[22m | Storing File: res://assets/icons/rotate-ccw.svg.import[39m[0m
+  [  96% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/zoom-in.svg-96c81ead79038b49c8e7f7fb36d01d44.ctex[39m[0m
+  [  96% ] [90m[1msavepack[22m | Storing File: res://assets/icons/zoom-in.svg.import[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/lightbulb.svg-c3ce31e298346e15873588553ad8101d.ctex[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://assets/icons/lightbulb.svg.import[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://scenes/workshop.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/ball.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/ball.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/basket.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/basket.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/ramp.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/ramp.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/switch.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/switch.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/lamp.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/lamp.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/wall.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/wall.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/delay.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/delay.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/bumper.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/bumper.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/domino.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/domino.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/bowling.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/bowling.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/battery.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/battery.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/springboard.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/springboard.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/tennis.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/balloon.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/pipe.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/pipe.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/ball_detector.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/ball_detector.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/pipe_bend_45.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/pipe_bend_45.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/pipe_bend_90.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/pipe_bend_90.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/funnel.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/funnel.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/powered_gate.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/powered_gate.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/pressure_plate.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/pressure_plate.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/counter.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/counter.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/clock.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/clock.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/catalog/latch.tres.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://parts/scenes/latch.tscn.remap[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://.godot/global_script_class_cache.cfg[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://.godot/uid_cache.bin[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://project.binary[39m[0m
+  [92m[ DONE ][39m [1msavepack[22m
+  [0m
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/CuriousContraptions.web.dll
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Optimizing assemblies for size. This process might take a while.
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/publish/
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 19 assemblies
+  Everything is up-to-date, nothing to precompile
+  IL stripping assemblies
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 2461 of 14336 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3598 of 19456 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Simulation.dll: 271169 of 894464 bytes rewritten
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  WORKER_AOT_SIMD_INSTRUCTIONS[WorkshopPhysicsEngine]=3
+  WORKER_AOT_SIMD_INSTRUCTIONS[PrismaticConstraintSolver]=55
+  WORKER_AOT_SIMD_INSTRUCTIONS[SoftConstraint]=8
+  WORKER_AOT_SIMD_INSTRUCTIONS=66 (per function: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/worker-aot-simd.txt)
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.FlatBuffers,CuriousContraptions.Simulation in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 17 assemblies
+  Everything is up-to-date, nothing to precompile
+  IL stripping assemblies
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 11544 of 44032 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.Worker.dll: 250754 of 766976 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3598 of 19456 bytes rewritten
+  WORKER_AOT_COMPILE=CuriousContraptions.Animation.Worker AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.Animation.Worker;CuriousContraptions.FlatBuffers
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.Animation.Worker,CuriousContraptions.FlatBuffers in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+  Generated app bundle at /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.web/AppBundle/
+  TwoDog: web app bundle finalized at /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.web/AppBundle/
+  TwoDog: deployed godot.pck to the app bundle
+  TwoDog: wrote 178 precompressed sibling file(s)
+  WORKER_AOT_HOST_FILES=145 identical to the verified worker bundles

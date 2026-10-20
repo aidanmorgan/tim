@@ -1,0 +1,70 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (19 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | arrow-down.svg[39m[0m
+  [   5% ] [90m[1m_update_scan_actions[22m | arrow-up.svg[39m[0m
+  [  10% ] [90m[1m_update_scan_actions[22m | folder-open.svg[39m[0m
+  [  15% ] [90m[1m_update_scan_actions[22m | lightbulb.svg[39m[0m
+  [  20% ] [90m[1m_update_scan_actions[22m | link.svg[39m[0m
+  [  25% ] [90m[1m_update_scan_actions[22m | minus.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | move-vertical.svg[39m[0m
+  [  35% ] [90m[1m_update_scan_actions[22m | play.svg[39m[0m
+  [  40% ] [90m[1m_update_scan_actions[22m | plus.svg[39m[0m
+  [  45% ] [90m[1m_update_scan_actions[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1m_update_scan_actions[22m | rotate-cw.svg[39m[0m
+  [  55% ] [90m[1m_update_scan_actions[22m | save.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | sliders-horizontal.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | square.svg[39m[0m
+  [  70% ] [90m[1m_update_scan_actions[22m | trash.svg[39m[0m
+  [  75% ] [90m[1m_update_scan_actions[22m | undo-2.svg[39m[0m
+  [  80% ] [90m[1m_update_scan_actions[22m | x.svg[39m[0m
+  [  85% ] [90m[1m_update_scan_actions[22m | zoom-in.svg[39m[0m
+  [  90% ] [90m[1m_update_scan_actions[22m | zoom-out.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.24]     CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [FAIL]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [12 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1.29999995
+Actual:   0.649999976
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 95
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.61]     CuriousContraptions.Tests.TubeMouthSnapTests.ThePipeSnapsToTheFunnelOutletButNotItsWideInlet [FAIL]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ThePipeSnapsToTheFunnelOutletButNotItsWideInlet [2 ms]
+  Error Message:
+   Assert.Null() Failure: Value of type 'Nullable<TubeMouthSnapResult>' has a value
+Expected: null
+Actual:   TubeMouthSnapResult { TargetBody = GpuBodyId { Value = 1 }, TargetMouth = Start, MoverMouth = End, Position = (-2.88, 5, 0), Rotation = (0, 0, 0, 1), Joint = (-0.99, 5, 0), Axis = (-1, 0, 0) }
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.ThePipeSnapsToTheFunnelOutletButNotItsWideInlet() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 227
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    98, Skipped:     0, Total:   100, Duration: 959 ms - CuriousContraptions.tests.dll (net10.0)

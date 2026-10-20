@@ -1,0 +1,18 @@
+== mutant N2-funnel-inlet-bore-0.65
+diff --git a/parts/scenes/funnel.tscn b/parts/scenes/funnel.tscn
+index abc81b86..b1a0bb9d 100644
+--- a/parts/scenes/funnel.tscn
++++ b/parts/scenes/funnel.tscn
+@@ -437,7 +437,7 @@ shape = SubResource("Shape_Rim_End_LR")
+ 
+ [node name="Loc_Port_mouth_start" type="Node3D" parent="."]
+ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -0.99, 0, 0)
+-metadata/bore_radius = 1.3
++metadata/bore_radius = 0.65
+ 
+ [node name="Loc_Port_mouth_end" type="Node3D" parent="."]
+ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.99, 0, 0)
+exit 1
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [12 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ThePipeSnapsToTheFunnelOutletButNotItsWideInlet [2 ms]
+Failed!  - Failed:     2, Passed:    98, Skipped:     0, Total:   100, Duration: 959 ms - CuriousContraptions.tests.dll (net10.0)

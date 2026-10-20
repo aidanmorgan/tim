@@ -1,0 +1,135 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.34]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend90) [FAIL]
+[xUnit.net 00:00:01.34]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: Bend45ToBend45) [FAIL]
+[xUnit.net 00:00:01.35]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend45) [FAIL]
+[xUnit.net 00:00:01.35]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: FunnelOutletToPipe) [FAIL]
+[xUnit.net 00:00:01.35]     CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 19, snaps: True) [FAIL]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend90) [6 ms]
+  Error Message:
+   mouths face (-1.19209275E-07, -1, 0) and (-0.06975644, 0.997564, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.Route(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 363
+   at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 392
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: Bend45ToBend45) [1 ms]
+  Error Message:
+   mouths face (-0.70710695, -0.7071067, 0) and (0.656059, 0.7547096, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.Route(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 363
+   at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 392
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend45) [1 ms]
+  Error Message:
+   mouths face (-1.19209275E-07, -1, 0) and (-0.06975644, 0.997564, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.Route(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 363
+   at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 392
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: FunnelOutletToPipe) [1 ms]
+  Error Message:
+   mouths face (-1.19209275E-07, -1, 0) and (-0.06975644, 0.997564, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.Route(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 363
+   at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 392
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 19, snaps: True) [1 ms]
+  Error Message:
+   mouths face (1, 0, 0) and (-0.94551855, -0.32556814, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(Single degrees, Boolean snaps) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 154
+   at InvokeStub_TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.36]     CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_45") [FAIL]
+[xUnit.net 00:00:01.36]     CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe") [FAIL]
+[xUnit.net 00:00:01.36]     CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "ball_detector") [FAIL]
+[xUnit.net 00:00:01.36]     CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "funnel") [FAIL]
+[xUnit.net 00:00:01.37]     CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_90") [FAIL]
+[xUnit.net 00:00:01.37]     CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "powered_gate") [FAIL]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_45") [3 ms]
+  Error Message:
+   mouths face (0.7071067, -0.7071068, 0) and (-0.7660444, 0.64278775, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(String id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 190
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe") [1 ms]
+  Error Message:
+   mouths face (1, 0, 0) and (-0.9961947, -0.087155744, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(String id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 190
+   at InvokeStub_TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "ball_detector") [1 ms]
+  Error Message:
+   mouths face (1, 0, 0) and (-0.9961947, -0.087155744, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(String id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 190
+   at InvokeStub_TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "funnel") [1 ms]
+  Error Message:
+   mouths face (1, 0, 0) and (-0.9961947, -0.087155744, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(String id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 190
+   at InvokeStub_TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_90") [1 ms]
+  Error Message:
+   mouths face (-1.19209275E-07, -1, 0) and (-0.08715558, 0.9961947, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(String id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 190
+   at InvokeStub_TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "powered_gate") [1 ms]
+  Error Message:
+   mouths face (1, 0, 0) and (-0.9961947, -0.087155744, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.AssertJoined(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthSnapResult snap, PartId part, UInt64 id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 73
+   at CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(String id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 190
+   at InvokeStub_TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.39]     CuriousContraptions.Tests.TubeMouthSnapTests.ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll [FAIL]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll [2 ms]
+  Error Message:
+   snapped rotation (0.25861204, 0.010350002, 0.038626734, 0.9651533)
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 123
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    12, Passed:    88, Skipped:     0, Total:   100, Duration: 701 ms - CuriousContraptions.tests.dll (net10.0)

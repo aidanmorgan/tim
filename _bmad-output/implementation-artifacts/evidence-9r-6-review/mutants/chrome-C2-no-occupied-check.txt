@@ -1,0 +1,14 @@
+== chrome mutant C2-no-occupied-check
+diff --git a/engine/TubeMouthSnap.cs b/engine/TubeMouthSnap.cs
+index 9c123b7f..34c878ed 100644
+--- a/engine/TubeMouthSnap.cs
++++ b/engine/TubeMouthSnap.cs
+@@ -55,7 +55,6 @@ public static class TubeMouthSnap
+         Candidate? best = null;
+         foreach (var (body, target) in others)
+         {
+-            if (Occupied(others, body, target)) continue;
+             foreach (var mouth in moverMouths)
+             {
+                 if (MathF.Abs(mouth.BoreRadius!.Value - target.Bore) > BoreTolerance) continue;
+runner exit 2

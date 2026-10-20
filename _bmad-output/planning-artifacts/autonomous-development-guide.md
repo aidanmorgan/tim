@@ -110,6 +110,10 @@ Owner decision, 19 Oct 2026. This section replaces the earlier rule that every s
   - **Owner decision, 19 Oct 2026, evening: at most 2 review rounds per story.** After round 2, only two kinds of finding block:
     - a breach of the story's own acceptance criteria;
     - a player-visible regression that the story introduced.
+  - **Coordinator, 21 Oct 2026, from the owner's push for speed: there is one full run per story, and the implementer does it.**
+    - The reviewer never repeats a full run. If the reviewed code differs from the implementer's run only by a merge with main, the reviewer runs only the suites the runner selects for that merge diff.
+    - When the runner selects Full only because a shared but non-engine file changed (driver test helpers, UI wiring, docs, catalogue rows), the implementer may run the Tier 2 selection for the story's own areas instead, and must record the justification.
+    - A full run stays mandatory for changes to the solver, clock, workers, wire or compiler.
   - **Everything else is filed as a new story at the back of the queue**, after the last queued story, and doesn't block. This covers:
     - defect-class expansion beyond the story's ACs;
     - Lows carried over from earlier stories;
