@@ -173,12 +173,16 @@ public sealed class WorkshopWireTests
     {
         var sample = new WorkshopPresentationSample(default, null, new(0), PresentationQuality.AwaitingHistory,
             new(new(100), 1, 1, new(2), null, null, null));
-        var scene = new PresentationScene(3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+        // Story 9R.5b: the position-write and part counts are u32 (past the former u16/byte ranges) at 352 and 356.
+        var scene = new PresentationScene(3, 70_000, 300, 0, 0, 0, 0, 0, 0, 0, 1);
         var bytes = WorkshopPresentationWire.Encode(sample, false, scene, new(101), new(7), new(17));
-        Assert.Equal(352, bytes.Length);
+        Assert.Equal(360, bytes.Length);
         Assert.Equal(7UL, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(336)));
         Assert.Equal(17UL, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(344)));
-        Assert.Equal(29_696, WorkshopPresentationWire.RetainedBytes + 128 * 144);
+        Assert.Equal(70_000u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(WorkshopPresentationWire.PositionWritesOffset)));
+        Assert.Equal(300u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(WorkshopPresentationWire.PartCountOffset)));
+        Assert.Equal((0, 0), (bytes[58], bytes[59]));
+        Assert.Equal(29_952, WorkshopPresentationWire.RetainedBytes + 128 * 144);
         Assert.True(WorkshopPresentationWire.RetainedBytes + 128 * 144 <= 32 * 1024);
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             WorkshopPresentationWire.Encode(sample, false, scene, new(101), default, new(17)));
@@ -448,7 +452,7 @@ public sealed class WorkshopWireTests
     // Typed protocol fixture, not a numerical solver: one declared constant-motion interval.
     private static WorkshopRead Described(WorkshopRead read)
     {
-        var bytes = new byte[PhysicsMotionRead.ByteLength];
+        var bytes = new byte[PhysicsMotionRead.ByteLength(read.Bodies.Count)];
         if (read.Tick.Value != 0)
         {
             var last = checked((uint)(read.Tick.Value * Profile.Substeps)); var first = last - Profile.Substeps;
@@ -816,15 +820,16 @@ public sealed class WorkshopWireTests
         var sourceBytes = WorkshopWire.Encode(sourceResponse);
         var sourceRoundTrip = WorkshopWire.DecodeResponse(sourceBytes);
         Assert.True(sourceResponse.Read.Electrical.HasSameBits(sourceRoundTrip.Read.Electrical));
-        sourceBytes[114] = 1; // header padding after the electrical (112) and activation memory (113) counts
+        sourceBytes[104] = 1; // header padding (104..109) before the capture domain and presence bytes
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
-        sourceBytes[114] = 0; sourceBytes[113] = 1; // a memory row count with no row
+        sourceBytes[104] = 0; // a memory row count with no row
+        BinaryPrimitives.WriteUInt32LittleEndian(sourceBytes.AsSpan(WorkshopWire.ResponseMemoryCountOffset), 1);
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
-        // The activation, timer and memory sections hold one row per instance (owner decision, 20 Oct 2026: no activation limit).
-        Assert.Equal(33296, bytes.Length);
+        // Story 9R.5b: every section is exactly its population; a read with no rows is the header and an empty motion payload.
+        Assert.Equal(WorkshopWire.ResponseHeaderBytes + PhysicsMotionRead.ByteLength(0), bytes.Length);
         Assert.Equal(80, PhysicsBodyWire.ByteLength);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
-        bytes[112] = 1;
+        bytes[WorkshopWire.ResponseBodyCountOffset] = 1; // a body count with no body row
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
     }
 
@@ -929,7 +934,7 @@ public sealed class WorkshopWireTests
         var count = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(12));
         for (var i = 0; i < count; i++)
         {
-            var offset = PhysicsGpuAbi.BodiesOffset + checked((int)i) * PhysicsGpuAbi.BodyBytes;
+            var offset = PhysicsWorldLayout.BodiesOffset + checked((int)i) * PhysicsGpuAbi.BodyBytes;
             if (BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(offset)) == 1) return offset;
         }
         throw new InvalidOperationException("Fixture dynamic body identity is missing.");
@@ -949,8 +954,10 @@ public sealed class WorkshopWireTests
         Assert.Equal(OnlyBall(Construction).Rotation, body.Rotation);
         Assert.Equal(Profile, PhysicsGpuAbi.ReadProfile(bytes));
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(bytes));
-        Assert.Equal(0, PhysicsMotionRead.Decode(bytes.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength), new(new[] { body }), new(0)).Count);
-        foreach (var length in new[] { 80, 128, 144, 8832, PhysicsGpuAbi.ByteLength(0) - 1, PhysicsGpuAbi.ByteLength(0) + 1, bytes.Length - 1, bytes.Length + 1 })
+        var layout = PhysicsGpuAbi.Layout(bytes);
+        Assert.Equal(0, PhysicsMotionRead.Decode(bytes.AsSpan(layout.MotionOffset, layout.MotionBytes), new(new[] { body }), new(0)).Count);
+        var empty = default(PhysicsWorldLayout).ByteLength; // a world with no rows: the header and an empty motion payload
+        foreach (var length in new[] { 80, 128, 144, 8832, empty - 1, empty + 1, bytes.Length - 1, bytes.Length + 1 })
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(new byte[length]));
         var reset = PhysicsGpuAbi.Admission(GenericScene, new(3), Profile);
         Assert.Equal(3UL, NamedBody(reset, new(1)).Body.Epoch);
@@ -978,7 +985,8 @@ public sealed class WorkshopWireTests
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
         Assert.Equal((uint)PhysicsStateVersion.GenericMechanical, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
         Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(96)));
-        for (var offset = PhysicsGpuAbi.GuidesOffset; offset < PhysicsGpuAbi.MotionOffset; offset++)
+        var layout = PhysicsGpuAbi.Layout(bytes);
+        for (var offset = layout.GuidesOffset; offset < layout.MotionOffset; offset++)
         {
             var changed = (byte[])bytes.Clone(); changed[offset] ^= 1;
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0)));
@@ -1002,13 +1010,30 @@ public sealed class WorkshopWireTests
         Assert.Equal(guide, copied.Guides[0]);
         Assert.Empty(GenericScene.Guides.ToArray());
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
-        foreach (var (offset, value) in new[] { (0, 3u), (0, 6u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, (uint)PhysicsSceneDeclaration.ContactWorkCapacity + 1), (108, (uint)PhysicsContactWorkRead.OccurrenceCapacity + 1), (116, (uint)PhysicsSceneDeclaration.OrientationSensorCapacity + 1), (120, (uint)ElectricalSupplyPlan.SourceCapacity + 1) })
+        foreach (var (offset, value) in new[] { (0, 3u), (0, 6u) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), value);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(changed));
         }
-        var unownedEvent = (byte[])bytes.Clone();
-        BinaryPrimitives.WriteUInt32LittleEndian(unownedEvent.AsSpan(108), 1);
+        // Story 9R.5b: no table has a capacity; a header that claims one more row than the world holds no longer fits its length.
+        foreach (var offset in new[] { PhysicsGpuAbi.HeaderGuideCountOffset, PhysicsGpuAbi.HeaderTriggerCountOffset,
+            PhysicsGpuAbi.HeaderContactWorkCountOffset, PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, PhysicsGpuAbi.HeaderPrismaticCountOffset,
+            PhysicsGpuAbi.HeaderOrientationSensorCountOffset, PhysicsGpuAbi.HeaderElectricalSourceCountOffset,
+            PhysicsGpuAbi.HeaderElectricalBindingCountOffset, PhysicsGpuAbi.HeaderContactLoadCountOffset })
+        {
+            var changed = (byte[])bytes.Clone();
+            BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset)) + 1);
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(changed));
+        }
+        // Story 9R.5b: insert one zeroed occurrence row so the world's length still matches its header; the row is then rejected
+        // because no contact work owns it, not because the length disagrees.
+        var occurrences = PhysicsGpuAbi.Layout(bytes).WorkOccurrencesOffset;
+        Assert.Equal(0, PhysicsGpuAbi.Layout(bytes).ContactWorks);
+        var unownedEvent = new byte[bytes.Length + PhysicsGpuAbi.WorkOccurrenceBytes];
+        bytes.AsSpan(0, occurrences).CopyTo(unownedEvent);
+        bytes.AsSpan(occurrences).CopyTo(unownedEvent.AsSpan(occurrences + PhysicsGpuAbi.WorkOccurrenceBytes));
+        BinaryPrimitives.WriteUInt32LittleEndian(unownedEvent.AsSpan(PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset), 1);
+        Assert.Equal(unownedEvent.Length, PhysicsGpuAbi.ByteLength(unownedEvent));
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadContactWorks(unownedEvent));
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(unownedEvent, bytes, new(0)));
     }
@@ -1024,6 +1049,8 @@ public sealed class WorkshopWireTests
     [InlineData(48, uint.MaxValue)]
     [InlineData(56, 2u)]
     [InlineData(96, 1u)]
+    [InlineData(PhysicsGpuAbi.HeaderPaddingOffset, 1u)]
+    [InlineData(PhysicsGpuAbi.HeaderPaddingOffset + 8, 1u)]
     public void GenericCandidateRejectsChangedHeaderIdentityOrPadding(int offset, uint value)
     {
         var source = GenericAdmission(); var candidate = (byte[])source.Clone();
@@ -1032,18 +1059,19 @@ public sealed class WorkshopWireTests
         PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
     }
 
-    // Story 9R.2: the world is exactly as long as its own header's collider count says, the collider table is its tail, and the
-    // retired contact-cache header word is reserved zero.
+    // Story 9R.2 / 9R.5b: the world is exactly as long as its own header's population counts say, the collider table is its
+    // tail, and the header's tail is reserved zero.
     [Fact]
     public void GenericWorldLengthIsDerivedFromItsOwnColliderCount()
     {
         var source = GenericAdmission();
         var colliders = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(PhysicsGpuAbi.HeaderColliderCountOffset)));
         Assert.Equal(GenericScene.Colliders.Length, colliders);
-        Assert.Equal(PhysicsGpuAbi.CollidersOffset + colliders * PhysicsGpuAbi.ColliderBytes, source.Length);
-        Assert.Equal(source.Length, PhysicsGpuAbi.ByteLength(colliders));
+        Assert.Equal(PhysicsGpuAbi.Layout(source).CollidersOffset + colliders * PhysicsGpuAbi.ColliderBytes, source.Length);
+        Assert.Equal(source.Length, GenericScene.World.ByteLength);
         Assert.Equal(source.Length, PhysicsGpuAbi.ByteLength(source));
-        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(PhysicsGpuAbi.HeaderReservedOffset)));
+        Assert.All(source.AsSpan(PhysicsGpuAbi.HeaderPaddingOffset, PhysicsGpuAbi.HeaderBytes - PhysicsGpuAbi.HeaderPaddingOffset).ToArray(),
+            value => Assert.Equal((byte)0, value));
         PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
         // One collider record more or less, one byte more or less, or a header that claims another count: rejected.
         foreach (var length in new[] { source.Length - PhysicsGpuAbi.ColliderBytes, source.Length - 1, source.Length + 1, source.Length + PhysicsGpuAbi.ColliderBytes })
@@ -1057,16 +1085,20 @@ public sealed class WorkshopWireTests
             BinaryPrimitives.WriteUInt32LittleEndian(claimed.AsSpan(PhysicsGpuAbi.HeaderColliderCountOffset), count);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(claimed));
         }
-        var reserved = (byte[])source.Clone();
-        BinaryPrimitives.WriteUInt32LittleEndian(reserved.AsSpan(PhysicsGpuAbi.HeaderReservedOffset), 1);
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(reserved));
+        foreach (var offset in new[] { PhysicsGpuAbi.HeaderPaddingOffset, PhysicsGpuAbi.HeaderBytes - 1 })
+        {
+            var reserved = (byte[])source.Clone(); reserved[offset] = 1;
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(reserved));
+        }
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ByteLength(new byte[PhysicsGpuAbi.HeaderBytes - 1]));
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ByteLength(-1));
         // A candidate world one collider longer than its source never validates against it.
         var longer = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id)
             .WithInstance(OnlyBall(Construction) with { Id = new(1) }).WithInstance(WorkshopInput.Wall(new(2), 4, 2, 0, 0, 0, 0, 1, WallDimensions.Default)),
             new(101, 206)), new(2), Profile);
-        Assert.Equal(source.Length + PhysicsGpuAbi.ColliderBytes, longer.Length);
+        // Story 9R.5b: the Wall also adds a body and a material row, so the exact length follows the longer world's own layout.
+        Assert.Equal(colliders + 1, PhysicsGpuAbi.Layout(longer).Colliders);
+        Assert.Equal(PhysicsGpuAbi.Layout(longer).ByteLength, longer.Length);
+        Assert.True(longer.Length > source.Length);
         Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(longer, source, new(0)));
     }
 
@@ -1075,7 +1107,7 @@ public sealed class WorkshopWireTests
     public void GenericCandidateRejectsAChangeAnywhereInTheColliderTail()
     {
         var source = GenericAdmission();
-        for (var offset = PhysicsGpuAbi.CollidersOffset; offset < source.Length; offset++)
+        for (var offset = PhysicsGpuAbi.Layout(source).CollidersOffset; offset < source.Length; offset++)
         {
             var changed = (byte[])source.Clone(); changed[offset] ^= 1;
             Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
@@ -1089,7 +1121,7 @@ public sealed class WorkshopWireTests
         foreach (var offset in new[] { DynamicOffset(source), DynamicOffset(source) + PhysicsGpuAbi.BodyMassOffset,
             DynamicOffset(source) + PhysicsGpuAbi.BodyDragOffset, DynamicOffset(source) + PhysicsGpuAbi.BodyGravityOffset,
             DynamicOffset(source) + PhysicsGpuAbi.BodyCentreOfMassOffset + 5, DynamicOffset(source) + 28, DynamicOffset(source) + 44,
-            PhysicsGpuAbi.CollidersOffset + 40, PhysicsGpuAbi.MaterialsOffset + 8 })
+            PhysicsGpuAbi.Layout(source).CollidersOffset + 40, PhysicsGpuAbi.Layout(source).MaterialsOffset + 8 })
         {
             var changed = (byte[])source.Clone(); changed[offset] ^= 1;
             Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
@@ -1128,10 +1160,11 @@ public sealed class WorkshopWireTests
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), checked((uint)(tick * Profile.Substeps)));
         var body = NamedBody(bytes, new(1));
         var read = Described(new(new(2), new(tick), new(new[] { body })));
-        read.Motion!.Bytes.CopyTo(bytes.AsSpan(PhysicsGpuAbi.MotionOffset));
+        var motion = PhysicsGpuAbi.Layout(bytes).MotionOffset;
+        read.Motion!.Bytes.CopyTo(bytes.AsSpan(motion));
         for (var i = 0; i < Profile.Substeps; i++)
         {
-            var piece = PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes;
+            var piece = motion + PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes;
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(piece + 12), origin);
             WriteHalf(bytes, piece + 20, phase);
         }
@@ -1159,7 +1192,7 @@ public sealed class WorkshopWireTests
     {
         var source = GenericAdmission(); var candidate = GenericEndpoint(1, 0, (Half)0);
         PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
-        var motion = PhysicsGpuAbi.MotionOffset;
+        var motion = PhysicsGpuAbi.Layout(candidate).MotionOffset;
         // Internally valid two-substep motion cannot describe this four-substep world.
         var wrongProfile = (byte[])candidate.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + 4), 2);
@@ -1181,7 +1214,8 @@ public sealed class WorkshopWireTests
     {
         var state = GenericEndpoint(1, 0, (Half)0);
         var body = NamedBody(state, new(1)).Body;
-        var bytes = state.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength).ToArray();
+        var layout = PhysicsGpuAbi.Layout(state);
+        var bytes = state.AsSpan(layout.MotionOffset, layout.MotionBytes).ToArray();
         var seed = bytes.AsSpan(PhysicsMotionRead.HeaderBytes, PhysicsMotionRead.PieceBytes).ToArray();
         BinaryPrimitives.WriteUInt32LittleEndian(bytes, 4);
         for (var index = 0; index < 4; index++)
@@ -1227,11 +1261,11 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => default(CanonicalRotation).ValidateCommitted());
     }
 
-    public enum CanonicalPaddingRegion { UnusedBodies, UnusedSensors, UnusedMotion, BodyPadding, MotionPadding }
+    // Story 9R.5b: tables are exactly their populations, so the former unused body and sensor rows no longer exist; the motion
+    // payload keeps its unused pieces (room for every admitted substep count).
+    public enum CanonicalPaddingRegion { UnusedMotion, BodyPadding, MotionPadding }
 
     [Theory]
-    [InlineData(CanonicalPaddingRegion.UnusedBodies)]
-    [InlineData(CanonicalPaddingRegion.UnusedSensors)]
     [InlineData(CanonicalPaddingRegion.UnusedMotion)]
     [InlineData(CanonicalPaddingRegion.BodyPadding)]
     [InlineData(CanonicalPaddingRegion.MotionPadding)]
@@ -1239,19 +1273,14 @@ public sealed class WorkshopWireTests
     {
         var source = GenericAdmission();
         var candidate = GenericEndpoint(1, 0, (Half)0);
-        var bodyTail = PhysicsGpuAbi.BodiesOffset +
-            checked((int)BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(12))) * PhysicsGpuAbi.BodyBytes;
-        var sensorTail = PhysicsGpuAbi.SensorsOffset +
-            checked((int)BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(24))) * PhysicsGpuAbi.SensorBytes;
-        var motionTail = PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes +
-            checked((int)BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.MotionOffset))) * PhysicsMotionRead.PieceBytes;
+        var layout = PhysicsGpuAbi.Layout(candidate);
+        var motionTail = layout.MotionOffset + PhysicsMotionRead.HeaderBytes +
+            checked((int)BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(layout.MotionOffset))) * PhysicsMotionRead.PieceBytes;
         var (start, length) = region switch
         {
-            CanonicalPaddingRegion.UnusedBodies => (bodyTail, PhysicsGpuAbi.MaterialsOffset - bodyTail),
-            CanonicalPaddingRegion.UnusedSensors => (sensorTail, PhysicsGpuAbi.GuidesOffset - sensorTail),
-            CanonicalPaddingRegion.UnusedMotion => (motionTail, PhysicsGpuAbi.ElectricalSourcesOffset - motionTail),
+            CanonicalPaddingRegion.UnusedMotion => (motionTail, layout.ElectricalSourcesOffset - motionTail),
             CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + 148, 12),
-            CanonicalPaddingRegion.MotionPadding => (PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + 140, 4),
+            CanonicalPaddingRegion.MotionPadding => (layout.MotionOffset + PhysicsMotionRead.HeaderBytes + 140, 4),
             _ => throw new ArgumentOutOfRangeException(nameof(region))
         };
         Assert.True(length > 0);
@@ -1276,7 +1305,7 @@ public sealed class WorkshopWireTests
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));
         var bytes = WorkshopWire.Encode(response);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WorkshopWire.ReadCapturesOffset + 8), phase);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WorkshopWire.ResponseLayout.Of(read).CapturesOffset + 8), phase);
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
     }
 
@@ -1331,14 +1360,14 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public async Task ActualRouterDispatchesFlatBuffersCommandAndPassesEmptyReservedResult()
+    public async Task ActualRouterDispatchesFlatBuffersCommandAndAnswersInItsCodec()
     {
         var applied = new List<WorkshopCommand>();
-        var reservedLengths = new List<int>();
-        var router = new WorkshopCommandRouter((command, reserved) =>
+        var codecs = new List<WorkshopResponseCodec>();
+        var router = new WorkshopCommandRouter((command, codec) =>
         {
             applied.Add(command);
-            reservedLengths.Add(reserved.Length);
+            codecs.Add(codec);
             return Task.FromResult(new byte[] { 42 });
         });
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Run, new(1), new(1), null, Session: Session, Cadence: new(1), Projection: new(1));
@@ -1347,8 +1376,10 @@ public sealed class WorkshopWireTests
         Assert.Equal(new byte[] { 42 }, result);
         Assert.Single(applied);
         Assert.Equal(new CommandSequence(1), applied[0].Sequence);
-        Assert.Single(reservedLengths);
-        Assert.Equal(0, reservedLengths[0]);
+        Assert.Equal(WorkshopResponseCodec.FlatBuffers, Assert.Single(codecs));
+        // Control: the next command in the fixed binary codec is answered in binary.
+        await router.Dispatch(WorkshopWire.Encode(command with { Sequence = new(2) }));
+        Assert.Equal(WorkshopResponseCodec.Binary, codecs[^1]);
     }
 
     private static WorkshopMemoryRequest MemoryRequest => new(WorkshopMemoryKind.PostGc, WorkshopMemoryContext.Simulation,

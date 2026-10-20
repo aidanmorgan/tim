@@ -19,8 +19,6 @@ public enum WorkshopEditRejection : uint
     UnsupportedSave,
     /// <summary>The stored browser save uses other simulation settings.</summary>
     SaveSettingsMismatch,
-    /// <summary>The connection table is full.</summary>
-    ConnectionCapacity,
     /// <summary>A connection is duplicated or does not join matching declared ports.</summary>
     InvalidConnection,
     /// <summary>A level output (State Latch, Pressure Plate) may light only a Signal lamp.</summary>

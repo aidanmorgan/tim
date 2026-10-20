@@ -168,7 +168,10 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     [Fact]
     public void WorkbenchCapacity_AdmitsPipeBendsWithoutColliderLimit()
     {
-        Assert.Equal(new WorkbenchFootprint(1, 0, 72, 0, 0, 0), WorkbenchFootprint.Of(PartId.PipeBend90));
+        // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
+        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(WorkshopInput.PipeBend90(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
+        Assert.Equal((1 + 1, 0, 72 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
         // 2 pipe_bend_90 = 80 colliders: validates cleanly with unbounded colliders
         var twoBends = new WorkshopInstances(
@@ -207,7 +210,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         var profile = new WorkshopGpuProfile(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), profile);
 
-        Assert.Equal(PhysicsGpuAbi.ByteLength(scene.Colliders.Length), bytes.Length);
+        Assert.Equal(scene.World.ByteLength, bytes.Length);
         Assert.Equal(profile, PhysicsGpuAbi.ReadProfile(bytes));
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(bytes));
     }

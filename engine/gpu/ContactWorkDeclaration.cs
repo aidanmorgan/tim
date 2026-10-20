@@ -35,8 +35,9 @@ public readonly record struct ContactWorkCalibration(ContactSpeed TargetSpeed, W
 }
 
 public readonly record struct GpuContactWorkId(ulong Value);
-public readonly record struct ContactWorkSlot(ushort Value);
-public readonly record struct ColliderSlot(ushort Value);
+/// <summary>Table slots are u32: no work or collider table has a fixed bound (Story 9R.5b).</summary>
+public readonly record struct ContactWorkSlot(uint Value);
+public readonly record struct ColliderSlot(uint Value);
 public enum BodyTargetKind : byte { NamedBody = 1, AllDynamic = 2 }
 public readonly record struct BodyTargetSet(BodyTargetKind Kind, GpuBodyId Body)
 {
@@ -70,10 +71,9 @@ public readonly record struct ContactWorkDeclaration(GpuContactWorkId Id, GpuBod
 public readonly record struct ContactWorkRead(GpuContactWorkId Id, GpuBodyId Owner,
     uint OccurrenceCount, Joules RemainingEnergy, Joules SuppliedEnergy = default)
 {
-    public const uint MaximumOccurrences = 1601 * PhysicsBodyReadSet.Capacity;
     public void Validate()
     {
-        if (Id.Value == 0 || Owner.Value == 0 || OccurrenceCount > MaximumOccurrences)
+        if (Id.Value == 0 || Owner.Value == 0)
             throw new ArgumentException("Invalid contact-work observation identity.");
         RemainingEnergy.Validate();
         SuppliedEnergy.Validate(8f);
@@ -88,8 +88,8 @@ public readonly record struct ContactWorkOccurrence(ContactWorkSlot Work, Collid
     public void Validate()
     {
         // The collider slot is bound to the installed scene's own collider count where the world is read (ReadContactWorks).
-        if (Work.Value >= PhysicsSceneDeclaration.ContactWorkCapacity ||
-            Target.Value == 0 || Sequence > ContactWorkRead.MaximumOccurrences || !Enum.IsDefined(Effect))
+        // The work slot is bound to its read's own work count (PhysicsContactWorkRead); no table bound applies here.
+        if (Target.Value == 0 || !Enum.IsDefined(Effect))
             throw new ArgumentException("Invalid contact-work occurrence identity.");
         ApproachSpeed.Validate(4096f);
         Debit.Validate();

@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 12 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 13 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -17,7 +17,8 @@ public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, Ph
 /// <summary>One bounded generic scene/state ABI.</summary>
 public static partial class PhysicsGpuAbi
 {
-    public const int HeaderBytes = 128;
+    /// <summary>The world header (Story 9R.5b: 144 bytes, every table population among its counts).</summary>
+    public const int HeaderBytes = 144;
     public const int BodyBytes = 160;
     // Body: f32 pose32/48, velocities64/76; immutable mass/material lanes start88.
     public const int BodyVelocityOffset = 64;
@@ -43,57 +44,35 @@ public static partial class PhysicsGpuAbi
     public const int ContactWorkAdmissionSpeedOffset = 20;
     public const int ContactWorkCooldownOffset = 24;
     public const int ContactWorkOccurrenceCountOffset = 32;
-    /// <summary>Work-occurrence record: the owner collider slot (u16), the last qualified occurrence's sequence and physical-step
-    /// ordinal, and its f32 approach speed.</summary>
-    public const int WorkOccurrenceColliderOffset = 2;
-    public const int WorkOccurrenceSequenceOffset = 12;
-    public const int WorkOccurrenceOrdinalOffset = 16;
-    public const int WorkOccurrenceApproachOffset = 22;
-    /// <summary>Work-occurrence record: the binary16 event phase, the f32 work debited, the effect byte, and the zero padding from 31.</summary>
-    public const int WorkOccurrencePhaseOffset = 20;
-    public const int WorkOccurrenceDebitOffset = 26;
-    public const int WorkOccurrenceEffectOffset = 30;
-    public const int WorkOccurrencePaddingOffset = 31;
+    /// <summary>Work-occurrence record: the owner collider slot (u32: no collider-table bound, Story 9R.5b), the last qualified
+    /// occurrence's sequence and physical-step ordinal, and its f32 approach speed.</summary>
+    public const int WorkOccurrenceColliderOffset = 4;
+    public const int WorkOccurrenceSequenceOffset = 16;
+    public const int WorkOccurrenceOrdinalOffset = 20;
+    public const int WorkOccurrenceApproachOffset = 26;
+    /// <summary>Work-occurrence record: the binary16 event phase, the f32 work debited, the effect byte, and the zero padding from 35.</summary>
+    public const int WorkOccurrencePhaseOffset = 24;
+    public const int WorkOccurrenceDebitOffset = 30;
+    public const int WorkOccurrenceEffectOffset = 34;
+    public const int WorkOccurrencePaddingOffset = 35;
     public const int ColliderBytes = 96;
     public const int MaterialBytes = 32;
     public const int SensorBytes = 128;
     public const int GuideBytes = 64;
     public const int TriggerBytes = 64;
-    public const int BodiesOffset = HeaderBytes;
-    public const int MaterialsOffset = BodiesOffset + PhysicsSceneDeclaration.BodyCapacity * BodyBytes;
-    public const int SensorsOffset = MaterialsOffset + PhysicsSceneDeclaration.MaterialCapacity * MaterialBytes;
-    public const int GuidesOffset = SensorsOffset + PhysicsSceneDeclaration.SensorCapacity * SensorBytes;
-    public const int TriggersOffset = GuidesOffset + PhysicsSceneDeclaration.GuideCapacity * GuideBytes;
     public const int ContactWorkBytes = 64;
-    public const int ContactWorksOffset = TriggersOffset + PhysicsSceneDeclaration.TriggerCapacity * TriggerBytes;
-    public const int WorkOccurrencesOffset = ContactWorksOffset + PhysicsSceneDeclaration.ContactWorkCapacity * ContactWorkBytes;
-    public const int WorkOccurrenceBytes = 32;
+    public const int WorkOccurrenceBytes = 40;
     // Orientation sensors: declaration (id, body slot, initial rotation, cos half-angle) in the first 32 bytes, sticky fired state after.
     public const int OrientationSensorBytes = 64;
     /// <summary>Orientation-sensor record: the declared f32 rotation quaternion (x, y, z, w).</summary>
     public const int OrientationSensorRotationOffset = 16;
-    public const int OrientationSensorsOffset = WorkOccurrencesOffset + PhysicsContactWorkRead.OccurrenceCapacity * WorkOccurrenceBytes;
-    public const int MotionOffset = OrientationSensorsOffset + PhysicsSceneDeclaration.OrientationSensorCapacity * OrientationSensorBytes;
-    /// <summary>Story 9R.2: the collider table is the buffer's tail, after every fixed-capacity table, sized by the scene's own
-    /// collider count; there is no collider ceiling.</summary>
-    public const int CollidersOffset = ContactLoadRecordsOffset + PhysicsSceneDeclaration.ContactLoadSensorCapacity * ContactLoadSensorBytes;
     public const uint NoBody = uint.MaxValue;
 
-    /// <summary>The one layout authority: the exact world length for a scene with this many colliders.</summary>
-    public static int ByteLength(int colliders)
-    {
-        if (colliders < 0) throw new ArgumentException("A collider count cannot be negative.", nameof(colliders));
-        return checked(CollidersOffset + colliders * ColliderBytes);
-    }
+    /// <summary>Story 9R.5b: every table offset of a world, derived from its own header's populations (no fixed capacity).</summary>
+    public static PhysicsWorldLayout Layout(ReadOnlySpan<byte> world) => PhysicsWorldLayout.Read(world);
 
-    /// <summary>The exact length a world buffer must have, derived from its own header's collider count.</summary>
-    public static int ByteLength(ReadOnlySpan<byte> header)
-    {
-        if (header.Length < HeaderBytes) throw new ArgumentException("A physics world is shorter than its header.");
-        var length = CollidersOffset + (long)R32(header, HeaderColliderCountOffset) * ColliderBytes;
-        if (length > int.MaxValue) throw new ArgumentException("Unsupported generic physics record.");
-        return (int)length;
-    }
+    /// <summary>The exact length a world buffer must have, derived from its own header's populations.</summary>
+    public static int ByteLength(ReadOnlySpan<byte> header) => PhysicsWorldLayout.Read(header).ByteLength;
     // A binary eighth-second primary segment bounds elapsed-value quantization.
     public const uint PrimarySegmentSteps = WorkshopCadenceSettings.PhysicalFrequency / 8;
 
@@ -101,14 +80,9 @@ public static partial class PhysicsGpuAbi
     {
         ArgumentNullException.ThrowIfNull(scene); profile.Validate();
         if (epoch.Value == 0) throw new ArgumentException("A world epoch is required.");
-        var bytes = new byte[ByteLength(scene.Colliders.Length)]; var data = bytes.AsSpan();
+        var bytes = new byte[scene.World.ByteLength]; var data = bytes.AsSpan();
         U32(data, HeaderVersionOffset, (uint)PhysicsStateVersion.GenericMechanical);
-        U32(data, HeaderBodyCountOffset, (uint)scene.Bodies.Length); U32(data, HeaderColliderCountOffset, (uint)scene.Colliders.Length);
-        U32(data, HeaderMaterialCountOffset, (uint)scene.Materials.Length); U32(data, HeaderSensorCountOffset, (uint)scene.Sensors.Length);
-        U32(data, HeaderDynamicCountOffset, 0); U32(data, HeaderGuideCountOffset, (uint)scene.Guides.Length);
-        U32(data, HeaderTriggerCountOffset, (uint)scene.Triggers.Length);
-        U32(data, HeaderContactWorkCountOffset, (uint)scene.ContactWorks.Length);
-        U32(data, HeaderOrientationSensorCountOffset, (uint)scene.OrientationSensors.Length);
+        scene.World.WriteCounts(data);
         U64(data, HeaderEpochOffset, epoch.Value); U32(data, HeaderCadenceOffset, (uint)profile.Cadence);
         U32(data, HeaderPhysicalProfileOffset, (uint)profile.Physical); U64(data, HeaderRevisionOffset, profile.Revision.Value);
         U64(data, HeaderDocumentLowOffset, scene.Document.Low); U64(data, HeaderDocumentHighOffset, scene.Document.High);
@@ -124,7 +98,6 @@ public static partial class PhysicsGpuAbi
             Vector(record, BodyGravityOffset, body.Gravity.X, body.Gravity.Y, body.Gravity.Z);
             if (body.Motion == RigidMotionKind.Dynamic)
             {
-                U32(data,HeaderDynamicCountOffset,R32(data,HeaderDynamicCountOffset)+1);
                 for (var collider=0; collider<scene.Colliders.Length; collider++)
                     if (scene.Colliders[collider].Body==body.Id)
                     {
@@ -219,15 +192,17 @@ public static partial class PhysicsGpuAbi
         if (epoch == 0 || tick > profile.RunTickLimit ||
             R32(data, HeaderSourceOrdinalOffset) != checked((uint)(tick * profile.Substeps)))
             throw new ArgumentException("Invalid generic physical time.");
-        Span<PhysicsBodyRead> values = stackalloc PhysicsBodyRead[PhysicsBodyReadSet.Capacity];
+        var layout = Layout(data);
+        // Exactly the world's declared dynamic population; the read set owns this array.
+        var values = new PhysicsBodyRead[layout.Dynamic];
         var count = 0;
-        for (var slot = 0; slot < R32(data, HeaderBodyCountOffset); slot++)
+        for (var slot = 0; slot < layout.Bodies; slot++)
         {
-            var record = data.Slice(BodiesOffset + slot * BodyBytes, BodyBytes);
+            var record = data.Slice(layout.BodyOffset(slot), BodyBytes);
             var motion = (RigidMotionKind)R32(record, 8);
             if (!Enum.IsDefined(motion)) throw new ArgumentException("Undefined rigid motion.");
             if (motion == RigidMotionKind.Static) continue;
-            if (count == values.Length) throw new ArgumentException("Dynamic body capacity exceeded.");
+            if (count == values.Length) throw new ArgumentException("More dynamic bodies than the world header declares.");
             // The read set validates every value: non-finite or out-of-envelope f32 velocity (|v| > 64 m/s, |w| > 128 rad/s) rejects the read.
             var body = new CanonicalBody(new(R64(record, 0)), epoch, tick,
                 ReadCell(record, BodyCellOffset), ReadLocal(record, BodyLocalOffset),
@@ -236,7 +211,8 @@ public static partial class PhysicsGpuAbi
                 new(RF(record, BodyAngularVelocityOffset), RF(record, BodyAngularVelocityOffset + 4), RF(record, BodyAngularVelocityOffset + 8)),
                 ReadCentreOfMass(record));
         }
-        var result = new PhysicsBodyReadSet(values[..count]);
+        if (count != values.Length) throw new ArgumentException("Fewer dynamic bodies than the world header declares.");
+        var result = PhysicsBodyReadSet.Adopt(values);
         result.ValidateTime(new(epoch), new(tick)); return result;
     }
 
@@ -244,7 +220,7 @@ public static partial class PhysicsGpuAbi
     {
         if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, HeaderSensorCountOffset))
             throw new ArgumentException("Invalid sensor read.");
-        var record = data.Slice(SensorsOffset + slot * SensorBytes, SensorBytes);
+        var record = data.Slice(Layout(data).SensorOffset(slot), SensorBytes);
         var phase = (ResidencePhase)R32(record, 72);
         var result = new ResidenceRead(new(R64(record, 0)), phase, R32(record, 84),
             R32(record, 76), RH(record, 80), R32(record, 88), RH(record, 92));
@@ -266,7 +242,8 @@ public static partial class PhysicsGpuAbi
     {
         if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, HeaderTriggerCountOffset))
             throw new ArgumentException("Invalid contact trigger read.");
-        var record = data.Slice(TriggersOffset + slot * TriggerBytes, TriggerBytes);
+        var layout = Layout(data);
+        var record = data.Slice(layout.TriggerOffset(slot), TriggerBytes);
         var owner = R32(record, TriggerOwnerOffset); var kind = (BodyTargetKind)R32(record, TriggerTargetKindOffset);
         var named = R32(record, TriggerNamedTargetOffset); var target = R32(record, TriggerBodyOffset); var count = R32(record, TriggerCountOffset);
         var bodyCount = R32(data, HeaderBodyCountOffset);
@@ -290,14 +267,14 @@ public static partial class PhysicsGpuAbi
             var colliderSlot = R32(record, TriggerColliderOffset);
             if ((target >= bodyCount || BodyMotion(data, target) != RigidMotionKind.Dynamic) || (kind == BodyTargetKind.NamedBody && target != named) ||
                 colliderSlot >= R32(data, HeaderColliderCountOffset) ||
-                R32(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes + ColliderBodyOffset) != owner ||
+                R32(data, layout.ColliderOffset(checked((int)colliderSlot)) + ColliderBodyOffset) != owner ||
                 !AdmittedTime(R32(record, TriggerOrdinalOffset), RH(record, TriggerPhaseOffset), R32(data, HeaderSourceOrdinalOffset)) ||
                 !Half.IsFinite(RH(record, TriggerApproachOffset)) || RH(record, TriggerApproachOffset) < threshold || RH(record, TriggerApproachOffset) > (Half)4096)
                 throw new ArgumentException("Invalid qualifying impact identity, time or normal speed.");
-            collider = new(R64(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes));
-            targetId = new(R64(data, BodiesOffset + checked((int)target) * BodyBytes));
+            collider = new(R64(data, layout.ColliderOffset(checked((int)colliderSlot))));
+            targetId = new(R64(data, layout.BodyOffset(checked((int)target))));
         }
-        return new(new(R64(record, 0)), new(R64(data, BodiesOffset + checked((int)owner) * BodyBytes)),
+        return new(new(R64(record, 0)), new(R64(data, layout.BodyOffset(checked((int)owner)))),
             targetId, count, collider, R32(record, TriggerOrdinalOffset), RH(record, TriggerPhaseOffset), new(RH(record, TriggerApproachOffset)));
     }
 
@@ -305,12 +282,13 @@ public static partial class PhysicsGpuAbi
     {
         if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, HeaderOrientationSensorCountOffset))
             throw new ArgumentException("Invalid orientation sensor read.");
-        var record = data.Slice(OrientationSensorsOffset + slot * OrientationSensorBytes, OrientationSensorBytes);
+        var layout = Layout(data);
+        var record = data.Slice(layout.OrientationSensorOffset(slot), OrientationSensorBytes);
         var body = R32(record, 8); var phase = (OrientationSensorPhase)R32(record, 40);
         if (R64(record, 0) == 0 || body >= R32(data, HeaderBodyCountOffset) || !Enum.IsDefined(phase) ||
             !AllZero(record[12..16]) || !AllZero(record[34..40]) || !AllZero(record[50..]))
             throw new ArgumentException("Invalid orientation sensor declaration or padding.");
-        var bodyRecord = data.Slice(BodiesOffset + checked((int)body) * BodyBytes, BodyBytes);
+        var bodyRecord = data.Slice(layout.BodyOffset(checked((int)body)), BodyBytes);
         if ((RigidMotionKind)R32(bodyRecord, 8) != RigidMotionKind.Dynamic)
             throw new ArgumentException("Orientation sensor body is not dynamic.");
         ReadRotation(record, OrientationSensorRotationOffset).Validate();
@@ -322,10 +300,10 @@ public static partial class PhysicsGpuAbi
             : ordinal == 0 || !PhysicsDeclarationBounds.Zero(eventPhase) || !AdmittedTime(ordinal, eventPhase, R32(data, HeaderSourceOrdinalOffset)))
             throw new ArgumentException("Invalid orientation sensor event.");
         var colliderSlot = R32(bodyRecord, 144);
-        if (colliderSlot >= R32(data, HeaderColliderCountOffset) || R32(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes + 8) != body)
+        if (colliderSlot >= R32(data, HeaderColliderCountOffset) || R32(data, layout.ColliderOffset(checked((int)colliderSlot)) + ColliderBodyOffset) != body)
             throw new ArgumentException("Orientation sensor body has no owned collider.");
         return new(new(R64(record, 0)), new(R64(bodyRecord, 0)),
-            new(R64(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes)), phase, ordinal, eventPhase);
+            new(R64(data, layout.ColliderOffset(checked((int)colliderSlot)))), phase, ordinal, eventPhase);
     }
 
     /// <summary>Required before committing a GPU result; selected reads alone do not qualify a candidate.</summary>
@@ -344,11 +322,13 @@ public static partial class PhysicsGpuAbi
             !candidate[HeaderCadenceOffset..HeaderSourceOrdinalOffset].SequenceEqual(source[HeaderCadenceOffset..HeaderSourceOrdinalOffset]) ||
             !candidate[HeaderGuideCountOffset..HeaderBytes].SequenceEqual(source[HeaderGuideCountOffset..HeaderBytes]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
-        var bodyCount=checked((int)R32(source,HeaderBodyCountOffset)); var dynamicCount=0;
+        // Equal header populations: one layout addresses both worlds, and every table is exactly its population (Story 9R.5b).
+        var layout = Layout(source);
+        var bodyCount=layout.Bodies; var dynamicCount=0;
         for (var i=0; i<bodyCount; i++)
         {
-            var actual=candidate.Slice(BodiesOffset+i*BodyBytes,BodyBytes);
-            var previous=source.Slice(BodiesOffset+i*BodyBytes,BodyBytes);
+            var actual=candidate.Slice(layout.BodyOffset(i),BodyBytes);
+            var previous=source.Slice(layout.BodyOffset(i),BodyBytes);
             var motion=(RigidMotionKind)R32(previous,BodyMotionOffset);
             if (motion==RigidMotionKind.Static)
             {
@@ -362,17 +342,15 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("Dynamic immutable declaration or padding changed.");
             ReadMassProperties(actual).Validate();
         }
-        if (dynamicCount!=R32(source,HeaderDynamicCountOffset) || dynamicCount>PhysicsBodyReadSet.Capacity ||
-            !AllZero(candidate.Slice(BodiesOffset+bodyCount*BodyBytes,(PhysicsSceneDeclaration.BodyCapacity-bodyCount)*BodyBytes)) ||
-            !candidate[MaterialsOffset..SensorsOffset].SequenceEqual(source[MaterialsOffset..SensorsOffset]) ||
-            !candidate[CollidersOffset..].SequenceEqual(source[CollidersOffset..]))
+        if (dynamicCount!=layout.Dynamic ||
+            !candidate[layout.MaterialsOffset..layout.SensorsOffset].SequenceEqual(source[layout.MaterialsOffset..layout.SensorsOffset]) ||
+            !candidate[layout.CollidersOffset..].SequenceEqual(source[layout.CollidersOffset..]))
             throw new ArgumentException("Candidate changed body population, geometry or material.");
         var bodies = ReadDynamicBodies(candidate);
         uint captured = 0;
-        var sensorCount = checked((int)R32(source, HeaderSensorCountOffset));
-        for (var i = 0; i < sensorCount; i++)
+        for (var i = 0; i < layout.Sensors; i++)
         {
-            var offset = SensorsOffset + i * SensorBytes;
+            var offset = layout.SensorOffset(i);
             if (!candidate.Slice(offset, 72).SequenceEqual(source.Slice(offset, 72)))
                 throw new ArgumentException("Sensor declaration changed.");
             var current = ReadSensor(candidate, i); var previous = ReadSensor(source, i);
@@ -395,15 +373,13 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("A retained qualified episode regressed or emitted again.");
             captured += current.OccurrenceCount;
         }
-        if (R32(candidate, HeaderCapturedCountOffset) != captured ||
-            !AllZero(candidate[(SensorsOffset + sensorCount * SensorBytes)..GuidesOffset]))
-            throw new ArgumentException("Capture count or unused sensor slots changed.");
-        if (!candidate[GuidesOffset..TriggersOffset].SequenceEqual(source[GuidesOffset..TriggersOffset]))
+        if (R32(candidate, HeaderCapturedCountOffset) != captured)
+            throw new ArgumentException("Capture count changed.");
+        if (!candidate[layout.GuidesOffset..layout.TriggersOffset].SequenceEqual(source[layout.GuidesOffset..layout.TriggersOffset]))
             throw new ArgumentException("Guide declaration changed.");
-        var triggerCount = checked((int)R32(source, HeaderTriggerCountOffset));
-        for (var i = 0; i < triggerCount; i++)
+        for (var i = 0; i < layout.Triggers; i++)
         {
-            var offset = TriggersOffset + i * TriggerBytes;
+            var offset = layout.TriggerOffset(i);
             if (!candidate.Slice(offset, 32).SequenceEqual(source.Slice(offset, 32)))
                 throw new ArgumentException("Contact trigger declaration changed.");
             var trigger = ReadTrigger(candidate, i);
@@ -411,19 +387,16 @@ public static partial class PhysicsGpuAbi
                 Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, HeaderSourceOrdinalOffset), (Half)0)))
                 throw new ArgumentException("Impact event does not belong to this candidate interval.");
         }
-        if (!AllZero(candidate[(TriggersOffset + triggerCount * TriggerBytes)..ContactWorksOffset]))
-            throw new ArgumentException("Unused contact trigger slots changed.");
         ValidateContactWorkCandidate(candidate, source, expectedTick);
-        var orientationCount = checked((int)R32(source, HeaderOrientationSensorCountOffset));
-        for (var i = 0; i < orientationCount; i++)
+        for (var i = 0; i < layout.OrientationSensors; i++)
         {
-            var offset = OrientationSensorsOffset + i * OrientationSensorBytes;
+            var offset = layout.OrientationSensorOffset(i);
             if (!candidate.Slice(offset, 40).SequenceEqual(source.Slice(offset, 40)))
                 throw new ArgumentException("Orientation sensor declaration changed.");
             // At admission the body record still holds the admitted rotation: the sensor's initial pose must be exactly that.
             // Later ticks keep the declaration bytes equal to the source, so the invariant carries forward.
             if (expectedTick.Value == 0 && !candidate.Slice(offset + 16, 16).SequenceEqual(
-                    candidate.Slice(BodiesOffset + checked((int)R32(candidate, offset + 8)) * BodyBytes + 48, 16)))
+                    candidate.Slice(layout.BodyOffset(checked((int)R32(candidate, offset + 8))) + BodyRotationOffset, 16)))
                 throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
             var current = ReadOrientationSensor(candidate, i); var previous = ReadOrientationSensor(source, i);
             // Sticky within a world: a fired sensor never regresses or re-emits; a new event belongs to this interval.
@@ -434,15 +407,13 @@ public static partial class PhysicsGpuAbi
             else if (current.Phase == OrientationSensorPhase.Fired && (expectedTick.Value == 0 || current.EventOrdinal <= R32(source, HeaderSourceOrdinalOffset)))
                 throw new ArgumentException("Orientation event does not belong to this candidate interval.");
         }
-        if (!AllZero(candidate[(OrientationSensorsOffset + orientationCount * OrientationSensorBytes)..MotionOffset]))
-            throw new ArgumentException("Unused orientation sensor slots changed.");
-        if (expectedTick.Value != 0 && (R32(candidate, MotionOffset + 4) != profile.Substeps ||
-            R32(candidate, MotionOffset + 12) != R32(candidate, HeaderSourceOrdinalOffset)))
+        if (expectedTick.Value != 0 && (R32(candidate, layout.MotionOffset + 4) != profile.Substeps ||
+            R32(candidate, layout.MotionOffset + 12) != R32(candidate, HeaderSourceOrdinalOffset)))
             throw new ArgumentException("Motion profile differs from its committed world.");
         ValidateElectricalCandidate(candidate,source);
         ValidatePrismaticCandidate(candidate,source);
         ValidateContactLoadCandidate(candidate,source);
-        return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(MotionOffset,PhysicsMotionRead.ByteLength), bodies, expectedTick));
+        return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(layout.MotionOffset,layout.MotionBytes), bodies, expectedTick));
     }
 
 
@@ -472,13 +443,6 @@ public static partial class PhysicsGpuAbi
 enable f16;
 const PHYSICAL_RATE:f16={WorkshopCadenceSettings.PhysicalFrequency}h;
 const PRIMARY_SEGMENT_STEPS:u32={PrimarySegmentSteps}u;
-const BODY_CAPACITY:u32={PhysicsSceneDeclaration.BodyCapacity}u;
-const MATERIAL_CAPACITY:u32={PhysicsSceneDeclaration.MaterialCapacity}u;
-const SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.SensorCapacity}u;
-const GUIDE_CAPACITY:u32={PhysicsSceneDeclaration.GuideCapacity}u;
-const TRIGGER_CAPACITY:u32={PhysicsSceneDeclaration.TriggerCapacity}u;
-const CONTACT_WORK_CAPACITY:u32={PhysicsSceneDeclaration.ContactWorkCapacity}u;
-const ORIENTATION_SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.OrientationSensorCapacity}u;
 const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
 const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
 const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
@@ -512,19 +476,10 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
     {
         if (data.Length < HeaderBytes || data.Length != ByteLength(data) ||
             R32(data, HeaderVersionOffset) != (uint)PhysicsStateVersion.GenericMechanical ||
-            R32(data, HeaderBodyCountOffset) > PhysicsSceneDeclaration.BodyCapacity ||
-            R32(data, HeaderMaterialCountOffset) > PhysicsSceneDeclaration.MaterialCapacity ||
-            R32(data, HeaderSensorCountOffset) > PhysicsSceneDeclaration.SensorCapacity ||
-            R32(data, HeaderGuideCountOffset) > PhysicsSceneDeclaration.GuideCapacity ||
-            R32(data, HeaderTriggerCountOffset) > PhysicsSceneDeclaration.TriggerCapacity ||
-            R32(data, HeaderContactWorkCountOffset) > PhysicsSceneDeclaration.ContactWorkCapacity ||
             (R64(data, HeaderDocumentLowOffset) == 0 && R64(data, HeaderDocumentHighOffset) == 0) || R64(data, HeaderNextIdentityOffset) == 0 ||
-            R32(data, HeaderDynamicCountOffset) > PhysicsBodyReadSet.Capacity ||
-            R32(data, HeaderWorkOccurrenceCountOffset) > PhysicsContactWorkRead.OccurrenceCapacity ||
-            R32(data, HeaderReservedOffset) != 0 ||
-            R32(data, HeaderOrientationSensorCountOffset) > PhysicsSceneDeclaration.OrientationSensorCapacity ||
-            R32(data, HeaderElectricalSourceCountOffset) > ElectricalSupplyPlan.SourceCapacity ||
-            R32(data, HeaderElectricalBindingCountOffset) > WorkshopConnections.Capacity)
+            // No capacity bounds a population (Story 9R.5b); only the populations' own relations do.
+            R32(data, HeaderDynamicCountOffset) > R32(data, HeaderBodyCountOffset) ||
+            !AllZero(data[HeaderPaddingOffset..HeaderBytes]))
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;

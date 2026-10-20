@@ -259,7 +259,7 @@ public sealed class WorkshopActivationAnimationTests
     }
 
     [Fact]
-    public void ContactFeedbackBudgetsOnlyNewEventsAndRejectsTrueOverflowAtomically()
+    public void ContactFeedbackBudgetsOnlyNewEventsWithoutAFixedHistoryBound()
     {
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
@@ -292,21 +292,20 @@ public sealed class WorkshopActivationAnimationTests
         Invoke(client,"ObserveContactFeedback",initial);
         var pulses = Field<System.Collections.IList>(client,"_contactPulses");
         Assert.Single(pulses.Cast<object>());
-        var capacity = checked((int)(PhysicsSceneDeclaration.ContactWorkCapacity * ContactWorkRead.MaximumOccurrences));
-        while (pulses.Count < capacity - 1) pulses.Add(pulses[0]);
+        // A repeated observation adds no pulse: only new paid occurrences are budgeted.
         Invoke(client,"ObserveContactFeedback",initial);
-        Assert.Equal(capacity - 1,pulses.Count);
+        Assert.Single(pulses.Cast<object>());
         var second = clear with { Collider=collider,Sequence=2,EventOrdinal=16,ApproachSpeed=new(4f),Debit=new(1f),Effect=ContactWorkEffect.Paid };
         var fitting = Read(2,first,second);
         Invoke(client,"ObserveContactFeedback",fitting);
-        Assert.Equal(capacity,pulses.Count);
+        Assert.Equal(2,pulses.Count);
         Invoke(client,"ObserveContactFeedback",fitting);
-        Assert.Equal(capacity,pulses.Count);
-        var overflow = Read(3,first with { Sequence=3,EventOrdinal=88 },second);
-        Assert.IsType<InvalidOperationException>(Assert.Throws<TargetInvocationException>(() =>
-            Invoke(client,"ObserveContactFeedback",overflow)).InnerException);
-        Assert.Equal(capacity,pulses.Count);
-        Assert.True(fitting.ContactWorks.HasSameBits(Field<PhysicsContactWorkRead>(client,"_contactObserved")));
+        Assert.Equal(2,pulses.Count);
+        // Story 9R.5b: the feedback history has no fixed bound; the next paid occurrence (the former overflow) is admitted.
+        var next = Read(3,first with { Sequence=3,EventOrdinal=88 },second);
+        Invoke(client,"ObserveContactFeedback",next);
+        Assert.Equal(3,pulses.Count);
+        Assert.True(next.ContactWorks.HasSameBits(Field<PhysicsContactWorkRead>(client,"_contactObserved")));
     }
 
     [Fact]
@@ -627,7 +626,25 @@ public sealed class WorkshopActivationAnimationTests
         var client = (BrowserWorkshopClient)Activator.CreateInstance(typeof(BrowserWorkshopClient),
             BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { Session }, null)!;
         Set(client, "_peer", new WorkshopClockPeer(Session, new(1), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser));
-        Set(client, "_schedule", Schedule(1, 1)); return client;
+        Set(client, "_schedule", Schedule(1, 1)); FitSlots(client); return client;
+    }
+    // Story 9R.5b: production grows the feedback slots to each committed read's populations (FitFeedbackSlots) before the read
+    // enters the history. These tests inject reads and leases directly, so they pre-size the same slots for a small world.
+    private static readonly string[] FeedbackSlots =
+    [
+        "_activationRequested", "_activationSamples", "_activationOrdinals", "_activationFrameTaken",
+        "_memoryRequested", "_memorySamples", "_memoryRetry", "_memoryOrdinals",
+        "_timerRequested", "_timerSamples", "_timerRetry", "_timerOrdinals",
+        "_captureRequested", "_captureSamples", "_captureOrdinals", "_captureFrameTaken",
+        "_electricalRequested", "_electricalSamples", "_electricalRetry", "_electricalOrdinals",
+    ];
+    private static void FitSlots(BrowserWorkshopClient client)
+    {
+        foreach (var name in FeedbackSlots)
+        {
+            var field = typeof(BrowserWorkshopClient).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!;
+            field.SetValue(client, Array.CreateInstance(field.FieldType.GetElementType()!, 32));
+        }
     }
     private static WorkshopSchedule Schedule(ulong world, ulong revision) => WorkshopSchedule.Create(
         WorkshopCadenceSettings.Default(), new(revision), new(1), new(0), new(0), new(0), new(0),

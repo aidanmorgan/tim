@@ -5,7 +5,8 @@ import { attachClockRing, requestReply, ClockRole } from '../clock-ring.js';
 await admitNativeClock();
 const runtime = await dotnet.create();
 let host, port, clock, service, disposed = false, bootstrapped = false, qualified = false;
-let outputKinds, targetCapacity, pendingSample;
+// The latest sample per target: one entry per animated target of the machine, with no fixed target capacity (Story 9R.5b).
+let outputKinds, pendingSample;
 const latestSamples = new Map();
 function closeOwned() {
     if (disposed) return;
@@ -55,8 +56,6 @@ runtime.setModuleImports('workshopAnimation', {
         const kind = new DataView(value.buffer).getUint32(60, true);
         if (kind === outputKinds[1]) {
             const target = new DataView(value.buffer).getBigUint64(64, true);
-            if (!latestSamples.has(target) && latestSamples.size >= targetCapacity)
-                throw new Error('Animation latest target capacity exceeded.');
             latestSamples.set(target, value); flushSample();
         }
         else if (kind === outputKinds[0] || kind === outputKinds[2]) self.postMessage({ animationOutput: value }, [value.buffer]);
@@ -70,8 +69,6 @@ runtime.setModuleImports('workshopAnimation', {
 const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
 host = exports.CuriousContraptions.Animation.Worker.Program;
 outputKinds = Array.from(host.OutputKinds());
-targetCapacity = host.TargetCapacity();
-if (!Number.isSafeInteger(targetCapacity) || targetCapacity <= 0) throw new Error('Invalid declared Animation target capacity.');
 self.onmessage = event => {
     if (disposed) return;
     try {

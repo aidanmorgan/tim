@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>
-/// Pre-calculated fixed-offset simulation buffer layout and slot addresses generated at compile time.
+/// Pre-calculated simulation buffer slot addresses generated at compile time, in the scene's own exactly sized world
+/// (<see cref="PhysicsWorldLayout"/>).
 /// Eliminates runtime linear searches (BodySlot, MaterialSlot) and dynamic manual byte math in favour
 /// of instant O(1) address resolution.
 /// </summary>
@@ -74,6 +75,7 @@ public sealed class CompiledMemoryLayout
     public int GetPrismaticOffset(ulong id) => _prismaticOffsets[id];
 
     public static CompiledMemoryLayout Build(
+        PhysicsWorldLayout world,
         ReadOnlySpan<RigidBodyDeclaration> bodies,
         ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials,
@@ -90,61 +92,61 @@ public sealed class CompiledMemoryLayout
         {
             var id = bodies[i].Id;
             layout._bodySlots[id] = i;
-            layout._bodyOffsets[id] = PhysicsGpuAbi.BodiesOffset + i * PhysicsGpuAbi.BodyBytes;
+            layout._bodyOffsets[id] = world.BodyOffset(i);
         }
         for (var i = 0; i < colliders.Length; i++)
         {
             var id = colliders[i].Id;
             layout._colliderSlots[id] = i;
-            layout._colliderOffsets[id] = PhysicsGpuAbi.CollidersOffset + i * PhysicsGpuAbi.ColliderBytes;
+            layout._colliderOffsets[id] = world.ColliderOffset(i);
         }
         for (var i = 0; i < materials.Length; i++)
         {
             var id = materials[i].Id;
             layout._materialSlots[id] = i;
-            layout._materialOffsets[id] = PhysicsGpuAbi.MaterialsOffset + i * PhysicsGpuAbi.MaterialBytes;
+            layout._materialOffsets[id] = world.MaterialOffset(i);
         }
         for (var i = 0; i < sensors.Length; i++)
         {
             var id = sensors[i].Id;
             layout._sensorSlots[id] = i;
-            layout._sensorOffsets[id] = PhysicsGpuAbi.SensorsOffset + i * PhysicsGpuAbi.SensorBytes;
+            layout._sensorOffsets[id] = world.SensorOffset(i);
         }
         for (var i = 0; i < guides.Length; i++)
         {
             var id = guides[i].Id;
             layout._guideSlots[id] = i;
-            layout._guideOffsets[id] = PhysicsGpuAbi.GuidesOffset + i * PhysicsGpuAbi.GuideBytes;
+            layout._guideOffsets[id] = world.GuideOffset(i);
         }
         for (var i = 0; i < triggers.Length; i++)
         {
             var id = triggers[i].Id;
             layout._triggerSlots[id] = i;
-            layout._triggerOffsets[id] = PhysicsGpuAbi.TriggersOffset + i * PhysicsGpuAbi.TriggerBytes;
+            layout._triggerOffsets[id] = world.TriggerOffset(i);
         }
         for (var i = 0; i < contactWorks.Length; i++)
         {
             var id = contactWorks[i].Id;
             layout._contactWorkSlots[id] = i;
-            layout._contactWorkOffsets[id] = PhysicsGpuAbi.ContactWorksOffset + i * PhysicsGpuAbi.ContactWorkBytes;
+            layout._contactWorkOffsets[id] = world.ContactWorkOffset(i);
         }
         for (var i = 0; i < orientationSensors.Length; i++)
         {
             var id = orientationSensors[i].Id;
             layout._orientationSensorSlots[id] = i;
-            layout._orientationSensorOffsets[id] = PhysicsGpuAbi.OrientationSensorsOffset + i * PhysicsGpuAbi.OrientationSensorBytes;
+            layout._orientationSensorOffsets[id] = world.OrientationSensorOffset(i);
         }
         for (var i = 0; i < electricalSources.Length; i++)
         {
             var id = electricalSources[i].Id;
             layout._electricalSourceSlots[id] = i;
-            layout._electricalSourceOffsets[id] = PhysicsGpuAbi.ElectricalSourcesOffset + i * PhysicsGpuAbi.ElectricalSourceBytes;
+            layout._electricalSourceOffsets[id] = world.ElectricalSourceOffset(i);
         }
         for (var i = 0; i < prismatics.Length; i++)
         {
             var id = prismatics[i].Id.Value;
             layout._prismaticSlots[id] = i;
-            layout._prismaticOffsets[id] = PhysicsGpuAbi.PrismaticRecordsOffset + i * PhysicsGpuAbi.PrismaticBytes;
+            layout._prismaticOffsets[id] = world.PrismaticOffset(i);
         }
         return layout;
     }

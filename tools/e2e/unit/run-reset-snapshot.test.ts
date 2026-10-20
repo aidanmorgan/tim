@@ -23,7 +23,7 @@ const BALL = 1n, RECEIVER = 2n;
 
 function response(overrides: Partial<MockResponseParams> = {}): Uint8Array {
     return new Uint8Array(encodeWorkshopResponse({
-        sequence: 7n, kind: 0, outcome: 0, reason: 0, phase: 2, version: 20, epoch: 3n, tick: 0n, revision: 11n,
+        sequence: 7n, kind: 0, outcome: 0, reason: 0, phase: 2, version: 21, epoch: 3n, tick: 0n, revision: 11n,
         publication: 0n, masterGeneration: 1n, cadence: 1n, projection: 2n, session: [1, 2, 3, 4],
         bodies: [
             { id: BALL, cell: { x: 0, y: 1, z: 0 }, local: { x: 0.25, y: 3, z: 0 }, rotation: { w: 1 }, velocity: { x: 0, y: 0, z: 0 } },

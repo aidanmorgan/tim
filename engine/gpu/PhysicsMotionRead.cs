@@ -8,7 +8,8 @@ public enum PhysicsMotionKind : uint { FreePolynomial = 1, SupportedQuadratic = 
 /// <summary>Immutable GPU-authored render trajectory for exactly one complete physical commit.</summary>
 public sealed class PhysicsMotionRead
 {
-    public const int Capacity = PhysicsBodyReadSet.Capacity * 8;
+    /// <summary>One piece per substep: room for the largest admitted substep count per tick (structural, not a population).</summary>
+    public const int PiecesPerBody = 8;
     public const int PieceBytes = 144;
     public const int HeaderBytes = 16;
     // Piece: f32 COM remainder48, quaternion64, velocity80/angular92; Half drag60, forces104/112/120.
@@ -19,7 +20,14 @@ public sealed class PhysicsMotionRead
     public const int GravityOffset = 104;
     public const int SupportedAccelerationOffset = 112;
     public const int AngularAccelerationOffset = 120;
-    public const int ByteLength = HeaderBytes + Capacity * PieceBytes;
+    /// <summary>The payload for a world with this many dynamic bodies (Story 9R.5b: no fixed body capacity).</summary>
+    public static int ByteLength(int dynamicBodies)
+    {
+        // An unaddressable payload (a corrupt or hostile count) is an input rejection, never an arithmetic fault.
+        var bytes = HeaderBytes + (long)dynamicBodies * PiecesPerBody * PieceBytes;
+        return dynamicBodies >= 0 && bytes <= int.MaxValue ? (int)bytes
+            : throw new ArgumentException("Unsupported motion population.", nameof(dynamicBodies));
+    }
     private readonly byte[] _bytes;
     private readonly SimulationTick _tick;
     private readonly GpuBodyId[] _bodyIds;
@@ -59,9 +67,9 @@ public sealed class PhysicsMotionRead
 
     public static void Validate(ReadOnlySpan<byte> bytes, PhysicsBodyReadSet bodies, SimulationTick tick)
     {
-        if (bytes.Length != ByteLength) throw new ArgumentException("Invalid motion payload width.");
+        if (bytes.Length != ByteLength(bodies.Count)) throw new ArgumentException("Invalid motion payload width.");
         var count = U32(bytes, 0);
-        if (count > Capacity || !Zero(bytes[(HeaderBytes + checked((int)count) * PieceBytes)..]))
+        if (count > (uint)(bodies.Count * PiecesPerBody) || !Zero(bytes[(HeaderBytes + checked((int)count) * PieceBytes)..]))
             throw new ArgumentException("Invalid motion capacity or unused slots.");
         if (tick.Value == 0)
         {

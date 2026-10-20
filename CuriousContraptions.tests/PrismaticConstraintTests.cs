@@ -44,13 +44,14 @@ public sealed class PrismaticConstraintTests
         }
         else if (boundary == RotationBoundary.Candidate)
         {
-            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(PhysicsGpuAbi.BodiesOffset + PhysicsGpuAbi.BodyBytes + 60), w);
+            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(PhysicsGpuAbi.Layout(candidate).BodyOffset(1) + 60), w);
             PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
         }
         else
         {
-            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + 76), w);
-            PhysicsMotionRead.Decode(candidate.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength),
+            var layout = PhysicsGpuAbi.Layout(candidate);
+            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(layout.MotionOffset + PhysicsMotionRead.HeaderBytes + 76), w);
+            PhysicsMotionRead.Decode(candidate.AsSpan(layout.MotionOffset, layout.MotionBytes),
                 PhysicsGpuAbi.ReadDynamicBodies(candidate), new(1));
         }
     }
@@ -74,7 +75,7 @@ public sealed class PrismaticConstraintTests
         var candidate = Advance(source);
         if (ordinal != 0)
         {
-            var record = candidate.AsSpan(PhysicsGpuAbi.TriggersOffset, PhysicsGpuAbi.TriggerBytes);
+            var record = candidate.AsSpan(PhysicsGpuAbi.Layout(candidate).TriggerOffset(0), PhysicsGpuAbi.TriggerBytes);
             BinaryPrimitives.WriteUInt32LittleEndian(record[32..], 1);
             BinaryPrimitives.WriteUInt32LittleEndian(record[36..], 1);
             BinaryPrimitives.WriteUInt32LittleEndian(record[40..], ordinal);
@@ -105,8 +106,8 @@ public sealed class PrismaticConstraintTests
         var bytes = PhysicsGpuAbi.Admission(Scene(Joint), new(1), Profile);
         Assert.Equal(Joint, PhysicsGpuAbi.ReadPrismatic(bytes, 0));
         Assert.NotEqual((float)(Half)Joint.Stiffness, Joint.Stiffness);
-        Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.PrismaticsOffset)));
-        Assert.All(bytes.AsSpan(PhysicsGpuAbi.PrismaticRecordsOffset + PhysicsGpuAbi.PrismaticImpulseOffset, 32).ToArray(),
+        Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderPrismaticCountOffset)));
+        Assert.All(bytes.AsSpan(PhysicsGpuAbi.Layout(bytes).PrismaticOffset(0) + PhysicsGpuAbi.PrismaticImpulseOffset, 32).ToArray(),
             value => Assert.Equal((byte)0, value));
     }
 
@@ -135,7 +136,7 @@ public sealed class PrismaticConstraintTests
     {
         var source = PhysicsGpuAbi.Admission(Scene(Joint), new(1), Profile);
         var before = source.ToArray(); var malformed = source.ToArray();
-        BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(PhysicsGpuAbi.PrismaticRecordsOffset + field), value);
+        BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(PhysicsGpuAbi.Layout(malformed).PrismaticOffset(0) + field), value);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadPrismatic(malformed, 0));
         Assert.Equal(before, source); Assert.Equal(Joint, PhysicsGpuAbi.ReadPrismatic(source, 0));
     }
@@ -145,11 +146,12 @@ public sealed class PrismaticConstraintTests
         var bytes = source.ToArray();
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(40), 1);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), 4);
-        var motion = bytes.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength);
+        var layout = PhysicsGpuAbi.Layout(bytes);
+        var motion = bytes.AsSpan(layout.MotionOffset, layout.MotionBytes);
         BinaryPrimitives.WriteUInt32LittleEndian(motion, 4);
         BinaryPrimitives.WriteUInt32LittleEndian(motion[4..], 4);
         BinaryPrimitives.WriteUInt32LittleEndian(motion[12..], 4);
-        var body = bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + PhysicsGpuAbi.BodyBytes, PhysicsGpuAbi.BodyBytes);
+        var body = bytes.AsSpan(layout.BodyOffset(1), PhysicsGpuAbi.BodyBytes);
         for (var step = 0; step < 4; step++)
         {
             var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + step * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
@@ -171,11 +173,12 @@ public sealed class PrismaticConstraintTests
         PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
         var candidate = Advance(source);
         float[] impulses = [-1, 2, -3, 4, -5, -6, 7, 8];
+        var joint = PhysicsGpuAbi.Layout(source).PrismaticOffset(0);
         for (var row = 0; row < impulses.Length; row++)
-            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(PhysicsGpuAbi.PrismaticRecordsOffset +
+            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(joint +
                 PhysicsGpuAbi.PrismaticImpulseOffset + row * 4), impulses[row]);
         PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
-        Assert.All(source.AsSpan(PhysicsGpuAbi.PrismaticRecordsOffset + PhysicsGpuAbi.PrismaticImpulseOffset, 32).ToArray(),
+        Assert.All(source.AsSpan(joint + PhysicsGpuAbi.PrismaticImpulseOffset, 32).ToArray(),
             value => Assert.Equal((byte)0, value));
     }
 
@@ -191,7 +194,7 @@ public sealed class PrismaticConstraintTests
     {
         var source = PhysicsGpuAbi.Admission(Scene(Joint), new(1), Profile);
         var before = source.ToArray(); var candidate = Advance(source);
-        BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.PrismaticRecordsOffset + field), value);
+        BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.Layout(candidate).PrismaticOffset(0) + field), value);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1)));
         Assert.Equal(before, source);
     }
@@ -201,7 +204,7 @@ public sealed class PrismaticConstraintTests
     {
         var source = PhysicsGpuAbi.Admission(Scene(Joint), new(1), Profile);
         var candidate = Advance(source);
-        BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.PrismaticsOffset), 0);
+        BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.HeaderPrismaticCountOffset), 0);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1)));
     }
 

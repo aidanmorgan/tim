@@ -320,17 +320,19 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void WorkbenchCapacity_ValidatesPoweredGateFootprint()
     {
-        var fp = WorkbenchFootprint.Of(PartId.PoweredGate);
-        Assert.Equal(2, fp.Bodies);
-        Assert.Equal(1, fp.DynamicBodies);
-        Assert.Equal(20, fp.Colliders);
-        Assert.Equal(0, fp.Triggers);
-        Assert.Equal(0, fp.ContactWorks);
-        Assert.Equal(0, fp.ElectricalSources);
-        Assert.Equal(1, fp.PrismaticConstraints);
-
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
         IWorkshopInstance[] instances = [gate];
         WorkbenchCapacity.Validate(instances);
+
+        // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
+        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(gate)), new(1, 2)).World;
+        Assert.Equal(2 + 1, world.Bodies);
+        Assert.Equal(1, world.Dynamic);
+        Assert.Equal(20 + 1, world.Colliders);
+        Assert.Equal(0, world.Triggers);
+        Assert.Equal(0, world.ContactWorks);
+        Assert.Equal(0, world.ElectricalSources);
+        Assert.Equal(1, world.Prismatics);
     }
 }

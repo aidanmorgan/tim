@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 20 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 21 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null, WorkshopElectricalControl? Electrical = null);
@@ -15,32 +15,85 @@ public readonly record struct WorkshopResponse(CommandSequence Sequence, Worksho
     CadenceRevision Cadence = default, ClockGeneration MasterGeneration = default,
     ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default);
 
-/// <summary>Named, bounded external boundary; unknown schemas, enums, lengths and padding reject.</summary>
+/// <summary>Named external boundary; unknown schemas, enums, lengths and padding reject. Story 9R.5b: every population section is
+/// exactly as long as its own u32 count in the header (construction instances and connections, response bodies, captures,
+/// activations, timers, contact works and occurrences, electrical sources and memory rows); no section has a fixed capacity.</summary>
 public static class WorkshopWire
 {
     public const int CommandHeaderBytes = 72;
     public const int ConstructionHeaderBytes = 320;
     public const int InstanceBytes = 160;
-    public const int ConnectionsOffset = ConstructionHeaderBytes + WorkshopInstances.Capacity * InstanceBytes;
     public const int ConnectionBytes = 32;
-    public const int ConstructionBytes = ConnectionsOffset + WorkshopConnections.Capacity * ConnectionBytes;
-    public const int ResponseHeaderBytes = 128;
+    /// <summary>The exact construction width for its own instance and connection counts.</summary>
+    public static int ConstructionBytes(int instances, int connections) => instances >= 0 && connections >= 0
+        ? checked(ConstructionHeaderBytes + instances * InstanceBytes + connections * ConnectionBytes)
+        : throw new ArgumentException("A construction population cannot be negative.");
+    public static int ConstructionBytes(WorkshopConstruction construction) =>
+        ConstructionBytes(construction.Instances.Count, construction.Connections.Count);
+    public const int ResponseHeaderBytes = 144;
     public const int ResponseSessionOffset = 40;
     public const int ResponsePublicationOffset = 56;
     /// <summary>Response header fields the Simulation worker's pose-ring writer reads (worker.js, pinned by WorkerAbiTests).</summary>
     public const int ResponseCaptureTimeOffset = 72;
-    public const int ResponseBodyCountOffset = 104;
-    public static int[] ResponseAbi() => [ResponseBytes, ResponseSessionOffset, ResponsePublicationOffset];
+    /// <summary>The u32 population counts: bodies, captures, activations, timers, contact works, work occurrences, electrical
+    /// sources and memory rows, in that order.</summary>
+    public const int ResponseBodyCountOffset = 112;
+    public const int ResponseCaptureCountOffset = 116;
+    public const int ResponseActivationCountOffset = 120;
+    public const int ResponseTimerCountOffset = 124;
+    public const int ResponseContactWorkCountOffset = 128;
+    public const int ResponseOccurrenceCountOffset = 132;
+    public const int ResponseElectricalCountOffset = 136;
+    public const int ResponseMemoryCountOffset = 140;
+    /// <summary>The response's minimum (header) length, its session offset and its publication offset.</summary>
+    public static int[] ResponseAbi() => [ResponseHeaderBytes, ResponseSessionOffset, ResponsePublicationOffset];
     public const int ReadBodiesOffset = ResponseHeaderBytes;
-    public const int ReadCapturesOffset = ReadBodiesOffset + PhysicsBodyReadSet.Capacity * PhysicsBodyWire.ByteLength;
     public const int CaptureBytes = 24;
-    public const int ReadActivationsOffset = ReadCapturesOffset + PhysicsSceneDeclaration.SensorCapacity * CaptureBytes;
-    public const int ReadTimersOffset = ReadActivationsOffset + WorkshopActivationWire.ByteLength;
-    public const int ReadContactWorkOffset = ReadTimersOffset + WorkshopTimerWire.ByteLength;
-    public const int ReadMotionOffset = ReadContactWorkOffset + WorkshopContactWorkWire.ByteLength;
-    public const int ReadElectricalOffset = ReadMotionOffset + PhysicsMotionRead.ByteLength;
-    public const int ReadMemoryOffset = ReadElectricalOffset + WorkshopElectricalWire.ByteLength;
-    public const int ResponseBytes = ReadMemoryOffset + WorkshopActivationMemoryWire.ByteLength;
+
+    /// <summary>A section or record width: an unaddressable width (a corrupt or hostile count) is the decoder's input rejection,
+    /// never an arithmetic fault.</summary>
+    internal static int Width(long bytes) => bytes is >= 0 and <= int.MaxValue
+        ? (int)bytes : throw new ArgumentException("Unsupported Workshop wire population.");
+
+    /// <summary>The response sections, back to back after the header, each exactly its population.</summary>
+    public readonly record struct ResponseLayout(int Bodies, int Captures, int Activations, int Timers, int ContactWorks,
+        int Occurrences, int Electrical, int Memory)
+    {
+        public static int BodiesOffset => ReadBodiesOffset;
+        public int CapturesOffset => Width(BodiesOffset + (long)Bodies * PhysicsBodyWire.ByteLength);
+        public int ActivationsOffset => Width(CapturesOffset + (long)Captures * CaptureBytes);
+        public int TimersOffset => Width((long)ActivationsOffset + WorkshopActivationWire.ByteLength(Activations));
+        public int ContactWorkOffset => Width((long)TimersOffset + WorkshopTimerWire.ByteLength(Timers));
+        public int MotionOffset => Width((long)ContactWorkOffset + WorkshopContactWorkWire.ByteLength(ContactWorks, Occurrences));
+        public int ElectricalOffset => Width((long)MotionOffset + PhysicsMotionRead.ByteLength(Bodies));
+        public int MemoryOffset => Width((long)ElectricalOffset + WorkshopElectricalWire.ByteLength(Electrical));
+        public int ByteLength => Width((long)MemoryOffset + WorkshopActivationMemoryWire.ByteLength(Memory));
+        public static ResponseLayout Of(WorkshopRead read) => new(read.Bodies.Count, read.Captures.Count, read.Activations.Count,
+            read.Timers.Count, read.ContactWorks.Count, read.ContactWorks.OccurrenceCount, read.Electrical.Count, read.Memory.Count);
+        public static ResponseLayout Read(ReadOnlySpan<byte> header) => new(Count(header, ResponseBodyCountOffset),
+            Count(header, ResponseCaptureCountOffset), Count(header, ResponseActivationCountOffset), Count(header, ResponseTimerCountOffset),
+            Count(header, ResponseContactWorkCountOffset), Count(header, ResponseOccurrenceCountOffset),
+            Count(header, ResponseElectricalCountOffset), Count(header, ResponseMemoryCountOffset));
+        public void Write(Span<byte> header)
+        {
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseBodyCountOffset..], (uint)Bodies);
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseCaptureCountOffset..], (uint)Captures);
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseActivationCountOffset..], (uint)Activations);
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseTimerCountOffset..], (uint)Timers);
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseContactWorkCountOffset..], (uint)ContactWorks);
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseOccurrenceCountOffset..], (uint)Occurrences);
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseElectricalCountOffset..], (uint)Electrical);
+            BinaryPrimitives.WriteUInt32LittleEndian(header[ResponseMemoryCountOffset..], (uint)Memory);
+        }
+        private static int Count(ReadOnlySpan<byte> header, int offset)
+        {
+            var value = BinaryPrimitives.ReadUInt32LittleEndian(header[offset..]);
+            return value <= int.MaxValue ? (int)value : throw new ArgumentException("Unsupported Workshop response population.");
+        }
+    }
+
+    /// <summary>The exact encoded width of one response (a function of its read's populations).</summary>
+    public static int ResponseBytes(WorkshopResponse response) => ResponseLayout.Of(response.Read).ByteLength;
     public static bool Matches(WorkshopCommand command, SimulationEpoch epoch, AuthorityRevision revision,
         RuntimeSessionId session, CadenceRevision cadence, ProjectionEpoch projection) =>
         command.Session == session && command.Epoch == epoch && command.Cadence == cadence && command.Projection == projection &&
@@ -64,7 +117,7 @@ public static class WorkshopWire
             (command.Kind == WorkshopCommandKind.Cancel) != command.Target.HasValue ||
             (command.Target is { } target && (target.Sequence.Value == 0 || target.Epoch.Value == 0 || target.Cadence.Value == 0 || target.Projection.Value == 0)))
             throw new ArgumentException("Unsupported Workshop command.");
-        var bytes = new byte[CommandHeaderBytes + (command.Construction.HasValue ? ConstructionBytes : command.Target.HasValue ? 40 : command.Electrical.HasValue ? 16 : hasSettings ? WorkshopCadenceWire.ByteLength : 0)];
+        var bytes = new byte[CommandHeaderBytes + (command.Construction is { } built ? ConstructionBytes(built) : command.Target.HasValue ? 40 : command.Electrical.HasValue ? 16 : hasSettings ? WorkshopCadenceWire.ByteLength : 0)];
         var data = bytes.AsSpan();
         BinaryPrimitives.WriteUInt64LittleEndian(data, command.Sequence.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[8..], (uint)command.Kind);
@@ -106,7 +159,7 @@ public static class WorkshopWire
         if ((kind == WorkshopCommandKind.Initialize ? cadence.Value != 0 || projection.Value != 0 : cadence.Value == 0 || projection.Value == 0) ||
             !Enum.IsDefined(kind) || sequence.Value == 0 ||
             (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && revisionKind != ExpectedRevisionKind.Exact) ||
-            data.Length != CommandHeaderBytes + (kind == WorkshopCommandKind.Construct ? ConstructionBytes : kind == WorkshopCommandKind.Cancel ? 40 : kind == WorkshopCommandKind.ConfigureElectrical ? 16 : hasSettings ? WorkshopCadenceWire.ByteLength : 0))
+            data.Length != CommandHeaderBytes + (kind == WorkshopCommandKind.Construct ? ConstructionWidth(data[CommandHeaderBytes..]) : kind == WorkshopCommandKind.Cancel ? 40 : kind == WorkshopCommandKind.ConfigureElectrical ? 16 : hasSettings ? WorkshopCadenceWire.ByteLength : 0))
             throw new ArgumentException("Unsupported Workshop command shape.");
         return new(sequence, kind, new(BinaryPrimitives.ReadUInt64LittleEndian(data[16..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[24..])), kind == WorkshopCommandKind.Construct ? ReadConstruction(data[CommandHeaderBytes..]) : null,
@@ -129,14 +182,15 @@ public static class WorkshopWire
 
     public static byte[] Encode(WorkshopResponse response)
     {
-        var bytes = new byte[ResponseBytes];
+        var bytes = new byte[ResponseBytes(response)];
         Write(response, bytes);
         return bytes;
     }
 
     public static void Write(WorkshopResponse response, Span<byte> data)
     {
-        if (data.Length != ResponseBytes) throw new ArgumentException("Invalid reserved response size.");
+        var layout = ResponseLayout.Of(response.Read);
+        if (data.Length != layout.ByteLength) throw new ArgumentException("Invalid reserved response size.");
         if (!Enum.IsDefined(response.Kind) || !Enum.IsDefined(response.Phase) ||
             !Enum.IsDefined(response.Result.Outcome) || !Enum.IsDefined(response.Result.Reason) ||
             (response.Kind == WorkshopResponseKind.Acknowledgement) != (response.Sequence.Value != 0))
@@ -164,33 +218,32 @@ public static class WorkshopWire
         }
         BinaryPrimitives.WriteUInt64LittleEndian(data[88..],response.Cadence.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[96..],response.Projection.Value);
-        data[ResponseBodyCountOffset]=response.Read.Bodies.Count; data[105]=response.Read.Captures.Count;
-        data[106]=response.Read.Activations.Count; data[107]=response.Read.Timers.Count;
-        data[112]=response.Read.Electrical.Count; data[113]=response.Read.Memory.Count;
-        WorkshopElectricalWire.Write(response.Read.Electrical,data[ReadElectricalOffset..ReadMemoryOffset]);
-        WorkshopActivationMemoryWire.Write(response.Read.Memory,data[ReadMemoryOffset..]);
-        data[108]=response.Read.ContactWorks.Count; data[109]=response.Read.ContactWorks.OccurrenceCount;
+        layout.Write(data);
+        WorkshopElectricalWire.Write(response.Read.Electrical,data[layout.ElectricalOffset..layout.MemoryOffset]);
+        WorkshopActivationMemoryWire.Write(response.Read.Memory,data[layout.MemoryOffset..]);
         for (var i=0; i<response.Read.Bodies.Count; i++)
             PhysicsBodyWire.Write(response.Read.Bodies[i],data.Slice(ReadBodiesOffset+i*PhysicsBodyWire.ByteLength,PhysicsBodyWire.ByteLength));
         for (var i=0; i<response.Read.Captures.Count; i++)
         {
-            var latch=response.Read.Captures[i]; var slot=data.Slice(ReadCapturesOffset+i*CaptureBytes,CaptureBytes);
+            var latch=response.Read.Captures[i]; var slot=data.Slice(layout.CapturesOffset+i*CaptureBytes,CaptureBytes);
             BinaryPrimitives.WriteUInt64LittleEndian(slot,latch.Sensor.Value);
             BinaryPrimitives.WriteUInt32LittleEndian(slot[8..],(uint)latch.Phase);
             BinaryPrimitives.WriteUInt32LittleEndian(slot[12..],latch.EventOrdinal);
             Write(slot[16..],latch.EventPhase);
         }
-        WorkshopActivationWire.Write(response.Read.Activations,data[ReadActivationsOffset..ReadTimersOffset]);
-        WorkshopTimerWire.Write(response.Read.Timers,data[ReadTimersOffset..ReadContactWorkOffset]);
-        WorkshopContactWorkWire.Write(response.Read.ContactWorks,data[ReadContactWorkOffset..ReadMotionOffset]);
-        if (response.Read.Motion is { } motion) motion.Bytes.CopyTo(data[ReadMotionOffset..ReadElectricalOffset]);
+        WorkshopActivationWire.Write(response.Read.Activations,data[layout.ActivationsOffset..layout.TimersOffset]);
+        WorkshopTimerWire.Write(response.Read.Timers,data[layout.TimersOffset..layout.ContactWorkOffset]);
+        WorkshopContactWorkWire.Write(response.Read.ContactWorks,data[layout.ContactWorkOffset..layout.MotionOffset]);
+        if (response.Read.Motion is { } motion) motion.Bytes.CopyTo(data[layout.MotionOffset..layout.ElectricalOffset]);
     }
 
     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> data)
     {
-        if (data.Length != ResponseBytes || !Zero(data[114..128]) ||
+        if (data.Length < ResponseHeaderBytes || !Zero(data[104..110]) ||
             BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != (uint)WorkshopWireVersion.GenericMechanical)
             throw new ArgumentException("Unsupported Workshop response shape.");
+        var layout = ResponseLayout.Read(data);
+        if (data.Length != layout.ByteLength) throw new ArgumentException("Unsupported Workshop response shape.");
         var sequence=new CommandSequence(BinaryPrimitives.ReadUInt64LittleEndian(data));
         var kind=(WorkshopResponseKind)data[8]; var outcome=(WorkshopCommandOutcome)data[9];
         var reason=(WorkshopRejection)data[10]; var phase=(WorkshopSimulationPhase)data[11];
@@ -208,31 +261,26 @@ public static class WorkshopWire
             throw new ArgumentException("Absent capture has a nonzero payload.");
         var epoch=new SimulationEpoch(BinaryPrimitives.ReadUInt64LittleEndian(data[16..]));
         var tick=new SimulationTick(BinaryPrimitives.ReadUInt64LittleEndian(data[24..]));
-        var bodyCount=data[ResponseBodyCountOffset]; var captureCount=data[105];
-        if (bodyCount>PhysicsBodyReadSet.Capacity || captureCount>PhysicsSceneDeclaration.SensorCapacity ||
-            !Zero(data[(ReadBodiesOffset+bodyCount*PhysicsBodyWire.ByteLength)..ReadCapturesOffset]) ||
-            !Zero(data[(ReadCapturesOffset+captureCount*CaptureBytes)..ReadActivationsOffset]))
-            throw new ArgumentException("Invalid body or capture population/padding.");
-        Span<PhysicsBodyRead> bodyValues=stackalloc PhysicsBodyRead[PhysicsBodyReadSet.Capacity];
-        for (var i=0; i<bodyCount; i++)
+        var bodyValues=new PhysicsBodyRead[layout.Bodies];
+        for (var i=0; i<layout.Bodies; i++)
             bodyValues[i]=PhysicsBodyWire.Read(data.Slice(ReadBodiesOffset+i*PhysicsBodyWire.ByteLength,PhysicsBodyWire.ByteLength),epoch,tick);
-        var bodies=new PhysicsBodyReadSet(bodyValues[..bodyCount]);
-        Span<CaptureLatch> latches=stackalloc CaptureLatch[PhysicsSceneDeclaration.SensorCapacity];
-        for (var i=0; i<captureCount; i++)
+        var bodies=PhysicsBodyReadSet.Adopt(bodyValues);
+        var latches=new CaptureLatch[layout.Captures];
+        for (var i=0; i<layout.Captures; i++)
         {
-            var slot=data.Slice(ReadCapturesOffset+i*CaptureBytes,CaptureBytes);
+            var slot=data.Slice(layout.CapturesOffset+i*CaptureBytes,CaptureBytes);
             if (!Zero(slot[18..])) throw new ArgumentException("Nonzero capture padding.");
             latches[i]=new(new(BinaryPrimitives.ReadUInt64LittleEndian(slot)),
                 (CaptureLatchPhase)BinaryPrimitives.ReadUInt32LittleEndian(slot[8..]),
                 BinaryPrimitives.ReadUInt32LittleEndian(slot[12..]),Read(slot[16..]));
         }
         var read=new WorkshopRead(epoch,tick,bodies,new(BinaryPrimitives.ReadUInt64LittleEndian(data[32..])),capture,
-            new(latches[..captureCount]),PhysicsMotionRead.Decode(data[ReadMotionOffset..ReadElectricalOffset],bodies,tick),
-            WorkshopActivationWire.Read(data[ReadActivationsOffset..ReadTimersOffset],data[106]),
-            WorkshopTimerWire.Read(data[ReadTimersOffset..ReadContactWorkOffset],data[107]),
-            WorkshopContactWorkWire.Read(data[ReadContactWorkOffset..ReadMotionOffset],data[108],data[109]),
-            WorkshopElectricalWire.Read(data[ReadElectricalOffset..ReadMemoryOffset],data[112]),
-            WorkshopActivationMemoryWire.Read(data[ReadMemoryOffset..],data[113]));
+            new(latches),PhysicsMotionRead.Decode(data[layout.MotionOffset..layout.ElectricalOffset],bodies,tick),
+            WorkshopActivationWire.Read(data[layout.ActivationsOffset..layout.TimersOffset],layout.Activations),
+            WorkshopTimerWire.Read(data[layout.TimersOffset..layout.ContactWorkOffset],layout.Timers),
+            WorkshopContactWorkWire.Read(data[layout.ContactWorkOffset..layout.MotionOffset],layout.ContactWorks,layout.Occurrences),
+            WorkshopElectricalWire.Read(data[layout.ElectricalOffset..layout.MemoryOffset],layout.Electrical),
+            WorkshopActivationMemoryWire.Read(data[layout.MemoryOffset..],layout.Memory));
         ValidatePhysicalRead(read); ValidateCapture(read);
         var response=new WorkshopResponse(sequence,kind,new(outcome,reason),phase,read,session,publication,
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[88..])),master,
@@ -300,9 +348,18 @@ public static class WorkshopWire
         session.Validate(); return session;
     }
 
+    /// <summary>The width a construction's own header declares; a payload shorter than the header declares no width.</summary>
+    internal static int ConstructionWidth(ReadOnlySpan<byte> data)
+    {
+        if (data.Length < ConstructionHeaderBytes) return -1;
+        var count = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]); var links = BinaryPrimitives.ReadUInt32LittleEndian(data[12..]);
+        var width = ConstructionHeaderBytes + (long)count * InstanceBytes + (long)links * ConnectionBytes;
+        return width <= int.MaxValue ? (int)width : -1;
+    }
+
     internal static void WriteConstruction(Span<byte> data, WorkshopConstruction construction)
     {
-        if (data.Length != ConstructionBytes) throw new ArgumentException("Invalid construction width.");
+        if (data.Length != ConstructionBytes(construction)) throw new ArgumentException("Invalid construction width.");
         construction.Validate(); data.Clear();
         BinaryPrimitives.WriteUInt64LittleEndian(data, construction.Revision.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[8..], checked((uint)construction.Instances.Count));
@@ -371,7 +428,8 @@ public static class WorkshopWire
         }
         for (var i = 0; i < construction.Connections.Count; i++)
         {
-            var link = construction.Connections[i]; var slot = data.Slice(ConnectionsOffset + i * ConnectionBytes, ConnectionBytes);
+            var link = construction.Connections[i];
+            var slot = data.Slice(ConstructionHeaderBytes + construction.Instances.Count * InstanceBytes + i * ConnectionBytes, ConnectionBytes);
             BinaryPrimitives.WriteUInt64LittleEndian(slot, link.Source.Value);
             BinaryPrimitives.WriteUInt64LittleEndian(slot[8..], link.Target.Value);
             BinaryPrimitives.WriteUInt32LittleEndian(slot[16..], (uint)link.Domain);
@@ -382,13 +440,11 @@ public static class WorkshopWire
 
     internal static WorkshopConstruction ReadConstruction(ReadOnlySpan<byte> data)
     {
-        if (data.Length != ConstructionBytes) throw new ArgumentException("Invalid construction width.");
+        if (data.Length != ConstructionWidth(data)) throw new ArgumentException("Invalid construction width.");
         var count = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
         var linkCount = BinaryPrimitives.ReadUInt32LittleEndian(data[12..]);
-        if (count > WorkshopInstances.Capacity || linkCount > WorkshopConnections.Capacity || !Zero(data[304..ConstructionHeaderBytes]) ||
-            !Zero(data[(ConstructionHeaderBytes + checked((int)count) * InstanceBytes)..ConnectionsOffset]) ||
-            !Zero(data[(ConnectionsOffset + checked((int)linkCount) * ConnectionBytes)..]))
-            throw new ArgumentException("Invalid construction count or padding.");
+        if (!Zero(data[304..ConstructionHeaderBytes])) throw new ArgumentException("Invalid construction count or padding.");
+        var connectionsOffset = ConstructionHeaderBytes + checked((int)count) * InstanceBytes;
         var instances = new IWorkshopInstance[count];
         for (var i = 0; i < instances.Length; i++)
         {
@@ -448,7 +504,7 @@ public static class WorkshopWire
         var links = new WorkshopConnection[linkCount];
         for (var i = 0; i < links.Length; i++)
         {
-            var slot = data.Slice(ConnectionsOffset + i * ConnectionBytes, ConnectionBytes);
+            var slot = data.Slice(connectionsOffset + i * ConnectionBytes, ConnectionBytes);
             if (!Zero(slot[28..])) throw new ArgumentException("Invalid connection padding.");
             links[i] = new(new(BinaryPrimitives.ReadUInt64LittleEndian(slot)), (WorkshopSocket)BinaryPrimitives.ReadUInt32LittleEndian(slot[20..]),
                 new(BinaryPrimitives.ReadUInt64LittleEndian(slot[8..])), (WorkshopSocket)BinaryPrimitives.ReadUInt32LittleEndian(slot[24..]),

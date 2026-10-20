@@ -21,7 +21,6 @@ public sealed class WorkshopPoseHistory
     public const int Capacity = 7;
     public const long DelayNanoseconds = 16_666_667;
     public const long StaleNanoseconds = 50_000_000;
-    public const int ReservedHistoryBytes = Capacity * WorkshopWire.ResponseBytes + 1024;
     private readonly Entry[] _entries = new Entry[Capacity];
     private byte _count, _next;
     private sbyte _latest = -1, _terminal = -1;
@@ -268,13 +267,14 @@ public sealed class WorkshopPoseHistory
 
     private static PresentedBodySet Pose(WorkshopRead read)
     {
-        Span<PresentedBody> poses = stackalloc PresentedBody[PhysicsBodyReadSet.Capacity];
+        // Exactly the committed population (Story 9R.5b: no presentation body capacity).
+        var poses = new PresentedBody[read.Bodies.Count];
         for (var i = 0; i < read.Bodies.Count; i++)
         {
             var value = read.Bodies[i];
             poses[i] = new(value.Body.Id, value.Body.Cell, value.Body.Local, value.Rotation);
         }
-        return new(poses[..read.Bodies.Count]);
+        return new(poses);
     }
 
     public static bool TrySampleWorld(WorkshopRead from, WorkshopRead to, double requestedTick, out PresentedBodySet poses)
@@ -291,11 +291,11 @@ public sealed class WorkshopPoseHistory
         if (to.Tick.Value != from.Tick.Value + 1) return false;
         if (from.Bodies.Count == 0) return true;
         if (to.Motion is not { } motion) return false;
-        Span<PresentedBody> values = stackalloc PresentedBody[PhysicsBodyReadSet.Capacity];
+        var values = new PresentedBody[to.Bodies.Count];
         for (var i = 0; i < to.Bodies.Count; i++)
             if (!motion.TrySample(to.Bodies[i].Body.Id, requestedTick * motion.Substeps, out values[i]))
                 return false;
-        poses = new(values[..to.Bodies.Count]); return true;
+        poses = new(values); return true;
     }
     private static bool SameBody(WorkshopRead first, WorkshopRead second) => WorkshopRead.SamePhysicalContent(first, second);
 

@@ -19,7 +19,7 @@ public static partial class Program
     private static ulong _publication;
     private static MemoryObservationId _lastMemoryObservation;
     private static readonly WorkshopCommandRouter Commands = new(Execute);
-    private static readonly byte[] ReadOutput = new byte[WorkshopWire.ResponseBytes];
+    private static byte[] _readOutput = [];
     private static ulong _loopOwner;
     private static WorkshopCommandIdentity? _pendingCommand;
     private static bool _reliableStalled;
@@ -156,7 +156,8 @@ public static partial class Program
     }
 
     [JSExport]
-    public static int[] CommandAbi() => [16, 65536];
+    /// <summary>The smallest admissible command. A construction command is as wide as its own machine (Story 9R.5b): no ceiling.</summary>
+    public static int[] CommandAbi() => [16];
     [JSExport]
     public static int[] ResponseAbi() => WorkshopWire.ResponseAbi();
 
@@ -168,7 +169,7 @@ public static partial class Program
     }
 
 
-    private static async Task<byte[]> Execute(WorkshopCommand command, byte[] output)
+    private static async Task<byte[]> Execute(WorkshopCommand command, WorkshopResponseCodec output)
     {
         if (!WorkshopWire.Matches(command, _simulation?.Epoch ?? new(1), _simulation?.Revision ?? default, Peer.Session,
             _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default))
@@ -191,7 +192,7 @@ public static partial class Program
         finally { if (_pendingCommand == identity) _pendingCommand = null; }
     }
 
-    private static async Task<byte[]> Apply(WorkshopCommand command, byte[] output)
+    private static async Task<byte[]> Apply(WorkshopCommand command, WorkshopResponseCodec output)
     {
         WorkshopCommandResult result;
         _transition = command.Kind switch
@@ -271,17 +272,17 @@ public static partial class Program
             result, Simulation.Phase, Simulation.Committed));
     }
 
-    private static byte[] EncodeResponse(byte[] output, WorkshopResponse response)
+    private static byte[] EncodeResponse(WorkshopResponseCodec output, WorkshopResponse response)
     {
         var populated = response with { Session = Peer.Session, Cadence = _schedule?.Revision ?? default,
             MasterGeneration = _schedule is null ? default : Peer.Generation,
             Projection = _schedule?.World.Epoch ?? default, SourcePulse = new(response.Read.Tick.Value) };
-        if (output.Length == 0)
+        return output switch
         {
-            return WorkshopWireFlatBuffers.EncodeResponse(populated);
-        }
-        WorkshopWire.Write(populated, output);
-        return output;
+            WorkshopResponseCodec.FlatBuffers => WorkshopWireFlatBuffers.EncodeResponse(populated),
+            WorkshopResponseCodec.Binary => WorkshopWire.Encode(populated),
+            _ => throw new ArgumentException("Undefined response codec."),
+        };
     }
 
     private static async Task RunLoop(ulong owner)
@@ -377,6 +378,19 @@ public static partial class Program
         public async ValueTask YieldTurn() => await NextTurn(0);
         public async ValueTask AwaitWork() => await NextTurn(1);
     }
+    /// <summary>Encodes one physical read into the read buffer, reallocated only when the read's populations change width (once per
+    /// admitted world, never per tick: Story 9R.5b sizes it from the compiled scene instead of a fixed response capacity).</summary>
+    private static byte[] EncodeRead(WorkshopResponse response)
+    {
+        var populated = response with { Session = Peer.Session, Cadence = _schedule?.Revision ?? default,
+            MasterGeneration = _schedule is null ? default : Peer.Generation,
+            Projection = _schedule?.World.Epoch ?? default, SourcePulse = new(response.Read.Tick.Value) };
+        var width = WorkshopWire.ResponseBytes(populated);
+        if (_readOutput.Length != width) _readOutput = new byte[width];
+        WorkshopWire.Write(populated, _readOutput);
+        return _readOutput;
+    }
+
     private static void EmitRead(WorkshopCommandResult result, bool retainOccurrence = false)
     {
         if (_publication == ulong.MaxValue) throw new InvalidOperationException("Physical publication identity exhausted.");
@@ -387,7 +401,7 @@ public static partial class Program
             MasterGeneration: _schedule is null ? default : Peer.Generation,
             Projection: _schedule?.World.Epoch ?? default,
             SourcePulse: new(Simulation.Committed.Tick.Value));
-        var encoded = EncodeResponse(ReadOutput, readResponse);
+        var encoded = EncodeRead(readResponse);
         _publication++;
         // Existing read-only observation channel, in the production build every Chrome suite runs against (owner decision
         // h; Story 9A.24 replaces it with the typed observation port): retained energy/event commits prove finite

@@ -100,8 +100,9 @@ public sealed class WorkshopPhysicsEngineTests
         var admitted = AdmitMoving(Free(
             WorkshopInput.Basketball(new(1), 0, 4.5, 0, 0, 0, 0, 1),
             WorkshopInput.Bumper(new(2), 0, 3, 0, 0, 0, 0, 1, BumperWork.Default)), 1, 0f);
-        Assert.Equal(32f, BinaryPrimitives.ReadSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.ContactWorksOffset + PhysicsGpuAbi.ContactWorkPreloadOffset)));
-        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.ContactWorksOffset + PhysicsGpuAbi.ContactWorkAvailableOffset), available);
+        var store = PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0);
+        Assert.Equal(32f, BinaryPrimitives.ReadSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkPreloadOffset)));
+        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkAvailableOffset), available);
         return admitted;
     }
 
@@ -114,12 +115,14 @@ public sealed class WorkshopPhysicsEngineTests
     public void APartlySpentStoreIsJudgedAgainstItsPreloadSoDustNeverPays(float minimums, bool pays)
     {
         var seeded = minimums * ContactWorkImpulse.MinimumPayableWork(32f);
-        var store = PhysicsGpuAbi.ContactWorksOffset;
-        var occurrence = PhysicsGpuAbi.WorkOccurrencesOffset;
+        var admitted = BasketballOverBumperWithStore(seeded);
+        var layout = PhysicsGpuAbi.Layout(admitted);
+        var store = layout.ContactWorkOffset(0);
+        var occurrence = layout.WorkOccurrenceOffset(0);
         uint occurrences = 0;
         var debits = new List<(float Debit, byte Effect)>();
         var available = new List<float>();
-        StepWorld(BasketballOverBumperWithStore(seeded), 2 * TicksPerSecond, (tick, world) =>
+        StepWorld(admitted, 2 * TicksPerSecond, (tick, world) =>
         {
             var count = BinaryPrimitives.ReadUInt32LittleEndian(world.AsSpan(store + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset));
             if (count > occurrences)
@@ -286,7 +289,7 @@ public sealed class WorkshopPhysicsEngineTests
         var count = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderBodyCountOffset));
         for (var slot = 0; slot < count; slot++)
         {
-            var body = PhysicsGpuAbi.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes;
+            var body = PhysicsWorldLayout.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes;
             if (BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(body)) == id) return body;
         }
         throw new ArgumentException($"Body {id} is not among the {count} admitted bodies.", nameof(id));
@@ -301,8 +304,8 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.Equal(1ul, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(found)));
         var unknown = Assert.Throws<ArgumentException>(() => BodyRecord(bytes, 99));
         Assert.StartsWith($"Body 99 is not among the {count} admitted bodies.", unknown.Message);
-        // A stale record beyond the admitted count is never matched.
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + (int)count * PhysicsGpuAbi.BodyBytes), 99);
+        // A record-shaped identity beyond the admitted count (the next table's bytes) is never matched.
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsWorldLayout.BodiesOffset + (int)count * PhysicsGpuAbi.BodyBytes), 99);
         Assert.Throws<ArgumentException>(() => BodyRecord(bytes, 99));
     }
 
@@ -452,7 +455,7 @@ public sealed class WorkshopPhysicsEngineTests
             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)), new(1),
             new(cadence, PhysicalStepProfile.Canonical480Hz, new(1)));
-        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.ContactWorksOffset + PhysicsGpuAbi.ContactWorkAvailableOffset), 0f);
+        BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0) + PhysicsGpuAbi.ContactWorkAvailableOffset), 0f);
         var rate = Rate(cadence);
         var debits = new List<double>();
         StepWorld(admitted, rate, (tick, world) =>

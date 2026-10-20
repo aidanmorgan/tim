@@ -26,6 +26,20 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private byte[] _candidateWorld = [];
     private PhysicsCaptureRead _committedCaptures;
     private PhysicsCaptureRead _candidateCaptures;
+    // Story 9R.5b: read scratch sized from the admitted world's populations, reallocated only when a world needs more (per Run).
+    private CaptureLatch[] _captureScratch = [];
+    private ContactTriggerRead[] _triggerScratch = [];
+    private OrientationSensorRead[] _orientationScratch = [];
+    private PassageSensorRead[] _passageScratch = [];
+    private ContactLoadSensorRead[] _loadScratch = [];
+
+    /// <summary>A cleared span of exactly <paramref name="count"/> rows, growing the owned array only when it is too short.</summary>
+    private static Span<T> Scratch<T>(ref T[] array, int count)
+    {
+        if (array.Length < count) array = new T[count];
+        var span = array.AsSpan(0, count); span.Clear();
+        return span;
+    }
     private PhysicsActivationRead _committedActivations, _candidateActivations;
     private PhysicsTimerRead _committedTimers, _candidateTimers;
     private PhysicsMemoryRead _committedMemory, _candidateMemory;
@@ -121,7 +135,9 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 throw new ArgumentException("GPU candidate changed the admitted cadence identity.");
             var bodies = validated.Bodies;
             var sensorCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSensorCountOffset)));
-            Span<CaptureLatch> captures = stackalloc CaptureLatch[PhysicsSceneDeclaration.SensorCapacity];
+            // Story 9R.5b: the read scratch is sized from this world's own populations and kept for the Run (no fixed table).
+            var layout = PhysicsGpuAbi.Layout(bytes);
+            Span<CaptureLatch> captures = Scratch(ref _captureScratch, sensorCount);
             if (operation == WorkshopGpuOperation.Advance && _committedCaptures.Count != sensorCount)
                 throw new ArgumentException("The discrete controller population changed.");
             for (var i = 0; i < sensorCount; i++)
@@ -134,13 +150,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             // Every physical byte/event is validated before discrete evaluation. Neither
             // candidate is visible until the existing ownership-checked Commit below.
             var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderTriggerCountOffset)));
-            Span<ContactTriggerRead> triggers = stackalloc ContactTriggerRead[PhysicsSceneDeclaration.TriggerCapacity];
+            Span<ContactTriggerRead> triggers = Scratch(ref _triggerScratch, triggerCount);
             for (var i = 0; i < triggerCount; i++) triggers[i] = PhysicsGpuAbi.ReadTrigger(bytes, i);
-            var orientationCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderOrientationSensorCountOffset)));
-            Span<OrientationSensorRead> orientations = stackalloc OrientationSensorRead[PhysicsSceneDeclaration.OrientationSensorCapacity];
+            var orientationCount = layout.OrientationSensors;
+            Span<OrientationSensorRead> orientations = Scratch(ref _orientationScratch, orientationCount);
             for (var i = 0; i < orientationCount; i++) orientations[i] = PhysicsGpuAbi.ReadOrientationSensor(bytes, i);
-            // One read per declared passage sensor (no fixed table: a Ball Detector is limited only by the instance bound).
-            Span<PassageSensorRead> passages = stackalloc PassageSensorRead[network.PassageSensors.Length];
+            // One read per declared passage sensor (no fixed table).
+            Span<PassageSensorRead> passages = Scratch(ref _passageScratch, network.PassageSensors.Length);
             int passageCount = 0;
             if (operation == WorkshopGpuOperation.Admit)
             {
@@ -153,7 +169,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var electrical = PhysicsGpuAbi.ReadElectrical(bytes);
             // Story 9R.4: every contact-load row's committed phase (tick N) feeds its plate's level; its route closes at tick N+1.
             var loadCount = PhysicsGpuAbi.ReadContactLoadCount(bytes);
-            Span<ContactLoadSensorRead> loads = stackalloc ContactLoadSensorRead[PhysicsSceneDeclaration.ContactLoadSensorCapacity];
+            Span<ContactLoadSensorRead> loads = Scratch(ref _loadScratch, loadCount);
             for (var i = 0; i < loadCount; i++) loads[i] = PhysicsGpuAbi.ReadContactLoadSensor(bytes, i);
             var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory()) :
                 network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical,

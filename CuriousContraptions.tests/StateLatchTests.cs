@@ -473,7 +473,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(RigidMotionKind.Static, body.Motion);
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == latch.Id).ToArray();
         Assert.Equal(WorkshopCanonicalColliders.LatchColliders.Select(c => c.HalfExtents), colliders.Select(c => c.HalfExtents));
-        Assert.Equal(WorkbenchFootprint.Of(PartId.Latch).Colliders, colliders.Length);
+        Assert.Equal(2, colliders.Length);
     }
 
     [Fact]
@@ -489,7 +489,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
                 Power(battery.Id, latch.Id), new(latch.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         construction.Validate();
 
-        Span<byte> binary = stackalloc byte[WorkshopWire.ConstructionBytes];
+        Span<byte> binary = stackalloc byte[WorkshopWire.ConstructionBytes(construction)];
         WorkshopWire.WriteConstruction(binary, construction);
         AssertSame(construction, WorkshopWire.ReadConstruction(binary));
 

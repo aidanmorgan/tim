@@ -120,10 +120,9 @@ public readonly record struct ActivationTimerState(ActivationNodeId Node, Activa
 public readonly struct PhysicsTimerRead
 {
     private readonly ActivationTimerState[]? _values;
-    public byte Count => checked((byte)(_values?.Length ?? 0));
+    public int Count => _values?.Length ?? 0;
     public PhysicsTimerRead(ReadOnlySpan<ActivationTimerState> values)
     {
-        if (values.Length > WorkshopInstances.Capacity) throw new ArgumentException("More timers than instances.");
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();

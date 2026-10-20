@@ -57,7 +57,7 @@ public sealed class ElectricalSupplyTests
         var initial = PhysicsGpuAbi.ReadElectrical(bytes);
         Assert.Equal(3600f, initial[0].Remaining.Value);
         Assert.True(initial[0].Available);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.ElectricalSourcesOffset + field), invalid);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(scene.World.ElectricalSourceOffset(0) + field), invalid);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadElectrical(bytes));
     }
 

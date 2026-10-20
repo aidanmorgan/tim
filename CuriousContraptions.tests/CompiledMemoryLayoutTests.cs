@@ -26,7 +26,7 @@ public sealed class CompiledMemoryLayoutTests
         for (var i = 0; i < scene.Bodies.Length; i++)
         {
             Assert.Equal(i, scene.Layout.GetBodySlot(scene.Bodies[i].Id));
-            Assert.Equal(PhysicsGpuAbi.BodiesOffset + i * PhysicsGpuAbi.BodyBytes, scene.Layout.GetBodyOffset(scene.Bodies[i].Id));
+            Assert.Equal(PhysicsWorldLayout.BodiesOffset + i * PhysicsGpuAbi.BodyBytes, scene.Layout.GetBodyOffset(scene.Bodies[i].Id));
         }
         Assert.Equal(scene.Bodies.Length, scene.Layout.BodySlots.Count);
     }
@@ -39,12 +39,12 @@ public sealed class CompiledMemoryLayoutTests
         for (var i = 0; i < scene.Colliders.Length; i++)
         {
             Assert.Equal(i, scene.Layout.GetColliderSlot(scene.Colliders[i].Id));
-            Assert.Equal(PhysicsGpuAbi.CollidersOffset + i * PhysicsGpuAbi.ColliderBytes, scene.Layout.GetColliderOffset(scene.Colliders[i].Id));
+            Assert.Equal(scene.World.CollidersOffset + i * PhysicsGpuAbi.ColliderBytes, scene.Layout.GetColliderOffset(scene.Colliders[i].Id));
         }
         for (var i = 0; i < scene.Materials.Length; i++)
         {
             Assert.Equal(i, scene.Layout.GetMaterialSlot(scene.Materials[i].Id));
-            Assert.Equal(PhysicsGpuAbi.MaterialsOffset + i * PhysicsGpuAbi.MaterialBytes, scene.Layout.GetMaterialOffset(scene.Materials[i].Id));
+            Assert.Equal(scene.World.MaterialsOffset + i * PhysicsGpuAbi.MaterialBytes, scene.Layout.GetMaterialOffset(scene.Materials[i].Id));
         }
         Assert.Equal(scene.Colliders.Length, scene.Layout.ColliderSlots.Count);
         Assert.Equal(scene.Materials.Length, scene.Layout.MaterialSlots.Count);
@@ -58,7 +58,7 @@ public sealed class CompiledMemoryLayoutTests
         for (var i = 0; i < scene.Triggers.Length; i++)
         {
             Assert.Equal(i, scene.Layout.GetTriggerSlot(scene.Triggers[i].Id));
-            Assert.Equal(PhysicsGpuAbi.TriggersOffset + i * PhysicsGpuAbi.TriggerBytes, scene.Layout.GetTriggerOffset(scene.Triggers[i].Id));
+            Assert.Equal(scene.World.TriggersOffset + i * PhysicsGpuAbi.TriggerBytes, scene.Layout.GetTriggerOffset(scene.Triggers[i].Id));
         }
     }
 

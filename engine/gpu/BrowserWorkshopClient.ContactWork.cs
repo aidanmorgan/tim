@@ -39,8 +39,9 @@ public sealed partial class BrowserWorkshopClient
         }
         if (_contactObserved.Count == 0)
         {
-            Span<ContactWorkRead> stores=stackalloc ContactWorkRead[PhysicsSceneDeclaration.ContactWorkCapacity];
-            Span<ContactWorkOccurrence> events=stackalloc ContactWorkOccurrence[PhysicsContactWorkRead.OccurrenceCapacity];
+            // The admitted baseline, once per world: exactly the read's work and occurrence populations (Story 9R.5b).
+            var stores=new ContactWorkRead[read.ContactWorks.Count];
+            var events=new ContactWorkOccurrence[read.ContactWorks.OccurrenceCount];
             for (var i=0; i<read.ContactWorks.Count; i++)
             {
                 var declaration=_readScene.ContactWorks[i];
@@ -51,26 +52,19 @@ public sealed partial class BrowserWorkshopClient
                 var current=read.ContactWorks.Occurrence(i);
                 events[i]=new(current.Work,default,current.Target,0,0,(Half)0,default,default,ContactWorkEffect.Passive);
             }
-            _contactObserved=new(stores[..read.ContactWorks.Count],events[..read.ContactWorks.OccurrenceCount]);
+            _contactObserved=PhysicsContactWorkRead.Adopt(stores,events);
         }
         read.ContactWorks.ValidateAdvance(_contactObserved);
         for (var i=0; i<read.ContactWorks.OccurrenceCount; i++)
         {
             var current=read.ContactWorks.Occurrence(i); var previous=_contactObserved.Occurrence(i);
             if (current.Sequence == previous.Sequence) continue;
-            var declaration=_readScene.ContactWorks[current.Work.Value];
+            var declaration=_readScene.ContactWorks[(int)current.Work.Value];
             var due=checked(previous.EventOrdinal+declaration.CooldownPhysicalSteps);
             if (previous.Sequence!=0 && (current.EventOrdinal<due ||
                 (current.EventOrdinal==due && current.EventPhase<previous.EventPhase)))
                 throw new ArgumentException("Contact feedback violated its target cooldown.");
         }
-        var additional = 0;
-        for (var i = 0; i < read.ContactWorks.OccurrenceCount; i++)
-            if (read.ContactWorks.Occurrence(i).Sequence != _contactObserved.Occurrence(i).Sequence &&
-                read.ContactWorks.Occurrence(i).Effect == ContactWorkEffect.Paid)
-                additional++;
-        if (additional > PhysicsSceneDeclaration.ContactWorkCapacity * ContactWorkRead.MaximumOccurrences - _contactPulses.Count)
-            throw new InvalidOperationException("Contact feedback history exhausted.");
         // Owner sequences order simultaneous targets independently of target identity order.
         for (var owner=0; owner<read.ContactWorks.Count; owner++)
             for (var sequence=_contactObserved[owner].OccurrenceCount+1; sequence<=read.ContactWorks[owner].OccurrenceCount; sequence++)

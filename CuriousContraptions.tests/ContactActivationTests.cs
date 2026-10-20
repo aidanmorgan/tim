@@ -49,9 +49,10 @@ public sealed class ContactActivationTests
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
         Assert.Equal(0u, PhysicsGpuAbi.ReadTrigger(bytes, 0).OccurrenceCount);
-        foreach (var offset in new[] { 100, PhysicsGpuAbi.TriggersOffset, PhysicsGpuAbi.TriggersOffset + 16,
-            PhysicsGpuAbi.TriggersOffset + 18, PhysicsGpuAbi.TriggersOffset + 36,
-            PhysicsGpuAbi.TriggersOffset + 48, PhysicsGpuAbi.TriggersOffset + PhysicsGpuAbi.TriggerBytes })
+        // Story 9R.5b: the trigger table is exactly its population, so there is no unused trigger slot to corrupt.
+        var trigger = scene.World.TriggerOffset(0);
+        foreach (var offset in new[] { PhysicsGpuAbi.HeaderTriggerCountOffset, trigger, trigger + 16,
+            trigger + 18, trigger + 36, trigger + 48 })
         {
             var changed = (byte[])bytes.Clone(); changed[offset] ^= 128;
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0)));
@@ -160,10 +161,12 @@ public sealed class ContactActivationTests
     public void ActivationReadWireRetainsIdentityAndRejectsPaddingAndUnknownPhase()
     {
         var (network, _) = Activation(); var clear = network.Clear();
-        var bytes = new byte[WorkshopActivationWire.ByteLength]; WorkshopActivationWire.Write(clear, bytes);
+        var bytes = new byte[WorkshopActivationWire.ByteLength(clear.Count)]; WorkshopActivationWire.Write(clear, bytes);
         var decoded = WorkshopActivationWire.Read(bytes, clear.Count);
         Assert.Equal(clear[0], decoded[0]); Assert.Equal(clear[1], decoded[1]);
-        foreach (var offset in new[] { 40, 52, clear.Count * WorkshopActivationWire.RecordBytes })
+        // Story 9R.5b: the section is exactly its population; a trailing byte is rejected rather than an unused row.
+        Assert.Throws<ArgumentException>(() => WorkshopActivationWire.Read(new byte[WorkshopActivationWire.ByteLength(clear.Count) + 1], clear.Count));
+        foreach (var offset in new[] { 40, 52 })
         {
             var changed = (byte[])bytes.Clone(); changed[offset] = 255;
             Assert.Throws<ArgumentException>(() => WorkshopActivationWire.Read(changed, clear.Count));

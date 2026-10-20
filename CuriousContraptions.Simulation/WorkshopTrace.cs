@@ -14,8 +14,9 @@ internal sealed class WorkshopTrace
     private const int Capacity = 7201;
     private const int ChunkRecords = 128;
     #if PLAYTEST
-    internal const int PoseByteCapacity = 7201 * 128;
-    private readonly byte[] _records = new byte[PoseByteCapacity];
+    // Story 9R.5b (R1-B1): sized per Run from the first record's width (every committed body) times the run's tick count, never
+    // a fixed byte budget; reallocated only when a run needs more.
+    private byte[] _records = [];
     private int _recordBytes;
     private TraceEnd? _poseEnd;
     private int _count;
@@ -77,8 +78,13 @@ internal sealed class WorkshopTrace
                 BinaryPrimitives.ReadUInt64LittleEndian(record.AsSpan(16)) != _epoch.Value ||
                 BinaryPrimitives.ReadUInt64LittleEndian(record.AsSpan(24)) != (ulong)_count)
             { _poseEnd = TraceEnd.InvalidRecord; return; }
-            if (_recordBytes == 0) _recordBytes = record.Length;
-            if (_count >= _records.Length / _recordBytes) { _poseEnd = TraceEnd.Overflow; return; }
+            if (_recordBytes == 0)
+            {
+                _recordBytes = record.Length;
+                var needed = (long)_expectedCount * _recordBytes;
+                if (needed > int.MaxValue) { _poseEnd = TraceEnd.Overflow; return; }
+                if (_records.Length < needed) _records = new byte[needed];
+            }
             record.CopyTo(_records, _count * _recordBytes);
             _count++;
         }

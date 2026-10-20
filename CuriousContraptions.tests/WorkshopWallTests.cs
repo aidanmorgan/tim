@@ -143,7 +143,7 @@ public sealed class WorkshopWallTests
     }
 
     [Fact]
-    public void AllAdmittedInstancesFitExistingPhysicalCapacitiesWithoutNewLaw()
+    public void AllAdmittedInstancesCompileIntoExactlySizedTablesWithoutNewLaw()
     {
         var instances = new WorkshopInstances(
             WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),
@@ -157,8 +157,8 @@ public sealed class WorkshopWallTests
         Assert.Equal(8, scene.Bodies.Length);
         Assert.Equal(13, scene.Colliders.Length);
         Assert.Equal(8, scene.Materials.Length);
-        Assert.Equal(33, PhysicsSceneDeclaration.BodyCapacity);
-        Assert.Equal(33, PhysicsSceneDeclaration.MaterialCapacity);
+        // Story 9R.5b: no fixed capacity; the world tables are exactly the compiled populations.
+        Assert.Equal((8, 13, 8), (scene.World.Bodies, scene.World.Colliders, scene.World.Materials));
     }
 }
 

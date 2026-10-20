@@ -24,25 +24,28 @@ public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotat
 }
 
 
-/// <summary>One immutable, identity-ordered complete body sample at one committed time.</summary>
+/// <summary>One immutable, identity-ordered complete body sample at one committed time. Exactly the world's dynamic population:
+/// there is no body capacity (owner decision, 20 Oct 2026: "the physics body table needs to be infinite").</summary>
 public readonly struct PhysicsBodyReadSet
 {
-    public const int Capacity = 16;
     private readonly PhysicsBodyRead[]? _values;
-    public byte Count { get; }
+    public int Count => _values?.Length ?? 0;
 
-    public PhysicsBodyReadSet(ReadOnlySpan<PhysicsBodyRead> values)
+    public PhysicsBodyReadSet(ReadOnlySpan<PhysicsBodyRead> values) : this(values.ToArray()) { }
+
+    /// <summary>Takes ownership of a freshly decoded array (no copy); the caller never touches it again.</summary>
+    internal static PhysicsBodyReadSet Adopt(PhysicsBodyRead[] values) => new(values);
+
+    private PhysicsBodyReadSet(PhysicsBodyRead[] values)
     {
-        if (values.Length > Capacity) throw new ArgumentException("Dynamic body read capacity exceeded.");
-        _values = new PhysicsBodyRead[values.Length]; Count = checked((byte)values.Length);
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
             if (i > 0 && (values[i - 1].Body.Id.Value >= values[i].Body.Id.Value ||
                 values[0].Body.Epoch != values[i].Body.Epoch || values[0].Body.Tick != values[i].Body.Tick))
                 throw new ArgumentException("Body reads require ordered unique identities and one committed time.");
-            _values![i] = values[i];
         }
+        _values = values;
     }
 
     public PhysicsBodyRead this[int index] => index >= 0 && index < Count ? _values![index] :
@@ -50,8 +53,14 @@ public readonly struct PhysicsBodyReadSet
 
     public bool TryGet(GpuBodyId id, out PhysicsBodyRead value)
     {
-        for (var i = 0; i < Count; i++)
-            if (_values![i].Body.Id == id) { value = _values![i]; return true; }
+        // Identities are strictly ordered, so the search is logarithmic in the (unbounded) population.
+        int low = 0, high = Count - 1;
+        while (low <= high)
+        {
+            var middle = low + (high - low) / 2; var key = _values![middle].Body.Id.Value;
+            if (key == id.Value) { value = _values![middle]; return true; }
+            if (key < id.Value) low = middle + 1; else high = middle - 1;
+        }
         value = default; return false;
     }
 

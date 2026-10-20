@@ -90,8 +90,8 @@ public sealed record AnimationDefinition
     }
 }
 
-/// <summary>Single-thread, fixed-capacity animation owner. Output is borrowed until the next
-/// mutation. Registration allocates; stable-topology frame evaluation does not.</summary>
+/// <summary>Single-thread animation owner with a declared capacity its owner may grow (<see cref="EnsureCapacity"/>). Output is
+/// borrowed until the next mutation. Registration allocates; stable-topology frame evaluation does not.</summary>
 public sealed class AnimationBatch
 {
     private enum AnimationKind { Clip, ExponentialFollow, Impulses, Oscillation }
@@ -114,10 +114,10 @@ public sealed class AnimationBatch
         public bool Visible, HasPublished;
         public int ActiveIndex;
     }
-    private readonly Slot[] _slots;
-    private readonly ulong[] _versions;
-    private readonly int[] _active, _free;
-    private readonly AnimationSample[] _samples;
+    private Slot[] _slots;
+    private ulong[] _versions;
+    private int[] _active, _free;
+    private AnimationSample[] _samples;
     private readonly Dictionary<AnimationBinding, int> _writers;
     private int _activeCount, _freeCount, _sampleCount;
     private ulong _frame;
@@ -134,6 +134,20 @@ public sealed class AnimationBatch
         _active = new int[capacity]; _free = new int[capacity]; _samples = new AnimationSample[capacity];
         _writers = new(capacity);
         FillFree();
+    }
+
+    public int Capacity => _slots.Length;
+
+    /// <summary>Story 9R.5b: grows the registry to at least <paramref name="capacity"/> slots, keeping every registered binding,
+    /// its handle and its schedule. An owner whose target population is the machine's (unbounded) grows it as targets arrive.</summary>
+    public void EnsureCapacity(int capacity)
+    {
+        if (capacity <= _slots.Length) return;
+        var previous = _slots.Length;
+        Array.Resize(ref _slots, capacity); Array.Resize(ref _versions, capacity);
+        Array.Resize(ref _active, capacity); Array.Resize(ref _free, capacity); Array.Resize(ref _samples, capacity);
+        // The new slots join the free stack so the lowest new index is taken first.
+        for (var index = capacity - 1; index >= previous; index--) _free[_freeCount++] = index;
     }
 
     public AnimationHandle Register(AnimationBinding binding,AnimationDefinition definition)

@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: Story 9R.5b: a forty-switch bench past every retired table runs, resets and saves
+    # Subtest: 1. The last of forty switches lights its own lamp; Reset is exact and Save/Load replays it
+    not ok 1 - 1. The last of forty switches lights its own lamp; Reset is exact and Save/Load replays it
+      ---
+      duration_ms: 41739.314875
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/capacity-9r5b.test.ts:2:4973'
+      failureType: 'testCodeFailure'
+      error: 'placeOnCanvas(476, 554): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        WorkshopDriver.command (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/workshop-driver.ts:582:29)
+        async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/workshop-driver.ts:604:9)
+        async WorkshopDriver.placeOnCanvas (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/workshop-driver.ts:981:9)
+        async build (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/capacity-9r5b.test.ts:65:13)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/capacity-9r5b.test.ts:121:20)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1905:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+      ...
+    # Subtest: 2. Control: without the wire the lamp stays dark although the last switch fires
+    not ok 2 - 2. Control: without the wire the lamp stays dark although the last switch fires
+      ---
+      duration_ms: 41717.411292
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/capacity-9r5b.test.ts:2:5890'
+      failureType: 'testCodeFailure'
+      error: 'placeOnCanvas(476, 554): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        WorkshopDriver.command (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/workshop-driver.ts:582:29)
+        async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/workshop-driver.ts:604:9)
+        async WorkshopDriver.placeOnCanvas (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/workshop-driver.ts:981:9)
+        async build (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/capacity-9r5b.test.ts:65:13)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/capacity-9r5b.test.ts:140:20)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+      ...
+    1..2
+not ok 1 - Story 9R.5b: a forty-switch bench past every retired table runs, resets and saves
+  ---
+  duration_ms: 87427.594041
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a9b8cdddc802c9a17/tools/e2e/capacity-9r5b.test.ts:2:1638'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 2
+# suites 1
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 87696.781375

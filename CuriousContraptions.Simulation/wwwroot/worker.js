@@ -8,44 +8,66 @@ let host, activeRequests = 0, observationPending = false;
 let animationPort, clockMaster, derivationCheck, roles, lifetime = 0, disposed = false;
 // Scheduler turns (Program.NextTurn): declared before anything that can dispose the session.
 const turnChannel = new MessageChannel(), queuedTurns = [], turnTimers = new Set();
-let poseRing, poseSeqView, poseDataView, poseFloatView, poseSlotIndex = 0, posePublicationSequence = 0n;
+let poseRing, poseSeqView, poseDataView, poseFloatView, poseCapacity = 0, poseSlotIndex = 0, posePublicationSequence = 0n;
 let latestRead, pendingReadIdentity, occurrenceReadReserved = false;
 const occurrenceReads = [], pendingScheduleControls = [], occurrenceReadCapacity = 64;
 
 // Byte layouts owned by the C# ABI; WorkerAbiTests pins every one against its C# owner (Story 9.4b deleted the
 // declared-but-unused JS-kernel layouts and the never-written event ring, and named every offset this worker reads).
 const READ_CAPTURE_TIME = 72;          // WorkshopWire.ResponseCaptureTimeOffset
-const READ_BODY_COUNT = 104;           // WorkshopWire.ResponseBodyCountOffset
-const READ_BODIES_OFFSET = 128;        // WorkshopWire.ReadBodiesOffset
+const READ_BODY_COUNT = 112;           // WorkshopWire.ResponseBodyCountOffset
+const READ_BODIES_OFFSET = 144;        // WorkshopWire.ReadBodiesOffset
 const BODY_WIRE_BYTES = 80;            // PhysicsBodyWire.ByteLength
 const BODY_WIRE_CELL = 8;              // PhysicsBodyWire.CellOffset
 const BODY_WIRE_LOCAL = 20;            // PhysicsBodyWire.LocalOffset
 const BODY_WIRE_ROTATION = 32;         // PhysicsBodyWire.RotationOffset
 const BODY_WIRE_VELOCITY = 56;         // PhysicsBodyWire.VelocityOffset
 const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
-const POSE_BODY_CAPACITY = 16;         // WorkshopPoseRing.BodyCapacity
 const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
 const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
-const POSE_SLOT_BYTES = 1040;          // WorkshopPoseRing.SlotBytes
-const POSE_RING_BYTES = 3120;          // WorkshopPoseRing.TotalBytes
+
+// Story 9R.5b: a ring's body capacity is its own length (WorkshopPoseRing.BodyCapacity); there is no fixed capacity.
+function poseRingCapacity(buffer) {
+    const slot = buffer.byteLength / POSE_SLOT_COUNT, capacity = (slot - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
+    if (!Number.isInteger(slot) || !Number.isInteger(capacity) || capacity < 0) throw new Error('The pose ring is not a whole number of slots.');
+    return capacity;
+}
+function attachPoseRing(buffer) {
+    poseCapacity = poseRingCapacity(buffer);
+    poseRing = buffer;
+    poseSeqView = new BigInt64Array(buffer);
+    poseDataView = new DataView(buffer);
+    poseFloatView = new Float32Array(buffer);
+}
+// A world with more moving bodies than the ring holds replaces it, at Run, with one at least twice as large. The new ring is
+// posted before the read that needs it, and messages keep their order, so the browser reads it before that read arrives.
+function growPoseRing(bodyCount) {
+    const capacity = Math.max(bodyCount, poseCapacity * 2);
+    const buffer = new SharedArrayBuffer(POSE_SLOT_COUNT * (POSE_HEADER_BYTES + capacity * POSE_BODY_BYTES));
+    attachPoseRing(buffer);
+    poseSlotIndex = 0;
+    self.postMessage({ poseRing: buffer });
+}
 
 function writePoseRing(bytes) {
     if (!poseRing || !poseSeqView || !poseDataView || !poseFloatView || bytes.length < READ_BODIES_OFFSET) return;
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    const bodyCount = bytes[READ_BODY_COUNT];
+    const bodyCount = view.getUint32(READ_BODY_COUNT, true);
+    if (bodyCount > poseCapacity) growPoseRing(bodyCount);
     const timestamp = view.getBigInt64(READ_CAPTURE_TIME, true);
+    const slotBytes = POSE_HEADER_BYTES + poseCapacity * POSE_BODY_BYTES;
     poseSlotIndex = (poseSlotIndex + 1) % POSE_SLOT_COUNT;
     const s = poseSlotIndex;
-    const seqIndex = s * (POSE_SLOT_BYTES / 8);
+    const seqIndex = s * (slotBytes / 8);
     const nextSeq = posePublicationSequence + 2n;
     posePublicationSequence = nextSeq;
     Atomics.store(poseSeqView, seqIndex, nextSeq - 1n);
 
-    const slotByteOffset = s * POSE_SLOT_BYTES;
+    const slotByteOffset = s * slotBytes;
     poseDataView.setBigInt64(slotByteOffset + 8, timestamp, true);
     const bodyFloatOffset = (slotByteOffset + POSE_HEADER_BYTES) / 4;
 
-    for (let i = 0; i < POSE_BODY_CAPACITY; i++) {
+    for (let i = 0; i < poseCapacity; i++) {
         const b = bodyFloatOffset + i * (POSE_BODY_BYTES / 4);
         if (i < bodyCount && READ_BODIES_OFFSET + (i + 1) * BODY_WIRE_BYTES <= bytes.length) {
             const src = READ_BODIES_OFFSET + i * BODY_WIRE_BYTES;
@@ -86,7 +108,7 @@ function disposeOwned() {
     turnChannel.port1.onmessage = null; turnChannel.port1.close(); turnChannel.port2.close();
     for (const timer of turnTimers) clearTimeout(timer);
     turnTimers.clear(); queuedTurns.length = 0;
-    poseRing = poseSeqView = poseDataView = poseFloatView = undefined;
+    poseRing = poseSeqView = poseDataView = poseFloatView = undefined; poseCapacity = 0;
     occurrenceReads.length = pendingScheduleControls.length = 0;
     latestRead = undefined; occurrenceReadReserved = false;
 }
@@ -180,7 +202,8 @@ function flushScheduleControls() {
 // is the session and publication at the offsets the managed ResponseAbi declares. (Story 9.4b deleted a FlatBuffers
 // branch here that no read could reach: a read's leading sequence word is zero.)
 function extractReadIdentity(bytes, respAbi) {
-    if (bytes.length !== respAbi[0]) throw new Error('A physical read must be one complete binary response.');
+    // respAbi[0] is the response header: a read is as long as its own populations (Story 9R.5b).
+    if (bytes.length < respAbi[0]) throw new Error('A physical read must be one complete binary response.');
     const id = new Uint8Array(24);
     id.set(bytes.subarray(respAbi[1], respAbi[1] + 16));
     id.set(bytes.subarray(respAbi[2], respAbi[2] + 8), 16);
@@ -280,12 +303,8 @@ self.onmessage = async event => {
     if (bootstrap instanceof Uint8Array) {
         try {
             const captureMode = event.data.captureMode;
-            if (!(event.data?.poseRing instanceof SharedArrayBuffer) || event.data.poseRing.byteLength !== POSE_RING_BYTES)
-                throw new Error('Bootstrap requires the session pose ring.');
-            poseRing = event.data.poseRing;
-            poseSeqView = new BigInt64Array(poseRing);
-            poseDataView = new DataView(poseRing);
-            poseFloatView = new Float32Array(poseRing);
+            if (!(event.data?.poseRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session pose ring.');
+            attachPoseRing(event.data.poseRing);
             poseSlotIndex = 0;
             if ((captureMode !== 1 && captureMode !== 2) || captureMode !== host.CaptureMode())
                 throw new Error('Browser and simulation capture modes differ.');
@@ -346,7 +365,7 @@ self.onmessage = async event => {
         return;
     }
     const bytes = event.data?.bytes;
-    if (!(bytes instanceof Uint8Array) || bytes.length < commandAbi[0] || bytes.length > commandAbi[1] || activeRequests >= 2) {
+    if (!(bytes instanceof Uint8Array) || bytes.length < commandAbi[0] || activeRequests >= 2) {
         self.postMessage({ rejected: true, detail: 'Invalid or saturated Workshop command transport.' });
         return;
     }

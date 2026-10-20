@@ -1,0 +1,110 @@
+using System.Security.Cryptography;
+using System.Text;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Story 9R.5b evidence probe (temporary; stored as .cs.txt): a SHA-256 of every committed read across scenes that
+/// exercise every physics table, recorded before and after the layout change. Decoded reads, never raw world bytes.</summary>
+public sealed class GoldenTraceProbe9r5b
+{
+    private const int Ticks = 240;
+    private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
+        new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
+    private static WorkshopConnection Supply(GpuBodyId a, GpuBodyId b) =>
+        new(a, WorkshopSocket.Supply, b, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+    private static WorkshopConnection Signal(GpuBodyId a, GpuBodyId b) =>
+        new(a, WorkshopSocket.ActivationOut, b, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+
+    public static IEnumerable<(string Name, WorkshopConstruction Construction)> Scenes()
+    {
+        ulong id = 0;
+        GpuBodyId Next() => new(++id);
+        var full = new List<IWorkshopInstance>();
+        for (var i = 0; i < 16; i++) full.Add(WorkshopInput.Basketball(Next(), -6 + i * .8, 5, 0, 0, 0, 0, 1));
+        full.Add(WorkshopInput.Receiver(Next(), 0, 1, 2, 0, 0, 0, 1));
+        for (var i = 0; i < 8; i++) full.Add(WorkshopInput.Switch(Next(), -6 + i * 1.6, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default));
+        for (var i = 0; i < 7; i++) full.Add(WorkshopInput.Wall(Next(), -6 + i * 2, 2, 4, 0, 0, 0, 1, WallDimensions.Default));
+        yield return ("balls-receiver-switches", Bench([.. full]));
+
+        id = 0;
+        var bumpers = new List<IWorkshopInstance>();
+        for (var i = 0; i < 8; i++)
+        {
+            bumpers.Add(WorkshopInput.Bumper(Next(), -6 + i * 1.6, 1, 0, 0, 0, 0, 1, BumperWork.Default));
+            bumpers.Add(WorkshopInput.Basketball(Next(), -6 + i * 1.6, 3, 0, 0, 0, 0, 1));
+        }
+        yield return ("bumpers", Bench([.. bumpers]));
+
+        id = 0;
+        var springs = new List<IWorkshopInstance>();
+        for (var i = 0; i < 4; i++)
+        {
+            springs.Add(WorkshopInput.Springboard(Next(), -6 + i * 3, 1, 0, 0, 0, 0, 1, SpringboardSettings.Default));
+            springs.Add(WorkshopInput.Basketball(Next(), -6 + i * 3, 3, 0, 0, 0, 0, 1));
+        }
+        yield return ("springboards", Bench([.. springs]));
+
+        id = 0;
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), 0, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+        var battery = WorkshopInput.Battery(Next(), 2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
+        yield return ("battery-gate", Bench([gate, battery], Supply(battery.Id, gate.Id)));
+
+        id = 0;
+        var dominoes = new List<IWorkshopInstance>();
+        for (var i = 0; i < 10; i++) dominoes.Add(WorkshopInput.Domino(Next(), -4 + i * .4, -0.46 + .56, 0, 0, 0, 0, 1));
+        dominoes.Add(WorkshopInput.Basketball(Next(), -4.6, 1, 0, 0, 0, 0, 1));
+        yield return ("dominoes", Bench([.. dominoes]));
+
+        id = 0;
+        var plateY = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
+        var plate = WorkshopInput.PressurePlate(Next(), 0, plateY, 0, 0, 0, 0, 1, .5f);
+        var lamp = WorkshopInput.Lamp(Next(), 3, 1, 0, 0, 0, 0, 1);
+        var sw = WorkshopInput.Switch(Next(), -3, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var lamp2 = WorkshopInput.Lamp(Next(), -3, 1, 3, 0, 0, 0, 1);
+        var counter = WorkshopInput.Counter(Next(), 5, 1, 3, 0, 0, 0, 1, 3);
+        var clock = WorkshopInput.Clock(Next(), 5, 1, -3, 0, 0, 0, 1, 1f);
+        var latch = WorkshopInput.Latch(Next(), -5, 1, -3, 0, 0, 0, 1);
+        var delay = WorkshopInput.Delay(Next(), -5, 1, 3, 0, 0, 0, 1, DelayDuration.Default);
+        var ball1 = WorkshopInput.Basketball(Next(), 0, plateY + .43, 0, 0, 0, 0, 1);
+        var ball2 = WorkshopInput.Basketball(Next(), -3, 3, 0, 0, 0, 0, 1);
+        yield return ("activation", Bench([plate, lamp, sw, lamp2, counter, clock, latch, delay, ball1, ball2],
+            Signal(plate.Id, lamp.Id), Signal(sw.Id, delay.Id), Signal(delay.Id, lamp2.Id), Signal(clock.Id, counter.Id)));
+    }
+
+    internal static string Hash(IReadOnlyList<WorkshopRead> reads)
+    {
+        var text = new StringBuilder();
+        foreach (var read in reads)
+        {
+            text.Append(read.Tick.Value).Append('|');
+            for (var i = 0; i < read.Bodies.Count; i++) text.Append(read.Bodies[i]).Append(';');
+            for (var i = 0; i < read.Captures.Count; i++) text.Append(read.Captures[i]).Append(';');
+            for (var i = 0; i < read.Activations.Count; i++) text.Append(read.Activations[i]).Append(';');
+            for (var i = 0; i < read.Timers.Count; i++) text.Append(read.Timers[i]).Append(';');
+            for (var i = 0; i < read.ContactWorks.Count; i++) text.Append(read.ContactWorks[i]).Append(';');
+            for (var i = 0; i < read.ContactWorks.OccurrenceCount; i++) text.Append(read.ContactWorks.Occurrence(i)).Append(';');
+            for (var i = 0; i < read.Electrical.Count; i++) text.Append(read.Electrical[i]).Append(';');
+            for (var i = 0; i < read.Memory.Count; i++) text.Append(read.Memory[i]).Append(';');
+            // The used pieces only: the payload's trailing capacity is layout, not motion.
+            if (read.Motion is { } motion)
+                text.Append(Convert.ToHexString(SHA256.HashData(motion.Bytes[..(PhysicsMotionRead.HeaderBytes + motion.Count * PhysicsMotionRead.PieceBytes)])));
+            text.Append('\n');
+        }
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text.ToString())));
+    }
+
+    [Fact]
+    public async Task RecordGoldenTrace()
+    {
+        var lines = new List<string>();
+        foreach (var (name, construction) in Scenes())
+        {
+            construction.Validate();
+            var reads = await WorkshopPhysicsEngineTests.Run(construction, Ticks);
+            lines.Add($"{name} ticks={reads.Count - 1} bodies={reads[^1].Bodies.Count} sha256={Hash(reads)}");
+        }
+        var path = Environment.GetEnvironmentVariable("GOLDEN_TRACE_OUT");
+        if (!string.IsNullOrEmpty(path)) await File.WriteAllLinesAsync(path, lines, TestContext.Current.CancellationToken);
+    }
+}

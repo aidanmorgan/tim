@@ -1,7 +1,7 @@
 namespace CuriousContraptions.Gpu;
 
 /// <summary>
-/// The 128-byte world header (Story 9.4b, Murdoch-2 R2-F4). Every reader and writer of the physical world names these
+/// The 144-byte world header (Story 9.4b, Murdoch-2 R2-F4; Story 9R.5b adds the prismatic and contact-load counts). Every reader and writer of the physical world names these
 /// offsets; <c>WorkshopAbiLiteralScanTests</c> fails on a literal header offset in production code.
 /// </summary>
 public static partial class PhysicsGpuAbi
@@ -31,12 +31,15 @@ public static partial class PhysicsGpuAbi
     public const int HeaderTriggerCountOffset = 100;
     public const int HeaderContactWorkCountOffset = 104;
     public const int HeaderWorkOccurrenceCountOffset = 108;
-    /// <summary>Reserved header word, always zero: it counted the ABI contact-cache slots Story 9R.2 deleted (the engine's warm-start
-    /// cache is its own dictionary).</summary>
-    public const int HeaderReservedOffset = 112;
+    /// <summary>Header word holding the prismatic joint count (Story 9R.5b; its table no longer carries an in-band header).</summary>
+    public const int HeaderPrismaticCountOffset = 112;
     public const int HeaderOrientationSensorCountOffset = 116;
     public const int HeaderElectricalSourceCountOffset = 120;
     public const int HeaderElectricalBindingCountOffset = 124;
+    /// <summary>Header word holding the contact-load row count (Story 9R.5b).</summary>
+    public const int HeaderContactLoadCountOffset = 128;
+    /// <summary>The header's zero tail.</summary>
+    public const int HeaderPaddingOffset = 132;
 
     // Contact-work record (ContactWorkBytes): identity U64 at 0, owner body slot U32, target kind, the f32 target and
     // admission speeds, cooldown, named target slot, occurrence count, preload, padding 40..47, available work, the work
@@ -48,9 +51,9 @@ public static partial class PhysicsGpuAbi
     public const int ContactWorkReservedOffset = 40;
     public const int ContactWorkSuppliedOffset = 52;
     public const int ContactWorkPaddingOffset = 56;
-    // Work-occurrence record (WorkOccurrenceBytes): the owning contact-work index U16 at 0 and the target body id U64 at 4.
+    // Work-occurrence record (WorkOccurrenceBytes): the owning contact-work index U32 at 0 and the target body id U64 at 8.
     public const int WorkOccurrenceWorkOffset = 0;
-    public const int WorkOccurrenceTargetOffset = 4;
+    public const int WorkOccurrenceTargetOffset = 8;
     /// <summary>The body record's motion kind U32 (static or dynamic).</summary>
     public const int BodyMotionOffset = 8;
     /// <summary>The collider record's owning body slot U32.</summary>

@@ -6,42 +6,51 @@ namespace CuriousContraptions.tests;
 
 public class WorkshopPoseRingTests
 {
-    [Fact]
-    public void PoseRingLayout_MatchesSpecificationAndSimdAlignment()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(WorkshopPoseRing.InitialBodyCapacity)]
+    [InlineData(17)]
+    [InlineData(200)]
+    public void PoseRingLayout_MatchesSpecificationAndSimdAlignment(int capacity)
     {
         Assert.Equal(3, WorkshopPoseRing.SlotCount);
-        Assert.Equal(16, WorkshopPoseRing.BodyCapacity);
+        Assert.Equal(16, WorkshopPoseRing.InitialBodyCapacity);
         Assert.Equal(16, WorkshopPoseRing.HeaderBytes);
         Assert.Equal(64, WorkshopPoseRing.BodyBytes);
-        Assert.Equal(1040, WorkshopPoseRing.SlotBytes);
-        Assert.Equal(3120, WorkshopPoseRing.TotalBytes);
+        Assert.Equal(16 + capacity * 64, WorkshopPoseRing.SlotBytes(capacity));
+        Assert.Equal(3 * (16 + capacity * 64), WorkshopPoseRing.TotalBytes(capacity));
+        // Story 9R.5b: a ring's capacity is its own length.
+        Assert.Equal(capacity, WorkshopPoseRing.BodyCapacity(WorkshopPoseRing.TotalBytes(capacity)));
 
         // Every slot start must be 16-byte aligned (and 8-byte aligned for 64-bit Atomics)
         for (var s = 0; s < WorkshopPoseRing.SlotCount; s++)
         {
-            var slotOffset = WorkshopPoseRing.SlotOffset(s);
+            var slotOffset = WorkshopPoseRing.SlotOffset(s, capacity);
             Assert.Equal(0, slotOffset % 16);
             Assert.Equal(0, slotOffset % 8);
-            Assert.Equal(slotOffset, WorkshopPoseRing.SequenceOffset(s));
-            Assert.Equal(slotOffset + 8, WorkshopPoseRing.TimestampOffset(s));
+            Assert.Equal(slotOffset, WorkshopPoseRing.SequenceOffset(s, capacity));
+            Assert.Equal(slotOffset + 8, WorkshopPoseRing.TimestampOffset(s, capacity));
 
             // Every body record must be 16-byte aligned for 128-bit SIMD stores
-            for (var b = 0; b < WorkshopPoseRing.BodyCapacity; b++)
-            {
-                var bodyOffset = WorkshopPoseRing.BodyOffset(s, b);
-                Assert.Equal(0, bodyOffset % 16);
-            }
+            for (var b = 0; b < capacity; b++)
+                Assert.Equal(0, WorkshopPoseRing.BodyOffset(s, b, capacity) % 16);
         }
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(47)]
+    [InlineData(3 * 16 + 1)]
+    [InlineData(3 * (16 + 64) + 3)]
+    public void APoseRingThatIsNotWholeSlotsRejects(int bytes) =>
+        Assert.Throws<ArgumentException>(() => WorkshopPoseRing.BodyCapacity(bytes));
 
     [Theory]
     [InlineData(4294967296UL)]
     [InlineData(18446744073709551615UL)]
     public void PoseRing_WriteAndReadSlot_SingleAndDualBodies(ulong secondaryId)
     {
-        var ring = new byte[WorkshopPoseRing.TotalBytes];
-        var epoch = new SimulationEpoch(1);
-        var tick = new SimulationTick(10);
+        var ring = new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)];
 
         var body1 = new CanonicalBody(new GpuBodyId(101), 1, 10, new CellOrigin(16, 32, 0),
             new LocalPosition((float)0.25, (float)(-0.125), (float)0.0),
@@ -92,10 +101,30 @@ public class WorkshopPoseRingTests
         Assert.Equal(1u, bodies[1].Flags);
     }
 
+    /// <summary>Story 9R.5b: a ring sized for seventeen moving bodies (one past the retired 16) holds every one of them; a ring too
+    /// small for a body set refuses the write rather than truncating it.</summary>
+    [Fact]
+    public void ARingSizedPastTheRetiredCapacityHoldsEveryBodyAndASmallRingRefuses()
+    {
+        var bodies = new PhysicsBodyRead[17];
+        for (var i = 0; i < bodies.Length; i++)
+            bodies[i] = new(new CanonicalBody(new GpuBodyId((ulong)i + 1), 1, 1, new CellOrigin(i, 0, 0), default, default),
+                CanonicalRotation.Identity, default, default);
+        var set = new PhysicsBodyReadSet(bodies);
+        var ring = new byte[WorkshopPoseRing.TotalBytes(17)];
+        WorkshopPoseRing.WriteSlot(ring, 2, 8UL, 5L, set);
+        Span<PoseRingBody> read = stackalloc PoseRingBody[17];
+        Assert.True(WorkshopPoseRing.TryReadSlot(ring, 2, out _, out _, read, out var count));
+        Assert.Equal(17, count);
+        Assert.Equal(new GpuBodyId(17), read[16].Id);
+        Assert.Throws<ArgumentException>(() =>
+            WorkshopPoseRing.WriteSlot(new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)], 0, 8UL, 5L, set));
+    }
+
     [Fact]
     public void PoseRing_RejectsOddSequence_IndicatingWriteInProgress()
     {
-        var ring = new byte[WorkshopPoseRing.TotalBytes];
+        var ring = new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)];
         var bodySet = new PhysicsBodyReadSet([]);
         // Odd sequence means write in progress (Writer Protocol: 2k + 1)
         WorkshopPoseRing.WriteSlot(ring, 0, 7UL, 1000L, bodySet);

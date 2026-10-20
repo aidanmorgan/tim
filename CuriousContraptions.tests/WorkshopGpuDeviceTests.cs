@@ -23,17 +23,18 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         byte[] Committed() => ((byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!).ToArray();
-        var offset = PhysicsGpuAbi.PrismaticRecordsOffset + PhysicsGpuAbi.PrismaticImpulseOffset;
         var original = Committed();
+        var layout = PhysicsGpuAbi.Layout(original);
+        var offset = layout.PrismaticOffset(0) + PhysicsGpuAbi.PrismaticImpulseOffset;
         for (var run = 0; run < 2; run++)
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
             transport.ReadMutation = bytes =>
             {
-                var motion = bytes.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength);
+                var motion = bytes.AsSpan(layout.MotionOffset, layout.MotionBytes);
                 var first = BinaryPrimitives.ReadUInt32LittleEndian(motion[8..]);
                 BinaryPrimitives.WriteUInt32LittleEndian(motion, 4);
-                var body = bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + 2 * PhysicsGpuAbi.BodyBytes, PhysicsGpuAbi.BodyBytes);
+                var body = bytes.AsSpan(layout.BodyOffset(2), PhysicsGpuAbi.BodyBytes);
                 for (var step = 0; step < 4; step++)
                 {
                     var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + step * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
@@ -55,9 +56,9 @@ public sealed class WorkshopGpuDeviceTests
             var reset = Committed();
             Assert.Equal(0UL, simulation.Committed.Tick.Value);
             Assert.All(reset.AsSpan(offset, 32).ToArray(), value => Assert.Equal(0, value));
-            Assert.Equal(original.AsSpan(PhysicsGpuAbi.PrismaticsOffset).ToArray(), reset.AsSpan(PhysicsGpuAbi.PrismaticsOffset).ToArray());
-            Assert.Equal(original.AsSpan(PhysicsGpuAbi.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray(),
-                reset.AsSpan(PhysicsGpuAbi.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray());
+            Assert.Equal(original.AsSpan(layout.PrismaticsOffset).ToArray(), reset.AsSpan(layout.PrismaticsOffset).ToArray());
+            Assert.Equal(original.AsSpan(PhysicsWorldLayout.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray(),
+                reset.AsSpan(PhysicsWorldLayout.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray());
         }
     }
 
@@ -273,7 +274,7 @@ public sealed class WorkshopGpuDeviceTests
         var timers = first.Read.Timers;
         Assert.Equal(ActivationTimerPhase.Ready, timers[0].Phase);
         var logical = (PhysicsActivationRead)typeof(WorkshopGpuDevice).GetField("_committedActivations", flags)!.GetValue(device)!;
-        transport.ReadMutation = bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.TriggersOffset + 32), 1);
+        transport.ReadMutation = bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.Layout(bytes).TriggerOffset(0) + 32), 1);
         await Assert.ThrowsAsync<ArgumentException>(() => device.Admit(construction, new(2), Profile, new(2)).AsTask());
         Assert.Equal(1, transport.Commits);
         Assert.Equal(expected, (byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!);
@@ -425,10 +426,11 @@ public sealed class WorkshopGpuDeviceTests
                 BinaryPrimitives.WriteUInt64LittleEndian(Record.AsSpan(40),
                     BinaryPrimitives.ReadUInt64LittleEndian(Record.AsSpan(40)) + 1);
                 BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(88), source + steps);
-                Record.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength).Clear();
-                BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(PhysicsGpuAbi.MotionOffset + 4), steps);
-                BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(PhysicsGpuAbi.MotionOffset + 8), source);
-                BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(PhysicsGpuAbi.MotionOffset + 12), source + steps);
+                var layout = PhysicsGpuAbi.Layout(Record);
+                Record.AsSpan(layout.MotionOffset, layout.MotionBytes).Clear();
+                BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(layout.MotionOffset + 4), steps);
+                BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(layout.MotionOffset + 8), source);
+                BinaryPrimitives.WriteUInt32LittleEndian(Record.AsSpan(layout.MotionOffset + 12), source + steps);
             }
             return Held.Task;
         }

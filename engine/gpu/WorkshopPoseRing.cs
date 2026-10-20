@@ -17,36 +17,54 @@ public readonly record struct PoseRingSlot(
     PoseRingBody[] Bodies);
 
 /// <summary>
-/// Lock-free zero-copy triple-buffered SharedArrayBuffer pose ring layout and codecs.
-/// 3 slots x 1040 bytes = 3120 bytes. Each slot has a 16-byte header followed by 16 64-byte body slots.
+/// Lock-free zero-copy triple-buffered SharedArrayBuffer pose ring layout and codecs. Each of the three slots has a 16-byte header
+/// followed by one 64-byte record per moving body. Story 9R.5b: the ring's body capacity is its own length (no fixed capacity);
+/// the browser allocates <see cref="InitialBodyCapacity"/> records at bootstrap and the Simulation worker replaces the ring with
+/// a larger one at Run when a world holds more moving bodies, posting it to the browser before the read that needs it.
 /// </summary>
 public static class WorkshopPoseRing
 {
+    /// <summary>Triple buffering (AGENTS.md: "triple-buffered pose ring"): structural, not a population.</summary>
     public const int SlotCount = 3;
-    public const int BodyCapacity = 16;
     public const int HeaderBytes = 16;
     public const int BodyBytes = 64; // four SIMD vectors; full body identity at byte48
-    public const int SlotBytes = HeaderBytes + BodyCapacity * BodyBytes; // 1040 bytes
-    public const int TotalBytes = SlotCount * SlotBytes; // 3120 bytes
+    /// <summary>The bootstrap ring's records: a starting allocation the worker grows, never a limit.</summary>
+    public const int InitialBodyCapacity = 16;
 
-    public static int SlotOffset(int slot)
+    public static int SlotBytes(int bodyCapacity) => bodyCapacity >= 0
+        ? checked(HeaderBytes + bodyCapacity * BodyBytes)
+        : throw new ArgumentOutOfRangeException(nameof(bodyCapacity));
+    public static int TotalBytes(int bodyCapacity) => checked(SlotCount * SlotBytes(bodyCapacity));
+
+    /// <summary>The body capacity a ring of this length holds; a length that is not a whole ring rejects.</summary>
+    public static int BodyCapacity(int ringBytes)
+    {
+        if (ringBytes < SlotCount * HeaderBytes || ringBytes % SlotCount != 0 || (ringBytes / SlotCount - HeaderBytes) % BodyBytes != 0)
+            throw new ArgumentException("A pose ring is not a whole number of slots and body records.");
+        return (ringBytes / SlotCount - HeaderBytes) / BodyBytes;
+    }
+
+    public static int SlotOffset(int slot, int bodyCapacity)
     {
         if ((uint)slot >= (uint)SlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
-        return slot * SlotBytes;
+        return slot * SlotBytes(bodyCapacity);
     }
 
-    public static int SequenceOffset(int slot) => SlotOffset(slot);
-    public static int TimestampOffset(int slot) => SlotOffset(slot) + 8;
-    public static int BodyOffset(int slot, int bodyIndex)
+    public static int SequenceOffset(int slot, int bodyCapacity) => SlotOffset(slot, bodyCapacity);
+    public static int TimestampOffset(int slot, int bodyCapacity) => SlotOffset(slot, bodyCapacity) + 8;
+    public static int BodyOffset(int slot, int bodyIndex, int bodyCapacity)
     {
-        if ((uint)bodyIndex >= (uint)BodyCapacity) throw new ArgumentOutOfRangeException(nameof(bodyIndex));
-        return SlotOffset(slot) + HeaderBytes + bodyIndex * BodyBytes;
+        if ((uint)bodyIndex >= (uint)bodyCapacity) throw new ArgumentOutOfRangeException(nameof(bodyIndex));
+        return SlotOffset(slot, bodyCapacity) + HeaderBytes + bodyIndex * BodyBytes;
     }
 
+    /// <summary>Writes one complete slot. A ring too small for the body set is a defect (the worker grows the ring first): nothing
+    /// is ever truncated.</summary>
     public static void WriteSlot(Span<byte> ring, int slot, ulong sequence, long timestampNanoseconds, PhysicsBodyReadSet bodies)
     {
-        if (ring.Length != TotalBytes) throw new ArgumentException("Ring buffer width insufficient.");
-        var slotSpan = ring.Slice(SlotOffset(slot), SlotBytes);
+        var capacity = BodyCapacity(ring.Length);
+        if (bodies.Count > capacity) throw new ArgumentException("The pose ring must grow before it holds this body set.");
+        var slotSpan = ring.Slice(SlotOffset(slot, capacity), SlotBytes(capacity));
 
         // Write header
         BinaryPrimitives.WriteUInt64LittleEndian(slotSpan, sequence);
@@ -55,8 +73,7 @@ public static class WorkshopPoseRing
         // Write bodies
         var bodyData = slotSpan[HeaderBytes..];
         bodyData.Clear();
-        var count = Math.Min((int)bodies.Count, BodyCapacity);
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < bodies.Count; i++)
         {
             var read = bodies[i];
             var dest = bodyData.Slice(i * BodyBytes, BodyBytes);
@@ -90,16 +107,19 @@ public static class WorkshopPoseRing
         sequence = 0;
         timestampNanoseconds = 0;
         bodyCount = 0;
-        if (ring.Length != TotalBytes || (uint)slot >= (uint)SlotCount) return false;
+        if ((uint)slot >= (uint)SlotCount) return false;
+        int capacity;
+        try { capacity = BodyCapacity(ring.Length); }
+        catch (ArgumentException) { return false; }
 
-        var slotSpan = ring.Slice(SlotOffset(slot), SlotBytes);
+        var slotSpan = ring.Slice(SlotOffset(slot, capacity), SlotBytes(capacity));
         var seq1 = BinaryPrimitives.ReadUInt64LittleEndian(slotSpan);
         if ((seq1 & 1UL) != 0UL) return false; // Write in progress
 
         var timestamp = BinaryPrimitives.ReadInt64LittleEndian(slotSpan[8..]);
         var bodyData = slotSpan[HeaderBytes..];
         var count = 0;
-        for (var i = 0; i < BodyCapacity && count < bodies.Length; i++)
+        for (var i = 0; i < capacity && count < bodies.Length; i++)
         {
             var src = bodyData.Slice(i * BodyBytes, BodyBytes);
             var bodyId = BinaryPrimitives.ReadUInt64LittleEndian(src[48..]);

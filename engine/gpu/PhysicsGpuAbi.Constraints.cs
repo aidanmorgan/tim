@@ -5,15 +5,13 @@ namespace CuriousContraptions.Gpu;
 
 public static partial class PhysicsGpuAbi
 {
-    public const int PrismaticsOffset = ElectricalBindingsOffset + WorkshopConnections.Capacity * ElectricalBindingBytes;
-    public const int PrismaticRecordsOffset = PrismaticsOffset + 16;
     public const int PrismaticBytes = 160;
     public const int PrismaticImpulseOffset = 96;
+    /// <summary>The rows of one prismatic joint (two transverse, three angular, the axial spring, two stops): structural.</summary>
     public const int PrismaticRowCount = 8;
 
     private static void WritePrismaticAdmission(Span<byte> data, PhysicsSceneDeclaration scene)
     {
-        U32(data, PrismaticsOffset, (uint)scene.Prismatics.Length);
         for (var i = 0; i < scene.Prismatics.Length; i++)
         {
             var value = scene.Prismatics[i];
@@ -42,17 +40,15 @@ public static partial class PhysicsGpuAbi
     public static PrismaticConstraintDeclaration ReadPrismatic(ReadOnlySpan<byte> data, int index)
     {
         Header(data);
-        var count = R32(data, PrismaticsOffset);
-        if (count > PhysicsSceneDeclaration.PrismaticCapacity || index < 0 || index >= count ||
-            !AllZero(data.Slice(PrismaticsOffset + 4, 12)))
-            throw new ArgumentException("Invalid prismatic table.");
-        var record = data.Slice(PrismaticRecordsOffset + index * PrismaticBytes, PrismaticBytes);
+        var layout = Layout(data);
+        if (index < 0 || index >= layout.Prismatics) throw new ArgumentException("Invalid prismatic table.");
+        var record = data.Slice(layout.PrismaticOffset(index), PrismaticBytes);
         var a = R32(record, 8); var b = R32(record, 12);
         if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) || R32(record, 88) > (uint)ConnectedCollision.Enabled ||
             !AllZero(record[92..96]) || !AllZero(record[128..]))
             throw new ArgumentException("Invalid prismatic record.");
         var result = new PrismaticConstraintDeclaration(new(R64(record, 0)),
-            new(R64(data, BodiesOffset + (int)a * BodyBytes)), new(R64(data, BodiesOffset + (int)b * BodyBytes)),
+            new(R64(data, layout.BodyOffset((int)a))), new(R64(data, layout.BodyOffset((int)b))),
             ReadConstraintFrame(record, 16), ReadConstraintFrame(record, 44),
             RF(record, 72), RF(record, 76), RF(record, 80), RF(record, 84), (ConnectedCollision)R32(record, 88));
         result.Validate();
@@ -61,14 +57,12 @@ public static partial class PhysicsGpuAbi
 
     private static void ValidatePrismaticCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source)
     {
-        var count = R32(candidate, PrismaticsOffset);
-        if (count > PhysicsSceneDeclaration.PrismaticCapacity ||
-            !candidate.Slice(PrismaticsOffset, 16).SequenceEqual(source.Slice(PrismaticsOffset, 16)))
-            throw new ArgumentException("Prismatic table changed.");
-        for (var i = 0; i < count; i++)
+        // The header comparison already pinned the population; each row's declaration stays fixed.
+        var layout = Layout(source);
+        for (var i = 0; i < layout.Prismatics; i++)
         {
             _ = ReadPrismatic(candidate, i);
-            var offset = PrismaticRecordsOffset + i * PrismaticBytes;
+            var offset = layout.PrismaticOffset(i);
             if (!candidate.Slice(offset, PrismaticImpulseOffset).SequenceEqual(source.Slice(offset, PrismaticImpulseOffset)))
                 throw new ArgumentException("Prismatic declaration changed.");
             // Two transverse, three angular, axial spring, then lower/upper unilateral stops.
@@ -79,7 +73,5 @@ public static partial class PhysicsGpuAbi
                     throw new ArgumentException("Invalid prismatic impulse.");
             }
         }
-        if (!AllZero(candidate[(PrismaticRecordsOffset + (int)count * PrismaticBytes)..ContactLoadSensorsOffset]))
-            throw new ArgumentException("Unused prismatic rows changed.");
     }
 }

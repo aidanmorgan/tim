@@ -66,14 +66,15 @@ public sealed class WorkshopReadTests
         var first = WorkshopWire.DecodeResponse(encoded).Read;
         var second = WorkshopWire.DecodeResponse(encoded).Read;
         Assert.True(first.HasSameContent(second));
+        var layout = WorkshopWire.ResponseLayout.Of(read);
         var changed = (byte[])encoded.Clone();
-        H(changed, WorkshopWire.ReadMotionOffset + piece + PhysicsMotionRead.DragRateOffset, (Half).125);
+        H(changed, layout.MotionOffset + piece + PhysicsMotionRead.DragRateOffset, (Half).125);
         Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
         changed = (byte[])encoded.Clone();
-        U32(changed, WorkshopWire.ReadCapturesOffset + 12, 2);
+        U32(changed, layout.CapturesOffset + 12, 2);
         Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
         changed = (byte[])encoded.Clone();
-        H(changed, WorkshopWire.ReadCapturesOffset + 16, BitConverter.UInt16BitsToHalf(0x8000));
+        H(changed, layout.CapturesOffset + 16, BitConverter.UInt16BitsToHalf(0x8000));
         Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
     }
 
@@ -145,7 +146,7 @@ public sealed class WorkshopReadTests
         Assert.True(motion.Bytes.SequenceEqual(expected));
         var read = MotionRead(body, motion);
         var encoded = WorkshopWire.Encode(Response(read));
-        Assert.True(encoded.AsSpan(WorkshopWire.ReadMotionOffset, expected.Length).SequenceEqual(expected));
+        Assert.True(encoded.AsSpan(WorkshopWire.ResponseLayout.Of(read).MotionOffset, expected.Length).SequenceEqual(expected));
         Assert.Equal(encoded, WorkshopWire.Encode(WorkshopWire.DecodeResponse(encoded)));
     }
 
@@ -167,7 +168,7 @@ public sealed class WorkshopReadTests
             MotionBindingMismatch.Tick => read with { Tick = new(2), Bodies = Bodies(body with { Tick = 2 }) },
             _ => throw new ArgumentOutOfRangeException(nameof(mismatch))
         };
-        var destination = Enumerable.Repeat((byte)0xa5, WorkshopWire.ResponseBytes).ToArray();
+        var destination = Enumerable.Repeat((byte)0xa5, WorkshopWire.ResponseBytes(Response(read))).ToArray();
         Assert.Throws<ArgumentException>(() => WorkshopWire.Write(Response(read), destination));
         Assert.All(destination, value => Assert.Equal((byte)0xa5, value));
     }
@@ -176,12 +177,12 @@ public sealed class WorkshopReadTests
     public void AdmissionMotionRemainsCanonicalZeroWithExactBodyBinding()
     {
         var body = new CanonicalBody(new(1), 2, 0, default, default, default);
-        var motion = PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength], Bodies(body), new(0));
+        var motion = PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(1)], Bodies(body), new(0));
         motion.ValidateBinding(Bodies(body), new(0));
         Assert.Throws<ArgumentException>(() => motion.ValidateBinding(default, new(0)));
         Assert.Throws<ArgumentException>(() => motion.ValidateBinding(Bodies(body with { Id = new(2) }), new(0)));
         Assert.Throws<ArgumentException>(() => motion.ValidateBinding(default, new(1)));
-        motion = PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength], default, new(0));
+        motion = PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(0)], default, new(0));
         var read = new WorkshopRead(new(2), new(0), default, new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Motion: motion);
@@ -231,7 +232,7 @@ public sealed class WorkshopReadTests
 
     private static byte[] MotionBytes(CanonicalBody body)
     {
-        var bytes = new byte[PhysicsMotionRead.ByteLength];
+        var bytes = new byte[PhysicsMotionRead.ByteLength(1)];
         var start = checked((uint)(body.Tick * 4 - 4));
         U32(bytes, 0, 4); U32(bytes, 4, 4); U32(bytes, 8, start); U32(bytes, 12, start + 4);
         for (uint i = 0; i < 4; i++)

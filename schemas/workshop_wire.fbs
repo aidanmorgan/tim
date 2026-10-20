@@ -105,9 +105,10 @@ struct ContactWorkStoreRecord {
     supplied_energy: float;
 }
 
+// Story 9R.5b: u32 work and collider slots (no work or collider table bound); the record stays 40 bytes.
 struct ContactWorkOccurrenceRecord {
-    work: uint16;
-    collider: uint16;
+    work: uint32;
+    collider: uint32;
     target: uint64;
     sequence: uint32;
     event_ordinal: uint32;

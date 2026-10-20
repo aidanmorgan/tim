@@ -404,7 +404,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
             Connections: new([conn]));
 
         // 1. Binary WorkshopWire roundtrip
-        Span<byte> binaryBuffer = stackalloc byte[WorkshopWire.ConstructionBytes];
+        Span<byte> binaryBuffer = stackalloc byte[WorkshopWire.ConstructionBytes(construction)];
         WorkshopWire.WriteConstruction(binaryBuffer, construction);
         var decodedBinary = WorkshopWire.ReadConstruction(binaryBuffer);
         var decodedClock = decodedBinary.Instances.OfType<WorkshopClock>().Single();

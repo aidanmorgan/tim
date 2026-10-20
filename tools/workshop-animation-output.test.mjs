@@ -9,9 +9,11 @@ const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/work
 let imports, closed = false, controls = 0;
 const messages = [];
 const host = {
-    OutputKinds: () => [1, 2, 3], TargetCapacity: () => 10,
+    OutputKinds: () => [1, 2, 3],
     Bootstrap: () => {}, AnimationControl: () => { controls++; }
 };
+// Story 9R.5b: the latest-sample table has no target capacity; this many targets is only the harness's population.
+const targets = 40;
 const runtime = {
     setModuleImports: (_, value) => { imports = value; },
     getAssemblyExports: async () => ({ CuriousContraptions: { Animation: { Worker: { Program: host } } } }),
@@ -54,20 +56,19 @@ function sample(target, pulse) {
     view.setBigUint64(40, BigInt(pulse), true); return bytes;
 }
 imports.output(sample(1, 1)); // Hold its receipt while every admitted target publishes.
-for (let target = 1; target <= host.TargetCapacity(); target++) imports.output(sample(target, 2));
-for (let target = 1; target <= host.TargetCapacity(); target++) imports.output(sample(target, 3));
+for (let target = 1; target <= targets; target++) imports.output(sample(target, 2));
+for (let target = 1; target <= targets; target++) imports.output(sample(target, 3));
 assert.equal(messages.filter(value => value.animationOutput).length, 1);
-assert.throws(() => imports.output(sample(11, 3)), /capacity exceeded/);
 const first = messages.at(-1).animationOutput;
 self.onmessage({ data: { animationAcknowledged: first } });
-for (let target = 1; target <= host.TargetCapacity(); target++) {
+for (let target = 1; target <= targets; target++) {
     const current = messages.at(-1).animationOutput;
     const view = new DataView(current.buffer, current.byteOffset, current.byteLength);
     assert.equal(view.getBigUint64(64, true), BigInt(target));
     assert.equal(view.getBigUint64(40, true), 3n, 'only latest per target survives');
     self.onmessage({ data: { animationAcknowledged: current } });
 }
-assert.equal(messages.filter(value => value.animationOutput).length, 11);
+assert.equal(messages.filter(value => value.animationOutput).length, targets + 1);
 imports.output(sample(1, 4)); imports.output(sample(2, 4));
 self.onmessage({ data: { dispose: true } });
 const afterDispose = messages.length;
@@ -75,5 +76,5 @@ imports.output(sample(3, 5)); imports.qualified();
 self.onmessage({ data: { animationAcknowledged: messages.at(-1).animationOutput } });
 assert.equal(messages.length, afterDispose); assert.equal(closed, true);
 channel.port2.close();
-console.log(JSON.stringify({ passed: true, targets: host.TargetCapacity(), controls:
-    ['declaredCapacity', 'heldReceipt', 'latestReplacement', 'orderedDrain', 'overflow', 'renamedControl', 'disposedLateOutput'] }));
+console.log(JSON.stringify({ passed: true, targets, controls:
+    ['unboundedTargets', 'heldReceipt', 'latestReplacement', 'orderedDrain', 'renamedControl', 'disposedLateOutput'] }));

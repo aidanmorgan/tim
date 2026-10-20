@@ -6,10 +6,11 @@ namespace CuriousContraptions.Gpu;
 /// <summary>Receiver capture feedback on the shared cosmetic path: latched sensor → declared Capture curve → worker → blend.</summary>
 public sealed partial class BrowserWorkshopClient
 {
-    private readonly CaptureLatch?[] _captureRequested = new CaptureLatch?[PhysicsSceneDeclaration.SensorCapacity];
-    private readonly WorkshopAnimationSample?[] _captureSamples = new WorkshopAnimationSample?[PhysicsSceneDeclaration.SensorCapacity];
-    private readonly ulong[] _captureOrdinals = new ulong[PhysicsSceneDeclaration.SensorCapacity];
-    private readonly bool[] _captureFrameTaken = new bool[PhysicsSceneDeclaration.SensorCapacity];
+    // Story 9R.5b: one slot per committed capture latch, grown to the read's population (FitFeedbackSlots).
+    private CaptureLatch?[] _captureRequested = [];
+    private WorkshopAnimationSample?[] _captureSamples = [];
+    private ulong[] _captureOrdinals = [];
+    private bool[] _captureFrameTaken = [];
     private const ulong CaptureTargetRange = 3;
     private static AnimationTargetId CaptureTarget(GpuBodyId owner) => new(checked((CaptureTargetRange << 32) + owner.Value));
     private static bool IsCaptureTarget(AnimationTargetId target) => target.Value >> 32 == CaptureTargetRange;

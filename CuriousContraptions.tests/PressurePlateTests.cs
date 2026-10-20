@@ -303,10 +303,12 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(scene.ContactLoadSensors[0], PhysicsGpuAbi.ReadContactLoadDeclaration(world, 0));
         var read = PhysicsGpuAbi.ReadContactLoadSensor(world, 0);
         Assert.Equal((ContactLoadPhase.Empty, 0f, plate.Id), (read.Phase, read.MeasuredMass, read.Frame));
-        Assert.True(PhysicsGpuAbi.CollidersOffset >= PhysicsGpuAbi.ContactLoadRecordsOffset +
-            PhysicsSceneDeclaration.ContactLoadSensorCapacity * PhysicsGpuAbi.ContactLoadSensorBytes);
+        // Story 9R.5b: the contact-load table is exactly its population, directly before the colliders.
+        var layout = PhysicsGpuAbi.Layout(world);
+        Assert.Equal(1, layout.ContactLoads);
+        Assert.Equal(layout.CollidersOffset, layout.ContactLoadsOffset + PhysicsGpuAbi.ContactLoadSensorBytes);
         // A committed phase that disagrees with its f32 mass is rejected.
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(world.AsSpan(PhysicsGpuAbi.ContactLoadRecordsOffset + PhysicsGpuAbi.ContactLoadPhaseOffset),
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(world.AsSpan(layout.ContactLoadOffset(0) + PhysicsGpuAbi.ContactLoadPhaseOffset),
             (uint)ContactLoadPhase.Loaded);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadContactLoadSensor(world, 0));
     }
@@ -346,18 +348,21 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void WorkbenchCapacity_ValidatesPressurePlateFootprint()
     {
-        var fp = WorkbenchFootprint.Of(PartId.PressurePlate);
-        Assert.Equal(1, fp.Bodies);
-        Assert.Equal(0, fp.DynamicBodies);
-        Assert.Equal(2, fp.Colliders);
-        Assert.Equal(0, fp.Triggers);
-        Assert.Equal(0, fp.ContactWorks);
-        Assert.Equal(0, fp.ElectricalSources);
-        Assert.Equal(0, fp.PrismaticConstraints);
-
         var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
         IWorkshopInstance[] instances = [plate];
         WorkbenchCapacity.Validate(instances);
+
+        // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
+        var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(plate)), new(1, 2)).World;
+        Assert.Equal(1 + 1, world.Bodies);
+        Assert.Equal(0, world.Dynamic);
+        Assert.Equal(2 + 1, world.Colliders);
+        Assert.Equal(0, world.Triggers);
+        Assert.Equal(0, world.ContactWorks);
+        Assert.Equal(0, world.ElectricalSources);
+        Assert.Equal(0, world.Prismatics);
+        Assert.Equal(1, world.ContactLoads);
     }
 
     // ---- Story 9R.4: the live path ----

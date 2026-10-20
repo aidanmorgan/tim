@@ -3,93 +3,38 @@ using System.Collections.Generic;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Compiled tables an authored population can exhaust. Closed set; display text lives at the exception boundary.
-/// There is no activation table: activation nodes are sized from the compiled network (owner decision, 20 Oct 2026).</summary>
-public enum WorkbenchTable : uint { Instances, Bodies, DynamicBodies, Sensors, Guides, Triggers, ContactWork, ElectricalSources, PrismaticConstraints }
+/// <summary>A compiled table whose document invariant an authored population can break. Closed set; display text lives at the
+/// exception boundary. Story 9R.5b (owner decision, 20 Oct 2026): no table has a fixed capacity, so the only entry is the guide
+/// invariant (one planar guide per moving body).</summary>
+public enum WorkbenchTable : uint { Guides }
 
-/// <summary>Explicit rejection when a construction needs more rows than the fixed physics tables hold. Never a fault.</summary>
+/// <summary>Explicit rejection when a construction breaks a compiled table's document invariant. Never a fault.</summary>
 public sealed class WorkbenchFullException : ArgumentException
 {
     public WorkbenchTable Table { get; }
     public WorkbenchFullException(WorkbenchTable table) : base("Workbench is full: " + Describe(table)) => Table = table;
     private static string Describe(WorkbenchTable table) => table switch
     {
-        WorkbenchTable.Instances => "part table",
-        WorkbenchTable.Bodies => "body table",
-        WorkbenchTable.DynamicBodies => "moving body table",
-        WorkbenchTable.Sensors => "receiver sensor table",
         WorkbenchTable.Guides => "ball guide table (one Receiver guides the balls)",
-        WorkbenchTable.Triggers => "impact trigger table",
-        WorkbenchTable.ContactWork => "bumper work table",
-        WorkbenchTable.PrismaticConstraints => "prismatic constraint table",
-        WorkbenchTable.ElectricalSources => "electrical supply table",
         _ => throw new ArgumentException("Undefined workbench table.")
     };
 }
 
-/// <summary>Rows one authored part adds to each fixed compiled table; mirrors WorkshopPhysicsCompiler.</summary>
-public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, int Colliders, int Triggers, int ContactWorks, int ElectricalSources = 0, int PrismaticConstraints = 0)
-{
-    /// <summary>The compiled workbench plane itself.</summary>
-    public static WorkbenchFootprint Plane => new(1, 0, 1, 0, 0);
-    public static WorkbenchFootprint Of(PartId id) => id.Value switch
-    {
-        "ball" or "bowling" or "domino" => new(1, 1, 1, 0, 0),
-        "basket" => new(1, 0, 5, 0, 0),
-        "spring" => new(2, 1, 2, 0, 0, 0, 1),
-        "battery" => new(1, 0, 1, 0, 0, 1),
-        "ramp" or "wall" => new(1, 0, 1, 0, 0),
-        "switch" => new(1, 0, 2, 1, 0),
-        "lamp" or "delay" => new(1, 0, 1, 0, 0),
-        "bumper" => new(1, 0, 1, 0, 1),
-        "pipe" => new(1, 0, 24, 0, 0),
-        "ball_detector" => new(1, 0, 17, 0, 0),
-        "pipe_bend_45" => new(1, 0, 40, 0, 0),
-        "pipe_bend_90" => new(1, 0, 72, 0, 0),
-        "funnel" => new(1, 0, 72, 0, 0),
-        "powered_gate" => new(2, 1, 20, 0, 0, 0, 1),
-        "pressure_plate" => new(1, 0, 2, 0, 0),
-        "counter" => new(1, 0, 2, 0, 0),
-        "clock" => new(1, 0, 2, 0, 0),
-        "latch" => new(1, 0, 2, 0, 0),
-        _ => throw new ArgumentException("Unsupported authored instance declaration.")
-    };
-    public static WorkbenchFootprint operator +(WorkbenchFootprint a, WorkbenchFootprint b) =>
-        new(a.Bodies + b.Bodies, a.DynamicBodies + b.DynamicBodies, a.Colliders + b.Colliders,
-            a.Triggers + b.Triggers, a.ContactWorks + b.ContactWorks, a.ElectricalSources + b.ElectricalSources, a.PrismaticConstraints + b.PrismaticConstraints);
-}
-
-/// <summary>The only population limit: fixed compiled table capacities. No per-kind count applies, and no activation count.</summary>
+/// <summary>Build sets no population limit: every physics and worker table is sized from the compiled scene at Run, and memory
+/// is the only bound (Story 9R.5b). The one rule left is a document invariant, not a capacity: every Receiver declares a planar
+/// guide for each ball and the physics document admits one guide per moving body, so a second Receiver fits only while no ball is
+/// on the workbench.</summary>
 public static class WorkbenchCapacity
 {
     public static void Validate(IReadOnlyList<IWorkshopInstance> instances)
     {
         ArgumentNullException.ThrowIfNull(instances);
-        if (instances.Count > WorkshopInstances.Capacity) throw new WorkbenchFullException(WorkbenchTable.Instances);
-        var total = WorkbenchFootprint.Plane; var balls = 0; var receivers = 0;
+        var balls = 0; var receivers = 0;
         foreach (var instance in instances)
         {
-            if (instance is IWorkshopDeclaredColliders declared)
-            {
-                var fp = instance.PartId == PartId.Unsupported ? new WorkbenchFootprint(1, 0, 0, 0, 0) : WorkbenchFootprint.Of(instance.PartId);
-                total += new WorkbenchFootprint(fp.Bodies, fp.DynamicBodies, declared.DeclaredColliders.Count, fp.Triggers, fp.ContactWorks, fp.ElectricalSources, fp.PrismaticConstraints);
-            }
-            else
-                total += WorkbenchFootprint.Of(instance.PartId);
             if (instance is WorkshopBall) balls++;
             else if (instance.PartId == PartId.Receiver) receivers++;
         }
-        // One contact material per body, so MaterialCapacity is covered by BodyCapacity.
-        if (total.Bodies > PhysicsSceneDeclaration.BodyCapacity) throw new WorkbenchFullException(WorkbenchTable.Bodies);
-        if (total.DynamicBodies > PhysicsBodyReadSet.Capacity) throw new WorkbenchFullException(WorkbenchTable.DynamicBodies);
-        // Every receiver declares one residence sensor and one planar guide per ball, and the physics document
-        // admits one guide per dynamic body, so a second Receiver fits only while no ball is on the workbench.
-        var perBallRows = balls * receivers;
-        if (perBallRows > PhysicsSceneDeclaration.SensorCapacity) throw new WorkbenchFullException(WorkbenchTable.Sensors);
-        if (perBallRows > PhysicsSceneDeclaration.GuideCapacity) throw new WorkbenchFullException(WorkbenchTable.Guides);
         if (receivers > 1 && balls > 0) throw new WorkbenchFullException(WorkbenchTable.Guides);
-        if (total.PrismaticConstraints > PhysicsSceneDeclaration.PrismaticCapacity) throw new WorkbenchFullException(WorkbenchTable.PrismaticConstraints);
-        if (total.ElectricalSources > ElectricalSupplyPlan.SourceCapacity) throw new WorkbenchFullException(WorkbenchTable.ElectricalSources);
-        if (total.Triggers > PhysicsSceneDeclaration.TriggerCapacity) throw new WorkbenchFullException(WorkbenchTable.Triggers);
-        if (total.ContactWorks > PhysicsSceneDeclaration.ContactWorkCapacity) throw new WorkbenchFullException(WorkbenchTable.ContactWork);    }
+    }
 }

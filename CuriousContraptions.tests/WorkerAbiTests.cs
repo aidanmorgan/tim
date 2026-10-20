@@ -11,17 +11,16 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
 {
     public enum Script { SimulationWorker, WorkshopClient }
 
+    // Story 9R.5b: the ring's body capacity is its own length, so no script declares a capacity or a ring width; the browser
+    // alone declares the bootstrap ring's starting allocation.
     private static readonly IReadOnlyDictionary<string, int> PoseRing = new Dictionary<string, int>
     {
         ["POSE_SLOT_COUNT"] = WorkshopPoseRing.SlotCount,
-        ["POSE_BODY_CAPACITY"] = WorkshopPoseRing.BodyCapacity,
         ["POSE_HEADER_BYTES"] = WorkshopPoseRing.HeaderBytes,
         ["POSE_BODY_BYTES"] = WorkshopPoseRing.BodyBytes,
-        ["POSE_SLOT_BYTES"] = WorkshopPoseRing.SlotBytes,
-        ["POSE_RING_BYTES"] = WorkshopPoseRing.TotalBytes,
     };
 
-    private static IReadOnlyDictionary<string, int> Owned(Script script) => script switch
+    private static Dictionary<string, int> Owned(Script script) => script switch
     {
         Script.SimulationWorker => new Dictionary<string, int>(PoseRing)
         {
@@ -34,7 +33,7 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
             ["BODY_WIRE_ROTATION"] = PhysicsBodyWire.RotationOffset,
             ["BODY_WIRE_VELOCITY"] = PhysicsBodyWire.VelocityOffset,
         },
-        Script.WorkshopClient => PoseRing,
+        Script.WorkshopClient => new Dictionary<string, int>(PoseRing) { ["POSE_INITIAL_BODIES"] = WorkshopPoseRing.InitialBodyCapacity },
         _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),
     };
 

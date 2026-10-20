@@ -116,10 +116,10 @@ public static class WorkshopPorts
     }
 }
 
-/// <summary>Immutable authored edges; neither storage nor connection validation executes activation.</summary>
+/// <summary>Immutable authored edges; neither storage nor connection validation executes activation. There is no connection limit
+/// (Story 9R.5b).</summary>
 public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEquatable<WorkshopConnections>
 {
-    public const int Capacity = 8;
     private readonly WorkshopConnection[] _items;
     public static WorkshopConnections Empty { get; } = new();
     public WorkshopConnections(params WorkshopConnection[] items) => _items = (WorkshopConnection[])items.Clone();
@@ -137,7 +137,6 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     }
     public void Validate(WorkshopInstances instances)
     {
-        if (Count > Capacity) throw new WorkshopEditRejectedException(WorkshopEditRejection.ConnectionCapacity, "Connection capacity exceeded.");
         var seen = new HashSet<WorkshopConnection>();
         foreach (var link in _items)
         {
