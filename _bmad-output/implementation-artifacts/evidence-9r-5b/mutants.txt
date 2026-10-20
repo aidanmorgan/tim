@@ -24,6 +24,8 @@ engine/, the workers, web and tools is empty afterwards.
 | M17 | pose ring never grows (Simulation worker.js writePoseRing)                  | killed      | tools/workshop-pose-ring.test.mjs: "the worker posts exactly one grown ring" |
 | M18 | Animation latest-sample table capped at 32 targets (Animation worker.js)    | killed      | tools/workshop-animation-output.test.mjs (40 targets): "MUTANT capacity exceeded." |
 
+| M19 | PLAYTEST pose trace back to the fixed 7,201 x 128-byte budget (WorkshopTrace.Append; Murdoch-12 R1-B1) | 2 failed | ATwentyBodyTraceOfTheWholeRunCompletesWithEveryRecord, ASixteenBodyWholeRunKeepsEveryPoseRecord... (run with -p:PlaytestDiagnostics=true) |
+
 (M15 and M16 were applied together and each was killed by a different test; "everything" is
 AMachinePastEveryRetiredCeilingRunsResetsExactlyAndSurvivesSaveAndLoad.)
 

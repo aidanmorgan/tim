@@ -417,7 +417,8 @@ test('Battery electrical animation survives same-world cadence downshift through
         const bytes = encodeWorkshopCommand({
             sequence: read.sequence() + 1n,
             kind: CommandKind.ConfigureCadence,
-            version: 20,
+            // The wire version the live Simulation answers in (no literal to drift when the wire changes: Story 9R.5b bumped it to 21).
+            version: read.version(),
             epoch: read.epoch(),
             revision: read.revision(),
             revisionKind: ExpectedRevision.Exact,

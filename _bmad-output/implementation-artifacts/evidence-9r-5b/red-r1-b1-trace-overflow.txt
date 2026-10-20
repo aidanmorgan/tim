@@ -1,0 +1,4 @@
+[xUnit.net 00:00:00.71]     CuriousContraptions.Tests.WorkshopTraceTests.ATwentyBodyTraceOfTheWholeRunCompletesWithEveryRecord [FAIL]
+Expected: 7201
+Actual:   559
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 67 ms - CuriousContraptions.tests.dll (net10.0)

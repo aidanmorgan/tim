@@ -60,7 +60,8 @@ Population tables scale with the machine and are **removed**. Structural, tempor
 | 21 | `WorkshopPoseHistory.Capacity` | 7 | **Kept.** Interpolation history depth in samples (time), not a population. |
 | 22 | `WorkshopAnimationWire.ImpulseCapacity`, `AnimationImpulseDefinition.MaximumCapacity` | 64 / 65536 | **Kept.** Concurrent overlapping impulses on one target, bounded by its declared cooldown (time). |
 | 23 | worker.js `occurrenceReadCapacity` | 64 | **Kept.** Back-pressure depth of the occurrence-read queue (pending messages, time), not a scene table. |
-| 24 | `WorkshopTrace.Capacity`, `PoseByteCapacity` | 7201 | **Kept.** One record per tick for the 60 s run limit (`RunTickLimit`), time. |
+| 24a | `WorkshopTrace.Capacity` (the tick-duration table) | 7201 | **Kept.** One scalar per tick for the 60 s run limit (`RunTickLimit`): time, not a population. |
+| 24b | `WorkshopTrace.PoseByteCapacity` (PLAYTEST pose trace) | 7201 × 128 bytes | **Removed** (Murdoch-12 R1-B1; first audit wrongly called it a time bound). A record holds every committed body, so the fixed budget overflowed a 20-body run after 559 ticks; the buffer is sized per Run from the first record's width × the tick count. |
 | 25 | `EventRingBuffer.DefaultCapacity` | 1024 | **Kept.** Message queue depth, not a scene table. |
 | 26 | Clock limits (`WorkshopClockMapping.ProbeCapacity`, `StartupAttemptLimit`, `CheckExchangeLimit`, ...) | various | **Kept.** Clock protocol (Story 9.4b), not a scene table. |
 | 27 | `WorkshopCounter.PlacedTargetCount`, `WorkshopPresentationWire.Capacity` (retained diagnostic frames) | 3 / 32 | **Kept.** A Counter's default target value, and a diagnostic frame history (time). |

@@ -139,6 +139,36 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(chunks + 2, output.TraceLines.Length);
     }
 
+    // Story 9R.5b (Murdoch-12 R1-B1): the pose trace is sized from its first record's width and the run's tick count, never a fixed
+    // byte budget. Twenty moving bodies (1,648-byte records) for the full 7,200-tick run used to overflow the retired
+    // 7,201 x 128-byte buffer after about 559 ticks.
+    [Fact]
+    public void ATwentyBodyTraceOfTheWholeRunCompletesWithEveryRecord()
+    {
+        using var output = new CapturedConsole();
+        var trace = new WorkshopTrace();
+        var balls = Enumerable.Range(0, 20)
+            .Select(i => (IWorkshopInstance)WorkshopInput.Basketball(new((ulong)i + 3), -6 + i * .6, 8.875, 0, 0, 0, 0, 1)).ToArray();
+        var profile = Profile with { Cadence = SimulationCadence.Hz240 };
+        var configured = new WorkshopConstruction(new(7), Settings with { Simulation = SimulationCadence.Hz240 }, new(balls));
+        var record = Record(configured, new(9), profile);
+        Assert.Equal(WorkshopTraceRecord.HeaderBytes + 20 * PhysicsBodyWire.ByteLength, record.Length);
+        Begin(trace, Session, configured, new(9), new(3), record);
+        const ulong ticks = 7200;
+        for (ulong tick = 1; tick <= ticks; tick++)
+        {
+            BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
+            Append(trace, record);
+        }
+        trace.End(TraceEnd.Complete);
+        trace.Flush(WorkshopSimulationPhase.Completed);
+        var header = output.TraceLines[0].Split(' ');
+        Assert.Equal((ulong)record.Length, Number(header[4]));
+        Assert.Equal(ticks + 1, Number(header[5]));
+        Assert.Equal(TraceEnd.Complete, Reason(header[7]));
+        Assert.Equal($"CCGPU_TRACE_END {header[1]} {ticks + 1} {Number(header[6])} 0", output.TraceLines[^1]);
+    }
+
     [Fact]
     public void InvalidSessionCannotStartOrContaminateTheNextRun()
     {
@@ -289,7 +319,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
 
 
     [Fact]
-    public void PoseCapacityExhaustionPreservesCompleteScalarTiming()
+    public void ASixteenBodyWholeRunKeepsEveryPoseRecordAndCompleteScalarTiming()
     {
         using var output = new CapturedConsole();
         var trace = new WorkshopTrace();
@@ -307,8 +337,9 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.End(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         var pose = output.TraceLines[0].Split(' ');
-        Assert.Equal(TraceEnd.Overflow, Reason(pose[7]));
-        Assert.Equal((ulong)(WorkshopTrace.PoseByteCapacity / record.Length), Number(pose[5]));
+        // Story 9R.5b (R1-B1): the pose trace is sized from the record width, so the whole run is retained (it overflowed before).
+        Assert.Equal(TraceEnd.Complete, Reason(pose[7]));
+        Assert.Equal(Profile.RunTickLimit + 1, Number(pose[5]));
         var timing = output.TimingLines[0].Split(' ');
         Assert.Equal(Profile.RunTickLimit, Number(timing[9]));
         Assert.Equal(0UL, Number(timing[11]));
