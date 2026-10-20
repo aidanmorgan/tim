@@ -1,0 +1,3 @@
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 40, snaps: False) [2 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 21, snaps: False) [1 ms]
+Failed!  - Failed:     2, Passed:    20, Skipped:     0, Total:    22, Duration: 508 ms - CuriousContraptions.tests.dll (net10.0)

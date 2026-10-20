@@ -437,6 +437,8 @@ shape = SubResource("Shape_Rim_End_LR")
 
 [node name="Loc_Port_mouth_start" type="Node3D" parent="."]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -0.99, 0, 0)
+metadata/bore_radius = 1.3
 
 [node name="Loc_Port_mouth_end" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.99, 0, 0)
+metadata/bore_radius = 0.65

@@ -254,7 +254,8 @@ public sealed class NoFixedCapacityTests
         AssertSameState(run[^1], replay[^1], "the reloaded machine's run");
     }
 
-    private static async Task<(WorkshopRead Built, List<WorkshopRead> Run, WorkshopRead Reset)> RunAndReset(WorkshopConstruction construction, int ticks)
+    /// <summary>The production Simulation on the worker's transport: Construct, Run, `ticks` Advances, Reset (Story 9R.6 reuses it).</summary>
+    internal static async Task<(WorkshopRead Built, List<WorkshopRead> Run, WorkshopRead Reset)> RunAndReset(WorkshopConstruction construction, int ticks)
     {
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
@@ -274,7 +275,7 @@ public sealed class NoFixedCapacityTests
     }
 
     /// <summary>Bit-equal committed state, the world epoch aside (the Story 9R.1 snapshot fields).</summary>
-    private static void AssertSameState(WorkshopRead expected, WorkshopRead actual, string label)
+    internal static void AssertSameState(WorkshopRead expected, WorkshopRead actual, string label)
     {
         Assert.Equal(expected.Tick, actual.Tick);
         Assert.Equal(expected.Bodies.Count, actual.Bodies.Count);

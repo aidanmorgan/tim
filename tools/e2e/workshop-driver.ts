@@ -333,7 +333,12 @@ const UI_ANCHORS = {
         toggle: { x: 1056, y: 698 },
         scrollAt: { x: 1200, y: 500 },
         tilt: { decrease: { x: 1115, y: 413 }, increase: { x: 1159, y: 413 } },
-    }
+        // Story 9R.6: "Turn − / +" (±5° about Y) and "Height ↑ / ↓" (±0.5 m) in the same scrolled menu.
+        turn: { decrease: { x: 1115, y: 365 }, increase: { x: 1159, y: 365 } },
+        height: { up: { x: 1105, y: 509 }, down: { x: 1149, y: 509 } },
+    },
+    // The "↺ Undo" button beside Run in the bottom action bar.
+    undo: { x: 744, y: 836 },
 } as const;
 
 export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick' | 'bumper_depth' | 'wall_and_bumper' | 'clear_pipe' | 'gentle_bend' | 'quarter_bend';
@@ -593,6 +598,8 @@ export class WorkshopDriver {
             throw new Error(`${action}: ${nameOf(WorkshopCommand, kind)} acknowledged in phase ${nameOf(SimulationPhase, ack.phase)}, expected ${nameOf(SimulationPhase, phase)}`);
         this.lastAcknowledged = ack;
         this.phase = ack.phase;
+        // Every acknowledged command rebuilds the palette (RefreshPalette), which may move its scroll: re-scroll before the next row.
+        this.paletteScrolled = false;
         if (settle) await this.frames(UI_SETTLE_FRAMES);
         if (this.acknowledgements.length !== mark + 1)
             throw new Error(`${action}: ${this.acknowledgements.length - mark} acknowledgements arrived; the input should issue exactly one ${nameOf(WorkshopCommand, kind)}`);
@@ -979,6 +986,79 @@ export class WorkshopDriver {
     // then selected.
     async placeOnCanvas(x: number, y: number): Promise<void> {
         await this.construct(`placeOnCanvas(${x}, ${y})`, () => this.press(x, y));
+    }
+
+    /** Story 9R.6: perform a UI input that must issue no Workshop command (a hover preview, a refused edit): after it, `frames`
+     *  rendered frames pass with no new CCGPU acknowledgement. */
+    async expectNoCommand(action: string, operate: () => Promise<void>, frames: number = 20): Promise<void> {
+        const mark = this.acknowledgements.length;
+        await operate();
+        await this.frames(frames);
+        if (this.acknowledgements.length !== mark)
+            throw new Error(`${action}: ${this.acknowledgements.length - mark} Workshop command(s) were issued; the input must issue none`);
+    }
+
+    /** Move the pointer over the bench (the placement preview follows it) and let Godot render it. Issues no command. */
+    async hoverCanvas(x: number, y: number): Promise<void> {
+        await this.expectNoCommand(`hoverCanvas(${x}, ${y})`, () => this.page.mouse.move(x, y, { steps: 4 }));
+    }
+
+    // Open the Workshop menu's Fine rotate rows (scrolled to their fixed positions), press `buttons`, then scroll back.
+    private async pressFineRotate(buttons: readonly { x: number; y: number }[], press: (at: { x: number; y: number }) => Promise<void>): Promise<void> {
+        await this.openMenu();
+        if (!this.fineRotateOpen) {
+            await this.clickAt(UI_ANCHORS.fineRotate.toggle.x, UI_ANCHORS.fineRotate.toggle.y);
+            this.fineRotateOpen = true;
+        }
+        await this.page.mouse.move(UI_ANCHORS.fineRotate.scrollAt.x, UI_ANCHORS.fineRotate.scrollAt.y);
+        await this.page.mouse.wheel(0, 2000);
+        await this.frames(SCROLL_SETTLE_FRAMES);
+        for (const at of buttons) await press(at);
+        await this.page.mouse.wheel(0, -2000);
+        await this.frames(SCROLL_SETTLE_FRAMES);
+    }
+
+    /** Story 9R.6: turn and lift the placement preview of the chosen part through the Fine rotate rows (tilt ±5° about Z, turn ±5°
+     *  about Y, height ±0.5 m per step). The preview is presentation only, so no press issues a command. The menu closes through its
+     *  own button, because Escape would cancel the chosen part. */
+    async adjustPreview(steps: { tilt?: number; turn?: number; height?: number }): Promise<void> {
+        const presses: { x: number; y: number }[] = [];
+        const add = (count: number | undefined, more: { x: number; y: number }, less: { x: number; y: number }) => {
+            for (let i = 0; i < Math.abs(count ?? 0); i++) presses.push((count ?? 0) > 0 ? more : less);
+        };
+        add(steps.tilt, UI_ANCHORS.fineRotate.tilt.increase, UI_ANCHORS.fineRotate.tilt.decrease);
+        add(steps.turn, UI_ANCHORS.fineRotate.turn.increase, UI_ANCHORS.fineRotate.turn.decrease);
+        add(steps.height, UI_ANCHORS.fineRotate.height.up, UI_ANCHORS.fineRotate.height.down);
+        await this.expectNoCommand('adjustPreview', async () => {
+            await this.pressFineRotate(presses, at => this.clickAt(at.x, at.y));
+            await this.clickAt(UI_ANCHORS.menu.button.x, UI_ANCHORS.menu.button.y);
+        });
+    }
+
+    /** Story 9R.6: raise (positive) or lower the selected part by 0.5 m per step through the Fine rotate "Height" row; each step is
+     *  one acknowledged edit. Closing the menu with Escape also deselects the part. */
+    async liftSelectedByHeight(steps: number): Promise<void> {
+        const button = steps >= 0 ? UI_ANCHORS.fineRotate.height.up : UI_ANCHORS.fineRotate.height.down;
+        await this.pressFineRotate(Array.from({ length: Math.abs(steps) }, () => button),
+            at => this.construct('liftSelectedByHeight', () => this.press(at.x, at.y)));
+        await this.closeMenu();
+    }
+
+    /** Story 9R.6: drag a placed part across the bench from its screen point and release; the release commits one edit. */
+    async dragPart(fromX: number, fromY: number, toX: number, toY: number): Promise<void> {
+        await this.selectPartAt(fromX, fromY);
+        await this.construct(`dragPart(${fromX}, ${fromY} -> ${toX}, ${toY})`, () => this.drag(fromX, fromY, toX, toY));
+    }
+
+    /** Story 9R.6: the same drag on a part that must not move (a locked fixture): no command is issued. */
+    async dragPartRefused(fromX: number, fromY: number, toX: number, toY: number): Promise<void> {
+        await this.selectPartAt(fromX, fromY);
+        await this.expectNoCommand(`dragPartRefused(${fromX}, ${fromY})`, () => this.drag(fromX, fromY, toX, toY));
+    }
+
+    /** Press "↺ Undo": one acknowledged construction edit. */
+    async undo(): Promise<void> {
+        await this.construct('undo', () => this.press(UI_ANCHORS.undo.x, UI_ANCHORS.undo.y));
     }
 
     // Read the lock-free zero-copy pose ring from SharedArrayBuffer

@@ -9,7 +9,7 @@ internal enum SuiteId
     Anim1a = 1, Anim1b, Anim1c, Cat002, Cat005, Cat014, Cat015a, Cat015aSidekick, Cat015b, Cat017, Cat020, Cat023a, Cat023b,
     Cat030, Cat037, Cat048a, Cat048b, Cat049, Cat050, Cat051, Cat052, Cat062, Cat062b, ClockMaster, EngineCore2a1, EngineCore2a2,
     EngineCore2a3, EngineCore2a4, EngineCore2b1, EngineCore2b2, EngineCore2b3, EngineCore2b4, EngineCore2c, PalettePlacement,
-    Capacity9r, Cat051OwnSupply, Cat052TwoPlates, Cat052Lamp, Capacity9r5b,
+    Capacity9r, Cat051OwnSupply, Cat052TwoPlates, Cat052Lamp, Capacity9r5b, TubeSnapping,
 }
 
 /// <summary>Parallel suites share the machine with N-1 other Chromes; SerialAlone suites run with no other runner Chrome or build.</summary>
@@ -78,6 +78,7 @@ internal static class SuiteCatalogue
         SuiteId.EngineCore2c => "engine-core-2c", SuiteId.PalettePlacement => "palette-placement",
         SuiteId.Capacity9r => "capacity-9r", SuiteId.Cat051OwnSupply => "cat-051-own-supply",
         SuiteId.Cat052TwoPlates => "cat-052-two-plates", SuiteId.Cat052Lamp => "cat-052-lamp", SuiteId.Capacity9r5b => "capacity-9r5b",
+        SuiteId.TubeSnapping => "tube-snapping",
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "Undefined suite."),
     };
 
@@ -204,6 +205,12 @@ internal static class SuiteCatalogue
                 "it; it builds the largest machine in the catalogue (42 parts, 40 triggers) and samples poses over wall-clock windows.", 1)],
             // No primary: the Impact Switch and Signal lamp keep their own primary suites; a change to either still selects this placer.
             null, Set(PartId.Basketball, PartId.ImpactSwitch, PartId.SignalLamp), [], Set(Signal), Set(Gizmo, Wire)),
+        Serial(SuiteId.TubeSnapping,
+            [Owner("Coordinator decision, 20 Oct 2026 (Story 9R.6): a new suite starts SerialAlone until calibration qualifies " +
+                "it; it samples the ball's pose publications over wall-clock windows through four snapped tube joints.", 1)],
+            // No primary: cat-048a stays the Pipe's primary suite; a tube or snapping change still selects this suite as a placer.
+            null, Set(PartId.Basketball, PartId.Pipe, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel), Set(new LevelId("clear_pipe")),
+            [], Set(Gizmo, Guide, Levels, Bench)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),
             Set(Gizmo, Guide, Wire, Present)),

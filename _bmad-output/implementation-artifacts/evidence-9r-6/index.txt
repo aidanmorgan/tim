@@ -1,0 +1,49 @@
+Story 9R.6 evidence (Amelia-12, 20 Oct 2026; base 007a65ed = Story 9R.5b)
+
+Red first: red-native.txt — 22/22 TubeMouthSnapTests failed against a throwing TubeMouthSnap.Find stub and unextended extractor.
+Green: tier1-dotnet.txt — dotnet build CuriousContraptions.slnx 0 warnings / 0 errors; dotnet test CuriousContraptions.slnx:
+  CuriousContraptions.tests 1800/1800, E2eRunner.Tests 156/156 (after the 3 expected selection updates), Coverage.Tests 78/78,
+  WorkerAotGuard.Tests 17/17.
+Node: tools/*.test.mjs 83/83; tools/e2e/unit 24/24. anvil check --changed: no warnings.
+Contracts: tier1-contracts.txt — LifecycleContract 510/0 failures, WireContract 109/0 failures. Ownership --oracles fails with
+  "Animation free-list storage has an unreviewed caller or reference recipient." This is inherited from 007a65ed: Story 9R.5b's
+  AnimationBatch resize writes _free from a method that OwnershipPolicy.AnimationFreeCallers does not list. This story touches no
+  engine/presentation file. Reproduced on a clean 007a65ed worktree (Release build): ownership-on-base-007a65ed.txt ends with
+  the same message. Filed for the 9R.5b owner.
+
+Tier 3 (runner selected Full): full-run-2e7cfb48/ — `dotnet run --project tools/E2eRunner -- run --diff 007a65ed`, run
+  20261020T154054Z-62914, HEAD 2e7cfb48, clean status, bundle 83b4122d…, identity unchanged start to end, N=2 workers.
+  Verdict Fail: 39/40 files, 202/203 tests. tube-snapping 13/13 (SerialAlone, Clean), cat-030 7/7, cat-049 5/5, cat-050 5/5,
+  and every other file passes except cat-005 test 6. That test hand-encodes a ConfigureCadence command with `version: 20`
+  (tools/e2e/cat-005.test.ts), and Story 9R.5b bumped the wire to version 21, so the worker rejects it ("Unsupported Workshop
+  command schema."). The failure is inherited from 007a65ed; this story touches neither the wire nor cat-005. Filed for 9R.5b.
+  Chrome transit minimum speed over every observed publication: 3.81, 4.54, 3.57 and 3.49 m/s.
+
+Rebased onto e4afb855 (Story 9R.5b final: 0978b2a7 fixes cat-005's wire version), HEAD 3b4669ff:
+  Tier 1: tier1-dotnet-rebased-e4afb855.txt (0 warnings; 1807 + 156 + 78 + 17 tests pass) and
+  tier1-contracts-rebased-e4afb855.txt (Lifecycle 510/0, Wire 109/0, node 83/83 and 24/24). The Ownership oracle still fails
+  with the same AnimationBatch._free message (ownership-rebased-e4afb855.txt); the coordinator routes it to 9R.5b.
+  Runner (coordinator: cat-005 plus the tube suites; the 39/40 full run stands for the rest): suites-3b4669ff/ —
+  `run --changed` with cat-005, tube-snapping, cat-030, cat-048a, cat-048b, cat-049 and cat-050, plus the smoke pair;
+  run 20261020T162649Z-48630, verdict Pass, 9/9 files, 52/52 tests, bundle ac3eae48… unchanged.
+Native transit: native-transit-probe.txt — the four snapped joints, production WorkshopSimulation, every tick: min speed 3.41 m/s.
+
+AC1 per part: APipeSnapsOntoTheEndMouthOfEveryTubePart (pipe, both bends, funnel outlet, powered gate, ball detector) and
+  APoweredGateSnapsOntoAPipeMouth; TubeMouthSnapTests 29/29. godot.log of the native run: no UID warning for TubeMouthSnap.cs.uid.
+
+ACs without a mutant, and why: Run/Pause is gated by the existing CanEdit (Click, the preview and the release path are already
+  closed outside Building), so a mutant inside the new code is equivalent; Reset and Save/Load reuse the Story 9R.1 snapshot path
+  and the save codec with no new decision logic. Locked target in Chrome arrives with Story 9R.7's joined_pipe level (CAT-048
+  fact 21), which already requires it; it is proven natively here.
+
+Mutants (each applied alone, then reverted; every one killed):
+  mutant-1-distance.txt            CaptureDistance 0.45 -> 0.73        : 0.46 and 0.72 rows fail
+  mutant-2-bore.txt                bore check dropped                   : funnel inlet and 2e-6 bore rows fail
+  mutant-3-occupied.txt            occupied check skipped               : occupied row fails
+  mutant-4-unflipped-pipe-start.txt pipe mouth_start left identity      : outward-axis test and 10 joins fail
+  mutant-5-locked-mover.txt        locked mover allowed                 : locked row fails
+  mutant-6-angle-41deg.txt         CaptureAngle 20 -> 41 deg            : 21 and 40 deg rows fail
+  mutant-7-no-self-exclusion.txt   moved tube's own pose kept           : D4 self-exclusion row fails
+  mutant-8-extra-roll.txt          extra 30 deg roll after shortest arc : roll-preservation row fails
+  mutant-ui-5-grid-after-snap.txt  Chrome: 0.1 grid applied after snap  : tube-snapping test 1 coincidence fails (0.02 m)
+  mutant-ui-6-preview-submits.txt  Chrome: hover preview submits       : tube-snapping test 1 hoverCanvas sees 1 command

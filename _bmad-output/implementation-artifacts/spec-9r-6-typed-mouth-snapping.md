@@ -146,6 +146,19 @@ Line numbers are from the working tree on 18 Oct 2026, before Story 9.4b's commi
 
 ## Implementation Notes
 
+Amelia-12, 20 Oct 2026, on base `007a65ed` (Story 9R.5b). Gaps decided under the owner's pace rules:
+
+- **I1. Six tube scenes, not five.** `ball_detector.tscn` also carries `Loc_Port_mouth_*` locators (CAT-002 "Sockets and ports": Start faces −X, End +X, common bore). Its `mouth_start` is flipped like the others and both mouths declare bore 0.65, so it snaps by data like every tube. Otherwise the required-bore rule would break registry discovery.
+- **I2. Mouth ends are typed.** The extractor parses `mouth_start` / `mouth_end` into `TubeMouthEnd` at the scene boundary and rejects any other `mouth_*` name. `bore_radius` must be a finite, positive float; a missing, non-numeric or invalid value is an `ArgumentException`. `ExtractedPortLocator` gains `Mouth` and `BoreRadius`.
+- **I3. The 19 Oct mouth-facing finding is fixed here.** Every start mouth now faces outward. The native test checks this from the geometry (`outward_start · (start − end) > 0`), not from the matrix.
+- **I4. One placement pose.** Both the preview and the click call `PlacementPose`: the 0.1 grid point (`at.Snapped(.1)`) and the chosen preview orientation, replaced by the snap when one exists. The preview used to show `ClampPlacement`'s unsnapped plane height while the click committed the snapped one; both now match. Rotating the preview starts from the chosen orientation, never from a snapped pose.
+- **I5. D4 is applied only on the drag and lift release** in `_Input`. Rotate, depth, gizmo and Height steps never snap. While a tube is dragged, the gold ring shows its release joint, and the body is unchanged until release.
+- **I6. Preview Height steps.** The ↑/↓ Height row stepped the preview from its stale node height (y 2 until the pointer first leaves the menu). It now steps the placement plane. This is a player-visible defect on the placement path, found by the suite.
+- **I7. Locked parts in Chrome.** No current level has a locked tube; that arrives with `joined_pipe` in Story 9R.7. The locked-target snap (CAT-048 fact 21) and the locked-mover refusal are proven natively through `TubeMouthSnap.Find`. Chrome proves the UI gate: dragging the clear_pipe level's locked receiver issues no command and moves nothing.
+- **I8. cat-049 and cat-050 have no hand-stacked joins.** Each level stocks one bend, so there is no join to convert. They stay as regression suites and already carry the 9R.1 snapshot Reset. cat-030 test 5, the real hand-stacked join, now snaps a pipe to the Funnel outlet and asserts the join from the saved construction.
+- **I9. Continuity.** Natively, the production Simulation is stepped every tick: speed ≥ 0.05 m/s and chord progress never falls back by more than 1 mm, from the entry mouth until the ball is 0.4 m past the far mouth. Chrome checks the same on every observed pose-ring publication; it cannot see every tick.
+- **I10. Driver.** New helpers: `expectNoCommand`, `hoverCanvas`, `adjustPreview` (UI-only; the menu closes through its own button, because Escape cancels the tool), `liftSelectedByHeight`, `dragPart`, `dragPartRefused` and `undo`. Every acknowledged command now clears `paletteScrolled`, because the palette rebuild can move its scroll; a post-Reset `selectTool` once chose the wrong row.
+
 ## Spec Change Log
 
 ## Review Triage Log

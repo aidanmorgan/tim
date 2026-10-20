@@ -56,6 +56,7 @@ The runner gives every suite an explicit environment: `PATH`, `HOME` and `TMPDIR
 | cat-051-own-supply | owner-named (coordinator, 20 Oct 2026, Story 9R.3): a new suite starts SerialAlone until calibration qualifies it; it samples blade and ball poses over wall-clock windows after each in-run supply toggle |
 | cat-052-two-plates | owner-named (coordinator, 20 Oct 2026, Story 9R.4): a new suite starts SerialAlone until calibration qualifies it; it samples both blades' poses over wall-clock windows after each Run |
 | cat-052-lamp | owner-named (coordinator, 20 Oct 2026, Story 9R.5): a new suite starts SerialAlone until calibration qualifies it; it samples blade and ball poses and the lamp's cosmetic over wall-clock windows after each Run |
+| tube-snapping | owner-named (coordinator, 20 Oct 2026, Story 9R.6): a new suite starts SerialAlone until calibration qualifies it; it samples the ball's pose publications over wall-clock windows through four snapped tube joints |
 | cat-020 | owner-named (coordinator, 20 Oct 2026): a boot-time clock recalibration under N=2 AOT workers (`_bmad-output/implementation-artifacts/evidence-9r-1/full-run-parallel`); Parallel returns only through Story F.1's recalibration |
 
 Every other suite is Parallel. Rewriting a SerialAlone suite to measure simulated time instead belongs to the story that owns it.

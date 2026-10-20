@@ -1,0 +1,5 @@
+  ✖ 1. Snap: an offset, turned pipe previews the gold joint without a command, joins exactly, and one Undo removes only it (8916.729625ms)
+✖ Story 9R.6: typed tube-mouth snapping (12904.153875ms)
+✖ failing tests:
+✖ 1. Snap: an offset, turned pipe previews the gold joint without a command, joins exactly, and one Undo removes only it (8916.729625ms)
+  Error: hoverCanvas(930, 551): 1 Workshop command(s) were issued; the input must issue none

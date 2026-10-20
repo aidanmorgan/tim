@@ -1,0 +1,8 @@
+Story 9R.6 native transit probe (temporary Assert.Fail appended to ABallCrossesASnappedJointWithoutSnagging, then removed).
+Production WorkshopSimulation on BrowserGpuTransport, 120 Hz ticks, ball dropped 0.6 m above the entry mouth.
+"entered" = first tick past the entry mouth along the route chord; "left" = first tick 0.4 m beyond the far mouth plane.
+
+PROBE Bend45ToBend45: entered 41 left 152 minSpeed 3.410307 entry (0.18268919, 7.00844, 0) exit (-2.43459, 4.39116, 0) final (-11.60071, 0.11847962, 0.019633852)
+PROBE FunnelOutletToPipe: entered 41 left 170 minSpeed 3.410307 entry (1.1920929E-07, 8.49, 0) exit (-1.0728836E-06, 2.729999, 0) final (0.074261874, 0.05183852, 0.3740883)
+PROBE StraightToBend45: entered 41 left 148 minSpeed 3.410307 entry (2.3841858E-07, 7.3900003, 0) exit (-0.76658386, 1.7593037, 0) final (-9.594317, -0.038726456, 0)
+PROBE StraightToBend90: entered 41 left 180 minSpeed 3.410307 entry (2.3841858E-07, 7.8900003, 0) exit (-2.4900012, 1.6200001, 0) final (-13.289761, -0.08408132, 0)
