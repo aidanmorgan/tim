@@ -1,0 +1,19 @@
+diff --git a/CuriousContraptions.web/wwwroot/workshop-isolation.js b/CuriousContraptions.web/wwwroot/workshop-isolation.js
+index e281158a..49bfdcb9 100644
+--- a/CuriousContraptions.web/wwwroot/workshop-isolation.js
++++ b/CuriousContraptions.web/wwwroot/workshop-isolation.js
+@@ -116,11 +116,10 @@ export async function prepareIsolation(displayFailure) {
+             await bounded(waitForInstall(registration.installing));
+         }
+         controller = await bounded(waitForController());
+-        if (controller.scriptURL !== script.href || registration.waiting)
++        if (controller.scriptURL !== script.href)
+             throw new Error('A different or waiting isolation policy requires closing all game tabs and reopening.');
+         await bounded(handshake(controller));
+         checkDeadline();
+-        if (registration.waiting) throw new Error('A waiting isolation policy requires closing all game tabs and reopening.');
+         if (!globalThis.crossOriginIsolated) {
+             if (attempt[1] !== 0) throw new Error('Unsupported: the isolated reload did not establish isolation.');
+             sessionStorage.setItem(markerKey, JSON.stringify([attempt[0], 1, lastNavigation]));
+ℹ pass 8
+ℹ fail 1

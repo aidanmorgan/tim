@@ -1,0 +1,14 @@
+diff --git a/CuriousContraptions.Simulation/wwwroot/worker.js b/CuriousContraptions.Simulation/wwwroot/worker.js
+index d47dc81b..0f5768e0 100644
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -24,6 +24,7 @@ const BODY_WIRE_ROTATION = 32;         // PhysicsBodyWire.RotationOffset
+ const BODY_WIRE_VELOCITY = 56;         // PhysicsBodyWire.VelocityOffset
+ const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
+ const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
++const MOTION_GRAVITY = 60;
+ const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
+ 
+ // Story 9R.5b: a ring's body capacity is its own length (WorkshopPoseRing.BodyCapacity); there is no fixed capacity.
+[xUnit.net 00:00:00.98]     CuriousContraptions.Tests.WorkerAbiTests.EveryScriptLayoutConstantEqualsItsCSharpOwnerAndIsUsed(script: SimulationWorker) [FAIL]
+Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2, Duration: 52 ms - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,15 @@
+diff --git a/engine/gpu/WorkshopHint.cs b/engine/gpu/WorkshopHint.cs
+index 47032be2..936e6b41 100644
+--- a/engine/gpu/WorkshopHint.cs
++++ b/engine/gpu/WorkshopHint.cs
+@@ -135,7 +135,7 @@ public static class WorkshopAnimationWire
+     };
+     private static void Identity(ReadOnlySpan<byte> bytes, int length, RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence)
+     {
+-        if (bytes.Length != length || WorkshopWire.ReadSession(bytes[..16]) != session ||
++        if (bytes.Length < length || WorkshopWire.ReadSession(bytes[..16]) != session ||
+             BinaryPrimitives.ReadUInt64LittleEndian(bytes[16..]) != master.Value ||
+             BinaryPrimitives.ReadUInt64LittleEndian(bytes[24..]) != cadence.Value)
+             throw new ArgumentException("Invalid animation identity.");
+[xUnit.net 00:00:00.77]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.AnAnimationChannelRecordOfAnyOtherLengthRejects(change: 1) [FAIL]
+Failed!  - Failed:     1, Passed:    28, Skipped:     0, Total:    29, Duration: 144 ms - CuriousContraptions.tests.dll (net10.0)

@@ -174,9 +174,9 @@ development_status:
   # 3
   9a-0-architecture-authority-docs: done
   # 4: owner amendment 21 Oct 2026, right after 9a-0
-  9a-1-dead-legacy-purge: review
-  # merged into 9a-1 (21 Oct 2026; owner: delete old code as soon as possible, no format versioning). Filed by 9a-0; 9r-7 deleted the save, wire and settings versions
-  f-10-retire-remaining-format-versions: review
+  9a-1-dead-legacy-purge: done
+  # merged into 9a-1 (coordinator ruling, 21 Oct 2026); filed by 9a-0 (owner: no format versioning)
+  f-10-retire-remaining-format-versions: done # merged into 9a-1
   # 5
   9a-4-lossless-bundle-build-gate: review
   # 6
@@ -455,7 +455,8 @@ development_status:
   f-9-tube-snapping-follow-ups: backlog
   f-11-joined-pipe-follow-ups: backlog
   f-12-architecture-doc-follow-ups: backlog
+  f-13-legacy-purge-follow-ups: backlog
   # filed by 9a-4 (21 Oct 2026): Full precedence over NoPrimarySuite; ball has no Primary suite
-  f-13-e2e-runner-selection-follow-ups: backlog
+  f-14-e2e-runner-selection-follow-ups: backlog
 
 action_items: []

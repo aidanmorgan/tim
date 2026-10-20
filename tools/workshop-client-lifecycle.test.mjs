@@ -117,6 +117,16 @@ test('normal publication activates exactly one service and retains startup quali
     assert.equal(h.intervals.size, 0);
 });
 
+// Story 9A.1 (F.10): bytes 0..3 of the master peer are zero padding where the clock wire version stood. The retired version 4,
+// or any non-zero byte there, is not the authoritative bootstrap and the session is refused; the test above is the zero control.
+for (const [label, offset, value] of [['the retired clock wire version 4', 0, 4], ['a non-zero high padding byte', 3, 1]]) {
+    test('a master peer whose leading padding holds ' + label + ' is refused', async () => {
+        const h = await clientHarness();
+        h.peer[offset] = value;
+        await assert.rejects(h.ready(), /Invalid authoritative master bootstrap/);
+    });
+}
+
 test('delayed managed publication has no callback until explicit activation', async () => {
     const h = await clientHarness(), id = await h.ready();
     await Promise.resolve(); await Promise.resolve();

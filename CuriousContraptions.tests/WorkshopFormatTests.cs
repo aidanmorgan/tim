@@ -37,35 +37,9 @@ public sealed class WorkshopFormatTests
         }
     }
 
-    /// <summary>The exact field list of each versionless record: a re-added field (a version or anything else) fails here, whatever its
-    /// name, and the generated slot numbering cannot drift from the schema unnoticed.</summary>
-    [Fact]
-    public void TheVersionlessRecordsDeclareExactlyTheirFields()
-    {
-        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs"));
-        string[] Fields(string header)
-        {
-            var start = schema.IndexOf(header + " {", StringComparison.Ordinal);
-            Assert.True(start >= 0, header);
-            var body = schema[(schema.IndexOf('{', start) + 1)..schema.IndexOf('}', start)];
-            return body.Split('\n').Select(line => line.Trim()).Where(line => line.Length > 0 && !line.StartsWith("//", StringComparison.Ordinal))
-                .Select(line => line[..line.IndexOf(':')].Trim()).ToArray();
-        }
-        Assert.Equal(["simulation", "physical", "animation", "presentation", "presentation_rate_numerator", "presentation_rate_denominator"],
-            Fields("struct CadenceSettingsRecord"));
-        Assert.Equal(["magic", "next_body_id", "construction"], Fields("table SavedConstruction"));
-        Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
-            "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works", "occurrences",
-            "electrical", "activation_memory"], Fields("table WorkshopResponse"));
-        Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "electrical", "settings",
-            "target", "construction", "construction_record"], Fields("table WorkshopCommand"));
-        // The generated settings struct takes exactly the six words (builder plus six arguments).
-        Assert.Equal(7, typeof(CuriousContraptions.Wire.CadenceSettingsRecord).GetMethod("CreateCadenceSettingsRecord")!.GetParameters().Length);
-    }
-
     /// <summary>Story 9A.1 (with F.10 merged): no production source, script, schema or bundle tool names a format version. The scan
-    /// reads every word containing "Version" (or a word starting "version"), so a re-added version enum, constant, field, check or
-    /// handshake fails here. The allowed words are the exact non-format uses: the .NET versioning attributes, the FlatBuffers
+    /// reads every word containing "Version" or "VERSION" (or a word starting "version"; case-sensitive, so "conversion" is not a
+    /// match), so a re-added version enum, constant such as STATE_VERSION, field, check or handshake fails here. The allowed words are the exact non-format uses: the .NET versioning attributes, the FlatBuffers
     /// runtime's own library guard, the browser's user-agent brand list, and three state generation stamps.</summary>
     [Fact]
     public void NoProductionSourceNamesAFormatVersion()
@@ -83,7 +57,7 @@ public sealed class WorkshopFormatTests
             ["engine/gpu/WorkshopPoseHistory.cs"] = ["Version", "version", "_version"],
             ["engine/gpu/WorkshopClientCursor.cs"] = ["Version", "_version"],
         };
-        var word = new Regex(@"\w*(?:Version|(?<![A-Za-z0-9])version)\w*");
+        var word = new Regex(@"\w*(?:Version|VERSION|(?<![A-Za-z0-9])version)\w*");
         var found = new List<string>();
         foreach (var path in ProductionSources(root))
         {
@@ -112,6 +86,32 @@ public sealed class WorkshopFormatTests
             .Concat(SourceProjects.SelectMany(directory => Files(directory, "*.cs", SearchOption.TopDirectoryOnly)))
             .Concat(ScriptDirectories.SelectMany(directory => Files(directory, "*.js", SearchOption.TopDirectoryOnly)))
             .Concat(Files("schemas", "*.fbs", SearchOption.TopDirectoryOnly));
+    }
+
+    /// <summary>The exact field list of each versionless record: a re-added field (a version or anything else) fails here, whatever its
+    /// name, and the generated slot numbering cannot drift from the schema unnoticed.</summary>
+    [Fact]
+    public void TheVersionlessRecordsDeclareExactlyTheirFields()
+    {
+        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs"));
+        string[] Fields(string header)
+        {
+            var start = schema.IndexOf(header + " {", StringComparison.Ordinal);
+            Assert.True(start >= 0, header);
+            var body = schema[(schema.IndexOf('{', start) + 1)..schema.IndexOf('}', start)];
+            return body.Split('\n').Select(line => line.Trim()).Where(line => line.Length > 0 && !line.StartsWith("//", StringComparison.Ordinal))
+                .Select(line => line[..line.IndexOf(':')].Trim()).ToArray();
+        }
+        Assert.Equal(["simulation", "physical", "animation", "presentation", "presentation_rate_numerator", "presentation_rate_denominator"],
+            Fields("struct CadenceSettingsRecord"));
+        Assert.Equal(["magic", "next_body_id", "construction"], Fields("table SavedConstruction"));
+        Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
+            "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works", "occurrences",
+            "electrical", "activation_memory"], Fields("table WorkshopResponse"));
+        Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "electrical", "settings",
+            "target", "construction", "construction_record"], Fields("table WorkshopCommand"));
+        // The generated settings struct takes exactly the six words (builder plus six arguments).
+        Assert.Equal(7, typeof(CuriousContraptions.Wire.CadenceSettingsRecord).GetMethod("CreateCadenceSettingsRecord")!.GetParameters().Length);
     }
 
     [Fact]

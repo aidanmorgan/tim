@@ -204,7 +204,7 @@ Amelia-16, 21 Oct 2026. Evidence: [evidence-9a-4/](evidence-9a-4/).
 - Story 9A.16 (bundle-only colliders, CL4):
   - the gate's blade body (collider (0.06, 0.72, 0.72), restitution 0.1) has no declaration in the Abstractions;
   - the detector's scene-extracted ring, which `CaptureInstance` prefers, differs from the canonical table in its rotation signs. The package equals the canonical table, which is the comparator the AC names.
-- Story F.13 (runner): `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball` (no suite declares the ball as its Primary). The refusal comes before the Full triggers the same diff contains.
+- Story F.14 (runner; renumbered from F.13, which 9A.1's review took): `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball` (no suite declares the ball as its Primary). The refusal comes before the Full triggers the same diff contains.
 
 **Chrome (implementer's single full run, on `c948fec6`):** the task named `run --diff 844981c9`, which refuses (above), so the `full` verb was run. Full is mandatory here on three grounds, not a judgement call:
 - the Abstractions (SharedRuntime);

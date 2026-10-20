@@ -1,0 +1,15 @@
+diff --git a/engine/MachinePart.cs b/engine/MachinePart.cs
+index e40866a2..20eb539d 100644
+--- a/engine/MachinePart.cs
++++ b/engine/MachinePart.cs
+@@ -9,7 +9,7 @@ namespace CuriousContraptions;
+ /// <summary>Render/input node only. Durable construction and motion are canonical worker values.</summary>
+ public enum PhysicalVisualSlot : byte { Primary, Secondary }
+ 
+-public sealed partial class MachinePart : Node3D, IResizablePart
++public partial class MachinePart : Node3D, IResizablePart
+ {
+     public PartDefinition Definition { get; private set; } = null!;
+     public PartId PartId => Definition?.PartId ?? default;
+[xUnit.net 00:00:01.48]     CuriousContraptions.Tests.BasketballResourceTests.TheMachinePartIsSealedAndHasNoConstructionHook [FAIL]
+Failed!  - Failed:     1, Passed:    26, Skipped:     0, Total:    27, Duration: 155 ms - CuriousContraptions.tests.dll (net10.0)

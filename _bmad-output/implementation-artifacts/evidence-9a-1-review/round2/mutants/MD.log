@@ -1,0 +1,15 @@
+diff --git a/CuriousContraptions.web/wwwroot/workshop-client.js b/CuriousContraptions.web/wwwroot/workshop-client.js
+index 5349fa52..88908935 100644
+--- a/CuriousContraptions.web/wwwroot/workshop-client.js
++++ b/CuriousContraptions.web/wwwroot/workshop-client.js
+@@ -259,7 +259,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
+                         if (!(masterPeer instanceof Uint8Array) || masterPeer.length !== peerBytes)
+                             throw new Error('Missing authoritative master bootstrap.');
+                         const declared = new DataView(masterPeer.buffer, masterPeer.byteOffset, masterPeer.byteLength);
+-                        if (declared.getUint32(0, true) !== 0 || declared.getUint32(4, true) !== clockProfile || // bytes 0..3: zero padding
++                        if (declared.getUint32(4, true) !== clockProfile || // bytes 0..3: zero padding
+                             !session.every((value, index) => value === masterPeer[index + 8]) ||
+                             declared.getBigUint64(24, true) !== 1n || declared.getBigInt64(32, true) < 0n ||
+                             declared.getBigUint64(40, true) !== 1n || declared.getBigUint64(48, true) !== 100000n ||
+ℹ pass 34
+ℹ fail 2

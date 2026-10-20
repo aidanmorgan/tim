@@ -169,7 +169,8 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | B8 (directory), A17 dead skips: `scratch/` and the "unmigrated legacy" skips in `PartRegistry` | Gone from the tree |
 | Fixed table capacities | Story 9R.5b (findings filed to Story F.8) |
 | B7, B8 (remainder): the `MachinePart.Build()` subclassing hook, its only override (the test `ProbePart`) and the orphan root `scratch_test.cs.uid` | Story 9A.1: `MachinePart` is sealed and composes `CosmeticBindingSet`, whose rules are tested directly |
-| Format versions (owner, 21 Oct 2026): the save, wire and cadence settings versions; the clock, memory, schedule, animation channel, physics state, canonical body and trace versions; the trace timing version; the clock ring layout version; the isolation policy number; the bundle and WireContract fixture versions | Story 9R.7 (save, wire, settings) and Story 9A.1 with F.10 merged (the rest). A former version word is zero padding that rejects when set; `WorkshopFormatTests.NoProductionSourceNamesAFormatVersion` fails on any re-added version |
+| The remaining format versions (owner, 21 Oct 2026): the clock, memory, schedule, animation channel, physics state, canonical body and trace versions; the trace timing version; the clock ring layout version; the isolation policy number; the bundle and WireContract fixture versions | Story 9A.1, with F.10 merged. A former version word is zero padding that rejects when set; `WorkshopFormatTests.NoProductionSourceNamesAFormatVersion` fails on any re-added version |
+| Format versions of the Workshop wire, the construction save and the cadence settings (`WorkshopWireVersion`, `WorkshopSaveVersion`, `WorkshopSettingsVersion`) | Story 9R.7 |
 
 ### 4.3 The unsupported 9.2b Pass (G8)
 

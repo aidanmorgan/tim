@@ -1,0 +1,15 @@
+diff --git a/engine/CosmeticBindingSet.cs b/engine/CosmeticBindingSet.cs
+index 85a4fdf8..19e3ec61 100644
+--- a/engine/CosmeticBindingSet.cs
++++ b/engine/CosmeticBindingSet.cs
+@@ -21,8 +21,6 @@ internal sealed class CosmeticBindingSet
+         declaration.Validate();
+         if (!declaration.IsDeclared) throw new ArgumentException("Visual bindings require a declared cosmetic curve.");
+         if (_bindings.Count != 0 && Declaration != declaration) throw new ArgumentException("A part binds exactly one cosmetic declaration.");
+-        if (phase != AnimationTimerPhase.None && declaration.Source != AnimationFeedbackSource.Timer)
+-            throw new ArgumentException("Phase bindings require timer feedback.");
+         _bindings.Add((new(target, property, neutral, active), phase));
+         Declaration = declaration;
+     }
+[xUnit.net 00:00:01.11]     CuriousContraptions.Tests.BasketballResourceTests.ATimerPhaseBindingRequiresTimerFeedback [FAIL]
+Failed!  - Failed:     1, Passed:    26, Skipped:     0, Total:    27, Duration: 153 ms - CuriousContraptions.tests.dll (net10.0)
