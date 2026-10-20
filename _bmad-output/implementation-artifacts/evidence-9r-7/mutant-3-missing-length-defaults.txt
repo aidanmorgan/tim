@@ -1,0 +1,15 @@
+== mutant mutant-3-missing-length-defaults (diff below), then: dotnet build tests; dotnet test --filter 'FullyQualifiedName~JoinedPipeTests|FullyQualifiedName~WorkshopPipeLengthTests'
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 342563d3..80b9f75f 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -944,3 +944,3 @@ public static class WorkshopWireFlatBuffers
+                 // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
+-                "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
++                "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length == 0 ? 3.6f : inst.Length), locked),
+                 "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => new WorkshopGenericInstance(partId, id, cell, local, rotation,
+== build
+    0 Error(s)
+== test
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.ASaveWithoutAnAdmittedLengthIsRejectedNeverDefaulted(metres: 0) 
+Failed!  - Failed:     1, Passed:    59, Skipped:     0, Total:    60, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

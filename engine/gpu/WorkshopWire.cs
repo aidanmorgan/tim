@@ -5,7 +5,6 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 21 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null, WorkshopElectricalControl? Electrical = null);
@@ -121,7 +120,7 @@ public static class WorkshopWire
         var data = bytes.AsSpan();
         BinaryPrimitives.WriteUInt64LittleEndian(data, command.Sequence.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[8..], (uint)command.Kind);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[12..], (uint)WorkshopWireVersion.GenericMechanical);
+        // Bytes 12..15 are alignment padding before the 8-byte epoch (one bundle, one layout: no format version).
         BinaryPrimitives.WriteUInt64LittleEndian(data[16..], command.Epoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..], command.Revision.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[32..], (uint)command.RevisionKind);
@@ -144,9 +143,8 @@ public static class WorkshopWire
 
     public static WorkshopCommand DecodeCommand(ReadOnlySpan<byte> data)
     {
-        if (data.Length < CommandHeaderBytes ||
-            BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != (uint)WorkshopWireVersion.GenericMechanical)
-            throw new ArgumentException("Unsupported Workshop command schema.");
+        if (data.Length < CommandHeaderBytes || !Zero(data[12..16]))
+            throw new ArgumentException("Unsupported Workshop command shape.");
         var revisionKind = (ExpectedRevisionKind)BinaryPrimitives.ReadUInt32LittleEndian(data[32..]);
         if (!Enum.IsDefined(revisionKind) || BinaryPrimitives.ReadUInt32LittleEndian(data[36..]) != 0 ||
             (revisionKind == ExpectedRevisionKind.Any && BinaryPrimitives.ReadUInt64LittleEndian(data[24..]) != 0))
@@ -203,7 +201,7 @@ public static class WorkshopWire
         BinaryPrimitives.WriteUInt64LittleEndian(data,response.Sequence.Value);
         data[8]=checked((byte)response.Kind); data[9]=checked((byte)response.Result.Outcome);
         data[10]=checked((byte)response.Result.Reason); data[11]=checked((byte)response.Phase);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[12..],(uint)WorkshopWireVersion.GenericMechanical);
+        // Bytes 12..15 are alignment padding (cleared above) before the 8-byte epoch.
         BinaryPrimitives.WriteUInt64LittleEndian(data[16..],response.Read.Epoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..],response.Read.Tick.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[32..],response.Read.Revision.Value);
@@ -239,8 +237,7 @@ public static class WorkshopWire
 
     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> data)
     {
-        if (data.Length < ResponseHeaderBytes || !Zero(data[104..110]) ||
-            BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != (uint)WorkshopWireVersion.GenericMechanical)
+        if (data.Length < ResponseHeaderBytes || !Zero(data[104..110]) || !Zero(data[12..16]))
             throw new ArgumentException("Unsupported Workshop response shape.");
         var layout = ResponseLayout.Read(data);
         if (data.Length != layout.ByteLength) throw new ArgumentException("Unsupported Workshop response shape.");
@@ -422,6 +419,8 @@ public static class WorkshopWire
                     BinaryPrimitives.WriteInt32LittleEndian(slot[112..], counter.TargetCount); break;
                 case WorkshopClock clock:
                     BinaryPrimitives.WriteSingleLittleEndian(slot[112..], clock.IntervalSeconds); break;
+                case WorkshopPipe pipe:
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], pipe.Length.Metres); break;
                 case IWorkshopDeclaredColliders: break;
                 default: throw new ArgumentException("Unsupported instance declaration.");
             }
@@ -488,7 +487,9 @@ public static class WorkshopWire
                     new(new(Read(slot[112..]), Read(slot[114..]), Read(slot[116..])), new(Read(slot[118..])), new(Read(slot[120..])), new(Read(slot[122..]))), locked == 1),
                 "lamp" when Zero(slot[112..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
                 "latch" when Zero(slot[112..]) => new WorkshopLatch(body.Id, body.Cell, body.Local, rotation, locked == 1),
-                ("pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate") when Zero(slot[112..]) => new WorkshopGenericInstance(partId, body.Id, body.Cell, body.Local, rotation,
+                "pipe" when Zero(slot[116..]) => new WorkshopPipe(body.Id, body.Cell, body.Local, rotation,
+                    new(BinaryPrimitives.ReadSingleLittleEndian(slot[112..])), locked == 1),
+                ("pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate") when Zero(slot[112..]) => new WorkshopGenericInstance(partId, body.Id, body.Cell, body.Local, rotation,
                     WorkshopCanonicalColliders.For(partId), locked == 1),
                 "ball_detector" when Zero(slot[112..]) => new WorkshopBallDetector(body.Id, body.Cell, body.Local, rotation,
                     WorkshopCanonicalColliders.BallDetectorColliders, locked == 1),

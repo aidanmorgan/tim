@@ -7,7 +7,6 @@ public enum SimulationCadence : uint { Hz60 = 1, Hz120 = 2, Hz240 = 3 }
 public enum PhysicalStepProfile : uint { Canonical480Hz = 1 }
 public enum AnimationCadence : uint { Hz30 = 1, Hz60 = 2, Hz90 = 3, Hz120 = 4 }
 public enum PresentationCadence : uint { AdmittedDisplay = 0, Hz30 = 1, Hz60 = 2, Hz90 = 3, Hz120 = 4, Hz144 = 5 }
-public enum WorkshopSettingsVersion : uint { SharedMaster = 1 }
 public enum WorldPlayback : uint { Building, Running, Paused, Completed, Faulted }
 
 public readonly record struct CadenceRevision(ulong Value)
@@ -184,28 +183,27 @@ public static class WorkshopCadenceWire
         settings.Validate();
         if (destination.Length != ByteLength) throw new ArgumentException("Invalid settings length.");
         destination.Clear();
-        BinaryPrimitives.WriteUInt32LittleEndian(destination, (uint)WorkshopSettingsVersion.SharedMaster);
-        BinaryPrimitives.WriteUInt32LittleEndian(destination[4..], (uint)settings.Simulation);
-        BinaryPrimitives.WriteUInt32LittleEndian(destination[8..], (uint)settings.Physical);
-        BinaryPrimitives.WriteUInt32LittleEndian(destination[12..], (uint)settings.Animation);
-        BinaryPrimitives.WriteUInt32LittleEndian(destination[16..], (uint)settings.Presentation);
-        BinaryPrimitives.WriteUInt32LittleEndian(destination[20..], settings.PresentationRate.Numerator);
-        BinaryPrimitives.WriteUInt32LittleEndian(destination[24..], settings.PresentationRate.Denominator);
+        BinaryPrimitives.WriteUInt32LittleEndian(destination, (uint)settings.Simulation);
+        BinaryPrimitives.WriteUInt32LittleEndian(destination[4..], (uint)settings.Physical);
+        BinaryPrimitives.WriteUInt32LittleEndian(destination[8..], (uint)settings.Animation);
+        BinaryPrimitives.WriteUInt32LittleEndian(destination[12..], (uint)settings.Presentation);
+        BinaryPrimitives.WriteUInt32LittleEndian(destination[16..], settings.PresentationRate.Numerator);
+        BinaryPrimitives.WriteUInt32LittleEndian(destination[20..], settings.PresentationRate.Denominator);
     }
 
+    /// <summary>Six u32 fields and 8 zero padding bytes (one bundle, one layout: no format version). Enum ranges and the canonical
+    /// ratio are checked by <see cref="WorkshopCadenceSettings.Validate"/>.</summary>
     public static WorkshopCadenceSettings Read(ReadOnlySpan<byte> source)
     {
-        if (source.Length != ByteLength ||
-            BinaryPrimitives.ReadUInt32LittleEndian(source) != (uint)WorkshopSettingsVersion.SharedMaster ||
-            BinaryPrimitives.ReadUInt32LittleEndian(source[28..]) != 0)
+        if (source.Length != ByteLength || BinaryPrimitives.ReadUInt64LittleEndian(source[24..]) != 0)
             throw new ArgumentException("Unsupported settings shape.");
         var settings = new WorkshopCadenceSettings(
-            (SimulationCadence)BinaryPrimitives.ReadUInt32LittleEndian(source[4..]),
-            (PhysicalStepProfile)BinaryPrimitives.ReadUInt32LittleEndian(source[8..]),
-            (AnimationCadence)BinaryPrimitives.ReadUInt32LittleEndian(source[12..]),
-            (PresentationCadence)BinaryPrimitives.ReadUInt32LittleEndian(source[16..]),
-            new(BinaryPrimitives.ReadUInt32LittleEndian(source[20..]),
-                BinaryPrimitives.ReadUInt32LittleEndian(source[24..])));
+            (SimulationCadence)BinaryPrimitives.ReadUInt32LittleEndian(source),
+            (PhysicalStepProfile)BinaryPrimitives.ReadUInt32LittleEndian(source[4..]),
+            (AnimationCadence)BinaryPrimitives.ReadUInt32LittleEndian(source[8..]),
+            (PresentationCadence)BinaryPrimitives.ReadUInt32LittleEndian(source[12..]),
+            new(BinaryPrimitives.ReadUInt32LittleEndian(source[16..]),
+                BinaryPrimitives.ReadUInt32LittleEndian(source[20..])));
         settings.Validate();
         return settings;
     }

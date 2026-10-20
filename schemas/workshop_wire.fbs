@@ -176,7 +176,6 @@ struct ElectricalControl {
 }
 
 struct CadenceSettingsRecord {
-    version: uint32;
     simulation: uint32;
     physical: uint32;
     animation: uint32;
@@ -282,7 +281,6 @@ table ConstructionRecord {
 
 table SavedConstruction {
     magic: uint32;
-    version: uint32;
     next_body_id: uint64;
     construction: ConstructionRecord;
 }
@@ -293,7 +291,6 @@ table WorkshopResponse {
     outcome: CommandOutcome;
     reason: uint8;
     phase: SimulationPhase;
-    version: uint32;
     epoch: uint64;
     tick: uint64;
     revision: uint64;
@@ -316,7 +313,6 @@ table WorkshopResponse {
 table WorkshopCommand {
     sequence: uint64;
     kind: CommandKind;
-    version: uint32;
     epoch: uint64;
     revision: uint64;
     revision_kind: uint32;

@@ -155,7 +155,6 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
                 var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
                 CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
                 CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-                CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
                 CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
                 CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
                 var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -243,7 +242,6 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -290,7 +288,6 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
             CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
             CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
             CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
             CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
             var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);

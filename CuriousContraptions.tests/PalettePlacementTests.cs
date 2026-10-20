@@ -90,7 +90,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var before = world.Construction;
             var undo = 0;
             var placement = WorkshopBenchPlacement.Propose(world, new PartId(external), new(7), BenchPoint, Quaternion.Identity,
-                null, null, () => undo++);
+                null, null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, placement.Rejection);
             Assert.Contains(external, placement.Message);
             Assert.Empty(godot.Errors.Drain()); // a refusal is not an error: it is logged as a UI rejection on stdout
@@ -111,7 +111,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         {
             var undo = 0;
             var defect = Assert.Throws<ArgumentException>(() => WorkshopBenchPlacement.Propose(world, PartId.Basketball, new(7),
-                BenchPoint, Quaternion.Identity, null, null, () => undo++));
+                BenchPoint, Quaternion.Identity, null, null, null, () => undo++));
             Assert.Equal("Unsupported ball kind.", defect.Message);
             Assert.Equal(0, undo);
             Assert.Empty(godot.Errors.Drain());
@@ -128,7 +128,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var before = world.Construction;
             var undo = 0;
             var placement = WorkshopBenchPlacement.Propose(world, PartId.Ramp, new(7), BenchPoint, Quaternion.Identity,
-                null, null, () => undo++);
+                null, null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.None, placement.Rejection);
             Assert.Equal(1, undo);
             Assert.Empty(placement.Message);
@@ -150,7 +150,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var undo = 0;
             // The Receiver captures, but the lesson's Receiver composition refuses an identity outside the authored domain.
             var refused = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(1UL << 32), BenchPoint, Quaternion.Identity,
-                null, null, () => undo++);
+                null, null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
             Assert.StartsWith("Placement rejected: ", refused.Message);
             Assert.Equal("Placement rejected: Authored body identity exceeds its domain.", refused.Message);
@@ -159,7 +159,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(lesson, refused.Construction);
             // Control: the same lesson composes its Receiver at an authored identity and records one undo.
             var composed = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(4), BenchPoint, Quaternion.Identity,
-                null, null, () => undo++);
+                null, null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.None, composed.Rejection);
             Assert.Equal(1, undo);
             Assert.Equal(new GpuBodyId(4), composed.Construction.Puzzle.Goal.Target);

@@ -77,16 +77,6 @@ public sealed class WorkshopSaveTests
             Assert.Equal(receiver.ForceRegion.SupportMargin, guide.SupportMargin);
         }
         Assert.Equal((Half)0, Assert.Single(WorkshopPhysicsCompiler.Compile(Saved().Construction, new(1, 2)).Guides.ToArray()).MaximumAcceleration.Value);
-        var oldBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var oldCr = WorkshopWireFlatBuffers.EncodeConstructionRecord(oldBuilder, saved.Construction);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(oldBuilder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(oldBuilder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(oldBuilder, 7);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(oldBuilder, saved.NextBodyId.Value);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(oldBuilder, oldCr);
-        var oldEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(oldBuilder);
-        oldBuilder.Finish(oldEnd.Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(oldBuilder.SizedByteArray()));
     }
 
     [Theory]
@@ -128,7 +118,6 @@ public sealed class WorkshopSaveTests
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -157,12 +146,11 @@ public sealed class WorkshopSaveTests
     }
 
     [Theory]
-    [InlineData(0x12345678u, 13u, 7UL, true)]
-    [InlineData(WorkshopSaveCodec.Magic, 99u, 7UL, true)]
-    [InlineData(WorkshopSaveCodec.Magic, 13u, 0UL, true)]
-    [InlineData(WorkshopSaveCodec.Magic, 13u, 2UL, true)]
-    [InlineData(WorkshopSaveCodec.Magic, 13u, 7UL, false)]
-    public void UnknownHeaderCannotBeLoaded(uint magic, uint version, ulong nextBodyId, bool includeConstruction)
+    [InlineData(0x12345678u, 7UL, true)]
+    [InlineData(WorkshopSaveCodec.Magic, 0UL, true)]
+    [InlineData(WorkshopSaveCodec.Magic, 2UL, true)]
+    [InlineData(WorkshopSaveCodec.Magic, 7UL, false)]
+    public void UnknownHeaderCannotBeLoaded(uint magic, ulong nextBodyId, bool includeConstruction)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord>? crOffset = includeConstruction
@@ -170,7 +158,6 @@ public sealed class WorkshopSaveTests
             : null;
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, nextBodyId);
         if (crOffset.HasValue) CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset.Value);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -188,7 +175,6 @@ public sealed class WorkshopSaveTests
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -215,12 +201,11 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
         var defCadence = WorkshopCadenceSettings.Default();
-        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)WorkshopSettingsVersion.SharedMaster, (uint)defCadence.Simulation, (uint)defCadence.Physical, (uint)defCadence.Animation, (uint)defCadence.Presentation, defCadence.PresentationRate.Numerator, defCadence.PresentationRate.Denominator));
+        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)defCadence.Simulation, (uint)defCadence.Physical, (uint)defCadence.Animation, (uint)defCadence.Presentation, defCadence.PresentationRate.Numerator, defCadence.PresentationRate.Denominator));
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instancesOffset);
         var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 10);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
@@ -473,20 +458,9 @@ public sealed class WorkshopSaveTests
     }
 
     [Fact]
-    public void ConnectionPaddingCountsAndPriorSchemasRejectBeforeAdmission()
+    public void ACommandWithNonZeroHeaderPaddingRejectsBeforeAdmission()
     {
         var save = ActivationSaved();
-        var previousBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(previousBuilder, save.Construction);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(previousBuilder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(previousBuilder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(previousBuilder, 2);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(previousBuilder, save.NextBodyId.Value);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(previousBuilder, crOffset);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(previousBuilder);
-        previousBuilder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(previousBuilder.SizedByteArray()));
-
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), save.Construction,
             Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var wire = WorkshopWire.Encode(command);
@@ -536,13 +510,12 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, save.Construction.Revision.Value);
         var saveCadence = save.Construction.Settings;
-        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)WorkshopSettingsVersion.SharedMaster, (uint)saveCadence.Simulation, (uint)saveCadence.Physical, (uint)saveCadence.Animation, (uint)saveCadence.Presentation, saveCadence.PresentationRate.Numerator, saveCadence.PresentationRate.Denominator));
+        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)saveCadence.Simulation, (uint)saveCadence.Physical, (uint)saveCadence.Animation, (uint)saveCadence.Presentation, saveCadence.PresentationRate.Numerator, saveCadence.PresentationRate.Denominator));
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instancesVector);
         CuriousContraptions.Wire.ConstructionRecord.AddConnections(builder, connectionsVector);
         var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
         var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);

@@ -1,0 +1,10 @@
+  Failed CuriousContraptions.Tests.WorkshopFormatTests.AnOutOfBoundsTableOffsetFailsTheVerifier [27 ms]
+  Error Message:
+   Assert.Throws() Failure: Exception type was not an exact match
+  Failed CuriousContraptions.Tests.WorkshopFormatTests.TheBinaryHeadersRejectNonZeroPaddingWhereTheVersionWas [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+  Failed CuriousContraptions.Tests.WorkshopFormatTests.NoWireOrSaveRecordDeclaresAFormatVersion [3 ms]
+  Error Message:
+   Assert.DoesNotContain() Failure: Filter matched in collection
+Failed!  - Failed:     3, Passed:     1, Skipped:     0, Total:     4, Duration: 74 ms - CuriousContraptions.tests.dll (net10.0)

@@ -415,14 +415,13 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void SettingsBoundaryRejectsNoncanonicalRatiosUnknownEnumsVersionsAndPadding()
+    public void SettingsBoundaryRejectsNoncanonicalRatiosUnknownEnumsAndPadding()
     {
         var settings = WorkshopCadenceSettings.Default() with { Presentation = PresentationCadence.AdmittedDisplay, PresentationRate = new(60000, 1001) };
         var bytes = new byte[WorkshopCadenceWire.ByteLength];
         WorkshopCadenceWire.Write(settings, bytes);
         Assert.Equal(settings, WorkshopCadenceWire.Read(bytes));
-        Assert.Equal(WorkshopSettingsVersion.SharedMaster,
-            (WorkshopSettingsVersion)BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        Assert.Equal((uint)settings.Simulation, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
         Assert.Throws<ArgumentException>(() => new PulseRate(120, 2).Validate());
         Assert.Throws<ArgumentException>(() => new PulseRate(29, 1).Validate());
         Assert.Throws<ArgumentException>(() => new PulseRate(241, 1).Validate());
@@ -432,7 +431,7 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => (settings with { Physical = (PhysicalStepProfile)0 }).Validate());
         Assert.Throws<ArgumentException>(() => (settings with { Animation = (AnimationCadence)99 }).Validate());
         Assert.Throws<ArgumentException>(() => (settings with { Presentation = (PresentationCadence)99 }).Validate());
-        foreach (var offset in new[] { 0, 28 })
+        foreach (var offset in new[] { 0, 24, 28 }) // an unknown simulation cadence, then each padding word
         {
             var malformed = (byte[])bytes.Clone();
             BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(offset), 99);
@@ -758,6 +757,28 @@ public sealed class WorkshopWireTests
         Assert.False(delivery.Applicable);
         Assert.Equal(original, WorkshopWire.Encode(delivery.Response));
         Assert.Equal(later.Read.Revision, cursor.Revision);
+    }
+
+    /// <summary>Story 9R.7 (owner decision, 21 Oct 2026): the response header carries no format version. Bytes 12..15 are alignment
+    /// padding, written zero by every encoding, and a non-zero word there is refused as a malformed shape.</summary>
+    [Fact]
+    public void TheResponseHeaderHasZeroPaddingAndNoVersionWord()
+    {
+        var ack = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
+            Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+        foreach (var response in new[] { ack, ack with { Phase = WorkshopSimulationPhase.Building } })
+        {
+            var bytes = WorkshopWire.Encode(response);
+            Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(12)));
+            Assert.Equal(response, WorkshopWire.DecodeResponse(bytes)); // control
+            foreach (var word in new uint[] { 1, 21, 22 })
+            {
+                var versioned = (byte[])bytes.Clone();
+                BinaryPrimitives.WriteUInt32LittleEndian(versioned.AsSpan(12), word);
+                Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(versioned));
+            }
+        }
     }
 
     [Fact]

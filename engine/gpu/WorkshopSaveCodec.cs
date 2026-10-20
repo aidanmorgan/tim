@@ -5,14 +5,14 @@ using CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopSaveVersion : uint { CanonicalConstruction = 13 }
 public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Construction, GpuBodyId NextBodyId);
 
-/// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission.</summary>
+/// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission. The game and its save
+/// ship in one bundle with one schema and no format version (owner decision, 21 Oct 2026): bytes that are not a structurally valid
+/// save of this schema are refused by the FlatBuffers verifier and the construction's own validation.</summary>
 public static class WorkshopSaveCodec
 {
     public const uint Magic = 0x53574343; // CCWS
-    public const uint Version = (uint)WorkshopSaveVersion.CanonicalConstruction;
 
     public static byte[] Encode(WorkshopSavedConstruction save)
     {
@@ -23,7 +23,6 @@ public static class WorkshopSaveCodec
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, save.Construction);
         SavedConstruction.StartSavedConstruction(builder);
         SavedConstruction.AddMagic(builder, Magic);
-        SavedConstruction.AddVersion(builder, Version);
         SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
         SavedConstruction.AddConstruction(builder, crOffset);
         var end = SavedConstruction.EndSavedConstruction(builder);
@@ -54,8 +53,10 @@ public static class WorkshopSaveCodec
         var bb = new ByteBuffer(bytes.ToArray());
         try
         {
+            if (!new Verifier(bb).VerifyBuffer(null, false, SavedConstructionVerify.Verify))
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
             var saved = SavedConstruction.GetRootAsSavedConstruction(bb);
-            if (saved.Magic != Magic || saved.Version != Version || !saved.Construction.HasValue)
+            if (saved.Magic != Magic || !saved.Construction.HasValue)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
             return new(WorkshopWireFlatBuffers.DecodeConstructionRecord(saved.Construction.Value), new(saved.NextBodyId));
         }

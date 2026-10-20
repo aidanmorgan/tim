@@ -503,7 +503,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task ASizeImpostorNeverSwitchesAGate()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, 2f);
-        var impostor = WorkshopInput.Generic(PartId.Pipe, new(4), -4, PlateY, 3, 0, 0, 0, 1,
+        // Story 9R.7: the pipe is a typed instance, so another generic declared-collider part carries the plate-sized boxes.
+        var impostor = WorkshopInput.Generic(PartId.PipeBend45, new(4), -4, PlateY, 3, 0, 0, 0, 1,
             [new ExtractedCollider(ColliderShapeKind.Box, new(new((Half)0, (Half).03f, (Half)0), CanonicalRotation.Identity), (Half)0,
                 new MetreVector((Half).9f, (Half).05f, (Half).9f))]);
         var reads = await RunBench(Bench([gate, battery, plate, impostor, BallOn(5, -4, 3)], Circuit(battery, plate, gate)));

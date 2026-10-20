@@ -11,7 +11,6 @@ type ElectricalEnable=typeof ElectricalEnable[keyof typeof ElectricalEnable];
 const WorkshopCommand={ConfigureCadence:6} as const;
 const ExpectedRevision={Exact:2} as const;
 const CommandOutcome={Applied:0} as const;
-const SettingsVersion={SharedMaster:1} as const;
 const SimulationCadence={Hz120:2} as const;
 const PhysicalStepProfile={Canonical480Hz:1} as const;
 const AnimationCadence={Hz30:1} as const;
@@ -417,8 +416,6 @@ test('Battery electrical animation survives same-world cadence downshift through
         const bytes = encodeWorkshopCommand({
             sequence: read.sequence() + 1n,
             kind: CommandKind.ConfigureCadence,
-            // The wire version the live Simulation answers in (no literal to drift when the wire changes: Story 9R.5b bumped it to 21).
-            version: read.version(),
             epoch: read.epoch(),
             revision: read.revision(),
             revisionKind: ExpectedRevision.Exact,
@@ -426,7 +423,6 @@ test('Battery electrical animation survives same-world cadence downshift through
             cadence: read.cadence(),
             projection: read.projection(),
             settings: {
-                version: SettingsVersion.SharedMaster,
                 simulation: SimulationCadence.Hz120,
                 physical: PhysicalStepProfile.Canonical480Hz,
                 animation: AnimationCadence.Hz30,

@@ -48,7 +48,6 @@ public static class WorkshopWireFlatBuffers
         CuriousContraptions.Wire.WorkshopCommand.StartWorkshopCommand(builder);
         CuriousContraptions.Wire.WorkshopCommand.AddSequence(builder, command.Sequence.Value);
         CuriousContraptions.Wire.WorkshopCommand.AddKind(builder, (CuriousContraptions.Wire.CommandKind)command.Kind);
-        CuriousContraptions.Wire.WorkshopCommand.AddVersion(builder, (uint)WorkshopWireVersion.GenericMechanical);
         CuriousContraptions.Wire.WorkshopCommand.AddEpoch(builder, command.Epoch.Value);
         CuriousContraptions.Wire.WorkshopCommand.AddRevision(builder, command.Revision.Value);
         CuriousContraptions.Wire.WorkshopCommand.AddRevisionKind(builder, (uint)command.RevisionKind);
@@ -69,7 +68,6 @@ public static class WorkshopWireFlatBuffers
         {
             var setOffset = CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
                 builder,
-                (uint)WorkshopSettingsVersion.SharedMaster,
                 (uint)settings.Simulation,
                 (uint)settings.Physical,
                 (uint)settings.Animation,
@@ -118,10 +116,10 @@ public static class WorkshopWireFlatBuffers
     private static WorkshopCommand DecodeCommandRecord(ReadOnlySpan<byte> bytes)
     {
         var bb = new ByteBuffer(bytes.ToArray());
+        // One bundle, one schema: a buffer that is not a structurally valid command is refused by the verifier, never by a number.
+        if (!new Verifier(bb).VerifyBuffer(null, false, CuriousContraptions.Wire.WorkshopCommandVerify.Verify))
+            throw new ArgumentException("Malformed Workshop command buffer.");
         var fb = CuriousContraptions.Wire.WorkshopCommand.GetRootAsWorkshopCommand(bb);
-
-        if (fb.Version != (uint)WorkshopWireVersion.GenericMechanical)
-            throw new ArgumentException("Unsupported Workshop command schema.");
 
         var revisionKind = (ExpectedRevisionKind)fb.RevisionKind;
         if (!Enum.IsDefined(revisionKind) ||
@@ -174,8 +172,6 @@ public static class WorkshopWireFlatBuffers
         WorkshopCadenceSettings? settings = null;
         if (fb.Settings is { } s)
         {
-            if (s.Version != (uint)WorkshopSettingsVersion.SharedMaster)
-                throw new ArgumentException("Unsupported settings shape.");
             settings = new WorkshopCadenceSettings(
                 (SimulationCadence)s.Simulation,
                 (PhysicalStepProfile)s.Physical,
@@ -410,7 +406,6 @@ public static class WorkshopWireFlatBuffers
         CuriousContraptions.Wire.WorkshopResponse.AddOutcome(builder, (CuriousContraptions.Wire.CommandOutcome)response.Result.Outcome);
         CuriousContraptions.Wire.WorkshopResponse.AddReason(builder, (byte)response.Result.Reason);
         CuriousContraptions.Wire.WorkshopResponse.AddPhase(builder, (CuriousContraptions.Wire.SimulationPhase)response.Phase);
-        CuriousContraptions.Wire.WorkshopResponse.AddVersion(builder, (uint)WorkshopWireVersion.GenericMechanical);
         CuriousContraptions.Wire.WorkshopResponse.AddEpoch(builder, response.Read.Epoch.Value);
         CuriousContraptions.Wire.WorkshopResponse.AddTick(builder, response.Read.Tick.Value);
         CuriousContraptions.Wire.WorkshopResponse.AddRevision(builder, response.Read.Revision.Value);
@@ -454,10 +449,9 @@ public static class WorkshopWireFlatBuffers
     private static WorkshopResponse DecodeResponseRecord(ReadOnlySpan<byte> bytes)
     {
         var bb = new ByteBuffer(bytes.ToArray());
+        if (!new Verifier(bb).VerifyBuffer(null, false, CuriousContraptions.Wire.WorkshopResponseVerify.Verify))
+            throw new ArgumentException("Malformed Workshop response buffer.");
         var fb = CuriousContraptions.Wire.WorkshopResponse.GetRootAsWorkshopResponse(bb);
-
-        if (fb.Version != (uint)WorkshopWireVersion.GenericMechanical)
-            throw new ArgumentException("Unsupported Workshop response schema.");
 
         var sequence = new CommandSequence(fb.Sequence);
         var kind = (WorkshopResponseKind)fb.Kind;
@@ -770,6 +764,9 @@ public static class WorkshopWireFlatBuffers
                     CuriousContraptions.Wire.InstanceRecord.AddBounce(builder, (float)domino.Material.Bounce.Value);
                     CuriousContraptions.Wire.InstanceRecord.AddFriction(builder, (float)domino.Material.Friction.Value);
                     break;
+                case WorkshopPipe pipe:
+                    CuriousContraptions.Wire.InstanceRecord.AddLength(builder, pipe.Length.Metres);
+                    break;
                 case WorkshopLamp:
                 case WorkshopLatch:
                 case IWorkshopDeclaredColliders:
@@ -813,7 +810,6 @@ public static class WorkshopWireFlatBuffers
         CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, construction.Revision.Value);
         var settingsOffset = CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
             builder,
-            (uint)WorkshopSettingsVersion.SharedMaster,
             (uint)construction.Settings.Simulation,
             (uint)construction.Settings.Physical,
             (uint)construction.Settings.Animation,
@@ -840,7 +836,6 @@ public static class WorkshopWireFlatBuffers
 
         if (!cr.Settings.HasValue) throw new ArgumentException("Missing settings record.");
         var s = cr.Settings.Value;
-        if (s.Version != (uint)WorkshopSettingsVersion.SharedMaster) throw new ArgumentException("Unsupported settings version.");
         var settings = new WorkshopCadenceSettings(
             (SimulationCadence)s.Simulation,
             (PhysicalStepProfile)s.Physical,
@@ -938,7 +933,9 @@ public static class WorkshopWireFlatBuffers
                         new((Half)inst.Mass), new((Half)inst.Bounce), new((Half)inst.Friction)), locked),
                 "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
                 "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
-                "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => new WorkshopGenericInstance(partId, id, cell, local, rotation,
+                // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
+                "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
+                "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => new WorkshopGenericInstance(partId, id, cell, local, rotation,
                     WorkshopCanonicalColliders.For(partId), locked),
                 "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation,
                     WorkshopCanonicalColliders.BallDetectorColliders, locked),
