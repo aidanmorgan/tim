@@ -455,5 +455,7 @@ development_status:
   f-9-tube-snapping-follow-ups: backlog
   f-11-joined-pipe-follow-ups: backlog
   f-12-architecture-doc-follow-ups: backlog
+  # filed by 9a-4 (21 Oct 2026): Full precedence over NoPrimarySuite; ball has no Primary suite
+  f-13-e2e-runner-selection-follow-ups: backlog
 
 action_items: []

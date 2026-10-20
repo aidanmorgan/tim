@@ -15,7 +15,9 @@ namespace CuriousContraptions.Tests;
 /// footprint, contact material and parameter defaults equal today's runtime values, so the later cutover to the bundle changes nothing
 /// the player sees. Values are compared at the runtime lane's precision (spec D2): package f32 values narrowed to the runtime's binary16
 /// lanes, and f32 rotations and port positions bit for bit. The runtime body, collider and material rows come from one compiled
-/// instance of each part, the same compile a placed part receives.</summary>
+/// instance of each part built with the canonical colliders (WorkshopCanonicalColliders.For, as the AC names). The detector's and
+/// gate's scene-extracted colliders, which MachineWorld.CaptureInstance prefers, are not compared: the detector's scene ring differs
+/// from the canonical table (filed to Story 9A.16, which bakes scene colliders at build time).</summary>
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
 {

@@ -200,7 +200,24 @@ Amelia-16, 21 Oct 2026. Evidence: [evidence-9a-4/](evidence-9a-4/).
 - Plate: 2 boxes. Detector: 17 colliders. Gate frame: 19 colliders, authored with the runtime's own ring expressions, so the rotations match bit for bit.
 - Footprints: gate (2, 1, 1); ball and domino (1, 1, 0); every other package (1, 0, 0).
 
-**Filed (back of queue, non-blocking):** the gate's blade body (collider (0.06, 0.72, 0.72), restitution 0.1) has no declaration in the Abstractions. That belongs to Story 9A.16, bundle-only colliders (CL4).
+**Filed (back of queue, non-blocking):**
+- Story 9A.16 (bundle-only colliders, CL4):
+  - the gate's blade body (collider (0.06, 0.72, 0.72), restitution 0.1) has no declaration in the Abstractions;
+  - the detector's scene-extracted ring, which `CaptureInstance` prefers, differs from the canonical table in its rotation signs. The package equals the canonical table, which is the comparator the AC names.
+- Story F.13 (runner): `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball` (no suite declares the ball as its Primary). The refusal comes before the Full triggers the same diff contains.
+
+**Chrome (implementer's single full run, on `c948fec6`):** the task named `run --diff 844981c9`, which refuses (above), so the `full` verb was run. Full is mandatory here on three grounds, not a judgement call:
+- the Abstractions (SharedRuntime);
+- `tools/BundleElements` (SharedDriverInfrastructure);
+- `tools/E2eRunner`, which this story changes (RunnerItself).
+
+Results:
+- 43/43 files, 223/223 tests, 0 failures ([summary](evidence-9a-4/full-run/summary.txt)).
+- The verdict was Incomplete(Contended) only because both clock-master records were Contended by other agents' load. Both passed.
+- clock-master was rerun alone on `c948fec6` and passed Clean, with the smoke pair 15/15 ([rerun](evidence-9a-4/clock-master-rerun/summary.txt)).
+- The publish log shows `GenerateElementBundle` producing the 13-element bundle during `dotnet publish` ([publish lines](evidence-9a-4/full-run/publish-bundle-lines.txt)).
+
+The A13 (build) row moved to Closed in the isolation authority in this candidate. That follows the Story 9A.1 precedent, ahead of terminal review.
 
 ## Spec Change Log
 
