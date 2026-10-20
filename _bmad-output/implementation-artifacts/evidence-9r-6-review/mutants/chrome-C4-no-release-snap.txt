@@ -1,0 +1,15 @@
+== chrome mutant C4-no-release-snap
+diff --git a/ui/WorkshopGuidance.cs b/ui/WorkshopGuidance.cs
+index 043ff187..16f1e868 100644
+--- a/ui/WorkshopGuidance.cs
++++ b/ui/WorkshopGuidance.cs
+@@ -500,7 +500,7 @@ public partial class Workshop
+                     if (_preview == null)
+                     {
+                         // D4: releasing a moved tube snaps it onto a free compatible mouth; the gesture stays one Undo entry.
+-                        if (_selected is { Locked: false } moved && MoveSnap(moved) is { } snap)
++                        if (_selected is { Locked: false } moved && MoveSnap(moved) is { } snap && false)
+                         {
+                             moved.Position = snap.Position;
+                             moved.Quaternion = snap.Rotation;
+runner exit 2

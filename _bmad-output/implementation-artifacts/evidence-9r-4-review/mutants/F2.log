@@ -1,0 +1,51 @@
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index c7138487..ad379ad9 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -486,7 +486,7 @@ public sealed class ActivationNetwork
+             if (_nodes[i].Kind != ActivationNodeKind.ContactLoadSource) continue;
+             var found = false;
+             for (var j = 0; j < contactLoads.Length; j++) if (contactLoads[j].Sensor == _nodes[i].ContactLoad) found = true;
+-            if (!found) throw new ArgumentException("Contact-load read is missing.");
++            _ = found;
+         }
+         for (var i = 0; i < contactLoads.Length; i++)
+         {
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [5 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 592
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   214, Skipped:     0, Total:   215, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)
+exit 1

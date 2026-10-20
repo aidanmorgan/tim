@@ -1,0 +1,10 @@
+build exit 0
+test exit 0
+node exit 0
+release build exit 0
+ownership build exit 0
+web restore exit 0
+ownership oracles exit 0
+lifecycle exit 0
+wire exit 0
+DONE

@@ -1,0 +1,46 @@
+#!/bin/zsh
+# Murdoch-13 review scripts for Story 9R.6 (copied from the session scratchpad; three scripts concatenated).
+
+# ===== tier1.sh: Tier 1 on the clean merge worktree (63ba232c + main e25082c8 = c36c7e08) =====
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1
+mkdir -p $E
+cd $W
+{ git rev-parse HEAD; git log --oneline -1; echo "porcelain:"; git status --porcelain; } > $E/identity.txt
+dotnet build CuriousContraptions.slnx > $E/build.log 2>&1; echo "build exit $?" >> $E/exits.txt
+dotnet test CuriousContraptions.slnx > $E/test-full.log 2>&1; echo "test exit $?" >> $E/exits.txt
+node --experimental-vm-modules --test tools/*.test.mjs > $E/node-harness.log 2>&1; echo "node exit $?" >> $E/exits.txt
+dotnet build -c Release CuriousContraptions.slnx > $E/release-build.log 2>&1; echo "release build exit $?" >> $E/exits.txt
+dotnet build -c Release tools/Ownership > $E/ownership-build.log 2>&1; echo "ownership build exit $?" >> $E/exits.txt
+dotnet restore CuriousContraptions.web > $E/web-restore.log 2>&1; echo "web restore exit $?" >> $E/exits.txt
+dotnet tools/Ownership/bin/Release/net10.0/Ownership.dll --oracles . > $E/ownership-oracles.log 2>&1; echo "ownership oracles exit $?" >> $E/exits.txt
+dotnet build tools/LifecycleContract/LifecycleContract.csproj -c Release --nologo > $E/lifecycle-build.log 2>&1
+dotnet tools/LifecycleContract/bin/Release/net10.0/LifecycleContract.dll > $E/lifecycle.log 2>&1; echo "lifecycle exit $?" >> $E/exits.txt
+dotnet build tools/WireContract/WireContract.csproj -c Release > $E/wire-build.log 2>&1
+dotnet tools/WireContract/bin/Release/net10.0/WireContract.dll > $E/wire.log 2>&1; echo "wire exit $?" >> $E/exits.txt
+{ echo "post porcelain:"; git status --porcelain; } >> $E/identity.txt
+echo DONE >> $E/exits.txt
+
+# Tier 2/3 (same worktree):
+#   dotnet run --project tools/E2eRunner -- select --diff e25082c8 > tier2/select-diff-e25082c8.txt
+#   dotnet run --project tools/E2eRunner -- full --out tier2/full-run-c36c7e08
+
+# ===== native-mutant.sh <name>: run after applying one mutant (Edit tool) in murdoch13-9r6-mut =====
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants
+cd $W
+{ echo "== mutant $1"; git diff; } > $E/native-$1.txt
+dotnet test CuriousContraptions.tests --filter "FullyQualifiedName~TubeMouthSnap|FullyQualifiedName~BallDetector|FullyQualifiedName~StraightPipe|FullyQualifiedName~Funnel|FullyQualifiedName~PipeBend|FullyQualifiedName~PoweredGate" > $E/native-$1.log 2>&1
+echo "exit $?" >> $E/native-$1.txt
+grep -E "^\s+Failed |Passed!|Failed!" $E/native-$1.log | sort -u >> $E/native-$1.txt
+git checkout -- .
+git status --porcelain >> $E/native-$1.txt
+
+# ===== chrome-mutant.sh <name>: changed list holds the single line tools/e2e/tube-snapping.test.ts =====
+cd $W
+{ echo "== chrome mutant $1"; git diff; } > $E/chrome-$1.txt
+dotnet run --project tools/E2eRunner -- run --changed changed-tube.txt --workers 1 --out $E/chrome-$1-run > $E/chrome-$1.console.log 2>&1
+echo "runner exit $?" >> $E/chrome-$1.txt
+grep -E "^run |sourceHead|^tube-snapping |run totals" $E/chrome-$1-run/summary.txt >> $E/chrome-$1.txt
+git checkout -- .
+git status --porcelain >> $E/chrome-$1.txt

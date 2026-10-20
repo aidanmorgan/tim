@@ -22,7 +22,10 @@ public static class OwnershipPolicy
         new("M:CuriousContraptions.Presentation.AnimationBatch.#ctor(System.Int32)"),
         new("M:CuriousContraptions.Presentation.AnimationBatch.RegisterSlot(CuriousContraptions.Presentation.AnimationBinding,CuriousContraptions.Presentation.AnimationBatch.Slot,CuriousContraptions.Presentation.AnimationValue,CuriousContraptions.Presentation.AnimationValue)~CuriousContraptions.Presentation.AnimationHandle"),
         new("M:CuriousContraptions.Presentation.AnimationBatch.Remove(CuriousContraptions.Presentation.AnimationHandle)"),
-        new("M:CuriousContraptions.Presentation.AnimationBatch.FillFree")
+        new("M:CuriousContraptions.Presentation.AnimationBatch.FillFree"),
+        // Story 9R.5b (reviewed): the registry's own growth resizes the free stack and pushes the new slots; the Animation kernel
+        // still owns the storage and no reference leaves AnimationBatch.
+        new("M:CuriousContraptions.Presentation.AnimationBatch.EnsureCapacity(System.Int32)")
     }.ToFrozenSet();
 
     public static void Validate(StateMember member, OwnershipAssignment assignment)

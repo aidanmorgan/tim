@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-18-2026 12:00
+last_updated: 10-21-2026 12:00
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -27,6 +27,18 @@ story_location: "_bmad-output/planning-artifacts/epics.md"
 # owner's literal order. Every story follows what it needs, except the open scheduling items in epics.md.
 # Keys renumbered to match; statuses unchanged. Old-to-new mapping:
 # docs/planning/invest/vertical-delivery.md (owner-reordering-dependencies).
+#
+# Delivery order, 21 Oct 2026 (coordinator, owner-authorised re-examination plus the owner's amendment
+# "retire old code and delete it as soon as possible"): epics.md "Delivery order" section.
+# - From 9r-6 on, keys are listed in delivery order: the 18-story critical path, then 9-5, then one
+#   deletion-lane story alternating with one element-lane story. Polish and art follow all deletion work.
+# - Merged stories keep their keys and statuses, and sit directly after the story they merged into, with
+#   a "merged into" comment.
+# - 9r-18 is dropped; each closing story appends the dated addenda (closure table in epics.md).
+# - Selection rule: the next story is the first key in this file order that is not done. That replaces
+#   "first story of the current in-progress epic", because the lanes interleave epics. Skip a key whose
+#   comment says "merged into", "split into" or "dropped". When a merged story goes done, set its merged
+#   originals to done in the same update. A split original goes done when all of its splits are done.
 
 development_status:
   epic-1: done
@@ -61,6 +73,8 @@ development_status:
 
   # Retro-verification 18 Oct 2026 (_bmad-output/planning-artifacts/retro-verification-2026-10-18.md):
   # invalid Passes reopened; weak Passes stay done and name their repair story (epics.md Epic 9R).
+  # 21 Oct 2026: 9r-18 dropped; the closing stories named below append the dated addenda (epics.md
+  # Delivery order, reopened-record closure).
   epic-6: in-progress
   6-1-bowling-ball-dynamic-sphere: done
   6-1b-engine-drag-application: done
@@ -70,29 +84,29 @@ development_status:
   6-3-bumper-multi-angle-contacts: done
   6-4-prismatic-slider-tgs-soft-spring: done
   6-5-preload-energy-store-springboard-launch: done
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-14, 9a-15)
+  # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-14 and 9a-15
   6-5b-dynamic-part-discovery: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-16, 9a-17; .tscn owner amendment)
+  # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-16 and 9a-17 (.tscn owner amendment)
   6-5c-gltf-collider-extraction-and-port-locators: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-11..9r-14 element suites and 9r-18 (with 9a-16)
+  # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-c-ramp-receiver (9r-12, 9r-13), 9a-c-balls (9r-11), 9a-27 (9r-14) and 9a-16
   6-5d-existing-parts-balls-obstacles-gltf-conversion: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-8, 9r-15..9r-17 element suites and 9r-18 (with 9a-16, 9a-17)
+  # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-c-bumper-spring (9r-8), 9a-c-switch (9r-15), 9a-c-lamp-detector (9r-16), 9-5a (9r-17), 9a-16 and 9a-17
   6-5e-existing-parts-mechanisms-fixtures-gltf-conversion: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-16, 9a-17, 9a-25, 9a-27..9a-43)
+  # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-16, 9a-17, 9a-25a, 9a-27 and every conversion; last is 9a-c-memory
   6-5f-partart-partkind-legacy-purge: in-progress
-  # weak Pass (retro-verification 18 Oct 2026); repair 9r-1-exact-run-reset-snapshot-assertions, re-verified in 9r-18
+  # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-1; re-verified by addendum in 9a-pkg-2
   6-6-straight-pipe-compound-cylinder: done
-  # weak Pass (retro-verification 18 Oct 2026); repair 9r-1-exact-run-reset-snapshot-assertions, re-verified in 9r-18
+  # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-1; re-verified by addendum in 9a-pkg-2
   6-7-hollow-sdf-torus-cap-clear-pipe: done
-  # weak Pass (retro-verification 18 Oct 2026); repair 9r-9-ball-detector-forward-pass-assertion, re-verified in 9r-18
+  # weak Pass (retro-verification 18 Oct 2026); repaired and re-verified by addendum in 9a-c-lamp-detector (9r-9)
   6-8-generic-aperture-sensor-directional-rearm: done
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and 9r-18
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and an addendum in 9a-pkg-2
   6-9-pipe-bend-45-hollow-torus-segment: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-2-collider-table-sized-at-run and 9r-18 (with 9a-1)
+  # reopened 18 Oct 2026 (retro-verification); repaired by 9r-2; closes via an addendum in 9a-1 (AbiOffsets)
   6-9b-unbounded-collider-capacity: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping, 9r-7-joined-pipe-level-playable and 9r-18
+  # reopened 18 Oct 2026 (retro-verification); closes via 9r-6, 9r-7 and an addendum in 9a-pkg-2
   6-10-pipe-bend-90-joined-pipe-route: in-progress
-  # weak Pass (retro-verification 18 Oct 2026); repair 9r-6-typed-mouth-snapping, re-verified in 9r-18
+  # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-6, re-verified by addendum in 9a-pkg-2
   6-11-funnel-hollow-frustum-inlet: done
   epic-6-retrospective: optional
 
@@ -113,28 +127,27 @@ development_status:
   epic-7-retrospective: optional
 
   epic-8: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9-4b; Motor clause awaits owner case review)
+  # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-39 (amended acceptance; Motor clause moved to 11-1)
   8-1-battery-dc-power-source-network-graph: in-progress
-  # weak Pass (retro-verification 18 Oct 2026); repair 9r-3-direct-gate-own-supply-route, re-verified in 9r-18
+  # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-3; re-verified by addendum in 9a-c-gate
   8-2-powered-gate-passageway-barrier: done
   epic-8-retrospective: optional
 
   epic-9: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-4, 9r-5 and 9r-18
+  # reopened 18 Oct 2026 (retro-verification); repaired by 9r-4 and 9r-5; closes via an addendum in 9a-c-plate
   9-1-pressure-plate-surface-contact-load-sensor: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-1 and 9r-18 (with 9a-2)
+  # reopened 18 Oct 2026 (retro-verification); repaired by 9r-1; closes via addenda in 9a-2 and 9a-c-memory
   9-2-pulse-counter-event-accumulator: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-18-retro-reverification-review-addenda (with 9a-0 and Epic 9A)
+  # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-0 and the final 9a-45
   9-2b-modular-element-isolation-and-wasm-solver-consolidation: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via 9r-10-system-clock-pause-reset-chrome-proof and 9r-18
+  # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-c-clock (9r-10)
   9-3-system-clock-periodic-pulse-generator: in-progress
   9-4-state-latch-bistable-memory: done
   # Coordinator 18 Oct 2026: pre-existing cumulative Chrome failures found during 9.4 (see spec-9-4 item 3).
   9-4b-cumulative-chrome-regression-repair: done
 
   # Coordinator decision under owner delegation 18 Oct 2026 (epics.md Open scheduling item i): Epic 9R,
-  # retro-verification repair, runs after 9-4b and before 9-4c. Keys in delivery order.
-  # Evidence: _bmad-output/planning-artifacts/retro-verification-2026-10-18.md
+  # retro-verification repair. Evidence: _bmad-output/planning-artifacts/retro-verification-2026-10-18.md
   epic-9r: backlog
   # owner report 19 Oct 2026 (Balloon crash): runs first in 9R, right after 9-4b
   9r-0c-undelivered-parts-leave-palette: done
@@ -147,118 +160,235 @@ development_status:
   9r-2-collider-table-sized-at-run: done
   9r-3-direct-gate-own-supply-route: done
   9r-4-pressure-plate-per-instance-load-rows: done
-  9r-5-pressure-plate-activation-out-level: review
-  9r-6-typed-mouth-snapping: backlog
-  9r-7-joined-pipe-level-playable: backlog
-  9r-8-spring-forward-lesson-chrome-proof: backlog
-  9r-9-ball-detector-forward-pass-assertion: backlog
-  9r-10-system-clock-pause-reset-chrome-proof: backlog
-  9r-11-cat-001-basketball-suite: backlog
-  9r-12-cat-004-receiver-suite: backlog
-  9r-13-cat-054-ramp-suite: backlog
-  9r-14-cat-066-wall-suite: backlog
-  9r-15-cat-063-impact-switch-suite: backlog
-  9r-16-cat-035-signal-lamp-suite: backlog
-  9r-17-cat-022-delay-box-suite: backlog
-  # owner visual report 19 Oct 2026 (Funnel glass inverted); run before 9r-18 (visual-review-2026-10-19)
-  9r-19-tube-glass-art-repair: backlog
-  9r-20-live-state-cues-during-run: backlog
-  9r-21-lit-palette-fidelity: backlog
-  9r-22-element-art-polish: backlog
-  9r-18-retro-reverification-review-addenda: backlog
-  epic-9r-retrospective: optional
+  9r-5-pressure-plate-activation-out-level: done
+  # coordinator 20 Oct 2026 (owner: no arbitrary engine caps): every physics table sized at Run
+  9r-5b-physics-trigger-table-sized-at-run: done
 
-  # Coordinator 18 Oct 2026 (review-9-4 D1): latch-dependent deferred integrations CAT-005 N19 and
-  # CAT-051 supply interruption mid-stroke.
-  9-4c-latch-fixture-deferred-integrations: backlog
-
-  # Owner decision 18 Oct 2026 (epics.md Open scheduling item g): Epic 9A, sole architecture conformance
-  # (project per element, command/query, event disruptor; bundle is the single declaration source), runs
-  # after 9-4 and 9-4b and before 9-5 and every later new element; 9-4c precedes it by coordinator
-  # placement. Keys listed in delivery order.
+  # ===== Delivery order, 21 Oct 2026: critical path (positions 1-18), then 9-5 (19) =====
+  # Owner decision 18 Oct 2026 (Open scheduling item g): Epic 9A, sole architecture conformance.
   # Evidence: _bmad-output/planning-artifacts/architecture-conformance-audit-2026-10-18.md
   epic-9a: backlog
-  9a-0-architecture-authority-docs: backlog
+  # 1-2: in flight
+  9r-6-typed-mouth-snapping: done
+  9r-7-joined-pipe-level-playable: review
+  # 3
+  9a-0-architecture-authority-docs: review
+  # 4: owner amendment 21 Oct 2026, right after 9a-0
   9a-1-dead-legacy-purge: backlog
-  9a-2-single-flatbuffers-codec: backlog
-  9a-3-typed-transport-control-commands: backlog
+  # 5
   9a-4-lossless-bundle-build-gate: backlog
+  # 6
+  9a-pkg-1-receiver-bowling-springboard-packages: backlog
+  # merged into 9a-pkg-1 (21 Oct 2026)
   9a-5-receiver-element-package: backlog
+  # merged into 9a-pkg-1 (21 Oct 2026)
   9a-6-bowling-ball-element-package: backlog
-  9a-7-delay-box-element-package: backlog
-  9a-8-funnel-element-package: backlog
-  9a-9-pipe-element-package: backlog
-  9a-10-pipe-bend-45-element-package: backlog
-  9a-11-pipe-bend-90-element-package: backlog
+  # merged into 9a-pkg-1 (21 Oct 2026)
   9a-12-springboard-element-package: backlog
+  # 7
+  9a-pkg-2-funnel-pipe-bend-packages: backlog
+  # merged into 9a-pkg-2 (21 Oct 2026)
+  9a-8-funnel-element-package: backlog
+  # merged into 9a-pkg-2 (21 Oct 2026)
+  9a-9-pipe-element-package: backlog
+  # merged into 9a-pkg-2 (21 Oct 2026)
+  9a-10-pipe-bend-45-element-package: backlog
+  # merged into 9a-pkg-2 (21 Oct 2026)
+  9a-11-pipe-bend-90-element-package: backlog
+  # 8
+  9a-pkg-3-delay-switch-packages: backlog
+  # merged into 9a-pkg-3 (21 Oct 2026)
+  9a-7-delay-box-element-package: backlog
+  # merged into 9a-pkg-3 (21 Oct 2026)
   9a-13-impact-switch-element-package: backlog
+  # 9
   9a-14-bundle-sole-catalogue-source: backlog
-  9a-15-bundle-element-id-save-wire: backlog
-  9a-16-bundle-sole-collider-source: backlog
-  9a-17-bundle-ports-and-footprint: backlog
+  # merged into 9a-14 (21 Oct 2026)
   9a-18-package-icons: backlog
-  9a-19-declared-prismatic-drive: backlog
-  9a-20-declared-contact-load-sensor: backlog
-  9a-21-declaration-free-worker-warmup: backlog
-  9a-22-event-ring-producer: backlog
-  9a-23-event-ring-consumers: backlog
-  9a-24-typed-observation-port: backlog
+  # 10
+  9a-2-single-flatbuffers-codec: backlog
+  # 11
+  9a-15-bundle-element-id-save-wire: backlog
+  # 12
+  9a-17-bundle-ports-and-footprint: backlog
+  # 13: owner amendment 21 Oct 2026, right after 9a-17
+  9a-3-typed-transport-control-commands: backlog
+  # 14: owner amendment 21 Oct 2026, right after 9a-17
+  9a-16-bundle-sole-collider-source: backlog
+  # 15: committed-state bindings (9a-25 part) + 9r-20
+  9a-25a-committed-state-bindings-live-cues: backlog
+  # split into 9a-25a (committed-state, position 15) and 9a-25b (one-shot, with 9a-23 at position 48)
   9a-25-package-presentation-bindings: backlog
-  9a-26-lessons-as-content-data: backlog
+  # merged into 9a-25a (21 Oct 2026)
+  9r-20-live-state-cues-during-run: backlog
+  # 16: generic instance and editor (Wall), with the one-line BumperAdvanced edit
   9a-27-generic-instance-wall-parameter-editor: backlog
-  9a-28-generic-instance-ramp: backlog
-  9a-29-generic-instance-receiver: backlog
-  9a-30-generic-instance-basketball: backlog
-  9a-31-generic-instance-bowling-ball: backlog
-  9a-32-generic-instance-domino: backlog
-  9a-33-generic-instance-bumper: backlog
-  9a-34-generic-instance-springboard: backlog
-  9a-35-generic-instance-impact-switch: backlog
-  9a-36-generic-instance-signal-lamp: backlog
-  9a-37-generic-instance-ball-detector: backlog
+  # merged into 9a-27 (21 Oct 2026) as its suite-first guard
+  9r-14-cat-066-wall-suite: backlog
+  # 17: early isolation ratchet (split from 9a-45)
+  9a-45a-early-isolation-ratchet: backlog
+  # 18: declared timer and switched contact, Delay converted, timer lane f32
+  9-5a-declared-timer-switched-contact-delay-conversion: backlog
+  # merged into 9-5a (21 Oct 2026)
   9a-38-generic-instance-delay-box: backlog
-  9a-39-generic-instance-battery: backlog
-  9a-40-generic-instance-pressure-plate: backlog
-  9a-41-generic-instance-pulse-counter: backlog
-  9a-42-generic-instance-system-clock: backlog
-  9a-43-generic-instance-state-latch: backlog
-  # Owner decision 18 Oct 2026: every remaining binary16 lane to f32; Half nowhere in the tree.
-  9a-44-f32-lane-completion-half-purge: backlog
-  9a-45-compile-time-isolation-gate: backlog
-  epic-9a-retrospective: optional
-
+  # merged into 9-5a (21 Oct 2026) as its suite-first guard
+  9r-17-cat-022-delay-box-suite: backlog
+  # 19: first new element after the critical path
   9-5-hold-timer-pulse-stretcher: backlog
-  # Owner decision 18 Oct 2026 (open scheduling item b): Switch electrical mode before the Both gate.
-  9-5b-impact-switch-electrical-mode: backlog
-  9-6-dual-supply-both-gate: backlog
-  9-7-electrical-logic-gates-nand-nor: backlog
-  9-8-electrical-logic-gates-or-xor: backlog
-  epic-9-retrospective: optional
 
+  # ===== After 9-5: deletion lane and element lane alternate one for one =====
+  # 20 (deletion): before 9-5b
+  9a-c-switch-impact-switch-conversion: backlog
+  # merged into 9a-c-switch (21 Oct 2026)
+  9a-35-generic-instance-impact-switch: backlog
+  # merged into 9a-c-switch (21 Oct 2026) as its suite-first guard; threshold editor via the generic editor
+  9r-15-cat-063-impact-switch-suite: backlog
+  # 21 (element). Owner decision 18 Oct 2026 (open scheduling item b): Switch electrical mode before the Both gate.
+  9-5b-impact-switch-electrical-mode: backlog
+  # 22 (deletion)
+  9a-26-lessons-as-content-data: backlog
+  # 23 (element)
+  9-6-dual-supply-both-gate: backlog
+  # 24 (deletion)
+  9a-c-ramp-receiver-conversion: backlog
+  # merged into 9a-c-ramp-receiver (21 Oct 2026)
+  9a-28-generic-instance-ramp: backlog
+  # merged into 9a-c-ramp-receiver (21 Oct 2026)
+  9a-29-generic-instance-receiver: backlog
+  # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard
+  9r-12-cat-004-receiver-suite: backlog
+  # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard
+  9r-13-cat-054-ramp-suite: backlog
+  # 25 (element)
+  9-7a-electrical-nand-gate: backlog
+  # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)
+  9-7-electrical-logic-gates-nand-nor: backlog
+  # 26 (deletion)
+  9a-c-balls-conversion: backlog
+  # merged into 9a-c-balls (21 Oct 2026)
+  9a-30-generic-instance-basketball: backlog
+  # merged into 9a-c-balls (21 Oct 2026)
+  9a-31-generic-instance-bowling-ball: backlog
+  # merged into 9a-c-balls (21 Oct 2026) as its suite-first guard
+  9r-11-cat-001-basketball-suite: backlog
+  # 27 (element)
+  9-7b-electrical-nor-gate: backlog
+  # 28 (deletion)
+  9a-c-bumper-spring-conversion: backlog
+  # merged into 9a-c-bumper-spring (21 Oct 2026)
+  9a-33-generic-instance-bumper: backlog
+  # merged into 9a-c-bumper-spring (21 Oct 2026)
+  9a-34-generic-instance-springboard: backlog
+  # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
+  9r-8-spring-forward-lesson-chrome-proof: backlog
+  # 29 (element)
+  9-8a-electrical-or-gate: backlog
+  # split into 9-8a and 9-8b (21 Oct 2026; one new element per story)
+  9-8-electrical-logic-gates-or-xor: backlog
+  # 30 (deletion-lane slot): latch-dependent deferred integrations CAT-005 N19 and CAT-051 supply
+  # interruption mid-stroke (coordinator 18 Oct 2026, review-9-4 D1). Placed before 9a-c-gate because the
+  # 9a-19, 9a-39 and 9a-43 ACs require its suites.
+  9-4c-latch-fixture-deferred-integrations: backlog
+  # 31 (element)
+  9-8b-electrical-xor-gate: backlog
+  epic-9-retrospective: optional
+  # 32 (deletion): before 11-3
+  9a-c-gate-declared-drive-warmup: backlog
+  # merged into 9a-c-gate (21 Oct 2026)
+  9a-19-declared-prismatic-drive: backlog
+  # merged into 9a-c-gate (21 Oct 2026)
+  9a-21-declaration-free-worker-warmup: backlog
+  # 33 (element)
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: backlog
+  # 34 (deletion)
+  9a-39-generic-instance-battery: backlog
+  # 35 (element)
   10-2-pulley-wheel-tensile-rope-dynamics: backlog
+  # 36 (deletion)
+  9a-c-lamp-detector-conversion: backlog
+  # merged into 9a-c-lamp-detector (21 Oct 2026)
+  9a-36-generic-instance-signal-lamp: backlog
+  # merged into 9a-c-lamp-detector (21 Oct 2026)
+  9a-37-generic-instance-ball-detector: backlog
+  # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
+  9r-9-ball-detector-forward-pass-assertion: backlog
+  # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
+  9r-16-cat-035-signal-lamp-suite: backlog
+  # 37 (element)
   10-3-balanced-impact-lever-pivot-fulcrum: backlog
+  # 38 (deletion)
+  9a-32-generic-instance-domino: backlog
+  # 39 (element)
   10-4-counterweight-multibody-pendulum-lifting: backlog
+  # 40 (deletion): includes F.6 item F-1
+  9a-c-plate-contact-load-conversion: backlog
+  # merged into 9a-c-plate (21 Oct 2026)
+  9a-20-declared-contact-load-sensor: backlog
+  # merged into 9a-c-plate (21 Oct 2026)
+  9a-40-generic-instance-pressure-plate: backlog
+  # 41 (element)
   10-5-trampoline-compliant-membrane-dynamics: backlog
   epic-10-retrospective: optional
-
+  # 42 (deletion)
+  9a-c-clock-conversion: backlog
+  # merged into 9a-c-clock (21 Oct 2026)
+  9a-42-generic-instance-system-clock: backlog
+  # merged into 9a-c-clock (21 Oct 2026) as its suite-first guard
+  9r-10-system-clock-pause-reset-chrome-proof: backlog
+  # 43 (element)
   epic-11: backlog
   11-1-electric-motor-tangential-conveyor-belt: backlog
+  # 44 (deletion): before 9a-c-memory, whose ACs need ThresholdReached and MemoryChanged
+  9a-22-event-ring-producer: backlog
+  # 45 (element)
   11-2-mechanical-clutch-reverse-transmission: backlog
+  # 46 (deletion): last record conversion
+  9a-c-memory-counter-latch-conversion: backlog
+  # merged into 9a-c-memory (21 Oct 2026)
+  9a-41-generic-instance-pulse-counter: backlog
+  # merged into 9a-c-memory (21 Oct 2026)
+  9a-43-generic-instance-state-latch: backlog
+  # 47 (element)
   11-3-linear-pusher-telescopic-actuator: backlog
+  # 48 (deletion): one slice with 9a-25b; before Epic 14 and any new one-shot cue
+  9a-23-event-ring-consumers: backlog
+  # delivered in one slice with 9a-23 (one-shot part of 9a-25)
+  9a-25b-one-shot-bindings-on-event-ring: backlog
+  # 49 (element)
   11-4-wound-spring-motor-toy-cannon-launcher: backlog
   epic-11-retrospective: optional
-
+  # 50 (deletion): owner decision 18 Oct 2026, every remaining binary16 lane to f32; Half nowhere in the tree.
+  # As soon as its preconditions allow (after 9a-c-memory, 9a-25b and 9a-26).
+  9a-44-f32-lane-completion-half-purge: backlog
+  # 51 (element)
   epic-12: backlog
   12-1-lightweight-tennis-ball-floating-balloon: backlog
+  # 52 (deletion)
+  9a-24-typed-observation-port: backlog
+  # 53 (element)
   12-2-electric-fan-aerodynamic-airflow-jet: backlog
+  # 54 (deletion): final empty-list isolation gate; the last deletion story
+  9a-45-compile-time-isolation-gate: backlog
+  epic-9a-retrospective: optional
+  # 55 (element)
   12-3-windmill-rotor-aerodynamic-capture-drive: backlog
+  # 56 (polish, after all deletion work). Owner visual report 19 Oct 2026 (Funnel glass inverted).
+  9r-19-tube-glass-art-repair: backlog
+  # 57 (element)
   12-4-pneumatic-bellows-compression-pulse: backlog
   epic-12-retrospective: optional
-
+  # 58 (polish)
+  9r-21-lit-palette-fidelity: backlog
+  # 59 (element)
   epic-13: backlog
   13-1-flashlight-torch-collimated-laser-emitters: backlog
+  # 60 (polish)
+  9r-22-element-art-polish: backlog
+  # dropped as a separate story (coordinator, 21 Oct 2026): each closing story appends the dated addenda
+  9r-18-retro-reverification-review-addenda: backlog
+  epic-9r-retrospective: optional
+  # 61 onward: element lane only, existing order.
   # Coordinator decision under owner delegation 18 Oct 2026 (open scheduling items a and d): RGB lasers before
   # receivers, one element per story (AGENTS.md).
   13-1b-red-laser-emitter: backlog
@@ -316,5 +446,12 @@ development_status:
   f-3-run-reset-snapshot-hardening: backlog
   f-4-collider-table-follow-ups: backlog
   f-5-supply-route-follow-ups: backlog
+  # item F-1 moved into 9a-c-plate (21 Oct 2026); the other items stay here
+  f-6-contact-load-follow-ups: backlog
+  f-7-plate-signal-follow-ups: backlog
+  f-8-capacity-follow-ups: backlog
+  f-9-tube-snapping-follow-ups: backlog
+  # filed by 9a-0, 21 Oct 2026 (owner: no format versioning); 9a-2 deletes the save and wire versions
+  f-10-retire-remaining-format-versions: backlog
 
 action_items: []

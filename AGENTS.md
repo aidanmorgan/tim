@@ -30,6 +30,7 @@ For required publication, independent SnapshotApproval first verifies every pre-
 
 ## Engineering and gameplay requirements
 
+- Sole design authority: [element package isolation](docs/architecture/element-package-isolation.md) (target invariants and current status).
 - Current numeric/execution authority: [canonical IEEE-754 f32 game values and WASM SIMD physics](docs/gpu-f32-physics.md). Use standard 32-bit single-precision floating point (`f32` / `float`) across authoring, solver, and presentation, with WebAssembly 128-bit SIMD (`wasm-simd128`) vectorization on a dedicated Web Worker. Lock-free zero-copy triple-buffered pose ring in `SharedArrayBuffer` eliminates GPU-to-CPU readback stalls. Universal rendering on both WebGL 2 and WebGPU via instanced draw batches. Integers and declared external adapters retain their correct types. No hidden legacy game models or CPU fallback paths.
 
 - Engine first: deliver **ENGINE-CORE-1** then **ENGINE-CORE-2** in the [ordered roadmap](docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap) before new elements; then one element per slice in roadmap order. Existing parts deliver the engine through thin playable Workshop slices; their required authoring/solver/worker/presentation criteria are grouped inside each outcome, not a whole-subsystem prerequisite queue. [Standing requirements](docs/delivery-workflow.md#standing-requirements) and [stage gates](docs/delivery-workflow.md#stage-gates) remain mandatory; full supported-device/workload qualification stays at its named release-checklist gate.

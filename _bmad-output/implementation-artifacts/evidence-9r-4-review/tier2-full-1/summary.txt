@@ -1,0 +1,273 @@
+run 20261020T125323Z-38472 verb=Run verdict=Pass
+started=2026-10-20T12:53:23.6579780+00:00 finished=2026-10-20T13:22:40.1766010+00:00 wallSeconds=1756.5
+runnerSourceDigest: 2e0768f37dd5a09bb7ef0bc40c17df6082c62447b0bddea3400a53d542351902
+sourceHead: d7ab0e3e81985a261a5a15c686dd9d51192124ce
+sourceStatusDigest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+publish: dotnet publish CuriousContraptions.web: exit 0 in 120.8 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.85
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 2
+runId: 20261020T125323Z-38472
+workers: 2
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4/.anvil/e2e-runs/20261020T125323Z-38472
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: 356c3634869def54c38e22d97a2b6e3a2241eda6944c152895f8d8eed79ac280
+bundleIdentity.start: a59e02ceeb2331fdaff33cd622d7c9177f2fa2da8e94ae20e725e8d5dd024d52
+bundleFiles: 288 (3 NotServed dot-files)
+preview: http://127.0.0.1:57149/
+servedCheck.start: pass (285 files)
+bundleIdentity.end: a59e02ceeb2331fdaff33cd622d7c9177f2fa2da8e94ae20e725e8d5dd024d52
+servedCheck.end: pass
+suiteSourceDigest.end: 356c3634869def54c38e22d97a2b6e3a2241eda6944c152895f8d8eed79ac280
+peakRssBytes: 6860341248
+selection: Mode: Full
+selection: Tier 3 required: yes
+selection: path	CuriousContraptions.Simulation/PrismaticConstraintSolver.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.Simulation/WorkshopGpuDevice.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.tests/BallDetectorTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/CSharpStaticGateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/CounterTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/OrientationSensorTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/PoweredGateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/PressurePlateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkbenchCapacityTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopPhysicsLawTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopWireTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/Probe9R4Tests.cs.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run-1-INTERRUPTED.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/capacity-9r.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/capacity-9r.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/capacity-9r.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-002.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-002.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-002.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-005.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-005.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-005.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-014.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-014.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-014.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a-sidekick.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a-sidekick.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a-sidekick.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-017.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-017.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-017.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-020.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-020.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-020.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-030.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-030.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-030.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-037.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-037.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-037.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-049.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-049.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-049.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-050.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-050.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-050.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051-own-supply.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051-own-supply.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051-own-supply.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052-two-plates.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052-two-plates.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052-two-plates.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.simulation-unresponsive.png	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/palette-placement.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/palette-placement.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/palette-placement.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/gate-repin-green.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/gate-repin-red.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/manual-cat-052-pre-commit-domino-unlifted-fail.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/manual-cat-052-two-plates-no-activation-limit.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/manual-cat-052-two-plates-pre-commit.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/mutants-native.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/probe-9r4-domino-placement.test.ts.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/probe-contacts.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/red-activation-cap.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/red-native-live-path.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/tier1-dotnet-test-15b7431b.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/tier1-dotnet-test.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/spec-9r-4-pressure-plate-per-instance-load-rows.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/sprint-status.yaml	NoBrowserImpact	_bmad-output/**
+selection: path	engine/gpu/ActivationMemory.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/ActivationNetwork.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/ActivationTimers.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/BrowserWorkshopClient.Activation.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/BrowserWorkshopClient.Timer.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/ContactLoadSensorDeclaration.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsDeclarations.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsGpuAbi.Constraints.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsGpuAbi.ContactLoad.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsGpuAbi.ContactLoad.cs.uid	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsGpuAbi.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkbenchCapacity.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopActivationWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopConstruction.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopHint.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopPhysicsCompiler.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopPressurePlate.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopSimulation.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopTimerWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	tools/E2eRunner.Tests/SelectionTests.cs	Full(RunnerItself)	tools/E2eRunner*/**
+selection: path	tools/E2eRunner/SuiteCatalogue.cs	Full(RunnerItself)	tools/E2eRunner*/**
+selection: path	tools/e2e/README.md	NoBrowserImpact	tools/e2e/README.md
+selection: path	tools/e2e/cat-052-two-plates.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052-two-plates
+selection: path	tools/e2e/cat-052.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-052
+selection: clock-master	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-017	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-023b	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-037	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-014	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1a	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1b	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1c	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-023a	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-020	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: capacity-9r	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-062	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-051-own-supply	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052-two-plates	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-002	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-005	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015a	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015a-sidekick	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015b	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-030	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-048a	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-048b	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-049	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-050	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-051	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-062b	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a1	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a2	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a3	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a4	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b1	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b2	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b3	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b4	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2c	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: palette-placement	full: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs (SharedRuntime, workers, client, contracts and schemas)
+clock-master outcome=Pass exit=0 tests=9 pass=9 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=1 unresponsive=1 rejected=0 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=0 debtFaults=1 durationMs=85338 phase=SerialAlone slot=- start=2026-10-20T12:53:55.1721590+00:00 end=2026-10-20T12:55:20.5105000+00:00 observation=Clean
+cat-017 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=88456 phase=SerialAlone slot=- start=2026-10-20T12:55:20.6630150+00:00 end=2026-10-20T12:56:49.1188430+00:00 observation=Clean
+cat-023b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=42855 phase=SerialAlone slot=- start=2026-10-20T12:56:49.2666050+00:00 end=2026-10-20T12:57:32.1211340+00:00 observation=Clean
+cat-037 outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=82889 phase=SerialAlone slot=- start=2026-10-20T12:57:32.2638910+00:00 end=2026-10-20T12:58:55.1529940+00:00 observation=Clean
+cat-014 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=53589 phase=SerialAlone slot=- start=2026-10-20T12:58:55.3000270+00:00 end=2026-10-20T12:59:48.8890400+00:00 observation=Clean
+anim-1a outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=25417 phase=SerialAlone slot=- start=2026-10-20T12:59:49.0422780+00:00 end=2026-10-20T13:00:14.4592260+00:00 observation=Clean
+anim-1b outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=31746 phase=SerialAlone slot=- start=2026-10-20T13:00:14.6017920+00:00 end=2026-10-20T13:00:46.3479760+00:00 observation=Clean
+anim-1c outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=33375 phase=SerialAlone slot=- start=2026-10-20T13:00:46.4930660+00:00 end=2026-10-20T13:01:19.8677390+00:00 observation=Contended
+anim-1c outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=33061 phase=SerialAlone slot=- start=2026-10-20T13:01:35.1050430+00:00 end=2026-10-20T13:02:08.1656080+00:00 observation=Clean
+cat-023a outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=28140 phase=SerialAlone slot=- start=2026-10-20T13:02:08.3133160+00:00 end=2026-10-20T13:02:36.4528510+00:00 observation=Clean
+cat-020 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=128739 phase=SerialAlone slot=- start=2026-10-20T13:02:36.6005340+00:00 end=2026-10-20T13:04:45.3397520+00:00 observation=Clean
+capacity-9r outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=113837 phase=SerialAlone slot=- start=2026-10-20T13:04:45.4874630+00:00 end=2026-10-20T13:06:39.3241580+00:00 observation=Clean
+cat-062 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=127656 phase=SerialAlone slot=- start=2026-10-20T13:06:39.4705630+00:00 end=2026-10-20T13:08:47.1263240+00:00 observation=Clean
+cat-051-own-supply outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=91480 phase=SerialAlone slot=- start=2026-10-20T13:08:47.2711590+00:00 end=2026-10-20T13:10:18.7509650+00:00 observation=Clean
+cat-052-two-plates outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=96234 phase=SerialAlone slot=- start=2026-10-20T13:10:18.8934520+00:00 end=2026-10-20T13:11:55.1278550+00:00 observation=Clean
+cat-002 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=66985 phase=Parallel slot=0 start=2026-10-20T13:11:55.2245740+00:00 end=2026-10-20T13:13:02.2093140+00:00 observation=Clean
+cat-005 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=138307 phase=Parallel slot=1 start=2026-10-20T13:11:55.2743530+00:00 end=2026-10-20T13:14:13.5814260+00:00 observation=Clean
+cat-015a outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=24863 phase=Parallel slot=0 start=2026-10-20T13:13:02.2951460+00:00 end=2026-10-20T13:13:27.1586060+00:00 observation=Clean
+cat-015a-sidekick outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=41649 phase=Parallel slot=0 start=2026-10-20T13:13:27.2500010+00:00 end=2026-10-20T13:14:08.8988170+00:00 observation=Clean
+cat-015b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=101887 phase=Parallel slot=0 start=2026-10-20T13:14:08.9960420+00:00 end=2026-10-20T13:15:50.8834170+00:00 observation=Clean
+cat-030 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=102631 phase=Parallel slot=1 start=2026-10-20T13:14:13.6734430+00:00 end=2026-10-20T13:15:56.3040540+00:00 observation=Clean
+cat-048a outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=49846 phase=Parallel slot=0 start=2026-10-20T13:15:50.9808180+00:00 end=2026-10-20T13:16:40.8270750+00:00 observation=Clean
+cat-048b outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=47890 phase=Parallel slot=1 start=2026-10-20T13:15:56.3970670+00:00 end=2026-10-20T13:16:44.2871910+00:00 observation=Clean
+cat-049 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=49689 phase=Parallel slot=0 start=2026-10-20T13:16:40.9207970+00:00 end=2026-10-20T13:17:30.6100650+00:00 observation=Clean
+cat-050 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=52325 phase=Parallel slot=1 start=2026-10-20T13:16:44.3762000+00:00 end=2026-10-20T13:17:36.7012910+00:00 observation=Clean
+cat-051 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=57362 phase=Parallel slot=0 start=2026-10-20T13:17:30.7062550+00:00 end=2026-10-20T13:18:28.0678320+00:00 observation=Clean
+cat-052 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=106787 phase=Parallel slot=1 start=2026-10-20T13:17:36.7903020+00:00 end=2026-10-20T13:19:23.5772550+00:00 observation=Clean
+cat-062b outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=137656 phase=Parallel slot=0 start=2026-10-20T13:18:28.1621950+00:00 end=2026-10-20T13:20:45.8185110+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18371 phase=Parallel slot=1 start=2026-10-20T13:19:23.6695410+00:00 end=2026-10-20T13:19:42.0404910+00:00 observation=Clean
+engine-core-2a2 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=28240 phase=Parallel slot=1 start=2026-10-20T13:19:42.1305310+00:00 end=2026-10-20T13:20:10.3700400+00:00 observation=Clean
+engine-core-2a3 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=41828 phase=Parallel slot=1 start=2026-10-20T13:20:10.4633280+00:00 end=2026-10-20T13:20:52.2916480+00:00 observation=Clean
+engine-core-2a4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=19491 phase=Parallel slot=0 start=2026-10-20T13:20:45.9121110+00:00 end=2026-10-20T13:21:05.4032740+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8721 phase=Parallel slot=1 start=2026-10-20T13:20:52.3819650+00:00 end=2026-10-20T13:21:01.1024830+00:00 observation=Clean
+engine-core-2b2 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8726 phase=Parallel slot=1 start=2026-10-20T13:21:01.1907400+00:00 end=2026-10-20T13:21:09.9164490+00:00 observation=Clean
+engine-core-2b3 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=37941 phase=Parallel slot=0 start=2026-10-20T13:21:05.4937710+00:00 end=2026-10-20T13:21:43.4351810+00:00 observation=Clean
+engine-core-2b4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=16328 phase=Parallel slot=1 start=2026-10-20T13:21:10.0062470+00:00 end=2026-10-20T13:21:26.3339610+00:00 observation=Clean
+engine-core-2c outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18039 phase=Parallel slot=1 start=2026-10-20T13:21:26.4255240+00:00 end=2026-10-20T13:21:44.4643900+00:00 observation=Clean
+palette-placement outcome=Pass exit=0 tests=25 pass=25 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=56396 phase=Parallel slot=0 start=2026-10-20T13:21:43.5262400+00:00 end=2026-10-20T13:22:39.9224890+00:00 observation=Clean
+run totals: files=38 pass=38 nonzeroExit=0 tests=185 testsPassed=185 fail=0 notok=0 closeFindings=1 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=0 debtFaults=1

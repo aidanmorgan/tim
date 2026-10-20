@@ -1,0 +1,145 @@
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index a015d715..4f8f43e9 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -518,7 +518,7 @@ public sealed class ActivationNetwork
+                 }
+                 continue;
+             }
+-            rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };
++            rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold - 1) };
+             if (values[slot].Phase == ActivationPhase.Latched) continue;
+             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.ContactLoad, _nodes[slot].Id, end,
+                 new(new(item.Sensor.Value), item.Frame, item.Face, end, new((Half)0)));
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (19 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | arrow-down.svg[39m[0m
+  [   5% ] [90m[1m_update_scan_actions[22m | arrow-up.svg[39m[0m
+  [  10% ] [90m[1m_update_scan_actions[22m | folder-open.svg[39m[0m
+  [  15% ] [90m[1m_update_scan_actions[22m | lightbulb.svg[39m[0m
+  [  20% ] [90m[1m_update_scan_actions[22m | link.svg[39m[0m
+  [  25% ] [90m[1m_update_scan_actions[22m | minus.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | move-vertical.svg[39m[0m
+  [  35% ] [90m[1m_update_scan_actions[22m | play.svg[39m[0m
+  [  40% ] [90m[1m_update_scan_actions[22m | plus.svg[39m[0m
+  [  45% ] [90m[1m_update_scan_actions[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1m_update_scan_actions[22m | rotate-cw.svg[39m[0m
+  [  55% ] [90m[1m_update_scan_actions[22m | save.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | sliders-horizontal.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | square.svg[39m[0m
+  [  70% ] [90m[1m_update_scan_actions[22m | trash.svg[39m[0m
+  [  75% ] [90m[1m_update_scan_actions[22m | undo-2.svg[39m[0m
+  [  80% ] [90m[1m_update_scan_actions[22m | x.svg[39m[0m
+  [  85% ] [90m[1m_update_scan_actions[22m | zoom-in.svg[39m[0m
+  [  90% ] [90m[1m_update_scan_actions[22m | zoom-out.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.00]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 11, lit: True) [FAIL]
+[xUnit.net 00:00:01.02]     CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 11, lit: True) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (True, True, True)
+Actual:   Tuple (False, False, False)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 850
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                            ↓ (pos 13)
+Expected: [···, True, True, True, False, False, ···]
+Actual:   [···, True, True, False, False, False, ···]
+                            ↑ (pos 13)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 858
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [63 ms]
+  Error Message:
+   no qualifying tick yet at 5
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 538
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.05]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [FAIL]
+[xUnit.net 00:00:02.05]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [FAIL]
+[xUnit.net 00:00:02.05]     CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   4
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 869
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   2
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 869
+   at InvokeStub_PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 13
+Actual:   12
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 896
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.07]     CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [FAIL]
+[xUnit.net 00:00:02.10]     CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [FAIL]
+[xUnit.net 00:00:02.24]     CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [2 ms]
+  Error Message:
+   held at tick 14
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 597
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [7 ms]
+  Error Message:
+   the first high tick is a qualifying tick (no dwell)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 910
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit [12 ms]
+  Error Message:
+   the ball lands on the plate
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 924
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     9, Passed:   160, Skipped:     0, Total:   169, Duration: 12 s - CuriousContraptions.tests.dll (net10.0)
+exit 1

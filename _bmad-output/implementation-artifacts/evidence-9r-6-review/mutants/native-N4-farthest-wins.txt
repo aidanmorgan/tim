@@ -1,0 +1,16 @@
+== mutant N4-farthest-wins
+diff --git a/engine/TubeMouthSnap.cs b/engine/TubeMouthSnap.cs
+index 9c123b7f..b206f27b 100644
+--- a/engine/TubeMouthSnap.cs
++++ b/engine/TubeMouthSnap.cs
+@@ -87,7 +87,7 @@ public static class TubeMouthSnap
+ 
+     /// <summary>D5: the nearest wins, then the smaller angle, then the lower part id, then start before end (target, then mover).</summary>
+     private static bool Precedes(Candidate a, Candidate b) =>
+-        a.Distance != b.Distance ? a.Distance < b.Distance
++        a.Distance != b.Distance ? a.Distance > b.Distance
+         : a.Angle != b.Angle ? a.Angle < b.Angle
+         : a.Target != b.Target ? a.Target.Value < b.Target.Value
+         : a.TargetMouth != b.TargetMouth ? a.TargetMouth < b.TargetMouth
+exit 0
+Passed!  - Failed:     0, Passed:   100, Skipped:     0, Total:   100, Duration: 807 ms - CuriousContraptions.tests.dll (net10.0)

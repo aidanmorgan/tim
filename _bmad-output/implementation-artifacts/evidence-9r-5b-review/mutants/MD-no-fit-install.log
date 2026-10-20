@@ -1,0 +1,15 @@
+diff --git a/engine/gpu/BrowserWorkshopClient.cs b/engine/gpu/BrowserWorkshopClient.cs
+index 1651415f..c07b7dd4 100644
+--- a/engine/gpu/BrowserWorkshopClient.cs
++++ b/engine/gpu/BrowserWorkshopClient.cs
+@@ -193,7 +193,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+                         installed.Read.HasSameContent(response.Read) ? null :
+                         PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
+                     _cursor.Commit(prepared);
+-                    if (history is { } ready) { FitFeedbackSlots(response.Read); _history.Commit(ready); }
++                    if (history is { } ready) { _history.Commit(ready); }
+                     if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
+                     {
+                         _construction = admitted;
+----
+Passed!  - Failed:     0, Passed:  1778, Skipped:     0, Total:  1778, Duration: 27 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,20 @@
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index aec2068d..0e66b736 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -774,7 +774,7 @@ public static class WorkshopWireFlatBuffers
+                 case IWorkshopDeclaredColliders:
+                     break;
+                 case WorkshopPressurePlate plate:
+-                    CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, plate.MinimumMass);
++                    CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, WorkshopPressurePlate.PlacedMinimumMass);
+                     break;
+                 case WorkshopCounter counter:
+                     CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, (float)counter.TargetCount);
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/engine/gpu/WorkshopWireFlatBuffers.cs(776,44): error IDE0059: Unnecessary assignment of a value to 'plate' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.csproj]
+exit 1

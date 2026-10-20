@@ -1,0 +1,360 @@
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index a015d715..283a9682 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -511,7 +511,7 @@ public sealed class ActivationNetwork
+                 throw new ArgumentException("Contact-load release hold differs from its committed level.");
+             if (item.Phase != ContactLoadPhase.Loaded)
+             {
+-                if (values[slot].Phase == ActivationPhase.Latched && boundary.Value >= rows[memory].DueTick)
++                if (values[slot].Phase == ActivationPhase.Latched && boundary.Value > rows[memory].DueTick)
+                 {
+                     values[slot] = ActivationLatch.Clear(_nodes[slot]);
+                     rows[memory] = ActivationMemory.Clear(_nodes[slot]);
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Animation/CuriousContraptions.Animation.csproj (in 124 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj (in 124 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj (in 124 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.csproj (in 124 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/CuriousContraptions.tests.csproj (in 140 ms).
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (166 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  84% ] [90m[1mupdate_scripts_classes[22m | BallMaterialResource[39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  87% ] [90m[1mupdate_scripts_classes[22m | PartDefinition[39m[0m
+  [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (19 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | arrow-down.svg[39m[0m
+  [   5% ] [90m[1m_update_scan_actions[22m | arrow-up.svg[39m[0m
+  [  10% ] [90m[1m_update_scan_actions[22m | folder-open.svg[39m[0m
+  [  15% ] [90m[1m_update_scan_actions[22m | lightbulb.svg[39m[0m
+  [  20% ] [90m[1m_update_scan_actions[22m | link.svg[39m[0m
+  [  25% ] [90m[1m_update_scan_actions[22m | minus.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | move-vertical.svg[39m[0m
+  [  35% ] [90m[1m_update_scan_actions[22m | play.svg[39m[0m
+  [  40% ] [90m[1m_update_scan_actions[22m | plus.svg[39m[0m
+  [  45% ] [90m[1m_update_scan_actions[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1m_update_scan_actions[22m | rotate-cw.svg[39m[0m
+  [  55% ] [90m[1m_update_scan_actions[22m | save.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | sliders-horizontal.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | square.svg[39m[0m
+  [  70% ] [90m[1m_update_scan_actions[22m | trash.svg[39m[0m
+  [  75% ] [90m[1m_update_scan_actions[22m | undo-2.svg[39m[0m
+  [  80% ] [90m[1m_update_scan_actions[22m | x.svg[39m[0m
+  [  85% ] [90m[1m_update_scan_actions[22m | zoom-in.svg[39m[0m
+  [  90% ] [90m[1m_update_scan_actions[22m | zoom-out.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (19 steps)[39m[0m
+  [   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [   5% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  10% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  15% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  20% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  30% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  35% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  40% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  45% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  55% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  60% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  65% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  80% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  90% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+  [   0% ] [90m[1mreimport[22m | zoom-out.svg[39m[0m
+  [   5% ] [90m[1mreimport[22m | zoom-in.svg[39m[0m
+  [  10% ] [90m[1mreimport[22m | x.svg[39m[0m
+  [  15% ] [90m[1mreimport[22m | undo-2.svg[39m[0m
+  [  20% ] [90m[1mreimport[22m | trash.svg[39m[0m
+  [  25% ] [90m[1mreimport[22m | square.svg[39m[0m
+  [  30% ] [90m[1mreimport[22m | sliders-horizontal.svg[39m[0m
+  [  35% ] [90m[1mreimport[22m | save.svg[39m[0m
+  [  40% ] [90m[1mreimport[22m | rotate-cw.svg[39m[0m
+  [  45% ] [90m[1mreimport[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1mreimport[22m | plus.svg[39m[0m
+  [  55% ] [90m[1mreimport[22m | play.svg[39m[0m
+  [  60% ] [90m[1mreimport[22m | move-vertical.svg[39m[0m
+  [  65% ] [90m[1mreimport[22m | minus.svg[39m[0m
+  [  70% ] [90m[1mreimport[22m | link.svg[39m[0m
+  [  75% ] [90m[1mreimport[22m | lightbulb.svg[39m[0m
+  [  80% ] [90m[1mreimport[22m | folder-open.svg[39m[0m
+  [  85% ] [90m[1mreimport[22m | arrow-up.svg[39m[0m
+  [  90% ] [90m[1mreimport[22m | arrow-down.svg[39m[0m
+  [  95% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+  [92m[ DONE ][39m [1mreimport[22m
+  [0m
+  [   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (19 steps)[39m[0m
+  [   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+  [92m[ DONE ][39m [1mreimport[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.20]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 13, lit: False) [FAIL]
+[xUnit.net 00:00:02.21]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 12, lit: False) [FAIL]
+[xUnit.net 00:00:02.22]     CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 13, lit: False) [55 ms]
+  Error Message:
+   System.ArgumentException : Contact-load release hold differs from its committed level.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork.CommitContactLoads(Span`1 values, Span`1 rows, ReadOnlySpan`1 contactLoads, SimulationTick boundary, ActivationTime end) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 511
+   at CuriousContraptions.Gpu.ActivationNetwork.Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers, ReadOnlySpan`1 events, SimulationTick boundary, ReadOnlySpan`1 orientations, ReadOnlySpan`1 passages, PhysicsElectricalRead electrical, Span`1 eventBuffer, PhysicsMemoryRead memory, ReadOnlySpan`1 contactLoads) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 320
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 824
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 850
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 12, lit: False) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (False, False, False)
+Actual:   Tuple (True, True, True)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 850
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [< 1 ms]
+  Error Message:
+   System.ArgumentException : Contact-load release hold differs from its committed level.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork.CommitContactLoads(Span`1 values, Span`1 rows, ReadOnlySpan`1 contactLoads, SimulationTick boundary, ActivationTime end) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 511
+   at CuriousContraptions.Gpu.ActivationNetwork.Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers, ReadOnlySpan`1 events, SimulationTick boundary, ReadOnlySpan`1 orientations, ReadOnlySpan`1 passages, PhysicsElectricalRead electrical, Span`1 eventBuffer, PhysicsMemoryRead memory, ReadOnlySpan`1 contactLoads) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 320
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 824
+   at CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 857
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.02]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [16 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 524
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.26]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [FAIL]
+[xUnit.net 00:00:03.26]     CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [< 1 ms]
+  Error Message:
+   System.ArgumentException : Contact-load release hold differs from its committed level.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork.CommitContactLoads(Span`1 values, Span`1 rows, ReadOnlySpan`1 contactLoads, SimulationTick boundary, ActivationTime end) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 511
+   at CuriousContraptions.Gpu.ActivationNetwork.Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers, ReadOnlySpan`1 events, SimulationTick boundary, ReadOnlySpan`1 orientations, ReadOnlySpan`1 passages, PhysicsElectricalRead electrical, Span`1 eventBuffer, PhysicsMemoryRead memory, ReadOnlySpan`1 contactLoads) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 320
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 824
+   at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 868
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [1 ms]
+  Error Message:
+   System.ArgumentException : Contact-load release hold differs from its committed level.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork.CommitContactLoads(Span`1 values, Span`1 rows, ReadOnlySpan`1 contactLoads, SimulationTick boundary, ActivationTime end) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 511
+   at CuriousContraptions.Gpu.ActivationNetwork.Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers, ReadOnlySpan`1 events, SimulationTick boundary, ReadOnlySpan`1 orientations, ReadOnlySpan`1 passages, PhysicsElectricalRead electrical, Span`1 eventBuffer, PhysicsMemoryRead memory, ReadOnlySpan`1 contactLoads) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/engine/gpu/ActivationNetwork.cs:line 320
+   at CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 889
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.29]     CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [2 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 601
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     7, Passed:   162, Skipped:     0, Total:   169, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)
+exit 1

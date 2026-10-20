@@ -1,0 +1,166 @@
+Mode: Full
+Tier 3 required: yes
+path	CuriousContraptions.Animation.Worker/Program.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.Animation.Worker/wwwroot/worker.js	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.Simulation/Program.Schedule.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.Simulation/Program.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.Simulation/WorkshopGpuDevice.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.Simulation/WorkshopTrace.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.Simulation/wwwroot/worker.js	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.tests/ActivationTimerTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/BallDetectorTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/BasketballResourceTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/ClockTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/CompiledMemoryLayoutTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/ContactActivationTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/CounterTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/CuriousContraptions.tests.csproj	Full(Build)	build files
+path	CuriousContraptions.tests/ElectricalSupplyTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/FunnelTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/NoFixedCapacityTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/OrientationSensorTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/PipeBend45Tests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/PipeBend90Tests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/PoweredGateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/PressurePlateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/PrismaticConstraintTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/RigidMassPropertiesTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/StateLatchTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/StraightPipeTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkbenchCapacityTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkerAbiTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopActivationAnimationTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopBowlingTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopBumperTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopDominoTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopGpuDeviceTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopPhysicsLawTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopPoseRingTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopReadTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopSpringboardTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopTraceTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopUiFailureTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopWallTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/WorkshopWireTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.web/wwwroot/workshop-client.js	Full(SharedRuntime)	workers, client, contracts and schemas
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/GoldenTraceProbe9r5b.cs.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/chrome-capacity-9r5b/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/chrome-capacity-9r5b/first-attempt-FAILED-capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/chrome-capacity-9r5b/first-attempt-FAILED-summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/chrome-capacity-9r5b/summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/full-run-1/cat-005.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/full-run-1/summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/full-run-2/summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/golden-trace-after.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/golden-trace-before.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/mutants.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/red-base-caps-refuse.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/red-r1-b1-trace-overflow.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/tier1-dotnet-test-r1.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/tier1-dotnet-test.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9r-5b/tier2-selection.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/spec-9r-5b-physics-tables-sized-at-run.md	NoBrowserImpact	_bmad-output/**
+path	engine/MachineWorld.Gpu.cs	Full(AllInteraction)	engine/** (outside engine/gpu), ui/**, scenes/** (area table): every interaction passes through it
+path	engine/gpu/ActivationMemory.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/ActivationNetwork.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/ActivationTimers.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/BrowserWorkshopClient.Activation.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/BrowserWorkshopClient.Capture.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/BrowserWorkshopClient.ContactWork.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/BrowserWorkshopClient.Electrical.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/BrowserWorkshopClient.Schedule.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/BrowserWorkshopClient.Timer.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/BrowserWorkshopClient.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/CompiledMemoryLayout.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/ContactWorkDeclaration.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/ElectricalSourceDeclaration.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/ElectricalSupply.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsBodyReadSet.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsCaptureRead.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsContactWorkRead.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsDeclarations.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsElectricalRead.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsGpuAbi.Constraints.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsGpuAbi.ContactLoad.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsGpuAbi.ContactWork.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsGpuAbi.Electrical.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsGpuAbi.Header.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsGpuAbi.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsMotionRead.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsWorldLayout.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PhysicsWorldLayout.cs.uid	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/PresentedBodySet.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkbenchCapacity.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopActivationWire.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopCommandRouter.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopConnections.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopContactWorkWire.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopEditRejectedException.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopHint.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopInstances.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopPoseHistory.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopPoseRing.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopPresentationWire.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopSaveCodec.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopSchedule.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopTimerWire.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopTraceRecord.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopWire.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopWireFlatBuffers.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/gpu/WorkshopWireGenerated.cs	Full(MaterialEngine)	engine/gpu/**
+path	engine/presentation/AnimationBatch.cs	WorkshopArea	engine/** (outside engine/gpu), ui/**, scenes/** (area table): Presentation
+path	schemas/workshop_wire.fbs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	tools/E2eRunner.Tests/SelectionTests.cs	Full(RunnerItself)	tools/E2eRunner*/**
+path	tools/E2eRunner/SuiteCatalogue.cs	Full(RunnerItself)	tools/E2eRunner*/**
+path	tools/e2e/capacity-9r5b.test.ts	Suite	tools/e2e/<suite>.test.ts: capacity-9r5b
+path	tools/e2e/cat-005.test.ts	Suite	tools/e2e/<suite>.test.ts: cat-005
+path	tools/e2e/run-reset-snapshot.ts	Full(SharedDriverInfrastructure)	tools/e2e/*.ts (shared module): imported by every suite
+path	tools/e2e/unit/run-reset-snapshot.test.ts	Full(Unknown)	unmatched path
+path	tools/e2e/workshop-wire.ts	Full(SharedDriverInfrastructure)	tools/e2e/*.ts (shared module): imported by every suite
+path	tools/workshop-animation-clock.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+path	tools/workshop-animation-output.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+path	tools/workshop-observation.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+path	tools/workshop-pose-ring.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+clock-master	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-017	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-023b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-037	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-014	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1c	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-023a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-020	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+capacity-9r	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-062	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-051-own-supply	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-052-two-plates	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-052-lamp	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+capacity-9r5b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-002	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-005	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015a-sidekick	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-030	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-048a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-048b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-049	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-050	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-051	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-052	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-062b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a1	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a2	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a3	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a4	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b1	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b2	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b3	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b4	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2c	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+palette-placement	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)

@@ -1,0 +1,26 @@
+== chrome mutant C2b-occupied-ignored
+diff --git a/engine/TubeMouthSnap.cs b/engine/TubeMouthSnap.cs
+index 9c123b7f..7ca853ec 100644
+--- a/engine/TubeMouthSnap.cs
++++ b/engine/TubeMouthSnap.cs
+@@ -55,7 +55,7 @@ public static class TubeMouthSnap
+         Candidate? best = null;
+         foreach (var (body, target) in others)
+         {
+-            if (Occupied(others, body, target)) continue;
++            if (Occupied(others, body, target) && false) continue;
+             foreach (var mouth in moverMouths)
+             {
+                 if (MathF.Abs(mouth.BoreRadius!.Value - target.Bore) > BoreTolerance) continue;
+runner exit 1
+run 20261020T181253Z-60316 verb=Run verdict=Fail
+sourceHead: c36c7e08dd82855a34b593f203ba3e9e605699b0
+tube-snapping outcome=Fail exit=1 tests=13 pass=12 fail=1 cancelled=0 skipped=0 todo=0 notok=2 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=155998 phase=SerialAlone slot=- start=2026-10-20T18:13:15.3388770+00:00 end=2026-10-20T18:15:51.3367940+00:00 observation=Contended failures=NonZeroExit,FailedTests,NotOkLine
+tube-snapping outcome=Fail exit=1 tests=13 pass=12 fail=1 cancelled=0 skipped=0 todo=0 notok=2 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=157138 phase=SerialAlone slot=- start=2026-10-20T18:17:06.7936940+00:00 end=2026-10-20T18:19:43.9314380+00:00 observation=Contended failures=NonZeroExit,FailedTests,NotOkLine
+run totals: files=4 pass=2 nonzeroExit=2 tests=32 testsPassed=30 fail=2 notok=4 closeFindings=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0
+    not ok 4 - 4. Occupied: a third pipe offered at the joined mouth keeps its grid pose
+      failureType: 'testCodeFailure'
+      error: 'a refused snap shows no gold joint ring (510 gold pixels)'
+not ok 1 - Story 9R.6: typed tube-mouth snapping
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'

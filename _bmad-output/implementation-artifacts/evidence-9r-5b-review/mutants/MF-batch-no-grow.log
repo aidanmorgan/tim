@@ -1,0 +1,15 @@
+diff --git a/engine/presentation/AnimationBatch.cs b/engine/presentation/AnimationBatch.cs
+index 0b35e9eb..9f474827 100644
+--- a/engine/presentation/AnimationBatch.cs
++++ b/engine/presentation/AnimationBatch.cs
+@@ -142,7 +142,7 @@ public sealed class AnimationBatch
+     /// its handle and its schedule. An owner whose target population is the machine's (unbounded) grows it as targets arrive.</summary>
+     public void EnsureCapacity(int capacity)
+     {
+-        if (capacity <= _slots.Length) return;
++        return;
+         var previous = _slots.Length;
+         Array.Resize(ref _slots, capacity); Array.Resize(ref _versions, capacity);
+         Array.Resize(ref _active, capacity); Array.Resize(ref _free, capacity); Array.Resize(ref _samples, capacity);
+----
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/engine/presentation/AnimationBatch.cs(146,9): error CS0162: Unreachable code detected [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/CuriousContraptions.Animation/CuriousContraptions.Animation.csproj]

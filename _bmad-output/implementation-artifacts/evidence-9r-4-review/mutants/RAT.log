@@ -1,0 +1,21 @@
+diff --git a/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs b/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+index 91ce1316..4ca6a364 100644
+--- a/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
++++ b/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+@@ -237,7 +237,7 @@ internal static class PrismaticConstraintSolver
+ 
+     /// <summary>Drives exactly the prismatics whose compiled supply route is closed this tick (SimJoint.SupplyClosed) toward their
+     /// upper limit. Only Powered Gates compile routes, so no joint is recognised by its geometry.</summary>
+-    public static void ActuatorSliderDrive(List<SimJoint> joints, float dt)
++    public static void ActuatorSliderDrive(List<SimJoint> joints, float dt, bool plateLoaded = false)
+     {
+         foreach (var joint in joints)
+         {
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs(240,82): error IDE0060: Remove unused parameter 'plateLoaded' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0060) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/CuriousContraptions.tests.csproj]
+exit 1

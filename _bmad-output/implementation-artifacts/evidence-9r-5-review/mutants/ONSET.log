@@ -1,0 +1,237 @@
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index a015d715..f38c3031 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -518,7 +518,7 @@ public sealed class ActivationNetwork
+                 }
+                 continue;
+             }
+-            rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };
++            if (values[slot].Phase != ActivationPhase.Latched) rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };
+             if (values[slot].Phase == ActivationPhase.Latched) continue;
+             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.ContactLoad, _nodes[slot].Id, end,
+                 new(new(item.Sensor.Value), item.Frame, item.Face, end, new((Half)0)));
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:12.53]     CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                            ↓ (pos 12)
+Expected: [···, True, True, True, True, False, ···]
+Actual:   [···, True, True, False, False, False, ···]
+                            ↑ (pos 12)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 858
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:12.54]     CuriousContraptions.Tests.PressurePlateTests.OneDominoIsUnderweightAndTwoDominoesSum(dominoes: 2, opens: True) [FAIL]
+[xUnit.net 00:00:12.61]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 1, balls: 1, opens: True) [FAIL]
+[xUnit.net 00:00:12.62]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [FAIL]
+[xUnit.net 00:00:12.66]     CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 0.5, balls: 1, opens: True) [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.OneDominoIsUnderweightAndTwoDominoesSum(dominoes: 2, opens: True) [7 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.OneDominoIsUnderweightAndTwoDominoesSum(Int32 dominoes, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 454
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 1, balls: 1, opens: True) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 432
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 432
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 0.5, balls: 1, opens: True) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(Single minimum, Int32 balls, Boolean opens) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 432
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.73]     CuriousContraptions.Tests.PressurePlateTests.ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit [FAIL]
+[xUnit.net 00:00:12.73]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [FAIL]
+[xUnit.net 00:00:12.74]     CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit [8 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 643
+   at CuriousContraptions.Tests.PressurePlateTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 647
+   at CuriousContraptions.Tests.PressurePlateTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 647
+   at CuriousContraptions.Tests.PressurePlateTests.ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 662
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 524
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 706
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.75]     CuriousContraptions.Tests.PressurePlateTests.ABoxBridgingTwoPlatesLoadsBoth [FAIL]
+[xUnit.net 00:00:12.75]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [FAIL]
+[xUnit.net 00:00:12.75]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABoxBridgingTwoPlatesLoadsBoth [7 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.ABoxBridgingTwoPlatesLoadsBoth() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 488
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   4
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 869
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   2
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 869
+   at InvokeStub_PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Object, Span`1)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:12.78]     CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [FAIL]
+[xUnit.net 00:00:12.79]     CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [3 ms]
+  Error Message:
+   held at tick 14
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 597
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 907
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.90]     CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel [FAIL]
+[xUnit.net 00:00:12.91]     CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit [FAIL]
+[xUnit.net 00:00:12.92]     CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.APlateWithNoGateStillCommitsItsLevel() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 715
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 922
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 567
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 572
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 390
+   at CuriousContraptions.Tests.PressurePlateTests.TwoPlatesSwitchOnlyTheirOwnGates() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch11-9r5-mut/CuriousContraptions.tests/PressurePlateTests.cs:line 475
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    16, Passed:   153, Skipped:     0, Total:   169, Duration: 12 s - CuriousContraptions.tests.dll (net10.0)
+exit 1

@@ -1,0 +1,25 @@
+== chrome mutant C4b-no-release-snap
+diff --git a/ui/WorkshopGuidance.cs b/ui/WorkshopGuidance.cs
+index 043ff187..cdf0a7cc 100644
+--- a/ui/WorkshopGuidance.cs
++++ b/ui/WorkshopGuidance.cs
+@@ -500,7 +500,7 @@ public partial class Workshop
+                     if (_preview == null)
+                     {
+                         // D4: releasing a moved tube snaps it onto a free compatible mouth; the gesture stays one Undo entry.
+-                        if (_selected is { Locked: false } moved && MoveSnap(moved) is { } snap)
++                        if (_selected is { Locked: false } moved && MoveSnap(moved) is { } snap && snap.Position.X > 1e9f)
+                         {
+                             moved.Position = snap.Position;
+                             moved.Quaternion = snap.Rotation;
+runner exit 1
+run 20261020T182452Z-86912 verb=Run verdict=Fail
+sourceHead: c36c7e08dd82855a34b593f203ba3e9e605699b0
+tube-snapping outcome=Fail exit=1 tests=13 pass=12 fail=1 cancelled=0 skipped=0 todo=0 notok=2 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=155342 phase=SerialAlone slot=- start=2026-10-20T18:24:53.8163590+00:00 end=2026-10-20T18:27:29.1585600+00:00 observation=Clean failures=NonZeroExit,FailedTests,NotOkLine
+run totals: files=3 pass=2 nonzeroExit=1 tests=19 testsPassed=18 fail=1 notok=2 closeFindings=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0
+    not ok 8 - 8. Moved tube (D4): releasing a dragged pipe near a free mouth snaps it; one Undo returns it
+      failureType: 'testCodeFailure'
+      error: 'moved pipe: mouths 2.end and 3.start are 0.12000009536743206 m apart'
+not ok 1 - Story 9R.6: typed tube-mouth snapping
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'

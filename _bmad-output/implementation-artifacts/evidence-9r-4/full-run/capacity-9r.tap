@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: Story 9R.2: a full bench of bends compiles and runs
+    # Subtest: 1. Thirty-two pipe_bend_90 (2,305 colliders) run, reset exactly and save/load with no worker fault
+    ok 1 - 1. Thirty-two pipe_bend_90 (2,305 colliders) run, reset exactly and save/load with no worker fault
+      ---
+      duration_ms: 37615.596
+      type: 'test'
+      ...
+    # Subtest: 2. Thirty bends, a cradle bend and a Basketball (2,234 colliders): the ball rests in the cradle; Run/Reset and Save/Load are exact
+    ok 2 - 2. Thirty bends, a cradle bend and a Basketball (2,234 colliders): the ball rests in the cradle; Run/Reset and Save/Load are exact
+      ---
+      duration_ms: 43849.851291
+      type: 'test'
+      ...
+    # Subtest: 3. Control: without the cradle bend the ball falls to the bench
+    ok 3 - 3. Control: without the cradle bend the ball falls to the bench
+      ---
+      duration_ms: 27981.763084
+      type: 'test'
+      ...
+    1..3
+ok 1 - Story 9R.2: a full bench of bends compiles and runs
+  ---
+  duration_ms: 113629.781291
+  type: 'suite'
+  ...
+1..1
+# tests 3
+# suites 1
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 113876.857458

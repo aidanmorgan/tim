@@ -1,0 +1,35 @@
+run 20261020T163720Z-69855 verb=Run verdict=Pass
+started=2026-10-20T16:37:20.9853050+00:00 finished=2026-10-20T16:42:34.1140900+00:00 wallSeconds=313.1
+runnerSourceDigest: 3323b6a13de2ccf5857467e94a5ae7c41b8fe0660a532a12aab9b6c7bb04a430
+sourceHead: e4afb855a39694ae3dfe909e75a8e8dca1478109
+sourceStatusDigest: 5c667ceb3616f2220f79e39f69540eaa8e0fd6e5921214e54a4d0d4d55cf8751
+publish: dotnet publish CuriousContraptions.web: exit 0 in 28.7 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.85
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 1
+runId: 20261020T163720Z-69855
+workers: 1
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/.anvil/e2e-runs/20261020T163720Z-69855
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: cc2ad18c64f4a79290d252615aaa551cb2cf97737d3565dca05233f9a3e61b6a
+bundleIdentity.start: 1dcce8bdc30085e41f1045ece8b0120855d62d28f6099c439ffca7347e20997b
+bundleFiles: 288 (3 NotServed dot-files)
+preview: http://127.0.0.1:61148/
+servedCheck.start: pass (285 files)
+bundleIdentity.end: 1dcce8bdc30085e41f1045ece8b0120855d62d28f6099c439ffca7347e20997b
+servedCheck.end: pass
+suiteSourceDigest.end: cc2ad18c64f4a79290d252615aaa551cb2cf97737d3565dca05233f9a3e61b6a
+peakRssBytes: 3350118400
+selection: Mode: Selected
+selection: Tier 3 required: no
+selection: path	tools/e2e/capacity-9r5b.test.ts	Suite	tools/e2e/<suite>.test.ts: capacity-9r5b
+selection: capacity-9r5b	suite: tools/e2e/capacity-9r5b.test.ts changed
+selection: engine-core-2a1	smoke pair
+selection: engine-core-2b1	smoke pair
+capacity-9r5b outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=29257 phase=SerialAlone slot=- start=2026-10-20T16:38:02.5308370+00:00 end=2026-10-20T16:38:31.7877670+00:00 observation=Contended
+capacity-9r5b outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=29552 phase=SerialAlone slot=- start=2026-10-20T16:41:37.4094030+00:00 end=2026-10-20T16:42:06.9618350+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18172 phase=Parallel slot=0 start=2026-10-20T16:42:07.0440660+00:00 end=2026-10-20T16:42:25.2160130+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8598 phase=Parallel slot=0 start=2026-10-20T16:42:25.2901780+00:00 end=2026-10-20T16:42:33.8880910+00:00 observation=Clean
+run totals: files=4 pass=4 nonzeroExit=0 tests=8 testsPassed=8 fail=0 notok=0 closeFindings=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0

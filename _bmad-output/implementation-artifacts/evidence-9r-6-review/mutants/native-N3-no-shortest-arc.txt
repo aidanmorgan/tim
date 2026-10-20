@@ -1,0 +1,28 @@
+== mutant N3-no-shortest-arc
+diff --git a/engine/TubeMouthSnap.cs b/engine/TubeMouthSnap.cs
+index 9c123b7f..e802f728 100644
+--- a/engine/TubeMouthSnap.cs
++++ b/engine/TubeMouthSnap.cs
+@@ -72,7 +72,7 @@ public static class TubeMouthSnap
+         if (best is not { } chosen) return null;
+ 
+         // The shortest arc turns the mover's mouth to face the target's: it removes only the misalignment and keeps the roll.
+-        var aligned = (new Quaternion(chosen.MoverOutward, -chosen.TargetOutward) * rotation).Normalized();
++        var aligned = rotation;
+         return new(chosen.Target, chosen.TargetMouth, chosen.MoverMouth, chosen.TargetPosition - aligned * chosen.MoverLocal, aligned,
+             chosen.TargetPosition, chosen.TargetOutward);
+     }
+exit 1
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: Bend45ToBend45) [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: FunnelOutletToPipe) [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend45) [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend90) [6 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll [2 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "ball_detector") [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "funnel") [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_45") [3 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_90") [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe") [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "powered_gate") [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 19, snaps: True) [1 ms]
+Failed!  - Failed:    12, Passed:    88, Skipped:     0, Total:   100, Duration: 701 ms - CuriousContraptions.tests.dll (net10.0)

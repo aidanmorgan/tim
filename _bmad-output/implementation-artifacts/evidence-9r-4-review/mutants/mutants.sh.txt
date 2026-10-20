@@ -1,0 +1,44 @@
+#!/bin/zsh
+# Murdoch-10 Story 9R.4 mutants. Each is applied alone to the scratch worktree murdoch10-9r4-mut (d7ab0e3e), the filtered
+# native suites run, and the tree is restored with `git checkout -- .`. Usage: zsh mutants.sh.txt <mutant-id>...
+set -u
+M=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut
+OUT=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants
+FILTER='FullyQualifiedName~PressurePlateTests|FullyQualifiedName~PoweredGateTests|FullyQualifiedName~WorkshopPhysicsLawTests|FullyQualifiedName~WorkbenchCapacityTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~CounterTests|FullyQualifiedName~ClockTests'
+cd $M || exit 1
+apply() {
+  case $1 in
+    P1a) # static body on side A: use the B→A normal as if it pointed toward the dynamic body
+      sed -i '' 's/c\.B\.Mass, c\.Point, -c\.Normal, c\.Gap/c.B.Mass, c.Point, c.Normal, c.Gap/' CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs ;;
+    P1b) # static body on side B: negate the normal
+      sed -i '' 's/c\.A\.Mass, c\.Point, c\.Normal, c\.Gap/c.A.Mass, c.Point, -c.Normal, c.Gap/' CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs ;;
+    F2) # drop the "every row must be read" check
+      sed -i '' 's/if (!found) throw new ArgumentException("Contact-load read is missing.");/_ = found;/' engine/gpu/ActivationNetwork.cs ;;
+    S1) # the save codec drops the instance minimum_mass (writes the placement default). First attempt (S1.log) replaced the
+        # value outright and failed to compile on IDE0059 (unused `plate`); S1b keeps `plate` and clamps to the default instead.
+      sed -i '' 's/InstanceRecord.AddThreshold(builder, plate.MinimumMass)/InstanceRecord.AddThreshold(builder, WorkshopPressurePlate.PlacedMinimumMass)/' engine/gpu/WorkshopWireFlatBuffers.cs ;;
+    S1b)
+      sed -i '' 's/InstanceRecord.AddThreshold(builder, plate.MinimumMass)/InstanceRecord.AddThreshold(builder, MathF.Min(plate.MinimumMass, WorkshopPressurePlate.PlacedMinimumMass))/' engine/gpu/WorkshopWireFlatBuffers.cs ;;
+    C8) # restore an 8-node activation cap in the network
+      sed -i '' 's/if (nodes.Length > WorkshopInstances.Capacity || edges.Length > WorkshopConnections.Capacity)/if (nodes.Length > 8 || edges.Length > WorkshopConnections.Capacity)/' engine/gpu/ActivationNetwork.cs ;;
+    FACE) # count any collider of the frame (the base too), not only the sensing face
+      sed -i '' 's/contact.Frame != sensor.Frame || contact.Collider != sensor.Face ||/contact.Frame != sensor.Frame ||/' engine/gpu/ContactLoadSensorDeclaration.cs ;;
+    ALIGN) # loosen the alignment to the deleted detector's 0.7
+      sed -i '' 's/sensor.LocalNormal) < sensor.MinimumAlignment)/sensor.LocalNormal) < 0.7f)/' engine/gpu/ContactLoadSensorDeclaration.cs ;;
+    RAT) # re-add an element-named drive parameter to the solver
+      sed -i '' 's/public static void ActuatorSliderDrive(List<SimJoint> joints, float dt)/public static void ActuatorSliderDrive(List<SimJoint> joints, float dt, bool plateLoaded = false)/' CuriousContraptions.Simulation/PrismaticConstraintSolver.cs ;;
+    RAT2) # RAT failed to compile (IDE0060, unused parameter); RAT2 names a used local for the element instead
+      sed -i '' 's/if (!joint.SupplyClosed) continue;/var plateLoaded = joint.SupplyClosed; if (!plateLoaded) continue;/' CuriousContraptions.Simulation/PrismaticConstraintSolver.cs ;;
+    *) echo "unknown mutant $1"; return 1 ;;
+  esac
+}
+for id in "$@"; do
+  git checkout -- . && apply $id || continue
+  log=$OUT/$id.log
+  git diff > $log
+  if [ ! -s $log ]; then echo "$id: sed did not apply" | tee -a $log; continue; fi
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --filter "$FILTER" >> $log 2>&1
+  echo "exit $?" >> $log
+  echo "== $id"; grep -E "^\s+Failed |Failed!|Passed!" $log | head -20
+done
+git checkout -- .

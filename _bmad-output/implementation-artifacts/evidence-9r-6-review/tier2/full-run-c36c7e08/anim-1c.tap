@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: ANIM-1c: Legacy presentation code retirement
+    # Subtest: 1. Capture halo and goal label animate through declared bindings; Reset retires them and Save/Load re-animates
+    ok 1 - 1. Capture halo and goal label animate through declared bindings; Reset retires them and Save/Load re-animates
+      ---
+      duration_ms: 14802.704041
+      type: 'test'
+      ...
+    # Subtest: 2. Show hint while a wired Delay counts reveals on the shared lease without exception, the fill continues, and the next press hides
+    ok 2 - 2. Show hint while a wired Delay counts reveals on the shared lease without exception, the fill continues, and the next press hides
+      ---
+      duration_ms: 5615.655208
+      type: 'test'
+      ...
+    # Subtest: 3. Hint reveal and hide in Build mode leave every world-bound target silent
+    ok 3 - 3. Hint reveal and hide in Build mode leave every world-bound target silent
+      ---
+      duration_ms: 2583.300709
+      type: 'test'
+      ...
+    # Subtest: 4. Free workshop: a dropped ball captured by a placed Receiver animates the same declared capture target with no goal
+    ok 4 - 4. Free workshop: a dropped ball captured by a placed Receiver animates the same declared capture target with no goal
+      ---
+      duration_ms: 5396.272375
+      type: 'test'
+      ...
+    1..4
+ok 1 - ANIM-1c: Legacy presentation code retirement
+  ---
+  duration_ms: 32380.027708
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 32640.278791

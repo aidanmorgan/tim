@@ -66,6 +66,181 @@ Every single story across all epics must formally satisfy the following mandator
 
 ---
 
+## Delivery order (coordinator, 21 Oct 2026, owner-authorised re-examination)
+
+**Authority.**
+- The owner, 21 Oct 2026: "you can re-examine the order of the stories determine the value of the sequence and look at how we can get to adding more puzzle elements faster".
+- The owner's amendment the same day: "the stories need to include the cleanup of old code, its critical we retire old code and delete it as soon as possible after".
+
+The coordinator adopted the re-examination and decided the items below. This order supersedes the following, which stay as history:
+- Open scheduling item (g) point 3;
+- the item (i) "Delivery order" line;
+- the delivery-order paragraphs of Epic 9R, the visual repair stories and Epic 9A;
+- every "Depends on" line that only recorded number order.
+
+`sprint-status.yaml` lists its keys in this order.
+
+**Result: 18 stories before Story 9.5, down from 64.** The 64 were 9R.6–9R.22, 9.4c and 9A.0–9A.45. Rationale:
+- Only the critical path a new element needs comes before 9.5. That path is: one declaration source, bundle ids in saves, declared ports, colliders and bindings, the generic editor, a declared timer and switched contact, and the isolation ratchet.
+- Each deletion lands in the story that introduces its replacement.
+- Every remaining conversion alternates one for one with a new element.
+
+**Decisions.**
+- **Scheduling item (g) is overridden.** Only the critical path precedes Story 9.5, and the rest is interleaved with new elements.
+- **Old code is deleted in the story that supersedes it (owner amendment).** No mixed old and new path survives the story that introduces the new one. Each critical-path and merged story has an explicit "Deletes:" list, and an AC that every deleted symbol returns 0 production hits, checked by `rg` or by the Story 9A.45a ratchet.
+- **Conversions are batched by family.** Each family's existing suite story (9R.8–9R.17) merges in as a "suite first" guard: the suite lands green on the old record path in the family's first commit, and it stays green after the conversion.
+- **One new element per story.** Stories 9.7 and 9.8 are split one story per element (AGENTS.md): 9.7a NAND, 9.7b NOR, 9.8a OR and 9.8b XOR.
+- **Story 9.5a moves the timer lane to f32** ahead of Story 9A.44.
+- **Story 9A.45 splits in two.** 9A.45a is an early ratchet: no new bundle id, and no `is` or `PartId` arm, outside `elements/`. Its known-violations list may only shrink, and it fails when an entry outlives the conversion that owns it. The final 9A.45 is the empty-list gate.
+- **Story 9R.18 is dropped as a separate story.** Each closing story appends the dated addenda to the records it closes (table below).
+- **Story 9R.20 merges into 9A.25a**, the committed-state bindings. The one-shot bindings stay as 9A.25b and are delivered with Story 9A.23.
+- **Story 9A.18 merges into 9A.14.**
+- **Story 9R.15's threshold editor** is built with the generic editor, inside C-Switch.
+- **Story 9A.1, Dead Legacy Purge, runs right after 9A.0 (owner amendment).** Stories 9A.3 (typed transport commands) and 9A.16 (bundle-only colliders) run right after 9A.17.
+- **Every family conversion runs right after 9.5, ahead of every polish or art story,** and alternates one for one with an element story.
+  - Conversions are ordered by how much old code they delete. The measure is the production lines that name the retired symbols, from `rg` over `engine`, `ui` and the `CuriousContraptions.*` production projects at `e25082c8`:
+
+    | Family | Lines |
+    |---|---|
+    | C-Ramp+Receiver | 80 |
+    | C-Bumper+Spring | 56 |
+    | C-Balls | 43 |
+    | C-Lamp+Detector | 22 |
+    | C-Memory | 21 |
+    | C-Switch | 20 |
+    | Domino | 20 |
+    | Battery | 19, plus the 156-line `ui/WorkshopBattery.cs` |
+    | C-Plate | 17 |
+    | C-Clock | 16 |
+    | C-Gate | 10 |
+
+  - Hard dependencies override size:
+    - C-Switch comes first, because Story 9.5b needs it.
+    - C-Balls precedes Domino and C-Bumper+Spring, because 9A.30 adds the dynamic-body compile.
+    - C-Gate precedes Battery and C-Plate.
+    - 9A.22 precedes C-Memory.
+    - C-Memory is the last conversion, because 9A.43 removes the whole whitelist.
+  - The conversions are followed by 9A.22, then 9A.23 with 9A.25b, then 9A.44, then 9A.24. The final 9A.45 gate closes them.
+- **Polish and art come after all deletion work:** 9R.19, 9R.21 and 9R.22.
+
+**Reconciliations found while applying the order (architect, 21 Oct 2026). Item 4 is open for the coordinator's decision.**
+1. **9A.22 comes immediately before C-Memory, not after it.** Story 9A.41's AC needs a `ThresholdReached` ring record, and Story 9A.22 creates that kind.
+2. **Story 9.4c comes immediately before C-Gate, not with polish.** The ACs of 9A.19, 9A.39 and 9A.43 require its suites, `cat-005-n19` and `cat-051-interrupt`.
+3. **9A.26 is the first deletion slot after C-Switch.**
+   - It is pure deletion: eight lesson files and the closed `WorkshopPuzzleId` enum.
+   - The lesson files build records of most families: `WorkshopBall`, `WorkshopReceiver`, `WorkshopWall`, `WorkshopBumper`, `WorkshopSpringboard`, `WorkshopDomino`, `WorkshopLamp`, `WorkshopSwitch` and `WorkshopDelay`.
+   - Until it lands, Stories 9A.27, 9.5a and C-Switch each edit the lesson callers they break, following the one-line `BumperAdvanced` precedent.
+   - Moving 9A.26 onto the critical path after 9A.16 would remove those three edits.
+4. **Story 9A.27 and the `CaptureInstance` id list.** The coordinator asked that 9A.27 delete the `CaptureInstance` id list and the per-element configuration panels.
+   - Every remaining arm and panel builds or edits a record type that lives until its own conversion. Deleting them in 9A.27 would need either a generic-to-record bridge, which AGENTS.md forbids, or every conversion folded into 9A.27.
+   - So 9A.27 deletes the Wall arm and the `wallDimensions` parameter.
+   - Each other arm (`"ball" or "bowling"`, `"basket"`, `"ramp"`, `"switch"`, `"delay"`, `"spring"`, `"battery"`, `"bumper"`, `"lamp"`, `"domino"`, `"ball_detector"`, `"pressure_plate"`, `"counter"`, `"clock"`, `"latch"`) and each panel (Springboard, Battery, Bumper, Clock, Delay) becomes a Story 9A.45a known-violations entry, tagged with its owning conversion. The ratchet then forces it out on time.
+   - **Coordinator decision needed:** accept this, or fold the conversions into 9A.27.
+5. **Story 9A.44 runs as soon as its preconditions allow:** right after C-Memory (the last record conversion), 9A.25b and 9A.26. This follows its own rule that no lane is migrated and then deleted. Story 9.5a has already moved the timer lane.
+
+**Full order.** Positions are counted from 1.
+
+*Critical path, before Story 9.5:*
+
+| # | Story | Merges or notes |
+|---|---|---|
+| 1 | 9R.6 Typed mouth snapping | in flight |
+| 2 | 9R.7 `joined_pipe` playable | in flight |
+| 3 | 9A.0 Architecture authority | |
+| 4 | 9A.1 Dead legacy purge | owner amendment |
+| 5 | 9A.4 Lossless bundle build gate | |
+| 6 | PKG-1 | 9A.5 + 9A.6 + 9A.12 |
+| 7 | PKG-2 | 9A.8 + 9A.9 + 9A.10 + 9A.11 |
+| 8 | PKG-3 | 9A.7 + 9A.13 |
+| 9 | 9A.14 Bundle is the sole catalogue source | + 9A.18 |
+| 10 | 9A.2 Single FlatBuffers codec | |
+| 11 | 9A.15 Bundle element id in saves and messages | |
+| 12 | 9A.17 Bundle ports and footprints | |
+| 13 | 9A.3 Typed transport commands | owner amendment |
+| 14 | 9A.16 Bundle-only colliders | owner amendment |
+| 15 | 9A.25a Committed-state bindings | 9A.25 committed-state part + 9R.20 |
+| 16 | 9A.27 Generic instance and editor (Wall) | + 9R.14, one-line `BumperAdvanced` edit |
+| 17 | 9A.45a Early isolation ratchet | |
+| 18 | 9.5a Declared timer and switched contact | 9A.38 + 9R.17; timer lane f32 |
+| 19 | **9.5 Hold Timer** | first new element |
+
+*After Story 9.5, one deletion-lane story alternates with one element-lane story:*
+
+| # | Deletion lane | # | Element lane |
+|---|---|---|---|
+| 20 | C-Switch (9A.35 + 9R.15) | 21 | 9.5b Switch electrical mode |
+| 22 | 9A.26 Lessons as content data | 23 | 9.6 Both Gate |
+| 24 | C-Ramp+Receiver (9A.28 + 9A.29 + 9R.12 + 9R.13) | 25 | 9.7a NAND |
+| 26 | C-Balls (9A.30 + 9A.31 + 9R.11) | 27 | 9.7b NOR |
+| 28 | C-Bumper+Spring (9A.33 + 9A.34 + 9R.8) | 29 | 9.8a OR |
+| 30 | 9.4c Latch-fixture integrations (guards C-Gate) | 31 | 9.8b XOR |
+| 32 | C-Gate (9A.19 + 9A.21) | 33 | 10.1 Cylinder |
+| 34 | 9A.39 Battery | 35 | 10.2 Pulley |
+| 36 | C-Lamp+Detector (9A.36 + 9A.37 + 9R.9 + 9R.16) | 37 | 10.3 Lever |
+| 38 | 9A.32 Domino | 39 | 10.4 Counterweight |
+| 40 | C-Plate (9A.20 + 9A.40 + F.6 item F-1) | 41 | 10.5 Trampoline |
+| 42 | C-Clock (9A.42 + 9R.10) | 43 | 11.1 Motor and Conveyor |
+| 44 | 9A.22 Event ring producer | 45 | 11.2 Clutch |
+| 46 | C-Memory (9A.41 + 9A.43) | 47 | 11.3 Linear Pusher |
+| 48 | 9A.23 + 9A.25b Ring consumers and one-shot bindings | 49 | 11.4 Wound Spring and Cannon |
+| 50 | 9A.44 f32 lane completion | 51 | 12.1 Tennis Ball and Balloon |
+| 52 | 9A.24 Typed observation port | 53 | 12.2 Fan |
+| 54 | **9A.45 Final isolation gate (last deletion story)** | 55 | 12.3 Windmill |
+| 56 | 9R.19 Tube glass art | 57 | 12.4 Bellows |
+| 58 | 9R.21 Lit palette fidelity | 59 | 13.1 Torch and Laser |
+| 60 | 9R.22 Element art polish | 61 | 13.1b Red Laser |
+
+From position 62, only the element lane remains, in its existing order:
+- 13.1c, 13.1d, then 13.2–13.8;
+- 14.0, 14.2, 14.1, 14.3, 14.4;
+- 15.0–15.15;
+- 16.1–16.4.
+
+The filed follow-ups F.1–F.10 stay last.
+
+**The last deletion story is 9A.45, at position 54 overall: the 35th story after 9.5.**
+
+*Constraints this order satisfies:*
+- C-Gate (32) precedes Story 11.3 (47).
+- 9A.23 + 9A.25b (48) precede Epic 14. If an element story before position 48 needs a new one-shot cue, 9A.22 and 9A.23 + 9A.25b move ahead of it.
+- 9A.26 (22) precedes Epic 15.
+- From position 17 on, the 9A.45a ratchet makes every new element declaration-only.
+
+**Reopened-record closure (replaces Story 9R.18).** Each closing story's terminal review appends a dated addendum ("Addendum 21 Oct 2026+, retro-verification") to the original story's review record. Each addendum meets Story 9R.18's evidence ACs for that record:
+- the reviewer is neither the implementer nor the original reviewer;
+- raw logs are saved and referenced by path, and carry the commit, the bundle identity and the run's own timestamps;
+- every quote matches its file, and every cited file exists;
+- the original text is unchanged (additions only).
+
+`sprint-status.yaml` marks the original `done` only when its last closing addendum records a fresh terminal Pass.
+
+| Original | Closing stories |
+|---|---|
+| 6.5b | 9A.14, 9A.15 |
+| 6.5c | 9A.16, 9A.17 |
+| 6.5d | C-Ramp+Receiver (9R.12, 9R.13), C-Balls (9R.11), 9A.27 (9R.14), 9A.16 |
+| 6.5e | C-Bumper+Spring (9R.8), C-Switch (9R.15), C-Lamp+Detector (9R.16), 9.5a (9R.17), 9A.16, 9A.17 |
+| 6.5f | 9A.16, 9A.17, 9A.25a, 9A.27 and every conversion; closes with C-Memory |
+| 6.6, 6.7 (weak) | PKG-2 |
+| 6.8 (weak) | C-Lamp+Detector (9R.9) |
+| 6.9 | 9R.6, PKG-2 |
+| 6.9b | 9A.1 (`AbiOffsets`) |
+| 6.10 | 9R.6, 9R.7, PKG-2 |
+| 6.11 (weak) | 9R.6, PKG-2 |
+| 8.1 | 9A.39, against its amended acceptance (the Motor clause moved to Story 11.1) |
+| 8.2 (weak) | C-Gate |
+| 9.1 | C-Plate |
+| 9.2 | 9A.2, C-Memory |
+| 9.2b | 9A.0; closes with the final 9A.45 |
+| 9.3 | C-Clock (9R.10) |
+
+These done stories still have open clauses, each recorded with its owner:
+- the 6.9 and 6.10 nudging clauses → Story 15.0;
+- the 6.11 integrations → PKG-2;
+- the 8.2 CAT-051 Q6 clause → Story 9.4c.
+
+---
+
 ## Epic List
 
 1. **Epic 1: Engine Core Foundation** (ENGINE-CORE-1, 2a1, 2a2, 2a3, 2a4) — *[Done]*
@@ -89,6 +264,8 @@ Every single story across all epics must formally satisfy the following mandator
 
 Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each story comes after what it needs, except the open scheduling items listed in epics.md (below). Every moved story carries a "Depends on" line naming its former number. The old-to-new mapping is in [vertical-delivery.md](../../docs/planning/invest/vertical-delivery.md#owner-reordering-dependencies).
 
+*Superseded for Epics 9R and 9A and Stories 9.4c–9.8 by the [Delivery order of 21 Oct 2026](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination). The placement wording in the Epic 9R and 9A entries above is history.*
+
 ### End-to-end scope rule (owner decision, 19 Oct 2026)
 
 This rule governs every acceptance criterion below that reads "every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview", and every spec that asks for cumulative runs:
@@ -111,7 +288,7 @@ All items are decided and applied below. The owner decided items (b), (c), (e), 
 - **(g) Sole architecture conformance — owner decisions, 18 Oct 2026.** Evidence: the [architecture conformance audit](architecture-conformance-audit-2026-10-18.md).
   1. Retire the old code. What remains must be the only avenue available: **project per puzzle element**, **command/query** and the **event disruptor** pattern are the only allowable design.
   2. There is one source of element declarations: **the element packages plus the bundle**. Each `elements/<Name>` package is the only declaration of its element. The build produces one complete bundle and the runtime loads only that. The `.tres` catalogue files and the C# `PartId` tables are deleted.
-  3. Timing: Epic 9A runs right after Stories 9.4 and 9.4b, before any new element (Story 9.5 and later). The coordinator placed the latch-dependent Story 9.4c (which adds no new element) between 9.4b and 9A, so that its two suites guard Epic 9A's supply and drive refactors.
+  3. Timing: Epic 9A runs right after Stories 9.4 and 9.4b, before any new element (Story 9.5 and later). The coordinator placed the latch-dependent Story 9.4c (which adds no new element) between 9.4b and 9A, so that its two suites guard Epic 9A's supply and drive refactors. *Superseded on 21 Oct 2026 by the [Delivery order](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination): only the critical path precedes Story 9.5, and Story 9.4c now runs immediately before C-Gate.*
   
   Follow-on owner decisions the same day:
   - Review-9-4 F6 (the compiled switched-supply route, which replaces the per-tick `Program.SwitchedSupplies`/`ElectricalState` walk of the authoring graph) is fixed inside Story 9.4, not in Epic 9A.
@@ -135,7 +312,7 @@ All items are decided and applied below. The owner decided items (b), (c), (e), 
     - **CAT-052 Q3.** Superseded by the coordinator override below: activation is immediate and release is held for 0.1 s (Story 9R.5).
     - **CAT-048 wrong-bore control.** The Funnel's wide inlet (Story 9R.6). Rationale: a real, visible part.
     - **Player-visible bugs are fixed before Epic 9A** in Epic 9R, using compiled Run-time tables and no new heuristics (report #1, #2, #3, #4, #6, #8, #10, #14, #15). Stories 9A.19 and 9A.20 only convert those tables to declarations.
-    - **Review evidence (report #7)** is re-verified independently, with dated addenda, in Story 9R.18; history is never rewritten.
+    - **Review evidence (report #7)** is re-verified independently, with dated addenda, in Story 9R.18; history is never rewritten. *On 21 Oct 2026 Story 9R.18 was dropped: each closing story appends the addenda ([Delivery order](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination), reopened-record closure).*
     - **A real C# static gate (report #18)** is Story 9R.0, first in Epic 9R.
     - **Story 9.4b startup clock, 19 Oct 2026** (Murdoch-2 round 2):
       - D14 is amended. A derived startup offset above 0.1 ms no longer refuses the session. It becomes a typed, counted `CCGPU_CLOCK_OFFSET_WIDE` record, and the mapping applies the offset. Only a derivation with no admissible exchange is refused. Rationale: each worker's time origin has its own host-clock reference, so a host clock step could lock a player out of a valid session, and the measured offset is corrected anyway.
@@ -156,7 +333,7 @@ All items are decided and applied below. The owner decided items (b), (c), (e), 
       - #13 → 9A.2, 9A.40 and 9A.41;
       - #17 → 9A.44;
       - #19 (9.2b MNA) → 9A.0.
-    - **Delivery order:** 9.4b → Epic 9R → 9.4c → Epic 9A → 9.5.
+    - **Delivery order:** 9.4b → Epic 9R → 9.4c → Epic 9A → 9.5. *Superseded on 21 Oct 2026 by the [Delivery order](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).*
   - **Story 8.1's Motor clause, decided by the owner on 18 Oct 2026:** the clause moved to Story 11.1 as an integration check. Story 8.1 is proven with the Powered Gate and the Bumper store.
   - **9R spec readings, coordinator, 18 Oct 2026:**
     - 9R.2 tests the largest instance count Build admits for each element, excluding Tennis and Balloon (they can't be placed until Story 12.1).
@@ -166,7 +343,7 @@ All items are decided and applied below. The owner decided items (b), (c), (e), 
     - **Resize at a limit clamps, for every resizable part.** A drag past a declared minimum or maximum stops at the limit and keeps the gesture alive. No out-of-range value is ever saved. 9R.13 changes the Ramp from cancel-the-gesture to clamp, and 9R.14 proves the Wall clamp. Rationale: a handle that stops at its limit is legible; a gesture that silently cancels feels broken.
     - **9R.10 owns the Clock's pendulum swing and per-pulse flash presentation,** driven from the committed clock phase and pulse occurrences through the declared cosmetic bindings. Rationale: visible pulses are how players read a clock.
     - **9R.15 adds a player-facing trigger-threshold editor for the Impact Switch,** with typed range 0–64 m/s and default 0.8, Run/Reset and Save/Load. Rationale: a declared parameter with no editor cannot be taught.
-    - **9R.7:** the pipe gains a typed `length` (1–8 m) with a resize handle that clamps per the rule above. The save-format version bump rejects old saves with a visible message and no migration (AGENTS.md).
+    - **9R.7:** the pipe gains a typed `length` (1–8 m) with a resize handle that clamps per the rule above. There are no format versions (owner, 21 Oct 2026). A save that fails structural validation is rejected with a visible message, and there's no migration (AGENTS.md).
     - **9R.9:** "one more" means the detector's committed passage count goes from 1 to 2 while a first-input lamp stays at 1. The indicator re-pulse belongs to 9A.23.
   - **CAT-052 Q3, coordinator override on 18 Oct 2026:** activation is immediate on the first qualifying contact tick, and release is held for 0.1 s (12 ticks at 120 Hz) after the last qualifying contact. Rationale: a ball bouncing on the plate would otherwise flicker the lamp and chatter downstream logic; a short release hold keeps the signal legible without adding lag at activation. This replaces the "no dwell" choice above.
 
@@ -483,7 +660,7 @@ So that spring dynamics follow real physical spring-damper laws.
 - **When** impact occurs,
 - **Then** the 1D prismatic slider compresses within limits ($-0.25\text{ m}$ to $0\text{ m}$) and rebounds elastically.
 - **And** hardcoded spring launch shims are deleted in favor of unified compliant soft constraints.
-- **And** `tools/e2e/cat-062a.test.ts` passes 100% in Chrome serially.
+- **And** `tools/e2e/cat-062.test.ts` passes 100% in Chrome serially. *(Suite name corrected from `cat-062a` by Story 9A.0, 21 Oct 2026.)*
 
 ### Story 6.5: Preload Energy Store & Springboard Launch (CAT-062b)
 *Status: Done — published commit 9107148; independent terminal scoped Pass*
@@ -937,7 +1114,11 @@ So that the catalogue I build with stays trustworthy.
 ### Story 9.4c: Latch-Fixture Deferred Integrations (CAT-005 N19, CAT-051 Supply Interruption Mid-Stroke)
 *Status: Backlog*
 
-*Depends on: Story 9.4 (the State Latch and its switched supply contact), Story 9.4b (the cumulative baseline), Epic 9R (retro-verification repair, delivered between 9.4b and 9.4c; Open scheduling item i), and Stories 8.1 and 8.2. New story (coordinator, 18 Oct 2026): review-9-4 D1 found both latch-dependent integrations due but unscheduled. Sources: [CAT-005](../../docs/planning/elements/CAT-005-battery.md) §4 N17 and N19 and §5 "Integrations"; [CAT-051](../../docs/planning/elements/CAT-051-powered_gate.md) §2 (return spring and drive law), §5 "Boundaries" (supply interruption mid-stroke; fact 14, closing stops at a ball without crushing it); [CAT-037](../../docs/planning/elements/CAT-037-latch.md) T21 (the supply-switching fixture recipe). The coordinator placed it before Epic 9A (18 Oct 2026). The owner's timing decision names Stories 9.4 and 9.4b; this story adds no new element, and its two suites guard Epic 9A's drive and supply refactors.*
+*Depends on: Story 9.4 (the State Latch and its switched supply contact), Story 9.4b (the cumulative baseline), and Stories 8.1 and 8.2. The former dependency on Epic 9R recorded delivery order only (corrected 21 Oct 2026).*
+
+*Placement (Delivery order, 21 Oct 2026): position 30, immediately before C-Gate, because the ACs of Stories 9A.19, 9A.39 and 9A.43 require its two suites.*
+
+*New story (coordinator, 18 Oct 2026): review-9-4 D1 found both latch-dependent integrations due but unscheduled. Sources: [CAT-005](../../docs/planning/elements/CAT-005-battery.md) §4 N17 and N19 and §5 "Integrations"; [CAT-051](../../docs/planning/elements/CAT-051-powered_gate.md) §2 (return spring and drive law), §5 "Boundaries" (supply interruption mid-stroke; fact 14, closing stops at a ball without crushing it); [CAT-037](../../docs/planning/elements/CAT-037-latch.md) T21 (the supply-switching fixture recipe). The coordinator placed it before Epic 9A (18 Oct 2026). The owner's timing decision names Stories 9.4 and 9.4b; this story adds no new element, and its two suites guard Epic 9A's drive and supply refactors.*
 
 *Definitions decided by the coordinator under owner delegation (18 Oct 2026, playability):*
 - *CAT-051 open question 1. The return spring (14 N/m at rest 0, damping 4 N·s/m, acting whether or not the gate is powered) is the gate's fail-closed law. When supply drops, the drive stops and the spring closes the blade. Rationale: a gate that falls shut when power is lost is predictable and easy to teach.*
@@ -969,10 +1150,47 @@ So that I can build timed doors that fail safe.
 - **And** Run/Reset restores latch Off, the blade closed and the authored battery state, and Save/Load preserves all five connections with their exact socket names.
 - **And** `tools/e2e/cat-005-n19.test.ts` and `tools/e2e/cat-051-interrupt.test.ts` pass 100% in Chrome serially, and every `tools/e2e/*.test.ts` suite still passes in one serial run.
 
+### Story 9.5a: Declared Timer and Switched-Contact Capabilities; Delay Box Converted (9A.38 + 9R.17)
+*Status: Backlog. Delivery position 18, the last story before 9.5 (Delivery order, 21 Oct 2026). It merges Stories 9A.38 and 9R.17, whose ACs stay in place, are marked "merged into 9.5a" and apply here in full.*
+
+*Depends on: Stories 9A.27 (generic instance and editor), PKG-3 (the Delay Box and Impact Switch packages) and 9A.45a (ratchet). Story 9A.38's former dependency on 9A.35 recorded number order only. The Impact Switch in the Delay fixture stays a record instance until C-Switch.*
+
+*Why it is on the critical path.* Story 9.5 is a timer element and must be declaration-only, and no 9A story declared the switched-supply route generically. Today the compiler chooses supply sources and switched contacts by record type, in `SupplyFeed` (`engine/gpu/WorkshopPhysicsCompiler.cs`, around `:295-312`): `IsBattery` is `instance is WorkshopBattery`, and the admitted predicate is `instance is WorkshopBattery or WorkshopLatch or WorkshopCounter or WorkshopPressurePlate`.
+
+The coordinator's brief cites `:224/244/272/306`:
+- `:306` is that predicate;
+- `:224`, `:244` and `:272` are the Pressure Plate, Counter and Latch emission loops (bodies, colliders and contact loads), and `:258` is the Clock loop.
+
+This story makes only the supply route declaration-driven. The record-type selection of those emission loops is deleted by C-Plate, C-Memory and C-Clock, and their inline colliders by Story 9A.16.
+
+*Deletes:*
+- *the whole of Story 9A.38's list: `WorkshopDelay` and `DelayDuration` (`engine/gpu/WorkshopDelay.cs`), `WorkshopInput.Delay`, the Delay panel in `ui/WorkshopConfiguration.cs`, the delay arm in `ActivationNetwork.Compile`, and `WorkshopDelay` in the `Validate` whitelist;*
+- *the `"delay"` arm of `MachineWorld.CaptureInstance` and every remaining `is WorkshopDelay`;*
+- *the record-type supply-route selection in `SupplyFeed`: `IsBattery` and the `is WorkshopBattery or WorkshopLatch or WorkshopCounter or WorkshopPressurePlate` predicate;*
+- *every `Half` in the timer lane: `ActivationTime.Phase` and the timer arithmetic in `engine/gpu/ActivationTimers.cs`, and the Delay duration on the wire and in saves;*
+- *the `WorkshopDelay` construction in `engine/gpu/DelayedSignal.cs`, which is edited to build the generic instance. Story 9A.26 deletes the file later;*
+- *the Story 9A.45a known-violations entries owned by this story.*
+
+As a player,  
+I want the Delay Box and every power switch to work from what each element declares,  
+So that the Hold Timer and every later timed or switched element are data only.
+
+**Acceptance Criteria:**
+- **Suite first:** Story 9R.17's `tools/e2e/cat-022.test.ts` lands green on the record path in this story's first commit and stays green after the conversion. Every Story 9R.17 AC applies.
+- **And** every Story 9A.38 AC applies: the generic timer is compiled from declared data, the lamp lights after exactly the declared duration and not earlier, and Run/Reset and Save/Load are exact.
+- **And the switched contact is declared.** The Battery, State Latch, Pulse Counter and Pressure Plate packages declare a supply-source or switched-contact capability: `PowerIn` → `Supply`, closed by the element's own committed state. The compiler builds Direct and Switched supply routes from those declarations only.
+  - The golden route rows are identical to those of Stories 9.4, 9R.3, 9R.4 and 9R.5.
+  - An instance with the same sockets but no declared capability never supplies (negative control).
+  - Story 9.5b's switch electrical mode then only declares this capability on the Impact Switch.
+- **And** the timer lane is IEEE-754 f32 end to end: authoring, wire, save, solver and read model. `rg -w Half engine/gpu/ActivationTimers.cs` returns 0 hits, and Delay durations round-trip bit-exactly. Story 9A.44's scope loses this lane.
+- **And** these return 0 production hits: `rg -w "WorkshopDelay|DelayDuration"`, and `rg "is WorkshopBattery or WorkshopLatch"`. The 9A.45a ratchet passes with this story's entries removed.
+- **And** `cat-022`, `anim-1b`, `anim-1c`, `cat-062`, `cat-005`, `cat-037`, `cat-051`, `cat-052`, `cat-052-lamp` and `cat-020` pass. This is a material compiler change, so the Tier 3 full run applies (End-to-end scope rule).
+- **And** the review appends the dated addendum that closes Story 6.5e's 9R.17 part.
+
 ### Story 9.5: Hold Timer Pulse Stretcher (CAT-033)
 *Status: Backlog*
 
-*Depends on: Stories 8.1 and 8.2 (supplied contact and consumer), and Epic 9A (owner decision, 18 Oct 2026: architecture conformance runs after Stories 9.4 and 9.4b and before any new element; Story 9.4c precedes it by coordinator placement; Open scheduling item g). Moved from Story 8.5.*
+*Depends on: Stories 8.1 and 8.2 (supplied contact and consumer), 9.5a (declared timer and switched contact) and 9A.45a (isolation ratchet). Moved from Story 8.5. The former "Epic 9A" dependency is replaced by the 21 Oct 2026 Delivery order: only the critical path precedes this story. The Hold Timer is a new package with no record type, it adds no entry to the 9A.45a list, and it deletes nothing.*
 
 As a player,  
 I want a Hold Timer to keep an output energized for a configured duration after a momentary trigger,  
@@ -988,7 +1206,7 @@ So that timed doors and temporary circuits can stay open.
 ### Story 9.5b: Impact Switch Electrical Mode (CAT-063 PowerIn → Supply)
 *Status: Backlog*
 
-*Depends on: Stories 8.1 (supply and network graph) and 8.2 (a supplied consumer). New story (owner decision, 18 Oct 2026; Open scheduling item b), placed before the Both Gate (9.6) so every electrical gate story can use real input switches. Source: [CAT-063](../../docs/planning/elements/CAT-063-switch.md) §4 facts 1–5 and §5.*
+*Depends on: Stories 8.1 (supply and network graph), 8.2 (a supplied consumer), 9.5a (the declared switched-contact capability, which this story only declares on the switch) and C-Switch (generic switch instance). Position 21 (Delivery order, 21 Oct 2026). New story (owner decision, 18 Oct 2026; Open scheduling item b), placed before the Both Gate (9.6) so every electrical gate story can use real input switches. Source: [CAT-063](../../docs/planning/elements/CAT-063-switch.md) §4 facts 1–5 and §5.*
 
 As a player,  
 I want an Impact Switch to pass power from its PowerIn socket to its Supply socket once a qualifying impact latches it,  
@@ -1021,7 +1239,7 @@ So that safety interlocks and dual-condition activations are possible.
 - **And** `tools/e2e/cat-013.test.ts` passes 100% in Chrome serially.
 
 ### Story 9.7: Electrical Logic Gates NAND & NOR (CAT-024, CAT-025)
-*Status: Backlog*
+*Status: Split on 21 Oct 2026 into Stories 9.7a (NAND) and 9.7b (NOR), one new element per story (AGENTS.md). The text below is their shared source. Each split story applies it to its own gate, with its own suite in place of `cat-024-025.test.ts`.*
 
 *Depends on: Stories 8.1, 8.2, 9.5b (switch electrical mode for its input power switches; Open scheduling item b, decided 18 Oct 2026) and 9.6 (gate element and sockets). Moved from Story 9.3.*
 
@@ -1035,8 +1253,40 @@ So that complex electrical logic contraptions can be constructed.
 - **Then** output power states match standard Boolean truth tables with 100% accuracy.
 - **And** `tools/e2e/cat-024-025.test.ts` passes 100% in Chrome serially.
 
+### Story 9.7a: Electrical NAND Gate (CAT-024)
+*Status: Backlog. Delivery position 25. Split from Story 9.7.*
+
+*Depends on: Stories 8.1, 8.2, 9.5b (input power switches) and 9.6 (gate element and sockets). Source: [CAT-024](../../docs/planning/elements/CAT-024-electrical_nand.md) §5. Deletes: nothing, because this is a new element. It ships as a package with no record type and adds no Story 9A.45a known-violations entry.*
+
+As a player,  
+I want an Electrical NAND gate,  
+So that I can build a circuit that stays powered unless both conditions hold.
+
+**Acceptance Criteria:**
+- **Given** a NAND gate wired through real UI to two input power switches (Story 9.5b) and an output consumer, **When** the four input permutations 00, 01, 10 and 11 are tested, **Then** the output is powered for 00, 01 and 10, and unpowered for 11. This is Story 9.7's truth-table AC, for this gate.
+- **And** a gate with no upstream supply powers nothing (negative control).
+- **And** Run/Reset is exact against the Story 9R.1 snapshot, and Save/Load preserves the gate and its typed connections.
+- **And** the 9A.45a ratchet passes with no new entry.
+- **And** `tools/e2e/cat-024.test.ts` passes 100% in Chrome serially.
+
+### Story 9.7b: Electrical NOR Gate (CAT-025)
+*Status: Backlog. Delivery position 27. Split from Story 9.7.*
+
+*Depends on: Stories 8.1, 8.2, 9.5b and 9.6. Source: [CAT-025](../../docs/planning/elements/CAT-025-electrical_nor.md) §5. Deletes: nothing, because this is a new element. It ships as a package with no record type and adds no 9A.45a entry.*
+
+As a player,  
+I want an Electrical NOR gate,  
+So that I can build a circuit that is powered only when neither condition holds.
+
+**Acceptance Criteria:**
+- **Given** a NOR gate wired through real UI to two input power switches and an output consumer, **When** the four permutations are tested, **Then** the output is powered only for 00 (Story 9.7's truth-table AC, for this gate).
+- **And** a gate with no upstream supply powers nothing (negative control).
+- **And** Run/Reset is exact, and Save/Load preserves the gate and its connections.
+- **And** the 9A.45a ratchet passes with no new entry.
+- **And** `tools/e2e/cat-025.test.ts` passes 100% in Chrome serially.
+
 ### Story 9.8: Electrical Logic Gates OR & XOR (CAT-026, CAT-027)
-*Status: Backlog*
+*Status: Split on 21 Oct 2026 into Stories 9.8a (OR) and 9.8b (XOR), one new element per story (AGENTS.md). The text below is their shared source. Each split story applies it to its own gate, with its own suite in place of `cat-026-027.test.ts`.*
 
 *Depends on: Stories 8.1, 8.2 and 9.6 (gate element and sockets). Moved from Story 9.4.*
 
@@ -1051,6 +1301,38 @@ So that branching circuits and toggle mechanisms can be built.
 - **And** OR outputs high whenever at least one input is high.
 - **And** `tools/e2e/cat-026-027.test.ts` passes 100% in Chrome serially.
 
+### Story 9.8a: Electrical OR Gate (CAT-026)
+*Status: Backlog. Delivery position 29. Split from Story 9.8.*
+
+*Depends on: Stories 8.1, 8.2 and 9.6. Source: [CAT-026](../../docs/planning/elements/CAT-026-electrical_or.md) §5. Deletes: nothing, because this is a new element. It ships as a package with no record type and adds no 9A.45a entry.*
+
+As a player,  
+I want an Electrical OR gate,  
+So that either of two conditions can power a circuit.
+
+**Acceptance Criteria:**
+- **Given** an OR gate wired through real UI to two supplied inputs and an output consumer, **When** every input combination is evaluated, **Then** the output is powered whenever at least one input is high (Story 9.8's OR AC).
+- **And** with both inputs low, the output is unpowered (negative control).
+- **And** Run/Reset is exact, and Save/Load preserves the gate and its connections.
+- **And** the 9A.45a ratchet passes with no new entry.
+- **And** `tools/e2e/cat-026.test.ts` passes 100% in Chrome serially.
+
+### Story 9.8b: Electrical XOR Gate (CAT-027)
+*Status: Backlog. Delivery position 31. Split from Story 9.8.*
+
+*Depends on: Stories 8.1, 8.2 and 9.6. Source: [CAT-027](../../docs/planning/elements/CAT-027-electrical_xor.md) §5. Deletes: nothing, because this is a new element. It ships as a package with no record type and adds no 9A.45a entry.*
+
+As a player,  
+I want an Electrical XOR gate,  
+So that I can build toggles that react when exactly one input is high.
+
+**Acceptance Criteria:**
+- **Given** an XOR gate wired through real UI to two supplied inputs and an output consumer, **When** every input combination is evaluated, **Then** the output is high only for 01 and 10, and low for 00 and 11 (Story 9.8's XOR AC).
+- **And** a gate with no upstream supply powers nothing (negative control).
+- **And** Run/Reset is exact, and Save/Load preserves the gate and its connections.
+- **And** the 9A.45a ratchet passes with no new entry.
+- **And** `tools/e2e/cat-027.test.ts` passes 100% in Chrome serially.
+
 ---
 
 ## Epic 9R: Retro-Verification Repair
@@ -1059,12 +1341,19 @@ So that branching circuits and toggle mechanisms can be built.
 
 **Delivery order (coordinator decision under owner delegation, 18 Oct 2026; Open scheduling item i).** After Story 9.4b and before Story 9.4c and Epic 9A. Stories run in number order, 9R.0 to 9R.18, except that Story 9R.0c runs first: it fixes a player-visible crash (coordinator, 19 Oct 2026). Story 9R.0 (the C# static gate) comes next because it strengthens every later gate.
 
+*Superseded on 21 Oct 2026 by the [Delivery order](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination):*
+- *9R.6 and 9R.7 stay on the critical path;*
+- *9R.8–9R.17 merge into their family conversions as suite-first guards (9R.14 into 9A.27, 9R.17 into 9.5a);*
+- *9R.18 is dropped;*
+- *9R.20 merges into 9A.25a;*
+- *9R.19, 9R.21 and 9R.22 follow all deletion work.*
+
 **Evidence.** [Retro-verification report, 18 Oct 2026](retro-verification-2026-10-18.md). Defect numbers (#1–#20) are the report's §G numbering. Its line numbers come from HEAD `8f682f8`; the symbol named with each line is authoritative.
 
 **Rules for every 9R story.**
 - Repairs use compiled Run-time tables built at Run from the construction (the Story 9.4 `SwitchedSupplyRouteDeclaration` pattern). No new heuristic (size, drag, joint limit or element-id detection) and no shim is added.
 - Epic 9A later converts these tables to package declarations without changing behaviour.
-- Each story names the reopened original story it repairs. Story 9R.18 closes the reopened records.
+- Each story names the reopened original story it repairs. Story 9R.18 closes the reopened records. *From 21 Oct 2026, each closing story appends the dated addenda instead ([reopened-record closure](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination)).*
 - Chrome proof uses actual UI controls: no setters, imported solutions or numeric placement.
 - Exact Run/Reset is asserted against the pre-Run snapshot helper from Story 9R.1.
 
@@ -1268,7 +1557,12 @@ So that two gates on two batteries behave as two separate circuits.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.4: Each Pressure Plate Honours Its Own Minimum Mass (Reopened Story 9.1)
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-10 gave a scoped Pass on `15b7431b` ([review](../implementation-artifacts/review-9r-4-pressure-plate-per-instance-load-rows.md)).*
+- *Each plate compiles its own contact-load row, using a normal-and-gap region and f32 mass.*
+- *The 8-slot activation limit is removed (owner decision).*
+- *The C# gate is re-pinned for SDK 10.0.402.*
+- *The reviewer's full run passed 185/185.*
+- *Findings are filed to Story F.6.*
 
 *Depends on: Story 9R.3. Closes report #1:*
 - *`_plateLoaded = currentPlateLoad >= 0.5f` ignores the instance's `MinimumMass` (`WorkshopPhysicsEngine.cs:856`).*
@@ -1287,10 +1581,16 @@ I want each Pressure Plate to respond to the weight on it and only to that,
 So that two plates switch two gates independently.
 
 **Acceptance Criteria:**
+- **Owner decision, 20 Oct 2026: there is no limit on activation slots.** In the owner's words, "there should be no restriction on the number of activation slots, this was not in the description and is an unreasonable limitation".
+  - The fixed 8-slot activation table is removed. Activation slots and activation memory are sized from the compiled scene at Run.
+  - Build never refuses a machine for its count of activation parts (plates, counters, clocks, latches, delays and so on), only for the ordinary Free-palette part maxima.
+  - Proven by a bench at the palette maximum of plates combined with counters, clocks and latches. It must compile, step, Reset exactly and survive Save/Load. In it, the last plate opens its own gate.
 - **Given** Pressure Plates built through real UI, **When** Run compiles the construction, **Then** each plate emits its own compiled contact-load row (owner body, region, normal, alignment, and `minimum_mass` from that instance; CAT-052 §2). `ContactLoadSensorTracker` evaluates those rows at runtime, so its native tests now prove the live path.
 - **And** each plate's supplied contact is a switch in the compiled switched-supply route table (Battery → plate contact → gate).
 - **And** a domino (0.4 kg) leaves the plate Underweight and the gate closed; a basketball (1 kg) closes it; mass exactly at the minimum closes it (inclusive ≥, CAT-052 §2); two bodies sum.
-- **And** removing the body opens the contact on the first tick after the 0.1 s (12-tick) release hold, the same hold that governs the plate's ActivationOut level (Story 9R.5; coordinator decision, 18 Oct 2026).
+- **And** removing the body opens the contact on the next tick.
+  - Story 9R.5 adds the 0.1 s (12-tick) release hold for both the contact and the plate's ActivationOut level.
+  - Coordinator decision, 20 Oct 2026: the hold is delivered once, in 9R.5, and not split across two stories.
 - **And** two plates wired to two gates are independent: loading one opens only its own gate (negative control for cross-talk).
 - **And** a static box with the plate's exact half-extents but no plate declaration never switches a gate (negative control for size detection).
 - **And** a native test with a non-default `minimum_mass` (2.0 kg, saved and loaded) proves the instance value governs. The UI editor for it arrives with the generic parameter editor (Story 9A.40).
@@ -1299,7 +1599,58 @@ So that two plates switch two gates independently.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.5: Pressure Plate ActivationOut Lights a Signal Lamp (Reopened Story 9.1)
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-11 gave a scoped Pass on `d6f5cacd` ([review](../implementation-artifacts/review-9r-5-pressure-plate-activation-out-level.md)).*
+- *The level is held for 12 ticks: lit through tick 11, dark at tick 12.*
+- *The contact and the lamp share one held level.*
+- *Wiring the plate to anything other than a lamp is refused.*
+- *Findings are filed to Story F.7.*
+
+### Story F.10: Retire the Remaining Format Version Fields
+*Status: Backlog. Filed by Story 9A.0 on 21 Oct 2026, under the owner's rule of the same day: "why are you versioning the wire format and the save formats, this isnt required and goes against the rule that says we dont have any backwards compatability". Story 9A.2 deletes the save and wire versions; this story deletes the rest. The coordinator may move it earlier under the delete-as-soon-as-possible rule.*
+
+*Deletes: `WorkshopClockWire.Version`, the `WorkshopMemoryWire` version, `WorkshopHint.Version`, `WorkshopTraceVersion`, `TraceTimingVersion`, `WorkshopScheduleVersion`, `WorkshopSettingsVersion`, `PhysicsStateVersion` (and the worker's `STATE_VERSION`) and `BodyRecordVersion`, with every field that carries them and every check that compares them.*
+
+**Acceptance Criteria:**
+- **Given** the tree, **When** this story lands, **Then** `rg -w` for each deleted symbol returns 0 production hits, and no wire, ring, trace or record layout has a version field.
+- **And** each affected decoder rejects bad input by structural validation only (verifier or checked length, defined enums, finite ranged values), with a negative control per decoder (truncated, unknown-tag and out-of-range input).
+- **And** the [isolation authority's Current status](../../docs/architecture/element-package-isolation.md#current-status) row for these enums is removed.
+- **And** Tier 1 passes, plus the runner's Tier 2 selection (the clock, schedule and trace suites).
+
+### Story F.9: Tube Snapping Follow-ups
+*Status: Backlog. Filed from the 9R.6 review on 21 Oct 2026.*
+
+**Acceptance Criteria:**
+- **Snapping behaviour:**
+  - a test that the nearest candidate wins (F9-2);
+  - the snapped pose is checked against the bench bounds (F9-3);
+  - gizmo moves snap on release, per DESIGN.md (F9-4).
+- **Tests and docs:**
+  - the locked-target join is proven in Chrome, and CAT-048 fact 11 is reworded (F9-6; 9R.7 may cover this);
+  - a stronger native outward-mouth check (F9-8);
+  - the CAT-048 snapping facts are covered by tests (F9-9).
+- **Visuals:** no 0.05 m seam between joined collars (F9-7).
+- **Cleanup:**
+  - one statement per line (F9-1);
+  - no per-frame list allocation, a performance-gate item (F9-5).
+
+### Story F.8: Capacity Follow-ups
+*Status: Backlog. Filed from the 9R.5b review on 21 Oct 2026.*
+
+**Acceptance Criteria:**
+- **Stale wording:** remove the old cap wording from `EL-112`, `GAP-06` and `browser-physics-performance.md` (F8-1), and the "ball guide table" wording (F8-7).
+- **Growth tests:** tests that kill the uncovered growth branches: the activation queue, the pose-ring body-count growth, the device and engine scratch, and the redundant `FitFeedbackSlots` call (F8-2/F8-3).
+- **Performance gate:**
+  - the per-frame presentation allocations and the per-read decode allocations (F8-4);
+  - the unbounded contact pulses and the per-contact scans (F8-5).
+- **Determinism:** deterministic bundle hashes across worktrees (F8-6).
+
+### Story F.7: Plate Signal Follow-ups
+*Status: Backlog. Filed from the 9R.5 review on 20 Oct 2026.*
+
+**Acceptance Criteria:**
+- A test that a stored hold disagreeing with the plate level is rejected (F7-1).
+- One statement per line at `ActivationNetwork.cs:473` (F7-2).
+- A dedicated test for the "lifted" case (F7-3).
 
 *Depends on: Story 9R.4. Closes report #5: the plate declares only `PowerIn`/`Supply` and the lamp only `ActivationIn` (`WorkshopConnections.cs:62-66`, `:87-90`), so Story 9.1's headline AC ("plate wired to a Signal lamp") was impossible.*
 
@@ -1323,8 +1674,30 @@ So that the lamp shows when something heavy enough rests on the plate.
 - **And** the new `tools/e2e/cat-052-lamp.test.ts`, `cat-052` and `cat-037` pass 100% in Chrome serially.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
+### Story 9R.5b: Every Physics Table Sized at Run (No Fixed Capacities)
+*Status: Done (21 Oct 2026). Murdoch-12 gave a scoped Pass on `a5a6c494` ([review](../implementation-artifacts/review-9r-5b-physics-tables-sized-at-run.md)).*
+- *Every physics, worker and wire table is sized from the scene, and the 32-part Build limit is removed (no requirement states it).*
+- *One machine past every old cap runs, and the full run passed 194/194.*
+- *Findings are filed to Story F.8.*
+- *Origin: coordinator, 20 Oct 2026, under the owner's rule that there are no arbitrary engine caps.*
+
+**Acceptance Criteria:**
+- **Given** a machine with any number of trigger-bearing parts up to the ordinary Free-palette maxima (Impact Switches and every other trigger user), **When** Run compiles it, **Then** the physics trigger table is sized from the compiled scene. The 9R.2 collider table and the 9R.4 activation slots are the pattern.
+- **And** Build never refuses a machine for its trigger count.
+- **And, by owner decision of 20 Oct 2026, the physics body table has no limit.** In the owner's words: "the physics body table needs to be infinite why would you restrict it".
+  - The body table, and every other fixed-capacity physics or worker table, is sized from the compiled scene at Run. That covers bodies, joints, prismatics, sensors, contact-work rows, electrical rows, motion and occurrence buffers.
+  - Memory is the only bound.
+  - The story begins with an audit that lists every fixed capacity constant in `engine/gpu`, the Simulation and Animation workers, and the wire. Each one is either removed or justified by a written requirement. "Historical" doesn't count as a justification.
+- **And** the per-part Build limit (32 instances) is kept only if a requirement states it. The goal is an "unlimited Free Workshop" (TODO.md). Otherwise it is removed, and the e2e and native benches prove a machine beyond it compiles, steps, Resets exactly and Saves/Loads.
+- **And** the fixed cap constant and its wording are deleted.
+- **Proof:**
+  - red today when a 9th Impact Switch is placed;
+  - a bench at the palette maximum of Impact Switches, where the last switch fires its own lamp, Reset is exact and Save/Load works;
+  - a mutant that restores a fixed cap fails.
+- **And** Tier 1 passes, plus the runner's Tier 2 selection.
+
 ### Story 9R.6: Typed Mouth Snapping for Tubes (Reopened Stories 6.9 and 6.10; Story 6.11 Repair)
-*Status: Backlog*
+*Status: Done (21 Oct 2026). Murdoch-13 gave a scoped Pass on `63ba232c` ([review](../implementation-artifacts/review-9r-6-typed-mouth-snapping.md)). His full run passed 209/209, and findings are filed to Story F.9.*
 
 *Depends on: Story 9R.1. Closes report #3: no snapping implementation exists (`git grep -i 'snap\|mouth' HEAD -- engine ui` returns only description strings), yet Stories 6.9, 6.10 and 6.11 and the CAT-051 recipe require typed mouth snapping. Sources:*
 - *[CAT-048](../../docs/planning/elements/CAT-048-pipe.md) §4 facts 9–11 and 21, and §5 "Snapping" (0.45 m and 20° thresholds per DESIGN.md);*
@@ -1375,7 +1748,7 @@ So that I learn to build a route from straight pipes and bends.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.8: `spring_forward` Lesson Chrome Proof (Reopened Story 6.5e)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Bumper+Spring (21 Oct 2026) as its suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.1. Closes the 6.5e W row: `spring_forward` is in no e2e suite and not in the driver's `WorkshopLevel` union (`tools/e2e/workshop-driver.ts:310`), although Story 6.5e's AC says it solves identically in Chrome.*
 
@@ -1393,7 +1766,7 @@ So that the Springboard lesson can be completed.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.9: Ball Detector Forward Pass Lights the Lamp Exactly Once (Story 6.8 Repair)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Lamp+Detector (21 Oct 2026) as a suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.1. Closes report #15: `cat-002.test.ts:81-84` scans **all** animation targets, so the detector's own pulse satisfies "lamp lights", and "once" is not counted (`driver.readAnimationSamplesForTarget` exists but is unused). The reverse and glancing checks (`:93`, `:132`) never prove a crossing occurred. The second forward crossing (`:171`) uses Reset rather than an in-run clearance.*
 
@@ -1412,7 +1785,7 @@ So that I can trust it to count.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.10: System Clock Pulses, Pause and Reset Proven in Chrome (Reopened Story 9.3)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Clock (21 Oct 2026) as its suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.1. Closes report #10: Story 9.3's 5-pulse AC has native proof only (`ClockTests.cs:189`). Pause (`cat-017.test.ts:267`) checks a ball, not the clock. Reset (`:278`) checks the blade only. There are no native pause or reset tests.*
 
@@ -1445,7 +1818,7 @@ These close report #8. Story 6.5d named `cat-001`, `cat-004`, `cat-054` and `cat
 A suite that finds a behaviour defect stops the story, and the defect is fixed in the same story, under the same rules.
 
 ### Story 9R.11: Basketball Suite `cat-001` (Reopened Story 6.5d)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Balls (21 Oct 2026) as its suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.1. Source: [CAT-001](../../docs/planning/elements/CAT-001-ball.md) §5. Deletes: nothing (gap only).*
 
@@ -1461,7 +1834,7 @@ So that the first part I learn behaves as the lesson says.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.12: Receiver Suite `cat-004` (Reopened Story 6.5d)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Ramp+Receiver (21 Oct 2026) as a suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.1. Source: [CAT-004](../../docs/planning/elements/CAT-004-basket.md) §5. Deletes: nothing (gap only).*
 
@@ -1477,7 +1850,7 @@ So that goals are fair.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.13: Ramp Suite `cat-054` (Reopened Story 6.5d)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Ramp+Receiver (21 Oct 2026) as a suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.1. Source: [CAT-054](../../docs/planning/elements/CAT-054-ramp.md) §5. Deletes: nothing (gap only).*
 
@@ -1494,7 +1867,7 @@ So that I can shape a ball's path.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.14: Wall Suite `cat-066` (Reopened Story 6.5d)
-*Status: Backlog*
+*Status: Backlog. Merged into Story 9A.27 (21 Oct 2026) as its suite-first guard. These ACs stay here and apply there in full. The out-of-range resize clamps, per the resize rule.*
 
 *Depends on: Story 9R.1. Source: [CAT-066](../../docs/planning/elements/CAT-066-wall.md) §5. Deletes: nothing (gap only).*
 
@@ -1510,7 +1883,7 @@ So that I can block paths reliably.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.15: Impact Switch Suite `cat-063` (Reopened Story 6.5e)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Switch (21 Oct 2026) as its suite-first guard. These ACs stay here and apply there in full. The threshold editor is the generic parameter editor, not a per-element panel.*
 
 *Depends on: Story 9R.1. Source: [CAT-063](../../docs/planning/elements/CAT-063-switch.md) §5 (activation mode only; the electrical mode is Story 9.5b). Deletes: nothing (gap only).*
 
@@ -1531,7 +1904,7 @@ So that I can trigger machines with a ball.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.16: Signal Lamp Suite `cat-035` (Reopened Story 6.5e)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Lamp+Detector (21 Oct 2026) as a suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.5 (level outputs). Source: [CAT-035](../../docs/planning/elements/CAT-035-lamp.md) §5. Deletes: nothing (gap only).*
 
@@ -1548,7 +1921,7 @@ So that I can see that my machine fired.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.17: Delay Box Suite `cat-022` (Reopened Story 6.5e)
-*Status: Backlog*
+*Status: Backlog. Merged into Story 9.5a (21 Oct 2026) as its suite-first guard. These ACs stay here and apply there in full.*
 
 *Depends on: Story 9R.1. Source: [CAT-022](../../docs/planning/elements/CAT-022-delay.md) §5. Deletes: nothing (gap only).*
 
@@ -1564,7 +1937,10 @@ So that I can time my machines.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.18: Independent Re-Verification and Dated Review Addenda
-*Status: Backlog*
+*Status: Dropped as a separate story (coordinator, 21 Oct 2026).*
+- *Each story that closes a reopened or weak record appends its dated addendum, under the evidence ACs below, as listed in the [reopened-record closure table](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).*
+- *The full serial re-run in the last AC is replaced by the End-to-end scope rule's tiers.*
+- *The text is kept as the evidence contract for those addenda.*
 
 *Depends on: Stories 9R.0–9R.17. Closes report #7 and §D: review evidence is not credible.*
 - *The raw cat-062 output in review-6-5e, 6-5f, 6-6, 6-7 and 6-8 is presented as fresh runs, yet its first three test timings are identical to the nanosecond (`14729.544167ms`, `11075.602542ms`, `12073.702125ms`).*
@@ -1611,6 +1987,11 @@ So that `done` means proven.
 
 *Delivery order: these run after Story 9R.17 and before Story 9R.18, so 9R.18 re-verifies Stories 6.6, 6.9, 6.10 and 6.11 against art that is now correct. They also precede 9A.8–9A.11 and 9A.25, which move scenes and bindings with exact parity and would otherwise carry these defects into the packages. Coordinator decision under owner delegation: DESIGN.md already requires every item here, so none of it is a new design choice.*
 
+*Superseded on 21 Oct 2026 by the [Delivery order](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination), with the owner's amendment that polish and art follow all deletion work:*
+- *Story 9R.19 is at position 56, 9R.21 at 58 and 9R.22 at 60. They now edit the scenes inside the `elements/` packages, which PKG-1, PKG-2 and PKG-3 moved there with exact parity.*
+- *Story 9R.20 merges into 9A.25a, so the golden test there captures live cues, not dead ones.*
+- *Story 9R.18 is dropped.*
+
 *Review depth: 9R.19, 9R.21 and 9R.22 are art and data, so Murdoch reviews them alone. 9R.20 changes presentation bindings, so it also gets the three lenses. E2e uses Tier 2 with the affected element suites, plus Chrome screenshots that use actual UI controls.*
 
 ### Story 9R.19: Tube Glass Art Repair (Funnel, Clear Pipe, Pipe Bends, Gate and Detector Collars)
@@ -1628,7 +2009,7 @@ So that `done` means proven.
 - **And** the Chrome screenshots, taken through actual UI placement, show each part from the front, from 45° and from above, and are kept as evidence. Their suites (cat-030, cat-048a/b, cat-049, cat-050, cat-062b and cat-002) pass.
 
 ### Story 9R.20: Live State Cues During Run (Clock Lamp, Counter Dots, Gate Indicator, Pressure Plate Studs)
-*Status: Backlog*
+*Status: Backlog. Merged into Story 9A.25a (21 Oct 2026). These ACs stay here and apply there in full. The cues are delivered as declared committed-state bindings, not as `MachinePart` lamp methods.*
 
 *Visual review #6. Today `UpdateClockLamp` and `UpdateCounterLamps` are called only from tests, and in production only with false or 0 (`MachinePart.cs:220-221`). The gate's `Visual_Indicator` and the plate's `Stud_*` have no binding. Must land before Story 9A.25, whose golden test would otherwise lock in the dead cues.*
 
@@ -1670,21 +2051,288 @@ So that `done` means proven.
 
 **Delivery order (owner decision, 18 Oct 2026; Open scheduling item g).** Epic 9A runs after Stories 9.4 and 9.4b (and Story 9.4c, which the coordinator placed first) and before Story 9.5 and every later new element. Its stories run in number order, 9A.0 to 9A.45. The section is placed after Epic 9 so that Epic 9's stories stay together; `sprint-status.yaml` and each "Depends on" line carry the delivery order.
 
+*Superseded on 21 Oct 2026 by the [Delivery order](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).*
+- *Only the critical path (9A.0, 9A.1, 9A.4, PKG-1–3, 9A.14, 9A.2, 9A.15, 9A.17, 9A.3, 9A.16, 9A.25a, 9A.27, 9A.45a, 9.5a) precedes Story 9.5.*
+- *The remaining conversions and ring stories alternate with new elements, and the final 9A.45 is at position 54.*
+- *"Depends on" lines that only recorded number order are corrected in place.*
+
 **Evidence.** [Architecture conformance audit, 18 Oct 2026](architecture-conformance-audit-2026-10-18.md) (finding IDs A1–A19, B1–B8, C1–C5, D1–D4, G1–G10). Its line numbers are a snapshot of a tree that Story 9.4 was still editing, so every story names the symbol as well as the line. Where they disagree, the symbol wins.
 
 **Rules for every 9A story.**
 - The story names the legacy it deletes and deletes it in the same slice.
-- No compatibility shim, fallback branch, alias, dual loader or automatic migration is permitted. An old save or wire version is rejected explicitly.
+- No compatibility shim, fallback branch, alias, dual loader or automatic migration is permitted. Formats carry no version (owner, 21 Oct 2026); structurally invalid save or wire input is rejected explicitly.
 - Every existing element keeps working.
 - Any lane the story rewrites lands as IEEE-754 f32; no story adds a `Half`.
 - Review-9-4 F6 (audit A8: the per-tick `Program.SwitchedSupplies`/`ElectricalState` walk of the authoring graph, `SwitchedSupplyRoutes` in `engine/gpu/WorkshopLatch.cs`) is fixed inside Story 9.4 (owner decision, 18 Oct 2026), so no 9A story owns it. If any part of it remains when 9A starts, Story 9A.19 deletes that remainder.
 - Epic 9R runs first and fixes the player-visible defects with compiled Run-time tables. Each 9A story converts those tables to declarations and does not re-implement the fixes.
 - Where a 9A story closes an acceptance clause reopened by the 18 Oct 2026 retro-verification (the mapping is in Story 9R.18), its terminal review appends a dated closing addendum to the original story's review record, and `sprint-status.yaml` then marks that story `done`.
+- **Owner amendment, 21 Oct 2026: every story deletes, in the same story, the old code its new path supersedes.** No mixed old and new path survives the story that introduces the new one. Each story's ACs include that an active-tree `rg` for every symbol in its "Deletes:" list returns 0 production hits, and that its Story 9A.45a known-violations entries are gone.
+
+### Merged delivery stories (coordinator, 21 Oct 2026)
+
+These stories implement the [Delivery order](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).
+- Each one merges existing stories, whose ACs stay where they are, are marked "merged into X", and apply in full.
+- A merged story is one slice: one implementer, one independent reviewer and one frozen candidate. Its impact-selected suites run once on that candidate.
+- A family's 9R suite story is its **suite-first guard**: the suite lands green on the old record path in the first commit, and must stay green after the conversion.
+- **Status rule.** When a merged story goes `done`, its merged originals go `done` in the same `sprint-status.yaml` update. A split original (9.7, 9.8, 9A.25) goes `done` when all of its splits are done. Story selection skips keys marked "merged into", "split into" or "dropped".
+- The positions are those of the Delivery order.
+
+### Story PKG-1: Receiver, Bowling Ball and Springboard Element Packages (9A.5 + 9A.6 + 9A.12)
+*Status: Backlog. Position 6.*
+
+*Depends on: Story 9A.4.*
+
+*Deletes: the union of the merged Deletes lists:*
+- *`parts/scenes/basket.tscn`, `parts/scenes/bowling.tscn` and `parts/scenes/springboard.tscn`, moved (not copied) into `elements/Receiver/`, `elements/BowlingBall/` and `elements/Springboard/`;*
+- *`basket`, `bowling` and `spring` from the parity guard's unpackaged set.*
+
+**Acceptance Criteria:**
+- **Given** the three packages, **When** they are added, **Then** every AC of Stories 9A.5, 9A.6 and 9A.12 holds.
+- **And** `git ls-files parts/scenes/basket.tscn parts/scenes/bowling.tscn parts/scenes/springboard.tscn` returns nothing, and the parity guard's unpackaged set no longer contains the three ids.
+- **And** the union of the three stories' named suites passes once on the merged candidate.
+
+### Story PKG-2: Funnel, Clear Pipe and Pipe Bend Element Packages (9A.8 + 9A.9 + 9A.10 + 9A.11)
+*Status: Backlog. Position 7.*
+
+*Depends on: Story 9A.4.*
+
+*Deletes:*
+- *`parts/scenes/funnel.tscn`, `pipe.tscn`, `pipe_bend_45.tscn` and `pipe_bend_90.tscn`, moved into `elements/Funnel/`, `elements/Pipe/`, `elements/PipeBend45/` and `elements/PipeBend90/`;*
+- *the four ids from the parity guard's unpackaged set.*
+
+**Acceptance Criteria:**
+- **Given** the four packages, **When** they are added, **Then** every AC of Stories 9A.8–9A.11 holds, including bit-for-bit collider parity.
+- **And** `git ls-files` returns nothing for the four moved scenes, and the four ids are gone from the unpackaged set.
+- **And** `cat-030`, `cat-048a`, `cat-048b`, `cat-049`, `cat-050`, `tube-snapping` and `cat-050-joined` pass on the merged candidate.
+- **And** the review appends the dated addenda that re-verify Stories 6.6, 6.7, 6.9, 6.10 and 6.11 (reopened-record closure).
+
+### Story PKG-3: Delay Box and Impact Switch Element Packages (9A.7 + 9A.13)
+*Status: Backlog. Position 8.*
+
+*Depends on: Story 9A.4.*
+
+*Deletes:*
+- *`parts/scenes/delay.tscn` and `parts/scenes/switch.tscn`, moved into `elements/DelayBox/` and `elements/ImpactSwitch/`;*
+- *`delay` and `switch` from the parity guard's unpackaged set.*
+
+**Acceptance Criteria:**
+- **Given** the two packages, **When** they are added, **Then** every AC of Stories 9A.7 and 9A.13 holds.
+- **And** `git ls-files` returns nothing for the two moved scenes, and the parity guard's unpackaged set is then exactly `tennis` and `balloon`.
+- **And** the union of both stories' named suites passes once on the merged candidate.
+
+### Story 9A.25a: Presentation Bindings Ship in Packages, with Live State Cues (9A.25 committed-state part + 9R.20)
+*Status: Backlog. Position 15.*
+
+*Depends on: Story 9A.17. Story 9A.25's former dependency on 9A.23 applies only to the one-shot drivers, which are Story 9A.25b.*
+
+*Deletes, all of Story 9A.25's list:*
+- *every per-id branch of `MachinePart.BuildDeclarative` (the 24 `PartId ==` arms, `engine/MachinePart.cs:237-530`);*
+- *`ResizableAxes` by id;*
+- *the Clock and Counter lamp methods (`UpdateClockLamp` and `UpdateCounterLamps`, the methods Story 9R.20 found dead);*
+- *`CosmeticCurves.ImpactSwitch/SignalLamp/Delay/PinballBumper/Receiver/BallDetector/StateLatch`;*
+- *the element-named `AnimationFeedbackSource.Memory`.*
+
+*Every binding, one-shot curves included, is declared in its package here. The one-shot bindings keep their current driver, the main-thread relay, until Story 9A.25b replaces that driver with ring kinds.*
+
+**Acceptance Criteria:**
+- **Given** each package's declared bindings, **When** a part is built, **Then** every Story 9A.25 AC holds for all bindings: `MachinePart` applies them with no element branch, the golden sampled properties are equal, and the Chrome motion screenshots match.
+- **And** every Story 9R.20 AC holds. The clock lamp, counter dots, gate indicator and plate studs are declared committed-state bindings, live during Run, restored by Reset, and each is proven by a binding-removal mutant.
+- **And** the golden test is captured with the 9R.20 cues live, so it never locks in a dead cue.
+- **And** `rg "PartId\s*==|UpdateClockLamp|UpdateCounterLamps" engine/MachinePart.cs` returns 0 hits, resizable axes come only from the declaration, and `rg "CosmeticCurves\.(ImpactSwitch|SignalLamp|Delay|PinballBumper|Receiver|BallDetector|StateLatch)|AnimationFeedbackSource\.Memory"` returns 0 production hits.
+- **And** `anim-1a`, `anim-1b`, `anim-1c`, `cat-017`, `cat-020`, `cat-051` and `cat-052` pass.
+
+### Story 9A.23 + 9A.25b: Event Ring Consumers and One-Shot Presentation Bindings
+*Status: Backlog. Position 48. Delivered as one slice; Story 9A.23's ACs stay in place.*
+
+*Depends on: Stories 9A.22 and 9A.25a. It precedes Epic 14 and any new one-shot cue.*
+
+*Deletes:*
+- *the whole of Story 9A.23's list, including the main-thread `Transition` relay and the one-shot pumps in `PumpCosmetics`;*
+- *the relay driver of every declared one-shot binding (Bumper impact pulse, Receiver capture, switch and latch one-shots), which becomes a ring-kind driver.*
+
+**Acceptance Criteria:**
+- **Given** the event ring, **When** a run starts, **Then** every Story 9A.23 AC holds.
+- **And** every declared one-shot binding is driven only by its ring kind. The golden sampled properties at fixed curve times equal the 9A.25a values, and the Chrome motion screenshots match.
+- **And** `rg "occurrenceReads|reserveOccurrenceRead|releaseOccurrenceRead|retainOccurrence|createEventConsumer|readEventRing"` returns 0 production hits, and no one-shot binding names a relay source.
+
+### Story 9A.45a: Early Element Isolation Ratchet
+*Status: Backlog. Position 17.*
+
+*Depends on: Stories 9A.14, 9A.15, 9A.17 and 9A.27. Split from Story 9A.45, whose final empty-list gate stays at position 54.*
+
+*Deletes: no production code. It is the forcing function that makes every later deletion permanent. Each entry it records names the story that deletes it.*
+
+As the owner,  
+I want the build to refuse any new element-specific code outside `elements/` from now on, and to refuse old code that outlives its owner,  
+So that every new element from Story 9.5 on is declaration-only and every conversion actually deletes what it replaces.
+
+**Acceptance Criteria:**
+- **Given** the solution, **When** `dotnet test` runs, **Then** an isolation scan fails, citing file and line, for any hit not in a checked-in known-violations list.
+  - The scan uses Story 9A.45's rules and scope: a bundle element id as a string literal; a `PartId.<Name>` member access; an `is`, `OfType<>` or `switch` arm on a `Workshop<Package>` record or on a `PartId`; and an identifier built from a package name.
+  - The id list comes from the generated bundle.
+- **And** each known-violations entry names its file, its symbol and its owning story's `sprint-status.yaml` key. The baseline includes, each tagged with its owning conversion:
+  - every remaining `MachineWorld.CaptureInstance` id arm;
+  - the per-element panels in `ui/WorkshopConfiguration.cs` (Springboard, Battery, Bumper, Clock, Delay);
+  - every record-type arm in `WorkshopPhysicsCompiler`, `ActivationNetwork.Compile` and `WorkshopInstances.Validate`.
+- **And** the list may only shrink:
+  - adding an entry fails;
+  - widening an entry's hit count fails;
+  - an entry that no longer matches any hit fails until it is removed.
+- **And** (owner amendment, 21 Oct 2026) the test fails when any entry remains while its owning story's `sprint-status.yaml` key is `done`.
+- **And** the negative controls each fail the test: a planted element-id literal; a planted `is Workshop<Package>` arm; an added entry; and a fixture status file that marks an owning story `done` while its entry remains. The unchanged tree passes (positive control).
+- **And** the Story 9.4b element-scan ratchet's known-violations list follows the same may-only-shrink rule until Story 9A.19 empties it.
+- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings and `dotnet test CuriousContraptions.slnx` passes 100% (native proof; no runtime change).
+
+### Story C-Switch: Impact Switch Generic Instance with Threshold Editor (9A.35 + 9R.15)
+*Status: Backlog. Position 20, before Story 9.5b.*
+
+*Depends on: Stories 9A.27 (generic editor), PKG-3 (switch package) and 9.5a (declared switched contact).*
+
+*Deletes:*
+- *the whole of Story 9A.35's list: `WorkshopSwitch`, the element-specific use of `ContactTriggerSettings`, `WorkshopInput.Switch`, the `is WorkshopSwitch` arms in the compiler and in `ActivationNetwork.Compile`, and `WorkshopSwitch` in the whitelist;*
+- *the `"switch"` arm of `CaptureInstance`;*
+- *the `WorkshopSwitch` construction in `engine/gpu/DelayedSignal.cs`, which is edited to build the generic instance;*
+- *this story's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Suite first:** Story 9R.15's `cat-063` suite lands green on the record path and stays green after the conversion. Every Story 9R.15 AC applies, and the trigger-threshold editor is the generic parameter editor rendering the declared threshold (0–64 m/s, default 0.8; out-of-range input clamps).
+- **And** every Story 9A.35 AC holds: the generic contact-trigger compile, golden rows, and Run/Reset and Save/Load exact.
+- **And** `rg -w WorkshopSwitch` returns 0 production hits, and the 9A.45a ratchet passes with this story's entries removed.
+- **And** the review appends the addendum for Story 6.5e's 9R.15 part.
+
+### Story C-Ramp+Receiver: Ramp and Receiver Generic Instances (9A.28 + 9A.29 + 9R.12 + 9R.13)
+*Status: Backlog. Position 24.*
+
+*Depends on: Stories 9A.27 and 9A.26 (lessons as data, so no lesson file builds these records).*
+
+*Deletes:*
+- *the union of the Stories 9A.28 and 9A.29 lists: `WorkshopRamp`, `RampDimensions`, `WorkshopInput.Ramp`, `WorkshopReceiver`, `ReceiverCaptureSettings`, `ReceiverForceRegion`, `CaptureReceiver`, the `WorkshopConstruction.Receiver` accessor, the compiler arms and the whitelist entries;*
+- *the `"ramp"` and `"basket"` arms of `CaptureInstance` and its `rampDimensions` parameter;*
+- *this family's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Suite first:** `cat-004` (9R.12) and `cat-054` (9R.13) land green on the record path and stay green after the conversion. Every 9R.12 and 9R.13 AC applies, including the Ramp's clamp-at-limit resize.
+- **And** every Story 9A.28 and 9A.29 AC holds.
+- **And** `rg -w "WorkshopRamp|RampDimensions|WorkshopReceiver|ReceiverCaptureSettings|ReceiverForceRegion|CaptureReceiver|rampDimensions"` returns 0 production hits, and the ratchet passes.
+- **And** the review appends the addenda for Story 6.5d's 9R.12 and 9R.13 parts.
+
+### Story C-Balls: Basketball and Bowling Ball Generic Instances (9A.30 + 9A.31 + 9R.11)
+*Status: Backlog. Position 26. It precedes Domino and C-Bumper+Spring, because it adds the generic dynamic-body compile.*
+
+*Depends on: Stories 9A.27 and 9A.26 (no lesson file builds a ball record).*
+
+*Deletes:*
+- *the union of the Stories 9A.30 and 9A.31 lists: `WorkshopBall`, `BallMaterial`-by-id, `CaptureBall`, the `WorkshopConstruction.Ball` accessor, `OfType<WorkshopBall>` and the whitelist entry;*
+- *the `"ball" or "bowling"` arm of `CaptureInstance`;*
+- *this family's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Suite first:** `cat-001` (9R.11) lands green on the record path and stays green after the conversion. Every 9R.11 AC applies.
+- **And** every Story 9A.30 and 9A.31 AC holds: golden rows, and each ball keeps its own material on one bench.
+- **And** `rg -w "WorkshopBall|CaptureBall"` returns 0 production hits, and the ratchet passes.
+- **And** the review appends the addendum for Story 6.5d's 9R.11 part.
+
+### Story C-Bumper+Spring: Pinball Bumper and Springboard Generic Instances (9A.33 + 9A.34 + 9R.8)
+*Status: Backlog. Position 28.*
+
+*Depends on: Stories C-Balls and 9A.26.*
+
+*Deletes:*
+- *the union of the Stories 9A.33 and 9A.34 lists: `WorkshopBumper`, `BumperWork`, `WorkshopInput.Bumper`, the Bumper panel, `WorkshopSpringboard`, `SpringboardSettings`, `WorkshopInput.Springboard`, `OfType<WorkshopSpringboard>`, the Springboard panel and the whitelist entries;*
+- *the `"bumper"` and `"spring"` arms of `CaptureInstance`;*
+- *this family's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Suite first:** `spring-forward` (9R.8) lands green on the record path and stays green after the conversion. Every 9R.8 AC applies, with the preload set through the generic editor.
+- **And** every Story 9A.33 and 9A.34 AC holds.
+- **And** `rg -w "WorkshopBumper|BumperWork|WorkshopSpringboard|SpringboardSettings|AddBumperConfiguration|AddSpringboardConfiguration"` returns 0 production hits, and the ratchet passes.
+- **And** the review appends the addendum for Story 6.5e's 9R.8 part.
+
+### Story C-Gate: Declared Prismatic Drive and Declaration-Free Warm-Up (9A.19 + 9A.21)
+*Status: Backlog. Position 32, after Story 9.4c and before Story 11.3.*
+
+*Depends on: Stories 9A.17, 9.4c (the `cat-005-n19` and `cat-051-interrupt` guards), 9R.3 and 9R.4.*
+
+*Deletes:*
+- *the union of the Stories 9A.19 and 9A.21 lists: gate detection by joint limit, the drag band and `ActuatorSliderDrive` heuristics, the record-type and `PartId.PoweredGate` selection of the drive, `SimJoint.SwitchedSupplyClosed` if it is unread, the element warm-up scene in `CuriousContraptions.Simulation/Program.cs` and the dummy joint in `WorkshopPhysicsEngine.cs`;*
+- *this family's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Given** the Powered Gate package, **When** it is compiled, **Then** every Story 9A.19 and 9A.21 AC holds. That includes the empty Story 9.4b element-scan known-violations list and the synthetic warm-up.
+- **And** `rg -w "ActuatorSliderDrive|SwitchedSupplyClosed"` and `rg "PartId\.PoweredGate"` return 0 production hits, and the warm-up names no element.
+- **And** the review appends the addendum that re-verifies Story 8.2.
+
+### Story C-Lamp+Detector: Signal Lamp and Ball Detector Generic Instances (9A.36 + 9A.37 + 9R.9 + 9R.16)
+*Status: Backlog. Position 36.*
+
+*Depends on: Stories C-Switch and 9A.26.*
+
+*Deletes:*
+- *the union of the Stories 9A.36 and 9A.37 lists: `WorkshopLamp`, `WorkshopInput.Lamp`, `WorkshopBallDetector`, `WorkshopInput.BallDetector`, its registry and collider lookup, the `ActivationNetwork.Compile` arms and the whitelist entries;*
+- *the `"lamp"` and `"ball_detector"` arms of `CaptureInstance`;*
+- *the any-target predicate in `cat-002.test.ts` (from 9R.9);*
+- *this family's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Suite first:** `cat-002` (9R.9) and `cat-035` (9R.16) land green on the record path and stay green after the conversion. Every 9R.9 and 9R.16 AC applies.
+- **And** every Story 9A.36 and 9A.37 AC holds.
+- **And** `rg -w "WorkshopLamp|WorkshopBallDetector"` returns 0 production hits, and the ratchet passes.
+- **And** the review appends the addenda for Story 6.8 and for Story 6.5e's 9R.16 part.
+
+### Story C-Plate: Declared Contact-Load Sensor and Pressure Plate Generic Instance (9A.20 + 9A.40 + F.6 item F-1)
+*Status: Backlog. Position 40.*
+
+*Depends on: Stories C-Gate and 9R.4/9R.5.*
+
+*Deletes:*
+- *the union of the Stories 9A.20 and 9A.40 lists: plate detection by half-extents, `_plateLoaded`, the 0.5 kg literal, the plate drag band, the `OfType<WorkshopPressurePlate>` emission loop (`WorkshopPhysicsCompiler.cs:224`), `WorkshopPressurePlate`, `WorkshopInput.PressurePlate` and the whitelist entry;*
+- *the `"pressure_plate"` arm of `CaptureInstance`;*
+- *this family's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Given** the Pressure Plate package, **When** a plate is compiled and edited, **Then** every Story 9A.20 and 9A.40 AC holds.
+- **And** Story F.6 item F-1 holds: a domino placed from the palette onto a plate rests on top, not straddling it, so two dominoes open the gate. It is proven in Chrome through the real drawer. F.6 keeps its other items.
+- **And** `rg -w "WorkshopPressurePlate|_plateLoaded"` returns 0 production hits, and the ratchet passes.
+- **And** the review appends the addendum that re-verifies Story 9.1.
+
+### Story C-Clock: System Clock Generic Instance with Proven Pulses (9A.42 + 9R.10)
+*Status: Backlog. Position 42.*
+
+*Depends on: Stories 9.5a (generic timer) and 9A.25a (declared bindings for the pendulum and flash).*
+
+*Deletes:*
+- *the whole of Story 9A.42's list: `WorkshopClock`, `DefaultIntervalSeconds`, `WorkshopInput.Clock`, the Clock panel, the `OfType<WorkshopClock>` loop (`WorkshopPhysicsCompiler.cs:258`), the clock arm in `ActivationNetwork.Compile` and the whitelist entry;*
+- *the `"clock"` arm of `CaptureInstance`;*
+- *the ball-only pause check and the blade-only reset check in `cat-017.test.ts` (from 9R.10);*
+- *this story's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Suite first:** `cat-017`, with Story 9R.10's assertions, lands green on the record path and stays green after the conversion. Every 9R.10 AC applies, including the pendulum and the per-pulse flash.
+- **And** every Story 9A.42 AC holds.
+- **And** `rg -w "WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration"` returns 0 production hits, and the ratchet passes.
+- **And** the review appends the addendum that re-verifies Story 9.3.
+
+### Story C-Memory: Pulse Counter and State Latch Generic Instances (9A.41 + 9A.43)
+*Status: Backlog. Position 46, the last record conversion.*
+
+*Depends on: Story 9A.22 (the `ThresholdReached` and `MemoryChanged` kinds) and every other conversion (9.5a, C-Switch, C-Ramp+Receiver, C-Balls, C-Bumper+Spring, C-Gate, 9A.39, C-Lamp+Detector, 9A.32, C-Plate, C-Clock).*
+
+*Deletes:*
+- *the union of the Stories 9A.41 and 9A.43 lists: `WorkshopCounter`, `DefaultTargetCount`, `WorkshopLatch`, their `WorkshopInput` factories, the latch-only Latched→Clear admission, the `OfType<WorkshopCounter>` and `OfType<WorkshopLatch>` loops (`WorkshopPhysicsCompiler.cs:244`, `:272`), the `ActivationNetwork.Compile` arms, and the whole `WorkshopInstances.Validate` type whitelist;*
+- *the `"counter"` and `"latch"` arms of `CaptureInstance`, which leaves no id arm;*
+- *this family's 9A.45a entries.*
+
+**Acceptance Criteria:**
+- **Given** the Counter and Latch packages, **When** they are compiled, **Then** every Story 9A.41 and 9A.43 AC holds, including the Story 9A.43 record-name `rg` returning 0 production hits.
+- **And** `CaptureInstance` has no id arm, and the 9A.45a list has no record-type entry left.
+- **And** the review appends the addenda that close Stories 9.2 and 6.5f.
+
+`cat-005-n19` and `cat-051-interrupt` exist from Story 9.4c (position 30), so the C-Gate, 9A.39 and C-Memory ACs that name them can be met.
 
 ### Story 9A.0: Architecture Authority Records the Sole Design
 *Status: Backlog*
 
-*Depends on: Story 9.4c. Audit: G1–G10. Documentation only; no runtime change.*
+*Depends on: Story 9R.5b (the current tree). Position 3. The former dependency on Story 9.4c recorded delivery order only (corrected 21 Oct 2026). Current status names each finding's owner under the 21 Oct 2026 Delivery order, including the merged stories. Audit: G1–G10. Documentation only; no runtime change.*
 
 *Deletes:*
 - *the stale claims in the untracked `docs/architecture/element-package-isolation.md` (G2): the nonexistent `CuriousContraptions.Engine`, the nested `elements/mechanical/ramp/` layout, the Optical/Pneumatic Abstractions, `IPartDefinition`/`IWorkshopInstance`/`PartId`/`GpuBodyId` "in Abstractions", the "~50–80 line" `worker.js`, and the "compiler guarantees" sentence;*
@@ -1700,7 +2348,7 @@ So that nobody builds on an end state that is described as if it already exists.
 - **Given** the tracked authoritative docs, **When** Story 9A.0 lands, **Then** `docs/architecture/element-package-isolation.md` is tracked and has two separate parts: **Target invariants** and **Current status**. Current status lists each open audit finding with its owning 9A story, and no unmet invariant is described as holding.
 - **And** the target invariants state:
   1. **Project per element.** Each `elements/<Name>/` project is the only declaration of its element: metadata, typed parameter schema, ports, colliders, body and material, domain payloads, events, presentation bindings, icon and scene asset. It references only `CuriousContraptions.Abstractions` and the domain Abstractions it needs, never the engine or a sibling.
-  2. **One declaration source.** `tools/BundleElements` discovers the packages at build time and writes one versioned bundle. The runtime loads only that bundle. There is no `.tres` catalogue, no per-element C# table and no `PartId` named constant.
+  2. **One declaration source.** `tools/BundleElements` discovers the packages at build time and writes one bundle with one schema and no version field (owner, 21 Oct 2026; superseding "versioned"). The runtime loads only that bundle. There is no `.tres` catalogue, no per-element C# table and no `PartId` named constant.
   3. **Command/query.** Every mutation is a typed command through `WorkshopCommandRouter` with a sequence and a receipt. The query side is the published committed read model (`WorkshopRead`), the pose ring and typed queries (this resolves G5). Raw `postMessage` flags and console channels are forbidden.
   4. **Event disruptor.** One-shot discrete occurrences travel only through the single-producer, multi-consumer event ring, and each consumer has its own cursor. Level states (activation level, latch memory, timer phase, electrical level) are committed-state queries (this resolves G6).
   5. **Kernels.** Capability-named kernels and `ActivationNodeKind` values selected by declared data are valid. Element-named event kinds such as `CounterReached` and `LatchSet` are not (this resolves G9).
@@ -1711,14 +2359,14 @@ So that nobody builds on an end state that is described as if it already exists.
   - a new AD-13, "Sole architecture", links the isolation doc;
   - the diagram text at lines 54 and 65 separates the ring from committed state;
   - the source map no longer cites `pose-ring.js`.
-- **And** `docs/engine-contracts.md` and `docs/general-engine-design.md` describe bundle loading and the bundle schema contract (G10): versioned; f32 vectors as `[x, y, z]` and quaternions as `[x, y, z, w]`; mechanical, electrical and signal payloads; a typed parameter schema with key, unit, enum kind, f32 range and default or enum options; and an enum category.
+- **And** `docs/engine-contracts.md` and `docs/general-engine-design.md` describe bundle loading and the bundle schema contract (G10): one schema with no version field, bad input rejected by structural validation (owner, 21 Oct 2026; superseding "versioned"); f32 vectors as `[x, y, z]` and quaternions as `[x, y, z, w]`; mechanical, electrical and signal payloads; a typed parameter schema with key, unit, enum kind, f32 range and default or enum options; and an enum category.
 - **And** the f32 table in `docs/gpu-f32-physics.md` names Story 9A.44 as the owner of every remaining binary16 lane.
 - **And** `AGENTS.md` links the isolation doc as the sole design authority from its engineering requirements, in one line.
 - **And** the Current status section records that review-9-2b's PASS for AC1, AC3, AC4 and AC5 is not supported by the tree (G8), including:
   - the MNA clause: no Modified Nodal Analysis exists, since `git grep -i 'nodal\|MNA'` returns 0 and the electrical domain is graph reachability with compiled supply routes;
   - the "~50–80 line `worker.js`" clause (347 lines).
   
-  The docs state the electrical model that actually exists (compiled supply routes over a reachability graph) as the current design. MNA becomes a named later capability, delivered only when an element first needs it (retro-verification #19). The review file is historical evidence and is not edited; Story 9R.18 appends its dated addendum.
+  The docs state the electrical model that actually exists (compiled supply routes over a reachability graph) as the current design. MNA becomes a named later capability, delivered only when an element first needs it (retro-verification #19). The review file is historical evidence and is not edited by the implementer; Story 9A.0's terminal review appends its dated addendum (reopened-record closure, 21 Oct 2026, which replaced Story 9R.18).
 - **And** the docs correct two stale text items found by the retro-verification. The Story 6.4 suite name `cat-062a.test.ts` becomes the actual `cat-062.test.ts` (§E). The spec-9-4 AC2 example "pressure plate wired to `SetIn`" is recorded as superseded: the plate's ActivationOut is a level that drives Signal lamps only (Story 9R.5).
 - **And** the new `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs` asserts that:
   - `AGENTS.md` links the isolation doc;
@@ -1730,7 +2378,7 @@ So that nobody builds on an end state that is described as if it already exists.
 ### Story 9A.1: Dead Legacy Purge
 *Status: Backlog*
 
-*Depends on: Story 9A.0. Audit: B3, B4, B5, B7, B8, D4 (JS producer) and the dead parts of A17.*
+*Depends on: Story 9A.0. Position 4, right after 9A.0 (owner amendment, 21 Oct 2026). Audit: B3, B4, B5, B7, B8, D4 (JS producer) and the dead parts of A17.*
 
 *Deletes:*
 - *`scratch/` (untracked), `scratch/CounterTestsDraft.cs.uid` and the root `scratch_test.cs.uid`;*
@@ -1756,12 +2404,13 @@ So that agents cannot copy or revive a dead pattern.
 ### Story 9A.2: Single FlatBuffers Codec
 *Status: Backlog*
 
-*Depends on: Story 9A.1. Audit: B1, plus the legacy decode arms in A3.*
+*Depends on: Story 9A.1. Position 10, after 9A.14, so that Story 9A.15 edits one codec. Audit: B1, plus the legacy decode arms in A3.*
 
 *Deletes:*
 - *the legacy binary codec `engine/gpu/WorkshopWire.cs` (command, response, construction and decode-per-id arms from `:400`);*
 - *the swallowing `catch { WorkshopWire.Decode* }` fallbacks in `engine/gpu/WorkshopCommandRouter.cs:17-25` and `engine/gpu/BrowserWorkshopClient.cs:268-275`;*
 - *in `worker.js:138-175`: the hand-written vtable decode in `extractReadIdentity` and its fixed-offset `responseAbi` fallback;*
+- *the save and wire format versions, `WorkshopSaveVersion` and `WorkshopWireVersion`, with their fields and checks (owner, 21 Oct 2026: no format versioning; Story 9A.0 Current status). The other version enums belong to Story F.10;*
 - *the Counter decode's silent default and float→int coercion, `inst.Threshold == 0 ? DefaultTargetCount : (int)Math.Round(inst.Threshold)` (`engine/gpu/WorkshopWireFlatBuffers.cs:896` at HEAD `8f682f8`; retro-verification #13). The target count becomes an integer field, and a missing or out-of-range value is rejected.*
 
 As a player,  
@@ -1775,7 +2424,7 @@ So that a malformed message fails visibly instead of being silently reinterprete
   - `engine/gpu/WorkshopSaveCodec.cs` (`ByteLength = 24 + WorkshopWire.ConstructionBytes`).
 - **And** `tools/e2e/workshop-wire.ts` decodes the FlatBuffers format only.
 - **And** (coordinator decision, 18 Oct 2026; from the Story 9R.0 review) saved-construction decoding does complete structural pre-validation before any domain construction runs. The checks:
-  - buffer verifier, version and root identifier;
+  - buffer verifier and root identifier (no version check: owner, 21 Oct 2026);
   - every enum is defined;
   - every numeric value is finite and within its declared range;
   - instance ids are unique and every reference resolves;
@@ -1786,14 +2435,14 @@ So that a malformed message fails visibly instead of being silently reinterprete
   - a fuzz corpus of truncated, bit-flipped and oversized inputs;
   - a duplicate-key defect injected after validation, which must surface as a fault.
 - **And** a truncated, unknown-tag or trailing-byte buffer is rejected with a typed fault naming the reason. The input is never retried through another codec (negative control in a unit test for commands, responses and saves).
-- **And** the save and trace versions are bumped. An older save is rejected explicitly with a player-visible message and the current bench is kept (no migration).
+- **And** there are no format versions (owner, 21 Oct 2026). A save that fails structural validation is rejected explicitly with a player-visible message, and the current bench is kept (no migration).
 - **And** `rg "WorkshopWire\."` returns 0 hits outside the FlatBuffers codec.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview, including every suite that saves and loads.
 
 ### Story 9A.3: Transport Controls as Typed Commands and Queries
 *Status: Backlog*
 
-*Depends on: Story 9A.2. Audit: C2, C3.*
+*Depends on: Story 9A.2. Position 13, right after 9A.17 (owner amendment, 21 Oct 2026). Audit: C2, C3.*
 
 *Deletes:*
 - *the raw `reliableStalled` `postMessage` flag path (`CuriousContraptions.web/wwwroot/workshop-client.js:78-86` → `worker.js:315` → `Program.SetReliableStall` at `Program.cs:495`, which stops the run at `:428-431`), or whatever of it Story 9.4b left;*
@@ -1809,17 +2458,19 @@ So that a stalled connection stops the run in a predictable way.
 - **And** an untyped message on the old channel names is rejected, and the rejection is visible in the worker fault log (negative control).
 - **And** `tools/workshop-observation.test.mjs` exercises the typed command and query.
 - **And** `cat-023b` passes in three consecutive serial runs.
+- **And** `rg "reliableStalled|memoryRequest|SetReliableStall|ObserveMemory"` returns 0 production hits outside the typed command and query definitions.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.4: Lossless Bundle Build Gate
 *Status: Backlog*
 
-*Depends on: Story 9A.0. Audit: A13 (build side), A14, G10.*
+*Depends on: Story 9R.5b (the current tree). Position 5. The former dependency on Story 9A.0 recorded number order only (corrected 21 Oct 2026). Audit: A13 (build side), A14, G10.*
 
 *Deletes:*
 - *the hand-maintained list of 13 declarations in `tools/BundleElements/Program.cs:21-36` and the anonymous-object serialiser at `:38-50`;*
 - *the committed lossy `parts/elements.bundle.json`, which becomes a build output and is git-ignored;*
-- *the `ElementMetadata.Parameters` property bag (`IReadOnlyDictionary<string, object>`) and the string `ElementMetadata.Category` (`CuriousContraptions.Abstractions/ElementMetadata.cs`).*
+- *the `ElementMetadata.Parameters` property bag (`IReadOnlyDictionary<string, object>`) and the string `ElementMetadata.Category` (`CuriousContraptions.Abstractions/ElementMetadata.cs`);*
+- *the bundle's `Version` and `GeneratedAt` fields (owner, 21 Oct 2026: no format versioning).*
 
 As an element author,  
 I want my package to be built, validated and serialised without loss on every build,  
@@ -1828,13 +2479,14 @@ So that the bundle can become the only declaration the game loads.
 **Acceptance Criteria:**
 - **Given** the solution, **When** it builds, **Then** `CuriousContraptions.slnx` contains every `elements/*` project, the four domain Abstractions and `tools/BundleElements`.
 - **And** an MSBuild target runs `BundleElements` before the Godot export and before publish. The target discovers packages by globbing `elements/*/*.csproj` and reflecting over `IPuzzleElementDeclaration` implementations; there is no hand list.
-- **And** the bundle schema is typed and versioned:
+- **And** the bundle schema is typed, with one schema and no version field or generation timestamp (owner, 21 Oct 2026; superseding "versioned"):
   - f32 vectors as `[x, y, z]` and quaternions as `[x, y, z, w]`, written bit-exactly;
   - mechanical (mass, inertia, material, anchors), electrical (nodes) and signal (triggers, latch, counter) payloads;
   - a typed parameter schema: key, unit, an enum kind, f32 minimum, maximum and default, or enum options;
   - an enum category.
 - **And** generation fails the build, naming the package and field, for a duplicate id, a non-finite value, an unknown enum, or a body without a collider (negative control with fixture declarations).
 - **And** a round-trip test proves that every package's declaration equals its deserialised bundle entry, f32 bit for bit.
+- **And** the deleted items are gone: `git ls-files parts/elements.bundle.json` returns nothing, `rg "IReadOnlyDictionary<string, object>" CuriousContraptions.Abstractions/ElementMetadata.cs` returns 0 hits, and `tools/BundleElements/Program.cs` contains no hand-listed declaration.
 - **And** a temporary cutover guard, `BundleCatalogueParityTests`, proves that every packaged element's metadata, category, ports, colliders, footprint, material and parameter defaults equal the current runtime values: `parts/catalog/*.tres`, `WorkshopPorts.For`, `WorkshopCanonicalColliders.For`, `WorkbenchFootprint.Of`, and the defaults in `MachineWorld.CaptureInstance`.
 - **And** the same test asserts that the catalogue ids without a package are exactly: basket, bowling, delay, funnel, pipe, pipe_bend_45, pipe_bend_90, spring, switch, tennis and balloon. Story 9A.14 deletes this guard together with the tables it compares.
 - **And** the package categories adopt the catalogue's current player-facing categories (for example `ball` is "Motion"), so palette grouping does not change for the player. *Coordinator decision under owner delegation, 18 Oct 2026 (playability): the palette must not reshuffle during a refactor.*
@@ -1845,7 +2497,7 @@ So that the bundle can become the only declaration the game loads.
 Each of these nine stories adds one `elements/<Name>/` project. It does not change runtime behaviour; it makes the atomic catalogue cutover in Story 9A.14 possible without dropping an element.
 
 ### Story 9A.5: Receiver Element Package (CAT-004, id `basket`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1869,7 +2521,7 @@ So that the bundle can carry it when the `.tres` catalogue is deleted.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.6: Bowling Ball Element Package (CAT-014, id `bowling`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1891,7 +2543,7 @@ So that its heavy-ball material lives with the element and not in an engine swit
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.7: Delay Box Element Package (CAT-022, id `delay`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-3 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1913,7 +2565,7 @@ So that its duration parameter and activation ports come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.8: Funnel Element Package (CAT-030, id `funnel`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1929,7 +2581,7 @@ So that its hollow-frustum colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.9: Clear Pipe Element Package (CAT-048, id `pipe`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1945,7 +2597,7 @@ So that its compound-cylinder and torus-rim colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.10: 45° Pipe Bend Element Package (CAT-049, id `pipe_bend_45`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1961,7 +2613,7 @@ So that its torus-segment colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.11: 90° Pipe Bend Element Package (CAT-050, id `pipe_bend_90`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1977,7 +2629,7 @@ So that its torus-segment colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.12: Springboard Element Package (CAT-062, id `spring`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -1999,7 +2651,7 @@ So that its stiffness, damping and precompression are declared parameters.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.13: Impact Switch Element Package (CAT-063, id `switch`)
-*Status: Backlog*
+*Status: Backlog. Merged into PKG-3 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2021,7 +2673,7 @@ So that its trigger threshold and sockets come from the bundle (Story 9.5b later
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.14: Bundle Is the Sole Catalogue Source
-*Status: Backlog*
+*Status: Backlog. Position 9. Story 9A.18 (element icons ship in their packages) merges into this story (21 Oct 2026): its Deletes list and ACs apply here in full.*
 
 *Depends on: Stories 9A.5–9A.13. Audit: A13 (runtime side), A17, A18, G3.*
 
@@ -2040,13 +2692,19 @@ So that every part I pick can be placed and run.
 
 **Acceptance Criteria:**
 - **Given** the generated bundle, **When** the game starts, **Then** `PartRegistry` loads only the bundle. Each definition is a plain runtime record built from a bundle entry, and its scene loads from the package path (`res://elements/<Name>/…`).
-- **And** a missing, malformed or wrong-version bundle stops start-up with an explicit message naming the problem. Nothing is loaded from elsewhere.
+- **And** a missing or structurally invalid bundle stops start-up with an explicit message naming the problem. Nothing is loaded from elsewhere.
 - **And** the Free palette lists every bundle element, grouped by declared category, with the same titles, categories and order the player saw before (screenshot compared against the Story 9.4b baseline).
 - **And** Tennis and Balloon no longer appear.
 - **And** the new `tools/e2e/arch-9a-catalogue.test.ts` passes. In actual Chrome it:
   - asserts that the palette shows exactly the 22 bundle elements;
   - places each one through the real drawer;
   - runs, resets and save/loads one bench containing all of them.
+- **And** (owner amendment, 21 Oct 2026) the old catalogue loader and the static palette list are gone:
+  - `git ls-files 'parts/catalog/*.tres' 'parts/scenes/*'` returns nothing;
+  - `rg "res://parts/catalog|BundleCatalogueParityTests"` returns 0 hits outside history;
+  - `PartRegistry` has no `.tres` scan;
+  - `engine/gpu/WorkshopInventory.cs` has no static Free palette list.
+- **And** every Story 9A.18 AC holds. Each package's `icon.svg` is rendered from `ElementMetadata.IconPath`, a missing icon fails the bundle build, and `ui/WorkshopIcons.cs` keeps no element arm (`rg` for each deleted element id in that file returns 0 hits).
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 *Tennis and Balloon (coordinator decision under owner delegation, 18 Oct 2026).* They are removed from the palette rather than kept, for three reasons:
@@ -2070,14 +2728,15 @@ So that adding a new element never renumbers existing ones.
 **Acceptance Criteria:**
 - **Given** a construction, **When** it is saved, sent to a worker or traced, **Then** each instance carries its typed `PartId` string. That string is validated against the loaded bundle only at the serialisation boundary.
 - **And** an unknown id is rejected atomically with the id named in the error (negative control).
-- **And** the save, wire and trace versions are bumped. Older saves are rejected with a player-visible message and no migration (AGENTS.md: no automatic migration).
+- **And** `rg -w "ToNumericId|FromNumericId"` returns 0 hits, and no FlatBuffers schema or save field carries a numeric part id.
+- **And** there are no format versions (owner, 21 Oct 2026). Structurally invalid saves are rejected with a player-visible message, and there's no migration (AGENTS.md: no automatic migration).
 - **And** every suite that saves and loads passes.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.16: Bundle Is the Sole Collider Source
 *Status: Backlog*
 
-*Depends on: Story 9A.14. Audit: A3 (colliders), B2.*
+*Depends on: Story 9A.14. Position 14, right after 9A.17 and 9A.3 (owner amendment, 21 Oct 2026). Audit: A3 (colliders), B2.*
 
 *Deletes:*
 - *`engine/gpu/WorkshopCanonicalColliders.cs` (whole file: the 10-arm `For` switch at `:20-33`, every per-element table including `CreateLatchColliders`, and 295 `Half` tokens);*
@@ -2097,6 +2756,7 @@ So that a part never behaves differently because a fallback table was used.
 - **And** a package that declares colliders in data *and* has scene colliders fails the build, naming the package. There is one collider source per package, with no merging (negative control).
 - **And** at runtime, colliders come only from the bundle. An element with a body but no collider fails the bundle build (Story 9A.4 validation), and a construction referencing an element with no colliders is rejected explicitly.
 - **And** a golden compile test captured before the change proves that every element's compiled collider rows are unchanged within f32 representation.
+- **And** `rg -w "WorkshopCanonicalColliders|LatchColliders|CreateLatchColliders"` returns 0 hits, and no runtime caller of `GltfPhysicsBodyExtractor` remains.
 - **And** `cat-048a`, `cat-048b`, `cat-049`, `cat-050`, `cat-030` and `cat-037` pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
@@ -2120,13 +2780,14 @@ So that wiring and placement behave the same for every element.
 **Acceptance Criteria:**
 - **Given** any element, **When** I wire or place it, **Then** its sockets, directions, domains and anchor positions come only from its bundle `PortDescriptor` list, and its bench footprint only from its declaration.
 - **And** a golden test proves that every element's ports and footprint are unchanged.
+- **And** `rg "WorkshopPorts\.For|WorkbenchFootprint\.Of"` returns 0 hits, and `MachinePart.TryGetPortTransform` has no string alias chain.
 - **And** a wrong-domain or output-to-output link is still refused (negative control).
 - **And** every wiring suite passes (`cat-005`, `cat-017`, `cat-020`, `cat-037`, `cat-051`, `cat-052`, `anim-1b`, `anim-1c`).
 - **And** the existing disagreements between the declaration ports and the scene `Loc_Port_*` locators are resolved, with one source in the bundle (visual review of 19 Oct 2026, #11). For example, the detector's signal port is at (0, 0.4, 0) in its declaration and (0, 1.12, 0) in its scene; the Gate, Counter, Plate, Battery, Bumper, Domino and Lamp also differ. The pipe and bend start-mouth locators face outward, as the Funnel's does. A test fails if a declared port and its visual locator disagree.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.18: Element Icons Ship in Their Packages
-*Status: Backlog*
+*Status: Backlog. Merged into Story 9A.14 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.14. Audit: A3 (icons).*
 
@@ -2143,7 +2804,7 @@ So that new elements bring their own icon without engine edits.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.19: Declared Prismatic Drive for the Powered Gate
-*Status: Backlog*
+*Status: Backlog. Merged into C-Gate (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Stories 9A.17, 9.4 (review-9-4 F6) and 9R.3/9R.4. Those stories already fixed the behaviour with compiled Run-time supply routes: per-gate own-battery routes, per-plate routes, latch and counter routes. This story only converts the gate drive into a package declaration and does not repeat those fixes. Audit: A7 (gate part).*
 
@@ -2168,7 +2829,7 @@ So that any slider element can declare a drive and the solver never recognises a
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.20: Declared Contact-Load Sensor for the Pressure Plate
-*Status: Backlog*
+*Status: Backlog. Merged into C-Plate (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Stories 9A.19 and 9R.4/9R.5. Story 9R.4 already replaced size detection and the global `_plateLoaded` flag with per-plate compiled contact-load rows that honour `minimum_mass`, and 9R.5 added the ActivationOut level. This story only moves the source of those rows into the package declaration. Audit: A7 (plate part).*
 
@@ -2186,7 +2847,7 @@ So that any element can declare a load sensor and the compiler never recognises 
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.21: Declaration-Free Worker Warm-Up
-*Status: Backlog*
+*Status: Backlog. Merged into C-Gate (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.19. Audit: A9.*
 
@@ -2204,7 +2865,7 @@ So that the warm-up never depends on which elements exist.
 *Design choice (coordinator, under owner delegation; playability).* A synthetic warm-up is kept rather than deleted, because a first-Run stall is visible to the player.
 
 ### Story 9A.22: Event Ring Producer
-*Status: Backlog*
+*Status: Backlog. Position 44, immediately before C-Memory, whose ACs need `ThresholdReached` and `MemoryChanged`.*
 
 *Depends on: Stories 9A.2 and 9.4. Audit: D1, A16.*
 
@@ -2227,7 +2888,7 @@ So that sound, animation and the interface can all react to the same event.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.23: Event Ring Consumers
-*Status: Backlog*
+*Status: Backlog. Delivered with Story 9A.25b as one slice, "9A.23 + 9A.25b", at position 48 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.22. Audit: D2, D3, D4 (JS reader).*
 
@@ -2252,7 +2913,7 @@ So that effects line up with the physics and none is lost or doubled.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.24: Typed Read-Only Observation Port Replaces Console Channels
-*Status: Backlog*
+*Status: Backlog. Position 52.*
 
 *Depends on: Story 9A.23. Audit: C4, C5.*
 
@@ -2267,7 +2928,7 @@ I want one typed, read-only observation port,
 So that every e2e suite observes the production build without console scraping or ad-hoc globals.
 
 **Acceptance Criteria:**
-- **Given** the production build, **When** a page loads, **Then** a versioned, typed observation port exposes three things:
+- **Given** the production build, **When** a page loads, **Then** a typed observation port, with no version field (owner, 21 Oct 2026), exposes three things:
   - command receipts (sequence, kind, result);
   - a committed read-model query;
   - an independent event-ring cursor.
@@ -2279,9 +2940,9 @@ So that every e2e suite observes the production build without console scraping o
 *Design choice (coordinator, under owner delegation).* The port ships in the single production artifact rather than in a separate `PLAYTEST` build, because AGENTS.md requires Chrome proof of the production build. It is read-only by construction.
 
 ### Story 9A.25: Presentation Bindings Ship in Packages
-*Status: Backlog*
+*Status: Backlog. Split on 21 Oct 2026. The committed-state part is Story 9A.25a (position 15, with 9R.20). The one-shot drivers are Story 9A.25b, delivered with 9A.23 (position 48). These ACs stay here and apply to both.*
 
-*Depends on: Stories 9A.17 and 9A.23. Audit: A4, A10.*
+*Depends on: Story 9A.17 for 9A.25a, and Story 9A.23 for 9A.25b only. The former single dependency on 9A.23 recorded number order for the committed-state bindings (corrected 21 Oct 2026). Audit: A4, A10.*
 
 *Deletes:*
 - *the `MachinePart.BuildDeclarative` chain of 24 `PartId ==` arms (`engine/MachinePart.cs:237-530`);*
@@ -2302,7 +2963,7 @@ So that `MachinePart` applies every element's presentation generically.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.26: Lessons and Puzzles as Content Data
-*Status: Backlog*
+*Status: Backlog. Position 22, the first deletion slot after C-Switch (21 Oct 2026). Its eight lesson files build records of most families, so deleting them first spares every later conversion a lesson edit.*
 
 *Depends on: Stories 9A.14 and 9A.17. Audit: A12, A19.*
 
@@ -2318,7 +2979,7 @@ I want every lesson to play exactly as before while being loaded as data,
 So that the 150 campaign levels can be authored without engine code.
 
 **Acceptance Criteria:**
-- **Given** `content/puzzles.json`, extended with a typed, versioned schema, **When** a lesson loads, **Then** the lesson is built entirely from that data:
+- **Given** `content/puzzles.json`, extended with a typed schema with no version field (owner, 21 Oct 2026), **When** a lesson loads, **Then** the lesson is built entirely from that data:
   - an extensible typed puzzle id;
   - placements (part id, pose, locked flag, parameter values validated against each element's declared parameter schema);
   - inventory allowances;
@@ -2327,6 +2988,7 @@ So that the 150 campaign levels can be authored without engine code.
   
   The construction is compiled on the main thread from that data.
 - **And** a content file with an unknown part id, an unknown parameter or an out-of-range value is rejected at load, with the puzzle and field named (negative control).
+- **And** (owner amendment, 21 Oct 2026) `git ls-files` returns nothing for the eight deleted lesson files, and `rg -w "WorkshopPuzzleId|ReadyToRebound|WallAndBumper"` returns 0 production hits outside `content/`.
 - **And** each lesson keeps its current layout, inventory and solution: FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick, BumperDepth, WallAndBumper, SpringForward, ReadyToRebound, ClearPipe, GentleBend and QuarterBend.
 - **And** `cat-015a-sidekick`, `cat-015b`, `cat-062`, `cat-062b`, `cat-023b`, `cat-048b`, `cat-049` and `cat-050` pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
@@ -2344,17 +3006,24 @@ Each story deletes, for its element:
 - its arm in `MachineWorld.Gpu.cs:318-338`;
 - its per-id FlatBuffers encode and decode arms (`engine/gpu/WorkshopWireFlatBuffers.cs:853+`).
 
-If the element is the first to need a capability (dynamic body, contact trigger, orientation sensor, timer, memory, counter, electrical source), that story adds the generic compile of that capability from declared data. Each story's golden compile test proves the compiled capability rows are unchanged. Each story bumps the save version and rejects older saves explicitly.
+If the element is the first to need a capability (dynamic body, contact trigger, orientation sensor, timer, memory, counter, electrical source), that story adds the generic compile of that capability from declared data. Each story's golden compile test proves the compiled capability rows are unchanged. No story bumps a format version (owner, 21 Oct 2026); a save that fails structural validation is rejected explicitly.
+
+*Delivery order, 21 Oct 2026.* These conversions are delivered as family stories (C-Switch, C-Ramp+Receiver, C-Balls, C-Bumper+Spring, C-Gate, C-Lamp+Detector, C-Plate, C-Clock and C-Memory), plus 9A.32 (Domino) and 9A.39 (Battery) alone. Story 9A.38 is delivered in 9.5a, and 9A.27 stays on the critical path.
+- They run right after Story 9.5 and alternate one for one with new elements, ordered by how much old code they delete.
+- Each deletes its element's `CaptureInstance` arm, and any per-element panel, together with its record.
+- Each AC includes: an active-tree `rg` for every deleted symbol returns 0 production hits, and the story's 9A.45a known-violations entries are gone.
 
 ### Story 9A.27: Generic Instance and Parameter Editor — Wall (CAT-066)
-*Status: Backlog*
+*Status: Backlog. Position 16. Story 9R.14 (the `cat-066` suite) merges into this story as its suite-first guard (21 Oct 2026).*
 
-*Depends on: Stories 9A.25 and 9A.26. Audit: A5, A6, A11 (generic editor).*
+*Depends on: Story 9A.25a. The former dependency on Story 9A.26 is replaced by a one-line edit to `engine/gpu/BumperAdvanced.cs` (the WallAndBumper lesson's `instance is WorkshopWall` checks at `:69-74` read the generic Wall instance); Story 9A.26 deletes that file later. Audit: A5, A6, A11 (generic editor).*
 
 *Deletes:*
 - *`WorkshopWall` and `WallDimensions` (`engine/gpu/WorkshopWall.cs:30`), `WorkshopInput.Wall`, and the `"wall"` arm and the `wallDimensions` parameter of `CaptureInstance`;*
 - *the Wall half of `is WorkshopRamp or WorkshopWall` in `WorkshopPhysicsCompiler`;*
 - *`WorkshopWall` in the `Validate` whitelist.*
+
+*The coordinator asked (21 Oct 2026) that this story delete the whole `CaptureInstance` id list and the per-element configuration panels. The other arms and panels build or edit record types that live until their own conversions, so they are recorded as 9A.45a known-violations entries, each owned by its conversion. That is reconciliation item 4 of the Delivery order, open for the coordinator's decision.*
 
 As a player,  
 I want to resize and configure a Wall through an editor built from its declared parameters,  
@@ -2365,11 +3034,14 @@ So that every element after it can use the same editor.
 - **And** an out-of-range or unknown parameter is rejected and the instance is unchanged (negative control).
 - **And** Run/Reset and Save/Load restore the wall exactly.
 - **And** the golden compile rows are unchanged.
+- **And** (suite first) Story 9R.14's `cat-066` suite lands green on the record path and stays green after the conversion. Every Story 9R.14 AC applies, and the out-of-range resize clamps at its limit.
+- **And** `rg -w "WorkshopWall|WallDimensions|wallDimensions"` returns 0 production hits.
+- **And** the review appends the addendum for Story 6.5d's 9R.14 part.
 - **And** `cat-015b` and every suite that places a Wall pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.28: Generic Instance — Ramp (CAT-054)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Ramp+Receiver (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.27. Audit: A5, A6.*
 
@@ -2386,7 +3058,7 @@ So that it behaves as before with no engine record.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.29: Generic Instance — Receiver (CAT-004)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Ramp+Receiver (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.27. Audit: A5, A6.*
 
@@ -2404,7 +3076,7 @@ So that every goal keeps working with no engine record.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.30: Generic Instance — Basketball (CAT-001)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Balls (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.27. Audit: A5, A6, A3 (ball materials).*
 
@@ -2421,7 +3093,7 @@ So that its material comes only from its package.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.31: Generic Instance — Bowling Ball (CAT-014)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Balls (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.30. Audit: A5, A6.*
 
@@ -2438,11 +3110,11 @@ So that the last ball record leaves the engine.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.32: Generic Instance — Domino (CAT-023)
-*Status: Backlog*
+*Status: Backlog. Position 38 (Delivery order, 21 Oct 2026).*
 
-*Depends on: Story 9A.30. Audit: A5, A6.*
+*Depends on: Story 9A.30 (C-Balls). Audit: A5, A6.*
 
-*Deletes: `WorkshopDomino` and `DominoMaterial` (`engine/gpu/WorkshopDomino.cs:22`), `WorkshopInput.Domino`, `OfType<WorkshopDomino>` in the compiler, the `instance is WorkshopDomino` arm in `ActivationNetwork.Compile`, and `WorkshopDomino` in the whitelist.*
+*Deletes: `WorkshopDomino` and `DominoMaterial` (`engine/gpu/WorkshopDomino.cs:22`), `WorkshopInput.Domino`, the `"domino"` arm of `CaptureInstance`, `OfType<WorkshopDomino>` in the compiler, the `instance is WorkshopDomino` arm in `ActivationNetwork.Compile`, `WorkshopDomino` in the whitelist, and this story's 9A.45a entries. AC: `rg -w "WorkshopDomino|DominoMaterial"` returns 0 production hits.*
 
 As a player,  
 I want dominoes to stand, topple and trigger exactly as before,  
@@ -2456,7 +3128,7 @@ So that the orientation sensor is selected by declaration only.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.33: Generic Instance — Pinball Bumper (CAT-015)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Bumper+Spring (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.30. Audit: A5, A6, A11.*
 
@@ -2474,7 +3146,7 @@ So that its finite work store is declared data.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.34: Generic Instance — Springboard (CAT-062)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Bumper+Spring (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.30. Audit: A5, A6, A11.*
 
@@ -2492,9 +3164,9 @@ So that launches come from declared slider and spring data.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.35: Generic Instance — Impact Switch (CAT-063)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Switch (21 Oct 2026). These ACs stay here and apply there.*
 
-*Depends on: Story 9A.30. Audit: A5, A6.*
+*Depends on: Stories 9A.27 (generic editor), 9A.13 (switch package, in PKG-3) and 9.5a. The former dependency on 9A.30 recorded number order only (corrected 21 Oct 2026). Audit: A5, A6.*
 
 *Deletes: `WorkshopSwitch` (`engine/gpu/WorkshopActivationParts.cs:13`) and the element-specific use of `ContactTriggerSettings`, which becomes a declared threshold parameter. Also deletes `WorkshopInput.Switch`, the `is WorkshopSwitch` arms in the compiler (around lines 96 and 115–150) and in `ActivationNetwork.Compile`, and `WorkshopSwitch` in the whitelist.*
 
@@ -2510,7 +3182,7 @@ So that contact triggers are selected by declaration only.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.36: Generic Instance — Signal Lamp (CAT-035)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Lamp+Detector (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.35. Audit: A5, A6.*
 
@@ -2528,7 +3200,7 @@ So that its sticky first-input node is selected by declaration.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.37: Generic Instance — Ball Detector (CAT-002)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Lamp+Detector (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.35. Audit: A5, A6.*
 
@@ -2545,9 +3217,9 @@ So that aperture sensors are selected by declaration.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.38: Generic Instance — Delay Box (CAT-022)
-*Status: Backlog*
+*Status: Backlog. Merged into Story 9.5a (21 Oct 2026). These ACs stay here and apply there.*
 
-*Depends on: Story 9A.35. Audit: A5, A6, A11.*
+*Depends on: Stories 9A.27 and 9A.7 (delay package, in PKG-3). The former dependency on 9A.35 recorded number order only: the Impact Switch in the Delay fixture stays a record instance until C-Switch (corrected 21 Oct 2026). Audit: A5, A6, A11.*
 
 *Deletes: `WorkshopDelay` and `DelayDuration` (`engine/gpu/WorkshopDelay.cs:36`), `WorkshopInput.Delay`, the Delay panel in `ui/WorkshopConfiguration.cs`, the delay arm in `ActivationNetwork.Compile`, and `WorkshopDelay` in the whitelist.*
 
@@ -2562,7 +3234,7 @@ So that timers are selected by declaration.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.39: Generic Instance — Battery (CAT-005)
-*Status: Backlog*
+*Status: Backlog. Position 34 (Delivery order, 21 Oct 2026). It also deletes the `"battery"` arm of `CaptureInstance` and this story's 9A.45a entries. AC: `rg -w "WorkshopBattery|AddBatteryConfiguration"` returns 0 production hits, and `git ls-files ui/WorkshopBattery.cs` returns nothing. The review appends the addendum that re-verifies Story 8.1 against its amended acceptance.*
 
 *Depends on: Stories 9A.19 and 9A.35. Audit: A5, A6, A11.*
 
@@ -2585,7 +3257,7 @@ So that power sources are selected by declaration.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.40: Generic Instance — Pressure Plate (CAT-052)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Plate (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Stories 9A.20 and 9A.35. Audit: A5, A6.*
 
@@ -2602,7 +3274,7 @@ So that the load sensor is fully declared.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.41: Generic Instance — Pulse Counter (CAT-020)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Memory (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Stories 9A.22 and 9A.35. Audit: A5, A6.*
 
@@ -2621,7 +3293,7 @@ So that counting is selected by declaration.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.42: Generic Instance — System Clock (CAT-017)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Clock (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.38. Audit: A5, A6, A11.*
 
@@ -2639,7 +3311,7 @@ So that periodic pulses are selected by declaration.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.43: Generic Instance — State Latch (CAT-037)
-*Status: Backlog*
+*Status: Backlog. Merged into C-Memory (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Stories 9A.22 and 9A.27–9A.42; it is the last record conversion, so it removes the whole whitelist. Audit: A5, A6.*
 
@@ -2663,7 +3335,7 @@ So that the last element record leaves the engine.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.44: f32 Lane Completion — Remove Every binary16 Lane
-*Status: Backlog*
+*Status: Backlog. Position 50 (Delivery order, 21 Oct 2026): as soon as its preconditions allow, right after C-Memory (the last record conversion, which includes 9A.43), 9A.23 + 9A.25b and 9A.26, so that no lane is migrated and then deleted. Story 9.5a has already moved the timer lane (`ActivationTimers.cs`) to f32.*
 
 *Depends on: Story 9A.43. Retro-verification X2 and #17 found 675 `Half` lines added since baseline `9107148` (458 production, 217 test) by Stories 6.6–9.4; all of them are in scope. It is placed after the stories that delete the largest `Half` holdings (`WorkshopCanonicalColliders` in 9A.16, `MachinePart` bindings and `CosmeticCurves` in 9A.25, the puzzle lanes in 9A.26) so that no lane is migrated and then deleted. Owner decision, 18 Oct 2026. Audit: B6. Resolves CAT-037 open question 2.*
 
@@ -2684,7 +3356,7 @@ So that sizes, masses, timings and animations behave identically everywhere.
 **Acceptance Criteria:**
 - **Given** the tree, **When** this story lands, **Then** `rg -w "Half|HalfBits|Float16|float16|getF16|setF16"` over the active tree, excluding `archives/` and `node_modules/`, returns 0 hits.
 - **And** every former lane carries IEEE-754 f32 end to end: authoring, construction, wire, save, solver, read model and animation.
-- **And** the schema, save and trace versions are bumped, and older saves are rejected explicitly with no migration.
+- **And** there are no format versions (owner, 21 Oct 2026). Structurally invalid saves are rejected explicitly, and there's no migration.
 - **And** the `docs/gpu-f32-physics.md` "f32 Migration Status" table records no remaining lane, and the envelope statements that depended on binary16 are restated for f32.
 - **And** golden tests show every element's outcomes stay inside the [game-grade envelope](../../docs/gpu-f32-physics.md#game-grade-envelope).
 - **And** every compiled record field touched by the f32 relayout (bodies, colliders, sensors, prismatics, electrical, motion and cache) is read and written only through named `PhysicsGpuAbi` offset constants. `WorkshopAbiLiteralScanTests` is extended from Story 9.4b's header, contact-work, occurrence and trigger records to every record type, and fails on any literal ABI offset in production. Coordinator decision, 19 Oct 2026, Story 9.4b R2-F4: the offsets change in this story anyway, so naming them here migrates each one exactly once.
@@ -2692,7 +3364,7 @@ So that sizes, masses, timings and animations behave identically everywhere.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.45: Compile-Time Element Isolation Gate
-*Status: Backlog*
+*Status: Backlog. Position 54, the last deletion story and the final empty-list gate (21 Oct 2026). Story 9A.45a delivered the early ratchet at position 17. This story moves that scan into the build, requires its known-violations list to be empty, and deletes the list mechanism.*
 
 *Depends on: Stories 9A.1–9A.44. Audit: A1, A2 (constants).*
 
@@ -3507,6 +4179,19 @@ So that Curious Contraptions is ready for public release.
 ## Filed Follow-ups (back of the queue)
 
 *Owner decision, 19 Oct 2026, evening: review findings beyond a story's own acceptance criteria are filed here, after every other queued story, unless they are a player-visible crash. See the [verification tiers](autonomous-development-guide.md#verification-tiers).*
+
+### Story F.6: Contact-Load Follow-ups
+*Status: Backlog. Filed from the Story 9R.4 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-4-pressure-plate-per-instance-load-rows.md)).*
+
+**Acceptance Criteria:**
+- **Placement:** a domino placed from the palette onto a plate rests on top, not straddling it, so two dominoes open the gate. This is player-visible (F-1). *Moved into C-Plate on 21 Oct 2026; F.6 keeps its other items.*
+- **Plate behaviour:**
+  - Underweight is proven directly (F-3);
+  - the plate's sensor id no longer shares the +6 offset with the passage sensor (F-4);
+  - the box-contact alignment tolerance covers slightly tilted resting boxes (F-6).
+- **Performance gate:** no per-tick array allocation for committed reads (F-7).
+- **Tests:** the face and alignment filters are killed by engine-path tests (F-8).
+- **Docs:** `CAT-052-pressure_plate.md` §2 describes the normal-and-gap region.
 
 ### Story F.5: Supply Route Follow-ups
 *Status: Backlog. Filed from the Story 9R.3 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-3-direct-gate-own-supply-route.md)).*

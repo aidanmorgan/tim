@@ -1,0 +1,67 @@
+diff --git a/CuriousContraptions.tests/PressurePlateTests.cs b/CuriousContraptions.tests/PressurePlateTests.cs
+index af1844c7..7eebd267 100644
+--- a/CuriousContraptions.tests/PressurePlateTests.cs
++++ b/CuriousContraptions.tests/PressurePlateTests.cs
+@@ -699,4 +699,33 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
+         Assert.False(ContactClosed(reads[0], plate), "Empty at admission");
+         Assert.True(ContactClosed(reads[^1], plate), "Loaded once the ball rests");
+     }
++
++    [Fact]
++    public async Task ProbeP1_ABasketballPlacedBeforeThePlateOpensItsGate()
++    {
++        var ball = BallOn(1, -4, 0); var gate = Gate(2, 0); var battery = Battery(3, 0); var plate = Plate(4, -4, 0, .5f);
++        var reads = await RunBench(Bench([ball, gate, battery, plate], Circuit(battery, plate, gate)));
++        AssertGateOpened(reads, plate, gate, "ball id 1 < plate id 4");
++    }
++
++    [Fact]
++    public async Task ProbeP1_TwoDominoesPlacedBeforeThePlateSumAndOpenItsGate()
++    {
++        var left = StandingOn(1, -4.4, 0); var right = StandingOn(2, -3.6, 0);
++        var gate = Gate(3, 0); var battery = Battery(4, 0); var plate = Plate(5, -4, 0, .5f);
++        var reads = await RunBench(Bench([left, right, gate, battery, plate], Circuit(battery, plate, gate)));
++        AssertGateOpened(reads, plate, gate, "domino ids 1, 2 < plate id 5");
++    }
++
++    [Fact]
++    public async Task ProbeP1_OneDominoPlacedBeforeThePlateIsCountedButUnderweight()
++    {
++        var domino = StandingOn(1, -4, 0); var gate = Gate(2, 0); var battery = Battery(3, 0);
++        var light = Plate(4, -4, 0, .5f);
++        var closed = await RunBench(Bench([domino, gate, battery, light], Circuit(battery, light, gate)));
++        AssertGateClosedThroughout(closed, light, gate, "one domino before a 0.5 kg plate");
++        var sensitive = Plate(4, -4, 0, .3f);
++        var opened = await RunBench(Bench([domino, gate, battery, sensitive], Circuit(battery, sensitive, gate)));
++        AssertGateOpened(opened, sensitive, gate, "one domino before a 0.3 kg plate");
++    }
+ }
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.30]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.71]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.82]   Starting:    CuriousContraptions.tests
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch10-9r4-mut/ui/Workshop.cs:line 86
+  Passed CuriousContraptions.Tests.PressurePlateTests.ProbeP1_ABasketballPlacedBeforeThePlateOpensItsGate [154 ms]
+  Passed CuriousContraptions.Tests.PressurePlateTests.ProbeP1_TwoDominoesPlacedBeforeThePlateSumAndOpenItsGate [129 ms]
+[xUnit.net 00:00:01.69]   Finished:    CuriousContraptions.tests (ID = '28cbfb1253e296e952462865c6115e1e4c3784631c58a466ac71ea9a9879df8b')
+  Passed CuriousContraptions.Tests.PressurePlateTests.ProbeP1_OneDominoPlacedBeforeThePlateIsCountedButUnderweight [167 ms]
+
+Test Run Successful.
+Total tests: 3
+     Passed: 3
+ Total time: 1.8963 Seconds
+exit 0

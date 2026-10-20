@@ -1,0 +1,7 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.csproj (in 109 ms).
+  4 of 5 projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/ui/WorkshopGuidance.cs(503,92): error IDE0059: Unnecessary assignment of a value to 'snap' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch13-9r6-mut/CuriousContraptions.csproj]

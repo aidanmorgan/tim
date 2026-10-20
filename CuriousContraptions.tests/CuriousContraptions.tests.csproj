@@ -118,6 +118,7 @@
         <Compile Include="ClockRingScriptTests.cs" />
         <Compile Include="AnimationControlDeferralTests.cs" />
         <Compile Include="WorkshopAbiLiteralScanTests.cs" />
+        <Compile Include="ArchitectureDocsConsistencyTests.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopTrace.cs" Link="WorkshopTrace.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
         <!-- The shipped worker's physics engine and transport, stepped natively (Story 9.4b). -->

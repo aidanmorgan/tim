@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: Murdoch-12 probe: 70 animated targets and a shrinking world
+    # Subtest: fourteen batteries run, reset, shrink by one and run again without a fault
+    not ok 1 - fourteen batteries run, reset, shrink by one and run again without a fault
+      ---
+      duration_ms: 34004.461708
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/capacity-9r5b.test.ts:2:2023'
+      failureType: 'testCodeFailure'
+      error: 'setPartMode(delete): no Workshop command acknowledgement (CCGPU) within 15000 ms; the UI did not issue the command'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        WorkshopDriver.command (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/workshop-driver.ts:582:29)
+        async WorkshopDriver.construct (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/workshop-driver.ts:604:9)
+        async WorkshopDriver.setPartMode (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/workshop-driver.ts:713:32)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/capacity-9r5b.test.ts:49:9)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1905:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+      ...
+    1..1
+not ok 1 - Murdoch-12 probe: 70 animated targets and a shrinking world
+  ---
+  duration_ms: 38017.241542
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/capacity-9r5b.test.ts:2:1323'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38293.887542
