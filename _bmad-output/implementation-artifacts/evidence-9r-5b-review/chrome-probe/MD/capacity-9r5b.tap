@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: Murdoch-12 probe: 70 animated targets and a shrinking world
+    # Subtest: fourteen batteries run, reset, shrink by one and run again without a fault
+    ok 1 - fourteen batteries run, reset, shrink by one and run again without a fault
+      ---
+      duration_ms: 24935.510542
+      type: 'test'
+      ...
+    1..1
+ok 1 - Murdoch-12 probe: 70 animated targets and a shrinking world
+  ---
+  duration_ms: 28968.96525
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 29248.295542

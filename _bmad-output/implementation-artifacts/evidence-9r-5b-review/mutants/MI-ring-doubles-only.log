@@ -1,0 +1,16 @@
+diff --git a/CuriousContraptions.Simulation/wwwroot/worker.js b/CuriousContraptions.Simulation/wwwroot/worker.js
+index d47dc81b..29938fd6 100644
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -42,7 +42,7 @@ function attachPoseRing(buffer) {
+ // A world with more moving bodies than the ring holds replaces it, at Run, with one at least twice as large. The new ring is
+ // posted before the read that needs it, and messages keep their order, so the browser reads it before that read arrives.
+ function growPoseRing(bodyCount) {
+-    const capacity = Math.max(bodyCount, poseCapacity * 2);
++    const capacity = poseCapacity * 2;
+     const buffer = new SharedArrayBuffer(POSE_SLOT_COUNT * (POSE_HEADER_BYTES + capacity * POSE_BODY_BYTES));
+     attachPoseRing(buffer);
+     poseSlotIndex = 0;
+----
+ℹ pass 83
+ℹ fail 0

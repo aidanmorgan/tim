@@ -1,0 +1,15 @@
+diff --git a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+index c441e4fa..510c7b30 100644
+--- a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
++++ b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+@@ -37,7 +37,7 @@ internal sealed class WorkshopPhysicsEngine
+     /// <summary>A cleared span of exactly <paramref name="count"/> rows, growing the owned array only when it is too short.</summary>
+     private static Span<T> Scratch<T>(ref T[] array, int count)
+     {
+-        if (array.Length < count) array = new T[count];
++        if (array.Length == 0 && count > 0) array = new T[count];
+         var span = array.AsSpan(0, count); span.Clear();
+         return span;
+     }
+----
+Passed!  - Failed:     0, Passed:  1778, Skipped:     0, Total:  1778, Duration: 31 s - CuriousContraptions.tests.dll (net10.0)

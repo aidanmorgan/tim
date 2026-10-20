@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: Murdoch-12 probe: 70 animated targets and a shrinking world
+    # Subtest: fourteen batteries run, reset, shrink by one and run again without a fault
+    not ok 1 - fourteen batteries run, reset, shrink by one and run again without a fault
+      ---
+      duration_ms: 31528.745375
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-MC/tools/e2e/capacity-9r5b.test.ts:2:2051'
+      failureType: 'testCodeFailure'
+      error: 'run: no pose-ring publication newer than sequence 656 / capture 18042150000 within 10000 ms of the Run acknowledgement'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        WorkshopDriver.waitForPublicationAfter (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-MC/tools/e2e/workshop-driver.ts:955:19)
+        runNextTicks (node:internal/process/task_queues:65:5)
+        process.processImmediate (node:internal/timers:541:9)
+        async WorkshopDriver.run (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-MC/tools/e2e/workshop-driver.ts:926:9)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-MC/tools/e2e/capacity-9r5b.test.ts:56:9)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1905:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+      ...
+    1..1
+not ok 1 - Murdoch-12 probe: 70 animated targets and a shrinking world
+  ---
+  duration_ms: 35518.159166
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-MC/tools/e2e/capacity-9r5b.test.ts:2:1351'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 35787.243417

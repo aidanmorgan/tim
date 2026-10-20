@@ -1,0 +1,14 @@
+diff --git a/engine/gpu/BrowserWorkshopClient.cs b/engine/gpu/BrowserWorkshopClient.cs
+index 1651415f..b182aae8 100644
+--- a/engine/gpu/BrowserWorkshopClient.cs
++++ b/engine/gpu/BrowserWorkshopClient.cs
+@@ -285,7 +285,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
+         var history = PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(milliseconds));
+         EnsureInstalledScene(_construction);
+-        FitFeedbackSlots(response.Read);
+         ObserveContactFeedback(response.Read);
+         _cursor.Commit(prepared);
+         _history.Commit(history);
+----
+Passed!  - Failed:     0, Passed:  1778, Skipped:     0, Total:  1778, Duration: 29 s - CuriousContraptions.tests.dll (net10.0)

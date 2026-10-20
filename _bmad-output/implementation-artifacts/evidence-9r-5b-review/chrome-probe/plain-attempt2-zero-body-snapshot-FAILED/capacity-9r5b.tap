@@ -1,0 +1,39 @@
+TAP version 13
+# Subtest: Murdoch-12 probe: 70 animated targets and a shrinking world
+    # Subtest: fourteen batteries run, reset, shrink by one and run again without a fault
+    not ok 1 - fourteen batteries run, reset, shrink by one and run again without a fault
+      ---
+      duration_ms: 20751.841084
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/capacity-9r5b.test.ts:2:2023'
+      failureType: 'testCodeFailure'
+      error: 'run-reset snapshot: the committed read has no bodies'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        snapshotFrom (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/run-reset-snapshot.ts:238:34)
+        WorkshopDriver.captureSnapshot (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/workshop-driver.ts:826:16)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/capacity-9r5b.test.ts:53:20)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1905:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+      ...
+    1..1
+not ok 1 - Murdoch-12 probe: 70 animated targets and a shrinking world
+  ---
+  duration_ms: 24849.501083
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut/tools/e2e/capacity-9r5b.test.ts:2:1323'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25089.667167

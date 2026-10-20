@@ -1,0 +1,400 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Ownership/Ownership.csproj (in 52 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Coverage/Coverage.csproj (in 52 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/LifecycleContract/LifecycleContract.csproj (in 52 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/BundleElements/BundleElements.csproj (in 56 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Bumper/Bumper.csproj (in 101 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj (in 35 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Animation/CuriousContraptions.Animation.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Domino/Domino.csproj (in 32 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Battery/Battery.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/SystemClock/SystemClock.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/StateLatch/StateLatch.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.csproj (in 35 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Wall/Wall.csproj (in 100 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Ball/Ball.csproj (in 5 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Counter/Counter.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/WireContract/WireContract.csproj (in 0.4 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/BallDetector/BallDetector.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.2dog/CuriousContraptions.2dog.csproj (in 106 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj (in 0.8 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/SignalLamp/SignalLamp.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/E2eRunner/E2eRunner.csproj (in 0.6 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Ramp/Ramp.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Preview/Preview.csproj (in 0.6 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/WorkerAotGuard/WorkerAotGuard.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/PoweredGate/PoweredGate.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/PressurePlate/PressurePlate.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/TraceAllocations/TraceAllocations.csproj (in 18 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj (in 26 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Coverage.Tests/Coverage.Tests.csproj (in 72 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/E2eRunner.Tests/E2eRunner.Tests.csproj (in 21 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.tests/CuriousContraptions.tests.csproj (in 21 ms).
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/LifecycleContract/bin/Release/net10.0/LifecycleContract.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/TraceAllocations/bin/Release/net10.0/TraceAllocations.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Ownership/bin/Release/net10.0/Ownership.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/WorkerAotGuard.Tests/bin/Release/net10.0/WorkerAotGuard.Tests.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/WireContract/bin/Release/net10.0/WireContract.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Coverage/bin/Release/net10.0/Coverage.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Ramp/bin/Release/net10.0/Ramp.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Preview/bin/Release/net10.0/Preview.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Ball/bin/Release/net10.0/Ball.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/PoweredGate/bin/Release/net10.0/PoweredGate.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Bumper/bin/Release/net10.0/Bumper.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Coverage.Tests/bin/Release/net10.0/Coverage.Tests.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/E2eRunner/bin/Release/net10.0/E2eRunner.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Battery/bin/Release/net10.0/Battery.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Domino/bin/Release/net10.0/Domino.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/SignalLamp/bin/Release/net10.0/SignalLamp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/SystemClock/bin/Release/net10.0/SystemClock.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Counter/bin/Release/net10.0/Counter.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/PressurePlate/bin/Release/net10.0/PressurePlate.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/BallDetector/bin/Release/net10.0/BallDetector.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/StateLatch/bin/Release/net10.0/StateLatch.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/elements/Wall/bin/Release/net10.0/Wall.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.2dog/bin/Release/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+  
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/E2eRunner.Tests/bin/Release/net10.0/E2eRunner.Tests.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (200 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (19 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | arrow-down.svg[39m[0m
+  [   5% ] [90m[1m_update_scan_actions[22m | arrow-up.svg[39m[0m
+  [  10% ] [90m[1m_update_scan_actions[22m | folder-open.svg[39m[0m
+  [  15% ] [90m[1m_update_scan_actions[22m | lightbulb.svg[39m[0m
+  [  20% ] [90m[1m_update_scan_actions[22m | link.svg[39m[0m
+  [  25% ] [90m[1m_update_scan_actions[22m | minus.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | move-vertical.svg[39m[0m
+  [  35% ] [90m[1m_update_scan_actions[22m | play.svg[39m[0m
+  [  40% ] [90m[1m_update_scan_actions[22m | plus.svg[39m[0m
+  [  45% ] [90m[1m_update_scan_actions[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1m_update_scan_actions[22m | rotate-cw.svg[39m[0m
+  [  55% ] [90m[1m_update_scan_actions[22m | save.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | sliders-horizontal.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | square.svg[39m[0m
+  [  70% ] [90m[1m_update_scan_actions[22m | trash.svg[39m[0m
+  [  75% ] [90m[1m_update_scan_actions[22m | undo-2.svg[39m[0m
+  [  80% ] [90m[1m_update_scan_actions[22m | x.svg[39m[0m
+  [  85% ] [90m[1m_update_scan_actions[22m | zoom-in.svg[39m[0m
+  [  90% ] [90m[1m_update_scan_actions[22m | zoom-out.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (19 steps)[39m[0m
+  [   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [   5% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  10% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  15% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  20% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  30% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  35% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  40% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  45% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  55% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  60% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  65% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  80% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  90% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+  [   0% ] [90m[1mreimport[22m | zoom-out.svg[39m[0m
+  [   5% ] [90m[1mreimport[22m | zoom-in.svg[39m[0m
+  [  10% ] [90m[1mreimport[22m | x.svg[39m[0m
+  [  15% ] [90m[1mreimport[22m | undo-2.svg[39m[0m
+  [  20% ] [90m[1mreimport[22m | trash.svg[39m[0m
+  [  25% ] [90m[1mreimport[22m | square.svg[39m[0m
+  [  30% ] [90m[1mreimport[22m | sliders-horizontal.svg[39m[0m
+  [  35% ] [90m[1mreimport[22m | save.svg[39m[0m
+  [  40% ] [90m[1mreimport[22m | rotate-cw.svg[39m[0m
+  [  45% ] [90m[1mreimport[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1mreimport[22m | plus.svg[39m[0m
+  [  55% ] [90m[1mreimport[22m | play.svg[39m[0m
+  [  60% ] [90m[1mreimport[22m | move-vertical.svg[39m[0m
+  [  65% ] [90m[1mreimport[22m | minus.svg[39m[0m
+  [  70% ] [90m[1mreimport[22m | link.svg[39m[0m
+  [  75% ] [90m[1mreimport[22m | lightbulb.svg[39m[0m
+  [  80% ] [90m[1mreimport[22m | folder-open.svg[39m[0m
+  [  85% ] [90m[1mreimport[22m | arrow-up.svg[39m[0m
+  [  90% ] [90m[1mreimport[22m | arrow-down.svg[39m[0m
+  [  95% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+  [92m[ DONE ][39m [1mreimport[22m
+  [0m
+  [   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (19 steps)[39m[0m
+  [   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+  [92m[ DONE ][39m [1mreimport[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/BundleElements/bin/Release/net10.0/BundleElements.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.74
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/tools/Ownership/bin/Release/net10.0/Ownership.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.46
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.csproj (in 96 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-base/CuriousContraptions.web/CuriousContraptions.web.csproj (in 97 ms).
+  3 of 5 projects are up-to-date for restore.

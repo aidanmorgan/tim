@@ -1,0 +1,12 @@
+#!/bin/zsh
+# Murdoch-12: queue one runner invocation behind the shared e2e-runner lock. Usage: queue-run.sh <worktree> <out-dir> <runner args...>
+W=$1; OUT=$2; shift 2
+cd $W
+for attempt in {1..240}; do
+  rm -rf $OUT
+  dotnet run --project tools/E2eRunner -- "$@" --out $OUT > $OUT.runner.log 2>&1
+  code=$?
+  if ! grep -q RunnerBusy $OUT.runner.log; then echo "exit=$code attempt=$attempt"; exit $code; fi
+  sleep 30
+done
+echo "gave up"; exit 3

@@ -1316,6 +1316,17 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.8: Capacity Follow-ups
+*Status: Backlog. Filed from the 9R.5b review on 21 Oct 2026.*
+
+**Acceptance Criteria:**
+- **Stale wording:** remove the old cap wording from `EL-112`, `GAP-06` and `browser-physics-performance.md` (F8-1), and the "ball guide table" wording (F8-7).
+- **Growth tests:** tests that kill the uncovered growth branches: the activation queue, the pose-ring body-count growth, the device and engine scratch, and the redundant `FitFeedbackSlots` call (F8-2/F8-3).
+- **Performance gate:**
+  - the per-frame presentation allocations and the per-read decode allocations (F8-4);
+  - the unbounded contact pulses and the per-contact scans (F8-5).
+- **Determinism:** deterministic bundle hashes across worktrees (F8-6).
+
 ### Story F.7: Plate Signal Follow-ups
 *Status: Backlog. Filed from the 9R.5 review on 20 Oct 2026.*
 
@@ -1347,7 +1358,11 @@ So that the lamp shows when something heavy enough rests on the plate.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9R.5b: Every Physics Table Sized at Run (No Fixed Capacities)
-*Status: Backlog. Runs after Story 9R.5. Coordinator, 20 Oct 2026, under the owner's rule that there are no arbitrary engine caps. Amelia-9 found that the Impact Switch is limited to 8 by the fixed physics trigger table.*
+*Status: Done (21 Oct 2026). Murdoch-12 gave a scoped Pass on `a5a6c494` ([review](../implementation-artifacts/review-9r-5b-physics-tables-sized-at-run.md)).*
+- *Every physics, worker and wire table is sized from the scene, and the 32-part Build limit is removed (no requirement states it).*
+- *One machine past every old cap runs, and the full run passed 194/194.*
+- *Findings are filed to Story F.8.*
+- *Origin: coordinator, 20 Oct 2026, under the owner's rule that there are no arbitrary engine caps.*
 
 **Acceptance Criteria:**
 - **Given** a machine with any number of trigger-bearing parts up to the ordinary Free-palette maxima (Impact Switches and every other trigger user), **When** Run compiles it, **Then** the physics trigger table is sized from the compiled scene. The 9R.2 collider table and the 9R.4 activation slots are the pattern.

@@ -1,0 +1,62 @@
+// Murdoch-12 review-only Chrome probe for Story 9R.5b (stored as .ts.txt; in the scratch worktree it temporarily replaces
+// tools/e2e/capacity-9r5b.test.ts so the runner's catalogue runs it as that SerialAlone suite).
+// 1. Fourteen Batteries (5 indicators each = 70 animated targets, past the Animation worker's 64-track starting allocation)
+//    and one Basketball: Run, Reset exact, no console/worker error. Reaches Program.cs track growth + AnimationBatch.EnsureCapacity.
+// 2. Shrink: delete the last Battery (the read loses one electrical row), Run again, Reset exact, no error. Reaches the
+//    Simulation's read-buffer reallocation on a narrower world (Program.EncodeRead) and the device/engine scratch on changed worlds.
+import assert from 'node:assert/strict';
+import { after, before, describe, test } from 'node:test';
+import type { ConsoleMessage, Worker } from 'playwright';
+import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
+import { WorkshopDriver } from './workshop-driver.ts';
+
+type Point = { x: number; y: number };
+const screenOf = (x: number, z: number): Point =>
+    ({ x: Math.round(720 + 53.8 * x - 36.8 * z), y: Math.round(485 + 17.0 * x + 24.8 * z) });
+const BATTERIES = 14;
+const GRID: Point[] = Array.from({ length: BATTERIES }, (_, i) => screenOf(-6 + i % 8 * 1.5, -3 + Math.floor(i / 8) * 1.5));
+const BALL = screenOf(6.5, 0);
+const BALL2 = screenOf(6.5, 2);
+
+describe('Murdoch-12 probe: 70 animated targets and a shrinking world', () => {
+    let driver: WorkshopDriver;
+    const errors: string[] = [];
+    const watch = (source: string) => (message: ConsoleMessage): void => {
+        if (isWorkshopConsoleFailure(message.type(), message.text())) errors.push(`${source}: ${message.text().slice(0, 400)}`);
+    };
+    before(async () => {
+        driver = await WorkshopDriver.launch();
+        driver.page.on('console', watch('page'));
+        driver.page.on('pageerror', (error: Error) => errors.push(`page error: ${String(error).slice(0, 400)}`));
+        driver.page.on('worker', (worker: Worker) => worker.on('console', watch(`worker ${worker.url()}`)));
+    });
+    after(async () => { await driver?.closeAfterSuite(); });
+
+    test('fourteen batteries run, reset, shrink by one and run again without a fault', { timeout: 900000 }, async () => {
+        errors.length = 0;
+        await driver.reload();
+        for (const point of GRID) { await driver.selectTool('battery'); await driver.placeOnCanvas(point.x, point.y); }
+        await driver.selectTool('basketball'); await driver.placeOnCanvas(BALL.x, BALL.y);
+        await driver.selectTool('basketball'); await driver.placeOnCanvas(BALL2.x, BALL2.y);
+        await driver.page.waitForTimeout(2500); // let every indicator control reach the Animation worker in Build
+        const s0 = await driver.captureSnapshot({ bodies: 2 });
+        await driver.run(2500);
+        await driver.expectRunAdvanced(s0);
+        await driver.reset();
+        await driver.expectResetMatches(s0);
+        assert.deepEqual(errors, [], `14 batteries: no console or worker error: ${errors.join('; ')}`);
+
+        // Shrink: one Undo (Ctrl+Z, ui/Workshop.cs) removes the last placement, the second Basketball: the read loses one moving
+        // body and its motion pieces (the snapshot harness needs at least one body). No suite deletes a part, so the delete-dock path is not used. The driver's private
+        // construct() waits for that edit's single Construct acknowledgement.
+        await (driver as unknown as { construct(a: string, o: () => Promise<void>): Promise<void> })
+            .construct('undo(Control+z)', () => driver.page.keyboard.press('Control+z'));
+        await driver.page.waitForTimeout(1500);
+        const s1 = await driver.captureSnapshot({ bodies: 1 });
+        await driver.run(2500);
+        await driver.expectRunAdvanced(s1);
+        await driver.reset();
+        await driver.expectResetMatches(s1);
+        assert.deepEqual(errors, [], `after the shrink: no console or worker error: ${errors.join('; ')}`);
+    });
+});

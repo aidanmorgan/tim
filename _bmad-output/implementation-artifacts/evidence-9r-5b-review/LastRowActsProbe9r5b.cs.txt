@@ -1,0 +1,93 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Murdoch-12 review probe for Story 9R.5b (review-only; stored as .cs.txt, copied into a scratch worktree to run).
+/// The candidate's per-table theory asserts only that the last tick is reached and the read round-trips. This probe asserts the
+/// LAST row past each retired ceiling actually acts (not inert), with a control row that must not.</summary>
+public sealed class LastRowActsProbe9r5b
+{
+    private static WorkshopConstruction Bench(IReadOnlyList<IWorkshopInstance> instances, params WorkshopConnection[] links) =>
+        new(new(2), WorkshopCadenceSettings.Default(), new([.. instances]), Connections: new(links));
+    private static double X(int i) => -25.6 + i * 1.6;
+    private static float Y(PhysicsBodyRead b) => (b.Body.Cell.Y + b.Body.Local.Y) / 16f;
+    private static readonly double PlateY = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
+    private static readonly double Face = PlateY + .08;
+    private const double GateHeight = 3;
+
+    private static bool Latched(WorkshopRead read, GpuBodyId owner)
+    {
+        for (var i = 0; i < read.Activations.Count; i++)
+            if (read.Activations[i].Owner == owner) return read.Activations[i].Phase == ActivationPhase.Latched;
+        throw new InvalidOperationException($"No activation node for {owner.Value}.");
+    }
+
+    /// <summary>Seventeen balls (retired: 16 moving bodies): every ball, the 17th included, falls.</summary>
+    [Fact]
+    public async Task TheSeventeenthBallFalls()
+    {
+        var balls = Enumerable.Range(0, 17).Select(i => WorkshopInput.Basketball(new((ulong)i + 1), X(i), 4, 0, 0, 0, 0, 1)).ToArray();
+        var reads = await WorkshopPhysicsEngineTests.Run(Bench([.. balls]), 30);
+        foreach (var ball in balls)
+        {
+            Assert.True(reads[0].Bodies.TryGet(ball.Id, out var start));
+            Assert.True(reads[^1].Bodies.TryGet(ball.Id, out var end));
+            Assert.True(Y(end) < Y(start) - .1f, $"ball {ball.Id.Value} fell ({Y(start)} -> {Y(end)})");
+        }
+    }
+
+    /// <summary>Thirty-three plates (retired: 32 contact-load rows): a ball on plate <paramref name="loaded"/> latches only that plate.</summary>
+    [Theory]
+    [InlineData(32)]
+    [InlineData(0)]
+    public async Task OnlyTheLoadedPlateOfThirtyThreeLatches(int loaded)
+    {
+        var plates = Enumerable.Range(0, 33).Select(i => WorkshopInput.PressurePlate(new((ulong)i + 1), X(i), PlateY, 0, 0, 0, 0, 1,
+            WorkshopPressurePlate.PlacedMinimumMass)).ToArray();
+        var ball = WorkshopInput.Basketball(new(40), X(loaded), Face + .35, 0, 0, 0, 0, 1);
+        var reads = await WorkshopPhysicsEngineTests.Run(Bench([.. plates, ball]), 120);
+        for (var i = 0; i < plates.Length; i++)
+            Assert.Equal(i == loaded, Latched(reads[^1], plates[i].Id));
+    }
+
+    /// <summary>Nine bumpers (retired: 8 contact works): a ball dropped on the ninth pays only the ninth.</summary>
+    [Fact]
+    public async Task TheNinthBumperPaysAndTheFirstDoesNot()
+    {
+        var bumpers = Enumerable.Range(0, 9).Select(i => WorkshopInput.Bumper(new((ulong)i + 1), X(i), 4, 0, 0, 0, 0, 1, BumperWork.Default)).ToArray();
+        var ball = WorkshopInput.Basketball(new(20), X(8), 6, 0, 0, 0, 0, 1);
+        var reads = await WorkshopPhysicsEngineTests.Run(Bench([.. bumpers, ball]), 120);
+        var works = reads[^1].ContactWorks;
+        uint Count(GpuBodyId owner) { for (var i = 0; i < works.Count; i++) if (works[i].Owner == owner) return works[i].OccurrenceCount; throw new InvalidOperationException(); }
+        Assert.True(Count(bumpers[8].Id) > 0, "the ninth bumper paid");
+        Assert.Equal(0u, Count(bumpers[0].Id));
+    }
+
+    /// <summary>Nine battery-gate circuits plus one unwired gate (retired: 8 electrical sources, 8 connections, 16 prismatics with
+    /// the springboards' share): the ninth wired gate opens; the unwired gate stays closed.</summary>
+    [Fact]
+    public async Task TheNinthPoweredGateOpensAndTheUnwiredGateDoesNot()
+    {
+        var parts = new List<IWorkshopInstance>(); var links = new List<WorkshopConnection>();
+        var gates = new List<WorkshopGenericInstance>();
+        for (var i = 0; i < 10; i++)
+        {
+            var gate = WorkshopInput.Generic(PartId.PoweredGate, new((ulong)(2 * i + 1)), 0, GateHeight, -18 + 4 * i, 0, 0, 0, 1,
+                WorkshopCanonicalColliders.PoweredGateColliders);
+            parts.Add(gate); gates.Add(gate);
+            if (i == 9) continue;
+            var battery = WorkshopInput.Battery(new((ulong)(2 * i + 2)), 3, GateHeight, -18 + 4 * i, 0, 0, 0, 1,
+                ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
+            parts.Add(battery);
+            links.Add(new(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical));
+        }
+        var reads = await WorkshopPhysicsEngineTests.Run(Bench(parts, [.. links]), 360);
+        float Travel(WorkshopGenericInstance gate)
+        {
+            Assert.True(reads[^1].Bodies.TryGet(WorkshopPhysicsCompiler.GateBlade(gate.Id), out var blade));
+            return Y(blade) - (float)GateHeight;
+        }
+        Assert.True(Travel(gates[8]) > 1.3f, $"the ninth wired gate opened ({Travel(gates[8])})");
+        Assert.True(Travel(gates[9]) < .2f, $"the unwired gate stayed closed ({Travel(gates[9])})");
+    }
+}

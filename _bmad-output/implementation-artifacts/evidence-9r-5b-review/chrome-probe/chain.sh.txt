@@ -1,0 +1,13 @@
+#!/bin/zsh
+# Murdoch-12: the review's Chrome runs, one after another behind the shared runner lock (attempt 2: Undo shrink step).
+# Tier 2 is deferred to the round-2 candidate (R2-B1 changes AnimationBatch, so a Tier 2 on e4afb855 would be stale at once).
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-5b-review
+Q=$E/chrome-probe/queue-run.sh.txt
+WT=/Users/aidan/dev/personal/tim/.claude/worktrees
+line() { grep -E '^run .*verdict|^capacity-9r5b |^sourceHead|^bundleIdentity.start' $1/summary.txt 2>/dev/null | sed 's/ durationMs.*//' ; grep -E "error:" $1/capacity-9r5b.tap 2>/dev/null | head -2 ; }
+zsh $Q $WT/murdoch12-9r5b-mut $E/chrome-probe/plain run --changed $E/chrome-probe/changed-probe.txt --workers 1; echo "== plain"; line $E/chrome-probe/plain
+grep -q 'verdict=Pass' $E/chrome-probe/plain/summary.txt || { echo "== stop: plain probe did not pass"; exit 1; }
+for m in MA MC MG MD; do
+  zsh $Q $WT/murdoch12-9r5b-$m $E/chrome-probe/$m run --changed $E/chrome-probe/changed-probe.txt --workers 1; echo "== $m"; line $E/chrome-probe/$m
+done
+echo "== done"

@@ -1,0 +1,15 @@
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index 9f57f214..5f2353f1 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -190,7 +190,7 @@ public sealed class ActivationNetwork
+     /// <summary>Queues one pending occurrence, growing the queue when a tick's fanout exceeds it (no fanout capacity).</summary>
+     private void Push(ref int count, ActivationOccurrence occurrence)
+     {
+-        if (count == _pending.Length) Array.Resize(ref _pending, _pending.Length * 2);
++        if (count == _pending.Length) throw new ArgumentException("MUTANT fanout capacity exceeded.");
+         _pending[count++] = occurrence;
+     }
+     /// <summary>The committed Counter or Clock memory row of one owner (a query over the checkpoint; the network holds none).</summary>
+----
+Passed!  - Failed:     0, Passed:  1778, Skipped:     0, Total:  1778, Duration: 28 s - CuriousContraptions.tests.dll (net10.0)

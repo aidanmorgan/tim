@@ -1,0 +1,26 @@
+#!/bin/zsh
+# Murdoch-12 Story 9R.5b growth-path mutants. Run from the scratch worktree .claude/worktrees/murdoch12-9r5b-mut at e4afb855.
+# Each mutant is applied alone with perl, the affected tests run, the diff is written at the head of its log, then `git checkout -- .`.
+set -u
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch12-9r5b-mut
+cd $W
+native() { # name file perl-expr
+  git checkout -- . ; perl -0pi -e "$3" "$2"
+  { git diff; echo '----'; dotnet test CuriousContraptions.tests 2>&1 | grep -E '\[FAIL\]|^(Passed|Failed)!|error CS' | head -40; } > $E/$1.log 2>&1
+  echo "$1: $(grep -E '^(Passed|Failed)!|error CS' $E/$1.log | head -1)"
+}
+node_m() {
+  git checkout -- . ; perl -0pi -e "$3" "$2"
+  { git diff; echo '----'; node --experimental-vm-modules --test tools/*.test.mjs 2>&1 | grep -E '^not ok|^# (pass|fail)|ℹ (pass|fail)' | head -40; } > $E/$1.log 2>&1
+  echo "$1: $(grep -E 'ℹ fail|# fail' $E/$1.log | head -1)"
+}
+native MB-pending-no-growth engine/gpu/ActivationNetwork.cs 's/if \(count == _pending\.Length\) Array\.Resize\(ref _pending, _pending\.Length \* 2\);/if (count == _pending.Length) throw new ArgumentException("MUTANT fanout capacity exceeded.");/'
+native MD-no-fit-install engine/gpu/BrowserWorkshopClient.cs 's/\{ FitFeedbackSlots\(response\.Read\); _history\.Commit\(ready\); \}/{ _history.Commit(ready); }/'
+native ME-no-fit-receive engine/gpu/BrowserWorkshopClient.cs 's/        FitFeedbackSlots\(response\.Read\);\n        ObserveContactFeedback/        ObserveContactFeedback/'
+native MF-batch-no-grow engine/presentation/AnimationBatch.cs 's/if \(capacity <= _slots\.Length\) return;/return;/'
+native MG-device-scratch-first-size CuriousContraptions.Simulation/WorkshopGpuDevice.cs 's/if \(array\.Length < count\) array = new T\[count\];/if (array.Length == 0 \&\& count > 0) array = new T[count];/'
+native MH-engine-scratch-first-size CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs 's/if \(array\.Length < count\) array = new T\[count\];/if (array.Length == 0 \&\& count > 0) array = new T[count];/'
+node_m MI-ring-doubles-only CuriousContraptions.Simulation/wwwroot/worker.js 's/Math\.max\(bodyCount, poseCapacity \* 2\)/poseCapacity * 2/'
+git checkout -- .
+git status --porcelain

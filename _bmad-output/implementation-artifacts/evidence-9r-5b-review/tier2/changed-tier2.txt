@@ -1,0 +1,5 @@
+tools/e2e/capacity-9r5b.test.ts
+tools/e2e/cat-005.test.ts
+tools/e2e/capacity-9r.test.ts
+tools/e2e/cat-037.test.ts
+tools/e2e/cat-052-lamp.test.ts
