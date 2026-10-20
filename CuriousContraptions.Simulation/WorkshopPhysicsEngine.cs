@@ -10,8 +10,11 @@ namespace CuriousContraptions.Simulation;
 internal sealed class WorkshopPhysicsEngine
 {
     private readonly Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2, float Approach)> _contactCache = new();
-    private bool _plateLoaded;
     private readonly WorkshopDynamicBvh _bvh = new();
+    // Story 9R.4: one substep's static-side contact records and the bodies a contact-load row already counted (caller-owned
+    // scratch, so ContactLoadSensorTracker allocates nothing per substep).
+    private readonly List<ContactPointRecord> _loadContacts = new(128);
+    private GpuBodyId[] _loadCounted = new GpuBodyId[128];
 
     private readonly List<SimBody> _staticBodies = new(64);
     private readonly List<SimBody> _dynamicBodies = new(64);
@@ -21,7 +24,6 @@ internal sealed class WorkshopPhysicsEngine
     private readonly List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
     private readonly List<ContactPoint> _contacts = new(128);
     private readonly List<ContactManifold> _manifolds = new(32);
-    private readonly HashSet<SimBody> _touchingBodies = new(16);
     private readonly List<int> _storeIndices = new(8);
     private readonly List<float> _balances = new(8);
     private readonly List<float> _capacities = new(8);
@@ -35,7 +37,7 @@ internal sealed class WorkshopPhysicsEngine
     public void Reset()
     {
         _contactCache.Clear();
-        _plateLoaded = false;
+        _loadContacts.Clear();
         _bvh.Clear();
         _staticBodies.Clear();
         _dynamicBodies.Clear();
@@ -45,7 +47,6 @@ internal sealed class WorkshopPhysicsEngine
         _candidatePairs.Clear();
         _contacts.Clear();
         _manifolds.Clear();
-        _touchingBodies.Clear();
     }
 
     /// <summary>The warm-up world's one contact-work store is a valid full 32 J store with an 8 m/s target, so warming
@@ -208,7 +209,7 @@ internal sealed class WorkshopPhysicsEngine
             PrismaticConstraintSolver.PrepareJointRows(dummyJoint, WorkshopConstraintSolver.SubstepSeconds);
             PrismaticConstraintSolver.SweepConstraints(dummyJoints, true);
             PrismaticConstraintSolver.SweepConstraints(dummyJoints, false);
-            PrismaticConstraintSolver.ActuatorSliderDrive(dummyJoints, true, WorkshopConstraintSolver.SubstepSeconds);
+            PrismaticConstraintSolver.ActuatorSliderDrive(dummyJoints, WorkshopConstraintSolver.SubstepSeconds);
         }
 
         const int mockColliders = 2;
@@ -396,6 +397,29 @@ internal sealed class WorkshopPhysicsEngine
         }
     }
 
+    /// <summary>Evaluates every contact-load row against this substep's contacts through ContactLoadSensorTracker, each contact seen
+    /// from its static side, and keeps each row's maximum qualifying mass (Story 9R.4 D2).</summary>
+    private void MeasureContactLoads(ReadOnlySpan<ContactLoadSensorDeclaration> rows, ReadOnlySpan<int> frames, Span<float> maximum)
+    {
+        _loadContacts.Clear();
+        foreach (var c in _contacts)
+        {
+            // ContactPoint.Normal points from B toward A.
+            if (c.A.Motion == 0 && c.B.Motion == 1)
+                _loadContacts.Add(new(new(c.A.Id), new(c.ColA.Id), new(c.B.Id), c.B.Mass, c.Point, -c.Normal, c.Gap));
+            else if (c.B.Motion == 0 && c.A.Motion == 1)
+                _loadContacts.Add(new(new(c.B.Id), new(c.ColB.Id), new(c.A.Id), c.A.Mass, c.Point, c.Normal, c.Gap));
+        }
+        if (_loadCounted.Length < _loadContacts.Count) _loadCounted = new GpuBodyId[_loadContacts.Count * 2];
+        var records = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_loadContacts);
+        for (var row = 0; row < rows.Length; row++)
+        {
+            var frame = _allBodies[frames[row]];
+            maximum[row] = MathF.Max(maximum[row], ContactLoadSensorTracker.Measure(rows[row], frame.Position, frame.Rotation, records, _loadCounted));
+        }
+
+    }
+
     /// <summary>One step from the committed world. Besides the world bytes it reads only the explicit tick inputs: per-source enables
     /// and per-prismatic switched-supply state (compiled routes × committed switch contacts). No authoring or host state is read.</summary>
     public void Advance(byte[] source, byte[] candidate, PhysicsTickInputs inputs)
@@ -578,6 +602,7 @@ internal sealed class WorkshopPhysicsEngine
             while (_colliderPool.Count <= c) _colliderPool.Add(new SimCollider());
             var collider = _colliderPool[c];
             collider.Index = c;
+            collider.Id = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(offset, 8));
             collider.BodySlot = bodySlot;
             collider.Body = body;
             collider.MaterialSlot = materialSlot;
@@ -696,6 +721,23 @@ internal sealed class WorkshopPhysicsEngine
             _candidatePairs.Add((colA, colB));
         });
 
+        // Story 9R.4: every compiled contact-load row, read once per tick. A row's tick measurement is the maximum qualifying mass
+        // of its substeps (D2), written over the copied source state so a removed body reads Empty on the very next tick.
+        var loadCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.ContactLoadSensorsOffset, 4));
+        if (loadCount > PhysicsSceneDeclaration.ContactLoadSensorCapacity)
+            throw new ArgumentException($"The world declares {loadCount} contact-load rows, beyond the table's {PhysicsSceneDeclaration.ContactLoadSensorCapacity}.");
+        var loadRows = (int)loadCount;
+        Span<ContactLoadSensorDeclaration> loadDeclarations = stackalloc ContactLoadSensorDeclaration[PhysicsSceneDeclaration.ContactLoadSensorCapacity];
+        Span<int> loadFrames = stackalloc int[PhysicsSceneDeclaration.ContactLoadSensorCapacity];
+        Span<float> loadMass = stackalloc float[PhysicsSceneDeclaration.ContactLoadSensorCapacity];
+        for (var row = 0; row < loadRows; row++)
+        {
+            loadDeclarations[row] = PhysicsGpuAbi.ReadContactLoadDeclaration(span, row);
+            loadFrames[row] = (int)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(
+                PhysicsGpuAbi.ContactLoadRecordsOffset + row * PhysicsGpuAbi.ContactLoadSensorBytes + PhysicsGpuAbi.ContactLoadFrameOffset, 4));
+            loadMass[row] = 0f;
+        }
+
         for (var s = 0; s < steps; s++)
         {
             if ((sourceOrdinal + s) % 4 == 0)
@@ -787,7 +829,7 @@ internal sealed class WorkshopPhysicsEngine
             }
 
             // Each supplied gate follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
-            PrismaticConstraintSolver.ActuatorSliderDrive(_joints, _plateLoaded, dt);
+            PrismaticConstraintSolver.ActuatorSliderDrive(_joints, dt);
 
             foreach (var b in _dynamicBodies)
             {
@@ -834,37 +876,7 @@ internal sealed class WorkshopPhysicsEngine
                 }
             }
 
-            var currentPlateLoad = 0f;
-            _touchingBodies.Clear();
-            foreach (var c in _contacts)
-            {
-                SimCollider? plateCol = null;
-                SimBody? dynBody = null;
-                Vector3 normTowardDyn = Vector3.Zero;
-
-                if (c.ColA.Body.Motion == 0 && MathF.Abs(c.ColA.Hx - 0.9f) < 0.01f && MathF.Abs(c.ColA.Hy - 0.05f) < 0.01f && MathF.Abs(c.ColA.Hz - 0.9f) < 0.01f && MathF.Abs(c.ColA.Ty - 0.03f) < 0.01f && c.B.Motion == 1)
-                {
-                    plateCol = c.ColA; dynBody = c.B; normTowardDyn = -c.Normal;
-                }
-                else if (c.ColB.Body.Motion == 0 && MathF.Abs(c.ColB.Hx - 0.9f) < 0.01f && MathF.Abs(c.ColB.Hy - 0.05f) < 0.01f && MathF.Abs(c.ColB.Hz - 0.9f) < 0.01f && MathF.Abs(c.ColB.Ty - 0.03f) < 0.01f && c.A.Motion == 1)
-                {
-                    plateCol = c.ColB; dynBody = c.A; normTowardDyn = c.Normal;
-                }
-
-                if (plateCol != null && dynBody != null && _touchingBodies.Add(dynBody))
-                {
-                    var frame = plateCol.Body;
-                    var rel = c.Point - frame.Position;
-                    var loc = WorkshopCollisionKernels.InvRotateVector(frame.Rotation, rel);
-                    var localNorm = WorkshopCollisionKernels.InvRotateVector(frame.Rotation, normTowardDyn);
-
-                    if (localNorm.Y >= 0.7f && loc.X >= -0.95f && loc.X <= 0.95f && loc.Z >= -0.95f && loc.Z <= 0.95f && loc.Y >= 0.02f && loc.Y <= 0.35f)
-                    {
-                        currentPlateLoad += dynBody.Mass;
-                    }
-                }
-            }
-            _plateLoaded = currentPlateLoad >= 0.5f;
+            if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
 
             foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
             foreach (var m in _manifolds) WorkshopConstraintSolver.PrepareRolling(m);
@@ -1035,6 +1047,13 @@ internal sealed class WorkshopPhysicsEngine
                 WriteF16(pieceSpan, PhysicsMotionRead.GravityOffset + 2, b.Gy);
                 WriteF16(pieceSpan, PhysicsMotionRead.GravityOffset + 4, b.Gz);
             }
+        }
+
+        for (var row = 0; row < loadRows; row++)
+        {
+            var record = span.Slice(PhysicsGpuAbi.ContactLoadRecordsOffset + row * PhysicsGpuAbi.ContactLoadSensorBytes, PhysicsGpuAbi.ContactLoadSensorBytes);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.ContactLoadPhaseOffset..], (uint)loadDeclarations[row].PhaseOf(loadMass[row]));
+            BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.ContactLoadMassOffset..], loadMass[row]);
         }
 
         var totalCaptured = 0u;

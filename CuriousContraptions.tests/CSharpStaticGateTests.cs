@@ -514,6 +514,29 @@ public sealed class CSharpStaticGateTests
         ("xunit.analyzers", "xunit.analyzers.fixes.dll", XunitProjects),
     ];
 
+    /// <summary>SDK 10.0.402 (coordinator decision, 20 Oct 2026): the SDK bundles the 10.0.13 targeting pack, but the browser-wasm
+    /// compiles take the wasm-tools workload's 10.0.12 targeting pack, restored from NuGet, so its six source generators load
+    /// from the NuGet root. Each is pinned by its exact path under the NuGet root and its SHA-256, and only in those compiles.</summary>
+    private static readonly (string Path, string Sha256)[] RefPackAnalyzers =
+    [
+        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll", "e8fc0b901cf3b754f348cdd0585dc3e661c964b1c1d340c88a7cb06121ff007b"),
+        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll", "0e75fd9ff6e100b207163fa492d8b505521a2998d1292d11ea43e307606293b5"),
+        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll", "de58417fe04b0bec752a775ebac17d9fa0dfd6027eabe9310dc5c9d93e6c7ed5"),
+        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll", "448cddcdccd7db7ba1e5de80234c137a6d1fcf0ed90687245109a6dc09dfe82b"),
+        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll", "bdef5ce75fa321acf8d2c2a5b2a9f9eb2a30ef4a28b1694fbca978176c8dd6c9"),
+        ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll", "54d379bd109821792120cedd832495d38bc0048f4dd5366fba860d5ecb3a21dd"),
+    ];
+    private static readonly string[] RefPackCompiles =
+    [
+        "CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj",
+        "CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj",
+        WebProject,
+    ];
+    private static bool IsPinnedRefPackAnalyzer(string analyzer, string project) =>
+        RefPackCompiles.Contains(project, StringComparer.Ordinal) &&
+        RefPackAnalyzers.Any(entry => entry.Path == Path.GetRelativePath(NuGetRoot, analyzer).Replace('\\', '/') &&
+            File.Exists(analyzer) && entry.Sha256 == Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(analyzer))));
+
     /// <summary>The compiles the trim analyzer runs in from its NuGet package: the trimmable projects, the web host and
     /// the file-based apps.</summary>
     private static string[] TrimLinkedCompiles() =>
@@ -641,7 +664,8 @@ public sealed class CSharpStaticGateTests
             var file = Path.GetFileName(analyzer);
             var package = IsUnder(analyzer, NuGetRoot) ? Path.GetRelativePath(NuGetRoot, analyzer).Split(['/', '\\'])[0] : "";
             var pinned = IsUnder(analyzer, DotnetRoot) ? SdkAnalyzers.Contains(file, StringComparer.Ordinal)
-                : PackageAnalyzers.Any(entry => entry.Package == package && entry.File == file && entry.Projects.Contains(project, StringComparer.Ordinal));
+                : PackageAnalyzers.Any(entry => entry.Package == package && entry.File == file && entry.Projects.Contains(project, StringComparer.Ordinal)) ||
+                  (IsUnder(analyzer, NuGetRoot) && IsPinnedRefPackAnalyzer(analyzer, project));
             if (!pinned) yield return $"{where}: unpinned analyzer {analyzer} (package {package}, project {project})";
         }
         foreach (var required in RequiredAnalyzers.Where(required => !analyzers.Any(analyzer => Path.GetFileName(analyzer) == required)))

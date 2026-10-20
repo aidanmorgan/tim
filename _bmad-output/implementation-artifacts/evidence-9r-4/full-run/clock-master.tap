@@ -1,0 +1,85 @@
+TAP version 13
+# {"firstFailureMs":null,"failures":0,"recalibrations":0,"derivation":{"startup":{"attempts":18,"inconclusive":2,"unanswered":0},"checkReports":[],"summary":null}}
+# Subtest: Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build)
+ok 1 - Clock probes are answered while the Simulation worker runs a 20 ms synchronous duty cycle (Build)
+  ---
+  duration_ms: 9060.3035
+  type: 'test'
+  ...
+# {"samples":12,"failures":0,"recalibrations":0,"spanMs":2790.13,"derivation":{"startup":{"attempts":18,"inconclusive":2,"unanswered":0},"checkReports":[],"summary":null}}
+# Subtest: A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running)
+ok 2 - A running Basketball keeps up while the Simulation worker runs a 20 ms synchronous duty cycle (Running)
+  ---
+  duration_ms: 8157.987958
+  type: 'test'
+  ...
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":3,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"7055269299420172870","sessionHigh":"14154037005160009601","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"129950000","derivation":"0","uncertainty":"100000","displayEpoch":"1
+# {"solved":1,"lit":true,"failures":0,"recalibrationRoles":[3],"recalibrations":[{"role":3,"causeName":"Elapsed","stateBefore":5}],"lateRenewals":0,"deferrals":[{"cause":2,"causeName":"Recalibrating","count":"1"}]}
+# Subtest: A running wired chain survives a 20 ms duty cycle on the Animation worker (Running)
+ok 3 - A running wired chain survives a 20 ms duty cycle on the Animation worker (Running)
+  ---
+  duration_ms: 10417.803667
+  type: 'test'
+  ...
+# E2E_OBSERVED SimulationUnresponsive CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.
+#     at checkSimulationLiveness (http://127.0.0.1:50827/workshop-client.js:343:23)
+#     at http://127.0.0.1:50827/workshop-client.js:362:13
+# {"firstFailureMs":997,"failures":["CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\\n    at checkSimulationLiveness (http://127.0.0.1:50827/workshop-client.js:343:23)\\n    at h","SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\\n    at checkSimulationLiveness (http://127.0.0.1:50827/workshop-client.js:343:23)\\n    at http://127.0.0.1:50827/work"],"derivation":{"startup":{"attempts":20,"inconclusive":4,"unanswered":0},"checkReports":[],"summary":null}}
+# Subtest: A Simulation spin beyond the liveness bound faults the session as SimulationUnresponsive; a 600 ms block does not
+ok 4 - A Simulation spin beyond the liveness bound faults the session as SimulationUnresponsive; a 600 ms block does not
+  ---
+  duration_ms: 9488.032167
+  type: 'test'
+  ...
+# E2E_OBSERVED DebtFault CCGPU_DEBT_FAULT: committedTick=5 reliableStalled=False
+# {"debtFaults":["CCGPU_DEBT_FAULT: committedTick=5 reliableStalled=False"]}
+# Subtest: A 600 ms Simulation block while Running takes the declared debt stop
+ok 5 - A 600 ms Simulation block while Running takes the declared debt stop
+  ---
+  duration_ms: 6030.337375
+  type: 'test'
+  ...
+# {"slewedRecords":4,"summary":{"report":2,"reportName":"Summary","outcome":0,"outcomeName":"Consistent","epoch":0,"correction":0.03245118618011475,"qualified":16,"startupAttempts":18,"startupOutliers":0,"startupInconclusive":2,"startupUnanswered":0,"checks":100,"slews":7,"rederivations":0,"inconclusive":1,"unanswered":0,"checkRetries":100},"recalibrations":0}
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":3,"cause":5,"causeName":"MasterRederived","count":"1","stateBefore":5,"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"114375000","derivation":"0","uncertainty":"100000","displayEp
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":5,"causeName":"MasterRederived","count":"1","stateBefore":5,"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"114375000","derivation":"0","uncertainty":"100000","displayEp
+# {"rederived":[{"epoch":0,"rederivations":1}],"recalibrated":[{"role":3,"cause":5,"causeName":"MasterRederived","count":"1","stateBefore":5,"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"114375000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"10359095000","recoveryStarted":"10358920000","recoverySends":1,"pending":{"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","role":3,"sequence":"48","sent":"10358920000"},"reply":{"probe":{"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","role":3,"sequence":"48","sent":"10358920000"},"masterReceived":"10359915000","masterSent":"10359930000","requesterReceived":"10359095000"},"slotsBefore":[{"receipt":"8594095000","sequence":"41","lower":"-392500","upper":"187500"},{"receipt":"8846460000","sequence":"42","lower":"-387500","upper":"202500"},{"receipt":"9098640000","sequence":"43","lower":"-407500","upper":"177500"},{"receipt":"9350000000","sequence":"44","lower":"-372500","upper":"132500"},{"receipt":"9602075000","sequence":"45","lower":"-372500","upper":"177500"},{"receipt":"9853110000","sequence":"46","lower":"-382500","upper":"162500"},{"receipt":"10106755000","sequence":"47","lower":"-387500","upper":"197500"},{"receipt":"8343120000","sequence":"40","lower":"-372500","upper":"177500"}]},{"role":1,"cause":5,"causeName":"MasterRederived","count":"1","stateBefore":5,"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"114375000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"13561705000","recoveryStarted":"13560110000","recoverySends":1,"pending":{"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"49","sent":"13560110000"},"reply":{"probe":{"sessionLow":"4674670419432618692","sessionHigh":"4794817409482709166","masterGeneration":"1","requesterGeneration":"1","role":1,"sequence":"49","sent":"13560110000"},"masterReceived":"10477680000","masterSent":"10477690000","requesterReceived":"13561705000"},"slotsBefore":[{"receipt":"11539305000","sequence":"41","lower":"-3083772500","upper":"-3083207500"},{"receipt":"11789910000","sequence":"42","lower":"-3083767500","upper":"-3083242500"},{"receipt":"12040480000","sequence":"43","lower":"-3083797500","upper":"-3083197500"},{"receipt":"12290900000","sequence":"44","lower":"-3083762500","upper":"-3083242500"},{"receipt":"12549750000","sequence":"45","lower":"-3083762500","upper":"-3083257500"},{"receipt":"12801015000","sequence":"46","lower":"-3083782500","upper":"-3083202500"},{"receipt":"13059525000","sequence":"47","lower":"-3083782500","upper":"-3083182500"},{"receipt":"13309910000","sequence":"48","lower":"-3083767500","upper":"-3083247500"}]}]}
+# Subtest: A skewed Simulation clock is slewed back under the same epoch; a large skew re-derives and requesters recalibrate
+ok 6 - A skewed Simulation clock is slewed back under the same epoch; a large skew re-derives and requesters recalibrate
+  ---
+  duration_ms: 16145.52775
+  type: 'test'
+  ...
+# {"immediate":{"value":0.3818359375,"ordinal":"358"},"firstLit":{"value":0.0000737905502319336,"ordinal":"354"},"full":"364","rampOrdinals":10,"lit":true}
+# Subtest: H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit
+ok 7 - H3: the lamp ramps over 0.16 s of master time after the solve, so a read at the solve instant is not yet lit
+  ---
+  duration_ms: 9868.814375
+  type: 'test'
+  ...
+# E2E_OBSERVED ClockRenewedLate CCGPU_CLOCK_RENEWED_LATE {"role":1,"count":"1","lapseAge":"863980000","exchanges":2,"renewedAt":"4665095000","oldLower":"-3046824618","oldUpper":"-3045390382","newLower":"-3046360000","newUpper":"-3045845000","derivation":"0","displayEpoch":"1"}
+# {"renewals":["CCGPU_CLOCK_RENEWED_LATE {\\"role\\":1,\\"count\\":\\"1\\",\\"lapseAge\\":\\"863980000\\",\\"exchanges\\":2,\\"renewedAt\\":\\"4665095000\\",\\"oldLower\\":\\"-3046824618\\",\\"oldUpper\\":\\"-3045390382\\",\\"newLower\\":\\"-3046360000\\",\\"newUpper\\":\\"-3045845000\\",\\"derivation\\":\\"0\\",\\"displayEpoch\\":\\"1\\"}"],"recalibrations":0}
+# Session clock late renewals (reported, not a failure): 1; first: CCGPU_CLOCK_RENEWED_LATE {"role":1,"count":"1","lapseAge":"863980000","exchanges":2,"renewedAt":"4665095000","oldLower":"-3046824618","oldUpper":"-3045390382","newLower":"-3046360000","newUpper":"-3045845000","derivation":"0","displayEpoch":"1"}
+# Subtest: A 700 ms Browser stall after ready renews its mapping late: no recalibration; placement, Run/Reset and Save/Load are unaffected
+ok 8 - A 700 ms Browser stall after ready renews its mapping late: no recalibration; placement, Run/Reset and Save/Load are unaffected
+  ---
+  duration_ms: 10201.850125
+  type: 'test'
+  ...
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":2,"causeName":"MappingLifetime","count":"1","stateBefore":6,"sessionLow":"11372880570127289802","sessionHigh":"824544795438096657","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"110655000","derivation":"0","uncertainty":"100000","displayEp
+# {"recalibrations":["CCGPU_CLOCK_RECALIBRATED {\\"role\\":1,\\"cause\\":2,\\"causeName\\":\\"MappingLifetime\\",\\"count\\":\\"1\\",\\"stateBefore\\":6,\\"sessionLow\\":\\"11372880570127289802\\",\\"sessionHigh\\":\\"824544795438096657\\",\\"masterGeneration\\":\\"1\\",\\"requesterGeneration\\":\\"1\\",\\"masterOrigin\\":\\"110655000\\",\\"derivation\\":\\"0\\",\\"uncertainty\\":\\"100000\\",\\"displayEp"],"renewals":0}
+# Session close finding (after the suite): The session recalibrated a clock mapping 1 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":2,"causeName":"MappingLifetime","count":"1","stateBefore":6,"sessionLow":"11372880570127289802","sessionHigh":"824544795438096657","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"110655000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"4685830000","recoveryStarted":"4673890000","recoverySends":2,"pending":null,"reply":
+# Subtest: The same stall with the Browser clock jumping 5 ms disagrees with the old mapping: one recalibration, and the driver fails the suite
+ok 9 - The same stall with the Browser clock jumping 5 ms disagrees with the old mapping: one recalibration, and the driver fails the suite
+  ---
+  duration_ms: 5727.579291
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 85343.843583

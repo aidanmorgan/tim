@@ -57,6 +57,7 @@ internal sealed class SimBody
 internal sealed class SimCollider
 {
     public int Index;
+    public ulong Id;
     public int BodySlot;
     public SimBody Body = null!;
     public int MaterialSlot;

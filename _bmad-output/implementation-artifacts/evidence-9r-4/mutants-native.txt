@@ -1,0 +1,66 @@
+Story 9R.4 native mutants (20 Oct 2026). Each mutant was applied to the green tree with the Edit tool, the filter
+`FullyQualifiedName~PressurePlateTests` (plus PoweredGateTests for m10) run, and the edit reverted. All 10 killed.
+
+m1  compiler writes 0.5 instead of the instance minimum_mass (WorkshopPhysicsCompiler, AC1/AC7)
+  Failed ABoxBridgingTwoPlatesLoadsBoth
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False)
+  Failed PhysicsCompiler_EmitsEachPlatesOwnRowAndASwitchedRouteThroughIt
+  Failed AMinimumOneF32AboveTheBodyMassStaysUnderweight
+  Failed: 4, Passed: 28
+m2  threshold rounded to binary16 in the compiler (coordinator item 5, f32)
+  Failed AMinimumOneF32AboveTheBodyMassStaysUnderweight
+  Failed: 1, Passed: 31
+m3  inclusive >= made strict (PhaseOf: mass <= minimum is Underweight) (AC3)
+  Failed ContactLoadPhase_IsTheInclusiveF32Comparison
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 1, balls: 1, opens: True)
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True)
+  Failed: 3, Passed: 29
+m4  body counted per contact point (dedupe removed in ContactLoadSensorTracker) (AC3)
+  Failed ContactLoadSensorTracker_CountsEachBodyOnceAndSumsBodies
+  Failed OneDominoIsUnderweightAndTwoDominoesSum(dominoes: 1, opens: False)
+  Failed OnlyDirectContactCountsForAStack
+  Failed: 3, Passed: 29
+m5  gap filter dropped (coordinator item 3, lifted body)
+  Failed ContactLoadSensorTracker_CountsOnlyRestingContactsOnTheFace
+  Failed: 1, Passed: 31
+m6  one shared level for every row (global flag restored in the engine) (AC5)
+  Failed TwoPlatesSwitchOnlyTheirOwnGates
+  Failed: 1, Passed: 31
+m7  legacy size recognition at 0.5 kg re-added in the engine (AC6)
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False)
+  Failed ASizeImpostorNeverSwitchesAGate
+  Failed AMinimumOneF32AboveTheBodyMassStaysUnderweight
+  Failed TwoPlatesSwitchOnlyTheirOwnGates
+  Failed: 4, Passed: 28
+m8  level never clears after Loaded (ActivationNetwork.CommitContactLoads) (AC4)
+  Failed ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick
+  Failed: 1, Passed: 31
+m9  level clears one tick late after a one-tick load (AC4 timing)
+  Failed TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick
+  Failed: 1, Passed: 32
+m11 save drops minimum_mass to the placed default (WorkshopWireFlatBuffers AddThreshold → min(mass, 0.5)) (AC7, Murdoch-10 B1)
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False)  Expected bits 1073741824 (2.0), actual 1056964608 (0.5)
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True)   same
+  Failed: 2, Passed: 2 (filter TheInstanceMinimumMass)
+m12 fixed 8-slot activation cap restored in ActivationNetwork (owner decision 20 Oct: no activation limit)
+  Failed ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit
+  Failed OrientationSensorTests.WiringIntoADominoRejectsAndAnyNumberOfWiredSourcesCompiles
+  Failed EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(counter, ball_detector, pressure_plate, lamp, latch, clock, delay)
+  Failed: 9, Passed: 15
+m13 Build refuses a ninth activation part (WorkbenchCapacity count > 8) (same decision)
+  Failed ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit
+  Failed EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(counter, ball_detector, pressure_plate, lamp, latch, clock, delay)
+  Failed: 8, Passed: 16
+m10 plate route compiled Direct with no switch (AC2)
+  Failed PoweredGateTests.PhysicsCompiler_PlateChainCompilesASwitchedRowThroughThePlate(authored: Enabled)
+  Failed PoweredGateTests.PhysicsCompiler_PlateChainCompilesASwitchedRowThroughThePlate(authored: Disabled)
+  Failed ALoadRolledOffATiltedPlateOpensItsContactOnTheNextTick
+  Failed OneDominoIsUnderweightAndTwoDominoesSum(dominoes: 1, opens: False)
+  Failed TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick
+  Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False)
+  Failed PhysicsCompiler_EmitsEachPlatesOwnRowAndASwitchedRouteThroughIt
+  Failed ASizeImpostorNeverSwitchesAGate
+  Failed OnlyDirectContactCountsForAStack
+  Failed AMinimumOneF32AboveTheBodyMassStaysUnderweight
+  Failed TwoPlatesSwitchOnlyTheirOwnGates
+  Failed: 11, Passed: 37

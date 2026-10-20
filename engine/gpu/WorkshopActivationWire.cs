@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 internal static class WorkshopActivationWire
 {
     internal const int RecordBytes = 96;
-    internal const int ByteLength = ActivationNetwork.Capacity * RecordBytes;
+    internal const int ByteLength = WorkshopInstances.Capacity * RecordBytes;
     internal static void Write(PhysicsActivationRead read, Span<byte> bytes)
     {
         if (bytes.Length != ByteLength) throw new ArgumentException("Invalid activation read width.");
@@ -25,10 +25,10 @@ internal static class WorkshopActivationWire
     }
     internal static PhysicsActivationRead Read(ReadOnlySpan<byte> bytes, uint count)
     {
-        if (bytes.Length != ByteLength || count > ActivationNetwork.Capacity ||
+        if (bytes.Length != ByteLength || count > WorkshopInstances.Capacity ||
             bytes[(checked((int)count) * RecordBytes)..].IndexOfAnyExcept((byte)0) >= 0)
             throw new ArgumentException("Invalid activation count or padding.");
-        Span<ActivationLatch> values = stackalloc ActivationLatch[ActivationNetwork.Capacity];
+        Span<ActivationLatch> values = stackalloc ActivationLatch[WorkshopInstances.Capacity];
         for (var i = 0; i < count; i++)
         {
             var slot = bytes.Slice(i * RecordBytes, RecordBytes);

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace CuriousContraptions.Gpu;
 
-public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2, Orientation = 3, Passage = 4, CounterReached = 5, OscillatorTick = 6 }
+public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2, Orientation = 3, Passage = 4, CounterReached = 5, OscillatorTick = 6, ContactLoad = 7 }
 public enum ActivationTimerPhase : uint { Ready, Counting, Finished }
 
 /// <summary>Canonical physical boundary time, also used for integer-boundary controller outputs.</summary>
@@ -61,7 +61,7 @@ public readonly record struct ActivationOccurrence(ActivationOccurrenceKind Kind
     {
         Time.Validate(); Cause.Validate();
         if (!Enum.IsDefined(Kind) || Emitter.Value == 0 || Time.CompareTo(Cause.Time) < 0 ||
-            (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation or ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.CounterReached or ActivationOccurrenceKind.OscillatorTick && Time != Cause.Time) ||
+            (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation or ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.CounterReached or ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.ContactLoad && Time != Cause.Time) ||
             (Kind == ActivationOccurrenceKind.TimerElapsed && !PhysicsDeclarationBounds.Zero(Time.Phase)))
             throw new ArgumentException("Invalid activation occurrence.");
     }
@@ -116,26 +116,22 @@ public readonly record struct ActivationTimerState(ActivationNodeId Node, Activa
     }
 }
 
-[InlineArray(ActivationNetwork.Capacity)]
-internal struct TimerReadStorage { private ActivationTimerState _first; }
-
-/// <summary>One copied, bounded timer observation population in the committed world read.</summary>
+/// <summary>One copied timer observation population in the committed world read, sized exactly from the compiled network.</summary>
 public readonly struct PhysicsTimerRead
 {
-    private readonly TimerReadStorage _values;
-    public byte Count { get; }
+    private readonly ActivationTimerState[]? _values;
+    public byte Count => checked((byte)(_values?.Length ?? 0));
     public PhysicsTimerRead(ReadOnlySpan<ActivationTimerState> values)
     {
-        if (values.Length > ActivationNetwork.Capacity) throw new ArgumentException("Timer capacity exceeded.");
-        Count = checked((byte)values.Length); _values = default;
+        if (values.Length > WorkshopInstances.Capacity) throw new ArgumentException("More timers than instances.");
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
             if (i != 0 && values[i - 1].Node.Value >= values[i].Node.Value)
                 throw new ArgumentException("Timer identities must be unique and ordered.");
-            _values[i] = values[i];
         }
+        _values = values.ToArray();
     }
     public ActivationTimerState this[int index] => index >= 0 && index < Count ?
-        _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
+        _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
 }

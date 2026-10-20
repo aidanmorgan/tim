@@ -272,7 +272,7 @@ public sealed class OrientationSensorTests
     }
 
     [Fact]
-    public void WiringIntoADominoRejectsAndNineWiredSourcesExceedTheActivationTable()
+    public void WiringIntoADominoRejectsAndAnyNumberOfWiredSourcesCompiles()
     {
         var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate());
@@ -284,12 +284,12 @@ public sealed class OrientationSensorTests
         WorkshopConnection Link(int source) => new(new((ulong)source), WorkshopSocket.ActivationOut, new(9), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         var seven = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new([.. Enumerable.Range(1, 7).Select(Link)]));
         seven.Validate();
-        Assert.Equal(ActivationNetwork.Capacity, (int)WorkshopActivationCompiler.Compile(seven).Clear().Count);
+        Assert.Equal(8, (int)WorkshopActivationCompiler.Compile(seven).Clear().Count);
         Assert.Equal(7, WorkshopPhysicsCompiler.Compile(seven, new(1, 2)).OrientationSensors.Length);
+        // Owner decision, 20 Oct 2026: no activation-slot limit. The ninth node (the eighth wired Domino) compiles.
         var eight = seven with { Connections = seven.Connections.With(Link(8)) };
-        var error = Assert.Throws<WorkbenchFullException>(() => eight.Validate());
-        Assert.Equal(WorkbenchTable.ActivationNodes, error.Table);
-        Assert.Equal("Workbench is full: activation table", error.Message);
-        Assert.Throws<WorkbenchFullException>(() => WorkshopActivationCompiler.Compile(eight));
+        eight.Validate();
+        Assert.Equal(9, (int)WorkshopActivationCompiler.Compile(eight).Clear().Count);
+        Assert.Equal(8, WorkshopPhysicsCompiler.Compile(eight, new(1, 2)).OrientationSensors.Length);
     }
 }

@@ -171,6 +171,11 @@ public sealed class PhysicsSceneDeclaration
     public const int TriggerCapacity = 8;
     public const int ContactWorkCapacity = 8;
     public const int OrientationSensorCapacity = PhysicsBodyReadSet.Capacity;
+    /// <summary>One contact-load row per plate instance: the instance bound is the only bound, so a row is never refused.</summary>
+    public const int ContactLoadSensorCapacity = WorkshopInstances.Capacity;
+    private readonly ContactLoadSensorDeclaration[] _contactLoadSensors;
+    /// <summary>The compiled per-plate contact-load rows (Story 9R.4), sorted by identity.</summary>
+    public ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors => _contactLoadSensors;
     private readonly PrismaticConstraintDeclaration[] _prismatics;
     public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
     private readonly SupplyRoute[] _supplyRoutes;
@@ -204,10 +209,11 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default,
         ReadOnlySpan<ElectricalSourceDeclaration> electricalSources = default, ReadOnlySpan<ElectricalStorageBinding> electricalBindings = default,
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics = default,
-        ReadOnlySpan<SupplyRouteDeclaration> supplyRoutes = default)
+        ReadOnlySpan<SupplyRouteDeclaration> supplyRoutes = default,
+        ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
-            prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity ||
+            prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity || contactLoadSensors.Length > ContactLoadSensorCapacity ||
             materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity ||
             contactWorks.Length > ContactWorkCapacity || orientationSensors.Length > OrientationSensorCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");
@@ -294,6 +300,16 @@ public sealed class PhysicsSceneDeclaration
             // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
             if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
         }
+        var loadFrames = new HashSet<GpuBodyId>();
+        foreach (var sensor in contactLoadSensors)
+        {
+            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
+            var faceOwned = false;
+            foreach (var collider in colliders) if (collider.Id == sensor.Face && collider.Body == sensor.Frame) faceOwned = true;
+            if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static || !faceOwned ||
+                !loadFrames.Add(sensor.Frame))
+                throw new ArgumentException("A contact-load row requires one row per static frame and a sensing face that frame owns.");
+        }
         var pairs = new HashSet<(GpuBodyId, GpuBodyId)>();
         foreach (var joint in prismatics)
         {
@@ -332,6 +348,8 @@ public sealed class PhysicsSceneDeclaration
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
         _contactWorks = contactWorks.ToArray(); _orientationSensors = orientationSensors.ToArray();
         Array.Sort(_orientationSensors, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        _contactLoadSensors = contactLoadSensors.ToArray();
+        Array.Sort(_contactLoadSensors, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_bodies, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_colliders, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_materials, (a, b) => a.Id.Value.CompareTo(b.Id.Value));

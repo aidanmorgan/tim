@@ -3,8 +3,9 @@ using System.Collections.Generic;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Compiled tables an authored population can exhaust. Closed set; display text lives at the exception boundary.</summary>
-public enum WorkbenchTable : uint { Instances, Bodies, DynamicBodies, Sensors, Guides, Triggers, ContactWork, ActivationNodes, ElectricalSources, PrismaticConstraints }
+/// <summary>Compiled tables an authored population can exhaust. Closed set; display text lives at the exception boundary.
+/// There is no activation table: activation nodes are sized from the compiled network (owner decision, 20 Oct 2026).</summary>
+public enum WorkbenchTable : uint { Instances, Bodies, DynamicBodies, Sensors, Guides, Triggers, ContactWork, ElectricalSources, PrismaticConstraints }
 
 /// <summary>Explicit rejection when a construction needs more rows than the fixed physics tables hold. Never a fault.</summary>
 public sealed class WorkbenchFullException : ArgumentException
@@ -20,46 +21,45 @@ public sealed class WorkbenchFullException : ArgumentException
         WorkbenchTable.Guides => "ball guide table (one Receiver guides the balls)",
         WorkbenchTable.Triggers => "impact trigger table",
         WorkbenchTable.ContactWork => "bumper work table",
-        WorkbenchTable.ActivationNodes => "activation table",
         WorkbenchTable.PrismaticConstraints => "prismatic constraint table",
         WorkbenchTable.ElectricalSources => "electrical supply table",
         _ => throw new ArgumentException("Undefined workbench table.")
     };
 }
 
-/// <summary>Rows one authored part adds to each compiled table; mirrors WorkshopPhysicsCompiler and WorkshopActivationCompiler.</summary>
-public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, int Colliders, int Triggers, int ContactWorks, int ActivationNodes, int ElectricalSources = 0, int PrismaticConstraints = 0)
+/// <summary>Rows one authored part adds to each fixed compiled table; mirrors WorkshopPhysicsCompiler.</summary>
+public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, int Colliders, int Triggers, int ContactWorks, int ElectricalSources = 0, int PrismaticConstraints = 0)
 {
     /// <summary>The compiled workbench plane itself.</summary>
-    public static WorkbenchFootprint Plane => new(1, 0, 1, 0, 0, 0);
+    public static WorkbenchFootprint Plane => new(1, 0, 1, 0, 0);
     public static WorkbenchFootprint Of(PartId id) => id.Value switch
     {
-        "ball" or "bowling" or "domino" => new(1, 1, 1, 0, 0, 0),
-        "basket" => new(1, 0, 5, 0, 0, 0),
-        "spring" => new(2, 1, 2, 0, 0, 0, 0, 1),
-        "battery" => new(1, 0, 1, 0, 0, 0, 1),
-        "ramp" or "wall" => new(1, 0, 1, 0, 0, 0),
-        "switch" => new(1, 0, 2, 1, 0, 1),
-        "lamp" or "delay" => new(1, 0, 1, 0, 0, 1),
-        "bumper" => new(1, 0, 1, 0, 1, 0),
-        "pipe" => new(1, 0, 24, 0, 0, 0),
-        "ball_detector" => new(1, 0, 17, 0, 0, 1),
-        "pipe_bend_45" => new(1, 0, 40, 0, 0, 0),
-        "pipe_bend_90" => new(1, 0, 72, 0, 0, 0),
-        "funnel" => new(1, 0, 72, 0, 0, 0),
-        "powered_gate" => new(2, 1, 20, 0, 0, 0, 0, 1),
-        "pressure_plate" => new(1, 0, 2, 0, 0, 0),
-        "counter" => new(1, 0, 2, 0, 0, 1),
-        "clock" => new(1, 0, 2, 0, 0, 1),
-        "latch" => new(1, 0, 2, 0, 0, 1),
+        "ball" or "bowling" or "domino" => new(1, 1, 1, 0, 0),
+        "basket" => new(1, 0, 5, 0, 0),
+        "spring" => new(2, 1, 2, 0, 0, 0, 1),
+        "battery" => new(1, 0, 1, 0, 0, 1),
+        "ramp" or "wall" => new(1, 0, 1, 0, 0),
+        "switch" => new(1, 0, 2, 1, 0),
+        "lamp" or "delay" => new(1, 0, 1, 0, 0),
+        "bumper" => new(1, 0, 1, 0, 1),
+        "pipe" => new(1, 0, 24, 0, 0),
+        "ball_detector" => new(1, 0, 17, 0, 0),
+        "pipe_bend_45" => new(1, 0, 40, 0, 0),
+        "pipe_bend_90" => new(1, 0, 72, 0, 0),
+        "funnel" => new(1, 0, 72, 0, 0),
+        "powered_gate" => new(2, 1, 20, 0, 0, 0, 1),
+        "pressure_plate" => new(1, 0, 2, 0, 0),
+        "counter" => new(1, 0, 2, 0, 0),
+        "clock" => new(1, 0, 2, 0, 0),
+        "latch" => new(1, 0, 2, 0, 0),
         _ => throw new ArgumentException("Unsupported authored instance declaration.")
     };
     public static WorkbenchFootprint operator +(WorkbenchFootprint a, WorkbenchFootprint b) =>
         new(a.Bodies + b.Bodies, a.DynamicBodies + b.DynamicBodies, a.Colliders + b.Colliders,
-            a.Triggers + b.Triggers, a.ContactWorks + b.ContactWorks, a.ActivationNodes + b.ActivationNodes, a.ElectricalSources + b.ElectricalSources, a.PrismaticConstraints + b.PrismaticConstraints);
+            a.Triggers + b.Triggers, a.ContactWorks + b.ContactWorks, a.ElectricalSources + b.ElectricalSources, a.PrismaticConstraints + b.PrismaticConstraints);
 }
 
-/// <summary>The only population limit: fixed compiled table capacities. No per-kind count applies.</summary>
+/// <summary>The only population limit: fixed compiled table capacities. No per-kind count applies, and no activation count.</summary>
 public static class WorkbenchCapacity
 {
     public static void Validate(IReadOnlyList<IWorkshopInstance> instances)
@@ -71,8 +71,8 @@ public static class WorkbenchCapacity
         {
             if (instance is IWorkshopDeclaredColliders declared)
             {
-                var fp = instance.PartId == PartId.Unsupported ? new WorkbenchFootprint(1, 0, 0, 0, 0, 0) : WorkbenchFootprint.Of(instance.PartId);
-                total += new WorkbenchFootprint(fp.Bodies, fp.DynamicBodies, declared.DeclaredColliders.Count, fp.Triggers, fp.ContactWorks, fp.ActivationNodes, fp.ElectricalSources, fp.PrismaticConstraints);
+                var fp = instance.PartId == PartId.Unsupported ? new WorkbenchFootprint(1, 0, 0, 0, 0) : WorkbenchFootprint.Of(instance.PartId);
+                total += new WorkbenchFootprint(fp.Bodies, fp.DynamicBodies, declared.DeclaredColliders.Count, fp.Triggers, fp.ContactWorks, fp.ElectricalSources, fp.PrismaticConstraints);
             }
             else
                 total += WorkbenchFootprint.Of(instance.PartId);
@@ -91,18 +91,5 @@ public static class WorkbenchCapacity
         if (total.PrismaticConstraints > PhysicsSceneDeclaration.PrismaticCapacity) throw new WorkbenchFullException(WorkbenchTable.PrismaticConstraints);
         if (total.ElectricalSources > ElectricalSupplyPlan.SourceCapacity) throw new WorkbenchFullException(WorkbenchTable.ElectricalSources);
         if (total.Triggers > PhysicsSceneDeclaration.TriggerCapacity) throw new WorkbenchFullException(WorkbenchTable.Triggers);
-        if (total.ContactWorks > PhysicsSceneDeclaration.ContactWorkCapacity) throw new WorkbenchFullException(WorkbenchTable.ContactWork);
-        if (total.ActivationNodes > ActivationNetwork.Capacity) throw new WorkbenchFullException(WorkbenchTable.ActivationNodes);
-    }
-
-    /// <summary>A Domino compiles an activation node only while it is a connection source, so the node table is checked against the wiring.</summary>
-    public static void ValidateConnected(IReadOnlyList<IWorkshopInstance> instances, WorkshopConnections connections)
-    {
-        ArgumentNullException.ThrowIfNull(instances); ArgumentNullException.ThrowIfNull(connections);
-        var nodes = 0;
-        foreach (var instance in instances)
-            nodes += (instance.PartId == PartId.Unsupported ? 0 : WorkbenchFootprint.Of(instance.PartId).ActivationNodes) +
-                (instance.PartId == PartId.Domino && connections.HasSource(instance.Id) ? 1 : 0);
-        if (nodes > ActivationNetwork.Capacity) throw new WorkbenchFullException(WorkbenchTable.ActivationNodes);
-    }
+        if (total.ContactWorks > PhysicsSceneDeclaration.ContactWorkCapacity) throw new WorkbenchFullException(WorkbenchTable.ContactWork);    }
 }

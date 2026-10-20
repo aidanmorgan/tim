@@ -396,7 +396,6 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(2, fp.Colliders);
         Assert.Equal(0, fp.Triggers);
         Assert.Equal(0, fp.ContactWorks);
-        Assert.Equal(1, fp.ActivationNodes);
         Assert.Equal(0, fp.ElectricalSources);
         Assert.Equal(0, fp.PrismaticConstraints);
 

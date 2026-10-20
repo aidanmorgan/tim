@@ -1,0 +1,8 @@
+C# static gate GREEN after the re-pin, commit de8e6c14 "chore: re-pin the C# static gate for .NET SDK 10.0.402"
+(parent c5a1cdda). The repository pre-commit hook built the index snapshot (solution, playtest and web builds: 0 warnings,
+0 errors each), anvil reported 0 findings, and the binlog replay passed:
+
+  Passed!  - Failed: 0, Passed: 123, Skipped: 0, Total: 123 - CuriousContraptions.tests.dll (net10.0)
+  (filter CSharpStaticGateTests | WorkshopUiFailureTests; EveryLoggedCompileReceivedThePinnedCompilerInputs included)
+
+The red run is gate-repin-red.txt (the same hook on the same SDK, before the pins).

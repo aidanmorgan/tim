@@ -30,28 +30,25 @@ public readonly record struct ActivationMemory(ActivationNodeId Node, Activation
     }
 }
 
-[InlineArray(ActivationNetwork.Capacity)]
-internal struct MemoryReadStorage { private ActivationMemory _first; }
-
-/// <summary>One copied, bounded population of committed Counter and Clock memory rows, ordered by node id.</summary>
+/// <summary>One copied population of committed Counter and Clock memory rows, ordered by node id, sized exactly from the
+/// compiled network.</summary>
 public readonly struct PhysicsMemoryRead
 {
-    private readonly MemoryReadStorage _values;
-    public byte Count { get; }
+    private readonly ActivationMemory[]? _values;
+    public byte Count => checked((byte)(_values?.Length ?? 0));
     public PhysicsMemoryRead(ReadOnlySpan<ActivationMemory> values)
     {
-        if (values.Length > ActivationNetwork.Capacity) throw new ArgumentException("Activation memory capacity exceeded.");
-        Count = checked((byte)values.Length); _values = default;
+        if (values.Length > WorkshopInstances.Capacity) throw new ArgumentException("More memory rows than instances.");
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
             if (i != 0 && values[i - 1].Node.Value >= values[i].Node.Value)
                 throw new ArgumentException("Activation memory identities must be unique and ordered.");
-            _values[i] = values[i];
         }
+        _values = values.ToArray();
     }
     public ActivationMemory this[int index] => index >= 0 && index < Count ?
-        _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
+        _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     public bool HasSameBits(PhysicsMemoryRead other)
     {
@@ -66,7 +63,7 @@ public readonly struct PhysicsMemoryRead
 internal static class WorkshopActivationMemoryWire
 {
     internal const int RecordBytes = 40;
-    internal const int ByteLength = ActivationNetwork.Capacity * RecordBytes;
+    internal const int ByteLength = WorkshopInstances.Capacity * RecordBytes;
     internal static void Write(PhysicsMemoryRead read, Span<byte> bytes)
     {
         if (bytes.Length != ByteLength) throw new ArgumentException("Invalid activation memory wire width.");
@@ -85,10 +82,10 @@ internal static class WorkshopActivationMemoryWire
     }
     internal static PhysicsMemoryRead Read(ReadOnlySpan<byte> bytes, byte count)
     {
-        if (bytes.Length != ByteLength || count > ActivationNetwork.Capacity ||
+        if (bytes.Length != ByteLength || count > WorkshopInstances.Capacity ||
             bytes[(count * RecordBytes)..].IndexOfAnyExcept((byte)0) >= 0)
             throw new ArgumentException("Invalid activation memory population or padding.");
-        Span<ActivationMemory> values = stackalloc ActivationMemory[ActivationNetwork.Capacity];
+        Span<ActivationMemory> values = stackalloc ActivationMemory[WorkshopInstances.Capacity];
         for (var i = 0; i < count; i++)
         {
             var slot = bytes.Slice(i * RecordBytes, RecordBytes);

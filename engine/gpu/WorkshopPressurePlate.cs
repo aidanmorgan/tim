@@ -12,6 +12,12 @@ public readonly record struct WorkshopPressurePlate(
 {
     /// <summary>The minimum mass a newly placed plate starts with in the Workshop UI; no decoder or factory defaults to it.</summary>
     public const float PlacedMinimumMass = 0.5f;
+    /// <summary>CAT-052 §2 contact distance d: the x footprint margin and the largest contact gap that counts as resting.</summary>
+    public const float ContactDistance = 0.0001f;
+    /// <summary>CAT-052 §2: the z footprint margin (10⁻⁶ m).</summary>
+    public const float FootprintDepthMargin = 1e-6f;
+    /// <summary>CAT-052 §2: the minimum alignment of a qualifying contact normal with the face's +Y (1 − 10⁻⁶).</summary>
+    public const float MinimumAlignment = 1f - 1e-6f;
     public PartId PartId => PartId.PressurePlate;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
 

@@ -1,0 +1,30 @@
+// Story 9R.4 temporary probe: where do two dominoes placed on the cat-052 plate land? (deleted before commit)
+import { after, before, test } from 'node:test';
+import { WorkshopDriver } from './workshop-driver.ts';
+import { decodeSavedConstruction } from './workshop-wire.ts';
+
+const screen = (x: number, z: number) => ({ x: Math.round(720 + 53.8 * x - 36.8 * z), y: Math.round(485 + 17.0 * x + 24.8 * z) });
+let driver: WorkshopDriver;
+before(async () => { driver = await WorkshopDriver.launch(); });
+after(async () => { await driver?.closeAfterSuite(); });
+
+test('probe', { timeout: 150000 }, async () => {
+    await driver.reload();
+    await driver.selectTool('powered_gate'); await driver.placeOnCanvas(720, 485);
+    await driver.selectTool('pressure_plate'); await driver.placeOnCanvas(920, 510);
+    for (const at of [screen(2.6, -1.05), screen(3.4, -1.05), { x: 905, y: 505 }, { x: 935, y: 515 }]) {
+        await driver.selectTool('domino'); await driver.placeOnCanvas(at.x, at.y);
+    }
+    const s = await driver.captureSnapshot({ bodies: 5 });
+    void s;
+    await driver.page.screenshot({ path: '/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/probe-dominoes.png' });
+    const bytes = await driver.page.evaluate(() => new Promise<number[]>((resolve) => {
+        const r = indexedDB.open('curious-contraptions-workshop');
+        r.onsuccess = () => { const tx = r.result.transaction('construction', 'readonly'); const g = tx.objectStore('construction').get(1); tx.oncomplete = () => resolve(Array.from(g.result as Uint8Array)); };
+    }));
+    const c = decodeSavedConstruction(new Uint8Array(bytes)).construction()!;
+    for (let i = 0; i < c.instancesLength(); i++) {
+        const inst = c.instances(i)!; const cell = inst.cell()!; const l = inst.local()!;
+        console.log(`PROBE ${inst.partId()} id=${inst.id()} x=${(cell.x() + l.x()) / 16} y=${(cell.y() + l.y()) / 16} z=${(cell.z() + l.z()) / 16}`);
+    }
+});

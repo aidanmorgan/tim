@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
@@ -14,132 +12,93 @@ public enum ContactLoadPhase : uint
     Loaded = 2
 }
 
+/// <summary>One compiled contact-load row (CAT-052 §2), all f32. A contact qualifies when it touches the frame's sensing
+/// <paramref name="Face"/> collider, its normal toward the other body aligns with <paramref name="LocalNormal"/> by at least
+/// <paramref name="MinimumAlignment"/>, its gap is at most <paramref name="MaximumGap"/> (the contact distance), and its point lies
+/// inside the face's local x–z footprint. The face is identified by its collider, normal and gap, never by a y band a resting
+/// box straddles (coordinator decision, 20 Oct 2026). Each dynamic body counts its mass once; bodies sum; Loaded is inclusive (≥).</summary>
 public readonly record struct ContactLoadSensorDeclaration(
     GpuContactLoadSensorId Id,
     GpuBodyId Frame,
-    MetreVector RegionMinimum,
-    MetreVector RegionMaximum,
-    MetreVector LocalNormal,
-    Half MinimumAlignment,
-    Kilograms MinimumMass)
+    GpuColliderId Face,
+    float MinimumX,
+    float MaximumX,
+    float MinimumZ,
+    float MaximumZ,
+    Vector3 LocalNormal,
+    float MinimumAlignment,
+    float MaximumGap,
+    float MinimumMass)
 {
     public void Validate()
     {
-        if (Id.Value == 0 || Frame.Value == 0)
-            throw new ArgumentException("Sensor and frame identities are required.");
-        if (RegionMinimum.X >= RegionMaximum.X || RegionMinimum.Y >= RegionMaximum.Y || RegionMinimum.Z >= RegionMaximum.Z)
-            throw new ArgumentOutOfRangeException(nameof(RegionMinimum), "Invalid sensor region bounds.");
-        if (!Half.IsFinite(MinimumAlignment) || MinimumAlignment <= (Half)0 || MinimumAlignment > (Half)1)
+        if (Id.Value == 0 || Frame.Value == 0 || Face.Value == 0)
+            throw new ArgumentException("Contact-load sensor, frame and face identities are required.");
+        if (!float.IsFinite(MinimumX) || !float.IsFinite(MaximumX) || !float.IsFinite(MinimumZ) || !float.IsFinite(MaximumZ) ||
+            MinimumX >= MaximumX || MinimumZ >= MaximumZ || MathF.Abs(MinimumX) > 16 || MathF.Abs(MaximumX) > 16 ||
+            MathF.Abs(MinimumZ) > 16 || MathF.Abs(MaximumZ) > 16)
+            throw new ArgumentOutOfRangeException(nameof(MinimumX), "Contact-load footprint must be finite, ordered and within 16 m.");
+        if (!float.IsFinite(LocalNormal.X) || !float.IsFinite(LocalNormal.Y) || !float.IsFinite(LocalNormal.Z) ||
+            MathF.Abs(LocalNormal.LengthSquared() - 1) > 1e-6f)
+            throw new ArgumentOutOfRangeException(nameof(LocalNormal), "Contact-load normal must be a unit vector.");
+        if (!float.IsFinite(MinimumAlignment) || MinimumAlignment <= 0 || MinimumAlignment > 1)
             throw new ArgumentOutOfRangeException(nameof(MinimumAlignment), "Minimum alignment must be in (0, 1].");
-        if (!Half.IsFinite(MinimumMass.Value) || MinimumMass.Value <= (Half)0)
-            throw new ArgumentOutOfRangeException(nameof(MinimumMass), "Minimum mass must be positive.");
+        if (!float.IsFinite(MaximumGap) || MaximumGap < 0 || MaximumGap > .01f)
+            throw new ArgumentOutOfRangeException(nameof(MaximumGap), "Maximum gap must be in [0, 0.01] m.");
+        if (!float.IsFinite(MinimumMass) || MinimumMass <= 0)
+            throw new ArgumentOutOfRangeException(nameof(MinimumMass), "Minimum mass must be finite and positive.");
     }
+
+    /// <summary>The phase of a measured f32 mass, compared before any rounding: Empty (no qualifying mass), Underweight
+    /// (0 &lt; mass &lt; minimum), Loaded (mass ≥ minimum).</summary>
+    public ContactLoadPhase PhaseOf(float mass) =>
+        mass <= 0 ? ContactLoadPhase.Empty : mass < MinimumMass ? ContactLoadPhase.Underweight : ContactLoadPhase.Loaded;
 }
 
+/// <summary>One row's committed tick measurement: the D2 maximum qualifying f32 mass over the tick's substeps and its phase.</summary>
 public readonly record struct ContactLoadSensorRead(
     GpuContactLoadSensorId Sensor,
     GpuBodyId Frame,
-    Kilograms MeasuredMass,
-    ContactLoadPhase Phase,
-    IReadOnlyList<GpuBodyId> TouchingBodies);
+    GpuColliderId Face,
+    float MeasuredMass,
+    ContactLoadPhase Phase);
 
+/// <summary>One solver contact seen from its static side: the frame body and collider, the other (dynamic) body and its mass, the
+/// contact point and normal toward the other body (world space), and the signed gap (negative while penetrating).</summary>
 public readonly record struct ContactPointRecord(
-    GpuBodyId BodyA,
-    GpuBodyId BodyB,
+    GpuBodyId Frame,
+    GpuColliderId Collider,
+    GpuBodyId Other,
+    float OtherMass,
     Vector3 Point,
-    Vector3 NormalTowardB);
+    Vector3 NormalTowardOther,
+    float Gap);
 
-public sealed class ContactLoadSensorTracker
+/// <summary>Evaluates one compiled contact-load row against one substep's contacts. Allocation-free (Story 9R.4 D4): the caller owns
+/// the scratch that records which bodies already counted.</summary>
+public static class ContactLoadSensorTracker
 {
-    public static readonly ContactLoadSensorTracker Empty = new([]);
-
-    private readonly ContactLoadSensorDeclaration[] _sensors;
-    public IReadOnlyList<ContactLoadSensorDeclaration> Sensors => _sensors;
-
-    public ContactLoadSensorTracker(ContactLoadSensorDeclaration[] sensors)
+    public static float Measure(in ContactLoadSensorDeclaration sensor, Vector3 framePosition, Quaternion frameRotation,
+        ReadOnlySpan<ContactPointRecord> contacts, Span<GpuBodyId> counted)
     {
-        ArgumentNullException.ThrowIfNull(sensors);
-        _sensors = (ContactLoadSensorDeclaration[])sensors.Clone();
-    }
-
-    public static ContactLoadSensorTracker Create(ReadOnlySpan<ContactLoadSensorDeclaration> sensors)
-    {
-        var array = sensors.ToArray();
-        foreach (var s in array) s.Validate();
-        return new ContactLoadSensorTracker(array);
-    }
-
-    public ContactLoadSensorRead Measure(
-        GpuContactLoadSensorId sensorId,
-        Vector3 framePosition,
-        Quaternion frameRotation,
-        IReadOnlyList<ContactPointRecord> contacts,
-        IReadOnlyDictionary<GpuBodyId, float> dynamicBodyMasses)
-    {
-        var sensor = Array.Find(_sensors, s => s.Id == sensorId);
-        if (sensor.Id.Value == 0)
-            throw new ArgumentException($"Unknown contact load sensor identity '{sensorId}'.");
-
-        var qInv = Quaternion.Conjugate(frameRotation);
-        var expectedNormal = Vector3.Normalize(new Vector3((float)sensor.LocalNormal.X, (float)sensor.LocalNormal.Y, (float)sensor.LocalNormal.Z));
-        var minAlignment = (float)sensor.MinimumAlignment;
-
-        var minX = (float)sensor.RegionMinimum.X;
-        var minY = (float)sensor.RegionMinimum.Y;
-        var minZ = (float)sensor.RegionMinimum.Z;
-        var maxX = (float)sensor.RegionMaximum.X;
-        var maxY = (float)sensor.RegionMaximum.Y;
-        var maxZ = (float)sensor.RegionMaximum.Z;
-
-        var touchedBodies = new Dictionary<GpuBodyId, float>();
-
-        foreach (var c in contacts)
+        if (counted.Length < contacts.Length)
+            throw new ArgumentException("Contact-load scratch must hold one body per contact.", nameof(counted));
+        var inverse = Quaternion.Conjugate(frameRotation);
+        var bodies = 0;
+        var mass = 0f;
+        foreach (var contact in contacts)
         {
-            GpuBodyId otherId;
-            Vector3 normalTowardOther;
-
-            if (c.BodyA == sensor.Frame)
-            {
-                otherId = c.BodyB;
-                normalTowardOther = c.NormalTowardB;
-            }
-            else if (c.BodyB == sensor.Frame)
-            {
-                otherId = c.BodyA;
-                normalTowardOther = -c.NormalTowardB;
-            }
-            else
-            {
+            if (contact.Frame != sensor.Frame || contact.Collider != sensor.Face || contact.OtherMass <= 0 || contact.Gap > sensor.MaximumGap)
                 continue;
-            }
-
-            if (!dynamicBodyMasses.TryGetValue(otherId, out var mass) || mass <= 0f)
+            if (Vector3.Dot(Vector3.Transform(contact.NormalTowardOther, inverse), sensor.LocalNormal) < sensor.MinimumAlignment)
                 continue;
-
-            // Transform point and normal to frame local space
-            var localPoint = Vector3.Transform(c.Point - framePosition, qInv);
-            var localNormal = Vector3.Normalize(Vector3.Transform(normalTowardOther, qInv));
-
-            var alignment = Vector3.Dot(localNormal, expectedNormal);
-            if (alignment < minAlignment)
+            var local = Vector3.Transform(contact.Point - framePosition, inverse);
+            if (local.X < sensor.MinimumX || local.X > sensor.MaximumX || local.Z < sensor.MinimumZ || local.Z > sensor.MaximumZ)
                 continue;
-
-            if (localPoint.X < minX || localPoint.X > maxX ||
-                localPoint.Y < minY || localPoint.Y > maxY ||
-                localPoint.Z < minZ || localPoint.Z > maxZ)
-                continue;
-
-            touchedBodies.TryAdd(otherId, mass);
+            if (counted[..bodies].Contains(contact.Other)) continue;
+            counted[bodies++] = contact.Other;
+            mass += contact.OtherMass;
         }
-
-        var orderedBodies = touchedBodies.Keys.OrderBy(k => k.Value).ToArray();
-        var totalMass = 0f;
-        foreach (var id in orderedBodies) totalMass += touchedBodies[id];
-
-        var phase = totalMass == 0f ? ContactLoadPhase.Empty
-            : totalMass < (float)sensor.MinimumMass.Value ? ContactLoadPhase.Underweight
-            : ContactLoadPhase.Loaded;
-
-        return new ContactLoadSensorRead(sensor.Id, sensor.Frame, new Kilograms((Half)totalMass), phase, orderedBodies);
+        return mass;
     }
 }

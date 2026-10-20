@@ -54,6 +54,7 @@ The runner gives every suite an explicit environment: `PATH`, `HOME` and `TMPDIR
 | capacity-9r | owner-named (coordinator, 20 Oct 2026): a new suite starts SerialAlone until calibration qualifies it; the 2,305-collider scene debt-faulted before Story 9R.2's broadphase fix |
 | cat-062 | owner-named (coordinator, 20 Oct 2026): test 4 timed out with no failed assertion on a Parallel worker under N=2 AOT workers (`_bmad-output/implementation-artifacts/evidence-9r-3/full-run-1`); Parallel returns only through Story F.1's recalibration |
 | cat-051-own-supply | owner-named (coordinator, 20 Oct 2026, Story 9R.3): a new suite starts SerialAlone until calibration qualifies it; it samples blade and ball poses over wall-clock windows after each in-run supply toggle |
+| cat-052-two-plates | owner-named (coordinator, 20 Oct 2026, Story 9R.4): a new suite starts SerialAlone until calibration qualifies it; it samples both blades' poses over wall-clock windows after each Run |
 | cat-020 | owner-named (coordinator, 20 Oct 2026): a boot-time clock recalibration under N=2 AOT workers (`_bmad-output/implementation-artifacts/evidence-9r-1/full-run-parallel`); Parallel returns only through Story F.1's recalibration |
 
 Every other suite is Parallel. Rewriting a SerialAlone suite to measure simulated time instead belongs to the story that owns it.

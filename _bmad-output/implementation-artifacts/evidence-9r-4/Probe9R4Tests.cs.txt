@@ -1,0 +1,56 @@
+using System.Reflection;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
+
+namespace CuriousContraptions.Tests;
+
+// Story 9R.4 design probe (temporary): logs the plate contacts a resting ball, one domino and two dominoes produce.
+public sealed class Probe9R4Tests(ITestOutputHelper output)
+{
+    private static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
+
+    [Theory]
+    [InlineData("ball")]
+    [InlineData("domino")]
+    [InlineData("two-dominoes")]
+    [InlineData("flat-domino")]
+    public void Probe(string load)
+    {
+        var plateY = BenchY + .22 + .0005;
+        var plate = WorkshopInput.PressurePlate(new(1), 0, plateY, 0, 0, 0, 0, 1, .5f);
+        var top = plateY + .08;
+        IWorkshopInstance[] loads = load switch
+        {
+            "ball" => [WorkshopInput.Basketball(new(2), .1, top + .38, 0, 0, 0, 0, 1)],
+            "domino" => [WorkshopInput.Domino(new(2), .1, top + .551, 0, 0, 0, 0, 1)],
+            "two-dominoes" => [WorkshopInput.Domino(new(2), -.4, top + .551, 0, 0, 0, 0, 1), WorkshopInput.Domino(new(3), .4, top + .551, 0, 0, 0, 0, 1)],
+            _ => [WorkshopInput.Domino(new(2), 0, top + .126, 0, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5))],
+        };
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([plate, .. loads]));
+        var bytes = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)), new(1),
+            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        var engine = new WorkshopPhysicsEngine();
+        engine.Reset();
+        var contacts = (List<ContactPoint>)typeof(WorkshopPhysicsEngine).GetField("_contacts", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(engine)!;
+        var source = bytes; var candidate = new byte[bytes.Length];
+        var inputs = new PhysicsTickInputs([], []);
+        for (var tick = 1; tick <= 360; tick++)
+        {
+            engine.Advance(source, candidate, inputs);
+            (source, candidate) = (candidate, source);
+            if (tick is 1 or 2 or 5 or 30 or 120 or 240 or 360)
+                foreach (var c in contacts)
+                {
+                    var plateIsA = c.ColA.Body.Id == 1; var plateIsB = c.ColB.Body.Id == 1;
+                    if (!plateIsA && !plateIsB) continue;
+                    var frame = plateIsA ? c.ColA.Body : c.ColB.Body;
+                    var other = plateIsA ? c.B : c.A;
+                    var towardOther = plateIsA ? -c.Normal : c.Normal;
+                    var local = WorkshopCollisionKernels.InvRotateVector(frame.Rotation, c.Point - frame.Position);
+                    var localN = WorkshopCollisionKernels.InvRotateVector(frame.Rotation, towardOther);
+                    output.WriteLine(FormattableString.Invariant(
+                        $"{load} t{tick} other={other.Id} col={(plateIsA ? c.ColA.Index : c.ColB.Index)} gap={c.Gap:R} n=({localN.X:R},{localN.Y:R},{localN.Z:R}) 1-align={1 - localN.Y:R} p=({local.X:F5},{local.Y:F6},{local.Z:F5})"));
+                }
+        }
+    }
+}

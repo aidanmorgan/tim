@@ -1,0 +1,4 @@
+full-run-1 (E2eRunner run --diff 647f5d72, Mode Full, source c5a1cdda) was INTERRUPTED and is NOT evidence.
+It hung at 28 of 36 files after an API/network outage at about 08:40 on 20 Oct 2026 (the machine probably slept); the
+coordinator killed the runner, its Chromes and the preview at about 18:50. Its output stayed in the session scratchpad and
+was discarded. The replacement is the fresh Full run in evidence-9r-4/full-run.

@@ -820,7 +820,8 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
         sourceBytes[114] = 0; sourceBytes[113] = 1; // a memory row count with no row
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
-        Assert.Equal(26960, bytes.Length);
+        // The activation, timer and memory sections hold one row per instance (owner decision, 20 Oct 2026: no activation limit).
+        Assert.Equal(33296, bytes.Length);
         Assert.Equal(80, PhysicsBodyWire.ByteLength);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
         bytes[112] = 1;

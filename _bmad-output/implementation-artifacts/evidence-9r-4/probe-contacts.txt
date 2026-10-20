@@ -1,0 +1,152 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.31]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.74]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.86]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.18]   Finished:    CuriousContraptions.tests (ID = 'f6ad0b8c06aae62f70a7714a9996ad7387f78766b7ff19dc97c7ad247fdfd016')
+  Passed CuriousContraptions.Tests.Probe9R4Tests.Probe(load: "ball") [71 ms]
+  Standard Output Messages:
+ ball t30 other=2 col=2 gap=-0.00026398897 n=(0,1,0) 1-align=0 p=(0.10000,0.079987,0.00000)
+ ball t120 other=2 col=2 gap=-0.00026884675 n=(0,1,0) 1-align=0 p=(0.10000,0.079987,0.00000)
+ ball t240 other=2 col=2 gap=-0.00026884675 n=(0,1,0) 1-align=0 p=(0.10000,0.079987,0.00000)
+ ball t360 other=2 col=2 gap=-0.00026884675 n=(0,1,0) 1-align=0 p=(0.10000,0.079987,0.00000)
+
+
+  Passed CuriousContraptions.Tests.Probe9R4Tests.Probe(load: "flat-domino") [48 ms]
+  Standard Output Messages:
+ flat-domino t1 other=2 col=2 gap=0.00075788796 n=(0,1,0) 1-align=0 p=(0.54980,0.080366,-0.32495)
+ flat-domino t1 other=2 col=2 gap=0.00075788796 n=(0,1,0) 1-align=0 p=(-0.54980,0.080366,-0.32495)
+ flat-domino t1 other=2 col=2 gap=0.00075788796 n=(0,1,0) 1-align=0 p=(-0.54980,0.080366,0.32495)
+ flat-domino t1 other=2 col=2 gap=0.00075788796 n=(0,1,0) 1-align=0 p=(0.54980,0.080366,0.32495)
+ flat-domino t2 other=2 col=2 gap=-0.00017906725 n=(0,1,0) 1-align=0 p=(0.54980,0.079897,-0.32495)
+ flat-domino t2 other=2 col=2 gap=-0.00017906725 n=(0,1,0) 1-align=0 p=(-0.54980,0.079897,-0.32495)
+ flat-domino t2 other=2 col=2 gap=-0.00017906725 n=(0,1,0) 1-align=0 p=(-0.54980,0.079897,0.32495)
+ flat-domino t2 other=2 col=2 gap=-0.00017906725 n=(0,1,0) 1-align=0 p=(0.54980,0.079897,0.32495)
+ flat-domino t5 other=2 col=2 gap=-0.00022271276 n=(0,1,0) 1-align=0 p=(0.54980,0.079875,-0.32495)
+ flat-domino t5 other=2 col=2 gap=-0.00022271276 n=(0,1,0) 1-align=0 p=(-0.54980,0.079875,-0.32495)
+ flat-domino t5 other=2 col=2 gap=-0.00022271276 n=(0,1,0) 1-align=0 p=(-0.54980,0.079875,0.32495)
+ flat-domino t5 other=2 col=2 gap=-0.00022271276 n=(0,1,0) 1-align=0 p=(0.54980,0.079875,0.32495)
+ flat-domino t30 other=2 col=2 gap=-0.00026789308 n=(0,1,0) 1-align=0 p=(0.54980,0.079853,-0.32495)
+ flat-domino t30 other=2 col=2 gap=-0.00026789308 n=(0,1,0) 1-align=0 p=(-0.54980,0.079853,-0.32495)
+ flat-domino t30 other=2 col=2 gap=-0.00026789308 n=(0,1,0) 1-align=0 p=(-0.54980,0.079853,0.32495)
+ flat-domino t30 other=2 col=2 gap=-0.00026789308 n=(0,1,0) 1-align=0 p=(0.54980,0.079853,0.32495)
+ flat-domino t120 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(0.54980,0.079852,-0.32495)
+ flat-domino t120 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(-0.54980,0.079852,-0.32495)
+ flat-domino t120 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(-0.54980,0.079852,0.32495)
+ flat-domino t120 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(0.54980,0.079852,0.32495)
+ flat-domino t240 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(0.54980,0.079852,-0.32495)
+ flat-domino t240 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(-0.54980,0.079852,-0.32495)
+ flat-domino t240 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(-0.54980,0.079852,0.32495)
+ flat-domino t240 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(0.54980,0.079852,0.32495)
+ flat-domino t360 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(0.54980,0.079852,-0.32495)
+ flat-domino t360 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(-0.54980,0.079852,-0.32495)
+ flat-domino t360 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(-0.54980,0.079852,0.32495)
+ flat-domino t360 other=2 col=2 gap=-0.00026908517 n=(0,1,0) 1-align=0 p=(0.54980,0.079852,0.32495)
+
+
+  Passed CuriousContraptions.Tests.Probe9R4Tests.Probe(load: "two-dominoes") [88 ms]
+  Standard Output Messages:
+ two-dominoes t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(-0.52500,0.080463,-0.32495)
+ two-dominoes t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(-0.52500,0.080463,0.32495)
+ two-dominoes t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(-0.27500,0.080463,0.32495)
+ two-dominoes t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(-0.27500,0.080463,-0.32495)
+ two-dominoes t1 other=3 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(0.27500,0.080463,-0.32495)
+ two-dominoes t1 other=3 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(0.27500,0.080463,0.32495)
+ two-dominoes t1 other=3 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(0.52500,0.080463,0.32495)
+ two-dominoes t1 other=3 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(0.52500,0.080463,-0.32495)
+ two-dominoes t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(-0.52500,0.079995,-0.32495)
+ two-dominoes t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(-0.52500,0.079995,0.32495)
+ two-dominoes t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(-0.27500,0.079995,0.32495)
+ two-dominoes t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(-0.27500,0.079995,-0.32495)
+ two-dominoes t2 other=3 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(0.27500,0.079995,-0.32495)
+ two-dominoes t2 other=3 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(0.27500,0.079995,0.32495)
+ two-dominoes t2 other=3 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(0.52500,0.079995,0.32495)
+ two-dominoes t2 other=3 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(0.52500,0.079995,-0.32495)
+ two-dominoes t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(-0.52500,0.079875,-0.32495)
+ two-dominoes t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(-0.52500,0.079875,0.32495)
+ two-dominoes t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(-0.27500,0.079875,0.32495)
+ two-dominoes t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(-0.27500,0.079875,-0.32495)
+ two-dominoes t5 other=3 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(0.27500,0.079875,-0.32495)
+ two-dominoes t5 other=3 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(0.27500,0.079875,0.32495)
+ two-dominoes t5 other=3 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(0.52500,0.079875,0.32495)
+ two-dominoes t5 other=3 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(0.52500,0.079875,-0.32495)
+ two-dominoes t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(-0.52500,0.079853,-0.32495)
+ two-dominoes t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(-0.52500,0.079853,0.32495)
+ two-dominoes t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(-0.27500,0.079853,0.32495)
+ two-dominoes t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(-0.27500,0.079853,-0.32495)
+ two-dominoes t30 other=3 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(0.27500,0.079853,-0.32495)
+ two-dominoes t30 other=3 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(0.27500,0.079853,0.32495)
+ two-dominoes t30 other=3 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(0.52500,0.079853,0.32495)
+ two-dominoes t30 other=3 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(0.52500,0.079853,-0.32495)
+ two-dominoes t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.52500,0.079852,-0.32495)
+ two-dominoes t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.52500,0.079852,0.32495)
+ two-dominoes t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.27500,0.079852,0.32495)
+ two-dominoes t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.27500,0.079852,-0.32495)
+ two-dominoes t120 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.27500,0.079852,-0.32495)
+ two-dominoes t120 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.27500,0.079852,0.32495)
+ two-dominoes t120 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.52500,0.079852,0.32495)
+ two-dominoes t120 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.52500,0.079852,-0.32495)
+ two-dominoes t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.52500,0.079852,-0.32495)
+ two-dominoes t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.52500,0.079852,0.32495)
+ two-dominoes t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.27500,0.079852,0.32495)
+ two-dominoes t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.27500,0.079852,-0.32495)
+ two-dominoes t240 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.27500,0.079852,-0.32495)
+ two-dominoes t240 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.27500,0.079852,0.32495)
+ two-dominoes t240 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.52500,0.079852,0.32495)
+ two-dominoes t240 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.52500,0.079852,-0.32495)
+ two-dominoes t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.52500,0.079852,-0.32495)
+ two-dominoes t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.52500,0.079852,0.32495)
+ two-dominoes t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.27500,0.079852,0.32495)
+ two-dominoes t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.27500,0.079852,-0.32495)
+ two-dominoes t360 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.27500,0.079852,-0.32495)
+ two-dominoes t360 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.27500,0.079852,0.32495)
+ two-dominoes t360 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.52500,0.079852,0.32495)
+ two-dominoes t360 other=3 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.52500,0.079852,-0.32495)
+
+
+  Passed CuriousContraptions.Tests.Probe9R4Tests.Probe(load: "domino") [45 ms]
+  Standard Output Messages:
+ domino t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(-0.02500,0.080463,-0.32495)
+ domino t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(-0.02500,0.080463,0.32495)
+ domino t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(0.22500,0.080463,0.32495)
+ domino t1 other=2 col=2 gap=0.0009532273 n=(0,1,0) 1-align=0 p=(0.22500,0.080463,-0.32495)
+ domino t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(-0.02500,0.079995,-0.32495)
+ domino t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(-0.02500,0.079995,0.32495)
+ domino t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(0.22500,0.079995,0.32495)
+ domino t2 other=2 col=2 gap=1.630187E-05 n=(0,1,0) 1-align=0 p=(0.22500,0.079995,-0.32495)
+ domino t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(-0.02500,0.079875,-0.32495)
+ domino t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(-0.02500,0.079875,0.32495)
+ domino t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(0.22500,0.079875,0.32495)
+ domino t5 other=2 col=2 gap=-0.00022265315 n=(0,1,0) 1-align=0 p=(0.22500,0.079875,-0.32495)
+ domino t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(-0.02500,0.079853,-0.32495)
+ domino t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(-0.02500,0.079853,0.32495)
+ domino t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(0.22500,0.079853,0.32495)
+ domino t30 other=2 col=2 gap=-0.00026786327 n=(0,1,0) 1-align=0 p=(0.22500,0.079853,-0.32495)
+ domino t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.02500,0.079852,-0.32495)
+ domino t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.02500,0.079852,0.32495)
+ domino t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.22500,0.079852,0.32495)
+ domino t120 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.22500,0.079852,-0.32495)
+ domino t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.02500,0.079852,-0.32495)
+ domino t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.02500,0.079852,0.32495)
+ domino t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.22500,0.079852,0.32495)
+ domino t240 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.22500,0.079852,-0.32495)
+ domino t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.02500,0.079852,-0.32495)
+ domino t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(-0.02500,0.079852,0.32495)
+ domino t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.22500,0.079852,0.32495)
+ domino t360 other=2 col=2 gap=-0.00026866794 n=(0,1,0) 1-align=0 p=(0.22500,0.079852,-0.32495)
+
+
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 1.4193 Seconds

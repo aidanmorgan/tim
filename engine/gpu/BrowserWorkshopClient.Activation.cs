@@ -5,15 +5,15 @@ namespace CuriousContraptions.Gpu;
 
 public sealed partial class BrowserWorkshopClient
 {
-    private readonly ActivationLatch?[] _activationRequested = new ActivationLatch?[ActivationNetwork.Capacity];
-    private readonly WorkshopAnimationSample?[] _activationSamples = new WorkshopAnimationSample?[ActivationNetwork.Capacity];
-    private readonly ulong[] _activationOrdinals = new ulong[ActivationNetwork.Capacity];
-    private readonly bool[] _activationFrameTaken = new bool[ActivationNetwork.Capacity];
+    private readonly ActivationLatch?[] _activationRequested = new ActivationLatch?[WorkshopInstances.Capacity];
+    private readonly WorkshopAnimationSample?[] _activationSamples = new WorkshopAnimationSample?[WorkshopInstances.Capacity];
+    private readonly ulong[] _activationOrdinals = new ulong[WorkshopInstances.Capacity];
+    private readonly bool[] _activationFrameTaken = new bool[WorkshopInstances.Capacity];
     // Bistable Memory feedback (State Latch): one Transition per committed On/Off change, on the node's own activation target.
-    private readonly WorkshopAnimationControl?[] _memoryRequested = new WorkshopAnimationControl?[ActivationNetwork.Capacity];
-    private readonly WorkshopAnimationSample?[] _memorySamples = new WorkshopAnimationSample?[ActivationNetwork.Capacity];
-    private readonly bool[] _memoryRetry = new bool[ActivationNetwork.Capacity];
-    private readonly ulong[] _memoryOrdinals = new ulong[ActivationNetwork.Capacity];
+    private readonly WorkshopAnimationControl?[] _memoryRequested = new WorkshopAnimationControl?[WorkshopInstances.Capacity];
+    private readonly WorkshopAnimationSample?[] _memorySamples = new WorkshopAnimationSample?[WorkshopInstances.Capacity];
+    private readonly bool[] _memoryRetry = new bool[WorkshopInstances.Capacity];
+    private readonly ulong[] _memoryOrdinals = new ulong[WorkshopInstances.Capacity];
 
     private static AnimationTargetId ActivationTarget(ActivationNodeId node) => new(checked(node.Value + 2));
     private void RetireActivationFeedback()
