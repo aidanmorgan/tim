@@ -244,8 +244,44 @@ public partial class Workshop
         _preview.Visible = false;
     }
 
+    private Quaternion PreviewRotation() =>
+        new(_previewOrientation.X, _previewOrientation.Y, _previewOrientation.Z, _previewOrientation.W);
+
+    /// <summary>The placement pose of a new part at a bench point, shared by the preview and the click (Story 9R.6): a typed tube-mouth
+    /// snap when one exists (idle construction only), otherwise the 0.1 grid.</summary>
+    private (Vector3 Position, Quaternion Rotation, TubeMouthSnapResult? Snap) PlacementPose(PartId part, Vector3 at)
+    {
+        var grid = at.Snapped(Vector3.One * .1f);
+        var rotation = PreviewRotation();
+        var snap = CanEdit
+            ? TubeMouthSnap.Find(World.Registry.Definitions, World.Construction.Instances, new(part, _nextId, false), grid, rotation)
+            : null;
+        return snap is { } joined ? (joined.Position, joined.Rotation, joined) : (grid, rotation, null);
+    }
+
+    /// <summary>The snap a moved part would take on release (D4): never for a locked part, and only in idle construction.</summary>
+    private TubeMouthSnapResult? MoveSnap(MachinePart part) => CanEdit
+        ? TubeMouthSnap.Find(World.Registry.Definitions, World.Construction.Instances, new(part.PartId, part.AuthoredId, part.Locked),
+            part.Position, part.Quaternion)
+        : null;
+
+    private static readonly Color SnapGold = new("#f7cb52");
+    private MeshInstance3D? _snapMarker;
+    /// <summary>A gold ring at the joint the preview or drag would snap to; presentation only, never a World part.</summary>
+    private void ShowSnap(TubeMouthSnapResult? snap)
+    {
+        if (snap is not { } joined) { if (_snapMarker != null) _snapMarker.Visible = false; return; }
+        _snapMarker ??= WorkshopArtwork.Ring(this, .86f, .05f, SnapGold);
+        _snapMarker.Name = "TubeMouthSnap";
+        _snapMarker.Position = joined.Joint;
+        // The ring is symmetric: an axis pointing straight down needs no turn.
+        _snapMarker.Quaternion = joined.Axis.Dot(Vector3.Up) > -.999f ? new Quaternion(Vector3.Up, joined.Axis.Normalized()) : Quaternion.Identity;
+        _snapMarker.Visible = true;
+    }
+
     private void ClearPreview()
     {
+        ShowSnap(null);
         if (_preview == null) return;
         RemoveChild(_preview);
         _preview.Free();
@@ -282,16 +318,23 @@ public partial class Workshop
         _moveModeButton.ButtonPressed = _rotationGizmo.MoveMode;
         _rotateModeButton.ButtonPressed = !_rotationGizmo.MoveMode && !_rotationGizmo.ResizeMode;
         ResizePartsToolbox();
-        if (_preview == null || _lifting || GetViewport().GuiGetHoveredControl() != null) return;
+        if (_preview == null)
+        {
+            // A dragged part shows the joint it would snap to on release; its body is not moved until then.
+            ShowSnap(_dragging && _dragMoved && _selected is { Locked: false } dragged ? MoveSnap(dragged) : null);
+            return;
+        }
+        if (_lifting || GetViewport().GuiGetHoveredControl() != null) { ShowSnap(null); return; }
         var point = WorkPoint(GetViewport().GetMousePosition(), _buildView ? (float)_depth.Value : (float)_placementHeight.Value);
         var valid = !_inRun && GetViewport().GuiGetHoveredControl() == null &&
                     point is { } at && PlacementInside(at);
         _preview.Visible = valid;
-        if (valid && point is { } position)
+        TubeMouthSnapResult? snap = null;
+        if (valid && point is { } position && _tool is { } tool)
         {
-            _preview.Quaternion = new((float)_previewOrientation.X, (float)_previewOrientation.Y, (float)_previewOrientation.Z, (float)_previewOrientation.W);
-            _preview.Position = ClampPlacement(position, _buildView ? (float)_depth.Value : (float)_placementHeight.Value);
-        }
+            // The preview is presentation only: it takes the proposed pose and issues no command.
+            (_preview.Position, _preview.Quaternion, snap) = PlacementPose(tool, position);        }
+        ShowSnap(snap);
     }
 
     private void OrbitQuarter(int direction)
@@ -310,7 +353,9 @@ public partial class Workshop
         var target = _preview ?? _selected;
         if (target is not { Locked: false }) return;
         if (_preview == null) PushUndo();
-        target.Position = new(target.Position.X, Mathf.Clamp(target.Position.Y + amount, 0, 9), target.Position.Z);
+        // A preview steps its placement plane, which it may not have reached yet while the pointer is over the menu.
+        var height = _preview != null ? (float)_placementHeight.Value : target.Position.Y;
+        target.Position = new(target.Position.X, Mathf.Clamp(height + amount, 0, 9), target.Position.Z);
         _placementHeight = new((Half)(target.Position.Y));
         if (_preview == null) CommitSelected();
         
@@ -452,7 +497,16 @@ public partial class Workshop
             {
                 if ((_dragging && _dragMoved) || _lifting)
                 {
-                    if (_preview == null) CommitSelected();
+                    if (_preview == null)
+                    {
+                        // D4: releasing a moved tube snaps it onto a free compatible mouth; the gesture stays one Undo entry.
+                        if (_selected is { Locked: false } moved && MoveSnap(moved) is { } snap)
+                        {
+                            moved.Position = snap.Position;
+                            moved.Quaternion = snap.Rotation;
+                        }
+                        CommitSelected();
+                    }
                 }
                 _dragging = _lifting = false;
             }

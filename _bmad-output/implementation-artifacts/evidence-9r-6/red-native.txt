@@ -1,0 +1,40 @@
+  Stack Trace:
+     at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source, Func`2 predicate)
+   at CuriousContraptions.Tests.TubeMouthSnapTests.Mouth(PartDefinition definition, TubeMouthEnd end) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 32
+   at CuriousContraptions.Tests.TubeMouthSnapTests.PlaceMouth(IReadOnlyDictionary`2 definitions, PartId part, TubeMouthEnd end, Vector3 mouthAt, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 58
+   at CuriousContraptions.Tests.TubeMouthSnapTests.ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 116
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ExtractionCarriesTheBoreAndRejectsAMouthWithoutAValidBore [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: End
+Actual:   null
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.ExtractionCarriesTheBoreAndRejectsAMouthWithoutAValidBore() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 287
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ALockedMoverNeverSnapsAndALockedTargetsFreeMouthDoes [1 ms]
+  Error Message:
+   System.InvalidOperationException : Sequence contains no matching element
+  Stack Trace:
+     at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source, Func`2 predicate)
+   at CuriousContraptions.Tests.TubeMouthSnapTests.Mouth(PartDefinition definition, TubeMouthEnd end) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 32
+   at CuriousContraptions.Tests.TubeMouthSnapTests.PlaceMouth(IReadOnlyDictionary`2 definitions, PartId part, TubeMouthEnd end, Vector3 mouthAt, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 58
+   at CuriousContraptions.Tests.TubeMouthSnapTests.ALockedMoverNeverSnapsAndALockedTargetsFreeMouthDoes() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 173
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [ball_detector, funnel, pipe, pipe_bend_45, pipe_bend_90, ···]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-adbfa64630a43398c/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 83
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    22, Passed:     0, Skipped:     0, Total:    22, Duration: 94 ms - CuriousContraptions.tests.dll (net10.0)

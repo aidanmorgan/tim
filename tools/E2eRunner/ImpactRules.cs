@@ -40,6 +40,7 @@ internal static class ImpactRules
         ["engine/Workbench.cs"] = WorkshopArea.BenchPlacement,
         ["ui/WorkshopBenchPlacement.cs"] = WorkshopArea.BenchPlacement,
         ["ui/PlacementShadows.cs"] = WorkshopArea.BenchPlacement,
+        ["engine/TubeMouthSnap.cs"] = WorkshopArea.BenchPlacement,
         ["ui/RotationGizmo.cs"] = WorkshopArea.Gizmo,
         ["engine/IResizablePart.cs"] = WorkshopArea.Gizmo,
         ["ui/WorkshopGuidance.cs"] = WorkshopArea.Guidance,

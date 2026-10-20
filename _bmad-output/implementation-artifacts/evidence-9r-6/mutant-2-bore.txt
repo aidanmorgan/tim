@@ -1,0 +1,3 @@
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.BoresMustBeEqualWithin1EMinus6Metres(difference: 1.99999999E-06, snaps: False) [12 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ThePipeSnapsToTheFunnelOutletButNotItsWideInlet [2 ms]
+Failed!  - Failed:     2, Passed:    20, Skipped:     0, Total:    22, Duration: 509 ms - CuriousContraptions.tests.dll (net10.0)

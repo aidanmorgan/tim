@@ -30,6 +30,8 @@ internal static class DriverVocabulary
         ["liftSelectedPart"] = WorkshopArea.Gizmo, ["stackUnderLiftedBall"] = WorkshopArea.Gizmo, ["tiltSelectedRamp"] = WorkshopArea.Gizmo,
         ["tiltSelectedWall"] = WorkshopArea.Gizmo, ["resizeSelectedWall"] = WorkshopArea.Gizmo,
         ["tiltSelectedByFineRotate"] = WorkshopArea.Guidance, ["showHint"] = WorkshopArea.Guidance,
+        ["adjustPreview"] = WorkshopArea.Guidance, ["liftSelectedByHeight"] = WorkshopArea.Guidance,
+        ["dragPart"] = WorkshopArea.Gizmo, ["dragPartRefused"] = WorkshopArea.Gizmo,
         ["connectActivation"] = WorkshopArea.Connections,
         ["selectLevel"] = WorkshopArea.LevelPicker, ["openMenu"] = WorkshopArea.LevelPicker, ["closeMenu"] = WorkshopArea.LevelPicker,
         ["readCaptured"] = WorkshopArea.LevelPicker, ["waitForGoalSolved"] = WorkshopArea.LevelPicker,

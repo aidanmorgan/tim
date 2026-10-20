@@ -5,10 +5,17 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 
+/// <summary>The two ends of a tube part, parsed from the `Loc_Port_mouth_start` / `Loc_Port_mouth_end` locator names.</summary>
+public enum TubeMouthEnd { Start = 1, End = 2 }
+
+/// <summary>A socket locator in part-local space. A tube mouth also carries its end and its bore radius (f32 metres); its
+/// local +X is the outward axis.</summary>
 public readonly record struct ExtractedPortLocator(
     string PortId,
     Vector3 Position,
-    Quaternion Rotation);
+    Quaternion Rotation,
+    TubeMouthEnd? Mouth = null,
+    float? BoreRadius = null);
 
 public static class GltfPhysicsBodyExtractor
 {
@@ -44,7 +51,8 @@ public static class GltfPhysicsBodyExtractor
                 {
                     var pos = currentTransform.Origin;
                     var rot = currentTransform.Basis.GetRotationQuaternion().Normalized();
-                    if (!ports.TryAdd(portId, new ExtractedPortLocator(portId, pos, rot)))
+                    var (mouth, bore) = TubeMouth(node3D, portId);
+                    if (!ports.TryAdd(portId, new ExtractedPortLocator(portId, pos, rot, mouth, bore)))
                     {
                         throw new ArgumentException($"Duplicate port locator '{portId}'.");
                     }
@@ -61,6 +69,34 @@ public static class GltfPhysicsBodyExtractor
         {
             Traverse(child, currentTransform, false, colliders, ports);
         }
+    }
+
+    // Scene-resource boundary: the locator naming convention and its metadata key (Story 9R.6).
+    private const string MouthPrefix = "mouth_";
+    private const string MouthStart = "mouth_start";
+    private const string MouthEnd = "mouth_end";
+    private const string BoreRadiusMeta = "bore_radius";
+
+    /// <summary>A `mouth_*` locator is a tube mouth: its end comes from the name, and it must declare a finite, positive f32
+    /// `bore_radius` (metres). Any other `mouth_*` name or a missing or invalid bore is rejected; other locators carry neither.</summary>
+    private static (TubeMouthEnd? Mouth, float? BoreRadius) TubeMouth(Node3D locator, string portId)
+    {
+        if (!portId.StartsWith(MouthPrefix, StringComparison.Ordinal)) return (null, null);
+        TubeMouthEnd end = portId switch
+        {
+            MouthStart => TubeMouthEnd.Start,
+            MouthEnd => TubeMouthEnd.End,
+            _ => throw new ArgumentException($"Tube mouth locator '{locator.Name}' is neither {MouthStart} nor {MouthEnd}."),
+        };
+        if (!locator.HasMeta(BoreRadiusMeta))
+            throw new ArgumentException($"Tube mouth locator '{locator.Name}' declares no metadata/{BoreRadiusMeta}.");
+        var value = locator.GetMeta(BoreRadiusMeta);
+        if (value.VariantType != Variant.Type.Float)
+            throw new ArgumentException($"Tube mouth locator '{locator.Name}' {BoreRadiusMeta} is a {value.VariantType}, not a number.");
+        var bore = (float)value.AsDouble();
+        if (!float.IsFinite(bore) || bore <= 0)
+            throw new ArgumentException($"Tube mouth locator '{locator.Name}' {BoreRadiusMeta} must be finite and positive, not {bore}.");
+        return (end, bore);
     }
 
     private static bool TryExtractCollider(Node3D node, Transform3D transform, out ExtractedCollider collider)

@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ALockedMoverNeverSnapsAndALockedTargetsFreeMouthDoes [2 ms]
+Failed!  - Failed:     1, Passed:    21, Skipped:     0, Total:    22, Duration: 506 ms - CuriousContraptions.tests.dll (net10.0)

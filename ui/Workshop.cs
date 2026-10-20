@@ -529,10 +529,9 @@ public partial class Workshop : Node3D
         {
             if (Remaining(_tool.Value).Exhausted || WorkPoint(screen, _buildView ? (float)_depth.Value : (float)_placementHeight.Value) is not { } at || !PlacementInside(at)) return;
             if (_nextId.Value == ulong.MaxValue) { _status.Text = "Part identity is exhausted."; return; }
-            var position = at.Snapped(Vector3.One * .1f);
-            var rotation = _preview?.Quaternion ?? Quaternion.Identity;
             var chosen = _tool.Value;
-            var placedId = _nextId;
+            // The same pose the preview shows: a typed mouth snap when one exists, otherwise the 0.1 grid.
+            var (position, rotation, _) = PlacementPose(chosen, at);            var placedId = _nextId;
             // The proposal is the typed rejection path: a part that cannot be captured or composed leaves no undo entry.
             var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
                 _preview?.RampDimensions, _preview?.WallDimensions, PushUndo);
@@ -587,6 +586,8 @@ public partial class Workshop : Node3D
         {
             if (_preview != null)
             {
+                // Rotate the chosen orientation, never a snapped preview pose.
+                _preview.Quaternion = PreviewRotation();
                 ApplyRotation(_preview, angles);
                 _previewOrientation = CaptureEditorRotation(_preview.Quaternion);
             }

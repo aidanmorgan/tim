@@ -1,0 +1,24 @@
+Story 9R.6 evidence (Amelia-12, 20 Oct 2026; base 007a65ed = Story 9R.5b)
+
+Red first: red-native.txt — 22/22 TubeMouthSnapTests failed against a throwing TubeMouthSnap.Find stub and unextended extractor.
+Green: tier1-dotnet.txt — dotnet build CuriousContraptions.slnx 0 warnings / 0 errors; dotnet test CuriousContraptions.slnx:
+  CuriousContraptions.tests 1800/1800, E2eRunner.Tests 156/156 (after the 3 expected selection updates), Coverage.Tests 78/78,
+  WorkerAotGuard.Tests 17/17.
+Node: tools/*.test.mjs 83/83; tools/e2e/unit 24/24. anvil check --changed: no warnings.
+Contracts: tier1-contracts.txt — LifecycleContract 510/0 failures, WireContract 109/0 failures. Ownership --oracles fails with
+  "Animation free-list storage has an unreviewed caller or reference recipient." This is inherited from 007a65ed: Story 9R.5b's
+  AnimationBatch resize writes _free from a method that OwnershipPolicy.AnimationFreeCallers does not list. This story touches no
+  engine/presentation file. It is filed for the 9R.5b owner.
+Native transit: native-transit-probe.txt — the four snapped joints, production WorkshopSimulation, every tick: min speed 3.41 m/s.
+
+Mutants (each applied alone, then reverted; every one killed):
+  mutant-1-distance.txt            CaptureDistance 0.45 -> 0.73        : 0.46 and 0.72 rows fail
+  mutant-2-bore.txt                bore check dropped                   : funnel inlet and 2e-6 bore rows fail
+  mutant-3-occupied.txt            occupied check skipped               : occupied row fails
+  mutant-4-unflipped-pipe-start.txt pipe mouth_start left identity      : outward-axis test and 10 joins fail
+  mutant-5-locked-mover.txt        locked mover allowed                 : locked row fails
+  mutant-6-angle-41deg.txt         CaptureAngle 20 -> 41 deg            : 21 and 40 deg rows fail
+  mutant-7-no-self-exclusion.txt   moved tube's own pose kept           : D4 self-exclusion row fails
+  mutant-8-extra-roll.txt          extra 30 deg roll after shortest arc : roll-preservation row fails
+  mutant-ui-5-grid-after-snap.txt  Chrome: 0.1 grid applied after snap  : tube-snapping test 1 coincidence fails (0.02 m)
+  mutant-ui-6-preview-submits.txt  Chrome: hover preview submits       : tube-snapping test 1 hoverCanvas sees 1 command

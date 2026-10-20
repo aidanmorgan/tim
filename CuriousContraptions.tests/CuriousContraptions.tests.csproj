@@ -101,6 +101,7 @@
         <Compile Include="PipeBend90Tests.cs" />
         <Compile Include="FunnelTests.cs" />
         <Compile Include="PoweredGateTests.cs" />
+        <Compile Include="TubeMouthSnapTests.cs" />
         <Compile Include="PressurePlateTests.cs" />
         <Compile Include="CounterTests.cs" />
         <Compile Include="ClockTests.cs" />

@@ -1,0 +1,12 @@
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureDistanceSnaps(offset: 0.439999998, snaps: True) [3 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 19, snaps: True) [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.AMovedTubeIgnoresItsOwnCommittedPose [2 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.AnOccupiedMouthIsNotACandidate [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: FunnelOutletToPipe) [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.EqualCandidatesBreakTiesByLowerPartIdThenStartBeforeEnd [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ThePipeSnapsToTheFunnelOutletButNotItsWideInlet [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.TheQueryNeverMutatesTheConstruction [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ALockedMoverNeverSnapsAndALockedTargetsFreeMouthDoes [1 ms]
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [11 ms]
+Failed!  - Failed:    11, Passed:    11, Skipped:     0, Total:    22, Duration: 440 ms - CuriousContraptions.tests.dll (net10.0)

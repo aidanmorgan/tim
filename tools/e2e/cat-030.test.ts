@@ -4,7 +4,8 @@
 // 2. Negative control: Ball dropped on outer shell deflects/bounces without entering bore.
 // 3. Centered drop: Ball dropped into wide 2.6 m inlet descends smoothly, guided by tapered walls, exits 1.3 m outlet into receiver below.
 // 4. Off-center drop: Ball dropped at +0.70 m off-axis gathers into funnel without snagging and exits outlet.
-// 5. Joined pipe route: Funnel outlet positioned above straight pipe, ball smoothly transitions from funnel into tube.
+// 5. Joined pipe route: a straight pipe snapped to the Funnel outlet (Story 9R.6, replacing the hand-stacked overlap); the ball
+//    transitions from funnel into tube.
 // 6. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run settles again and its Reset restores it again.
 // 7. Save / Load persistence roundtrip: Save, reload, Load restores the exact construction, re-run reproduces traversal.
 // Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
@@ -15,6 +16,7 @@ import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
 import { assertLoadRestores } from './run-reset-snapshot.ts';
+import { assertJoined, screen as tubeScreen } from './tube-mouths.ts';
 
 const screen = (x: number, z: number) => ({
     x: Math.round(720 + 53.8 * x - 36.8 * z),
@@ -181,39 +183,40 @@ describe('CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E', () => {
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
-    test('5. Joined pipe route: Funnel outlet positioned above straight pipe, ball smoothly transitions from funnel into tube', { timeout: 150000 }, async () => {
+    test('5. Joined pipe route: a straight pipe snapped to the Funnel outlet carries the ball smoothly from funnel into tube', { timeout: 150000 }, async () => {
         await driver.reload();
         errors.length = 0;
 
-        // 1. Funnel placed first at center (720, 485), tilted -90 deg, lifted 104 px (1.8m to y=4.8m)
-        await driver.selectTool('funnel');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.tiltSelectedByFineRotate(-18);
-        await driver.selectPartAt(720, 485);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(104, 720, 485, 130);
-        await driver.pressKey('Escape');
-
-        // 2. Straight pipe placed at center (720, 485) beneath elevated funnel, tilted -90 deg
-        await driver.selectTool('pipe');
-        await driver.placeOnCanvas(720, 485);
-        await driver.selectPartAt(720, 485);
-        await driver.tiltSelectedByFineRotate(-18);
-        await driver.pressKey('Escape');
-
-        // 3. Basketball placed at x = 0.3m, lifted 210 px (above funnel inlet at y ~ 6.5m)
+        // 1. Basketball (id 1) placed at x = 0.3 m and lifted 230 px (y ~ 7.0 m, above the funnel inlet at y 6.49 m)
         const ballPt = screen(0.3, 0);
         await driver.selectTool('basketball');
         await driver.placeOnCanvas(ballPt.x, ballPt.y);
         await driver.selectPartAt(ballPt.x, ballPt.y);
         await driver.setPartMode('move');
-        await driver.liftSelectedPart(210, ballPt.x, ballPt.y);
+        await driver.liftSelectedPart(230, ballPt.x, ballPt.y);
+        await driver.pressKey('Escape');
+
+        // 2. Funnel (id 2) placed at the centre, tilted -90 deg (inlet up) and raised five 0.5 m Height steps to y 5.5 (outlet 4.51 m)
+        await driver.selectTool('funnel');
+        await driver.placeOnCanvas(720, 485);
+        await driver.selectPartAt(720, 485);
+        await driver.tiltSelectedByFineRotate(-18);
+        await driver.selectPartAt(720, 485);
+        await driver.liftSelectedByHeight(5);
+
+        // 3. Story 9R.6: the straight pipe (id 3) snaps to the funnel outlet. Its preview is tilted -90 deg on a placement plane
+        // lowered to y 2.5, offered 0.12 m below the outlet; the snap joins the mouths exactly (pipe centre y 2.62).
+        await driver.selectTool('pipe');
+        await driver.adjustPreview({ tilt: -18, height: -1 });
+        const pipeAt = tubeScreen(0, 2.5, 0);
+        await driver.hoverCanvas(pipeAt.x, pipeAt.y);
+        await driver.placeOnCanvas(pipeAt.x, pipeAt.y);
         await driver.pressKey('Escape');
         const s0 = await driver.captureSnapshot(BENCH);
+        assertJoined(s0, { id: 2, end: 'end' }, { id: 3, end: 'start' }, 'funnel outlet to pipe');
 
         // 4. Run and record trajectory
-        const samples = await runAndSample(s0, '3');
+        const samples = await runAndSample(s0, '1');
 
         assert.ok(samples.length > 30, `Expected >30 distinct pose publications, got ${samples.length}`);
 

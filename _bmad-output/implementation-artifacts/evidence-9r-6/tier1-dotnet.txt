@@ -1,0 +1,9 @@
+    0 Warning(s)
+    0 Error(s)
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 48 ms - WorkerAotGuard.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 673 ms - Coverage.Tests.dll (net10.0)
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedConsoleModuleSelectsItsImporters [236 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.WorkshopAreaFileSelectsTheAreaSuitesAndSmoke [247 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.OneChangedLevelSelectsTheSuitesDeclaringIt [237 ms]
+Failed!  - Failed:     3, Passed:   153, Skipped:     0, Total:   156, Duration: 24 s - E2eRunner.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1800, Skipped:     0, Total:  1800, Duration: 31 s - CuriousContraptions.tests.dll (net10.0)

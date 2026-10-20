@@ -68,7 +68,7 @@ public sealed class SelectionTests
         var edited = current.Replace("\"id\": \"clear_pipe\"", "\"id\": \"clear_pipe\", \"edited\": true", StringComparison.Ordinal);
         Assert.NotEqual(current, edited);
         var selection = Select([ImpactContext.LevelsPath], headOverride: path => path == ImpactContext.LevelsPath ? edited : null);
-        Assert.Equal(["cat-048b", .. Smoke], Names(selection));
+        Assert.Equal(["cat-048b", .. Smoke, "tube-snapping"], Names(selection));
         Assert.Contains("cat-048b\tlevel: declares clear_pipe", selection.Suites.Select(suite => suite.ReasonLine));
     }
 
@@ -104,7 +104,7 @@ public sealed class SelectionTests
         var selection = Select(["tools/workshop-console.mjs"]);
         Assert.Equal(["anim-1a", "capacity-9r", "capacity-9r5b", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
             "cat-048b", "cat-049", "cat-050", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
-            "engine-core-2b4", "engine-core-2c"], Names(selection));
+            "engine-core-2b4", "engine-core-2c", "tube-snapping"], Names(selection));
     }
 
     private static readonly Dictionary<string, FullReason> FullPaths = new(StringComparer.Ordinal)
@@ -145,7 +145,8 @@ public sealed class SelectionTests
     public void WorkshopAreaFileSelectsTheAreaSuitesAndSmoke()
     {
         var selection = Select(["ui/WorkshopBenchPlacement.cs", "engine/PartRegistry.cs"]);
-        Assert.Equal(["engine-core-2a1", "engine-core-2b1", "palette-placement"], Names(selection));
+        // Story 9R.6: tube-snapping also exercises bench placement (the typed mouth snap, engine/TubeMouthSnap.cs).
+        Assert.Equal(["engine-core-2a1", "engine-core-2b1", "palette-placement", "tube-snapping"], Names(selection));
         Assert.Contains("palette-placement\tarea: Palette (engine/PartRegistry.cs); area: BenchPlacement (ui/WorkshopBenchPlacement.cs)",
             selection.Suites.Select(suite => suite.ReasonLine));
     }

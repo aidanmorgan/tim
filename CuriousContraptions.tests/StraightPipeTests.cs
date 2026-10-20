@@ -89,13 +89,16 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
 
             var start = ports["mouth_start"];
             Assert.Equal("mouth_start", start.PortId);
-            Assert.True(MathF.Abs(start.Position.X - (-1.8f)) < 0.001f);
+            // Story 9R.6: mouths sit at the outer collar faces, ±(1.8 + 0.09) (CAT-048 fact 21), each with the common bore.
+            Assert.True(MathF.Abs(start.Position.X - (-1.89f)) < 0.001f);
+            Assert.Equal(0.65f, start.BoreRadius);
             Assert.True(MathF.Abs(start.Position.Y) < 0.001f);
             Assert.True(MathF.Abs(start.Position.Z) < 0.001f);
 
             var end = ports["mouth_end"];
             Assert.Equal("mouth_end", end.PortId);
-            Assert.True(MathF.Abs(end.Position.X - 1.8f) < 0.001f);
+            Assert.True(MathF.Abs(end.Position.X - 1.89f) < 0.001f);
+            Assert.Equal(0.65f, end.BoreRadius);
             Assert.True(MathF.Abs(end.Position.Y) < 0.001f);
             Assert.True(MathF.Abs(end.Position.Z) < 0.001f);
         }
