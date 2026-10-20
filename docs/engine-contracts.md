@@ -53,15 +53,16 @@ The element bundle is the only declaration source the game loads ([invariant 2](
 
 Every bundle entry is typed, and every field is written bit-exactly and read back bit-exactly (a round-trip test proves each package's declaration equals its deserialised entry, f32 bit for bit):
 
-1. **Encodings:** f32 game values are IEEE-754 single precision. Vectors are `[x, y, z]`; quaternions are `[x, y, z, w]`. Integers, enums and ids keep their integer types.
-2. **Metadata:** a unique canonical element id, an enum category, a display-name key, the icon path and the element's `.tscn` scene path inside its package.
-3. **Typed parameter schema:** each parameter declares its key, its unit, an enum kind (f32 scalar, integer, Boolean or enum), and either an f32 minimum, maximum and default or its enum options and default. Instance values are validated against this schema; there is no property bag.
-4. **Ports:** typed socket id, domain, direction, local position, normal and the `Loc_Port_<Id>` locator node.
-5. **Colliders:** shape kind enum, local offset, local rotation, dimensions and material (restitution, friction, rolling resistance $C_{rr}$, bounce threshold).
-6. **Mechanical payload:** body motion kind, mass, principal inertia, material, and joint and prismatic anchors.
-7. **Electrical payload:** source, consumer and switch nodes and their supply parameters.
-8. **Signal payload:** contact triggers, latch, counter and timer declarations.
-9. **Events and bindings:** the capability-named event kinds the element can produce, and its presentation bindings (target node, property, from/to, curve and driving source: a committed level state or a one-shot ring occurrence).
+1. **Encodings:** f32 game values are IEEE-754 single precision, written in shortest round-trip form. Vectors are `[x, y, z]`; quaternions are `[x, y, z, w]`. Enums are written by name; an unknown name, or a number in place of a name, is rejected. Integers and ids keep their integer types.
+2. **Metadata:** a unique canonical element id, an enum category (the palette's Motion, Goals, Power, Control or Structure), a display-name key, the icon path (null until the element ships its icon) and the element's `.tscn` scene path.
+3. **Typed parameter schema:** each parameter declares its key, its unit enum, an enum kind (Real, WholeNumber, Boolean or Choice), and an f32 minimum, maximum and default; a Choice also lists its option names, and its bounds and default are option indices. Instance values are validated against this schema; there is no property bag.
+4. **Footprint:** the bodies, moving bodies and prismatic constraints one placed instance adds to the compiled scene.
+5. **Ports:** typed socket id (the socket's name), domain, direction, the signal kind of a signal port (Pulse or Level), local position, normal and the `Loc_Port_<Id>` locator node.
+6. **Colliders:** shape kind enum, half-extents (a sphere's radius on every axis), local offset, local rotation and material (restitution, friction, rolling resistance $C_{rr}$, bounce threshold).
+7. **Mechanical payload:** body motion kind, mass, principal inertia, material, and joint and prismatic anchors.
+8. **Electrical payload:** source, consumer and switch nodes and their supply parameters.
+9. **Signal payload:** contact triggers, latch, counter and timer declarations.
+10. **Events and bindings:** the capability-named event kinds the element can produce, and its presentation bindings (target node, property, from/to, curve and driving source: a committed level state or a one-shot ring occurrence).
 
 Admission rejects explicitly a missing or duplicate required field, an unknown field, an undefined enum value, a non-finite or out-of-range value, a duplicate id and a dangling reference.
 

@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using Xunit;
 
 namespace CuriousContraptions.E2eRunner.Tests;
@@ -23,8 +24,8 @@ public sealed class SelectionTests
         Assert.Contains("cat-052-lamp\tintegration: places counter", selection.Suites.Select(suite => suite.ReasonLine));
         var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
         Assert.Contains("cat-020\town: elements/Counter/CounterElementDeclaration.cs changes counter; integration: places counter", lines);
-        Assert.Contains("cat-052\tconnected: counter.signal_in Signal pressure_plate.signal_out", lines);
-        Assert.Contains("cat-005\tconnected: counter.power_in Electrical battery.power_out", lines);
+        Assert.Contains("cat-052\tconnected: counter.ActivationIn Signal pressure_plate.ActivationOut", lines);
+        Assert.Contains("cat-005\tconnected: counter.PowerIn Electrical battery.Supply", lines);
         Assert.Contains("palette-placement\tintegration: places every palette part (counter)", lines);
         Assert.Contains("engine-core-2b1\tsmoke pair", lines);
         Assert.False(selection.Tier3Required);
@@ -73,30 +74,27 @@ public sealed class SelectionTests
     }
 
     [Fact]
-    public void GeneratedAtOnlyBundleChangeHasNoBrowserImpact()
+    public void TheGeneratedBundleIsReadWithNamedDomainsAndDirections()
     {
-        var current = TestRepository.Read(ImpactContext.BundlePath);
-        var edited = System.Text.RegularExpressions.Regex.Replace(current, "\"GeneratedAt\": \"[^\"]+\"", "\"GeneratedAt\": \"2030-01-01T00:00:00Z\"");
-        Assert.NotEqual(current, edited);
-        var selection = Select([ImpactContext.BundlePath], headOverride: path => path == ImpactContext.BundlePath ? edited : null);
-        Assert.Equal(Smoke, Names(selection));
-        Assert.Equal(ImpactKind.NoBrowserImpact, Assert.Single(selection.Paths).Kind);
+        var bundle = ImpactContext.BundleElements(TestRepository.Read(ImpactContext.BundlePath));
+        Assert.NotNull(bundle);
+        var counter = bundle.Single(element => element.Part == PartId.Counter);
+        Assert.Equal([new("ActivationIn", SimulationDomain.Signal, PortDirection.Input), new("ActivationOut", SimulationDomain.Signal, PortDirection.Output),
+            new("PowerIn", SimulationDomain.Electrical, PortDirection.Input), new ImpactContext.BundlePort("Supply", SimulationDomain.Electrical, PortDirection.Output)],
+            counter.Ports);
+        Assert.Equal("res://parts/scenes/counter.tscn", counter.ScenePath);
     }
 
-    [Fact]
-    public void ChangedBundleElementSelectsThatElement()
+    [Theory]
+    [InlineData("{")]
+    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"PortId\": \"PowerIn\", \"Domain\": 2, \"Direction\": \"Input\"}]}]}")]
+    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"PortId\": \"PowerIn\", \"Domain\": \"Voltage\", \"Direction\": \"Input\"}]}]}")]
+    public void AnElementChangeWithAnUnreadableBundleIsFull(string bundle)
     {
-        var current = TestRepository.Read(ImpactContext.BundlePath);
-        var edited = current.Replace("\"DisplayNameKey\": \"part_counter\"", "\"DisplayNameKey\": \"part_counter_v2\"", StringComparison.Ordinal);
-        Assert.NotEqual(current, edited);
-        var selection = Select([ImpactContext.BundlePath], headOverride: path => path == ImpactContext.BundlePath ? edited : null);
-        Assert.Equal("counter", Assert.Single(selection.Paths).Detail);
-        Assert.Contains("cat-020", Names(selection));
+        var selection = Select(["elements/Counter/CounterElementDeclaration.cs"], headOverride: path => path == ImpactContext.BundlePath ? bundle : null);
+        Assert.Equal(SelectionMode.Full, selection.Mode);
+        Assert.Contains("is missing or does not parse", Assert.Single(selection.Paths).Detail, StringComparison.Ordinal);
     }
-
-    [Fact]
-    public void UnparsableBundleIsFull() =>
-        Assert.Equal(SelectionMode.Full, Select([ImpactContext.BundlePath], headOverride: path => path == ImpactContext.BundlePath ? "{" : null).Mode);
 
     [Fact]
     public void SharedConsoleModuleSelectsItsImporters()

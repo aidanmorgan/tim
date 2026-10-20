@@ -8,36 +8,34 @@ namespace CuriousContraptions.Elements.Counter;
 
 public sealed class CounterElementDeclaration : ISignalElement, IElectricalElement
 {
+    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
+
     public ElementMetadata Metadata => new(
         Id: "counter",
-        Category: "Logic",
+        Category: ElementCategory.Control,
         DisplayNameKey: "part_counter",
-        IconPath: "res://parts/icons/counter.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/counter.tscn",
-        Parameters: new Dictionary<string, object>());
+        Parameters:
+        [
+            new("target_count", ParameterUnit.None, ParameterKind.WholeNumber, Minimum: 1f, Maximum: 9f, Default: 3f, Options: [])
+        ]);
+
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("signal_in", SimulationDomain.Signal, PortDirection.Input, new Vector3(-0.8f, 0, 0), -Vector3.UnitX),
-        new("signal_out", SimulationDomain.Signal, PortDirection.Output, new Vector3(0.8f, 0, 0), Vector3.UnitX),
-        new("power_in", SimulationDomain.Electrical, PortDirection.Input, new Vector3(0, -0.6f, -0.3f), -Vector3.UnitZ),
-        new("power_out", SimulationDomain.Electrical, PortDirection.Output, new Vector3(0, -0.6f, 0.3f), Vector3.UnitZ)
+        new("ActivationIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(0f, .72f, .1f), Vector3.UnitY),
+        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, -.72f, .1f), -Vector3.UnitY),
+        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
+        new("Supply", SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
     ];
 
+    /// <summary>The housing and its foot.</summary>
     public IReadOnlyList<ColliderDescriptor> Colliders =>
     [
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.825f, 0.625f, 0.325f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f)),
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.9f, 0.08f, 0.425f),
-            Offset: new Vector3(0, -0.72f, 0),
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.825f, 0.625f, 0.325f), Offset: Vector3.Zero, Rotation: Quaternion.Identity, Material: Surface),
+        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.9f, 0.08f, 0.425f), Offset: new Vector3(0, -0.72f, 0), Rotation: Quaternion.Identity, Material: Surface)
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

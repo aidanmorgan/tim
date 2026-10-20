@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ADuplicateIdNamesBothPackages [14 ms]
+Failed!  - Failed:     1, Passed:    33, Skipped:     0, Total:    34, Duration: 141 ms - BundleElements.Tests.dll (net10.0)

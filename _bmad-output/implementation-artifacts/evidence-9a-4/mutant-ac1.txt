@@ -1,0 +1,3 @@
+  Failed CuriousContraptions.BundleElements.Tests.SolutionMembershipTests.TheSolutionContainsEveryPackageTheDomainAbstractionsAndTheGenerator [15 ms]
+Actual:   ["elements/Wall/Wall.csproj"]
+Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3, Duration: 39 ms - BundleElements.Tests.dll (net10.0)

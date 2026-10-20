@@ -138,7 +138,8 @@ public sealed class CSharpStaticGateTests
     };
     private static readonly string[] XunitProjects =
         ["CuriousContraptions.tests/CuriousContraptions.tests.csproj", "tools/Coverage.Tests/Coverage.Tests.csproj",
-         "tools/E2eRunner.Tests/E2eRunner.Tests.csproj", "tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj"];
+         "tools/E2eRunner.Tests/E2eRunner.Tests.csproj", "tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj",
+         "tools/BundleElements.Tests/BundleElements.Tests.csproj"];
 
     /// <summary>The root .editorconfig, key by key (comments and blank lines excluded).</summary>
     private static readonly string[] EditorConfig =
@@ -1097,6 +1098,10 @@ public sealed class CSharpStaticGateTests
         ["CuriousContraptions.web/CuriousContraptions.web.csproj:BuildWorkshopAnimation"] = "d1774dd011e62892eebfb5ac80cf83b6c9edc67afa35e69de9545270f6cf5f2a",
         ["CuriousContraptions.web/CuriousContraptions.web.csproj:CopyWorkshopAnimation"] = "e338b57574b2bc439c31ded9d4dc3b3dabd2881a01122ceadef0198dce43edbb",
         ["CuriousContraptions.web/CuriousContraptions.web.csproj:DeepClean"] = "274968494e58e10a4602963871d8ad2b716955c4601dbe50acf0d596cc220c86",
+        // Story 9A.4: the element bundle is generated after every BundleElements build and before the export and publish
+        // (no compile settings; the generator runs as a separate process).
+        ["CuriousContraptions.web/CuriousContraptions.web.csproj:GenerateElementBundle"] = "717ea540c172e915181e09976f0afc01f6d1623397d73767850ea13b971e3215",
+        ["tools/BundleElements/BundleElements.csproj:RunElementBundleGenerator"] = "5add0e34660e17b63246833c89af8800cd4fb0d7bf09ddf7c34fd408e1f9ddf6",
         // Story 9R.0b worker AOT guard: publish-only checks (no compile settings); the inspections run tools/WorkerAotGuard.
         ["CuriousContraptions.web/WorkerAot.targets:BuildWorkerAotGuard"] = "6fd5b8eeb088f3580597ea0656cdaa529c57b63a4c2b8ce602106ff3b80f3d30",
         ["CuriousContraptions.web/WorkerAot.targets:VerifyWorkerAotProperties"] = "e40f49d2f6ba94c90ff338a4d76831b3aa74debddae839b1c1ab9ae9997e8275",

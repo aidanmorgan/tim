@@ -54,6 +54,9 @@
         <ProjectReference Include="../CuriousContraptions.csproj" />
         <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
         <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
+        <!-- Story 9A.4's temporary cutover guard (BundleCatalogueParityTests) discovers every element package through the
+             generator, which references the package glob. Story 9A.14 deletes both with the tables they compare. -->
+        <ProjectReference Include="../tools/BundleElements/BundleElements.csproj" />
     </ItemGroup>
 
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
@@ -119,6 +122,7 @@
         <Compile Include="AnimationControlDeferralTests.cs" />
         <Compile Include="WorkshopAbiLiteralScanTests.cs" />
         <Compile Include="ArchitectureDocsConsistencyTests.cs" />
+        <Compile Include="BundleCatalogueParityTests.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopTrace.cs" Link="WorkshopTrace.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
         <!-- The shipped worker's physics engine and transport, stepped natively (Story 9.4b). -->

@@ -2485,7 +2485,7 @@ So that a stalled connection stops the run in a predictable way.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.4: Lossless Bundle Build Gate
-*Status: Backlog*
+*Status: Review (Amelia-16, 21 Oct 2026; [spec and evidence](../implementation-artifacts/spec-9a-4-lossless-bundle-build-gate.md)).*
 
 *Depends on: Story 9R.5b (the current tree). Position 5. The former dependency on Story 9A.0 recorded number order only (corrected 21 Oct 2026). Audit: A13 (build side), A14, G10.*
 
@@ -2780,6 +2780,7 @@ So that a part never behaves differently because a fallback table was used.
 - **And** at runtime, colliders come only from the bundle. An element with a body but no collider fails the bundle build (Story 9A.4 validation), and a construction referencing an element with no colliders is rejected explicitly.
 - **And** a golden compile test captured before the change proves that every element's compiled collider rows are unchanged within f32 representation.
 - **And** `rg -w "WorkshopCanonicalColliders|LatchColliders|CreateLatchColliders"` returns 0 hits, and no runtime caller of `GltfPhysicsBodyExtractor` remains.
+- **And** the powered gate's moving blade, a second body on a prismatic slider, is declared in its package: its collider ((0.06, 0.72, 0.72) half-extents), its material (restitution 0.1, friction 0.3, threshold 0.1), its mass and its slider. Story 9A.4 declares only the frame and a footprint of 2 bodies, because the Abstractions cannot express a second body. *Filed by Story 9A.4, 21 Oct 2026.*
 - **And** `cat-048a`, `cat-048b`, `cat-049`, `cat-050`, `cat-030` and `cat-037` pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 

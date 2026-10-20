@@ -58,6 +58,16 @@
         </ItemGroup>
     </Target>
 
+    <!-- Story 9A.4: the element bundle is generated (and every package validated) before the Godot export and before the
+         publish bundle is assembled. Building BundleElements runs its generator, so an invalid package fails this build. The
+         host's runtime identifier and publish globals are removed, so the generator builds and runs as a desktop tool. -->
+    <Target Name="GenerateElementBundle"
+            BeforeTargets="TwoDogExportGamePack;_WasmGenerateAppBundle"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+        <MSBuild Projects="../tools/BundleElements/BundleElements.csproj" Targets="Restore;Build"
+                 Properties="Configuration=Debug" RemoveProperties="RuntimeIdentifier;SelfContained;$(_WorkshopWorkerHostGlobals)" />
+    </Target>
+
     <!-- Godot's binary conversion cache keys resource text, but omits C# property metadata.
          Retire only these generated conversion outputs when the actual editor assembly changes. -->
     <Target Name="InvalidateWorkshopResourceMetadata"
