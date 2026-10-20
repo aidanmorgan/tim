@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 internal static class WorkshopTimerWire
 {
     internal const int RecordBytes = 128;
-    internal const int ByteLength = ActivationNetwork.Capacity * RecordBytes;
+    internal const int ByteLength = WorkshopInstances.Capacity * RecordBytes;
     internal static void Write(PhysicsTimerRead read, Span<byte> bytes)
     {
         if (bytes.Length != ByteLength) throw new ArgumentException("Invalid timer read width.");
@@ -26,10 +26,10 @@ internal static class WorkshopTimerWire
     }
     internal static PhysicsTimerRead Read(ReadOnlySpan<byte> bytes, uint count)
     {
-        if (bytes.Length != ByteLength || count > ActivationNetwork.Capacity ||
+        if (bytes.Length != ByteLength || count > WorkshopInstances.Capacity ||
             bytes[(checked((int)count) * RecordBytes)..].IndexOfAnyExcept((byte)0) >= 0)
             throw new ArgumentException("Invalid timer population or padding.");
-        Span<ActivationTimerState> values = stackalloc ActivationTimerState[ActivationNetwork.Capacity];
+        Span<ActivationTimerState> values = stackalloc ActivationTimerState[WorkshopInstances.Capacity];
         for (var i = 0; i < count; i++)
         {
             var slot = bytes.Slice(i * RecordBytes, RecordBytes);

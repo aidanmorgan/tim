@@ -171,8 +171,8 @@ public sealed class PhysicsSceneDeclaration
     public const int TriggerCapacity = 8;
     public const int ContactWorkCapacity = 8;
     public const int OrientationSensorCapacity = PhysicsBodyReadSet.Capacity;
-    /// <summary>Every contact-load row owns one activation node (its ContactLoadSource level), so the activation table bounds them.</summary>
-    public const int ContactLoadSensorCapacity = ActivationNetwork.Capacity;
+    /// <summary>One contact-load row per plate instance: the instance bound is the only bound, so a row is never refused.</summary>
+    public const int ContactLoadSensorCapacity = WorkshopInstances.Capacity;
     private readonly ContactLoadSensorDeclaration[] _contactLoadSensors;
     /// <summary>The compiled per-plate contact-load rows (Story 9R.4), sorted by identity.</summary>
     public ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors => _contactLoadSensors;

@@ -68,7 +68,7 @@ context:
 
 - **D1. `ContactLoadSensorDeclaration` fields become f32** (`float MinimumAlignment`, `float MinimumMass`). Rationale: the f32 authority. The declaration has no production caller, so the change is free (audit B6 otherwise belongs to Story 9A.44).
 - **D2. A tick's measured phase is the maximum of its per-substep qualifying mass.** Rationale: a contact the player sees within a tick is never missed between substeps. A resting body gives the same result either way.
-- **D3. The plate's committed level lives in the activation checkpoint** as a `ContactLoadSource` node (`Latched` exactly while the committed phase is `Loaded`). The `pressure_plate` footprint adds one activation node (`engine/gpu/WorkbenchCapacity.cs:51`). Contact-load rows are bounded by `ActivationNetwork.Capacity` (8), so Build rejects through the existing activation-table message. Rationale: the plate behaves exactly like the latch and counter switches, and the hold that Story 9R.5 adds becomes committed state.
+- **D3. The plate's committed level lives in the activation checkpoint** as a `ContactLoadSource` node (`Latched` exactly while the committed phase is `Loaded`). Every plate owns one activation node. There is no activation-slot limit (owner decision, 20 Oct 2026): activation tables are sized from the compiled network, and Build never refuses a machine for its activation count. Rationale: the plate behaves exactly like the latch and counter switches, and the hold that Story 9R.5 adds becomes committed state.
 - **D4. Evaluation is allocation-free.** `ContactLoadSensorTracker.Measure` stops allocating a `Dictionary` and stops using LINQ per call; it uses caller-owned scratch. Rationale: it runs every substep in the WASM tick, and 9.4b measured tick allocations.
 
 </frozen-after-approval>
@@ -160,7 +160,7 @@ The 18 Oct references below are kept as the original map.
 - **ABI:** a 16-byte table header holds the count (the 128-byte world header has no free word); rows are 64 bytes (56 declaration + phase + f32 mass). `ValidateCandidate` checks the declaration bytes, the phase against `PhaseOf(mass)` and the unused rows.
 - **Engine:** each substep, every static-side contact becomes a `ContactPointRecord`; each row is measured through `ContactLoadSensorTracker.Measure` with caller-owned scratch; the tick keeps the maximum (D2) and overwrites the copied state, so removal reads Empty on the next tick.
 - **Network:** `ContactLoadSource` nodes commit Latched (occurrence kind `ContactLoad`, cause = row id, plate, face collider, tick boundary) exactly while the read is Loaded; it is bistable for `WorkshopSimulation`. It is neither an edge source nor target (no activation port until 9R.5).
-- **Capacity:** the plate footprint is one activation node, so Build now admits at most 8 plates (with no other activation nodes) through the existing activation-table message (D3); `WorkbenchCapacityTests` records it.
+- **No activation limit (owner decision, 20 Oct 2026):** the fixed activation table, its constant, the Build check and the `WorkbenchTable` member are deleted. The network sizes every table (activations, timers, memory rows, pending fanout) from its own compiled population. The read wire sections, the device's passage and contact-load reads and the contact-load ABI rows are bounded by `WorkshopInstances.Capacity`, because each instance owns at most one node and the worker preallocates a fixed response buffer (`Program.ReadOutput`, `WorkshopPoseHistory`). That bound can never refuse a machine Build admitted. Every activation part now reaches the 32-instance palette maximum (`WorkbenchCapacityTests` steps 32 of each). The Impact Switch is still bounded by the physics trigger table (8), which is not an activation slot; that is left as a scope question.
 
 ## Spec Change Log
 
@@ -174,6 +174,8 @@ The 18 Oct references below are kept as the original map.
   7. `PoweredGateTests`: the interim pin is now a Switched row with `Switch = plate`; plate without battery and plate without gate compile no route.
   8. The engine-harness tests in `PressurePlateTests` (`RunPhases` through the production `WorkshopSimulation`) are the live-path proof; the impostor bench has a real 2.0 kg plate and its gate beside it.
   9. Code Map refreshed against `647f5d72`.
+- 20 Oct 2026, owner decision: no limit on activation slots (the 8-slot cap "was not in the description and is an unreasonable limitation"). D3's capacity clause is replaced in place on the owner's renegotiation; see Implementation Notes.
+- 20 Oct 2026, Murdoch-10 B1: the 2.0 kg rows save, reload and run through `WorkshopSaveCodec`.
 
 ## Review Triage Log
 

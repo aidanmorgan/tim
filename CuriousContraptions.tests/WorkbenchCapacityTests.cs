@@ -38,7 +38,7 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public void FreePlayAcceptsManyOfEveryKindUpToTheCompiledTableLimits()
     {
-        // Sixteen moving bodies, one receiver (sixteen sensors and guides), eight triggers (the whole activation table), seven walls: 32 parts.
+        // Sixteen moving bodies, one receiver (sixteen sensors and guides), eight triggers (the whole trigger table), seven walls: 32 parts.
         var full = Population((PartId.Basketball, 16), (PartId.Receiver, 1), (PartId.ImpactSwitch, 8), (PartId.Wall, 7));
         var scene = WorkshopPhysicsCompiler.Compile(Free(full), new(1, 2));
         Assert.Equal(WorkshopInstances.Capacity, full.Count);
@@ -47,7 +47,7 @@ public sealed class WorkbenchCapacityTests
         Assert.Equal(PhysicsSceneDeclaration.SensorCapacity, scene.Sensors.Length);
         Assert.Equal(PhysicsSceneDeclaration.GuideCapacity, scene.Guides.Length);
         Assert.Equal(PhysicsSceneDeclaration.TriggerCapacity, scene.Triggers.Length);
-        Assert.Equal(ActivationNetwork.Capacity, (int)WorkshopActivationCompiler.Compile(Free(full)).Clear().Count);
+        Assert.Equal(PhysicsSceneDeclaration.TriggerCapacity, (int)WorkshopActivationCompiler.Compile(Free(full)).Clear().Count);
 
         // Eight bumpers (the whole contact-work table), eight activation nodes across three kinds, three ramps, five balls.
         var mixed = Population((PartId.PinballBumper, 8), (PartId.Delay, 3), (PartId.SignalLamp, 3),
@@ -55,7 +55,7 @@ public sealed class WorkbenchCapacityTests
         scene = WorkshopPhysicsCompiler.Compile(Free(mixed), new(1, 2));
         Assert.Equal(PhysicsSceneDeclaration.ContactWorkCapacity, scene.ContactWorks.Length);
         Assert.Equal(5, scene.Sensors.Length);
-        Assert.Equal(ActivationNetwork.Capacity, (int)WorkshopActivationCompiler.Compile(Free(mixed)).Clear().Count);
+        Assert.Equal(8, (int)WorkshopActivationCompiler.Compile(Free(mixed)).Clear().Count);
 
         // Several receivers compile while no ball needs guiding; each keeps its own body and walls.
         var receivers = Population((PartId.Receiver, 3), (PartId.Ramp, 2));
@@ -81,7 +81,6 @@ public sealed class WorkbenchCapacityTests
     [InlineData(WorkbenchTable.ElectricalSources, "battery", 9, "wall", 0)]
     [InlineData(WorkbenchTable.Triggers, "switch", 9, "wall", 0)]
     [InlineData(WorkbenchTable.ContactWork, "bumper", 9, "wall", 0)]
-    [InlineData(WorkbenchTable.ActivationNodes, "lamp", 5, "delay", 4)]
     public void ExceedingOneCompiledTableRejectsWithThatTypedReason(WorkbenchTable table, string firstId, int firstCount, string secondId, int secondCount)
     {
         var first = new PartId(firstId);
@@ -133,7 +132,6 @@ public sealed class WorkbenchCapacityTests
         Assert.Equal(expected.Triggers, scene.Triggers.Length);
         Assert.Equal(expected.ContactWorks, scene.ContactWorks.Length);
         Assert.Equal(expected.ElectricalSources, scene.Electrical.Sources.Length);
-        Assert.Equal(expected.ActivationNodes, (int)WorkshopActivationCompiler.Compile(construction).Clear().Count);
         Assert.Throws<ArgumentException>(() => WorkbenchFootprint.Of(PartId.Unsupported));
     }
 
@@ -185,12 +183,13 @@ public sealed class WorkbenchCapacityTests
         [PartId.Battery] = (8, WorkbenchTable.ElectricalSources),
         [PartId.ImpactSwitch] = (8, WorkbenchTable.Triggers),
         [PartId.PinballBumper] = (8, WorkbenchTable.ContactWork),
-        [PartId.SignalLamp] = (8, WorkbenchTable.ActivationNodes),
-        [PartId.Delay] = (8, WorkbenchTable.ActivationNodes),
-        [PartId.BallDetector] = (8, WorkbenchTable.ActivationNodes),
-        [PartId.Counter] = (8, WorkbenchTable.ActivationNodes),
-        [PartId.Clock] = (8, WorkbenchTable.ActivationNodes),
-        [PartId.Latch] = (8, WorkbenchTable.ActivationNodes),
+        // Owner decision, 20 Oct 2026: no activation-slot limit. Every activation part reaches the 32-instance palette maximum.
+        [PartId.SignalLamp] = (32, null),
+        [PartId.Delay] = (32, null),
+        [PartId.BallDetector] = (32, null),
+        [PartId.Counter] = (32, null),
+        [PartId.Clock] = (32, null),
+        [PartId.Latch] = (32, null),
         [PartId.Receiver] = (32, null),
         [PartId.Ramp] = (32, null),
         [PartId.Wall] = (32, null),
@@ -198,7 +197,7 @@ public sealed class WorkbenchCapacityTests
         [PartId.PipeBend45] = (32, null),
         [PartId.PipeBend90] = (32, null),
         [PartId.Funnel] = (32, null),
-        [PartId.PressurePlate] = (8, WorkbenchTable.ActivationNodes), // Story 9R.4 D3: each plate commits one ContactLoadSource level
+        [PartId.PressurePlate] = (32, null),
     };
 
     public static TheoryData<string> FreeKinds => new(WorkshopInventoryPolicy.Free.Keys.Select(kind => kind.Value));

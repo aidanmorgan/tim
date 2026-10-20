@@ -19,7 +19,7 @@ public sealed class SelectionTests
         var selection = Select(["elements/Counter/CounterElementDeclaration.cs"]);
         Assert.Equal(SelectionMode.Selected, selection.Mode);
         Assert.Equal(["cat-002", "cat-005", "cat-015a", "cat-017", "cat-020", "cat-023b", "cat-037", "cat-051", "cat-052",
-            "engine-core-2a1", "engine-core-2b1", "palette-placement"], Names(selection));
+            "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "palette-placement"], Names(selection));
         var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
         Assert.Contains("cat-020\town: elements/Counter/CounterElementDeclaration.cs changes counter; integration: places counter", lines);
         Assert.Contains("cat-052\tconnected: counter.signal_in Signal pressure_plate.signal_out", lines);

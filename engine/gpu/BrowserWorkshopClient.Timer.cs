@@ -4,10 +4,10 @@ namespace CuriousContraptions.Gpu;
 
 public sealed partial class BrowserWorkshopClient
 {
-    private readonly WorkshopAnimationControl?[] _timerRequested = new WorkshopAnimationControl?[ActivationNetwork.Capacity];
-    private readonly WorkshopAnimationSample?[] _timerSamples = new WorkshopAnimationSample?[ActivationNetwork.Capacity];
-    private readonly bool[] _timerRetry = new bool[ActivationNetwork.Capacity];
-    private readonly ulong[] _timerOrdinals = new ulong[ActivationNetwork.Capacity];
+    private readonly WorkshopAnimationControl?[] _timerRequested = new WorkshopAnimationControl?[WorkshopInstances.Capacity];
+    private readonly WorkshopAnimationSample?[] _timerSamples = new WorkshopAnimationSample?[WorkshopInstances.Capacity];
+    private readonly bool[] _timerRetry = new bool[WorkshopInstances.Capacity];
+    private readonly ulong[] _timerOrdinals = new ulong[WorkshopInstances.Capacity];
     private static AnimationTargetId TimerTarget(ActivationNodeId node) => new(checked((1UL << 32) + node.Value));
     private void RetireTimerFeedback()
     { Array.Clear(_timerRequested); Array.Clear(_timerSamples); Array.Clear(_timerOrdinals); Array.Clear(_timerRetry); }

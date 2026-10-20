@@ -142,7 +142,7 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
         Settings.Validate();
         ArgumentNullException.ThrowIfNull(Instances);
         Instances.Validate(); ArgumentNullException.ThrowIfNull(Connections); Connections.Validate(Instances);
-        WorkbenchCapacity.ValidateConnected(Instances, Connections); Puzzle.Validate(this);
+        Puzzle.Validate(this);
     }
 }
 

@@ -54,26 +54,24 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
     }
 }
 
-[InlineArray(ActivationNetwork.Capacity)]
-internal struct ActivationStorage { private ActivationLatch _first; }
-
+/// <summary>The committed activation population, sized exactly from the compiled network (no fixed activation table; owner
+/// decision, 20 Oct 2026). Each instance owns at most one node, so it never exceeds the instance bound.</summary>
 public readonly struct PhysicsActivationRead
 {
-    private readonly ActivationStorage _values;
-    public byte Count { get; }
+    private readonly ActivationLatch[]? _values;
+    public byte Count => checked((byte)(_values?.Length ?? 0));
     public PhysicsActivationRead(ReadOnlySpan<ActivationLatch> values)
     {
-        if (values.Length > ActivationNetwork.Capacity) throw new ArgumentException("Activation capacity exceeded.");
-        Count = checked((byte)values.Length); _values = default;
+        if (values.Length > WorkshopInstances.Capacity) throw new ArgumentException("More activation nodes than instances.");
         for (var i = 0; i < values.Length; i++)
         {
             values[i].Validate();
             if (i != 0 && values[i - 1].Node.Value >= values[i].Node.Value)
                 throw new ArgumentException("Activation nodes must be uniquely ordered.");
-            _values[i] = values[i];
         }
+        _values = values.ToArray();
     }
-    public ActivationLatch this[int index] => index >= 0 && index < Count ? _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
+    public ActivationLatch this[int index] => index >= 0 && index < Count ? _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
 }
 
 /// <summary>The committed discrete checkpoint: activations, timers and the Counter/Clock memory rows (Story 9R.1 D3).</summary>
@@ -83,7 +81,6 @@ public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activat
 /// <summary>One bounded C# discrete network. Catalogue parts declare nodes; none owns a clock or callback.</summary>
 public sealed class ActivationNetwork
 {
-    public const int Capacity = 8;
     private readonly ActivationNodeDeclaration[] _nodes;
     private readonly ActivationEdge[] _edges;
     private readonly ActivationTimerDeclaration[] _timers;
@@ -100,8 +97,10 @@ public sealed class ActivationNetwork
         uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default)
     {
         _ = ActivationTime.Boundary(new(0), substeps); _substeps = substeps;
-        if (nodes.Length > Capacity || edges.Length > WorkshopConnections.Capacity)
-            throw new ArgumentException("Activation declaration capacity exceeded.");
+        // Owner decision, 20 Oct 2026: no activation-slot limit. Each instance owns at most one node (owners are unique below),
+        // so the instance bound is the only bound; it never refuses a machine Build admitted.
+        if (nodes.Length > WorkshopInstances.Capacity || edges.Length > WorkshopConnections.Capacity)
+            throw new ArgumentException("More activation nodes than instances, or more edges than connections.");
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
         _passageSensors = passageSensors.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
@@ -159,22 +158,22 @@ public sealed class ActivationNetwork
     }
     public PhysicsActivationRead Clear()
     {
-        Span<ActivationLatch> values = stackalloc ActivationLatch[Capacity];
+        Span<ActivationLatch> values = stackalloc ActivationLatch[_nodes.Length];
         for (var i = 0; i < _nodes.Length; i++) values[i] = ActivationLatch.Clear(_nodes[i]);
-        return new(values[.._nodes.Length]);
+        return new(values);
     }
     public PhysicsTimerRead ClearTimers()
     {
-        Span<ActivationTimerState> values = stackalloc ActivationTimerState[Capacity];
+        Span<ActivationTimerState> values = stackalloc ActivationTimerState[_timers.Length];
         for (var i = 0; i < _timers.Length; i++) values[i] = ActivationTimerState.Ready(_timers[i].Node);
-        return new(values[.._timers.Length]);
+        return new(values);
     }
     /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every Clock Stopped with no due tick.</summary>
     public PhysicsMemoryRead ClearMemory()
     {
-        Span<ActivationMemory> values = stackalloc ActivationMemory[Capacity];
+        Span<ActivationMemory> values = stackalloc ActivationMemory[_memoryNodes.Length];
         for (var i = 0; i < _memoryNodes.Length; i++) values[i] = ActivationMemory.Clear(_memoryNodes[i]);
-        return new(values[.._memoryNodes.Length]);
+        return new(values);
     }
     /// <summary>The committed Counter or Clock memory row of one owner (a query over the checkpoint; the network holds none).</summary>
     public ActivationMemory Memory(PhysicsMemoryRead values, GpuBodyId owner)
@@ -219,19 +218,20 @@ public sealed class ActivationNetwork
     {
         ValidatePopulation(committed, committedTimers);
         ValidateMemory(memory);
-        Span<ActivationMemory> rows = stackalloc ActivationMemory[Capacity];
+        // Every table is sized from this compiled network's own population (no fixed activation table).
+        Span<ActivationMemory> rows = stackalloc ActivationMemory[_memoryNodes.Length];
         for (var i = 0; i < memory.Count; i++) rows[i] = memory[i];
         if (events.Length > PhysicsSceneDeclaration.TriggerCapacity) throw new ArgumentException("Contact capacity exceeded.");
         if (orientations.Length > PhysicsSceneDeclaration.OrientationSensorCapacity) throw new ArgumentException("Orientation capacity exceeded.");
         var end = ActivationTime.Boundary(boundary, _substeps);
-        Span<ActivationLatch> values = stackalloc ActivationLatch[Capacity];
-        Span<ActivationTimerState> timers = stackalloc ActivationTimerState[Capacity];
+        Span<ActivationLatch> values = stackalloc ActivationLatch[_nodes.Length];
+        Span<ActivationTimerState> timers = stackalloc ActivationTimerState[_timers.Length];
         for (var i = 0; i < committed.Count; i++) values[i] = committed[i];
         for (var i = 0; i < committedTimers.Count; i++) timers[i] = committedTimers[i];
-        Span<ActivationOccurrence> pending = stackalloc ActivationOccurrence[Capacity * 4];
+        Span<ActivationOccurrence> pending = stackalloc ActivationOccurrence[_nodes.Length * 4];
         // Requests routed to each State Latch within this tick; they resolve once at the boundary below.
-        Span<StateLatchRequest> latchRequests = stackalloc StateLatchRequest[Capacity];
-        Span<ActivationOccurrence> latchSetBy = stackalloc ActivationOccurrence[Capacity];
+        Span<StateLatchRequest> latchRequests = stackalloc StateLatchRequest[_nodes.Length];
+        Span<ActivationOccurrence> latchSetBy = stackalloc ActivationOccurrence[_nodes.Length];
         var count = 0;
         for (var i = 0; i < events.Length; i++)
         {

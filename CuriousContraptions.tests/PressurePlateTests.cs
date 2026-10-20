@@ -355,7 +355,6 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(2, fp.Colliders);
         Assert.Equal(0, fp.Triggers);
         Assert.Equal(0, fp.ContactWorks);
-        Assert.Equal(1, fp.ActivationNodes); // Story 9R.4 D3: the plate's ContactLoadSource level
         Assert.Equal(0, fp.ElectricalSources);
         Assert.Equal(0, fp.PrismaticConstraints);
 
@@ -591,6 +590,94 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.False(network.ContactClosed(state.Activations, plate.Id)); Assert.False(Next(state));
         // Every row must be read each tick: a missing read would silently freeze the gate.
         Assert.Throws<ArgumentException>(() => network.Consume(state.Activations, state.Timers, [], new(5), [], memory: state.Memory));
+    }
+
+    // Owner decision, 20 Oct 2026: no activation-slot limit. A bench of 28 activation parts (13 plates, 5 counters, 5 clocks,
+    // 5 latches; Build used to refuse the 9th) plus one Battery → last plate → gate circuit, the most the fixed physics tables
+    // hold (33 bodies, 31 instances), compiles, runs, Resets exactly and survives Save/Load. Non-vacuous: the last plate's own gate
+    // opens under its own load while every other plate stays Clear.
+    private static WorkshopConstruction ActivationBench()
+    {
+        var instances = new List<IWorkshopInstance>();
+        ulong id = 0;
+        for (var i = 0; i < 13; i++) instances.Add(Plate(++id, -16 + 3 * (i % 7), -6 + 3 * (i / 7), .5f));
+        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
+        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
+        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
+        var last = (WorkshopPressurePlate)instances[12];
+        var gate = Gate(++id, -6); var battery = Battery(++id, -6);
+        var ball = WorkshopInput.Basketball(new(++id), (last.Cell.X + (double)last.Local.X) / 16, Face + .35,
+            (last.Cell.Z + (double)last.Local.Z) / 16, 0, 0, 0, 1);
+        instances.AddRange([gate, battery, ball]);
+        return Bench([.. instances], Circuit(battery, last, gate));
+    }
+
+    private static async Task<(WorkshopRead Built, List<WorkshopRead> Run, WorkshopRead Reset)> RunAndReset(WorkshopConstruction construction, int ticks)
+    {
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+            new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        var built = simulation.Committed;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var reads = new List<WorkshopRead>(ticks);
+        for (var tick = 0; tick < ticks; tick++)
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            reads.Add(simulation.Committed);
+        }
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+        return (built, reads, simulation.Committed);
+    }
+
+    [Fact]
+    public async Task ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit()
+    {
+        var bench = ActivationBench();
+        bench.Validate();
+        var nodes = WorkshopActivationCompiler.Compile(bench).Nodes.ToArray();
+        Assert.Equal(28, nodes.Length);
+        Assert.Equal(13, nodes.Count(node => node.Kind == ActivationNodeKind.ContactLoadSource));
+        Assert.Equal(13, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).ContactLoadSensors.Length);
+        var plates = bench.Instances.OfType<WorkshopPressurePlate>().ToArray();
+        var gate = bench.Instances.OfType<WorkshopGenericInstance>().Single();
+
+        var (built, reads, reset) = await RunAndReset(bench, Ticks);
+        AssertGateOpened(reads, plates[^1], gate, "the 13th plate under its own load");
+        foreach (var plate in plates[..^1]) Assert.All(reads, read => Assert.False(ContactClosed(read, plate), $"plate {plate.Id.Value} stays Clear"));
+        Assert.Equal(28, reads[^1].Activations.Count);
+        Assert.True(reads[^1].Memory.Count == 10, $"counter and clock memory rows: {reads[^1].Memory.Count}");
+        // Reset restores the Build-mode committed state exactly (every field the 9R.1 snapshot compares; the world epoch is
+        // a new identity by design).
+        AssertSameState(built, reset, "Reset");
+
+        // Save/Load through the real codec: the reloaded bench is identical and replays the same committed run.
+        var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
+        var reloaded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved));
+        Assert.Equal(saved, reloaded);
+        var (_, replay, _) = await RunAndReset(reloaded.Construction, Ticks);
+        AssertSameState(reads[^1], replay[^1], "the reloaded bench's run");
+    }
+
+    /// <summary>Bit-equal committed state, the world epoch aside: tick, bodies, activations, timers, memory and electrical.</summary>
+    private static void AssertSameState(WorkshopRead expected, WorkshopRead actual, string label)
+    {
+        Assert.Equal(expected.Tick, actual.Tick);
+        Assert.Equal(expected.Bodies.Count, actual.Bodies.Count);
+        for (var i = 0; i < expected.Bodies.Count; i++)
+        {
+            var (e, a) = (expected.Bodies[i], actual.Bodies[i]);
+            Assert.True(e.Body.Id == a.Body.Id && e.Body.Tick == a.Body.Tick && e.Body.Cell == a.Body.Cell &&
+                F32Bits.Equal(e.Body.Local, a.Body.Local) && e.Body.Velocity.HasSameBits(a.Body.Velocity) &&
+                e.Rotation == a.Rotation && e.AngularVelocity.HasSameBits(a.AngularVelocity), $"{label}: body {e.Body.Id.Value} differs");
+        }
+        Assert.Equal(expected.Activations.Count, actual.Activations.Count);
+        for (var i = 0; i < expected.Activations.Count; i++) Assert.Equal(expected.Activations[i], actual.Activations[i]);
+        Assert.Equal(expected.Timers.Count, actual.Timers.Count);
+        for (var i = 0; i < expected.Timers.Count; i++) Assert.Equal(expected.Timers[i], actual.Timers[i]);
+        Assert.True(expected.Memory.HasSameBits(actual.Memory), $"{label}: memory rows differ");
+        Assert.True(expected.Electrical.HasSameBits(actual.Electrical), $"{label}: electrical state differs");
     }
 
     // Matrix controls: a loaded plate with no battery supplies no route (gate closed, yet the plate still senses), and a plate

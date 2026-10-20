@@ -7,6 +7,8 @@
 // 2. The mirror: the ball on P2 opens G2 only; G1 stays closed throughout. Reset matches.
 // 3. Save/Load preserves both circuits (four Supply → PowerIn links) and both plates' minimum_mass bit-identically, and the
 //    loaded bench replays: only G1 opens.
+// 4. No activation-slot limit (owner decision, 20 Oct 2026): 24 activation parts (9 plates, 5 counters, 5 clocks, 5 latches) are
+//    admitted; only G1 opens; Reset matches the snapshot and Save/Load restores it exactly.
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
@@ -181,6 +183,36 @@ describe('CAT-052: two Pressure Plates switch only their own gates (Story 9R.4)'
         const s0 = await buildTwoPlates(PLATE_2);
         assertOnlyOpens(await runAndSample(s0, 3500), BLADES[1], 'P2 loaded');
         await resetMatches(s0);
+        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+    });
+
+    // Owner decision, 20 Oct 2026: no activation-slot limit. Seven more plates and five each of counters, clocks and latches (24
+    // activation parts in all; Build used to refuse the ninth) are placed through the palette on the left of the bench.
+    test('4. Twenty-four activation parts: Build admits them, only G1 opens, Reset and Save/Load are exact', { timeout: 600000 }, async () => {
+        await buildTwoPlates(PLATE_1);
+        const extras = [...Array(7).fill('pressure_plate'), ...Array(5).fill('counter'), ...Array(5).fill('clock'), ...Array(5).fill('latch')] as
+            ('pressure_plate' | 'counter' | 'clock' | 'latch')[];
+        for (const [i, tool] of extras.entries()) {
+            const at = screen(-6 + (i % 6), -3 + Math.floor(i / 6) * 1.5);
+            await driver.selectTool(tool);
+            await driver.placeOnCanvas(at.x, at.y);
+        }
+        const s0 = await driver.captureSnapshot(BENCH);
+        const bytes = await saved(driver);
+        const construction = decodeSavedConstruction(bytes).construction()!;
+        const kinds = Array.from({ length: construction.instancesLength() }, (_, i) => construction.instances(i)!.partId());
+        assert.equal(kinds.length, 29, `all 29 parts are on the bench, got ${kinds.length}`);
+        assert.equal(kinds.filter(k => k === 'pressure_plate').length, 9, '9 plates');
+        for (const kind of ['counter', 'clock', 'latch']) assert.equal(kinds.filter(k => k === kind).length, 5, `5 ${kind}s`);
+        assertOnlyOpens(await runAndSample(s0, 3500), BLADES[0], '24 activation parts, P1 loaded');
+        await resetMatches(s0);
+        await driver.reload();
+        await driver.load();
+        const loaded = await driver.captureSnapshot(BENCH);
+        assertLoadRestores(s0, loaded);
+        assert.deepEqual(authoredState(await saved(driver)), authoredState(bytes), 'Authored state must roundtrip bit-identically');
+        assertOnlyOpens(await runAndSample(loaded, 3500), BLADES[0], 'loaded 24-part bench, P1 loaded');
+        await resetMatches(loaded);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 

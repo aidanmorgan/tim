@@ -15,7 +15,7 @@ public static class WorkshopAnimationWire
 {
     public const ushort Version = 5;
     /// <summary>Activation + timer nodes, contact owners, one capture target per sensor and the two declared UI targets.</summary>
-    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + ContactWorkCapacity + PhysicsSceneDeclaration.SensorCapacity + 2 + ElectricalSupplyPlan.SourceCapacity * 5;
+    public const int TargetCapacity = 2 * WorkshopInstances.Capacity + ContactWorkCapacity + PhysicsSceneDeclaration.SensorCapacity + 2 + ElectricalSupplyPlan.SourceCapacity * 5;
     /// <summary>Concurrent occurrences one impulse target retains; a declared cooldown keeps real overlap far below it.</summary>
     public const int ImpulseCapacity = 64;
     private const int ContactWorkCapacity = PhysicsSceneDeclaration.ContactWorkCapacity;

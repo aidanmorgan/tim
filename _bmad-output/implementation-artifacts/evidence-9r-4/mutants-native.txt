@@ -42,6 +42,15 @@ m11 save drops minimum_mass to the placed default (WorkshopWireFlatBuffers AddTh
   Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False)  Expected bits 1073741824 (2.0), actual 1056964608 (0.5)
   Failed TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True)   same
   Failed: 2, Passed: 2 (filter TheInstanceMinimumMass)
+m12 fixed 8-slot activation cap restored in ActivationNetwork (owner decision 20 Oct: no activation limit)
+  Failed ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit
+  Failed OrientationSensorTests.WiringIntoADominoRejectsAndAnyNumberOfWiredSourcesCompiles
+  Failed EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(counter, ball_detector, pressure_plate, lamp, latch, clock, delay)
+  Failed: 9, Passed: 15
+m13 Build refuses a ninth activation part (WorkbenchCapacity count > 8) (same decision)
+  Failed ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit
+  Failed EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(counter, ball_detector, pressure_plate, lamp, latch, clock, delay)
+  Failed: 8, Passed: 16
 m10 plate route compiled Direct with no switch (AC2)
   Failed PoweredGateTests.PhysicsCompiler_PlateChainCompilesASwitchedRowThroughThePlate(authored: Enabled)
   Failed PoweredGateTests.PhysicsCompiler_PlateChainCompilesASwitchedRowThroughThePlate(authored: Disabled)

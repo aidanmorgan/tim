@@ -485,7 +485,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Fact]
     public void WorkbenchCapacity_AdmitsBallDetectorsWithoutColliderLimit()
     {
-        Assert.Equal(new WorkbenchFootprint(1, 0, 17, 0, 0, 1), WorkbenchFootprint.Of(PartId.BallDetector));
+        Assert.Equal(new WorkbenchFootprint(1, 0, 17, 0, 0), WorkbenchFootprint.Of(PartId.BallDetector));
 
         // 3 detectors = 51 colliders + 1 plane collider = 52 <= 64 (fits)
         var threeDetectors = new WorkshopInstances(

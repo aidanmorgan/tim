@@ -1,0 +1,81 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.30]     CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "counter") [FAIL]
+[xUnit.net 00:00:01.30]     CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "ball_detector") [FAIL]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "counter") [1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: activation table
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkbenchCapacity.cs:line 95
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(String kindId) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 258
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "ball_detector") [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: activation table
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkbenchCapacity.cs:line 95
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(String kindId) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 258
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.06]     CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "pressure_plate") [FAIL]
+[xUnit.net 00:00:02.06]     CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "lamp") [FAIL]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "pressure_plate") [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: activation table
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkbenchCapacity.cs:line 95
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(String kindId) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 258
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "lamp") [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: activation table
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkbenchCapacity.cs:line 95
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(String kindId) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 258
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.51]     CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "latch") [FAIL]
+[xUnit.net 00:00:02.52]     CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "clock") [FAIL]
+[xUnit.net 00:00:02.53]     CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "delay") [FAIL]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "latch") [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: activation table
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkbenchCapacity.cs:line 95
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(String kindId) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 258
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "clock") [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: activation table
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkbenchCapacity.cs:line 95
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(String kindId) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 258
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "delay") [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkbenchFullException : Workbench is full: activation table
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkbenchCapacity.Validate(IReadOnlyList`1 instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkbenchCapacity.cs:line 95
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopInstances.cs:line 101
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(String kindId) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-af64068d5450f89f6/CuriousContraptions.tests/WorkbenchCapacityTests.cs:line 258
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     7, Passed:    15, Skipped:     0, Total:    22, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

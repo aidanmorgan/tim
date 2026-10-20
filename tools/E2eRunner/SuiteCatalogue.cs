@@ -189,7 +189,8 @@ internal static class SuiteCatalogue
             [Owner("Coordinator decision, 20 Oct 2026 (Story 9R.4): a new suite starts SerialAlone until calibration qualifies " +
                 "it; it samples both blades' poses over wall-clock windows after each Run.", 1)],
             // No primary: cat-052 stays the Pressure Plate's primary suite; a plate change still selects this suite as a placer.
-            null, Set(PartId.Battery, PartId.BowlingBall, PartId.PoweredGate, PartId.PressurePlate), [], Set(Electrical),
+            null, Set(PartId.Battery, PartId.BowlingBall, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
+                PartId.Latch), [], Set(Electrical),
             Set(Gizmo, Wire)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),

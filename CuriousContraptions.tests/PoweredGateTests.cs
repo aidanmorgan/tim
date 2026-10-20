@@ -326,7 +326,6 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Equal(20, fp.Colliders);
         Assert.Equal(0, fp.Triggers);
         Assert.Equal(0, fp.ContactWorks);
-        Assert.Equal(0, fp.ActivationNodes);
         Assert.Equal(0, fp.ElectricalSources);
         Assert.Equal(1, fp.PrismaticConstraints);
 

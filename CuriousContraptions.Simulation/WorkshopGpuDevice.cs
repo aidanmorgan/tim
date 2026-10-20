@@ -139,7 +139,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var orientationCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderOrientationSensorCountOffset)));
             Span<OrientationSensorRead> orientations = stackalloc OrientationSensorRead[PhysicsSceneDeclaration.OrientationSensorCapacity];
             for (var i = 0; i < orientationCount; i++) orientations[i] = PhysicsGpuAbi.ReadOrientationSensor(bytes, i);
-            Span<PassageSensorRead> passages = stackalloc PassageSensorRead[8];
+            // One read per declared passage sensor (no fixed table: a Ball Detector is limited only by the instance bound).
+            Span<PassageSensorRead> passages = stackalloc PassageSensorRead[network.PassageSensors.Length];
             int passageCount = 0;
             if (operation == WorkshopGpuOperation.Admit)
             {
