@@ -31,7 +31,9 @@ public sealed class WorkshopActivationAnimationTests
     {
         var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), Control);
         Assert.Equal(Control, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
-        foreach (var (offset, value) in new[] { (90, 0), (78, 0), (78, 99), (92, 1) })
+        // Story 9A.1 (F.10): bytes 90..91 are zero padding where the version was; the retired version 5 now rejects.
+        Assert.Equal(0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(90)));
+        foreach (var (offset, value) in new[] { (90, 5), (90, 1), (78, 0), (78, 99), (92, 1) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(offset), (ushort)value);
             Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(changed, Session, new(1), new(1)));
@@ -39,7 +41,7 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(bytes, new(1, 2), new(1), new(1)));
         var output = Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1);
         Assert.Equal(AnimationProperty.ColourBlend, WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _).Property);
-        output[86] = 0;
+        output[86] = 5; // the retired output version, where zero padding now stands
         Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _));
     }
 
@@ -349,7 +351,6 @@ public sealed class WorkshopActivationAnimationTests
         var impulse = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse, From = (Half)0, To = (Half)1,
             Duration = CosmeticCurves.PinballBumper.Duration, ImpulseCurve = CosmeticCurves.PinballBumper.ImpulseCurve, Overlap = CosmeticCurves.PinballBumper.Overlap };
         var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), impulse);
-        Assert.Equal(5, WorkshopAnimationWire.Version);
         Assert.Equal(impulse, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt16LittleEndian(unknown.AsSpan(94), 9);
         Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(unknown, Session, new(1), new(1)));
@@ -602,6 +603,22 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Equal(expected, WorkshopAnimationWire.ReadControl(WorkshopAnimationWire.Control(Session, new(1), new(1), expected), Session, new(1), new(1)));
     }
 
+    /// <summary>Story 9A.1 (F.10): with no version word, a channel record is admitted by its exact length; a truncated or extended
+    /// control or output rejects, and the exact records are the controls.</summary>
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(1)]
+    public void AnAnimationChannelRecordOfAnyOtherLengthRejects(int change)
+    {
+        var control = WorkshopAnimationWire.Control(Session, new(1), new(1), Control);
+        var output = Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1);
+        Assert.Equal(Control, WorkshopAnimationWire.ReadControl(control, Session, new(1), new(1)));
+        WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _);
+        byte[] Resized(byte[] bytes) => change < 0 ? bytes[..^1] : [.. bytes, 0];
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(Resized(control), Session, new(1), new(1)));
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(Resized(output), Session, new(1), new(1), out _));
+    }
+
     [Fact]
     public void CommittedPulseOutputRejectsOverlongUnownedOrPaddedSegments()
     {
@@ -668,7 +685,6 @@ public sealed class WorkshopActivationAnimationTests
         U64(64, control.Target.Value); U64(72, control.World.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(80), control.EventOrdinal);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(86), WorkshopAnimationWire.Version);
         WorkshopAnimationWire.WriteTimer(bytes, control.Timer);
         if (control.Kind == AnimationControlKind.Impulse)
             BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(132), BitConverter.HalfToUInt16Bits(control.Duration));

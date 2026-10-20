@@ -1,0 +1,145 @@
+# 9A.1 original items (rg -n -w, excluding _bmad-output)
+## AllocateElectrical
+./docs/architecture/element-package-isolation.md:166:| B3: the JS-boundary exports (`AllocateElectrical` … `AbiOffsets`) in `CuriousContraptions.Simulation/Program.cs` | Gone from the tree (`rg` returns 0) |
+## PaidContactImpulse
+0 hits
+## PrismaticRowKinds
+0 hits
+## SpringCoefficients
+0 hits
+## PrismaticJacobians
+0 hits
+## ConstraintRows
+0 hits
+## OperationAbi
+0 hits
+## StateBytes
+0 hits
+## AbiOffsets
+./docs/architecture/element-package-isolation.md:166:| B3: the JS-boundary exports (`AllocateElectrical` … `AbiOffsets`) in `CuriousContraptions.Simulation/Program.cs` | Gone from the tree (`rg` returns 0) |
+## EarlyLoss
+./docs/architecture/element-package-isolation.md:168:| B5: `tools/workshop-rigid-body.test.mjs`, its README reference and the `workshop-observation` EarlyLoss case | Gone from the tree |
+## writeEventRing
+./docs/architecture/element-package-isolation.md:165:| D4 (JS producer): `writeEventRing` and the never-written JS ring scaffold | Story 9.4b |
+## WORKER_ABI_CANDIDATE
+0 hits
+## WORKER_SOURCE
+0 hits
+## WorkerDynamicOffsetFallbacksDeclareValidTableOffsets
+0 hits
+## PRISMATIC_BYTES
+0 hits
+## MOTION_GRAVITY
+0 hits
+## COLLIDERS_OFFSET
+0 hits
+## MATERIALS_OFFSET
+0 hits
+## TRIGGERS_OFFSET
+0 hits
+## CONTACT_WORKS_OFFSET
+0 hits
+## ProbePart
+./docs/architecture/element-package-isolation.md:171:| B7, B8 (remainder): the `MachinePart.Build()` subclassing hook, its only override (the test `ProbePart`) and the orphan root `scratch_test.cs.uid` | Story 9A.1: `MachinePart` is sealed and composes `CosmeticBindingSet`, whose rules are tested directly |
+## CosmeticBindingSet
+./engine/CosmeticBindingSet.cs:12:internal sealed class CosmeticBindingSet
+./engine/MachinePart.cs:155:    private readonly CosmeticBindingSet _cosmetic = new();
+./CuriousContraptions.tests/BasketballResourceTests.cs:163:    // Story 9A.1: the cosmetic binding rules live on the composed CosmeticBindingSet, so they are proven directly on it; the part is
+./CuriousContraptions.tests/BasketballResourceTests.cs:165:    private static void WithBindingTarget(Action<Action<CosmeticBindingSet, CosmeticCurveDeclaration, CuriousContraptions.Presentation.AnimationTimerPhase>> body)
+./CuriousContraptions.tests/BasketballResourceTests.cs:179:        var set = new CosmeticBindingSet();
+./CuriousContraptions.tests/BasketballResourceTests.cs:191:        var set = new CosmeticBindingSet();
+./CuriousContraptions.csproj:35:        <Compile Include="engine/CosmeticBindingSet.cs" />
+./tools/E2eRunner/ImpactRules.cs:52:        ["engine/CosmeticBindingSet.cs"] = WorkshopArea.Presentation,
+./docs/architecture/element-package-isolation.md:171:| B7, B8 (remainder): the `MachinePart.Build()` subclassing hook, its only override (the test `ProbePart`) and the orphan root `scratch_test.cs.uid` | Story 9A.1: `MachinePart` is sealed and composes `CosmeticBindingSet`, whose rules are tested directly |
+## files
+ls: scratch: No such file or directory
+ls: scratch_test.cs.uid: No such file or directory
+ls: tools/workshop-rigid-body.test.mjs: No such file or directory
+## MachinePart.Build / PartRegistry skips
+engine/MachinePart.cs:12:public sealed partial class MachinePart : Node3D, IResizablePart
+## worker.js layout constants (all owned and pinned by WorkerAbiTests)
+17:const READ_CAPTURE_TIME = 72;          // WorkshopWire.ResponseCaptureTimeOffset
+18:const READ_BODY_COUNT = 112;           // WorkshopWire.ResponseBodyCountOffset
+19:const READ_BODIES_OFFSET = 144;        // WorkshopWire.ReadBodiesOffset
+20:const BODY_WIRE_BYTES = 80;            // PhysicsBodyWire.ByteLength
+21:const BODY_WIRE_CELL = 8;              // PhysicsBodyWire.CellOffset
+22:const BODY_WIRE_LOCAL = 20;            // PhysicsBodyWire.LocalOffset
+23:const BODY_WIRE_ROTATION = 32;         // PhysicsBodyWire.RotationOffset
+24:const BODY_WIRE_VELOCITY = 56;         // PhysicsBodyWire.VelocityOffset
+25:const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
+26:const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
+27:const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
+# F.10 deleted symbols (rg -n -w over the active tree, excluding _bmad-output and docs history)
+## BodyRecordVersion
+./docs/planning/delivered-slices.md:26:- **Versions:** the trace version is now 3. `BodyRecordVersion.HalfPoseF32Velocity` keeps the value 2.
+## PhysicsStateVersion
+0 hits
+## STATE_VERSION
+0 hits
+## HeaderVersionOffset
+0 hits
+## WorkshopScheduleVersion
+0 hits
+## WorkshopTraceVersion
+0 hits
+## TraceTimingVersion
+0 hits
+## ClockRingVersion
+./tools/workshop-clock-ring.test.mjs:154:    assert.equal('ClockRingVersion' in clockRing, false);
+## policyVersion
+./tools/workshop-isolation.test.mjs:119:    const h = harness({ reply: { policyVersion: 1 } });
+## clockVersion
+0 hits
+## WorkshopSaveVersion
+./CuriousContraptions.tests/WorkshopFormatTests.cs:28:        Assert.DoesNotContain("WorkshopSaveVersion", engine);
+## WorkshopWireVersion
+./CuriousContraptions.tests/WorkshopFormatTests.cs:27:        Assert.DoesNotContain("WorkshopWireVersion", engine);
+## WorkshopSettingsVersion
+./CuriousContraptions.tests/WorkshopFormatTests.cs:29:        Assert.DoesNotContain("WorkshopSettingsVersion", engine);
+## UnknownVersion
+0 hits
+# F.10 format versions (rg -n -i version over production trees, tools and schemas)
+CuriousContraptions.Animation.Worker/Program.cs:3:using System.Runtime.Versioning;
+CuriousContraptions.Simulation/Program.cs:4:using System.Runtime.Versioning;
+CuriousContraptions.web/wwwroot/favicon.svg:1:<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="567.96075" height="573.18744"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="567.96075" height="573.18744"><svg width="567.96075" height="573.18744" viewBox="0 0 567.96076 573.18744" version="1.1" id="svg17" sodipodi:docname="icon.svg" inkscape:version="1.4.3 (0d15f75042, 2025-12-25)" inkscape:export-filename="logo.png" inkscape:export-xdpi="53.501602" inkscape:export-ydpi="53.501602" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+tools/workshop-isolation.test.mjs:119:    const h = harness({ reply: { policyVersion: 1 } });
+tools/workshop-clock-ring.test.mjs:55:        'non-zero leading padding (the retired wire version 4)': (() => { const p = probe(owner); p[0] = 4; return [p, 3_000_000n, 3_000_000n, 0]; })(),
+tools/workshop-clock-ring.test.mjs:153:    // Story 9A.1 (F.10): the ring carries no layout version; a ring of another layout is refused by its structure.
+tools/workshop-clock-ring.test.mjs:154:    assert.equal('ClockRingVersion' in clockRing, false);
+CuriousContraptions.web/wwwroot/native-clock.js:40:        const identity = await navigator.userAgentData.getHighEntropyValues(['fullVersionList', 'platform']);
+CuriousContraptions.web/wwwroot/native-clock.js:41:        const brands = (identity.fullVersionList ?? []).map(value => value.brand + ' ' + value.version).join(', ');
+engine/presentation/AnimationBatch.cs:38:    public ulong Version { get; }
+engine/presentation/AnimationBatch.cs:39:    internal AnimationHandle(AnimationBatch owner, AnimationGeneration generation, int slot, ulong version)
+engine/presentation/AnimationBatch.cs:41:        Owner = owner; Generation = generation; Slot = slot; Version = version;
+engine/presentation/AnimationBatch.cs:118:    private ulong[] _versions;
+engine/presentation/AnimationBatch.cs:133:        _slots = new Slot[capacity]; _versions = new ulong[capacity];
+engine/presentation/AnimationBatch.cs:147:        Array.Resize(ref _slots, capacity); Array.Resize(ref _versions, capacity);
+engine/presentation/AnimationBatch.cs:248:        var index=_free[_freeCount-1];var version=checked(_versions[index]+1);
+engine/presentation/AnimationBatch.cs:249:        _sampleCount=0;_freeCount--;_versions[index]=version;
+engine/presentation/AnimationBatch.cs:253:        return new(this,Generation,index,version);
+engine/presentation/AnimationBatch.cs:550:        Array.Clear(_versions);
+engine/presentation/AnimationBatch.cs:567:            (_slots[handle.Slot].Definition is null&&_slots[handle.Slot].Follow is null&&_slots[handle.Slot].Impulses is null&&_slots[handle.Slot].Oscillation is null) || handle.Version != _versions[handle.Slot])
+tools/e2e/workshop-driver.ts:193:// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343). One bundle, one schema: there is no format version.
+engine/gpu/WorkshopPoseHistory.cs:27:    private ulong _version, _clockEpoch, _displayEpoch;
+engine/gpu/WorkshopPoseHistory.cs:68:        internal readonly ulong Version, ClockEpoch;
+engine/gpu/WorkshopPoseHistory.cs:73:        internal Prepared(WorkshopPoseHistory owner, ulong version, ulong clockEpoch,
+engine/gpu/WorkshopPoseHistory.cs:76:            Owner = owner; Version = version; ClockEpoch = clockEpoch; Response = response;
+engine/gpu/WorkshopPoseHistory.cs:88:        if (!Enum.IsDefined(boundary) || clockEpoch == 0 || _version == ulong.MaxValue)
+engine/gpu/WorkshopPoseHistory.cs:141:        return new(this, _version, clockEpoch, response, mapped, reseed, replace,
+engine/gpu/WorkshopPoseHistory.cs:147:        if (!ReferenceEquals(prepared.Owner, this) || prepared.Version != _version || _retired)
+engine/gpu/WorkshopPoseHistory.cs:167:        _version++; _dirty = true;
+engine/gpu/WorkshopNativeClock.cs:8:/// The configured native error plus this at-most-half-nanosecond conversion remains unqualified
+engine/gpu/WorkshopWall.cs:17:    /// <summary>Named pointer-input boundary: preserve finite source clamp before binary16 conversion.</summary>
+engine/gpu/WorkshopClientCursor.cs:18:    private ulong _version;
+engine/gpu/WorkshopClientCursor.cs:22:    public readonly record struct Prepared(WorkshopClientCursor Owner, ulong Version,
+engine/gpu/WorkshopClientCursor.cs:33:        if (applicable && (ReadOrder == ulong.MaxValue || _version == ulong.MaxValue))
+engine/gpu/WorkshopClientCursor.cs:35:        return new(this, _version, response, applicable, applicable ? ReadOrder + 1 : ReadOrder,
+engine/gpu/WorkshopClientCursor.cs:56:        if (applicable && _version == ulong.MaxValue) throw new InvalidOperationException("Presentation cursor exhausted.");
+engine/gpu/WorkshopClientCursor.cs:57:        return new(this, _version, response, applicable, ReadOrder, _publication);
+engine/gpu/WorkshopClientCursor.cs:63:            response.Read.Revision.Value < Revision.Value || _version == ulong.MaxValue)
+engine/gpu/WorkshopClientCursor.cs:65:        return new(this, _version, response, true, ReadOrder, _publication);
+engine/gpu/WorkshopClientCursor.cs:70:        if (!ReferenceEquals(prepared.Owner, this) || prepared.Version != _version)
+engine/gpu/WorkshopClientCursor.cs:79:        _version++;
+engine/gpu/WorkshopDelay.cs:5:/// <summary>Authored Half seconds; exact integer conversion exists only at the discrete scheduling boundary.</summary>
+## generated FlatBuffers runtime guard (not a format field)
+6

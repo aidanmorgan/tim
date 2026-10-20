@@ -229,7 +229,7 @@ public static class RevisionTwoOracles
             Require(queries.Count==64);queries.Acknowledge(new(11),new(32));Require(queries.Count==32);
         });
         Check(RevisionTwoCase.AnimationRequestOwner,()=>Reject(()=>ContractFixture.Validate(
-            new(1,MessageKind.AnimationCommands,RuntimeRole.Simulation,RuntimeRole.Animation,200,0,11,1))));
+            new(MessageKind.AnimationCommands,RuntimeRole.Simulation,RuntimeRole.Animation,200,0,11,1))));
         var animation=new Window(128);var registrations=0;
         Check(RevisionTwoCase.AnimationDefinitionDuplicate,()=>
         {if(animation.Admit(Id(7,1)))registrations++;Require(!animation.Admit(Id(7,1))&&registrations==1);animation.Commit(Id(7,1));});

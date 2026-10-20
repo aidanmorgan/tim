@@ -174,9 +174,9 @@ development_status:
   # 3
   9a-0-architecture-authority-docs: done
   # 4: owner amendment 21 Oct 2026, right after 9a-0
-  9a-1-dead-legacy-purge: backlog
+  9a-1-dead-legacy-purge: review
   # merged into 9a-1 (coordinator ruling, 21 Oct 2026); filed by 9a-0 (owner: no format versioning)
-  f-10-retire-remaining-format-versions: backlog
+  f-10-retire-remaining-format-versions: review
   # 5
   9a-4-lossless-bundle-build-gate: backlog
   # 6

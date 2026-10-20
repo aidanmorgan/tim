@@ -1,7 +1,9 @@
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
@@ -33,6 +35,57 @@ public sealed class WorkshopFormatTests
             var body = schema[start..schema.IndexOf('}', start)];
             Assert.DoesNotContain("version", body, StringComparison.Ordinal);
         }
+    }
+
+    /// <summary>Story 9A.1 (with F.10 merged): no production source, script, schema or bundle tool names a format version. The scan
+    /// reads every word containing "Version" or "VERSION" (or a word starting "version"; case-sensitive, so "conversion" is not a
+    /// match), so a re-added version enum, constant such as STATE_VERSION, field, check or handshake fails here. The allowed words are the exact non-format uses: the .NET versioning attributes, the FlatBuffers
+    /// runtime's own library guard, the browser's user-agent brand list, and three state generation stamps.</summary>
+    [Fact]
+    public void NoProductionSourceNamesAFormatVersion()
+    {
+        var root = twodog.Engine.ResolveProjectDir();
+        var allowed = new Dictionary<string, string[]>(StringComparer.Ordinal)
+        {
+            ["CuriousContraptions.Simulation/Program.cs"] = ["Versioning"],
+            ["CuriousContraptions.Animation.Worker/Program.cs"] = ["Versioning"],
+            ["engine/gpu/WorkshopWireGenerated.cs"] = ["ValidateVersion"],
+            ["CuriousContraptions.web/wwwroot/native-clock.js"] = ["fullVersionList", "version"],
+            // A handle's slot generation, so a stale handle cannot address a reused slot.
+            ["engine/presentation/AnimationBatch.cs"] = ["Version", "version", "_versions"],
+            // Commit stamps: a prepared commit applies only if nothing committed since it was prepared.
+            ["engine/gpu/WorkshopPoseHistory.cs"] = ["Version", "version", "_version"],
+            ["engine/gpu/WorkshopClientCursor.cs"] = ["Version", "_version"],
+        };
+        var word = new Regex(@"\w*(?:Version|VERSION|(?<![A-Za-z0-9])version)\w*");
+        var found = new List<string>();
+        foreach (var path in ProductionSources(root))
+        {
+            var relative = Path.GetRelativePath(root, path).Replace('\\', '/');
+            var permitted = allowed.GetValueOrDefault(relative, []);
+            foreach (Match match in word.Matches(File.ReadAllText(path)))
+                if (!permitted.Contains(match.Value)) found.Add($"{relative}: {match.Value}");
+        }
+        Assert.Empty(found);
+    }
+
+    private static readonly string[] SourceTrees = ["engine", "ui", "elements", "CuriousContraptions.Abstractions",
+        "CuriousContraptions.Abstractions.Electrical", "CuriousContraptions.Abstractions.Fluid", "CuriousContraptions.Abstractions.Mechanical",
+        "CuriousContraptions.Abstractions.Signal"];
+    private static readonly string[] SourceProjects = ["CuriousContraptions.Simulation", "CuriousContraptions.Animation.Worker",
+        "tools/BundleElements", "tools/WireContract"];
+    private static readonly string[] ScriptDirectories = ["CuriousContraptions.web/wwwroot", "CuriousContraptions.Simulation/wwwroot",
+        "CuriousContraptions.Animation.Worker/wwwroot"];
+
+    private static IEnumerable<string> ProductionSources(string root)
+    {
+        static bool Built(string path) => path.Contains("/bin/", StringComparison.Ordinal) || path.Contains("/obj/", StringComparison.Ordinal);
+        IEnumerable<string> Files(string directory, string pattern, SearchOption option) =>
+            Directory.EnumerateFiles(Path.Combine(root, directory), pattern, option).Where(path => !Built(path.Replace('\\', '/')));
+        return SourceTrees.SelectMany(directory => Files(directory, "*.cs", SearchOption.AllDirectories))
+            .Concat(SourceProjects.SelectMany(directory => Files(directory, "*.cs", SearchOption.TopDirectoryOnly)))
+            .Concat(ScriptDirectories.SelectMany(directory => Files(directory, "*.js", SearchOption.TopDirectoryOnly)))
+            .Concat(Files("schemas", "*.fbs", SearchOption.TopDirectoryOnly));
     }
 
     /// <summary>The exact field list of each versionless record: a re-added field (a version or anything else) fails here, whatever its

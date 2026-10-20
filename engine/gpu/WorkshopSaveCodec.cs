@@ -8,7 +8,7 @@ namespace CuriousContraptions.Gpu;
 public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Construction, GpuBodyId NextBodyId);
 
 /// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission. The game and its save
-/// ship in one bundle with one schema and no format version (owner decision, 21 Oct 2026): bytes that are not a structurally valid
+/// ship in one bundle with one schema (owner decision, 21 Oct 2026): bytes that are not a structurally valid
 /// save of this schema are refused by the FlatBuffers verifier and the construction's own validation.</summary>
 public static class WorkshopSaveCodec
 {

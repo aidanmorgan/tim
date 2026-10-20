@@ -2399,7 +2399,7 @@ So that nobody builds on an end state that is described as if it already exists.
 - **And** every relative link in the changed docs resolves, and `dotnet test CuriousContraptions.slnx --filter ArchitectureDocsConsistencyTests` passes (native proof; this documentation-only story needs no Chrome run).
 
 ### Story 9A.1: Dead Legacy Purge
-*Status: Backlog*
+*Status: Review*
 
 *Depends on: Story 9A.0. Position 4, right after 9A.0 (owner amendment, 21 Oct 2026). Audit: B3, B4, B5, B7, B8, D4 (JS producer) and the dead parts of A17.*
 

@@ -27,3 +27,6 @@ and independent Fail remain retained. Sample/ack models do not claim actual work
 
 R4 adds9 focused query-terminal and early/late wavefront controls (109 total). Wire sizes and
 admission budgets are unchanged; all earlier proof remains bound to its original snapshot.
+
+Story 9A.1 (21 Oct 2026; owner: no format versioning) removes the design header's version field and
+its UnknownVersion control (108 total), so every later Oracle number is one lower than in earlier results.

@@ -191,7 +191,7 @@ public static class WorkshopCadenceWire
         BinaryPrimitives.WriteUInt32LittleEndian(destination[20..], settings.PresentationRate.Denominator);
     }
 
-    /// <summary>Six u32 fields and 8 zero padding bytes (one bundle, one layout: no format version). Enum ranges and the canonical
+    /// <summary>Six u32 fields and 8 zero padding bytes (one bundle, one schema). Enum ranges and the canonical
     /// ratio are checked by <see cref="WorkshopCadenceSettings.Validate"/>.</summary>
     public static WorkshopCadenceSettings Read(ReadOnlySpan<byte> source)
     {

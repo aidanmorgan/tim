@@ -120,7 +120,7 @@ public static class WorkshopWire
         var data = bytes.AsSpan();
         BinaryPrimitives.WriteUInt64LittleEndian(data, command.Sequence.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[8..], (uint)command.Kind);
-        // Bytes 12..15 are alignment padding before the 8-byte epoch (one bundle, one layout: no format version).
+        // Bytes 12..15 are alignment padding before the 8-byte epoch (one bundle, one schema).
         BinaryPrimitives.WriteUInt64LittleEndian(data[16..], command.Epoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..], command.Revision.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[32..], (uint)command.RevisionKind);

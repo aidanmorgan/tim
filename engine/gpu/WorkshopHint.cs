@@ -13,7 +13,6 @@ public readonly record struct WorkshopAnimationSample(AnimationTargetId Target, 
     ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Value, uint EventOrdinal, Half EventPhase, AnimationProperty Property, AnimationTimerObservation Timer = default, Half PulseDuration = default);
 public static class WorkshopAnimationWire
 {
-    public const ushort Version = 5;
     /// <summary>Concurrent occurrences one impulse target retains; a declared cooldown keeps real overlap far below it (time, not a
     /// machine population).</summary>
     public const int ImpulseCapacity = 64;
@@ -39,7 +38,6 @@ public static class WorkshopAnimationWire
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(84), control.EventOrdinal);
         WriteHalf(bytes, 88, control.EventPhase);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(78), (ushort)control.Property);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(90), Version);
         WriteTimer(bytes, control.Timer);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(92), (ushort)control.ImpulseCurve);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(94), (ushort)control.Overlap);
@@ -50,7 +48,7 @@ public static class WorkshopAnimationWire
     {
         Identity(bytes, ControlBytes, session, master, cadence);
         var visible = BinaryPrimitives.ReadUInt32LittleEndian(bytes[52..]);
-        if (visible > 1 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[132..]) != 0 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[90..]) != Version)
+        if (visible > 1 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[132..]) != 0 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[90..]) != 0) // bytes 90..91: zero padding
             throw new ArgumentException("Invalid animation channel control padding.");
         var value = new WorkshopAnimationControl(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[56..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
@@ -90,7 +88,7 @@ public static class WorkshopAnimationWire
         ClockGeneration master, CadenceRevision cadence, out AnimationOutputKind kind)
     {
         Identity(bytes, OutputBytes, session, master, cadence);
-        if (BinaryPrimitives.ReadUInt16LittleEndian(bytes[86..]) != Version || BinaryPrimitives.ReadUInt64LittleEndian(bytes[88..]) != 0) throw new ArgumentException("Invalid animation channel padding.");
+        if (BinaryPrimitives.ReadUInt16LittleEndian(bytes[86..]) != 0 || BinaryPrimitives.ReadUInt64LittleEndian(bytes[88..]) != 0) throw new ArgumentException("Invalid animation channel padding.");
         kind = (AnimationOutputKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[60..]);
         var result = new WorkshopAnimationSample(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[72..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),

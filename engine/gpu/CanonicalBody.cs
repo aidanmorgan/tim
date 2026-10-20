@@ -4,8 +4,6 @@ using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
 public enum BodyCandidateStatus : uint { Committed = 0, InvalidRecord = 1, OutOfRange = 2 }
-/// <summary>One f32 position/velocity record; earlier encodings reject.</summary>
-public enum BodyRecordVersion : uint { F32PoseVelocity = 3 }
 public enum CellScale : int { Metres = -4 }
 public enum TimeScale : int { Seconds = -9 }
 public readonly record struct GpuBodyId(ulong Value);
@@ -41,7 +39,6 @@ public readonly record struct CanonicalBody(
         Validate();
         if (data.Length != ByteLength) throw new ArgumentException("Invalid canonical destination length.");
         data.Clear();
-        BinaryPrimitives.WriteUInt32LittleEndian(data, (uint)BodyRecordVersion.F32PoseVelocity);
         BinaryPrimitives.WriteUInt64LittleEndian(data[8..], Epoch);
         BinaryPrimitives.WriteUInt64LittleEndian(data[16..], Tick);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..], Id.Value);
@@ -59,7 +56,7 @@ public readonly record struct CanonicalBody(
     public static CanonicalBody Decode(ReadOnlySpan<byte> data)
     {
         if (data.Length != ByteLength ||
-            BinaryPrimitives.ReadUInt32LittleEndian(data) != (uint)BodyRecordVersion.F32PoseVelocity ||
+            BinaryPrimitives.ReadUInt32LittleEndian(data) != 0 || // bytes 0..3: zero padding (one bundle, one schema)
             BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != (uint)BodyCandidateStatus.Committed ||
             BinaryPrimitives.ReadInt32LittleEndian(data[48..]) != (int)CellScale.Metres ||
             BinaryPrimitives.ReadInt32LittleEndian(data[52..]) != (int)TimeScale.Seconds ||

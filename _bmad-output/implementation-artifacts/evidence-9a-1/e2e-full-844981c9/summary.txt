@@ -1,0 +1,870 @@
+run 20261020T200442Z-73576 verb=Run verdict=Pass
+started=2026-10-20T20:04:42.6344220+00:00 finished=2026-10-20T20:56:03.1186090+00:00 wallSeconds=3080.5
+runnerSourceDigest: 6c950d0a3054c3cd891dd5718a15b566b15bf976948b6d1f25adecbd7fe06177
+sourceHead: 844981c9327c83bcc078b08d31d8feb114d6904a
+sourceStatusDigest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+publish: dotnet publish CuriousContraptions.web: exit 0 in 101.4 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.85
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 2
+runId: 20261020T200442Z-73576
+workers: 2
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a04bd550965f8b651/.anvil/e2e-runs/20261020T200442Z-73576
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: df63ced2f7628d06e31f9b6cdc07f661650734efd9f7a1be6d4116ebe5abdf94
+bundleIdentity.start: d25d0594b6363a3003106f10f6f31ea18fa53a0fa1e5194fd1a365a1f5b58462
+bundleFiles: 288 (3 NotServed dot-files)
+preview: http://127.0.0.1:61711/
+servedCheck.start: pass (285 files)
+bundleIdentity.end: d25d0594b6363a3003106f10f6f31ea18fa53a0fa1e5194fd1a365a1f5b58462
+servedCheck.end: pass
+suiteSourceDigest.end: df63ced2f7628d06e31f9b6cdc07f661650734efd9f7a1be6d4116ebe5abdf94
+peakRssBytes: 6568280064
+selection: Mode: Full
+selection: Tier 3 required: yes
+selection: path	AGENTS.md	NoBrowserImpact	root *.md
+selection: path	CuriousContraptions.Animation.Worker/Program.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.Simulation/WorkshopTrace.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.csproj	Full(Build)	build files
+selection: path	CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/BasketballResourceTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/CanonicalBodyTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/CuriousContraptions.tests.csproj	Full(Build)	build files
+selection: path	CuriousContraptions.tests/WorkshopActivationAnimationTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopFormatTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopTraceTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.tests/WorkshopWireTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+selection: path	CuriousContraptions.web/wwwroot/clock-ring.js	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.web/wwwroot/workshop-client.js	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.web/wwwroot/workshop-isolation-worker.js	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	CuriousContraptions.web/wwwroot/workshop-isolation.js	Full(SharedRuntime)	workers, client, contracts and schemas
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/census-after.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/census-before.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/green-dotnet-test.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/mutants.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/ownership-oracles.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/red-f10.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/red-isolation.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9a-1/wire-contract.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/ALIGN.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/C8.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/F2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/FACE.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/P1a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/P1b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/RAT.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/RAT2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/S1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/S1b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/mutants/mutants.sh.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/probe/ProbeP1LoadBeforePlate.cs.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/probe/probe-clean.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/serial-changed.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier1/build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier1/node.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier1/test-full.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier1/test-summary.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/anim-1c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/capacity-9r.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/capacity-9r.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/capacity-9r.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-002.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-002.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-002.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-005.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-005.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-005.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-014.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-014.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-014.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015a-sidekick.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015a-sidekick.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015a-sidekick.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-015b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-017.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-017.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-017.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-020.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-020.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-020.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-023a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-023a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-023a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-023b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-023b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-023b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-030.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-030.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-030.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-037.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-037.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-037.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-048a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-048a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-048a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-048b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-048b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-048b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-049.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-049.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-049.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-050.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-050.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-050.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-051-own-supply.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-051-own-supply.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-051-own-supply.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-051.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-051.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-051.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-052-two-plates.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-052-two-plates.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-052-two-plates.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-052.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-052.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-052.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-062.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-062.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-062.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-062b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-062b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/cat-062b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/clock-master.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/clock-master.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/clock-master.simulation-unresponsive.png	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/clock-master.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2a4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2b4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/engine-core-2c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/palette-placement.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/palette-placement.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/palette-placement.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-full-1/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-runner-busy-1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-runner-outputexists.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial-attempt-invalid-path/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial-runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/cat-052-two-plates.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/cat-052-two-plates.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/cat-052-two-plates.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/cat-052.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/cat-052.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/cat-052.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4-review/tier2-serial/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/anim-1c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/capacity-9r.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/capacity-9r.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/capacity-9r.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-002.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-002.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-002.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-005.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-005.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-005.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-014.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-014.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-014.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a-sidekick.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a-sidekick.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a-sidekick.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-015b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-017.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-017.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-017.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-020.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-020.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-020.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-023b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-030.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-030.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-030.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-037.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-037.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-037.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-048b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-049.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-049.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-049.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-050.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-050.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-050.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051-own-supply.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051-own-supply.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051-own-supply.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-051.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052-two-plates.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052-two-plates.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052-two-plates.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-052.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/cat-062b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.simulation-unresponsive.png	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/clock-master.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2a4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2b4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/engine-core-2c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/palette-placement.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/palette-placement.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/palette-placement.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/full-run/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-4/tier1-dotnet-test-15b7431b.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/H11.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/H13.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/HOLDS.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/MIRROR.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/ONELEVEL.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/ONSET.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/REFUSE.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/VALID-full.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/VALID.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/mutants/mutants.sh.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/serial-changed.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier1/build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier1/test-full.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2-runner-1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-037.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-037.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-037.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-052-lamp.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-052-lamp.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-052-lamp.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-052.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-052.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/cat-052.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5-review/tier2/serial/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/LastRowActsProbe9r5b.cs.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA.runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MA/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC.runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MC/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD.runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MD/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG.runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/MG/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/chain.sh.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/changed-probe.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt1-delete-click-FAILED/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2-zero-body-snapshot-FAILED/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-attempt2.runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain-runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain.runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/plain/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/queue-run.sh.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/chrome-probe/review-9r5b-growth.test.ts.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-base-LifecycleContract-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-base-LifecycleContract.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-base-WireContract-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-base-WireContract.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-base-ownership-audit.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-final-LifecycleContract-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-final-LifecycleContract.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-final-WireContract-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-final-WireContract.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/murdoch12-9r5b-final-ownership-audit.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/node-harness.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/ownership-oracles.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/release-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/final-a5a6c494/test-full.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/MB-pending-no-growth.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/MD-no-fit-install.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/ME-no-fit-receive.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/MF-batch-no-grow.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/MG-device-scratch-first-size.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/MH-engine-scratch-first-size.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/MI-ring-doubles-only.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/mutants/mutants.sh.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/probe/last-row-acts.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/base-release-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/node-harness.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/ownership-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/ownership-oracles-base-c5336092.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/ownership-oracles-e4afb855.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/release-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/test-full.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/test-playtest.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier1/web-restore.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/changed-tier2.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run.runner.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/capacity-9r.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/capacity-9r.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/capacity-9r.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-005.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-005.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-005.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-037.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-037.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-037.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-052-lamp.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-052-lamp.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/cat-052-lamp.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/run/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b-review/tier2/select-diff-c5336092.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b/green-ownership-oracles.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-5b/red-ownership-free-list.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/tube-snapping.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/tube-snapping.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check-run/tube-snapping.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check.console.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C1-no-bore-check.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2-no-occupied-check-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2-no-occupied-check.console.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2-no-occupied-check.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/tube-snapping.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/tube-snapping.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored-run/tube-snapping.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored.console.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C2b-occupied-ignored.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/tube-snapping.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/tube-snapping.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg-run/tube-snapping.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg.console.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C3-angle-41deg.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4-no-release-snap-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4-no-release-snap.console.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4-no-release-snap.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/tube-snapping.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/tube-snapping.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap-run/tube-snapping.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap.console.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/chrome-C4b-no-release-snap.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N1-detector-start-unflipped.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N1-detector-start-unflipped.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N2-funnel-inlet-bore-0.65.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N2-funnel-inlet-bore-0.65.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N3-no-shortest-arc.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N3-no-shortest-arc.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N4-farthest-wins.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/mutants/native-N4-farthest-wins.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/scripts.sh.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/exits.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/identity.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/lifecycle-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/lifecycle.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/node-harness.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/ownership-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/ownership-oracles.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/release-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/test-full.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/web-restore.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/wire-build.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier1/wire.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08.console.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/anim-1c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/capacity-9r.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/capacity-9r.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/capacity-9r.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/capacity-9r5b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/capacity-9r5b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/capacity-9r5b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-002.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-002.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-002.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-005.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-005.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-005.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-014.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-014.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-014.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015a-sidekick.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015a-sidekick.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015a-sidekick.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-015b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-017.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-017.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-017.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-020.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-020.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-020.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-023a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-023a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-023a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-023b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-023b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-023b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-030.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-030.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-030.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-037.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-037.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-037.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-048a.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-048a.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-048a.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-048b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-048b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-048b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-049.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-049.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-049.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-050.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-050.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-050.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-051-own-supply.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-051-own-supply.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-051-own-supply.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-051.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-051.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-051.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052-lamp.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052-lamp.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052-lamp.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052-two-plates.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052-two-plates.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052-two-plates.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-052.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-062.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-062.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-062.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-062b.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-062b.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/cat-062b.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/clock-master.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/clock-master.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/clock-master.simulation-unresponsive.png	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/clock-master.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2a4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b2.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b2.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b2.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b3.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b3.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b3.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b4.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b4.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2b4.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2c.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2c.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/engine-core-2c.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/palette-placement.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/palette-placement.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/palette-placement.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/preview.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/publish.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/summary.json	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/summary.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/tube-snapping.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/tube-snapping.log	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/full-run-c36c7e08/tube-snapping.tap	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/evidence-9r-6-review/tier2/select-diff-e25082c8.txt	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/review-6-9b-unbounded-collider-capacity.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/review-9r-4-pressure-plate-per-instance-load-rows.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/review-9r-5-pressure-plate-activation-out-level.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/review-9r-5b-physics-tables-sized-at-run.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/review-9r-6-typed-mouth-snapping.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/spec-9-4-state-latch.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/spec-9a-0-architecture-authority-docs.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/spec-9a-1-dead-legacy-purge.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/implementation-artifacts/sprint-status.yaml	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/planning-artifacts/architecture.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/planning-artifacts/autonomous-development-guide.md	NoBrowserImpact	_bmad-output/**
+selection: path	_bmad-output/planning-artifacts/epics.md	NoBrowserImpact	_bmad-output/**
+selection: path	docs/architecture/element-package-isolation.md	NoBrowserImpact	docs/**
+selection: path	docs/engine-contracts.md	NoBrowserImpact	docs/**
+selection: path	docs/general-engine-design.md	NoBrowserImpact	docs/**
+selection: path	docs/gpu-f32-physics.md	NoBrowserImpact	docs/**
+selection: path	docs/shared-clock-cadence.md	NoBrowserImpact	docs/**
+selection: path	docs/simulation-presentation-bridge.md	NoBrowserImpact	docs/**
+selection: path	engine/CosmeticBindingSet.cs	WorkshopArea	engine/** (outside engine/gpu), ui/**, scenes/** (area table): Presentation
+selection: path	engine/CosmeticBindingSet.cs.uid	WorkshopArea	engine/** (outside engine/gpu), ui/**, scenes/** (area table): Presentation
+selection: path	engine/MachinePart.cs	Full(AllInteraction)	engine/** (outside engine/gpu), ui/**, scenes/** (area table): every interaction passes through it
+selection: path	engine/gpu/BrowserWorkshopClient.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/CanonicalBody.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsGpuAbi.Header.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/PhysicsGpuAbi.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopCadence.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopClockWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopHint.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopMemoryWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopPoseHistory.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopSaveCodec.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopSchedule.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopTraceRecord.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	engine/gpu/WorkshopWire.cs	Full(MaterialEngine)	engine/gpu/**
+selection: path	scratch_test.cs.uid	Full(Unknown)	unmatched path
+selection: path	tools/BundleElements/Program.cs	Full(SharedDriverInfrastructure)	tools/{BundleElements,Preview}/**
+selection: path	tools/E2eRunner/ImpactRules.cs	Full(RunnerItself)	tools/E2eRunner*/**
+selection: path	tools/Ownership/OwnershipPolicy.cs	NoBrowserImpact	tools/{Coverage,Coverage.Tests,Ownership,anvil,LifecycleContract,WireContract,TraceAllocations}/**
+selection: path	tools/WireContract/ContractFixture.cs	NoBrowserImpact	tools/{Coverage,Coverage.Tests,Ownership,anvil,LifecycleContract,WireContract,TraceAllocations}/**
+selection: path	tools/WireContract/Program.cs	NoBrowserImpact	tools/{Coverage,Coverage.Tests,Ownership,anvil,LifecycleContract,WireContract,TraceAllocations}/**
+selection: path	tools/WireContract/README.md	NoBrowserImpact	tools/{Coverage,Coverage.Tests,Ownership,anvil,LifecycleContract,WireContract,TraceAllocations}/**
+selection: path	tools/WireContract/RevisionTwoOracles.cs	NoBrowserImpact	tools/{Coverage,Coverage.Tests,Ownership,anvil,LifecycleContract,WireContract,TraceAllocations}/**
+selection: path	tools/workshop-client-lifecycle.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+selection: path	tools/workshop-clock-ring.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+selection: path	tools/workshop-console.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+selection: path	tools/workshop-isolation.test.mjs	SharedTestModule	tools/*.mjs (shared module): 0 importing suite(s)
+selection: clock-master	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-017	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-023b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-037	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-014	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: anim-1c	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-023a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-020	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: capacity-9r	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-062	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-051-own-supply	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052-two-plates	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052-lamp	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: capacity-9r5b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: tube-snapping	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-050-joined	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-002	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-005	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015a-sidekick	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-015b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-030	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-048a	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-048b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-049	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-050	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-051	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-052	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: cat-062b	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a1	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a2	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a3	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2a4	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b1	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b2	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b3	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2b4	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: engine-core-2c	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+selection: palette-placement	full: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas)
+clock-master outcome=Pass exit=0 tests=9 pass=9 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=1 unresponsive=1 rejected=0 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=0 debtFaults=1 durationMs=85165 phase=SerialAlone slot=- start=2026-10-20T20:05:19.5232790+00:00 end=2026-10-20T20:06:44.6883330+00:00 observation=Clean
+cat-017 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=88749 phase=SerialAlone slot=- start=2026-10-20T20:06:44.8425260+00:00 end=2026-10-20T20:08:13.5915790+00:00 observation=Contended
+cat-017 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=88570 phase=SerialAlone slot=- start=2026-10-20T20:10:19.2409510+00:00 end=2026-10-20T20:11:47.8108890+00:00 observation=Clean
+cat-023b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=42660 phase=SerialAlone slot=- start=2026-10-20T20:11:47.9542340+00:00 end=2026-10-20T20:12:30.6141480+00:00 observation=Clean
+cat-037 outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=82809 phase=SerialAlone slot=- start=2026-10-20T20:12:30.7539260+00:00 end=2026-10-20T20:13:53.5624770+00:00 observation=Clean
+cat-014 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=53474 phase=SerialAlone slot=- start=2026-10-20T20:13:53.7037680+00:00 end=2026-10-20T20:14:47.1776400+00:00 observation=Clean
+anim-1a outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=25495 phase=SerialAlone slot=- start=2026-10-20T20:14:47.3203670+00:00 end=2026-10-20T20:15:12.8153350+00:00 observation=Clean
+anim-1b outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=31698 phase=SerialAlone slot=- start=2026-10-20T20:15:12.9594880+00:00 end=2026-10-20T20:15:44.6576900+00:00 observation=Clean
+anim-1c outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=32718 phase=SerialAlone slot=- start=2026-10-20T20:15:44.8010180+00:00 end=2026-10-20T20:16:17.5186600+00:00 observation=Clean
+cat-023a outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=28050 phase=SerialAlone slot=- start=2026-10-20T20:16:17.6609780+00:00 end=2026-10-20T20:16:45.7111470+00:00 observation=Clean
+cat-020 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=128572 phase=SerialAlone slot=- start=2026-10-20T20:16:45.8520490+00:00 end=2026-10-20T20:18:54.4240440+00:00 observation=Clean
+capacity-9r outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=113995 phase=SerialAlone slot=- start=2026-10-20T20:18:54.5675510+00:00 end=2026-10-20T20:20:48.5626230+00:00 observation=Clean
+cat-062 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=126202 phase=SerialAlone slot=- start=2026-10-20T20:20:48.7083970+00:00 end=2026-10-20T20:22:54.9108700+00:00 observation=Clean
+cat-051-own-supply outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=91457 phase=SerialAlone slot=- start=2026-10-20T20:22:55.0595920+00:00 end=2026-10-20T20:24:26.5162060+00:00 observation=Clean
+cat-052-two-plates outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=96049 phase=SerialAlone slot=- start=2026-10-20T20:24:26.6585220+00:00 end=2026-10-20T20:26:02.7073610+00:00 observation=Clean
+cat-052-lamp outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=171067 phase=SerialAlone slot=- start=2026-10-20T20:26:02.8495890+00:00 end=2026-10-20T20:28:53.9168530+00:00 observation=Contended
+cat-052-lamp outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=170912 phase=SerialAlone slot=- start=2026-10-20T20:29:04.0715430+00:00 end=2026-10-20T20:31:54.9834630+00:00 observation=Clean
+capacity-9r5b outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=2 debtFaults=0 durationMs=110375 phase=SerialAlone slot=- start=2026-10-20T20:31:55.1304480+00:00 end=2026-10-20T20:33:45.5051220+00:00 observation=Clean
+tube-snapping outcome=Pass exit=0 tests=13 pass=13 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=159155 phase=SerialAlone slot=- start=2026-10-20T20:33:45.6584850+00:00 end=2026-10-20T20:36:24.8137090+00:00 observation=Contended
+tube-snapping outcome=Pass exit=0 tests=13 pass=13 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=157534 phase=SerialAlone slot=- start=2026-10-20T20:36:29.9564260+00:00 end=2026-10-20T20:39:07.4903280+00:00 observation=Clean
+cat-050-joined outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=95451 phase=SerialAlone slot=- start=2026-10-20T20:39:07.6414090+00:00 end=2026-10-20T20:40:43.0923170+00:00 observation=Contended
+cat-050-joined outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=95484 phase=SerialAlone slot=- start=2026-10-20T20:43:38.9673630+00:00 end=2026-10-20T20:45:14.4510490+00:00 observation=Clean
+cat-002 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=67511 phase=Parallel slot=0 start=2026-10-20T20:45:14.5454810+00:00 end=2026-10-20T20:46:22.0568310+00:00 observation=Clean
+cat-005 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=139930 phase=Parallel slot=1 start=2026-10-20T20:45:14.5950660+00:00 end=2026-10-20T20:47:34.5255230+00:00 observation=Clean
+cat-015a outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=25307 phase=Parallel slot=0 start=2026-10-20T20:46:22.1449720+00:00 end=2026-10-20T20:46:47.4517270+00:00 observation=Clean
+cat-015a-sidekick outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=41832 phase=Parallel slot=0 start=2026-10-20T20:46:47.5519140+00:00 end=2026-10-20T20:47:29.3839220+00:00 observation=Clean
+cat-015b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=103214 phase=Parallel slot=0 start=2026-10-20T20:47:29.4691230+00:00 end=2026-10-20T20:49:12.6834140+00:00 observation=Clean
+cat-030 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=105856 phase=Parallel slot=1 start=2026-10-20T20:47:34.6155330+00:00 end=2026-10-20T20:49:20.4719360+00:00 observation=Clean
+cat-048a outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=50145 phase=Parallel slot=0 start=2026-10-20T20:49:12.7748920+00:00 end=2026-10-20T20:50:02.9200180+00:00 observation=Clean
+cat-048b outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=47965 phase=Parallel slot=1 start=2026-10-20T20:49:20.5715600+00:00 end=2026-10-20T20:50:08.5362650+00:00 observation=Clean
+cat-049 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=49771 phase=Parallel slot=0 start=2026-10-20T20:50:03.0115620+00:00 end=2026-10-20T20:50:52.7821600+00:00 observation=Clean
+cat-050 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=52270 phase=Parallel slot=1 start=2026-10-20T20:50:08.6288040+00:00 end=2026-10-20T20:51:00.8990260+00:00 observation=Clean
+cat-051 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=57478 phase=Parallel slot=0 start=2026-10-20T20:50:52.8995730+00:00 end=2026-10-20T20:51:50.3778250+00:00 observation=Clean
+cat-052 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=106883 phase=Parallel slot=1 start=2026-10-20T20:51:00.9900270+00:00 end=2026-10-20T20:52:47.8734080+00:00 observation=Clean
+cat-062b outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=137870 phase=Parallel slot=0 start=2026-10-20T20:51:50.4699600+00:00 end=2026-10-20T20:54:08.3401510+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18368 phase=Parallel slot=1 start=2026-10-20T20:52:47.9633860+00:00 end=2026-10-20T20:53:06.3310400+00:00 observation=Clean
+engine-core-2a2 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=28238 phase=Parallel slot=1 start=2026-10-20T20:53:06.4255670+00:00 end=2026-10-20T20:53:34.6640660+00:00 observation=Clean
+engine-core-2a3 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=42231 phase=Parallel slot=1 start=2026-10-20T20:53:34.7555350+00:00 end=2026-10-20T20:54:16.9865260+00:00 observation=Clean
+engine-core-2a4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=19609 phase=Parallel slot=0 start=2026-10-20T20:54:08.5245630+00:00 end=2026-10-20T20:54:28.1331970+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8723 phase=Parallel slot=1 start=2026-10-20T20:54:17.0788030+00:00 end=2026-10-20T20:54:25.8019210+00:00 observation=Clean
+engine-core-2b2 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=8706 phase=Parallel slot=1 start=2026-10-20T20:54:25.8936420+00:00 end=2026-10-20T20:54:34.5991980+00:00 observation=Clean
+engine-core-2b3 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=38011 phase=Parallel slot=0 start=2026-10-20T20:54:28.2223180+00:00 end=2026-10-20T20:55:06.2329300+00:00 observation=Clean
+engine-core-2b4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=16288 phase=Parallel slot=1 start=2026-10-20T20:54:34.6913280+00:00 end=2026-10-20T20:54:50.9790940+00:00 observation=Clean
+engine-core-2c outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=17914 phase=Parallel slot=1 start=2026-10-20T20:54:51.0681210+00:00 end=2026-10-20T20:55:08.9817550+00:00 observation=Clean
+palette-placement outcome=Pass exit=0 tests=25 pass=25 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=56542 phase=Parallel slot=0 start=2026-10-20T20:55:06.3248450+00:00 end=2026-10-20T20:56:02.8665840+00:00 observation=Clean
+run totals: files=45 pass=45 nonzeroExit=0 tests=239 testsPassed=239 fail=0 notok=0 closeFindings=1 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=2 debtFaults=1

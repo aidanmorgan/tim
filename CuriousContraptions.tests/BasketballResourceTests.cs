@@ -160,35 +160,58 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         }
     }
 
-    private sealed partial class ProbePart : MachinePart
+    // Story 9A.1: the cosmetic binding rules live on the composed CosmeticBindingSet, so they are proven directly on it; the part is
+    // sealed, so no test subclass can reach a construction hook.
+    private static void WithBindingTarget(Action<Action<CosmeticBindingSet, CosmeticCurveDeclaration, CuriousContraptions.Presentation.AnimationTimerPhase>> body)
     {
-        public Action<ProbePart>? Bindings;
-        protected override void Build() { PickRadius=.5f; Bindings?.Invoke(this); }
-        public void Bind(CosmeticCurveDeclaration declaration,CuriousContraptions.Presentation.AnimationTimerPhase phase=CuriousContraptions.Presentation.AnimationTimerPhase.None)
-        {
-            var mesh=WorkshopArtwork.Sphere(Visual,.1f,Colors.White);
-            if (phase==CuriousContraptions.Presentation.AnimationTimerPhase.None) BindVisual(declaration,mesh,WorkshopVisualProperty.AlbedoRed,(Half)0,(Half)1);
-            else BindPhaseVisual(declaration,mesh,WorkshopVisualProperty.AlbedoRed,phase,(Half)1);
-        }
+        var target = new MeshInstance3D { MaterialOverride = new StandardMaterial3D() };
+        try { body((set, declaration, phase) => set.Add(declaration, target, WorkshopVisualProperty.AlbedoRed, (Half)0, (Half)1, phase)); }
+        finally { target.Free(); }
     }
 
     [Fact]
-    public void ArtworkBindingsRequireOneDeclaredCurveAndTimerPhasesOnlyForTimers()
+    public void ACosmeticBindingRequiresADeclaredCurve() => WithBindingTarget(add =>
+        Assert.Throws<ArgumentException>(() => add(new(), CosmeticCurveDeclaration.None, CuriousContraptions.Presentation.AnimationTimerPhase.None)));
+
+    [Fact]
+    public void ACosmeticBindingSetHoldsExactlyOneCurve() => WithBindingTarget(add =>
     {
-        var registry=new PartRegistry(); registry.Discover();
-        var definition=registry.Definitions[PartId.SignalLamp];
-        foreach (var bindings in new Action<ProbePart>[] {
-            probe=>probe.Bind(CosmeticCurveDeclaration.None),
-            probe=>{ probe.Bind(CosmeticCurves.ImpactSwitch); probe.Bind(CosmeticCurves.PinballBumper); },
-            probe=>probe.Bind(CosmeticCurves.ImpactSwitch,CuriousContraptions.Presentation.AnimationTimerPhase.Counting) })
+        var set = new CosmeticBindingSet();
+        add(set, CosmeticCurves.ImpactSwitch, CuriousContraptions.Presentation.AnimationTimerPhase.None);
+        Assert.Throws<ArgumentException>(() => add(set, CosmeticCurves.PinballBumper, CuriousContraptions.Presentation.AnimationTimerPhase.None));
+    });
+
+    [Fact]
+    public void ATimerPhaseBindingRequiresTimerFeedback() => WithBindingTarget(add =>
+        Assert.Throws<ArgumentException>(() => add(new(), CosmeticCurves.ImpactSwitch, CuriousContraptions.Presentation.AnimationTimerPhase.Counting)));
+
+    [Fact]
+    public void ATimerCurveAcceptsBlendAndPhaseBindings() => WithBindingTarget(add =>
+    {
+        var set = new CosmeticBindingSet();
+        add(set, CosmeticCurves.Delay, CuriousContraptions.Presentation.AnimationTimerPhase.None);
+        add(set, CosmeticCurves.Delay, CuriousContraptions.Presentation.AnimationTimerPhase.Finished);
+        Assert.Equal((false, CosmeticCurves.Delay), (set.IsEmpty, set.Declaration));
+    });
+
+    [Fact]
+    public void ADeclaredDelayPartBindsTheDelayCurve()
+    {
+        var registry = new PartRegistry(); registry.Discover();
+        var part = registry.Create(PartId.Delay);
+        try
         {
-            var rejected=new ProbePart { Bindings=bindings }; rejected.Configure(definition);
-            try { Assert.Throws<ArgumentException>(rejected.EnsureConstructed); } finally { rejected.Free(); }
+            part.EnsureConstructed();
+            Assert.Equal((true, CosmeticCurves.Delay), (part.HasCosmeticBindings, part.Cosmetic));
         }
-        var accepted=new ProbePart { Bindings=probe=>{ probe.Bind(CosmeticCurves.Delay); probe.Bind(CosmeticCurves.Delay,CuriousContraptions.Presentation.AnimationTimerPhase.Finished); } };
-        accepted.Configure(definition);
-        try { accepted.EnsureConstructed(); Assert.True(accepted.HasCosmeticBindings); Assert.Equal(CosmeticCurves.Delay,accepted.Cosmetic); }
-        finally { accepted.Free(); }
+        finally { part.Free(); }
+    }
+
+    [Fact]
+    public void TheMachinePartIsSealedAndHasNoConstructionHook()
+    {
+        Assert.True(typeof(MachinePart).IsSealed);
+        Assert.Null(typeof(MachinePart).GetMethod("Build", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
     }
 
     [Fact]

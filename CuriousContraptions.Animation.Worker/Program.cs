@@ -338,7 +338,6 @@ public static partial class Program
         BinaryPrimitives.WriteInt64LittleEndian(Output.AsSpan(48), _lastApplied.Value);
         BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(56), BitConverter.HalfToUInt16Bits(channel));
         BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(58), (ushort)control.Property);
-        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(86), WorkshopAnimationWire.Version);
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(60), (uint)kind);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(64), control.Target.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(72), control.World.Value);
