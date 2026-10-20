@@ -1,0 +1,27 @@
+diff --git a/CuriousContraptions.web/wwwroot/clock-ring.js b/CuriousContraptions.web/wwwroot/clock-ring.js
+index 56e95453..e2724cfe 100644
+--- a/CuriousContraptions.web/wwwroot/clock-ring.js
++++ b/CuriousContraptions.web/wwwroot/clock-ring.js
+@@ -9,6 +9,7 @@
+ // epoch, Simulation heartbeat (advanced by the Simulation's own event loop between tick turns), reserved, and the f64
+ // derivation correction (milliseconds, as raw bits) the master adds to every stamp.
+ export const ClockRingBytes = 1024;
++export const RING_VERSION = 3;
+ export const PeerBytes = 64, ProbeBytes = 80, ReplyBytes = 104;
+ // A requester waits for its reply at most WorkshopClockMapping.ProbeLifetime (250 ms): the mapping expires the probe
+ // then, so the wait is released instead of lingering after a failure or disposal (pinned by WorkerAbiTests).
+diff --git a/engine/gpu/PhysicsGpuAbi.cs b/engine/gpu/PhysicsGpuAbi.cs
+index 63a5c165..33b1f617 100644
+--- a/engine/gpu/PhysicsGpuAbi.cs
++++ b/engine/gpu/PhysicsGpuAbi.cs
+@@ -441,6 +441,7 @@ public static partial class PhysicsGpuAbi
+ enable f16;
+ const PHYSICAL_RATE:f16={WorkshopCadenceSettings.PhysicalFrequency}h;
+ const PRIMARY_SEGMENT_STEPS:u32={PrimarySegmentSteps}u;
++const STATE_VERSION:u32=13u;
+ const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
+ const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
+ const FAILURE_NONE:u32={(uint)PhysicsFailure.None}u;
+Passed!  - Failed:     0, Passed:  1881, Skipped:     0, Total:  1881, Duration: 27 s - CuriousContraptions.tests.dll (net10.0)
+ℹ pass 46
+ℹ fail 0

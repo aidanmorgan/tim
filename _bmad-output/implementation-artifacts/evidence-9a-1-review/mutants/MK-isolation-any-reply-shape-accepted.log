@@ -1,0 +1,15 @@
+diff --git a/CuriousContraptions.web/wwwroot/workshop-isolation.js b/CuriousContraptions.web/wwwroot/workshop-isolation.js
+index e281158a..8c661778 100644
+--- a/CuriousContraptions.web/wwwroot/workshop-isolation.js
++++ b/CuriousContraptions.web/wwwroot/workshop-isolation.js
+@@ -81,7 +81,7 @@ function handshake(expected) {
+         };
+         pendingCleanup = finish;
+         channel.port1.onmessage = event => finish(
+-            event.data?.policyReady !== true || navigator.serviceWorker.controller !== expected
++            navigator.serviceWorker.controller !== expected
+                 ? new Error('Unsupported Workshop isolation policy.') : undefined);
+         channel.port1.onmessageerror = () => finish(new Error('Invalid isolation policy response.'));
+         try { expected.postMessage({ policyRequest: true }, [channel.port2]); }
+ℹ pass 8
+ℹ fail 1

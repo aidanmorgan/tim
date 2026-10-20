@@ -1,0 +1,15 @@
+diff --git a/engine/gpu/WorkshopMemoryWire.cs b/engine/gpu/WorkshopMemoryWire.cs
+index 745cc935..6bffa4ca 100644
+--- a/engine/gpu/WorkshopMemoryWire.cs
++++ b/engine/gpu/WorkshopMemoryWire.cs
+@@ -63,7 +63,7 @@ public static class WorkshopMemoryWire
+ 
+     private static WorkshopMemoryRequest ReadIdentity(ReadOnlySpan<byte> bytes)
+     {
+-        if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0) // bytes 0..3: zero padding (one bundle, one schema)
++        if (false && BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0) // bytes 0..3: zero padding (one bundle, one schema)
+             throw new ArgumentException("Invalid memory observation padding.");
+         var request = new WorkshopMemoryRequest((WorkshopMemoryKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]),
+             (WorkshopMemoryContext)BinaryPrimitives.ReadUInt32LittleEndian(bytes[8..]), WorkshopWire.ReadSession(bytes[16..32]),
+[xUnit.net 00:00:00.89]     CuriousContraptions.Tests.WorkshopWireTests.StoppedMemoryRequestsRejectUnknownEnumsReservedBytesAndInvalidIdentity [FAIL]
+Failed!  - Failed:     1, Passed:    97, Skipped:     0, Total:    98, Duration: 325 ms - CuriousContraptions.tests.dll (net10.0)
