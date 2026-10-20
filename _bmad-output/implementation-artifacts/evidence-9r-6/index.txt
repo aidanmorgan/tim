@@ -8,7 +8,16 @@ Node: tools/*.test.mjs 83/83; tools/e2e/unit 24/24. anvil check --changed: no wa
 Contracts: tier1-contracts.txt — LifecycleContract 510/0 failures, WireContract 109/0 failures. Ownership --oracles fails with
   "Animation free-list storage has an unreviewed caller or reference recipient." This is inherited from 007a65ed: Story 9R.5b's
   AnimationBatch resize writes _free from a method that OwnershipPolicy.AnimationFreeCallers does not list. This story touches no
-  engine/presentation file. It is filed for the 9R.5b owner.
+  engine/presentation file. Reproduced on a clean 007a65ed worktree (Release build): ownership-on-base-007a65ed.txt ends with
+  the same message. Filed for the 9R.5b owner.
+
+Tier 3 (runner selected Full): full-run-2e7cfb48/ — `dotnet run --project tools/E2eRunner -- run --diff 007a65ed`, run
+  20261020T154054Z-62914, HEAD 2e7cfb48, clean status, bundle 83b4122d…, identity unchanged start to end, N=2 workers.
+  Verdict Fail: 39/40 files, 202/203 tests. tube-snapping 13/13 (SerialAlone, Clean), cat-030 7/7, cat-049 5/5, cat-050 5/5,
+  and every other file passes except cat-005 test 6. That test hand-encodes a ConfigureCadence command with `version: 20`
+  (tools/e2e/cat-005.test.ts), and Story 9R.5b bumped the wire to version 21, so the worker rejects it ("Unsupported Workshop
+  command schema."). The failure is inherited from 007a65ed; this story touches neither the wire nor cat-005. Filed for 9R.5b.
+  Chrome transit minimum speed over every observed publication: 3.81, 4.54, 3.57 and 3.49 m/s.
 Native transit: native-transit-probe.txt — the four snapped joints, production WorkshopSimulation, every tick: min speed 3.41 m/s.
 
 AC1 per part: APipeSnapsOntoTheEndMouthOfEveryTubePart (pipe, both bends, funnel outlet, powered gate, ball detector) and
