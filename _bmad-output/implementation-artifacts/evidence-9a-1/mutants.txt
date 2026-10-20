@@ -267,3 +267,76 @@ mutation: sed -E 's/^    \[property:JsonRequired\] MessageKind Kind,$/    [prope
 [xUnit.net 00:00:00.77]     CuriousContraptions.Tests.WorkshopFormatTests.NoProductionSourceNamesAFormatVersion [FAIL]
 Failed!  - Failed:     1, Passed:     6, Skipped:     0, Total:     7, Duration: 134 ms - CuriousContraptions.tests.dll (net10.0)
 
+## R2 MD: the client's master-peer padding check removed
+file: CuriousContraptions.web/wwwroot/workshop-client.js
+mutation: sed -E 's/if \(declared.getUint32\(0, true\) !== 0 \|\|/if (/'
+262c262
+<                         if (declared.getUint32(0, true) !== 0 || declared.getUint32(4, true) !== clockProfile || // bytes 0..3: zero padding
+---
+>                         if ( declared.getUint32(4, true) !== clockProfile || // bytes 0..3: zero padding
+✖ a master peer whose leading padding holds a non-zero high padding byte is refused (0.393125ms)
+✖ a master peer whose leading padding holds the retired clock wire version 4 is refused (0.751666ms)
+ℹ fail 2
+✖ failing tests:
+ℹ pass 34
+
+## R2 ME: the trace record's exact-length check removed
+file: engine/gpu/WorkshopTraceRecord.cs
+mutation: sed -E 's/^            b.Length!=ByteLength\(/            false \&\& b.Length!=ByteLength(/'
+46c46
+<             b.Length!=ByteLength((int)BinaryPrimitives.ReadUInt32LittleEndian(b[36..]),(int)BinaryPrimitives.ReadUInt32LittleEndian(b[40..])) ||
+---
+>             false && b.Length!=ByteLength((int)BinaryPrimitives.ReadUInt32LittleEndian(b[36..]),(int)BinaryPrimitives.ReadUInt32LittleEndian(b[40..])) ||
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.73]     CuriousContraptions.Tests.WorkshopTraceTests.ATraceRecordIsAdmittedByItsStructureAlone(defect: Truncated) [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.WorkshopTraceTests.ATraceRecordIsAdmittedByItsStructureAlone(defect: Extended) [FAIL]
+[xUnit.net 00:00:00.74]     CuriousContraptions.Tests.WorkshopTraceTests.ATraceRecordIsAdmittedByItsStructureAlone(defect: ExtraBody) [FAIL]
+Failed!  - Failed:     3, Passed:     3, Skipped:     0, Total:     6, Duration: 70 ms - CuriousContraptions.tests.dll (net10.0)
+
+## R2 MEF2: the trace record's profile enum validation removed
+file: engine/gpu/WorkshopTraceRecord.cs
+mutation: sed -E 's/^        p.Validate\(\); return p;$/        return p;/'
+52c52
+<         p.Validate(); return p;
+---
+>         return p;
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.72]     CuriousContraptions.Tests.WorkshopTraceTests.ATraceRecordIsAdmittedByItsStructureAlone(defect: UnknownPhysicalProfile) [FAIL]
+[xUnit.net 00:00:00.72]     CuriousContraptions.Tests.WorkshopTraceTests.ATraceRecordIsAdmittedByItsStructureAlone(defect: UnknownCadence) [FAIL]
+Failed!  - Failed:     2, Passed:     4, Skipped:     0, Total:     6, Duration: 69 ms - CuriousContraptions.tests.dll (net10.0)
+
+## R2 MF: the animation channel's exact-length check removed
+file: engine/gpu/WorkshopHint.cs
+mutation: sed -E 's/^        if \(bytes.Length != length \|\| WorkshopWire.ReadSession\(bytes\[..16\]\) != session \|\|$/        if (WorkshopWire.ReadSession(bytes[..16]) != session ||/'
+138c138
+<         if (bytes.Length != length || WorkshopWire.ReadSession(bytes[..16]) != session ||
+---
+>         if (WorkshopWire.ReadSession(bytes[..16]) != session ||
+    0 Warning(s)
+    3 Error(s)
+Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 24 ms - CuriousContraptions.tests.dll (net10.0)
+
+## R2 F13-1: the WGSL preamble declares STATE_VERSION again
+file: engine/gpu/PhysicsGpuAbi.cs
+mutation: sed -E 's/^const PRIMARY_SEGMENT_STEPS:u32=\{PrimarySegmentSteps\}u;$/const PRIMARY_SEGMENT_STEPS:u32={PrimarySegmentSteps}u;\nconst STATE_VERSION:u32=13u;/'
+443a444
+> const STATE_VERSION:u32=13u;
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.WorkshopFormatTests.NoProductionSourceNamesAFormatVersion [FAIL]
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 78 ms - CuriousContraptions.tests.dll (net10.0)
+
+## R2 MF (compiling form; the previous MF entry did not build and is void): the animation channel admits an over-long record
+file: engine/gpu/WorkshopHint.cs
+mutation: sed -E 's/^        if \(bytes.Length != length \|\| WorkshopWire.ReadSession/        if (bytes.Length < length || WorkshopWire.ReadSession/'
+138c138
+<         if (bytes.Length != length || WorkshopWire.ReadSession(bytes[..16]) != session ||
+---
+>         if (bytes.Length < length || WorkshopWire.ReadSession(bytes[..16]) != session ||
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:00.69]     CuriousContraptions.Tests.WorkshopActivationAnimationTests.AnAnimationChannelRecordOfAnyOtherLengthRejects(change: 1) [FAIL]
+Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2, Duration: 33 ms - CuriousContraptions.tests.dll (net10.0)
+

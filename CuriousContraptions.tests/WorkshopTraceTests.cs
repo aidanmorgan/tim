@@ -53,6 +53,37 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Throws<ArgumentException>(() => WorkshopTraceRecord.ReadProfile(record));
     }
 
+    public enum TraceRecordDefect { Truncated, Extended, ExtraBody, UnknownCadence, UnknownPhysicalProfile, HeaderPadding }
+
+    /// <summary>Story 9A.1 (F.10): with no version word, the record is admitted by its structure alone: its length must equal the
+    /// declared populations exactly, its cadence and physical profile must be defined, and its header padding must be zero.</summary>
+    [Theory]
+    [InlineData(TraceRecordDefect.Truncated)]
+    [InlineData(TraceRecordDefect.Extended)]
+    [InlineData(TraceRecordDefect.ExtraBody)]
+    [InlineData(TraceRecordDefect.UnknownCadence)]
+    [InlineData(TraceRecordDefect.UnknownPhysicalProfile)]
+    [InlineData(TraceRecordDefect.HeaderPadding)]
+    public void ATraceRecordIsAdmittedByItsStructureAlone(TraceRecordDefect defect)
+    {
+        var record = Record(Construction, new(9), Profile);
+        Assert.Equal(Profile, WorkshopTraceRecord.ReadProfile(record)); // control
+        var defective = defect switch
+        {
+            TraceRecordDefect.Truncated => record[..^1],
+            TraceRecordDefect.Extended => [.. record, 0],
+            _ => (byte[])record.Clone(),
+        };
+        switch (defect)
+        {
+            case TraceRecordDefect.ExtraBody: BinaryPrimitives.WriteUInt32LittleEndian(defective.AsSpan(36), 2); break;
+            case TraceRecordDefect.UnknownCadence: BinaryPrimitives.WriteUInt32LittleEndian(defective.AsSpan(4), 99); break;
+            case TraceRecordDefect.UnknownPhysicalProfile: BinaryPrimitives.WriteUInt32LittleEndian(defective.AsSpan(32), 99); break;
+            case TraceRecordDefect.HeaderPadding: defective[44] = 1; break;
+        }
+        Assert.Throws<ArgumentException>(() => WorkshopTraceRecord.ReadProfile(defective));
+    }
+
     private static byte[] Record(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile)
     {
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(101,207)), epoch, profile);

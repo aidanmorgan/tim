@@ -603,6 +603,22 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Equal(expected, WorkshopAnimationWire.ReadControl(WorkshopAnimationWire.Control(Session, new(1), new(1), expected), Session, new(1), new(1)));
     }
 
+    /// <summary>Story 9A.1 (F.10): with no version word, a channel record is admitted by its exact length; a truncated or extended
+    /// control or output rejects, and the exact records are the controls.</summary>
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(1)]
+    public void AnAnimationChannelRecordOfAnyOtherLengthRejects(int change)
+    {
+        var control = WorkshopAnimationWire.Control(Session, new(1), new(1), Control);
+        var output = Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1);
+        Assert.Equal(Control, WorkshopAnimationWire.ReadControl(control, Session, new(1), new(1)));
+        WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _);
+        byte[] Resized(byte[] bytes) => change < 0 ? bytes[..^1] : [.. bytes, 0];
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(Resized(control), Session, new(1), new(1)));
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(Resized(output), Session, new(1), new(1), out _));
+    }
+
     [Fact]
     public void CommittedPulseOutputRejectsOverlongUnownedOrPaddedSegments()
     {
