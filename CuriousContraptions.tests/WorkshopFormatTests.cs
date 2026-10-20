@@ -66,6 +66,32 @@ public sealed class WorkshopFormatTests
         EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(corrupted));
     }
 
+    /// <summary>A slot written by the retired versioned schema (magic, version, next body id, construction; a seven-word settings
+    /// record led by its version) is not a structurally valid save of the current schema: it is refused, never reinterpreted.</summary>
+    [Fact]
+    public void ASaveInTheRetiredVersionedLayoutIsTheTypedSaveRefusal()
+    {
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(256);
+        var settings = WorkshopCadenceSettings.Default();
+        var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, []);
+        CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
+        builder.Prep(4, 28); // the retired settings struct: version, then the six cadence words
+        builder.PutUint(settings.PresentationRate.Denominator); builder.PutUint(settings.PresentationRate.Numerator);
+        builder.PutUint((uint)settings.Presentation); builder.PutUint((uint)settings.Animation);
+        builder.PutUint((uint)settings.Physical); builder.PutUint((uint)settings.Simulation); builder.PutUint(1);
+        builder.AddStruct(1, builder.Offset, 0);
+        CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
+        var record = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
+        builder.StartTable(4); // the retired SavedConstruction: magic, version, next body id, construction
+        builder.AddUint(0, WorkshopSaveCodec.Magic, 0);
+        builder.AddUint(1, 13, 0);
+        builder.AddUlong(2, 1, 0);
+        builder.AddOffset(3, record.Value, 0);
+        builder.Finish(builder.EndTable());
+        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+    }
+
     [Fact]
     public void AnOutOfBoundsTableOffsetFailsTheVerifier()
     {

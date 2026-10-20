@@ -4,7 +4,9 @@ Red first.
   Pipe length and lesson: the WorkshopPipeLengthTests and JoinedPipeTests files were written before most of the engine change; the
   first build failed on the missing symbols (no captured log beyond the first engine error). The discriminating proof is the mutant set
   below, not a reconstructed red.
-  Version removal: red-format-versionless.txt, WorkshopFormatTests 3/4 failing against the versioned codecs.
+  Version removal: red-format-versionless.txt, WorkshopFormatTests 3/4 failing against the versioned codecs. Added after the run
+  (test only, NoBrowserImpact): ASaveInTheRetiredVersionedLayoutIsTheTypedSaveRefusal, a slot in the retired versioned layout
+  (version word, seven-word settings) is refused as UnsupportedSave; WorkshopFormatTests 6/6.
 
 Green (final tree): tier1-dotnet-versionless.txt, dotnet build 0 warnings / 0 errors; dotnet test CuriousContraptions.slnx
   1869 + 156 + 78 + 17 pass. tier1-lifecycle.txt 510/0, tier1-wire.txt 109/0. tools/*.test.mjs 83/83, tools/e2e/unit 24/24.
@@ -16,7 +18,9 @@ Native real-path probes (production WorkshopSimulation on BrowserGpuTransport, 1
   native-pose-probe.txt (source native-pose-probe.cs.txt): the snapped 2 m pipe solves; the snapped 3.6 m pipe and the poses 0.72 m
   left and right do not; poses about 0.72 m up, down or up the axis still deliver the ball, so the negative uses the left pose.
 
-Mutants (each applied alone with Edit, built, run, reverted; every one killed):
+Mutants (each applied alone, built, run, reverted; every one killed). Trees: mutants 1–7 ran on 1385de23 (before the version
+  removal); mutants 8–9 ran on the version-free tree committed as da91cffa, and the `git diff` at the top of those two files shows the
+  whole uncommitted version-removal diff as well as the mutant line.
   AC1 solve        mutant-6-mouths-ignore-length.txt    pipe mouths ignore the length: the snapped 2 m solve and 9 others fail
                    mutant-2-length-fixed-at-3.6.txt      colliders fixed at 3.6: collider tests fail (the native solve still passes)
   AC2 unsnapped    mutant-4-snap-not-refused.txt         capture 0.45 -> 0.8 m: the unsnapped native row fails
@@ -38,6 +42,8 @@ Runner (Tier 3): full-run-da91cffa/ — `dotnet run --project tools/E2eRunner --
   44 min. Verdict Pass: 45/45 files (contended SerialAlone files rerun clean by the runner), 234/234 tests. cat-050-joined 6/6
   (SerialAlone, Clean), tube-snapping 13/13, cat-048a 4/4, cat-048b 5/5, cat-049 5/5, cat-050 5/5, cat-030 7/7, cat-005 7/7,
   cat-062b passes. Copied: summary.txt/json and the pipe, tube, cadence-command and save-version-touching suites' TAP files.
+  clock-master's closeFindings=1 debtFaults=1 recal=4 is the suite's own declared fault probe: the identical counts appear in
+  9R.6's full run (evidence-9r-6/full-run-2e7cfb48/summary.txt), and its outcome is Pass.
   An earlier attempt (commit 8fe7b883) was aborted unrun at the owner's no-versioning decision; its tree no longer exists as a
   candidate.
 Coordinator rule (21 Oct 2026, Full only for solver, clock, worker, wire or compiler changes): this story changes the wire and save
