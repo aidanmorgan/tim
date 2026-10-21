@@ -9,7 +9,7 @@ internal enum SuiteId
     Anim1a = 1, Anim1b, Anim1c, Cat002, Cat005, Cat014, Cat015a, Cat015aSidekick, Cat015b, Cat017, Cat020, Cat023a, Cat023b,
     Cat030, Cat037, Cat048a, Cat048b, Cat049, Cat050, Cat051, Cat052, Cat062, Cat062b, ClockMaster, EngineCore2a1, EngineCore2a2,
     EngineCore2a3, EngineCore2a4, EngineCore2b1, EngineCore2b2, EngineCore2b3, EngineCore2b4, EngineCore2c, PalettePlacement,
-    Capacity9r, Cat051OwnSupply, Cat052TwoPlates, Cat052Lamp, Capacity9r5b, TubeSnapping, Cat050Joined, Pkg1,
+    Capacity9r, Cat051OwnSupply, Cat052TwoPlates, Cat052Lamp, Capacity9r5b, TubeSnapping, Cat050Joined, Pkg1, Pkg3,
 }
 
 /// <summary>Parallel suites share the machine with N-1 other Chromes; SerialAlone suites run with no other runner Chrome or build.</summary>
@@ -79,6 +79,7 @@ internal static class SuiteCatalogue
         SuiteId.Capacity9r => "capacity-9r", SuiteId.Cat051OwnSupply => "cat-051-own-supply",
         SuiteId.Cat052TwoPlates => "cat-052-two-plates", SuiteId.Cat052Lamp => "cat-052-lamp", SuiteId.Capacity9r5b => "capacity-9r5b",
         SuiteId.TubeSnapping => "tube-snapping", SuiteId.Cat050Joined => "cat-050-joined", SuiteId.Pkg1 => "pkg-1",
+        SuiteId.Pkg3 => "pkg-3",
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "Undefined suite."),
     };
 
@@ -222,6 +223,12 @@ internal static class SuiteCatalogue
             // No primary: cat-014 stays the Bowling ball's and cat-062 the Springboard's primary suite, and the Receiver's primary is
             // Story 9R.12's cat-004; a change to any of the three still selects this placer.
             null, Set(PartId.BowlingBall, PartId.Receiver, PartId.Springboard), [], [], Set(Pal, Bench, Gizmo)),
+        Serial(SuiteId.Pkg3,
+            [Owner("Coordinator decision, 21 Oct 2026 (PKG-3): a new suite starts SerialAlone until calibration qualifies it; it holds " +
+                "a 3.5 s wall-clock Run window (the drop and the Delay's 1 s duration) before each exact Reset check.", 1)],
+            // No primary: the Delay's primary is Story 9R.17's cat-022 (with 9.5a) and the Impact switch's is Story 9R.15's cat-063
+            // (with C-Switch); a change to either still selects this placer.
+            null, Set(PartId.Basketball, PartId.Delay, PartId.ImpactSwitch, PartId.SignalLamp), [], Set(Signal), Set(Pal, Bench, Gizmo, Wire)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),
             Set(Gizmo, Guide, Wire, Present)),

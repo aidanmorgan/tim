@@ -17,8 +17,10 @@
     <Project Path="elements/BowlingBall/BowlingBall.csproj" />
     <Project Path="elements/Bumper/Bumper.csproj" />
     <Project Path="elements/Counter/Counter.csproj" />
+    <Project Path="elements/DelayBox/DelayBox.csproj" />
     <Project Path="elements/Domino/Domino.csproj" />
     <Project Path="elements/Funnel/Funnel.csproj" />
+    <Project Path="elements/ImpactSwitch/ImpactSwitch.csproj" />
     <Project Path="elements/Pipe/Pipe.csproj" />
     <Project Path="elements/PipeBend45/PipeBend45.csproj" />
     <Project Path="elements/PipeBend90/PipeBend90.csproj" />
