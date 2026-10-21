@@ -1623,6 +1623,20 @@ So that two plates switch two gates independently.
 - F17-12: save pre-validation takes its list of the 22 decodable elements from the decoder or the bundle, not from a hand-written list.
 - F17-13: `anvil check` reports 0 warnings (today GS-001 at `tools/e2e/workshop-driver.ts:985`), and Tier 1 evidence includes the anvil log.
 
+### Story F.19: Bundle Ports Follow-ups
+*Status: Backlog. Filed from the Story 9A.17 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-17-bundle-ports-and-footprint.md)).*
+
+**Acceptance Criteria:**
+- F19-1: the guard against re-adding the port table matches the table's structure as well as its names. Mutant R6 survives it today.
+- F19-2: each declared port normal is checked against the facing of its scene locator.
+- F19-3: the old snake_case port names in `content/puzzles.json` are removed, or the file is deleted if nothing reads it.
+- F19-4: `delay` has a Primary suite in `SuiteCatalogue`, so `E2eRunner select` no longer refuses with `NoPrimarySuite`.
+- F19-5: `DeclaredPorts` stops being a global singleton and is injected. A check proves that the worker's embedded bundle and the main thread's bundle have the same identity.
+- F19-6: the two socket enums for one set merge into one.
+- F19-7: the runtime reads declared footprints. Owned by Story 9A.16, then the family conversions.
+- F19-8: the C# static gate's `/resource` exemption is pinned to the resolved bundle path.
+- F19-9: anvil per-write validation runs before every write. Story 9A.17's implementer and reviewer both skipped it.
+
 ### Story F.18: Bundle Element Id Follow-ups
 *Status: Backlog. Filed from the Story 9A.15 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-15-bundle-element-id-save-wire.md)).*
 
@@ -2894,7 +2908,12 @@ So that a part never behaves differently because a fallback table was used.
 *Decision (coordinator under owner delegation, 18 Oct 2026; Open scheduling item h).* Colliders are extracted from the package's own scene at build time and baked into the bundle. Story 6.5c is kept, the package owns its scene, and the bundle stays the single declaration source. Rationale: colliders always match the art the player sees. Story 9A.0's rewrite of AD-11 records this.
 
 ### Story 9A.17: Bundle Ports and Footprints
-*Status: Backlog*
+*Status: Done (21 Oct 2026). Murdoch-24 gave a scoped Pass in round 1 on `24179187` ([review](../implementation-artifacts/review-9a-17-bundle-ports-and-footprint.md), [spec](../implementation-artifacts/spec-9a-17-bundle-ports-and-footprint.md)).*
+- *The bundle is the sole source of ports for the main thread and the Simulation worker. The `WorkshopPorts` tables, `MachinePart` port transforms with their alias chain and scene fallback, and the `PartDefinition.Ports` alias are deleted.*
+- *Every bad declaration is refused with a typed `ElementPortRejection`.*
+- *Footprints: no table restates them, and a parity test checks them. The runtime doesn't read them yet; that moves to Story 9A.16 (F19-7).*
+- *The Full run passed 284 of 284 tests and was marked Contended; the contended suites passed a clean rerun.*
+- *Findings are filed to Story F.19.*
 
 *Depends on: Story 9A.14. Audit: A3 (ports, footprint).*
 

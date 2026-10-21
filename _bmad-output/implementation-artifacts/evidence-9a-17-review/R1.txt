@@ -1,0 +1,6 @@
+== R1 declaration-only anchor move: battery Supply .62 -> .63 (scene locator left at .62)
+ elements/Battery/BatteryElementDeclaration.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+    0 Warning(s)
+    2 Error(s)
+BundleElements : error BUNDLE013: Battery.Ports[0]: declared at (0, 0.63, 0), Loc_Port_Supply is at (0, 0.62, 0) [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/rev917/tools/BundleElements/BundleElements.csproj]

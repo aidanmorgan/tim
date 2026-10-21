@@ -1,0 +1,8 @@
+== R2 consistent move of declaration AND scene locator: battery Supply .62 -> .63
+ elements/Battery/BatteryElementDeclaration.cs | 2 +-
+ elements/Battery/battery.tscn                 | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:01.51]     CuriousContraptions.Tests.BundlePortsTests.EveryElementsBundlePortsAndFootprintEqualTheGoldenTable [FAIL]
+Failed!  - Failed:     1, Passed:    30, Skipped:     0, Total:    31, Duration: 268 ms - CuriousContraptions.tests.dll (net10.0)

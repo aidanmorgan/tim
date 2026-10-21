@@ -212,9 +212,9 @@ development_status:
   # 11
   9a-15-bundle-element-id-save-wire: done
   # 12
-  9a-17-bundle-ports-and-footprint: in-progress
+  9a-17-bundle-ports-and-footprint: done
   # 13: owner amendment 21 Oct 2026, right after 9a-17
-  9a-3-typed-transport-control-commands: backlog
+  9a-3-typed-transport-control-commands: in-progress
   # 14: owner amendment 21 Oct 2026, right after 9a-17
   9a-16-bundle-sole-collider-source: backlog
   # 15: committed-state bindings (9a-25 part) + 9r-20
@@ -466,5 +466,6 @@ development_status:
   # filed by 9a-2 (21 Oct 2026): foreign record fields, lesson and workbench save refusals, publish allocation, numeric ids (9a-15)
   f-17-single-codec-follow-ups: backlog
   f-18-bundle-element-id-follow-ups: backlog
+  f-19-bundle-ports-follow-ups: backlog
 
 action_items: []

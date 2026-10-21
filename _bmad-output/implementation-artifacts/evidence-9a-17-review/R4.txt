@@ -1,0 +1,7 @@
+== R4 catalogue no longer refuses a socket declared with another socket's domain/direction (Own check disabled)
+ engine/gpu/ElementPortCatalogue.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+    0 Error(s)
+[xUnit.net 00:00:01.38]     CuriousContraptions.Tests.BundlePortsTests.AnInvalidPortDeclarationIsRefusedWithItsTypedReason(defect: "activation socket on the electrical domain", port: PortDescriptor { Socket = ActivationOut, Domain = Electrical, Direction = Output, Signal = , LocalPosition = <0, 0, 0>, Normal = <0, 1, 0> }, reason: SocketDisagrees) [FAIL]
+[xUnit.net 00:00:01.39]     CuriousContraptions.Tests.BundlePortsTests.AnInvalidPortDeclarationIsRefusedWithItsTypedReason(defect: "input socket declared as an output", port: PortDescriptor { Socket = PowerIn, Domain = Electrical, Direction = Output, Signal = , LocalPosition = <0, 0, 0>, Normal = <0, 1, 0> }, reason: SocketDisagrees) [FAIL]
+Failed!  - Failed:     2, Passed:    23, Skipped:     0, Total:    25, Duration: 160 ms - CuriousContraptions.tests.dll (net10.0)
