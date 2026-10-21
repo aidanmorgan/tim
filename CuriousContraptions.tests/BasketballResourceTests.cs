@@ -221,7 +221,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("999")));
         // A ball kind without its declared material is refused before construction.
         var obsolete = new PartDefinition(PartId.Basketball, "Basketball", "A ball.", CuriousContraptions.Abstractions.ElementCategory.Motion,
-            Colors.Orange, "res://elements/Ball/icon.svg", null, null);
+            Colors.Orange, "res://elements/Ball/icon.svg", null, null, TestBundle.Entry(PartId.Basketball));
         var ball = new MachinePart();
         try { Assert.Throws<ArgumentException>(() => ball.Configure(obsolete)); }
         finally { ball.Free(); }

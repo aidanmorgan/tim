@@ -706,16 +706,16 @@ public static class WorkshopWireFlatBuffers
             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
             // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
-            "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation, WorkshopCanonicalColliders.BallDetectorColliders, locked),
+            "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation, locked),
             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
             "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
             "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
             // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
             // a record nor colliders is no element this decoder knows, refused naming it.
-            _ => WorkshopCanonicalColliders.Declared(partId) is { } colliders
-                ? new WorkshopGenericInstance(partId, id, cell, local, rotation, colliders, locked)
-                : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names the element '{partId}', which this game does not have.")
+            _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
+                ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked)
+                : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
         };
     }
 

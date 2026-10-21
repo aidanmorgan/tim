@@ -6,10 +6,8 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.SystemClock;
 
-public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement
+public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
-
     public ElementMetadata Metadata => new(
         Id: "clock",
         Category: ElementCategory.Control,
@@ -33,10 +31,11 @@ public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalE
     ];
 
     /// <summary>The housing and its foot.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.7f, 0.85f, 0.3f), Offset: Vector3.Zero, Rotation: Quaternion.Identity, Material: Surface),
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.8f, 0.1f, 0.425f), Offset: new Vector3(0, -0.95f, 0), Rotation: Quaternion.Identity, Material: Surface)
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

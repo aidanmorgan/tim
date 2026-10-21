@@ -78,7 +78,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var instance = packedScene.Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Exactly 2 colliders: Housing + Foot
             Assert.Equal(2, colliders.Count);
@@ -116,9 +116,9 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void CanonicalColliders_MatchSceneExtractedColliders()
     {
-        var canonical = WorkshopCanonicalColliders.For(PartId.Counter);
+        var canonical = DeclaredPhysics.Colliders(PartId.Counter);
         Assert.Equal(2, canonical.Count);
-        Assert.Same(canonical, WorkshopCanonicalColliders.CounterColliders);
+        Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.Counter));
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var detector = WorkshopInput.BallDetector(new(2), -2, 0, 0, 0, 0, 0, 1);
         var lamp = WorkshopInput.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
         var battery = WorkshopInput.Battery(new(4), 0, -2, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 0, 2, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 0, 2, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(counter, detector, lamp, battery, gate);
 
@@ -197,7 +197,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     {
         var counter = WorkshopInput.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
         var battery = WorkshopInput.Battery(new(2), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
 
         // Without battery connected: gate blade drag is 0
         var connNoBattery = new WorkshopConnection(counter.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);

@@ -5,7 +5,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.Ball;
 
-public sealed class BallElementDeclaration : IMechanicalElement
+public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "ball",
@@ -23,14 +23,11 @@ public sealed class BallElementDeclaration : IMechanicalElement
     public IReadOnlyList<PortDescriptor> Ports => [];
 
     /// <summary>The Basketball: a 0.34 m sphere with the catalogue ball material.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(
-            ColliderShapeKind.Sphere,
-            HalfExtents: new Vector3(0.34f, 0.34f, 0.34f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.55f, Friction: 0.3f, RollingResistance: 0.035f, BounceThreshold: 0.1f))
+        new(".", new(0.55f, 0.3f, 0.035f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

@@ -33,11 +33,11 @@ outer_radius = 0.22
 rings = 24
 ring_segments = 12
 
-[sub_resource type="BoxShape3D" id="Shape_Base"]
-size = Vector3(1.3, 0.12, 1.2)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(1.2999999523162842, 0.11999999731779099, 1.2000000476837158)
 
-[sub_resource type="BoxShape3D" id="Shape_Plate"]
-size = Vector3(1.3, 0.15, 1.2)
+[sub_resource type="BoxShape3D" id="BakedShape_1_0"]
+size = Vector3(1.2999999523162842, 0.15000000596046448, 1.2000000476837158)
 
 [node name="springboard" type="Node3D"]
 script = ExtResource("1")
@@ -58,10 +58,6 @@ mesh = SubResource("Mesh_Plate")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.079, 0)
 mesh = SubResource("Mesh_Stripe")
 
-[node name="col_box_plate" type="CollisionShape3D" parent="Visual/Plate"]
-visible = false
-shape = SubResource("Shape_Plate")
-
 [node name="Coil" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1175, 0)
 
@@ -81,7 +77,14 @@ mesh = SubResource("Mesh_Ring")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
 mesh = SubResource("Mesh_Ring")
 
-[node name="col_box_base" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.36, 0)
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.36, 0)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Base")
+shape = SubResource("BakedShape_0_0")
+
+[node name="col_1_0" type="CollisionShape3D" parent="Visual/Plate"]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_1_0")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -17,8 +17,8 @@ material = SubResource("Mat_Pip")
 radius = 0.045
 height = 0.09
 
-[sub_resource type="BoxShape3D" id="Shape_Tile"]
-size = Vector3(0.25, 1.1, 0.65)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(0.25, 1.100000023841858, 0.6499999761581421)
 
 [node name="domino" type="Node3D"]
 script = ExtResource("1")
@@ -36,9 +36,11 @@ mesh = SubResource("Mesh_Pip")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, 0.25, 0)
 mesh = SubResource("Mesh_Pip")
 
-[node name="col_box" type="CollisionShape3D" parent="."]
-visible = false
-shape = SubResource("Shape_Tile")
-
 [node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")

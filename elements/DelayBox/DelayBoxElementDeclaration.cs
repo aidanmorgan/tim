@@ -7,10 +7,8 @@ namespace CuriousContraptions.Elements.DelayBox;
 
 /// <summary>The Delay Box (CAT-022): a static housing that waits its authored duration after an activation, then activates its
 /// output once. The duration is a typed parameter with the runtime's default and admitted range.</summary>
-public sealed class DelayBoxElementDeclaration : ISignalElement
+public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
-
     public ElementMetadata Metadata => new(
         Id: "delay",
         Category: ElementCategory.Control,
@@ -34,12 +32,13 @@ public sealed class DelayBoxElementDeclaration : ISignalElement
     ];
 
     /// <summary>The foot of the housing.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.675f, 0.075f, 0.4f), Offset: new Vector3(0, -0.7f, 0), Rotation: Quaternion.Identity, Material: Surface)
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    /// <summary>The delayed output pulse, once per armed activation.</summary>
     public IReadOnlyList<EventDescriptor> Events =>
     [
         new(SimulationEventKind.TriggerActivated, "Duration:f32")

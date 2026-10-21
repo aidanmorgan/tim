@@ -159,7 +159,7 @@ public sealed class JoinedPipeTests
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Cell = new(bend.Cell.X + 1, bend.Cell.Y, bend.Cell.Z) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Rotation = CanonicalRotation.Identity }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { DeclaredColliders = WorkshopCanonicalColliders.PipeBend45Colliders }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { PartId = PartId.PipeBend45 }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Receiver!.Value with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 2 } }).Validate());

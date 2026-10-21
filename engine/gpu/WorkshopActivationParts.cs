@@ -36,14 +36,15 @@ public readonly record struct WorkshopLamp(GpuBodyId Id, CellOrigin Cell, LocalP
 
 public readonly record struct WorkshopBallDetector(
     GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, IReadOnlyList<ExtractedCollider> DeclaredColliders, bool Locked = false) : IWorkshopDeclaredColliders
+    CanonicalRotation Rotation, bool Locked = false) : IWorkshopDeclaredColliders
 {
+    public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
     public PartId PartId => PartId.BallDetector;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.BallDetector;
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
-        ArgumentNullException.ThrowIfNull(DeclaredColliders);
+        _ = DeclaredColliders;
     }
 }

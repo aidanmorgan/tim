@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.Domino;
 
-public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElement
+public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "domino",
@@ -26,14 +26,11 @@ public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElemen
         new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, .55f, 0f), Vector3.UnitY)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(
-            ColliderShapeKind.Box,
-            HalfExtents: new Vector3(0.125f, 0.55f, 0.325f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.05f, Friction: 0.6f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(".", new(0.05f, 0.6f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

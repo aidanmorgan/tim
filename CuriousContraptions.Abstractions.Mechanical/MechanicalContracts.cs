@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace CuriousContraptions.Abstractions.Mechanical;
@@ -50,9 +52,9 @@ public readonly record struct PrismaticSliderDescriptor(
     SliderFrame MovingFrame,
     float LowerLimit,
     float UpperLimit,
-    string StiffnessParameter,
-    string DampingParameter,
-    string CompressionParameter,
+    MechanicalValue Stiffness,
+    MechanicalValue Damping,
+    MechanicalValue Compression,
     bool BodiesCollide,
     SliderBodyDescriptor MovingBody);
 
@@ -60,4 +62,21 @@ public readonly record struct PrismaticSliderDescriptor(
 public interface ISliderElement : IMechanicalElement
 {
     IReadOnlyList<PrismaticSliderDescriptor> Sliders { get; }
+}
+
+/// <summary>A mechanical value is either fixed authoring data or a declared real parameter.</summary>
+public enum MechanicalValueSource : byte { Constant, Parameter }
+
+public readonly record struct MechanicalValue(MechanicalValueSource Source, float Constant, string? Parameter)
+{
+    public static MechanicalValue Fixed(float value) => new(MechanicalValueSource.Constant, value, null);
+    public static MechanicalValue FromParameter(string key) => new(MechanicalValueSource.Parameter, 0f, key);
+
+    public float Evaluate(IReadOnlyDictionary<string, float> parameters) => Source switch
+    {
+        MechanicalValueSource.Constant when Parameter is null && float.IsFinite(Constant) => Constant,
+        MechanicalValueSource.Parameter when Constant == 0f && Parameter is { } key &&
+            parameters.TryGetValue(key, out var value) && float.IsFinite(value) => value,
+        _ => throw new ArgumentException("Invalid or unresolved mechanical value.")
+    };
 }

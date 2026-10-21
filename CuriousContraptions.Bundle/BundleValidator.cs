@@ -86,11 +86,57 @@ public static class BundleValidator
                     errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Socket: {entry.Ports[i].Socket} is declared more than once"));
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
+            Geometry(entry);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
             if (entry.Electrical is { } electrical) Electrical(electrical);
             if (entry.Signal is { } signal) Signal(signal);
             if (entry.Fluid is { } fluid) Fluid(fluid);
+        }
+
+        private void Geometry(BundleEntry entry)
+        {
+            var targets = new HashSet<(int, GeometryComponent)>();
+            foreach (var binding in entry.ColliderBindings)
+            {
+                const string path = "ColliderBindings";
+                Defined(path + ".Component", binding.Component);
+                if (binding.Collider < 0 || binding.Collider >= entry.Colliders.Count) OutOfRange(path + ".Collider");
+                if (!targets.Add((binding.Collider, binding.Component))) OutOfRange(path + ".DuplicateTarget");
+                Finite(path + ".Multiplier", binding.Multiplier);
+                Finite(path + ".Offset", binding.Offset);
+                Real(path + ".Parameter", binding.Parameter, entry.Metadata.Parameters);
+                var parameter = entry.Metadata.Parameters.FirstOrDefault(p => p.Key == binding.Parameter);
+                foreach (var value in new[] { parameter.Minimum, parameter.Maximum })
+                {
+                    var evaluated = value * binding.Multiplier + binding.Offset;
+                    if (!float.IsFinite(evaluated) || (binding.Component is GeometryComponent.HalfExtentX or
+                        GeometryComponent.HalfExtentY or GeometryComponent.HalfExtentZ && evaluated <= 0f))
+                        OutOfRange(path + ".EvaluatedBoundary");
+                }
+            }
+            var ends = new HashSet<TubeEnd>();
+            foreach (var mouth in entry.TubeMouths)
+            {
+                Defined("TubeMouths.End", mouth.End);
+                if (!ends.Add(mouth.End)) OutOfRange("TubeMouths.DuplicateEnd");
+                Finite("TubeMouths.Position", mouth.Position);
+                Finite("TubeMouths.Rotation", mouth.Rotation);
+                if (MathF.Abs(mouth.Rotation.LengthSquared() - 1f) > 1e-5f) OutOfRange("TubeMouths.Rotation");
+                if (Finite("TubeMouths.BoreRadius", mouth.BoreRadius) && mouth.BoreRadius <= 0f) OutOfRange("TubeMouths.BoreRadius");
+            }
+            var boundEnds = new HashSet<TubeEnd>();
+            foreach (var binding in entry.TubeMouthBindings)
+            {
+                Defined("TubeMouthBindings.End", binding.End);
+                if (!ends.Contains(binding.End) || !boundEnds.Add(binding.End)) OutOfRange("TubeMouthBindings.End");
+                Finite("TubeMouthBindings.Multiplier", binding.Multiplier);
+                Finite("TubeMouthBindings.Offset", binding.Offset);
+                Real("TubeMouthBindings.Parameter", binding.Parameter, entry.Metadata.Parameters);
+                var parameter = entry.Metadata.Parameters.FirstOrDefault(p => p.Key == binding.Parameter);
+                foreach (var value in new[] { parameter.Minimum, parameter.Maximum })
+                    Finite("TubeMouthBindings.EvaluatedBoundary", value * binding.Multiplier + binding.Offset);
+            }
         }
 
         private void Metadata(ElementMetadata metadata)
@@ -203,9 +249,9 @@ public static class BundleValidator
                 if (slider.LowerLimit > 0f) OutOfRange(path + ".LowerLimit");
                 else if (slider.UpperLimit < 0f || slider.UpperLimit <= slider.LowerLimit) OutOfRange(path + ".UpperLimit");
             }
-            Real(path + ".StiffnessParameter", slider.StiffnessParameter, parameters);
-            Real(path + ".DampingParameter", slider.DampingParameter, parameters);
-            Real(path + ".CompressionParameter", slider.CompressionParameter, parameters);
+            Value(path + ".Stiffness", slider.Stiffness, parameters);
+            Value(path + ".Damping", slider.Damping, parameters);
+            Value(path + ".Compression", slider.Compression, parameters);
             var body = slider.MovingBody;
             if (Finite(path + ".MovingBody.Mass", body.Mass) && body.Mass <= 0f) OutOfRange(path + ".MovingBody.Mass");
             Finite(path + ".MovingBody.Gravity", body.Gravity);
@@ -213,6 +259,18 @@ public static class BundleValidator
             for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
             if (body.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
+        }
+
+        private void Value(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            Defined(path + ".Source", value.Source);
+            Finite(path + ".Constant", value.Constant);
+            if (value.Source == MechanicalValueSource.Parameter)
+            {
+                if (value.Constant != 0f) OutOfRange(path + ".Constant");
+                Real(path + ".Parameter", value.Parameter ?? "", parameters);
+            }
+            else if (value.Parameter is not null || value.Constant < 0f) OutOfRange(path);
         }
 
         /// <summary>A key must name one of the element's declared Real parameters.</summary>

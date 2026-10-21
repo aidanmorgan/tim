@@ -42,7 +42,7 @@ public readonly record struct WorkshopPipe(GpuBodyId Id, CellOrigin Cell, LocalP
 {
     public PartId PartId => PartId.Pipe;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
-    public IReadOnlyList<ExtractedCollider> DeclaredColliders => WorkshopCanonicalColliders.Pipe(Length);
+    public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId, DeclaredPhysics.Parameters(this));
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

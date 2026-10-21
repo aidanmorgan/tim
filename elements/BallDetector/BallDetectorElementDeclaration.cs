@@ -7,10 +7,8 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.BallDetector;
 
-public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignalElement
+public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
-
     public ElementMetadata Metadata => new(
         Id: "ball_detector",
         Category: ElementCategory.Control,
@@ -30,24 +28,12 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
     ];
 
     /// <summary>The 16-box ring around the 0.65 m bore (each box turned about +X to its angle) and the sensor housing above it.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders
-    {
-        get
-        {
-            var colliders = new List<ColliderDescriptor>(17);
-            const float ringRadius = 0.675f;
-            for (var i = 0; i < 16; i++)
-            {
-                var theta = i * (MathF.Tau / 16f);
-                var halfTheta = theta * 0.5f;
-                var rotation = Quaternion.Normalize(new Quaternion(MathF.Sin(halfTheta), 0, 0, MathF.Cos(halfTheta)));
-                colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.28f, 0.025f, 0.14f),
-                    new Vector3(0, ringRadius * MathF.Cos(theta), ringRadius * MathF.Sin(theta)), rotation, Surface));
-            }
-            colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.25f, 0.12f, 0.25f), new Vector3(0, 0.93f, 0), Quaternion.Identity, Surface));
-            return colliders;
-        }
-    }
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
+    [
+        new(".", new(1f, 0.3f, 0f, 0.1f))
+    ];
 
     public IReadOnlyList<EventDescriptor> Events =>
     [

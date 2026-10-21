@@ -18,7 +18,7 @@ material = SubResource("Mat_Stripe")
 inner_radius = 0.322
 outer_radius = 0.35
 
-[sub_resource type="SphereShape3D" id="Shape_Ball"]
+[sub_resource type="SphereShape3D" id="BakedShape_0_0"]
 radius = 0.34
 
 [node name="ball" type="Node3D"]
@@ -33,6 +33,8 @@ mesh = SubResource("Mesh_Ball")
 transform = Transform3D(0.819152, -0.573576, 0, 0.573576, 0.819152, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("Mesh_Stripe")
 
-[node name="col_sphere" type="CollisionShape3D" parent="."]
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Ball")
+shape = SubResource("BakedShape_0_0")

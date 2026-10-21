@@ -25,7 +25,7 @@ public sealed class BundleElementIdTests
 
     /// <summary>A construction naming <paramref name="element"/>, encoded without domain validation (a tampered save or message).</summary>
     private static WorkshopConstruction Naming(string element) =>
-        Construction(WorkshopInput.Generic(new PartId(element), new(1), 0, 1, 0, 0, 0, 0, 1, []));
+        Construction(new WorkshopGenericInstance(new PartId(element), new(1), default, default, CanonicalRotation.Identity));
 
     private static WorkshopCommand Construct(WorkshopConstruction construction) => new(new(1), WorkshopCommandKind.Construct, new(1),
         default, construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
@@ -119,12 +119,25 @@ public sealed class BundleElementIdTests
         Assert.Contains("'kite'", refusal.Message, StringComparison.Ordinal);
     }
 
+    private static byte[] ForgedCommand(string element)
+    {
+        var existing = element.Length == 4 ? "lamp" : "domino";
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(Construct(Naming(existing)));
+        var original = System.Text.Encoding.UTF8.GetBytes(existing);
+        var replacement = System.Text.Encoding.UTF8.GetBytes(element);
+        Assert.Equal(original.Length, replacement.Length);
+        var offset = bytes.AsSpan().IndexOf(original);
+        Assert.True(offset >= 0);
+        replacement.CopyTo(bytes.AsSpan(offset, replacement.Length));
+        return bytes;
+    }
+
     [Theory]
     [InlineData("kite")]
     [InlineData("tennis")]
     public void AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(string element)
     {
-        var bytes = WorkshopWireFlatBuffers.EncodeCommand(Construct(Naming(element)));
+        var bytes = ForgedCommand(element);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
         Assert.Equal(WireFaultReason.UnknownElement, fault.Reason);
         Assert.Contains($"'{element}'", fault.Message, StringComparison.Ordinal);
@@ -135,7 +148,7 @@ public sealed class BundleElementIdTests
     {
         var executed = false;
         var router = new WorkshopCommandRouter(_ => { executed = true; return System.Threading.Tasks.Task.FromResult(Array.Empty<byte>()); });
-        var fault = Assert.Throws<WireFaultException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(Construct(Naming("kite")))));
+        var fault = Assert.Throws<WireFaultException>(() => router.Dispatch(ForgedCommand("kite")));
         Assert.Equal(WireFaultReason.UnknownElement, fault.Reason);
         Assert.False(executed);
     }

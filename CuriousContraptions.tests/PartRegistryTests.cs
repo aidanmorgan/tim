@@ -229,7 +229,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.DoesNotContain(id.Value, constants);
             Assert.DoesNotContain(part.ToString(), typeof(PartId).GetFields().Select(field => field.Name));
             var save = SaveFixture.Forged(new Gpu.WorkshopConstruction(new(1), Gpu.WorkshopCadenceSettings.Default(),
-                new([Gpu.WorkshopInput.Generic(id, new(1), 0, 1, 0, 0, 0, 0, 1, [])])), 2);
+                new([new Gpu.WorkshopGenericInstance(id, new(1), default, default, Gpu.CanonicalRotation.Identity)])), 2);
             var refusal = SaveFixture.Refused(Gpu.WorkshopSaveRejection.UnknownElement,
                 () => Gpu.WorkshopSaveCodec.Decode(Loaded().Elements, save));
             Assert.Contains($"'{id}'", refusal.Message, StringComparison.Ordinal);

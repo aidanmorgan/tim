@@ -7,9 +7,8 @@ namespace CuriousContraptions.Elements.Receiver;
 
 /// <summary>The Receiver (CAT-004): a static open box of five walls. Its capture settings and its guiding force region are typed
 /// parameters with the runtime's defaults and admitted ranges.</summary>
-public sealed class ReceiverElementDeclaration : IMechanicalElement
+public sealed class ReceiverElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Wall = new(Restitution: 0.12f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
 
     public ElementMetadata Metadata => new(
         Id: "basket",
@@ -35,13 +34,11 @@ public sealed class ReceiverElementDeclaration : IMechanicalElement
     public IReadOnlyList<PortDescriptor> Ports => [];
 
     /// <summary>The floor, the two side walls, the back wall and the lower front lip.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        Box(new Vector3(0f, -0.45f, 0f), new Vector3(0.75f, 0.075f, 0.75f)),
-        Box(new Vector3(-0.75f, 0f, 0f), new Vector3(0.06f, 0.5f, 0.8f)),
-        Box(new Vector3(0.75f, 0f, 0f), new Vector3(0.06f, 0.5f, 0.8f)),
-        Box(new Vector3(0f, 0f, -0.75f), new Vector3(0.75f, 0.5f, 0.06f)),
-        Box(new Vector3(0f, -0.2f, 0.75f), new Vector3(0.75f, 0.3f, 0.06f))
+        new(".", new(0.12f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];
@@ -59,6 +56,4 @@ public sealed class ReceiverElementDeclaration : IMechanicalElement
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    private static ColliderDescriptor Box(Vector3 offset, Vector3 halfExtents) =>
-        new(ColliderShapeKind.Box, halfExtents, offset, Quaternion.Identity, Wall);
 }

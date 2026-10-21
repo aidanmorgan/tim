@@ -25,7 +25,10 @@ public sealed record BundleEntry(
     MechanicalPayload? Mechanical,
     ElectricalPayload? Electrical,
     SignalPayload? Signal,
-    FluidPayload? Fluid);
+    FluidPayload? Fluid,
+    IReadOnlyList<ColliderParameterBinding> ColliderBindings,
+    IReadOnlyList<TubeMouthDescriptor> TubeMouths,
+    IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings);
 
 /// <summary>The mechanical payload. <see cref="Sliders"/> is empty unless the element is an <see cref="ISliderElement"/>.</summary>
 public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMassProperties MassProperties,
@@ -53,7 +56,9 @@ public static class BundleSchema
                     mechanical is ISliderElement slider ? slider.Sliders : []) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes) : null,
             declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter) : null,
-            declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null);
+            declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
+            declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
+            declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : []);
     }
 
     /// <summary>The bundle text for these declarations, ordered by ordinal element id.</summary>
@@ -61,11 +66,15 @@ public static class BundleSchema
     {
         ArgumentNullException.ThrowIfNull(declarations);
         var entries = declarations.Select(Entry).OrderBy(entry => entry.Metadata.Id, StringComparer.Ordinal).ToArray();
-        return JsonSerializer.Serialize(new BundleDocument(entries), BundleJsonContext.Default.BundleDocument) + "\n";
+        return WriteEntries(entries);
     }
 
     /// <summary>The bundle these bytes hold. Malformed input throws <see cref="JsonException"/>, including a null where a list holds
     /// references (an element, or a parameter option), which the nullable annotations cannot reject inside a list.</summary>
+    public static string WriteEntries(IEnumerable<BundleEntry> entries) =>
+        JsonSerializer.Serialize(new BundleDocument(entries.OrderBy(entry => entry.Metadata.Id, StringComparer.Ordinal).ToArray()),
+            BundleJsonContext.Default.BundleDocument) + "\n";
+
     public static BundleDocument Read(string json)
     {
         var document = JsonSerializer.Deserialize(json, BundleJsonContext.Default.BundleDocument) ?? throw new JsonException("The bundle is null.");
@@ -101,7 +110,8 @@ public static class BundleSchema
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>),
         typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>), typeof(ExactEnumConverter<SignalLatchMode>),
-        typeof(ExactEnumConverter<FluidPortRole>)
+        typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>),
+        typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>)
     ])]
 [JsonSerializable(typeof(BundleDocument))]
 internal sealed partial class BundleJsonContext : JsonSerializerContext;

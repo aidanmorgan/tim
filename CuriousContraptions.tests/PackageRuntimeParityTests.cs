@@ -11,14 +11,7 @@ using RuntimeShape = CuriousContraptions.Gpu.ColliderShapeKind;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Every package's declaration equals the runtime tables that still read their own copy of it: colliders, footprint, body and material (the compiler and WorkshopCanonicalColliders.For, until Story 9A.16),
-/// placement defaults and bounds (MachineWorld.CaptureInstance and the records, until each conversion), ball materials
-/// (BallMaterial.For, until C-Balls) and the signal declarations the runtime reads (F15-11). Story 9A.14 deleted the catalogue half of
-/// the former cutover guard with the catalogue; each remaining comparison leaves with the table it compares. Values are compared at
-/// the runtime lane's precision (spec 9A.4 D2): package f32 values narrowed to the runtime's binary16 lanes, and f32 rotations bit for
-/// bit. Ports have no runtime copy since Story 9A.17 (BundlePortsTests). The runtime body, collider and material rows come from one compiled instance of each part built with
-/// the canonical colliders. The detector's and gate's scene-extracted colliders, which MachineWorld.CaptureInstance prefers, are not
-/// compared: the detector's scene ring differs from the canonical table (filed to Story 9A.16).</summary>
+/// <summary>Bundle/runtime parity and immutable pre-cutover compiled golden, at the existing admitted physical lane precision.</summary>
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
 {
@@ -77,12 +70,10 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             Assert.True(new ElementFootprint(bodies.Length, bodies.Count(body => body.Motion != RigidMotionKind.Static), scene.Prismatics.Length) ==
                 declaration.Footprint, $"{package.Package}: footprint {declaration.Footprint} declared.");
             var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == Owner).ToArray();
-            AssertColliders(package.Package, declaration.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose, collider.Radius.Value,
+            AssertColliders(package.Package, TestBundle.Entry(id).Colliders, colliders.Select(collider => (collider.Shape, collider.Pose, collider.Radius.Value,
                 collider.HalfExtents)).ToArray());
-            AssertMaterials(package.Package, declaration.Colliders, colliders, scene.Materials.ToArray());
-            if (Canonical.Contains(id.Value))
-                AssertColliders(package.Package, declaration.Colliders, WorkshopCanonicalColliders.For(id)
-                    .Select(collider => (collider.ShapeKind, collider.LocalPose, collider.Radius, collider.HalfExtents)).ToArray());
+            AssertMaterials(package.Package, TestBundle.Entry(id).Colliders, colliders, scene.Materials.ToArray());
+
         }
     }
 
@@ -139,7 +130,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         {
             var ball = (IMechanicalElement)package.Declaration;
             var id = new PartId(ball.Metadata.Id);
-            var collider = Assert.Single(ball.Colliders);
+            var collider = Assert.Single(TestBundle.Entry(id).Colliders);
             Assert.Equal(AbstractShape.Sphere, collider.ShapeKind);
             var loaded = registry.Definitions[id].Ball ?? throw new ArgumentException($"{package.Package}: no bundle ball material.");
             foreach (var material in new[] { BallMaterial.For(id), loaded })
@@ -160,7 +151,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public void EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody()
     {
         var sliders = Packages().Where(package => package.Declaration is ISliderElement).ToArray();
-        Assert.Equal(["Springboard"], sliders.Select(package => package.Package));
+        Assert.Equal(["PoweredGate", "Springboard"], sliders.Select(package => package.Package));
         foreach (var package in sliders)
         {
             var element = (ISliderElement)package.Declaration;
@@ -169,23 +160,24 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             var placed = Placed(id, maxima);
             var scene = Compile(placed);
             var joints = scene.Prismatics.ToArray();
-            Assert.True(joints.Length == element.Sliders.Count, $"{package.Package}: {element.Sliders.Count} sliders declared, {joints.Length} compiled.");
+            var declaredSliders = TestBundle.Entry(id).Mechanical!.Sliders;
+            Assert.True(joints.Length == declaredSliders.Count, $"{package.Package}: {element.Sliders.Count} sliders declared, {joints.Length} compiled.");
             for (var i = 0; i < joints.Length; i++)
             {
-                var (slider, joint, where) = (element.Sliders[i], joints[i], $"{package.Package}.Sliders[{i}]");
+                var (slider, joint, where) = (declaredSliders[i], joints[i], $"{package.Package}.Sliders[{i}]");
                 Assert.Equal(Owner, joint.BodyA);
                 AssertFrame(where + ".BaseFrame", slider.BaseFrame, joint.FrameA);
                 AssertFrame(where + ".MovingFrame", slider.MovingFrame, joint.FrameB);
                 Assert.True(Bits(slider.LowerLimit) == Bits(joint.Lower) && Bits(slider.UpperLimit) == Bits(joint.Upper),
                     $"{where}: limits [{slider.LowerLimit}, {slider.UpperLimit}] declared, [{joint.Lower}, {joint.Upper}] compiled.");
-                Assert.True(Bits(maxima[slider.StiffnessParameter]) == Bits(joint.Stiffness), $"{where}.StiffnessParameter binds {joint.Stiffness}.");
-                Assert.True(Bits(maxima[slider.DampingParameter]) == Bits(joint.Damping), $"{where}.DampingParameter binds {joint.Damping}.");
+                Assert.True(Bits(slider.Stiffness.Evaluate(maxima)) == Bits(joint.Stiffness), $"{where}.StiffnessParameter binds {joint.Stiffness}.");
+                Assert.True(Bits(slider.Damping.Evaluate(maxima)) == Bits(joint.Damping), $"{where}.DampingParameter binds {joint.Damping}.");
                 Assert.Equal(slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
                 var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
                 AssertBody(where + ".MovingBody", KinematicMode.Dynamic, slider.MovingBody.Mass, slider.MovingBody.LinearDrag,
                     slider.MovingBody.Gravity, moving);
                 // The moving body starts at the base frame, CompressionParameter below it along local Y (an unrotated placement).
-                var compression = maxima[slider.CompressionParameter];
+                var compression = slider.Compression.Evaluate(maxima);
                 var start = slider.BaseFrame.Position - slider.MovingFrame.Position - new System.Numerics.Vector3(0f, compression, 0f);
                 var x = WorkshopInput.Position((placed.Cell.X + (float)placed.Local.X) / 16f + start.X);
                 var y = WorkshopInput.Position((placed.Cell.Y + (float)placed.Local.Y) / 16f + start.Y);
@@ -197,6 +189,39 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                     collider.Radius.Value, collider.HalfExtents)).ToArray());
                 AssertMaterials(where + ".MovingBody", slider.MovingBody.Colliders, colliders, scene.Materials.ToArray());
             }
+        }
+    }
+
+    [Fact]
+    public void CompiledGeometryMatchesPreCutoverGolden()
+    {
+        _ = godot;
+        var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+        var rows = new List<System.Text.Json.Nodes.JsonNode>();
+        foreach (var package in Packages().OrderBy(package => package.Package, StringComparer.Ordinal))
+        {
+            Capture(package.Declaration.Metadata.Id, Placed(new PartId(package.Declaration.Metadata.Id)));
+        }
+        foreach (var length in new[] { 1f, 3.6f, 8f })
+            Capture("pipe/" + length.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1, new PipeLength(length)));
+
+        var expected = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(
+            twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures/compiled-geometry-9a16.json")));
+        var actual = new System.Text.Json.Nodes.JsonArray(rows.ToArray());
+        Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(expected, actual), "Compiled physical rows differ from the pre-cutover golden.");
+
+        void Capture(string key, IWorkshopInstance instance)
+        {
+            var scene = Compile(instance);
+            rows.Add(System.Text.Json.JsonSerializer.SerializeToNode(new
+            {
+                Key = key,
+                Bodies = scene.Bodies.ToArray(),
+                Colliders = scene.Colliders.ToArray(),
+                Materials = scene.Materials.ToArray(),
+                Prismatics = scene.Prismatics.ToArray()
+            }, options)!);
         }
     }
 
@@ -266,11 +291,6 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         try { place(value); return true; }
         catch (ArgumentException) { return false; }
     };
-
-    /// <summary>PKG-2: the funnel and bends compile from their canonical tables, which the worker's wire decode and every load use. Their
-    /// scene-extracted colliders, which placement on the main thread prefers, differ in rotation bits (filed to Story 9A.16).</summary>
-    private static readonly string[] Canonical = ["ball_detector", "powered_gate", "pressure_plate", "counter", "clock", "latch", "funnel",
-        "pipe_bend_45", "pipe_bend_90"];
 
     /// <summary>The runtime parameters a newly placed part starts from (MachineWorld.CaptureInstance) and the bounds its record admits.</summary>
     private static (string Key, ParameterUnit Unit, ParameterKind Kind, Lane Lane, float Default, Func<float, bool> Admits, string[] Options)[] Parameters(string id)
@@ -390,7 +410,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
         "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" =>
-            WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(id)),
+            WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
         "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
@@ -401,10 +421,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     };
 
     /// <summary>One placed slider part with its declared parameters set to these values.</summary>
-    private static WorkshopSpringboard Placed(PartId id, Dictionary<string, float> parameters) => id.Value switch
+    private static IWorkshopInstance Placed(PartId id, Dictionary<string, float> parameters) => id.Value switch
     {
         "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1,
             new SpringboardSettings(parameters["stiffness"], parameters["damping"], parameters["initial_compression"])),
+        "powered_gate" => Placed(id),
         _ => throw new ArgumentException($"No slider placement for packaged part '{id}'.")
     };
 

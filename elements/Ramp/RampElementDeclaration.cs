@@ -5,7 +5,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.Ramp;
 
-public sealed class RampElementDeclaration : IMechanicalElement
+public sealed class RampElementDeclaration : IMechanicalElement, ISceneGeometryElement, IParameterizedGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "ramp",
@@ -27,14 +27,19 @@ public sealed class RampElementDeclaration : IMechanicalElement
     public IReadOnlyList<PortDescriptor> Ports => [];
 
     /// <summary>The slab at the default dimensions: half the length, half the 0.18 m thickness and half the width.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings => [];
+
+    public IReadOnlyList<ColliderParameterBinding> ColliderBindings =>
     [
-        new(
-            ColliderShapeKind.Box,
-            HalfExtents: new Vector3(1.5f, 0.09f, 0.65f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(0, GeometryComponent.HalfExtentX, "length", .5f, 0f),
+        new(0, GeometryComponent.HalfExtentZ, "width", .5f, 0f)
+    ];
+
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
+    [
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];

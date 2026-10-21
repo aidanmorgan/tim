@@ -1,7 +1,7 @@
 # T.1 independent review
 
 Reviewer: /root/transport_reviewer. Implementation owner: /root/backlog_verification_efficiency.
-Current scope: owner-authorized bounded T.1 AC1–AC2 shipment. SnapshotApproval granted below; publication verification pending. AC3–AC4 remain deferred and incomplete. Earlier matrix entries describe the original review boundary, not current shipment blockers.
+Current scope: owner-authorized bounded T.1 AC1–AC2 shipment plus publication pin fix and latest test cadence correction. Terminal scoped implementation Pass recorded below. AC3–AC4 remain deferred and incomplete. Earlier matrix entries describe prior review boundaries, not current shipment blockers.
 
 ## Criterion and impact matrix
 
@@ -69,4 +69,14 @@ SnapshotApproval granted for the separate seven-file correction against d563d6e:
 | Owner cadence correction | AGENTS, delivery workflow, guide, epics and TODO consistently distinguish implementation Pass from pending browser qualification. Fast affected native checks reuse matching outputs; relevant-input/config changes rebuild. Routine Chrome is accumulated after five fully implemented named elements; infrastructure cases accumulate without incrementing count, and partial final batches remain at release. No blanket per-slice Chrome/Full requirement overrides the latest owner direction. Requirement IDs, behavior, queued cases, independence and normal protections retained. |
 
 No unresolved defect within this correction. Approval permits normal protected commit/publication. Terminal T.1 AC1–AC2 implementation Pass still requires exact published correction identity and successful required CI; AC3–AC4 stay deferred/incomplete. No new Chrome or broad local testing is required. Review-only receipt is not an additional deliverable dependency. Original read-only evidence:421526,252cd8,f04f04,f29391,da5e2e,0109cf,9fb5bd.
+
+## Terminal scoped implementation Pass — 21 October 2026
+
+Independent publication verification is complete. Origin/main is aa83c6437731c4a6bf2440ee1454d705e412cc7f, tree db83f5884b2520014d5eea2e5adebfd331017e52. All seven approved correction files match committed bytes; the prior 21-file AC1–AC2 snapshot also matched its published commit. Normal hooks passed (124 static guards, zero warnings/errors); original hook receipt is owner session82071 with redacted-path copy .anvil/fast-unit-cadence-publication-hook.log.
+
+[CI39610722790](https://github.com/aidanmorgan/tim/actions/runs/39610722790) completed success on exact aa83c643: build and deploy both succeeded; game tests passed1961/1961, zero failures/skips. GitHub Pages deployment7227905066 names the same SHA and has success status at https://aidanmorgan.github.io/tim/. Independent raw reads are tool chunks7bca3d,7513f0,3ebe1a.
+
+Product runtime inputs under engine, Simulation, web, elements and schemas are unchanged from independently verified81c3be3 baseline. Approved browser edits are type-only. Existing identity-verified product/browser proof therefore remains applicable; no new Chrome, Full, calibration or duplicate local tests were run or needed for this tooling publication. This does not claim qualification of later changed9A.16 inputs.
+
+Verdict: **Pass for bounded T.1 AC1–AC2 implementation/publication, exact reference-pack pin repair, and owner-authorized fast-test/five-element E2E cadence.** No unresolved unintended regression within that scope. The previous failed CI remains preserved evidence and is resolved by the narrow pin fix plus successful CI. T.1 AC3–AC4 remain explicitly deferred/incomplete, with no speedup or whole-story completion claim. Future changed gameplay browser cases remain pending their five-element batch or named release gate; this verdict does not supply that qualification.
 

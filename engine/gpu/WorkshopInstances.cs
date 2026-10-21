@@ -27,8 +27,9 @@ public interface IWorkshopDeclaredColliders : IWorkshopInstance
 public readonly record struct WorkshopGenericInstance(
     PartId PartId,
     GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, IReadOnlyList<ExtractedCollider> DeclaredColliders, bool Locked = false) : IWorkshopDeclaredColliders
+    CanonicalRotation Rotation, bool Locked = false) : IWorkshopDeclaredColliders
 {
+    public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {
@@ -37,7 +38,7 @@ public readonly record struct WorkshopGenericInstance(
         if (PartId == PartId.Pipe) throw new ArgumentException("A pipe is a typed WorkshopPipe, never a generic instance.");
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
-        ArgumentNullException.ThrowIfNull(DeclaredColliders);
+        _ = DeclaredColliders;
     }
 }
 

@@ -10,7 +10,7 @@ material = SubResource("Mat_Bowling")
 radius = 0.28
 height = 0.56
 
-[sub_resource type="SphereShape3D" id="Shape_Bowling"]
+[sub_resource type="SphereShape3D" id="BakedShape_0_0"]
 radius = 0.28
 
 [node name="bowling" type="Node3D"]
@@ -21,6 +21,8 @@ script = ExtResource("1")
 [node name="Visual_Sphere" type="MeshInstance3D" parent="Visual"]
 mesh = SubResource("Mesh_Bowling")
 
-[node name="col_sphere" type="CollisionShape3D" parent="."]
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Bowling")
+shape = SubResource("BakedShape_0_0")

@@ -49,7 +49,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
         var instance = packedScene.Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Exactly 72 colliders: 64 tapered wall boxes + 8 rim boxes
             Assert.Equal(72, colliders.Count);
@@ -97,7 +97,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopCanonicalColliders_MatchesFunnelColliders()
     {
-        var colliders = WorkshopCanonicalColliders.FunnelColliders;
+        var colliders = DeclaredPhysics.Colliders(PartId.Funnel);
         Assert.Equal(72, colliders.Count);
 
         for (var i = 0; i < 72; i++)
@@ -177,7 +177,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtOutlet()
     {
-        var colliders = WorkshopCanonicalColliders.FunnelColliders;
+        var colliders = DeclaredPhysics.Colliders(PartId.Funnel);
         Assert.Equal(72, colliders.Count);
 
         // Basketball radius 0.34 m fits with clearance inside 0.65 m outlet and 1.3 m inlet

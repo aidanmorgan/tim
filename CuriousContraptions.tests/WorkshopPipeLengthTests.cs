@@ -56,8 +56,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
 
     [Fact]
     public void ThePipeIsNeverAGenericInstance() =>
-        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(PartId.Pipe, new(1), 0, 3, 0, 0, 0, 0, 1,
-            WorkshopCanonicalColliders.Pipe(PipeLength.Default)));
+        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(PartId.Pipe, new(1), 0, 3, 0, 0, 0, 0, 1));
 
     // ---------- Colliders, mouths and pick radius scale with length ----------
 
@@ -94,7 +93,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         var registry = new PartRegistry();
         registry.Load();
         var scene = registry.Definitions[PartId.Pipe].Colliders;
-        var generated = WorkshopCanonicalColliders.Pipe(PipeLength.Default);
+        var generated = DeclaredPhysics.Colliders(PartId.Pipe);
         Assert.Equal(scene.Count, generated.Count);
         for (var i = 0; i < scene.Count; i++)
         {

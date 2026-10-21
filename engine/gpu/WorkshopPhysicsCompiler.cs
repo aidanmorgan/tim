@@ -1,22 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Bundle;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Catalogue authoring boundary: compiles geometry/material values, never selects a numerical law.</summary>
+/// <summary>Compiles the bundle's declared bodies, geometry and materials; domain bindings remain separate.</summary>
 public static class WorkshopPhysicsCompiler
 {
     private const ulong InternalIdentityBase = 1UL << 32;
     private const ulong PartIdentityStride = 256;
-    private static readonly (MetreVector Centre, MetreVector HalfExtents)[] ReceiverWalls =
-    [
-        (new((Half)0, (Half)(-.45), (Half)0), new((Half).75, (Half).075, (Half).75)),
-        (new((Half)(-.75), (Half)0, (Half)0), new((Half).06, (Half).5, (Half).8)),
-        (new((Half).75, (Half)0, (Half)0), new((Half).06, (Half).5, (Half).8)),
-        (new((Half)0, (Half)0, (Half)(-.75)), new((Half).75, (Half).5, (Half).06)),
-        (new((Half)0, (Half)(-.2), (Half).75), new((Half).75, (Half).3, (Half).06))
-    ];
+
     public static PhysicsSceneDeclaration Compile(WorkshopConstruction construction, PhysicsDocumentId document)
     {
         construction.Validate();
@@ -42,40 +38,61 @@ public static class WorkshopPhysicsCompiler
         colliders.Add(new(new(InternalIdentityBase + 2), plane, planeMaterial,
             ColliderShapeKind.Plane, RigidLocalPose.Identity, new((Half)0), default));
         var next = InternalIdentityBase + 3;
-        foreach (var ball in construction.Instances.OfType<WorkshopBall>().OrderBy(b => b.Id.Value))
+        foreach (var instance in construction.Instances)
         {
-            var first = PartIdentities(ball.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(ball.Id, RigidMotionKind.Dynamic, ball.Cell, ball.Local, ball.Rotation,
-                default, default, ball.Material.Mass,
-                new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), ball.Material.Drag));
-            materials.Add(new(material, ball.Material.Bounce, ball.Material.BounceThreshold, ball.Material.Friction, ball.Material.Rolling));
-            colliders.Add(new(new(first + 1), ball.Id, material, ColliderShapeKind.Sphere,
-                RigidLocalPose.Identity, ball.Material.Radius, default));
+            var entry = DeclaredPhysics.Of(instance.PartId);
+            var first = PartIdentities(instance.Id);
+            next = Math.Max(next, first + PartIdentityStride);
+            var parameters = DeclaredPhysics.Parameters(instance);
+            var shapes = BundleGeometry.Colliders(entry, parameters);
+            var mechanical = entry.Mechanical;
+            var mass = mechanical?.MassProperties ?? default;
+            var mode = (mechanical?.KinematicMode ?? KinematicMode.Static) switch
+            {
+                KinematicMode.Static => RigidMotionKind.Static,
+                KinematicMode.Dynamic => RigidMotionKind.Dynamic,
+                _ => throw new ArgumentException("Unsupported authored body mode.")
+            };
+            var sliders = mechanical?.Sliders ?? [];
+            if (entry.Footprint.Bodies != 1 + sliders.Count ||
+                entry.Footprint.MovingBodies != sliders.Count + (mode == RigidMotionKind.Dynamic ? 1 : 0) ||
+                entry.Footprint.PrismaticConstraints != sliders.Count)
+                throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
+            bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
+                new((Half)mass.Mass), new((Half)mass.Gravity.X, (Half)mass.Gravity.Y, (Half)mass.Gravity.Z), new((Half)mass.LinearDrag)));
+            AddGeometry(instance.Id, first, first + (sliders.Count != 0 && shapes.Count > 1 ? 6UL : 1UL), shapes);
+            for (var i = 0; i < sliders.Count; i++)
+            {
+                var slider = sliders[i];
+                var identity = first + (ulong)i * 16;
+                var moving = new GpuBodyId(identity + 2);
+                var compression = slider.Compression.Evaluate(parameters);
+                var offset = slider.BaseFrame.Position - slider.MovingFrame.Position - Vector3.UnitY * compression;
+                var rotation = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
+                var displacement = Vector3.Transform(offset, rotation);
+                var x = WorkshopInput.Position((instance.Cell.X + instance.Local.X) / 16f + displacement.X);
+                var y = WorkshopInput.Position((instance.Cell.Y + instance.Local.Y) / 16f + displacement.Y);
+                var z = WorkshopInput.Position((instance.Cell.Z + instance.Local.Z) / 16f + displacement.Z);
+                var body = slider.MovingBody;
+                bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+                    instance.Rotation, default, default, new((Half)body.Mass),
+                    new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
+                AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
+                prismatics.Add(new(new(identity + 5), instance.Id, moving,
+                    new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
+                    slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
+                    slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
+            }
+            if (instance.PartId == PartId.PoweredGate && SupplyFeed(construction, instance.Id) is { } supplied)
+                supplyRoutes.Add(new(new(first + 5), ElectricalSource(supplied.Battery), supplied.Kind,
+                    supplied.Kind == SupplyRouteKind.Switched ? supplied.Via : default));
         }
-        foreach (var domino in construction.Instances.OfType<WorkshopDomino>().OrderBy(d => d.Id.Value))
-        {
-            var first = PartIdentities(domino.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(domino.Id, RigidMotionKind.Dynamic, domino.Cell, domino.Local, domino.Rotation,
-                default, default, domino.Material.Mass,
-                new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new((Half)0)));
-            materials.Add(new(material, domino.Material.Bounce, DominoMaterial.BounceThreshold, domino.Material.Friction, new((Half)0)));
-            colliders.Add(new(new(first + 1), domino.Id, material, ColliderShapeKind.Box,
-                RigidLocalPose.Identity, new((Half)0), domino.Material.HalfExtents));
-            // The sensor exists only for a wired tile; its initial pose is the admitted placement, so Reset rearms it.
+        foreach (var domino in construction.Instances.OfType<WorkshopDomino>())
             if (construction.Connections.HasSource(domino.Id))
                 orientationSensors.Add(new(OrientationSensor(domino.Id), domino.Id, domino.Rotation, WorkshopDomino.ActivationThreshold));
-        }
-        foreach (var receiver in construction.Instances.OfType<WorkshopReceiver>().OrderBy(r => r.Id.Value))
+        foreach (var receiver in construction.Instances.OfType<WorkshopReceiver>())
         {
-            var first = PartIdentities(receiver.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(receiver.Id, RigidMotionKind.Static, receiver.Cell, receiver.Local, receiver.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half).12), new((Half).1), new((Half).3), new((Half)0)));
-            var walls = ReceiverWalls;
-            for (var i = 0; i < walls.Length; i++) AddBox(first + 1 + (ulong)i, walls[i].Centre, walls[i].HalfExtents);
+            var first = PartIdentities(receiver.Id);
             var targetIndex = 0UL;
             foreach (var target in construction.Instances.OfType<WorkshopBall>().OrderBy(b => b.Id.Value))
             {
@@ -89,197 +106,39 @@ public static class WorkshopPhysicsCompiler
                     region.Minimum, region.Maximum, region.SupportHeight, region.SupportMargin, region.MaximumAcceleration));
                 targetIndex++;
             }
-            void AddBox(ulong id, MetreVector position, MetreVector half) =>
-                colliders.Add(new(new(id), receiver.Id, material, ColliderShapeKind.Box,
-                    new(position, CanonicalRotation.Identity), new((Half)0), half));
         }
-        foreach (var instance in construction.Instances)
-        {
-            if (instance is not (WorkshopRamp or WorkshopWall)) continue;
-            var first = PartIdentities(instance.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
-            var halfExtents = instance switch
-            {
-                WorkshopRamp ramp => new MetreVector((Half)(ramp.Dimensions.Length.Value * (Half).5),
-                    (Half)(RampDimensions.Thickness.Value * (Half).5), (Half)(ramp.Dimensions.Width.Value * (Half).5)),
-                WorkshopWall wall => new MetreVector((Half)(wall.Dimensions.Width.Value * (Half).5),
-                    (Half)(wall.Dimensions.Height.Value * (Half).5), (Half)(wall.Dimensions.Thickness.Value * (Half).5)),
-                _ => throw new ArgumentException("Unsupported static box declaration.")
-            };
-            colliders.Add(new(new(first + 1), instance.Id, material, ColliderShapeKind.Box,
-                RigidLocalPose.Identity, new((Half)0), halfExtents));
-        }
-        foreach (var instance in construction.Instances)
-        {
-            if (instance is not (WorkshopSwitch or WorkshopLamp or WorkshopDelay or WorkshopBumper or WorkshopBattery)) continue;
-            var first = PartIdentities(instance.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            // Source MachinePart.InitialContactMaterial: all these static surfaces use (1,.1,.3).
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
-            if (instance is WorkshopBattery battery)
-            {
-                AddStaticBox(first + 1, default, new((Half).425f, (Half).525f, (Half).375f));
-                electricalSources.Add(new(ElectricalSource(battery.Id), battery.Id, battery.Settings.Capacity,
-                    battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
-            }
-            else if (instance is WorkshopSwitch trigger)
-            {
-                AddStaticBox(first + 1, new((Half)0, (Half)(-.15), (Half)0), new((Half).55, (Half).125, (Half).5));
-                // Source AddBox(draw:false) suppresses art, not this second physical box.
-                AddStaticBox(first + 2, new((Half)0, (Half).05, (Half)0), new((Half).4, (Half).09, (Half).375));
-                if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
-                    triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, Targets(construction), trigger.Trigger.Threshold));
-            }
-            else if (instance is WorkshopBumper bumper)
-            {
-                colliders.Add(new(new(first + 1), bumper.Id, material, ColliderShapeKind.Sphere,
-                    RigidLocalPose.Identity, new((Half).65), default));
-                if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
-                    contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, Targets(construction),
-                        bumper.Work.Strength, bumper.Work.Preload, new(.05f), 72));
-            }
-            else if (instance is WorkshopDelay)
-                AddStaticBox(first + 1, new((Half)0, (Half)(-.7), (Half)0), new((Half).675, (Half).075, (Half).4));
-            else AddStaticBox(first + 1, new((Half)0, (Half)(-.35), (Half)0), new((Half).425, (Half).1, (Half).425));
-            void AddStaticBox(ulong id, MetreVector position, MetreVector half) =>
-                colliders.Add(new(new(id), instance.Id, material, ColliderShapeKind.Box,
-                    new(position, CanonicalRotation.Identity), new((Half)0), half));
-        }
-        foreach (var spring in construction.Instances.OfType<WorkshopSpringboard>().OrderBy(value => value.Id.Value))
-        {
-            var first = PartIdentities(spring.Id); next = Math.Max(next, first + PartIdentityStride);
-            var baseMaterial = new GpuMaterialId(first); var plateMaterial = new GpuMaterialId(first + 3);
-            var plate = SpringboardPlate(spring.Id);
-            bodies.Add(new(spring.Id, RigidMotionKind.Static, spring.Cell, spring.Local, spring.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(baseMaterial, new((Half)0), new((Half).05), new((Half).1), new((Half)0)));
-            materials.Add(new(plateMaterial, new((Half)0), new((Half).05), new((Half).1), new((Half)0)));
-            colliders.Add(new(new(first + 1), spring.Id, baseMaterial, ColliderShapeKind.Box,
-                new(new((Half)0, (Half)(-.36), (Half)0), CanonicalRotation.Identity), new((Half)0),
-                new((Half).65, (Half).06, (Half).6)));
-            var rotation = new System.Numerics.Quaternion((float)spring.Rotation.X, (float)spring.Rotation.Y,
-                (float)spring.Rotation.Z, (float)spring.Rotation.W);
-            var displacement = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(0, .14f - spring.Settings.InitialCompression, 0), rotation);
-            var x = WorkshopInput.Position((spring.Cell.X + (float)spring.Local.X) / 16f + displacement.X);
-            var y = WorkshopInput.Position((spring.Cell.Y + (float)spring.Local.Y) / 16f + displacement.Y);
-            var z = WorkshopInput.Position((spring.Cell.Z + (float)spring.Local.Z) / 16f + displacement.Z);
-            bodies.Add(new(plate, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
-                spring.Rotation, default, default, new((Half).25),
-                new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new((Half)0)));
-            colliders.Add(new(new(first + 4), plate, plateMaterial, ColliderShapeKind.Box,
-                RigidLocalPose.Identity, new((Half)0), new((Half).65, (Half).075, (Half).6)));
-            prismatics.Add(new(new(first + 5), spring.Id, plate,
-                new(new System.Numerics.Vector3(0, .14f, 0), System.Numerics.Quaternion.Identity), ConstraintFrame.Identity,
-                -.25f, 0, spring.Settings.Stiffness, spring.Settings.Damping, ConnectedCollision.Disabled));
-        }
-        var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
-        foreach (var instance in construction.Instances.OfType<IWorkshopDeclaredColliders>().OrderBy(i => i.Id.Value))
-        {
-            var first = PartIdentities(instance.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
-            if (instance.PartId == PartId.PoweredGate)
-            {
-                var bladeMaterial = new GpuMaterialId(first + 3);
-                materials.Add(new(bladeMaterial, new((Half).1), new((Half).1), new((Half).3), new((Half)0)));
-                var blade = GateBlade(instance.Id);
-                // Every supplied gate compiles one supply route (authoring → compile → physics); each tick closes it from its own
-                // battery's committed enable (and a switch's committed contact) via PhysicsTickInputs, never from the authored enable.
-                var feed = SupplyFeed(construction, instance.Id);
-                if (feed is { } supplied)
-                    supplyRoutes.Add(new(new(checked(first + 5)), ElectricalSource(supplied.Battery), supplied.Kind,
-                        supplied.Kind == SupplyRouteKind.Switched ? supplied.Via : default));
-                bodies.Add(new(blade, RigidMotionKind.Dynamic, instance.Cell, instance.Local, instance.Rotation,
-                    default, default, new((Half)1f),
-                    new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new InverseSeconds((Half)0f)));
-                colliders.Add(new(new(first + 4), blade, bladeMaterial, ColliderShapeKind.Box,
-                    RigidLocalPose.Identity, new((Half)0), new MetreVector((Half)0.06f, (Half)0.72f, (Half)0.72f)));
-                prismatics.Add(new(new(first + 5), instance.Id, blade,
-                    ConstraintFrame.Identity, ConstraintFrame.Identity,
-                    0f, 1.55f, 14f, 4f, ConnectedCollision.Disabled));
-                for (var i = 0; i < instance.DeclaredColliders.Count; i++)
-                {
-                    var extracted = instance.DeclaredColliders[i];
-                    colliders.Add(new(new(first + 6 + (ulong)i), instance.Id, material, extracted.ShapeKind,
-                        extracted.LocalPose, new Metres(extracted.Radius), extracted.HalfExtents));
-                }
-            }
-            else
-            {
-                for (var i = 0; i < instance.DeclaredColliders.Count; i++)
-                {
-                    var extracted = instance.DeclaredColliders[i];
-                    colliders.Add(new(new(first + 1 + (ulong)i), instance.Id, material, extracted.ShapeKind,
-                        extracted.LocalPose, new Metres(extracted.Radius), extracted.HalfExtents));
-                }
-            }
-        }
-        foreach (var plate in construction.Instances.OfType<WorkshopPressurePlate>().OrderBy(p => p.Id.Value))
-        {
-            var first = PartIdentities(plate.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(plate.Id, RigidMotionKind.Static, plate.Cell, plate.Local, plate.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half)0.1), new((Half)0.1), new((Half)0.3), new((Half)0)));
-            colliders.Add(new(new(first + 1), plate.Id, material, ColliderShapeKind.Box,
-                new(new((Half)0, (Half)(-0.12f), (Half)0), CanonicalRotation.Identity), new((Half)0),
-                new((Half)1.1f, (Half)0.1f, (Half)1.1f)));
-            colliders.Add(new(new(first + 2), plate.Id, material, ColliderShapeKind.Box,
-                new(new((Half)0, (Half)0.03f, (Half)0), CanonicalRotation.Identity), new((Half)0),
-                new((Half)0.9f, (Half)0.05f, (Half)0.9f)));
-            // CAT-052 §2: the plate's own contact-load row on its top face (collider first + 2), from this instance's minimum_mass.
-            contactLoads.Add(new(ContactLoadSensor(plate.Id), plate.Id, new(first + 2),
+        foreach (var battery in construction.Instances.OfType<WorkshopBattery>())
+            electricalSources.Add(new(ElectricalSource(battery.Id), battery.Id, battery.Settings.Capacity,
+                battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
+        foreach (var trigger in construction.Instances.OfType<WorkshopSwitch>())
+            if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
+                triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, Targets(construction), trigger.Trigger.Threshold));
+        foreach (var bumper in construction.Instances.OfType<WorkshopBumper>())
+            if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
+                contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, Targets(construction), bumper.Work.Strength,
+                    bumper.Work.Preload, new(.05f), 72));
+        foreach (var plate in construction.Instances.OfType<WorkshopPressurePlate>())
+            contactLoads.Add(new(ContactLoadSensor(plate.Id), plate.Id, new(PartIdentities(plate.Id) + 2),
                 -.9f - WorkshopPressurePlate.ContactDistance, .9f + WorkshopPressurePlate.ContactDistance,
                 -.9f - WorkshopPressurePlate.FootprintDepthMargin, .9f + WorkshopPressurePlate.FootprintDepthMargin,
-                System.Numerics.Vector3.UnitY, WorkshopPressurePlate.MinimumAlignment, WorkshopPressurePlate.ContactDistance,
-                plate.MinimumMass));
-        }
-        foreach (var counter in construction.Instances.OfType<WorkshopCounter>().OrderBy(c => c.Id.Value))
+                Vector3.UnitY, WorkshopPressurePlate.MinimumAlignment, WorkshopPressurePlate.ContactDistance, plate.MinimumMass));
+        var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
+
+        void AddGeometry(GpuBodyId owner, ulong materialIdentity, ulong colliderIdentity,
+            IReadOnlyList<CuriousContraptions.Abstractions.ColliderDescriptor> shapes)
         {
-            var first = PartIdentities(counter.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(counter.Id, RigidMotionKind.Static, counter.Cell, counter.Local, counter.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
-            colliders.Add(new(new(first + 1), counter.Id, material, ColliderShapeKind.Box,
-                RigidLocalPose.Identity, new((Half)0),
-                new((Half)0.825f, (Half)0.625f, (Half)0.325f)));
-            colliders.Add(new(new(first + 2), counter.Id, material, ColliderShapeKind.Box,
-                new(new((Half)0, (Half)(-0.72f), (Half)0), CanonicalRotation.Identity), new((Half)0),
-                new((Half)0.9f, (Half)0.08f, (Half)0.425f)));
-        }
-        foreach (var clock in construction.Instances.OfType<WorkshopClock>().OrderBy(c => c.Id.Value))
-        {
-            var first = PartIdentities(clock.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(clock.Id, RigidMotionKind.Static, clock.Cell, clock.Local, clock.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
-            colliders.Add(new(new(first + 1), clock.Id, material, ColliderShapeKind.Box,
-                RigidLocalPose.Identity, new((Half)0),
-                new((Half)0.7f, (Half)0.85f, (Half)0.3f)));
-            colliders.Add(new(new(first + 2), clock.Id, material, ColliderShapeKind.Box,
-                new(new((Half)0, (Half)(-0.95f), (Half)0), CanonicalRotation.Identity), new((Half)0),
-                new((Half)0.8f, (Half)0.1f, (Half)0.425f)));
-        }
-        foreach (var latch in construction.Instances.OfType<WorkshopLatch>().OrderBy(l => l.Id.Value))
-        {
-            var first = PartIdentities(latch.Id); next = Math.Max(next, first + PartIdentityStride);
-            var material = new GpuMaterialId(first);
-            bodies.Add(new(latch.Id, RigidMotionKind.Static, latch.Cell, latch.Local, latch.Rotation,
-                default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
-            var declared = WorkshopCanonicalColliders.LatchColliders;
-            for (var i = 0; i < declared.Count; i++)
-                colliders.Add(new(new(first + 1 + (ulong)i), latch.Id, material, declared[i].ShapeKind,
-                    declared[i].LocalPose, new Metres(declared[i].Radius), declared[i].HalfExtents));
+            var surface = shapes[0].Material;
+            if (shapes.Any(shape => shape.Material != surface))
+                throw new ArgumentException("One compiled body must declare one contact material.");
+            var material = new GpuMaterialId(materialIdentity);
+            materials.Add(new(material, new((Half)surface.Restitution), new((Half)surface.BounceThreshold),
+                new((Half)surface.Friction), new((Half)surface.RollingResistance)));
+            for (var i = 0; i < shapes.Count; i++)
+            {
+                var shape = DeclaredPhysics.Admit(shapes[i]);
+                colliders.Add(new(new(colliderIdentity + (ulong)i), owner, material, shape.ShapeKind,
+                    shape.LocalPose, new(shape.Radius), shape.HalfExtents));
+            }
         }
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))

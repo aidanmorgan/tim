@@ -17,11 +17,31 @@ internal static class TestBundle
 {
     public static IReadOnlyList<BundlePackage> Packages { get; } = Discover();
 
-    public static string Json { get; } = BundleSchema.Write(Packages.Select(package => package.Declaration));
+    public static string Json { get; } = BundleGenerator.Generate(twodog.Engine.ResolveProjectDir()).Json ?? throw new InvalidOperationException("Test bundle failed to bake.");
 
     public static IReadOnlyList<BundleEntry> Entries { get; } = PartRegistry.Read(Json);
 
     public static ElementPortCatalogue Ports { get; } = ElementPortCatalogue.FromBundle(Entries);
+
+    public static BundleEntry Entry(PartId id) => Entries.Single(entry => entry.Metadata.Id == id.Value);
+
+    public static (IReadOnlyList<ExtractedCollider> Colliders, IReadOnlyDictionary<string, ExtractedPortLocator> Ports) SceneGeometry(Node3D root)
+    {
+        var entry = Entries.Single(entry => entry.Metadata.ScenePath == root.SceneFilePath);
+        var colliders = BundleGeometry.Colliders(entry).Select(DeclaredPhysics.Admit).ToArray();
+        var ports = new Dictionary<string, ExtractedPortLocator>(StringComparer.Ordinal);
+        foreach (var child in root.GetChildren().OfType<Node3D>())
+        {
+            var name = child.Name.ToString();
+            if (!name.StartsWith("Loc_Port_", StringComparison.Ordinal)) continue;
+            var key = name["Loc_Port_".Length..];
+            var mouth = entry.TubeMouths.Where(m => key == (m.End == TubeEnd.Start ? "mouth_start" : "mouth_end")).ToArray();
+            ports.Add(key, new(key, child.Position, child.Quaternion,
+                mouth.Length == 0 ? null : mouth[0].End == TubeEnd.Start ? TubeMouthEnd.Start : TubeMouthEnd.End,
+                mouth.Length == 0 ? null : mouth[0].BoreRadius));
+        }
+        return (colliders, ports);
+    }
 
     private static IReadOnlyList<BundlePackage> Discover()
     {
@@ -35,7 +55,11 @@ internal static class TestBundle
 /// the Simulation worker does at bootstrap.</summary>
 public sealed class DeclaredPortsFixture
 {
-    public DeclaredPortsFixture() => DeclaredPorts.Install(TestBundle.Ports);
+    public DeclaredPortsFixture()
+    {
+        DeclaredPhysics.Install(TestBundle.Entries);
+        DeclaredPorts.Install(TestBundle.Ports);
+    }
 }
 
 /// <summary>Story 9A.17: every element's sockets, directions, domains, signal kinds and anchor positions come only from its bundle
@@ -273,7 +297,7 @@ public sealed class BundlePortsTests
     [Fact]
     public void LocatorNamesAreMatchedOrdinally()
     {
-        var locatorLines = File.ReadAllLines(System.IO.Path.Combine(Root, "engine/gpu/GltfPhysicsBodyExtractor.cs"))
+        var locatorLines = File.ReadAllLines(System.IO.Path.Combine(Root, "tools/BundleElements/SceneGeometryExtractor.cs"))
             .Where(line => line.Contains("Loc_Port_", StringComparison.Ordinal) || line.Contains("Dictionary<string, ExtractedPortLocator>", StringComparison.Ordinal))
             .Where(line => !line.TrimStart().StartsWith("//", StringComparison.Ordinal)).ToArray();
         Assert.NotEmpty(locatorLines);
@@ -301,7 +325,7 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
             var root = scene.Instantiate<Node3D>();
             try
             {
-                var (_, locators) = GltfPhysicsBodyExtractor.Extract(root);
+                var (_, locators) = TestBundle.SceneGeometry(root);
                 foreach (var port in declaration.Ports)
                 {
                     var name = port.Socket.ToString();

@@ -5,7 +5,7 @@ using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Elements.Battery;
 
-public sealed class BatteryElementDeclaration : IElectricalElement
+public sealed class BatteryElementDeclaration : IElectricalElement, ISceneGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "battery",
@@ -28,14 +28,11 @@ public sealed class BatteryElementDeclaration : IElectricalElement
         new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(
-            ColliderShapeKind.Box,
-            HalfExtents: new Vector3(0.425f, 0.525f, 0.375f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

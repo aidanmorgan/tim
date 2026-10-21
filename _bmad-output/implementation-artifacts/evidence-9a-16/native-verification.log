@@ -1,0 +1,442 @@
+9A.16 original command output, 21 October 2026.
+Worktree: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16
+Base: d563d6eb5d20b2e4ec7df7e3d70ae2ab789fd659; integrated main aa83c6437731c4a6bf2440ee1454d705e412cc7f.
+Outputs below are retained from original tool sessions, not reruns for evidence.
+
+COMMAND: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'FullyQualifiedName~PackageRuntimeParityTests|FullyQualifiedName~WorkshopPhysicsEngineTests|FullyQualifiedName~PoweredGateTests|FullyQualifiedName~WorkshopSpringboardTests|FullyQualifiedName~JoinedPipeTests|FullyQualifiedName~WorkshopPipeLengthTests|FullyQualifiedName~WorkshopWireFlatBuffersTests' -v:q
+SESSION33661 / chunk63d62e / exit0
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   197, Skipped:     0, Total:   197, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+
+
+COMMAND: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --no-build --no-restore -v:q
+SESSION81504 / chunke27f8c / exit0
+
+Passed!  - Failed:     0, Passed:   130, Skipped:     0, Total:   130, Duration: 225 ms - BundleElements.Tests.dll (net10.0)
+
+
+COMMAND: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build --no-restore --filter 'FullyQualifiedName~PartRegistryTests|FullyQualifiedName~TubeMouthSnapTests|FullyQualifiedName~BundleElementIdTests|FullyQualifiedName~BundlePortsTests|FullyQualifiedName~BundlePortLocatorTests|FullyQualifiedName~WorkshopWallTests|FullyQualifiedName~ConstructionDecodeBoundaryTests|FullyQualifiedName~BallDetectorTests|FullyQualifiedName~BasketballResourceTests|FullyQualifiedName~ClockTests|FullyQualifiedName~CounterTests|FullyQualifiedName~FunnelTests|FullyQualifiedName~PipeBend45Tests|FullyQualifiedName~PipeBend90Tests|FullyQualifiedName~PressurePlateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~StraightPipeTests|FullyQualifiedName~WorkshopSaveRejectionTests' -v:q
+SESSION82517 / chunka4d9bb / exit1
+[xUnit.net 00:00:01.01]     CuriousContraptions.Tests.WorkshopWallTests.ThreeCanonicalDimensionsPoseAndIdentityRoundTripAtDefaultAndBothLimits [FAIL]
+[xUnit.net 00:00:01.59]     CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [FAIL]
+[xUnit.net 00:00:01.65]     CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette [FAIL]
+[xUnit.net 00:00:03.34]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend90) [FAIL]
+[xUnit.net 00:00:03.35]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: Bend45ToBend45) [FAIL]
+[xUnit.net 00:00:03.48]     CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [FAIL]
+[xUnit.net 00:00:03.58]     CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [FAIL]
+[xUnit.net 00:00:03.58]     CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [FAIL]
+[xUnit.net 00:00:03.58]     CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor [FAIL]
+
+Failed!  - Failed:     9, Passed:   449, Skipped:     0, Total:   458, Duration: 8 s - CuriousContraptions.tests.dll (net10.0)
+
+
+Failure investigation, no rebuild; selected the nine failing cases using console verbosity normal.
+SESSION54347 / chunk50e87b / exit1
+[xUnit.net 00:00:00.70]   Starting:    CuriousContraptions.tests
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/BrowserWorkshopClient.cs:line 90
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/ui/Workshop.cs:line 97
+[xUnit.net 00:00:01.14]     CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [FAIL]
+[xUnit.net 00:00:01.15]       System.InvalidOperationException : No baked physics declaration exists for 'tennis'.
+[xUnit.net 00:00:01.15]       Stack Trace:
+[xUnit.net 00:00:01.15]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(65,0): at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part)
+[xUnit.net 00:00:01.15]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(44,0): at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters)
+[xUnit.net 00:00:01.15]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(32,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders()
+[xUnit.net 00:00:01.15]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(41,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate()
+[xUnit.net 00:00:01.15]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs(297,0): at CuriousContraptions.Gpu.WorkshopInput.Generic(PartId partId, GpuBodyId id, Double x, Double y, Double z, Double qx, Double qy, Double qz, Double qw)
+[xUnit.net 00:00:01.15]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/PartRegistryTests.cs(231,0): at CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity()
+[xUnit.net 00:00:01.15]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.15]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.16]     CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette [FAIL]
+[xUnit.net 00:00:01.16]       System.InvalidOperationException : A different physical element bundle is already installed.
+[xUnit.net 00:00:01.16]       Stack Trace:
+[xUnit.net 00:00:01.16]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(26,0): at CuriousContraptions.Gpu.DeclaredPhysics.Install(IReadOnlyList`1 entries)
+[xUnit.net 00:00:01.16]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/PartRegistry.cs(72,0): at CuriousContraptions.PartRegistry.Load(String json)
+[xUnit.net 00:00:01.16]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/PartRegistryTests.cs(93,0): at CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette()
+[xUnit.net 00:00:01.16]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.16]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [8 ms]
+  Error Message:
+   System.InvalidOperationException : No baked physics declaration exists for 'tennis'.
+  Stack Trace:
+     at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 65
+   at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 44
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 32
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 41
+   at CuriousContraptions.Gpu.WorkshopInput.Generic(PartId partId, GpuBodyId id, Double x, Double y, Double z, Double qx, Double qy, Double qz, Double qw) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs:line 297
+   at CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/PartRegistryTests.cs:line 231
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette [6 ms]
+  Error Message:
+   System.InvalidOperationException : A different physical element bundle is already installed.
+  Stack Trace:
+     at CuriousContraptions.Gpu.DeclaredPhysics.Install(IReadOnlyList`1 entries) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 26
+   at CuriousContraptions.PartRegistry.Load(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/PartRegistry.cs:line 72
+   at CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/PartRegistryTests.cs:line 93
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: FunnelOutletToPipe) [147 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend45) [61 ms]
+[xUnit.net 00:00:01.49]       StraightToBend90: the ball never left the far mouth (last at (-13.2897625, -0.084081806, 0))
+[xUnit.net 00:00:01.49]       Stack Trace:
+[xUnit.net 00:00:01.49]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs(387,0): at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint)[xUnit.net 00:00:01.49]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend90) [FAIL]
+
+[xUnit.net 00:00:01.49]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:01.49]     CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: Bend45ToBend45) [FAIL]
+[xUnit.net 00:00:01.49]       Assert.NotNull() Failure: Value of type 'Nullable<TubeMouthSnapResult>' does not have a value
+[xUnit.net 00:00:01.49]       Stack Trace:
+[xUnit.net 00:00:01.49]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs(347,0): at CuriousContraptions.Tests.TubeMouthSnapTests.Route(Joint joint)
+[xUnit.net 00:00:01.49]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs(378,0): at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint)
+[xUnit.net 00:00:01.49]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:01.51]       pipe_bend_90 mouth_end faces (-1.1920929E-07, 1.0000001, 0), into the part
+[xUnit.net 00:00:01.51]       Stack Trace:
+[xUnit.net 00:00:01.51]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs(102,0): at CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward()
+[xUnit.net 00:00:01.51]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.51]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.51]     CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [FAIL]
+[xUnit.net 00:00:01.65]     CuriousContraptions.Tests.WorkshopWallTests.ThreeCanonicalDimensionsPoseAndIdentityRoundTripAtDefaultAndBothLimits [FAIL]
+[xUnit.net 00:00:01.65]       System.ArgumentException : 'wall' has an invalid parameter 'width'.
+[xUnit.net 00:00:01.65]       Stack Trace:
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Bundle/BundleGeometry.cs(17,0): at CuriousContraptions.Bundle.BundleGeometry.Parameters(BundleEntry entry, IReadOnlyDictionary`2 supplied)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Bundle/BundleGeometry.cs(26,0): at CuriousContraptions.Bundle.BundleGeometry.Colliders(BundleEntry entry, IReadOnlyDictionary`2 supplied)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopPhysicsCompiler.cs(47,0): at CuriousContraptions.Gpu.WorkshopPhysicsCompiler.Compile(WorkshopConstruction construction, PhysicsDocumentId document)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/WorkshopWallTests.cs(23,0): at CuriousContraptions.Tests.WorkshopWallTests.ThreeCanonicalDimensionsPoseAndIdentityRoundTripAtDefaultAndBothLimits()
+[xUnit.net 00:00:01.65]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.65]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.65]     CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [FAIL]
+[xUnit.net 00:00:01.65]       System.InvalidOperationException : No baked physics declaration exists for 'tennis'.
+[xUnit.net 00:00:01.65]       Stack Trace:
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(65,0): at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(44,0): at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(32,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(41,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(100,0): at CuriousContraptions.Gpu.WorkshopInstances.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs(144,0): at CuriousContraptions.Gpu.WorkshopConstruction.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs(470,0): at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, Boolean validate)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs(83,0): at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeCommand(WorkshopCommand command)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs(127,0): at CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(String element)
+[xUnit.net 00:00:01.65]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.65]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.65]     CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [FAIL]
+[xUnit.net 00:00:01.65]       System.InvalidOperationException : No baked physics declaration exists for 'kite'.
+[xUnit.net 00:00:01.65]       Stack Trace:
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(65,0): at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(44,0): at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(32,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(41,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(100,0): at CuriousContraptions.Gpu.WorkshopInstances.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs(144,0): at CuriousContraptions.Gpu.WorkshopConstruction.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs(470,0): at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, Boolean validate)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs(83,0): at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeCommand(WorkshopCommand command)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs(127,0): at CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(String element)
+[xUnit.net 00:00:01.65]            at InvokeStub_BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(Object, Span`1)
+[xUnit.net 00:00:01.65]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.65]       Assert.Throws() Failure: Exception type was not an exact match
+[xUnit.net 00:00:01.65]       Expected: typeof(CuriousContraptions.Gpu.WireFaultException)
+[xUnit.net 00:00:01.65]     CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor [FAIL]
+[xUnit.net 00:00:01.65]       Actual:   typeof(System.InvalidOperationException)
+[xUnit.net 00:00:01.65]       ---- System.InvalidOperationException : No baked physics declaration exists for 'kite'.
+[xUnit.net 00:00:01.65]       Stack Trace:
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs(138,0): at CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor()
+[xUnit.net 00:00:01.65]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.65]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.65]         ----- Inner Stack Trace -----
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(65,0): at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs(44,0): at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(32,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(41,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs(100,0): at CuriousContraptions.Gpu.WorkshopInstances.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs(144,0): at CuriousContraptions.Gpu.WorkshopConstruction.Validate()
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs(470,0): at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, Boolean validate)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs(83,0): at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeCommand(WorkshopCommand command)
+[xUnit.net 00:00:01.65]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs(138,0): at CuriousContraptions.Tests.BundleElementIdTests.<>c__DisplayClass15_0.<TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor>b__1()
+[xUnit.net 00:00:01.66]   Finished:    CuriousContraptions.tests (ID = 'c484c06f5fb6f0d50de30e6c0f4292775f3fa6b00cc0f31e0f704afc0745cc12')
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend90) [115 ms]
+  Error Message:
+   StraightToBend90: the ball never left the far mouth (last at (-13.2897625, -0.084081806, 0))
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 387
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: Bend45ToBend45) [5 ms]
+  Error Message:
+   Assert.NotNull() Failure: Value of type 'Nullable<TubeMouthSnapResult>' does not have a value
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.Route(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 347
+   at CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(Joint joint) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 378
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [14 ms]
+  Error Message:
+   pipe_bend_90 mouth_end faces (-1.1920929E-07, 1.0000001, 0), into the part
+  Stack Trace:
+     at CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/TubeMouthSnapTests.cs:line 102
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopWallTests.ThreeCanonicalDimensionsPoseAndIdentityRoundTripAtDefaultAndBothLimits [31 ms]
+  Error Message:
+   System.ArgumentException : 'wall' has an invalid parameter 'width'.
+  Stack Trace:
+     at CuriousContraptions.Bundle.BundleGeometry.Parameters(BundleEntry entry, IReadOnlyDictionary`2 supplied) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Bundle/BundleGeometry.cs:line 17
+   at CuriousContraptions.Bundle.BundleGeometry.Colliders(BundleEntry entry, IReadOnlyDictionary`2 supplied) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Bundle/BundleGeometry.cs:line 26
+   at CuriousContraptions.Gpu.WorkshopPhysicsCompiler.Compile(WorkshopConstruction construction, PhysicsDocumentId document) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopPhysicsCompiler.cs:line 47
+   at CuriousContraptions.Tests.WorkshopWallTests.ThreeCanonicalDimensionsPoseAndIdentityRoundTripAtDefaultAndBothLimits() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/WorkshopWallTests.cs:line 23
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [2 ms]
+  Error Message:
+   System.InvalidOperationException : No baked physics declaration exists for 'tennis'.
+  Stack Trace:
+     at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 65
+   at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 44
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 32
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 41
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 100
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, Boolean validate) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs:line 470
+   at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeCommand(WorkshopCommand command) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs:line 83
+   at CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(String element) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs:line 127
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [< 1 ms]
+  Error Message:
+   System.InvalidOperationException : No baked physics declaration exists for 'kite'.
+  Stack Trace:
+     at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 65
+   at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 44
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 32
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 41
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 100
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, Boolean validate) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs:line 470
+   at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeCommand(WorkshopCommand command) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs:line 83
+   at CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(String element) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs:line 127
+   at InvokeStub_BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor [1 ms]
+  Error Message:
+   Assert.Throws() Failure: Exception type was not an exact match
+Expected: typeof(CuriousContraptions.Gpu.WireFaultException)
+Actual:   typeof(System.InvalidOperationException)
+---- System.InvalidOperationException : No baked physics declaration exists for 'kite'.
+  Stack Trace:
+     at CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs:line 138
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace -----
+   at CuriousContraptions.Gpu.DeclaredPhysics.Of(PartId part) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 65
+   at CuriousContraptions.Gpu.DeclaredPhysics.Colliders(PartId part, IReadOnlyDictionary`2 parameters) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/DeclaredPhysics.cs:line 44
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.get_DeclaredColliders() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 32
+   at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 41
+   at CuriousContraptions.Gpu.WorkshopInstances.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopInstances.cs:line 100
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopConstruction.cs:line 144
+   at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, Boolean validate) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs:line 470
+   at CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeCommand(WorkshopCommand command) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/WorkshopWireFlatBuffers.cs:line 83
+   at CuriousContraptions.Tests.BundleElementIdTests.<>c__DisplayClass15_0.<TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor>b__1() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/BundleElementIdTests.cs:line 138
+
+Total tests: 11
+     Passed: 2Test Run Failed.
+
+     Failed: 9
+ Total time: 1.8396 Seconds
+
+
+COMMAND: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'FullyQualifiedName~WorkshopWallTests|FullyQualifiedName~PartRegistryTests|FullyQualifiedName~TubeMouthSnapTests|FullyQualifiedName~BundleElementIdTests|FullyQualifiedName~PackageRuntimeParityTests' --logger 'console;verbosity=normal'
+SESSION77125 / exit0; rebuild required by causal source fixes.
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Wall/bin/Debug/net10.0/Wall.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Battery/bin/Debug/net10.0/Battery.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/Domino/bin/Debug/net10.0/Domino.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/elements/elements.bundle.json (22 elements)
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (3 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.41]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.94]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.05]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopWallTests.ThreeCanonicalDimensionsPoseAndIdentityRoundTripAtDefaultAndBothLimits [61 ms]
+  Passed CuriousContraptions.Tests.WorkshopWallTests.SerializedInvalidDimensionsAndPaddingRejectWithoutClamping [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopWallTests.AllAdmittedInstancesCompileIntoExactlySizedTablesWithoutNewLaw [9 ms]
+  Passed CuriousContraptions.Tests.WorkshopWallTests.WallPopulationPuzzleAndForeignPortsReject [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopWallTests.FinitePointerInputClampsBeforeHalfConversionButNonfiniteRejects [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopWallTests.GenericShapeEnvelopeAcceptsSixteenAndRejectsTheNextHalfValue [< 1 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/gpu/BrowserWorkshopClient.cs:line 90
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/ui/Workshop.cs:line 97
+  Passed CuriousContraptions.Tests.PackageRuntimeParityTests.EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody [16 ms]
+  Passed CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [3 ms]
+  Passed CuriousContraptions.Tests.PackageRuntimeParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [7 ms]
+  Passed CuriousContraptions.Tests.PackageRuntimeParityTests.EveryBallPackageDeclaresItsBallMaterial [8 ms]
+  Passed CuriousContraptions.Tests.PackageRuntimeParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [8 ms]
+  Passed CuriousContraptions.Tests.PackageRuntimeParityTests.CompiledGeometryMatchesPreCutoverGolden [62 ms]
+  Passed CuriousContraptions.Tests.PackageRuntimeParityTests.EveryMechanicalPackageDeclaresTheCompiledBodyMotionMassDragAndGravity [1 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AMissingOrEmptyBundleRefusesTheLoad [< 1 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.Create_ThrowsArgumentException_OnUnknownOrUnregisteredPartId [4 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "malformed", expected: "is malformed") [8 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Category\": \"Motion\"|\"Category\": \"Sideways\"···, expected: "is malformed") [5 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Id\": \"bowling\"|\"Id\": \"ball\"", expected: "BUNDLE001 duplicate id 'ball'") [9 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Elements\": [|\"Elements\": [null, ", expected: "is malformed: Elements[0] is null") [6 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"DisplayName\": \"Wall\"|\"DisplayName\": \"\"", expected: "BUNDLE010 wall.Metadata.DisplayName") [6 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/icon.svg|res://elements/Wall/m"···, expected: "wall.Metadata.IconPath: 'res://elements/Wall/missi"···) [7 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"ScenePath\":|\"Unknown\": 1, \"ScenePath\":", expected: "is malformed") [5 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/wall.tscn|res://elements/Wall/"···, expected: "wall.Metadata.ScenePath: 'res://elements/Wall/miss"···) [6 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Options\": []|\"Options\": [null]", expected: "is malformed: Elements[") [6 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/wall.tscn|res://parts/scenes/w"···, expected: "BUNDLE007 wall.Metadata.ScenePath") [7 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"PaletteOrder\": 10,|\"PaletteOrder\": 1,", expected: "BUNDLE008 duplicate palette order 1") [7 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.PartId_ValidatesValuesAndSupportsEqualityAndComparison [1 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [10 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.TheFreeInventoryKeepsTheGivenPaletteOrderMinusTheUndeliveredSet [< 1 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.TheRegistryElementsAreTheLoadedBundlesDeliverableElements [4 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains [15 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.WorkshopIconsKeepsNoElementArm [9 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.NoStaticFreePaletteListRemains [< 1 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.Create_InstantiatesAndConfiguresEachLoadedPart [21 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette [4 ms]
+  Passed CuriousContraptions.Tests.PartRegistryTests.Load_RegistersEveryBundleElementFromItsPackageInPaletteOrder [12 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: FunnelOutletToPipe) [124 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend45) [63 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: StraightToBend90) [115 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging(joint: Bend45ToBend45) [88 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "powered_gate") [4 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_45") [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe_bend_90") [5 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "funnel") [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "pipe") [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart(id: "ball_detector") [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 19, snaps: True) [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 21, snaps: False) [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureAngleSnaps(degrees: 40, snaps: False) [4 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureDistanceSnaps(offset: 0.460000008, snaps: False) [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureDistanceSnaps(offset: 0.439999998, snaps: True) [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.OnlyAMouthWithinTheCaptureDistanceSnaps(offset: 0.720000029, snaps: False) [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.BoresMustBeEqualWithin1EMinus6Metres(difference: 1.99999999E-06, snaps: False) [1 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.BoresMustBeEqualWithin1EMinus6Metres(difference: 4.99999999E-07, snaps: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.EqualCandidatesBreakTiesByLowerPartIdThenStartBeforeEnd [5 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.APoweredGateSnapsOntoAPipeMouth [5 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ThePipeSnapsToTheFunnelOutletButNotItsWideInlet [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.PipeMouthsSitAtTheOuterCollarFaces [4 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.TheQueryNeverMutatesTheConstruction [5 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ANewPipeOffsetAndTurnedSnapsOntoAFreeMouthByTheShortestArcAndKeepsItsRoll [4 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.AMovedTubeIgnoresItsOwnCommittedPose [5 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward [9 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.ALockedMoverNeverSnapsAndALockedTargetsFreeMouthDoes [3 ms]
+  Passed CuriousContraptions.Tests.TubeMouthSnapTests.AnOccupiedMouthIsNotACandidate [3 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.EveryLoadedElementIsKnownToTheWorkerDecode [2 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [4 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [< 1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor [< 1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.NoSchemaFieldCarriesANumericPartId [2 ms]
+[xUnit.net 00:00:02.57]   Finished:    CuriousContraptions.tests (ID = 'c484c06f5fb6f0d50de30e6c0f4292775f3fa6b00cc0f31e0f704afc0745cc12')
+  Passed CuriousContraptions.Tests.BundleElementIdTests.AStoredSaveNamingAnUnknownElementIsRefusedNamingIt [< 1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "balloon") [< 1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [< 1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [< 1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageCarriesEachInstancesBundleElementIdString [< 1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.ASaveCarriesEachInstancesBundleElementIdString [1 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.NoNumericPartIdConversionRemains [36 ms]
+  Passed CuriousContraptions.Tests.BundleElementIdTests.ASaveIsValidatedAgainstTheLoadedBundle [< 1 ms]
+
+Test Run Successful.
+Total tests: 77
+     Passed: 77
+ Total time: 2.7694 Seconds
+
+
+COMMAND: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --no-restore --filter FullyQualifiedName~SceneGeometryExtractorTests -v:q
+SESSION73134 / chunk1a0386 / exit0; changed extractor basis and mouth rotation controls.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-16/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 49 ms - BundleElements.Tests.dll (net10.0)
+
+
+COMMAND: dotnet build CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj -c Release -v:q
+SESSION6104 / chunk380d6c / exit0
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:16.05

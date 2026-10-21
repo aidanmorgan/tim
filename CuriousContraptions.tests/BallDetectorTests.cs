@@ -49,7 +49,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var instance = packedScene.Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Exactly 17 colliders: 16 circumference + 1 housing
             Assert.Equal(17, colliders.Count);
@@ -170,8 +170,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new GpuBodyId(10),
             new CellOrigin(0, 48, 0),
             default,
-            rotation,
-            WorkshopCanonicalColliders.BallDetectorColliders);
+            rotation);
 
         var lamp = new WorkshopLamp(
             new GpuBodyId(20),

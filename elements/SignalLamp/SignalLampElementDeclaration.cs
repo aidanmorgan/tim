@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.SignalLamp;
 
-public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalElement
+public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalElement, ISceneGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "lamp",
@@ -27,14 +27,11 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
         new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(
-            ColliderShapeKind.Box,
-            HalfExtents: new Vector3(0.425f, 0.1f, 0.425f),
-            Offset: new Vector3(0, -0.35f, 0),
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

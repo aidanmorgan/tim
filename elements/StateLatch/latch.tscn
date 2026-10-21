@@ -59,11 +59,11 @@ height = 0.15
 material = SubResource("Mat_Navy")
 size = Vector3(0.1, 0.03, 0.03)
 
-[sub_resource type="BoxShape3D" id="Shape_Housing"]
-size = Vector3(1.65, 1.25, 0.65)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(1.649999976158142, 1.25, 0.6499999761581421)
 
-[sub_resource type="BoxShape3D" id="Shape_Foot"]
-size = Vector3(1.8, 0.16, 0.85)
+[sub_resource type="BoxShape3D" id="BakedShape_0_1"]
+size = Vector3(1.7999999523162842, 0.1599999964237213, 0.8500000238418579)
 
 [node name="latch" type="Node3D"]
 script = ExtResource("1")
@@ -175,15 +175,6 @@ mesh = SubResource("Mesh_OutChevron")
 transform = Transform3D(0.825336, -0.564642, 0, 0.564642, 0.825336, 0, 0, 0, 1, 0.035, 0, 0)
 mesh = SubResource("Mesh_OutChevron")
 
-[node name="CollisionShape_Housing" type="CollisionShape3D" parent="."]
-visible = false
-shape = SubResource("Shape_Housing")
-
-[node name="CollisionShape_Foot" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.72, 0)
-visible = false
-shape = SubResource("Shape_Foot")
-
 [node name="Loc_Port_SetIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.72, 0)
 
@@ -198,3 +189,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.93, 0, 0)
 
 [node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.56, 0.38)
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")
+
+[node name="col_0_1" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.72, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_1")

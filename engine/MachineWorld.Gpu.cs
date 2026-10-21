@@ -122,14 +122,12 @@ public partial class MachineWorld
                     BumperWork.Default),
             "lamp" => WorkshopInput.Lamp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             "domino" => WorkshopInput.Domino(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
-            "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Registry.Definitions.TryGetValue(id, out var detectorDef) && detectorDef.Colliders.Count > 0 ? detectorDef.Colliders : WorkshopCanonicalColliders.For(id)),
+            "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             // The part's presented length; else the committed pipe keeps its own; a newly placed pipe starts at the declared default.
             "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 pipeLength ?? (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
                     PipeLength.Default)),
-            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Registry.Definitions.TryGetValue(id, out var def) && def.Colliders.Count > 0 ? def.Colliders : WorkshopCanonicalColliders.For(id)),
+            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
             // placement value (Story 9.4b: no factory or decoder default substitutes for either).
             "pressure_plate" => WorkshopInput.PressurePlate(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
