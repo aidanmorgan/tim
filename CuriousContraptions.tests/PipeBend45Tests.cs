@@ -53,7 +53,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         var instance = packedScene.Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Exactly 40 colliders: 32 curved wall boxes + 8 rim boxes
             Assert.Equal(40, colliders.Count);
@@ -103,7 +103,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopCanonicalColliders_MatchesPipeBend45Colliders()
     {
-        var colliders = WorkshopCanonicalColliders.PipeBend45Colliders;
+        var colliders = DeclaredPhysics.Colliders(PartId.PipeBend45);
         Assert.Equal(40, colliders.Count);
 
         for (var i = 0; i < 40; i++)
@@ -186,7 +186,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
     [Fact]
     public void BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth()
     {
-        var colliders = WorkshopCanonicalColliders.PipeBend45Colliders;
+        var colliders = DeclaredPhysics.Colliders(PartId.PipeBend45);
         Assert.Equal(40, colliders.Count);
 
         // Basketball radius 0.34 m fits with clearance

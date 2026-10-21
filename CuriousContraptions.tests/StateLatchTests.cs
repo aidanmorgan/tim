@@ -71,12 +71,12 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var instance = ResourceLoader.Load<PackedScene>("res://elements/StateLatch/latch.tscn").Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
             Assert.Equal(2, colliders.Count);
             Assert.Equal(new MetreVector((Half)0.825f, (Half)0.625f, (Half)0.325f), colliders[0].HalfExtents);
             Assert.Equal(new MetreVector((Half)0.9f, (Half)0.08f, (Half)0.425f), colliders[1].HalfExtents);
             Assert.Equal((Half)(-0.72f), colliders[1].LocalPose.Translation.Y);
-            Assert.Equal(colliders.Select(c => c.HalfExtents), WorkshopCanonicalColliders.For(PartId.Latch).Select(c => c.HalfExtents));
+            Assert.Equal(colliders.Select(c => c.HalfExtents), DeclaredPhysics.Colliders(PartId.Latch).Select(c => c.HalfExtents));
             Assert.Equal(new Godot.Vector3(-0.45f, 0.72f, 0), ports["SetIn"].Position);
             Assert.Equal(new Godot.Vector3(0.45f, 0.72f, 0), ports["ResetIn"].Position);
             Assert.Equal(new Godot.Vector3(-0.93f, 0, 0), ports["PowerIn"].Position);
@@ -348,7 +348,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var battery = WorkshopInput.Battery(new(1), -4, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 4, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(PartId.PoweredGate));
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
             Connections: new(Power(battery.Id, latch.Id), new(latch.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         routed.Validate();
@@ -392,13 +392,13 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute()
     {
         // An unswitched gate compiles first, so neither switched route sits at prismatic index 0.
-        var plain = WorkshopInput.Generic(PartId.PoweredGate, new(1), -8, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(PartId.PoweredGate));
+        var plain = WorkshopInput.Generic(PartId.PoweredGate, new(1), -8, 0, 0, 0, 0, 0, 1);
         var batteryA = WorkshopInput.Battery(new(2), -6, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
         var batteryB = WorkshopInput.Battery(new(3), -6, -3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Disabled });
         var latchA = WorkshopInput.Latch(new(4), 0, 3, 0, 0, 0, 0, 1);
         var latchB = WorkshopInput.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
-        var gateA = WorkshopInput.Generic(PartId.PoweredGate, new(6), 6, 3, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(PartId.PoweredGate));
-        var gateB = WorkshopInput.Generic(PartId.PoweredGate, new(7), 6, -3, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(PartId.PoweredGate));
+        var gateA = WorkshopInput.Generic(PartId.PoweredGate, new(6), 6, 3, 0, 0, 0, 0, 1);
+        var gateB = WorkshopInput.Generic(PartId.PoweredGate, new(7), 6, -3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(plain, batteryA, batteryB, latchA, latchB, gateA, gateB),
             Connections: new(Power(batteryA.Id, latchA.Id), Power(batteryB.Id, latchB.Id),
@@ -470,7 +470,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == latch.Id);
         Assert.Equal(RigidMotionKind.Static, body.Motion);
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == latch.Id).ToArray();
-        Assert.Equal(WorkshopCanonicalColliders.LatchColliders.Select(c => c.HalfExtents), colliders.Select(c => c.HalfExtents));
+        Assert.Equal(DeclaredPhysics.Colliders(PartId.Latch).Select(c => c.HalfExtents), colliders.Select(c => c.HalfExtents));
         Assert.Equal(2, colliders.Length);
     }
 
@@ -481,7 +481,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var resetSwitch = WorkshopInput.Switch(new(2), -3, 2, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = WorkshopInput.Battery(new(4), -5, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 4, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(PartId.PoweredGate));
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 4, 0, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(9), WorkshopCadenceSettings.Default(), new(setSwitch, resetSwitch, latch, battery, gate),
             Connections: new(Signal(setSwitch.Id, latch.Id, WorkshopSocket.SetIn), Signal(resetSwitch.Id, latch.Id, WorkshopSocket.ResetIn),
                 Power(battery.Id, latch.Id), new(latch.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));

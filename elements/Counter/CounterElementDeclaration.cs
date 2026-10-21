@@ -6,10 +6,8 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.Counter;
 
-public sealed class CounterElementDeclaration : ISignalElement, IElectricalElement
+public sealed class CounterElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
-
     public ElementMetadata Metadata => new(
         Id: "counter",
         Category: ElementCategory.Control,
@@ -35,10 +33,11 @@ public sealed class CounterElementDeclaration : ISignalElement, IElectricalEleme
     ];
 
     /// <summary>The housing and its foot.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.825f, 0.625f, 0.325f), Offset: Vector3.Zero, Rotation: Quaternion.Identity, Material: Surface),
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.9f, 0.08f, 0.425f), Offset: new Vector3(0, -0.72f, 0), Rotation: Quaternion.Identity, Material: Surface)
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

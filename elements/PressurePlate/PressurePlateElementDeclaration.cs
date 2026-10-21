@@ -7,10 +7,8 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.PressurePlate;
 
-public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElectricalElement, ISignalElement
+public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElectricalElement, ISignalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
-
     public ElementMetadata Metadata => new(
         Id: "pressure_plate",
         Category: ElementCategory.Control,
@@ -36,10 +34,11 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElect
     ];
 
     /// <summary>The base slab and the top face that carries the contact load.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(1.1f, 0.1f, 1.1f), Offset: new Vector3(0, -0.12f, 0), Rotation: Quaternion.Identity, Material: Surface),
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.9f, 0.05f, 0.9f), Offset: new Vector3(0, 0.03f, 0), Rotation: Quaternion.Identity, Material: Surface)
+        new(".", new(0.1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

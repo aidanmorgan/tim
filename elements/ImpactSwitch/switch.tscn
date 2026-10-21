@@ -34,11 +34,11 @@ material = SubResource("Mat_Socket")
 radius = 0.09
 height = 0.18
 
-[sub_resource type="BoxShape3D" id="Shape_Base"]
-size = Vector3(1.1, 0.25, 1)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(1.100000023841858, 0.25, 1)
 
-[sub_resource type="BoxShape3D" id="Shape_Button"]
-size = Vector3(0.8, 0.18, 0.75)
+[sub_resource type="BoxShape3D" id="BakedShape_0_1"]
+size = Vector3(0.800000011920929, 0.18000000715255737, 0.75)
 
 [node name="switch" type="Node3D"]
 script = ExtResource("1")
@@ -66,15 +66,17 @@ mesh = SubResource("Mesh_Button")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.4)
 mesh = SubResource("Mesh_Socket")
 
-[node name="col_box_base" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
-visible = false
-shape = SubResource("Shape_Base")
-
-[node name="col_box_button" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
-visible = false
-shape = SubResource("Shape_Button")
-
 [node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.4)
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.15, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")
+
+[node name="col_0_1" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.05, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_1")

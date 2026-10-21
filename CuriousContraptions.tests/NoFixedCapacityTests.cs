@@ -37,7 +37,7 @@ public sealed class NoFixedCapacityTests
             case "bodies-33":
                 // Seventeen Powered Gates: 35 bodies from 17 parts, below the retired part table.
                 for (var i = 0; i < 17; i++)
-                    parts.Add(WorkshopInput.Generic(PartId.PoweredGate, Next(), X(i), 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders));
+                    parts.Add(WorkshopInput.Generic(PartId.PoweredGate, Next(), X(i), 0, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(35, scene.Bodies.Length));
             case "dynamic-16":
                 Balls(17, 0);
@@ -58,7 +58,7 @@ public sealed class NoFixedCapacityTests
                 // Nine Batteries, each wired to its own Powered Gate: nine sources, nine routes and nine connections.
                 for (var i = 0; i < 9; i++)
                 {
-                    var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+                    var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, 0, 0, 0, 0, 1);
                     var battery = WorkshopInput.Battery(Next(), X(2 * i) + 1.6, 0, 0, 0, 0, 0, 1,
                         ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
                     parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
@@ -214,7 +214,7 @@ public sealed class NoFixedCapacityTests
         for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Bumper(Next(), X(i), 1, -12, 0, 0, 0, 1, BumperWork.Default));
         for (var i = 0; i < 9; i++)
         {
-            var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, -8, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+            var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, -8, 0, 0, 0, 1);
             var battery = WorkshopInput.Battery(Next(), X(2 * i) + 1.6, 0, -8, 0, 0, 0, 1,
                 ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
             parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));

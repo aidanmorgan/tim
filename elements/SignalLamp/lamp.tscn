@@ -28,8 +28,8 @@ material = SubResource("Mat_Bulb")
 radius = 0.43
 height = 0.86
 
-[sub_resource type="BoxShape3D" id="Shape_Base"]
-size = Vector3(0.85, 0.2, 0.85)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(0.8500000238418579, 0.20000000298023224, 0.8500000238418579)
 
 [node name="lamp" type="Node3D"]
 script = ExtResource("1")
@@ -49,9 +49,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
 material_override = SubResource("Mat_Bulb")
 mesh = SubResource("Mesh_Bulb")
 
-[node name="col_box" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
-visible = false
-shape = SubResource("Shape_Base")
-
 [node name="Loc_Port_ActivationIn" type="Node3D" parent="."]
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.35, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")

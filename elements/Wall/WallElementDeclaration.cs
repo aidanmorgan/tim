@@ -5,7 +5,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.Wall;
 
-public sealed class WallElementDeclaration : IMechanicalElement
+public sealed class WallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IParameterizedGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "wall",
@@ -28,14 +28,20 @@ public sealed class WallElementDeclaration : IMechanicalElement
     public IReadOnlyList<PortDescriptor> Ports => [];
 
     /// <summary>The wall at the default dimensions: half its width, height and thickness.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings => [];
+
+    public IReadOnlyList<ColliderParameterBinding> ColliderBindings =>
     [
-        new(
-            ColliderShapeKind.Box,
-            HalfExtents: new Vector3(1.5f, 1f, 0.125f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(0, GeometryComponent.HalfExtentX, "width", .5f, 0f),
+        new(0, GeometryComponent.HalfExtentY, "height", .5f, 0f),
+        new(0, GeometryComponent.HalfExtentZ, "thickness", .5f, 0f)
+    ];
+
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
+    [
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];

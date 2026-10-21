@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.Bumper;
 
-public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalElement
+public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalElement, ISceneGeometryElement
 {
     public ElementMetadata Metadata => new(
         Id: "bumper",
@@ -29,14 +29,11 @@ public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalEl
         new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 0f, .65f), Vector3.UnitZ)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(
-            ColliderShapeKind.Sphere,
-            HalfExtents: new Vector3(0.65f, 0.65f, 0.65f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

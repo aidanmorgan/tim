@@ -41,7 +41,7 @@ material = SubResource("Mat_Ring")
 inner_radius = 0.472
 outer_radius = 0.508
 
-[sub_resource type="SphereShape3D" id="Shape_Sphere"]
+[sub_resource type="SphereShape3D" id="BakedShape_0_0"]
 radius = 0.65
 
 [node name="bumper" type="Node3D"]
@@ -69,9 +69,11 @@ mesh = SubResource("Mesh_ImpactRing")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
 mesh = SubResource("Mesh_Ring2")
 
-[node name="col_sphere" type="CollisionShape3D" parent="."]
-visible = false
-shape = SubResource("Shape_Sphere")
-
 [node name="Loc_Port_PowerIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.65)
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")

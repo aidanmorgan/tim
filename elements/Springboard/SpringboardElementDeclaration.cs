@@ -8,10 +8,8 @@ namespace CuriousContraptions.Elements.Springboard;
 /// <summary>The Springboard (CAT-062): a static base carrying a 0.25 kg plate on one prismatic slider. The plate rests 0.14 m above
 /// the base frame and may compress 0.25 m below rest; its spring's stiffness and damping, and its starting compression (preload), are
 /// typed parameters with the runtime's defaults and admitted ranges.</summary>
-public sealed class SpringboardElementDeclaration : ISliderElement
+public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 0f, Friction: 0.1f, RollingResistance: 0f, BounceThreshold: 0.05f);
-
     public ElementMetadata Metadata => new(
         Id: "spring",
         Category: ElementCategory.Motion,
@@ -33,9 +31,12 @@ public sealed class SpringboardElementDeclaration : ISliderElement
     public IReadOnlyList<PortDescriptor> Ports => [];
 
     /// <summary>The base slab.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(ColliderShapeKind.Box, new Vector3(0.65f, 0.06f, 0.6f), new Vector3(0f, -0.36f, 0f), Quaternion.Identity, Surface)
+        new(".", new(0f, 0.1f, 0f, 0.05f)),
+        new("Visual/Plate", new(0f, 0.1f, 0f, 0.05f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];
@@ -60,14 +61,14 @@ public sealed class SpringboardElementDeclaration : ISliderElement
             MovingFrame: new(Vector3.Zero, Quaternion.Identity),
             LowerLimit: -0.25f,
             UpperLimit: 0f,
-            StiffnessParameter: "stiffness",
-            DampingParameter: "damping",
-            CompressionParameter: "initial_compression",
+            Stiffness: MechanicalValue.FromParameter("stiffness"),
+            Damping: MechanicalValue.FromParameter("damping"),
+            Compression: MechanicalValue.FromParameter("initial_compression"),
             BodiesCollide: false,
             MovingBody: new(
                 Mass: 0.25f,
                 Gravity: new Vector3(0f, -9.81f, 0f),
                 LinearDrag: 0f,
-                Colliders: [new(ColliderShapeKind.Box, new Vector3(0.65f, 0.075f, 0.6f), Vector3.Zero, Quaternion.Identity, Surface)]))
+                Colliders: []))
     ];
 }

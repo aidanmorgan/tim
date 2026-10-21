@@ -248,12 +248,12 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     public static WorkshopBallDetector BallDetector(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null, bool locked = false)
+        double qx, double qy, double qz, double qw, bool locked = false)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopBallDetector(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
-            colliders ?? WorkshopCanonicalColliders.For(PartId.BallDetector), locked);
+            locked);
         result.Validate(); return result;
     }
     public static WorkshopPressurePlate PressurePlate(GpuBodyId id, double x, double y, double z,
@@ -289,16 +289,13 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     public static WorkshopGenericInstance Generic(PartId partId, GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider> colliders)
+        double qx, double qy, double qz, double qw)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopGenericInstance(partId, id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), colliders);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
         result.Validate(); return result;
     }
-    public static WorkshopGenericInstance Generic(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider> colliders) =>
-        Generic(PartId.Unsupported, id, x, y, z, qx, qy, qz, qw, colliders);
     /// <summary>A straight pipe of the CAT-048 default length (3.6 m), the length a newly placed pipe starts from.</summary>
     public static WorkshopPipe Pipe(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw) => Pipe(id, x, y, z, qx, qy, qz, qw, PipeLength.Default);
@@ -311,14 +308,14 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     public static WorkshopGenericInstance PipeBend45(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
-        Generic(PartId.PipeBend45, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.PipeBend45));
+        double qx, double qy, double qz, double qw) =>
+        Generic(PartId.PipeBend45, id, x, y, z, qx, qy, qz, qw);
     public static WorkshopGenericInstance PipeBend90(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
-        Generic(PartId.PipeBend90, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.PipeBend90));
+        double qx, double qy, double qz, double qw) =>
+        Generic(PartId.PipeBend90, id, x, y, z, qx, qy, qz, qw);
     public static WorkshopGenericInstance Funnel(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
-        Generic(PartId.Funnel, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.Funnel));
+        double qx, double qy, double qz, double qw) =>
+        Generic(PartId.Funnel, id, x, y, z, qx, qy, qz, qw);
     internal static (int Cell, float Local) Position(double metres)
     {
         if (!double.IsFinite(metres) || metres < -64 || metres > 64)

@@ -539,7 +539,7 @@ public sealed class WorkshopPhysicsEngineTests
     // the production WorkshopSimulation; the only player input is the typed in-run ConfigureElectrical command between Advances.
     private const float GateHeight = 3f;
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1);
     private static WorkshopBattery Battery(ulong id, double z, ElectricalEnable enabled) =>
         WorkshopInput.Battery(new(id), 3, GateHeight, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = enabled });
     private static WorkshopConnection Wire(GpuBodyId battery, GpuBodyId gate) =>

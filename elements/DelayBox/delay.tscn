@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -53,8 +53,8 @@ material = SubResource("Mat_Port")
 radius = 0.075
 height = 0.15
 
-[sub_resource type="BoxShape3D" id="Shape_Base"]
-size = Vector3(1.35, 0.15, 0.8)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(1.350000023841858, 0.15000000596046448, 0.800000011920929)
 
 [node name="delay" type="Node3D"]
 script = ExtResource("1")
@@ -96,13 +96,14 @@ mesh = SubResource("Mesh_Port")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, 0, 0)
 mesh = SubResource("Mesh_Port")
 
-[node name="col_box" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
-visible = false
-shape = SubResource("Shape_Base")
-
 [node name="Loc_Port_ActivationIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72, 0, 0)
 
 [node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, 0, 0)
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.7, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")

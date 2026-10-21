@@ -8,10 +8,8 @@ namespace CuriousContraptions.Elements.ImpactSwitch;
 
 /// <summary>The Impact Switch (CAT-063): a static base and button; a qualifying impact presses the button and sends one activation.
 /// The trigger threshold is a typed parameter with the runtime's default and admitted range. Story 9.5b adds its electrical mode.</summary>
-public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignalElement
+public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
-
     public ElementMetadata Metadata => new(
         Id: "switch",
         Category: ElementCategory.Power,
@@ -34,13 +32,13 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
     ];
 
     /// <summary>The base, then the button.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.55f, 0.125f, 0.5f), Offset: new Vector3(0, -0.15f, 0), Rotation: Quaternion.Identity, Material: Surface),
-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.4f, 0.09f, 0.375f), Offset: new Vector3(0, 0.05f, 0), Rotation: Quaternion.Identity, Material: Surface)
+        new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    /// <summary>One activation per qualifying impact.</summary>
     public IReadOnlyList<EventDescriptor> Events =>
     [
         new(SimulationEventKind.TriggerActivated, "Speed:f32;Threshold:f32")

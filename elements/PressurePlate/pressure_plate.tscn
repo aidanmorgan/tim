@@ -37,11 +37,11 @@ material = SubResource("Mat_Ochre")
 inner_radius = 0.282
 outer_radius = 0.318
 
-[sub_resource type="BoxShape3D" id="Shape_Base"]
-size = Vector3(2.2, 0.2, 2.2)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(2.200000047683716, 0.20000000298023224, 2.200000047683716)
 
-[sub_resource type="BoxShape3D" id="Shape_Top"]
-size = Vector3(1.8, 0.1, 1.8)
+[sub_resource type="BoxShape3D" id="BakedShape_0_1"]
+size = Vector3(1.7999999523162842, 0.10000000149011612, 1.7999999523162842)
 
 [node name="pressure_plate" type="Node3D"]
 script = ExtResource("1")
@@ -88,16 +88,6 @@ mesh = SubResource("Mesh_Socket")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.084, 0)
 mesh = SubResource("Mesh_Ring")
 
-[node name="col_box_base" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.12, 0)
-visible = false
-shape = SubResource("Shape_Base")
-
-[node name="col_box_top" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
-visible = false
-shape = SubResource("Shape_Top")
-
 [node name="Loc_Port_PowerIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.18, -0.08, 0)
 
@@ -106,3 +96,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.18, -0.08, 0)
 
 [node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 1.18)
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.12, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")
+
+[node name="col_0_1" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.03, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_1")

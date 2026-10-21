@@ -37,6 +37,8 @@ public sealed class PartRegistry
     public IReadOnlyDictionary<PartId, PartAllowance> Free => _free ?? throw new InvalidOperationException("The element bundle is not loaded.");
 
     private ElementPortCatalogue? _ports;
+    private IReadOnlyList<BundleEntry>? _physics;
+    public IReadOnlyList<BundleEntry> Physics => _physics ?? throw new InvalidOperationException("The element bundle is not loaded.");
 
     /// <summary>Every registered element's declared ports, read only from the bundle (Story 9A.17).</summary>
     public ElementPortCatalogue Ports => _ports ?? throw new InvalidOperationException("The element bundle is not loaded.");
@@ -69,6 +71,7 @@ public sealed class PartRegistry
         ElementPortCatalogue ports;
         try { ports = ElementPortCatalogue.FromBundle(entries); }
         catch (ElementPortRejectedException error) { throw new InvalidDataException($"The element bundle '{BundlePath}' is invalid: {error.Message}", error); }
+        _physics = entries;
         _definitions.Clear();
         foreach (var definition in definitions) _definitions.Add(definition.PartId, definition);
         _free = free;
@@ -103,7 +106,7 @@ public sealed class PartRegistry
             ?? throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' is not a scene");
         var color = metadata.Color;
         return new PartDefinition(id, metadata.DisplayName, metadata.Description, metadata.Category, new(color.R, color.G, color.B, color.A),
-            metadata.IconPath, scene, Ball(id, entry));
+            metadata.IconPath, scene, Ball(id, entry), entry);
     }
 
     /// <summary>A dynamic body with one sphere collider is a ball: its declared material, at the runtime's binary16 lanes, must be the

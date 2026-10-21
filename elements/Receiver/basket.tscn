@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -12,28 +12,16 @@ albedo_color = Color(0.741, 0.957, 0.741, 1)
 material = SubResource("Mat_Basket")
 size = Vector3(1.5, 0.15, 1.5)
 
-[sub_resource type="BoxShape3D" id="Shape_Floor"]
-size = Vector3(1.5, 0.15, 1.5)
-
 [sub_resource type="BoxMesh" id="Mesh_Side"]
 material = SubResource("Mat_Basket")
-size = Vector3(0.12, 1, 1.6)
-
-[sub_resource type="BoxShape3D" id="Shape_Side"]
 size = Vector3(0.12, 1, 1.6)
 
 [sub_resource type="BoxMesh" id="Mesh_Back"]
 material = SubResource("Mat_Basket")
 size = Vector3(1.5, 1, 0.12)
 
-[sub_resource type="BoxShape3D" id="Shape_Back"]
-size = Vector3(1.5, 1, 0.12)
-
 [sub_resource type="BoxMesh" id="Mesh_Front"]
 material = SubResource("Mat_Basket")
-size = Vector3(1.5, 0.6, 0.12)
-
-[sub_resource type="BoxShape3D" id="Shape_Front"]
 size = Vector3(1.5, 0.6, 0.12)
 
 [sub_resource type="TorusMesh" id="Mesh_Halo"]
@@ -42,6 +30,21 @@ inner_radius = 0.915
 outer_radius = 0.965
 rings = 32
 ring_segments = 8
+
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(1.5, 0.15000000596046448, 1.5)
+
+[sub_resource type="BoxShape3D" id="BakedShape_0_1"]
+size = Vector3(0.11999999731779099, 1, 1.600000023841858)
+
+[sub_resource type="BoxShape3D" id="BakedShape_0_2"]
+size = Vector3(0.11999999731779099, 1, 1.600000023841858)
+
+[sub_resource type="BoxShape3D" id="BakedShape_0_3"]
+size = Vector3(1.5, 1, 0.11999999731779099)
+
+[sub_resource type="BoxShape3D" id="BakedShape_0_4"]
+size = Vector3(1.5, 0.6000000238418579, 0.11999999731779099)
 
 [node name="basket" type="Node3D"]
 script = ExtResource("1")
@@ -73,27 +76,32 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
 material_override = SubResource("Mat_Halo")
 mesh = SubResource("Mesh_Halo")
 
-[node name="col_box_floor" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.45, 0)
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.45, 0)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Floor")
+shape = SubResource("BakedShape_0_0")
 
-[node name="col_box_left" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 0, 0)
+[node name="col_0_1" type="CollisionShape3D" parent="."]
+position = Vector3(-0.75, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Side")
+shape = SubResource("BakedShape_0_1")
 
-[node name="col_box_right" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 0, 0)
+[node name="col_0_2" type="CollisionShape3D" parent="."]
+position = Vector3(0.75, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Side")
+shape = SubResource("BakedShape_0_2")
 
-[node name="col_box_back" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.75)
+[node name="col_0_3" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, -0.75)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Back")
+shape = SubResource("BakedShape_0_3")
 
-[node name="col_box_front" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0.75)
+[node name="col_0_4" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.2, 0.75)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Front")
+shape = SubResource("BakedShape_0_4")

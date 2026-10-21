@@ -10,8 +10,8 @@ public sealed class Fixture : ISliderElement
 {
     /// <summary>A valid slider: a 0.25 kg plate that may travel 0.25 m below rest, on the fixture's three spring parameters.</summary>
     public static PrismaticSliderDescriptor Slider(IReadOnlyList<ColliderDescriptor>? moving = null, string stiffness = "stiffness") =>
-        new(new(new(0f, .14f, 0f), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity), -.25f, 0f, stiffness, "damping",
-            "initial_compression", false, new(.25f, new(0f, -9.81f, 0f), 0f, moving ?? [Box(new(.65f, .075f, .6f))]));
+        new(new(new(0f, .14f, 0f), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity), -.25f, 0f, MechanicalValue.FromParameter(stiffness), MechanicalValue.FromParameter("damping"),
+            MechanicalValue.FromParameter("initial_compression"), false, new(.25f, new(0f, -9.81f, 0f), 0f, moving ?? [Box(new(.65f, .075f, .6f))]));
 
     public static IReadOnlyList<ParameterDescriptor> SpringParameters =>
     [

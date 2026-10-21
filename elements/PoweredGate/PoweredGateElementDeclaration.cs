@@ -7,12 +7,9 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.PoweredGate;
 
-/// <summary>The gate's static frame. A placed gate also compiles its moving blade, a second body on a prismatic slider (the footprint
-/// counts both); declaring the blade's own collider and material belongs to Story 9A.16.</summary>
-public sealed class PoweredGateElementDeclaration : IMechanicalElement, IElectricalElement
+/// <summary>The scene-owned frame and blade, with declared material, mass and fixed prismatic slider values.</summary>
+public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalElement, ISceneGeometryElement
 {
-    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
-
     public ElementMetadata Metadata => new(
         Id: "powered_gate",
         Category: ElementCategory.Motion,
@@ -33,26 +30,13 @@ public sealed class PoweredGateElementDeclaration : IMechanicalElement, IElectri
 
     /// <summary>The 16-box ring around the 0.65 m bore (each box turned about +X to its angle), the motor housing above it and the
     /// two blade rails.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders
-    {
-        get
-        {
-            var colliders = new List<ColliderDescriptor>(19);
-            const float ringRadius = 0.675f;
-            for (var i = 0; i < 16; i++)
-            {
-                var theta = i * (MathF.Tau / 16f);
-                var halfTheta = theta * 0.5f;
-                var rotation = Quaternion.Normalize(new Quaternion(MathF.Sin(halfTheta), 0, 0, MathF.Cos(halfTheta)));
-                colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.4f, 0.025f, 0.14f),
-                    new Vector3(0, ringRadius * MathF.Cos(theta), ringRadius * MathF.Sin(theta)), rotation, Surface));
-            }
-            colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.4f, 0.325f, 0.9f), new Vector3(0, 1.65f, 0), Quaternion.Identity, Surface));
-            colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.12f, 0.85f, 0.06f), new Vector3(0, 0.65f, -0.82f), Quaternion.Identity, Surface));
-            colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.12f, 0.85f, 0.06f), new Vector3(0, 0.65f, 0.82f), Quaternion.Identity, Surface));
-            return colliders;
-        }
-    }
+    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
+    [
+        new(".", new(1f, 0.3f, 0f, 0.1f)),
+        new("Visual/Blade", new(0.1f, 0.3f, 0f, 0.1f))
+    ];
 
     public IReadOnlyList<EventDescriptor> Events =>
     [
@@ -74,6 +58,14 @@ public sealed class PoweredGateElementDeclaration : IMechanicalElement, IElectri
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints =>
     [
         new("slider", Vector3.Zero, Quaternion.Identity, Vector3.UnitY)
+    ];
+
+    public IReadOnlyList<PrismaticSliderDescriptor> Sliders =>
+    [
+        new(new(Vector3.Zero, Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
+            0f, 1.55f, MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
+            new(1f, new Vector3(0f, -9.81f, 0f), 0f,
+                []))
     ];
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>

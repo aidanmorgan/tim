@@ -32,7 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
     <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
-    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs;../engine/gpu/GltfPhysicsBodyExtractor.cs" Link="Gpu/%(Filename)%(Extension)" />
+    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs" Link="Gpu/%(Filename)%(Extension)" />
     <Compile Include="../engine/PartId.cs" Link="Engine/PartId.cs" />
     <Using Include="CuriousContraptions" />
     <WasmExtraFilesToDeploy Include="wwwroot/**" />

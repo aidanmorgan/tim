@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -60,11 +60,11 @@ material = SubResource("Mat_Gold")
 radius = 0.075
 height = 0.15
 
-[sub_resource type="BoxShape3D" id="Shape_Housing"]
-size = Vector3(1.4, 1.7, 0.6)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(1.399999976158142, 1.7000000476837158, 0.6000000238418579)
 
-[sub_resource type="BoxShape3D" id="Shape_Foot"]
-size = Vector3(1.6, 0.2, 0.85)
+[sub_resource type="BoxShape3D" id="BakedShape_0_1"]
+size = Vector3(1.600000023841858, 0.20000000298023224, 0.8500000238418579)
 
 [node name="clock" type="Node3D"]
 script = ExtResource("1")
@@ -113,17 +113,20 @@ mesh = SubResource("Mesh_Socket")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0, 0)
 mesh = SubResource("Mesh_Socket")
 
-[node name="CollisionShape_Housing" type="CollisionShape3D" parent="."]
-visible = false
-shape = SubResource("Shape_Housing")
-
-[node name="CollisionShape_Foot" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.95, 0)
-visible = false
-shape = SubResource("Shape_Foot")
-
 [node name="Loc_Port_PowerIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0, 0)
 
 [node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0, 0)
+
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_0")
+
+[node name="col_0_1" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.95, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_1")

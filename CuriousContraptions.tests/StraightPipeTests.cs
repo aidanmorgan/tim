@@ -47,7 +47,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         var instance = packedScene.Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Exactly 24 colliders: 16 circumference + 8 rim
             Assert.Equal(24, colliders.Count);
@@ -183,7 +183,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     [Fact]
     public void BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth()
     {
-        var colliders = WorkshopCanonicalColliders.Pipe(PipeLength.Default);
+        var colliders = DeclaredPhysics.Colliders(PartId.Pipe);
         Assert.Equal(24, colliders.Count);
 
         // 16 circumference colliders: inner face distance from X axis is >= 0.65 m

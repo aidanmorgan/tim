@@ -16,8 +16,8 @@ albedo_color = Color(0.976, 0.91, 0.788, 1)
 material = SubResource("Mat_RampRail")
 size = Vector3(3, 0.055, 0.055)
 
-[sub_resource type="BoxShape3D" id="Shape_Ramp"]
-size = Vector3(3, 0.18, 1.3)
+[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
+size = Vector3(3, 0.18000000715255737, 1.2999999523162842)
 
 [node name="ramp" type="Node3D"]
 script = ExtResource("1")
@@ -35,6 +35,8 @@ mesh = SubResource("Mesh_RampRail")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11, 0.598)
 mesh = SubResource("Mesh_RampRail")
 
-[node name="col_box" type="CollisionShape3D" parent="."]
+[node name="col_0_0" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
 visible = false
-shape = SubResource("Shape_Ramp")
+shape = SubResource("BakedShape_0_0")

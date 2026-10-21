@@ -123,7 +123,7 @@ public sealed class WorkbenchCapacityTests
         "pipe_bend_45" => WorkshopInput.PipeBend45(id, x, 3, z, 0, 0, 0, 1),
         "pipe_bend_90" => WorkshopInput.PipeBend90(id, x, 3, z, 0, 0, 0, 1),
         "funnel" => WorkshopInput.Funnel(id, x, 3, z, 0, 0, 0, 1),
-        "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, x, 0, z, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders),
+        "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, x, 0, z, 0, 0, 0, 1),
         "pressure_plate" => WorkshopInput.PressurePlate(id, x, 1, z, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
         "counter" => WorkshopInput.Counter(id, x, 1, z, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
         "clock" => WorkshopInput.Clock(id, x, 1, z, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),

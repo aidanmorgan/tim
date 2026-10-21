@@ -165,7 +165,7 @@ public sealed class WorkshopSaveRejectionTests
         WorkshopInput.PipeBend45(new(19), 16, 0, 0, 0, 0, 0, 1),
         WorkshopInput.PipeBend90(new(20), 17, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Funnel(new(21), 18, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.PoweredGate, new(22), 19, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders),
+        WorkshopInput.Generic(PartId.PoweredGate, new(22), 19, 0, 0, 0, 0, 0, 1),
     ];
 
     private static Save One(Instance instance) => new([instance], []);

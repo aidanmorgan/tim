@@ -1,19 +1,25 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
 
 /// <summary>One catalogue part as the game uses it: a plain runtime record built by <see cref="PartRegistry"/> from one element
-/// bundle entry (Story 9A.14). Its scene is the package's own scene; its colliders and port locators are extracted from that scene
-/// once, on first use. A ball kind carries the declared material its bundle entry states.</summary>
+/// bundle entry. The scene supplies artwork; baked bundle geometry and tube mouths supply physics and snapping.
+/// A ball kind carries the declared material its bundle entry states.</summary>
 public sealed class PartDefinition
 {
     public PartDefinition(PartId partId, string title, string description, ElementCategory category, Color color, string iconPath,
-        PackedScene? scene, BallMaterial? ball)
+        PackedScene? scene, BallMaterial? ball, BundleEntry physics)
     {
+        if (physics.Metadata.Id != partId.Value) throw new ArgumentException("Part and baked geometry identities disagree.");
+        var errors = BundleValidator.Validate([new NamedEntry(partId.Value, physics)]);
+        if (errors.Count != 0) throw new ArgumentException(string.Join("; ", errors));
+        _physics = physics;
         PartId = partId;
         Title = title;
         Description = description;
@@ -23,6 +29,8 @@ public sealed class PartDefinition
         Scene = scene;
         Ball = ball;
     }
+
+    private readonly BundleEntry _physics;
 
     public PartId PartId { get; }
     /// <summary>The element id at the Godot node-name and metadata boundary.</summary>
@@ -38,58 +46,27 @@ public sealed class PartDefinition
     /// <summary>Declared material of a dynamic sphere; present for every ball kind.</summary>
     public BallMaterial? Ball { get; }
 
-    private IReadOnlyList<ExtractedCollider>? _colliders;
-    private IReadOnlyDictionary<string, ExtractedPortLocator>? _portLocators;
+    public IReadOnlyList<ExtractedCollider> Colliders => BundleGeometry.Colliders(_physics).Select(DeclaredPhysics.Admit).ToArray();
 
-    public IReadOnlyList<ExtractedCollider> Colliders
+    public IReadOnlyDictionary<string, ExtractedPortLocator> PortLocators => Mouths(null);
+
+    public IReadOnlyDictionary<string, ExtractedPortLocator> Mouths(PipeLength? length)
     {
-        get
+        IReadOnlyDictionary<string, float>? parameters = length is { } pipe
+            ? new Dictionary<string, float> { ["length"] = pipe.Metres } : null;
+        return BundleGeometry.Mouths(_physics, parameters).ToDictionary(mouth => mouth.End switch
         {
-            EnsureExtracted();
-            return _colliders!;
-        }
-    }
-
-    public IReadOnlyDictionary<string, ExtractedPortLocator> PortLocators
-    {
-        get
-        {
-            EnsureExtracted();
-            return _portLocators!;
-        }
-    }
-
-    public void ExtractFromScene() => EnsureExtracted();
-
-    public void SetExtractedData(IReadOnlyList<ExtractedCollider> colliders, IReadOnlyDictionary<string, ExtractedPortLocator> portLocators)
-    {
-        _colliders = colliders;
-        _portLocators = portLocators;
-    }
-
-    private void EnsureExtracted()
-    {
-        if (_colliders is not null) return;
-        if (Scene is null)
-        {
-            _colliders = Array.Empty<ExtractedCollider>();
-            _portLocators = new Dictionary<string, ExtractedPortLocator>();
-            return;
-        }
-
-        var instance = Scene.Instantiate();
-        if (instance is Node3D node3D)
-        {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(node3D);
-            _colliders = colliders;
-            _portLocators = ports;
-            node3D.Free();
-        }
-        else
-        {
-            instance?.Free();
-            _colliders = Array.Empty<ExtractedCollider>();
-            _portLocators = new Dictionary<string, ExtractedPortLocator>();
-        }
+            TubeEnd.Start => "mouth_start",
+            TubeEnd.End => "mouth_end",
+            _ => throw new ArgumentException("Undefined tube end.")
+        }, mouth => new ExtractedPortLocator(mouth.End == TubeEnd.Start ? "mouth_start" : "mouth_end",
+            new(mouth.Position.X, mouth.Position.Y, mouth.Position.Z),
+            new(mouth.Rotation.X, mouth.Rotation.Y, mouth.Rotation.Z, mouth.Rotation.W),
+            mouth.End == TubeEnd.Start ? TubeMouthEnd.Start : TubeMouthEnd.End, mouth.BoreRadius));
     }
 }
+
+public enum TubeMouthEnd { Start = 1, End = 2 }
+
+public readonly record struct ExtractedPortLocator(
+    string PortId, Vector3 Position, Quaternion Rotation, TubeMouthEnd? Mouth = null, float? BoreRadius = null);

@@ -48,10 +48,16 @@ public sealed class TubeMouthSnapTests
     private static IWorkshopInstance Tube(IReadOnlyDictionary<PartId, PartDefinition> definitions, PartId part, ulong id,
         Vector3 position, Quaternion rotation, bool locked = false)
     {
+        _ = definitions[part];
         var q = rotation.Normalized();
-        if (part == PartId.Pipe) return WorkshopInput.Pipe(new(id), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W) with { Locked = locked };
-        return WorkshopInput.Generic(part, new(id), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-            definitions[part].Colliders) with { Locked = locked };
+        if (part == PartId.Pipe)
+        {
+            IWorkshopInstance pipe = WorkshopInput.Pipe(new(id), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W) with { Locked = locked };
+            return pipe;
+        }
+        var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
+        return new WorkshopGenericInstance(part, new(id), new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+            CanonicalRotation.Normalize(q.X, q.Y, q.Z, q.W), locked);
     }
 
     /// <summary>The mover pose that puts its `end` mouth at `mouthAt` with rotation `rotation`.</summary>
@@ -236,14 +242,23 @@ public sealed class TubeMouthSnapTests
     /// <summary>A two-mouth test tube along local X with half length 1 and the given bore at both ends.</summary>
     private static PartDefinition TestTube(string id, float bore, Vector3? endPosition = null, Quaternion? endRotation = null)
     {
-        var definition = new PartDefinition(new PartId(id), id, id, CuriousContraptions.Abstractions.ElementCategory.Motion, Colors.White,
-            "res://elements/Pipe/icon.svg", null, null);
-        var flip = new Quaternion(Vector3.Up, Mathf.Pi);
-        definition.SetExtractedData(Array.Empty<ExtractedCollider>(), new Dictionary<string, ExtractedPortLocator>
+        var template = TestBundle.Entry(PartId.Pipe);
+        var endAt = endPosition ?? new Vector3(1, 0, 0);
+        var endTurn = endRotation ?? Quaternion.Identity;
+        var physics = template with
         {
-            ["mouth_start"] = new("mouth_start", new(-1, 0, 0), flip, TubeMouthEnd.Start, bore),
-            ["mouth_end"] = new("mouth_end", endPosition ?? new(1, 0, 0), endRotation ?? Quaternion.Identity, TubeMouthEnd.End, bore),
-        });
+            Metadata = template.Metadata with { Id = id },
+            ColliderBindings = [],
+            TubeMouthBindings = [],
+            TubeMouths =
+            [
+                new(CuriousContraptions.Abstractions.TubeEnd.Start, new(-1, 0, 0), new(0, 1, 0, 0), bore),
+                new(CuriousContraptions.Abstractions.TubeEnd.End, new(endAt.X, endAt.Y, endAt.Z),
+                    new(endTurn.X, endTurn.Y, endTurn.Z, endTurn.W), bore)
+            ]
+        };
+        var definition = new PartDefinition(new PartId(id), id, id, CuriousContraptions.Abstractions.ElementCategory.Motion, Colors.White,
+            "res://elements/Pipe/icon.svg", null, null, physics);
         return definition;
     }
 
@@ -307,39 +322,7 @@ public sealed class TubeMouthSnapTests
         Assert.Equal(copy, construction.Instances);
     }
 
-    private static Node3D SceneWithMouth(string name, Variant? bore)
-    {
-        var root = new Node3D { Name = "Root" };
-        var locator = new Node3D { Name = name, Position = new(1, 0, 0) };
-        if (bore is { } value) locator.SetMeta("bore_radius", value);
-        root.AddChild(locator);
-        return root;
-    }
-
-    [Fact]
-    public void ExtractionCarriesTheBoreAndRejectsAMouthWithoutAValidBore()
-    {
-        var valid = SceneWithMouth("Loc_Port_mouth_end", StandardBore);
-        try
-        {
-            var mouth = GltfPhysicsBodyExtractor.Extract(valid).Ports["mouth_end"];
-            Assert.Equal((TubeMouthEnd?)TubeMouthEnd.End, mouth.Mouth);
-            Assert.Equal(StandardBore, mouth.BoreRadius);
-        }
-        finally { valid.Free(); }
-
-        foreach (var (name, bore) in new (string, Variant?)[]
-                 {
-                     ("Loc_Port_mouth_start", null), ("Loc_Port_mouth_start", -1f), ("Loc_Port_mouth_start", 0f),
-                     ("Loc_Port_mouth_end", float.NaN), ("Loc_Port_mouth_end", float.PositiveInfinity), ("Loc_Port_mouth_end", "0.65"),
-                     ("Loc_Port_mouth_side", StandardBore),
-                 })
-        {
-            var scene = SceneWithMouth(name, bore);
-            try { Assert.ThrowsAny<ArgumentException>(() => GltfPhysicsBodyExtractor.Extract(scene)); }
-            finally { scene.Free(); }
-        }
-    }
+    // Authored mouth rejection is covered by SceneGeometryExtractorTests at the build boundary.
 
     public enum Joint { StraightToBend45, Bend45ToBend45, StraightToBend90, FunnelOutletToPipe }
 

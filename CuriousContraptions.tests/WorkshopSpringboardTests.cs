@@ -128,7 +128,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     public void UnsupportedWireTailRejectsBeforeMutation()
     {
         var definition = new PartDefinition(PartId.Springboard, "Springboard", "A springboard.", CuriousContraptions.Abstractions.ElementCategory.Motion,
-            Colors.White, "res://elements/Springboard/icon.svg", null, null);
+            Colors.White, "res://elements/Springboard/icon.svg", null, null, TestBundle.Entry(PartId.Springboard));
         var part = new MachinePart();
         try
         {

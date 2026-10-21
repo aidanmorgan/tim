@@ -101,7 +101,6 @@
         <Compile Include="PartRegistryTests.cs" />
         <Compile Include="PalettePlacementTests.cs" />
         <Compile Include="WorkshopHandlerBoundaryTests.cs" />
-        <Compile Include="GltfColliderExtractionTests.cs" />
         <Compile Include="StraightPipeTests.cs" />
         <Compile Include="ClearPipeLevelTests.cs" />
         <Compile Include="WorkshopPipeLengthTests.cs" />

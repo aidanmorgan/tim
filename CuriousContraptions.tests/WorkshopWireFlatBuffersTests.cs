@@ -134,7 +134,7 @@ public sealed class WorkshopWireFlatBuffersTests
         WorkshopInput.PipeBend45(new(1), 0, 1, 0, 0, 0, 0, 1),
         WorkshopInput.PipeBend90(new(1), 0, 1, 0, 0, 0, 0, 1),
         WorkshopInput.Funnel(new(1), 0, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 1, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(PartId.PoweredGate)),
+        WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 1, 0, 0, 0, 0, 1),
         WorkshopInput.BallDetector(new(1), 0, 1, 0, 0, 0, 0, 1),
         WorkshopInput.PressurePlate(new(1), 0, 1, 0, 0, 0, 0, 1, minimumMass: 2.25f),
         WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, targetCount: 7),

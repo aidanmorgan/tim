@@ -275,13 +275,13 @@ Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each sto
 
 *Superseded for Epics 9R and 9A and Stories 9.4c–9.8 by the [Delivery order of 21 Oct 2026](#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination). The placement wording in the Epic 9R and 9A entries above is history.*
 
-### End-to-end scope rule (owner decision, 19 Oct 2026)
+### End-to-end scope rule (latest owner decision, 21 Oct 2026)
 
-This rule governs every acceptance criterion below that reads "every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview", and every spec that asks for cumulative runs:
-- Story Full follows [Verification tiers](autonomous-development-guide.md#verification-tiers): use selected functional suites and controls for a known bounded closure, including compiler/worker changes. The independent reviewer records actual impact and coverage; unresolved cross-family or unknown impact requires broader checks and Full when bounded checks cannot resolve it. Selector Full is conservative input, not proof that every suite is necessary. Targeted timing follows changed timing behavior; named release gates remain.
-- Any other story runs the e2e suites selected by its actual impact: its own element's suite, the suites of its direct consumers and integrations, and any suite that exercises changed shared code. The selection and its justification are recorded in the review.
-- The reviewer reuses the implementer's identity-verified runs and does not repeat a full run.
-- The full tier definitions are in the [autonomous development guide, Verification tiers](autonomous-development-guide.md#verification-tiers). They also cover the background checkpoint Full after every 5 newly verified named puzzle elements (not infrastructure/documentation stories or automatic epic-end repeats), targeted timing checks for affected code, named release/calibration gates, parallel Chrome workers for non-timing suites, review lenses on the first candidate only, and Low findings not blocking.
+This changes enforcement cadence for every story AC/spec below, including per-story Chrome and cumulative Full wording; behavior, requirement IDs and named release E2E remain intact:
+- Per change, build the affected closure once and run fast unit/native controls with matching outputs using `--no-build --no-restore`. Rebuild only when relevant inputs change; never test stale binaries.
+- Routine E2E is deferred until all puzzle elements are implemented, then used to find remaining gaps. Implementation completion requires real production C# simulation unit/integration proof of interactions, negative/boundary cases, tick progression and supported Reset/save/load, plus independent review. Browser qualification stays pending. Keep pending element/infrastructure/integration cases in existing records; no counter or new test/fixture framework.
+- No Chrome is required during catalogue implementation, including for simulation unit tests. Use the existing native C# execution path. Broaden post-catalogue E2E gap-finding as necessary; preserve earlier evidence and failures.
+- Follow the [verification guide](autonomous-development-guide.md#verification-tiers) and [standing cadence](../../docs/delivery-workflow.md#fast-test-cadence); eventual release gates retain all pending browser acceptance behavior, without a pre-catalogue E2E trigger.
 - Owner's words: "55 minutes is too long to wait - we want to be making progress adding more puzzle elements once we are sure the core engine changes have landed and the old code has been removed".
 
 ### Open scheduling items

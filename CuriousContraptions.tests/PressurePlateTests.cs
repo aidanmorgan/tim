@@ -59,7 +59,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var instance = packedScene.Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Exactly 2 colliders: base + top
             Assert.Equal(2, colliders.Count);
@@ -98,9 +98,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void CanonicalColliders_MatchSceneExtractedColliders()
     {
-        var canonical = WorkshopCanonicalColliders.For(PartId.PressurePlate);
+        var canonical = DeclaredPhysics.Colliders(PartId.PressurePlate);
         Assert.Equal(2, canonical.Count);
-        Assert.Same(canonical, WorkshopCanonicalColliders.PressurePlateColliders);
+        Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.PressurePlate));
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
         var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
         var heavy = WorkshopInput.PressurePlate(new(4), 0, 0, 4, 0, 0, 0, 1, 2f);
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new([battery, plate, gate, heavy]), Connections: new([Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)])), new(1, 1));
@@ -376,7 +376,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private static readonly double Face = PlateY + .08;
 
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1);
     private static WorkshopBattery Battery(ulong id, double z) =>
         WorkshopInput.Battery(new(id), 3, GateHeight, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
     private static WorkshopPressurePlate Plate(ulong id, double x, double z, float minimum) =>
@@ -503,9 +503,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, 2f);
         // Story 9R.7: the pipe is a typed instance, so another generic declared-collider part carries the plate-sized boxes.
-        var impostor = WorkshopInput.Generic(PartId.PipeBend45, new(4), -4, PlateY, 3, 0, 0, 0, 1,
-            [new ExtractedCollider(ColliderShapeKind.Box, new(new((Half)0, (Half).03f, (Half)0), CanonicalRotation.Identity), (Half)0,
-                new MetreVector((Half).9f, (Half).05f, (Half).9f))]);
+        var impostor = WorkshopInput.Generic(PartId.PipeBend45, new(4), -4, PlateY, 3, 0, 0, 0, 1);
         var reads = await RunBench(Bench([gate, battery, plate, impostor, BallOn(5, -4, 3)], Circuit(battery, plate, gate)));
         Assert.True(reads[^1].Bodies.TryGet(new(5), out var ball) && (ball.Body.Cell.Y + ball.Body.Local.Y) / 16f > Face - .01,
             "control: the ball rests on the impostor's face");

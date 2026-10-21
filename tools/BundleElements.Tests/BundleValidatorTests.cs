@@ -150,7 +150,7 @@ public sealed class BundleValidatorTests
 
     [Fact]
     public void ASliderNamingAnUndeclaredParameterIsRefused() =>
-        Assert.Equal(["BUNDLE007 FixtureSlider.Sliders[0].StiffnessParameter: 'spring_rate' names no declared Real parameter"],
+        Assert.Equal(["BUNDLE007 FixtureSlider.Sliders[0].Stiffness.Parameter: 'spring_rate' names no declared Real parameter"],
             Errors(("FixtureSlider", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider(stiffness: "spring_rate")] })));
 
     [Fact]

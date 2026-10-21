@@ -64,6 +64,7 @@ public static partial class Program
         var errors = CuriousContraptions.Bundle.BundleValidator.Validate(
             document.Elements.Select(entry => new CuriousContraptions.Bundle.NamedEntry(entry.Metadata.Id, entry)).ToArray());
         if (errors.Count > 0) throw new InvalidDataException("The worker's element bundle is invalid: " + string.Join("; ", errors));
+        DeclaredPhysics.Install(document.Elements);
         return ElementPortCatalogue.FromBundle(document.Elements);
     }
 
@@ -87,7 +88,7 @@ public static partial class Program
         {
             var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
             var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
-            var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+            var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
             var ball = WorkshopInput.Basketball(new(4), 0, 2, 0, 0, 0, 0, 1);
             var ramp = WorkshopInput.Ramp(new(5), -1, 1, 0, 0, 0, 0, 1, RampDimensions.Default);
 

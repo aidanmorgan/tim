@@ -41,7 +41,7 @@ public static class TubeMouthSnap
         if ((mover.Part == PartId.Pipe) != mover.Length.HasValue)
             throw new ArgumentException("A pipe mover declares its length; no other part has one.");
         if (mover.Locked || !definitions.TryGetValue(mover.Part, out var moverDefinition)) return null;
-        var moverMouths = Mouths(moverDefinition);
+        var moverMouths = Mouths(moverDefinition, mover.Length);
         if (moverMouths.Count == 0) return null;
         rotation = rotation.Normalized();
 
@@ -52,8 +52,8 @@ public static class TubeMouthSnap
             if (instance.Id == mover.Body || !definitions.TryGetValue(instance.PartId, out var definition)) continue;
             var (at, turn) = Pose(instance);
             var length = instance is WorkshopPipe pipe ? pipe.Length : (PipeLength?)null;
-            foreach (var mouth in Mouths(definition))
-                others.Add((instance.Id, new(mouth.Mouth!.Value, at + turn * Local(mouth, length), Outward(turn * mouth.Rotation), mouth.BoreRadius!.Value)));
+            foreach (var mouth in Mouths(definition, length))
+                others.Add((instance.Id, new(mouth.Mouth!.Value, at + turn * mouth.Position, Outward(turn * mouth.Rotation), mouth.BoreRadius!.Value)));
         }
 
         Candidate? best = null;
@@ -63,7 +63,7 @@ public static class TubeMouthSnap
             foreach (var mouth in moverMouths)
             {
                 if (MathF.Abs(mouth.BoreRadius!.Value - target.Bore) > BoreTolerance) continue;
-                var moverLocal = Local(mouth, mover.Length);
+                var moverLocal = mouth.Position;
                 var moverAt = position + rotation * moverLocal;
                 var moverOutward = Outward(rotation * mouth.Rotation);
                 var distance = moverAt.DistanceTo(target.Position);
@@ -105,19 +105,15 @@ public static class TubeMouthSnap
         ArgumentNullException.ThrowIfNull(definition);
         if ((definition.PartId == PartId.Pipe) != length.HasValue)
             throw new ArgumentException("A pipe mouth needs its length; no other part has one.");
-        foreach (var mouth in Mouths(definition))
-            if (mouth.Mouth == end) return Local(mouth, length);
+        foreach (var mouth in Mouths(definition, length))
+            if (mouth.Mouth == end) return mouth.Position;
         throw new ArgumentException($"Part '{definition.PartId}' declares no {end} mouth.");
     }
 
-    private static Vector3 Local(ExtractedPortLocator mouth, PipeLength? length) => length is { } pipe
-        ? new(MathF.Sign(mouth.Position.X) * pipe.MouthOffset, mouth.Position.Y, mouth.Position.Z)
-        : mouth.Position;
-
-    private static List<ExtractedPortLocator> Mouths(PartDefinition definition)
+    private static List<ExtractedPortLocator> Mouths(PartDefinition definition, PipeLength? length)
     {
         var mouths = new List<ExtractedPortLocator>(2);
-        foreach (var locator in definition.PortLocators.Values)
+        foreach (var locator in definition.Mouths(length).Values)
             if (locator.Mouth is not null) mouths.Add(locator);
         return mouths;
     }

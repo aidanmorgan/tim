@@ -76,7 +76,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var instance = packedScene.Instantiate<Node3D>();
         try
         {
-            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);
+            var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Exactly 2 colliders: Housing + Foot
             Assert.Equal(2, colliders.Count);
@@ -110,9 +110,9 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void CanonicalColliders_MatchSceneExtractedColliders()
     {
-        var canonical = WorkshopCanonicalColliders.For(PartId.Clock);
+        var canonical = DeclaredPhysics.Colliders(PartId.Clock);
         Assert.Equal(2, canonical.Count);
-        Assert.Same(canonical, WorkshopCanonicalColliders.ClockColliders);
+        Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.Clock));
     }
 
     [Fact]
