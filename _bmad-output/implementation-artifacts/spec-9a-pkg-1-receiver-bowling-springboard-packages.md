@@ -108,6 +108,7 @@ Amelia-17, 21 Oct 2026. These decisions apply the owner's delegation to decide s
 - **CL8. Verification tier.** The ACs of 9A.5, 9A.6 and 9A.12 each say "every `tools/e2e/*.test.ts` suite in one serial run". The coordinator's 21 Oct tier rules and PKG-1's own AC ("the union of the three stories' named suites passes once") supersede that.
   - `run --diff b8910e92` refuses with `NoPrimarySuite` for `basket`, which has no Primary suite ([raw](evidence-9a-pkg-1/runner-run-diff-b8910e92.txt)).
   - The diff touches no solver, clock, worker, wire or compiler code. Its Full triggers are only shared non-engine files: the Abstractions contract records, `tools/BundleElements`, `tools/E2eRunner`, and the new `.csproj` and `.slnx` entries.
+  - The changed Abstractions symbols reach no runtime code. `rg` for `ParameterUnit`, `ISliderElement`, `PrismaticSliderDescriptor`, `SliderFrame` and `SliderBodyDescriptor` over the Simulation and Animation workers, `engine`, `ui` and the web host finds 0 hits ([worker-reach-rg.txt](evidence-9a-pkg-1/worker-reach-rg.txt)).
   - So the affected suites were run by name, through `run --changed` (see E2E).
 
 ## E2E (Chrome)
@@ -115,8 +116,15 @@ Amelia-17, 21 Oct 2026. These decisions apply the owner's delegation to decide s
 The selection is [tier2-suites.txt](evidence-9a-pkg-1/tier2-suites.txt), built as the union of four sources:
 - the AC-named suites: cat-005, cat-014, cat-015a, cat-051, cat-052, cat-062 and cat-062b;
 - every suite whose `Places` contains the Receiver, Bowling ball or Springboard (cat-014, anim-1c, cat-030, cat-062, cat-062b and cat-052-*);
-- every suite whose declared levels pre-place one of them:
+- every suite whose declared levels pre-place one of them (41 levels pre-place a Receiver):
   - `first_principles` places a Receiver: anim-1a, anim-1c, engine-core-2a3, engine-core-2b4 and engine-core-2c;
+  - the inline `new LevelId(…)` declarations that pre-place a Receiver. The first selection missed these, and they were run separately on the head (see below):
+    - cat-015a-sidekick (`bumper_sidekick`);
+    - cat-015b (`bumper_depth`, `wall_and_bumper`);
+    - cat-048b and tube-snapping (`clear_pipe`);
+    - cat-049 (`gentle_bend`);
+    - cat-050 (`quarter_bend`);
+    - cat-050-joined (`joined_pipe`);
   - `domino_effect` places a bowling ball: clock-master and cat-023b;
   - `spring_forward` and `ready_to_rebound`: cat-062b;
 - palette-placement (every palette part) and the smoke pair, engine-core-2a1 and engine-core-2b1.
@@ -150,6 +158,8 @@ Results:
 - Rerun on the committed head `ba4678d9`: Pass, pkg-1 3/3, smoke pair 6/6 ([summary](evidence-9a-pkg-1/e2e-pkg-1-ba4678d9/summary.txt)).
 - Tier 1 on `ba4678d9`: build 0 warnings; `dotnet test CuriousContraptions.slnx` 2210/2210 ([log](evidence-9a-pkg-1/tier1-build-ba4678d9.txt)).
 
+**The Receiver level suites, on `2f8b0654`.** The seven inline-level suites above all passed: 10 files, 60/60 tests, including tube-snapping, which was rerun after a Contended first run ([summary](evidence-9a-pkg-1/e2e-receiver-levels-2f8b0654/summary.txt)).
+
 **Reuse of the 20-suite run.** The diff from `ce460ddc` to `ba4678d9` touches only test, runner and docs files: `tools/e2e/pkg-1.test.ts`, `tools/e2e/README.md`, `tools/E2eRunner/SuiteCatalogue.cs`, `tools/E2eRunner.Tests/SelectionTests.cs` and the `_bmad-output` records. No runtime or bundle input changed, so the 20-suite run on `ce460ddc` still applies.
 
-The runner's bundleIdentity differed across the three publishes of unchanged runtime sources (`ceb64963…`, `589fffef…`, `3839c6e4…`), so the publish is not byte-reproducible. That is noted for the reviewer, and it is not a PKG-1 change.
+The runner's bundleIdentity differed across the three publishes of unchanged runtime sources (`ceb64963…`, `589fffef…`, `3839c6e4…`), so the publish is not byte-reproducible. It was already so before PKG-1: `c948fec6` published twice with two identities in evidence-9a-4. This is filed as Story F.15, at the back of the queue and non-blocking.

@@ -1,0 +1,7 @@
+tools/e2e/cat-015a-sidekick.test.ts
+tools/e2e/cat-015b.test.ts
+tools/e2e/cat-048b.test.ts
+tools/e2e/cat-049.test.ts
+tools/e2e/cat-050.test.ts
+tools/e2e/cat-050-joined.test.ts
+tools/e2e/tube-snapping.test.ts

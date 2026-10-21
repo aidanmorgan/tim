@@ -1605,6 +1605,15 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.15: Reproducible Publish Bundle Identity
+*Status: Backlog. Filed by PKG-1 on 21 Oct 2026 ([spec](../implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md#e2e-chrome)).*
+
+**Acceptance Criteria:**
+- Two `dotnet publish` runs of one source give one runner `bundleIdentity`, or the varying files are named and the identity is defined over the reproducible ones. Today it differs:
+  - `c948fec6` published as `30ae989e…` and `c194034b…` (evidence-9a-4);
+  - PKG-1's three publishes of unchanged runtime sources gave `ceb64963…`, `589fffef…` and `3839c6e4…`.
+- Reviewers can then match a reused Chrome run to a candidate by bundle identity alone.
+
 ### Story F.14: E2E Runner Selection Follow-ups
 *Status: Backlog. Filed by Story 9A.4 on 21 Oct 2026 as F.13, renumbered F.14 at the merge with main's F.13 ([evidence](../implementation-artifacts/evidence-9a-4/runner-select-diff-844981c9.txt)).*
 
