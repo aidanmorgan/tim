@@ -9,6 +9,10 @@ reads and schedule endpoints) and the construction save. `engine/gpu/WorkshopWir
   `FinishSizePrefixed` and to the verifier.
 - A decoder checks the size prefix, then the identifier, then runs the FlatBuffers verifier, and decodes once. A refused buffer is
   a `WireFaultException` naming its `WireFaultReason` (a save: a `WorkshopSaveRejectedException` naming its `WorkshopSaveRejection`).
+- An element is named only by the bundle's string element id (`InstanceRecord.part_id`, `PuzzleRecord.inventory_part`); no field
+  carries a numeric part id (Story 9A.15). A stored save is validated against the loaded bundle's elements and an unknown id is a
+  `WorkshopSaveRejection.UnknownElement` refusal naming it; the worker's command decode refuses an id it has no element for with
+  `WireFaultReason.UnknownElement`, naming it.
 - There is no format version (owner, 21 Oct 2026): the game and its saves ship in one bundle with one schema, and bad input is
   rejected structurally.
 

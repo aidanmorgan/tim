@@ -1612,7 +1612,7 @@ So that two plates switch two gates independently.
 - F17-1: an instance record that carries a field of another element kind (a ramp record with a `radius`) is refused structurally; today the decoder ignores the foreign field.
 - F17-2: the workbench guide rule (`WorkbenchFullException`) and an authored lesson's settings rules (`PuzzleSettings`) refuse a stored save as `WorkshopSaveRejectedException` reasons; today they stay the domain's own typed refusals. Story 9A.26 deletes the lessons; fold the remainder there.
 - F17-3: the per-publish allocation of the FlatBuffers read (one array per committed read, the motion copy included) is measured and recorded against P0-034's budget. Story 9A.2 reuses one builder but did not measure.
-- F17-4: Story 9A.15 removes `PartId.ToNumericId`/`FromNumericId`: no wire or save reads them since Story 9A.2, and `tools/Coverage` must take its declared-identity list from the bundle instead.
+- F17-4: Story 9A.15 removes `PartId.ToNumericId`/`FromNumericId`: no wire or save reads them since Story 9A.2, and `tools/Coverage` must take its declared-identity list from the bundle instead. *Delivered by Story 9A.15 (done, 21 Oct 2026).*
 - F17-5: re-add mutants survive for a swallowing catch on the client read decode, a swallowing catch on the Animation endpoint decode, a retry on the client endpoint decode, and a C# `ResponseAbi` export. None of them is at head. Add a guard that kills each one.
 - F17-6: an undefined command kind, and a counter target of 10 on the command path, are refused as a `WireFault` that names the reason, not as a plain `ArgumentException`.
 - F17-7: the literal AC5 `rg` has 3 path-string hits left. Clear them or justify each one correctly.
@@ -1623,6 +1623,17 @@ So that two plates switch two gates independently.
 - F17-12: save pre-validation takes its list of the 22 decodable elements from the decoder or the bundle, not from a hand-written list.
 - F17-13: `anvil check` reports 0 warnings (today GS-001 at `tools/e2e/workshop-driver.ts:985`), and Tier 1 evidence includes the anvil log.
 
+### Story F.18: Bundle Element Id Follow-ups
+*Status: Backlog. Filed from the Story 9A.15 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-15-bundle-element-id-save-wire.md)).*
+
+**Acceptance Criteria:**
+- F18-1: a committed test refuses a save whose puzzle inventory names an unknown element id. Today the mutant that removes this check survives, although head refuses it correctly.
+- F18-2: `dotnet test tools/Coverage.Tests` passes on a fresh clone without a prior solution build: generate the bundle first, or declare the dependency.
+- F18-3: a committed test proves the worker's decoder knows no element outside the bundle (the reverse direction of the parity check).
+- F18-4 (Low): the schema guard matches field types and tables as well as field names.
+- F18-5 (Low): the 101 test call sites that lack a space after the comma are formatted.
+- F18-6: commit the guard test that kills mutant M9 (re-adding the generic per-id decode list); the implementer reverted it to keep the evidence commit evidence-only.
+
 ### Story F.16: Catalogue Follow-ups
 *Status: Backlog. Filed from the 9A.14+18 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-14-bundle-sole-catalogue.md)).*
 
@@ -1630,7 +1641,7 @@ So that two plates switch two gates independently.
 - Resolve items F16-1 and F16-3 to F16-7:
   - category grouping versus the old order;
   - native pins for the switch's colour, description, title and icon;
-  - naming the rejected Tennis/Balloon id (owned by 9A.15);
+  - naming the rejected Tennis/Balloon id (owned by 9A.15; delivered by Story 9A.15, done 21 Oct 2026);
   - a Workshop-level start-up refusal test;
   - the cosmetic items.
 
@@ -2828,7 +2839,11 @@ So that every part I pick can be placed and run.
 Story 12.1 creates their packages and returns them to the palette.
 
 ### Story 9A.15: Saves and Messages Carry the Bundle Element Id
-*Status: Backlog*
+*Status: Done (21 Oct 2026). Murdoch-23 gave a scoped Pass in round 1 on `d3f17d27`; the evidence is in `ae196aaa` ([review](../implementation-artifacts/review-9a-15-bundle-element-id-save-wire.md), [spec](../implementation-artifacts/spec-9a-15-bundle-element-id-save-wire.md), [evidence](../implementation-artifacts/evidence-9a-15/)).*
+- *Saves and messages carry the bundle element id. An unknown id is refused with a message naming it, and the bench is kept.*
+- *`PartId.ToNumericId`/`FromNumericId` and the numeric part-id fields are deleted.*
+- *The Full run passed 44 of 44 suites but was marked Contended, and the three contended suites passed a clean rerun.*
+- *It closes F16-4 and F17-4. Findings are filed to Story F.18.*
 
 *Depends on: Story 9A.14. Audit: A2 (numeric switches).*
 

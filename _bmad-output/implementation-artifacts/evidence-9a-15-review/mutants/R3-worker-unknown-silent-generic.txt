@@ -1,0 +1,25 @@
+mutant R3-worker-unknown-silent-generic head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:37:16Z
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 5c84d820..1aca476c 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -695,7 +695,7 @@ public static class WorkshopWireFlatBuffers
+             // a record nor colliders is no element this decoder knows, refused naming it.
+             _ => WorkshopCanonicalColliders.Declared(partId) is { } colliders
+                 ? new WorkshopGenericInstance(partId, id, cell, local, rotation, colliders, locked)
+-                : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names the element '{partId}', which this game does not have.")
++                : new WorkshopGenericInstance(partId, id, cell, local, rotation, [], locked)
+         };
+     }
+ 
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [< 1 ms]
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [< 1 ms]
+  Failed CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor [< 1 ms]
+[xUnit.net 00:00:30.96]     CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [FAIL]
+[xUnit.net 00:00:30.96]     CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [FAIL]
+[xUnit.net 00:00:30.96]     CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor [FAIL]
+Failed!  - Failed:     3, Passed:  1903, Skipped:     0, Total:  1906, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1 end=2026-10-21T08:37:58Z
+VERDICT killed
+reverted status_lines=0

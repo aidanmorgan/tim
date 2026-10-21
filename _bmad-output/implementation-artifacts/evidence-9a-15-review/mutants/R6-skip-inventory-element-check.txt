@@ -1,0 +1,19 @@
+mutant R6-skip-inventory-element-check head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:39:41Z
+diff --git a/engine/gpu/WorkshopSavePrevalidation.cs b/engine/gpu/WorkshopSavePrevalidation.cs
+index a5d891a0..f0a3fade 100644
+--- a/engine/gpu/WorkshopSavePrevalidation.cs
++++ b/engine/gpu/WorkshopSavePrevalidation.cs
+@@ -267,7 +267,7 @@ internal static class WorkshopSavePrevalidation
+         var delay = (Half)p.GoalDelay;
+         if (!Half.IsFinite(precision) || precision < (Half)0 || precision > (Half)1 || !Half.IsFinite(delay) || delay < (Half)0 || delay > (Half)120)
+             throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved puzzle precision or goal delay is outside its range.");
+-        if (p.InventoryPart is { } inventory) Element(inventory, elements, "The saved puzzle's inventory");
++        if (p.InventoryPart is { } inventory && elements.Count < 0) Element(inventory, elements, "The saved puzzle's inventory");
+         // The named-goal rule (WorkshopGoal), over the fields the decoder maps into each goal kind.
+         var admitted = (WorkshopGoalKind)p.GoalKind switch
+         {
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+Passed!  - Failed:     0, Passed:  1906, Skipped:     0, Total:  1906, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)
+test exit=0 end=2026-10-21T08:40:23Z
+VERDICT survived
+reverted status_lines=0

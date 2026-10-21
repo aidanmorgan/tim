@@ -187,7 +187,7 @@ public sealed class NoFixedCapacityTests
         AssertCrossesBothCodecs(run[^1]);
 
         var saved = new WorkshopSavedConstruction(bench, new(Switches + 3));
-        var reloaded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved));
+        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await RunAndReset(reloaded.Construction, LampTicks);
         AssertSameState(run[^1], replay[^1], "the reloaded bench's run");
@@ -248,7 +248,7 @@ public sealed class NoFixedCapacityTests
         AssertSameState(built, reset, "Reset");
         AssertCrossesBothCodecs(run[^1]);
         var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
-        var reloaded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved));
+        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await RunAndReset(reloaded.Construction, SteppedTicks);
         AssertSameState(run[^1], replay[^1], "the reloaded machine's run");

@@ -1,0 +1,19 @@
+mutant R9-readd-per-id-generic-list head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:43:57Z
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 5c84d820..480a5442 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -686,6 +686,8 @@ public static class WorkshopWireFlatBuffers
+             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
+             // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
+             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
++            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => new WorkshopGenericInstance(partId, id, cell, local, rotation,
++                WorkshopCanonicalColliders.For(partId), locked),
+             "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation, WorkshopCanonicalColliders.BallDetectorColliders, locked),
+             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
+             "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+Passed!  - Failed:     0, Passed:  1906, Skipped:     0, Total:  1906, Duration: 35 s - CuriousContraptions.tests.dll (net10.0)
+test exit=0 end=2026-10-21T08:44:42Z
+VERDICT survived
+reverted status_lines=0

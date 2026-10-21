@@ -1,0 +1,23 @@
+mutant R8-registry-elements-admit-undelivered head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:43:06Z
+diff --git a/engine/PartRegistry.cs b/engine/PartRegistry.cs
+index ccb95fc5..ee1ed261 100644
+--- a/engine/PartRegistry.cs
++++ b/engine/PartRegistry.cs
+@@ -62,7 +62,7 @@ public sealed class PartRegistry
+         _definitions.Clear();
+         foreach (var definition in definitions) _definitions.Add(definition.PartId, definition);
+         _free = free;
+-        _elements = definitions.Select(definition => definition.PartId).ToFrozenSet();
++        _elements = definitions.Select(definition => definition.PartId).Concat(UndeliveredParts.All.Select(UndeliveredParts.Id)).ToFrozenSet();
+     }
+ 
+     /// <summary>The bundle's entries in ascending palette order, after the same structural validation the generator runs.</summary>
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheRegistryElementsAreTheLoadedBundlesDeliverableElements [4 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [3 ms]
+[xUnit.net 00:00:34.11]     CuriousContraptions.Tests.PartRegistryTests.TheRegistryElementsAreTheLoadedBundlesDeliverableElements [FAIL]
+[xUnit.net 00:00:34.18]     CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [FAIL]
+Failed!  - Failed:     2, Passed:  1904, Skipped:     0, Total:  1906, Duration: 34 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1 end=2026-10-21T08:43:50Z
+VERDICT killed
+reverted status_lines=0

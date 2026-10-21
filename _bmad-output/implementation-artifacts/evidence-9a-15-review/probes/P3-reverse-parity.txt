@@ -1,0 +1,10 @@
+# P3 reverse parity at d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27: worker-known ids (MapInstance arms + WorkshopCanonicalColliders.Declared arms) vs bundle deliverable ids
+## MapInstance arms
+ball ball_detector basket battery bowling bumper clock counter delay domino lamp latch pipe pressure_plate ramp spring switch wall 
+## Declared arms
+ball_detector clock counter funnel latch pipe_bend_45 pipe_bend_90 powered_gate pressure_plate 
+## worker-known count 22
+## bundle Elements[].Metadata.Id (minus UndeliveredParts tennis, balloon)
+bundle count 22
+## comm -3 worker bundle (empty = equal sets)
+## end

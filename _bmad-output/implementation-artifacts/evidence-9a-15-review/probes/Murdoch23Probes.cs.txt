@@ -1,0 +1,28 @@
+using System;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Murdoch-23 review probes for Story 9A.15 (not a deliverable). P1: a lesson save whose puzzle inventory names an
+/// element the bundle does not declare is refused as UnknownElement naming the id. P2: the same save with a delivered inventory
+/// part still loads (control).</summary>
+public sealed class Murdoch23Probes
+{
+    private static WorkshopConstruction Lesson() =>
+        DominoEffect.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new PuzzlePrecision((Half)1));
+
+    [Fact]
+    public void P1_AnUnknownInventoryElementIsRefusedNamingIt()
+    {
+        var lesson = Lesson();
+        var forged = lesson with { Puzzle = lesson.Puzzle with { InventoryPart = new PartId("kite") } };
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.UnknownElement,
+            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(forged, 100)));
+        Assert.Contains("'kite'", refusal.Message, StringComparison.Ordinal);
+        Console.WriteLine("P1 message: " + refusal.Message);
+    }
+
+    [Fact]
+    public void P2_TheIntactLessonLoads() =>
+        Assert.Equal(Lesson(), WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(Lesson(), 100)).Construction);
+}

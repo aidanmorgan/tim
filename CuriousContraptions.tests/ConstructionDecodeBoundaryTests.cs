@@ -94,7 +94,7 @@ public sealed class ConstructionDecodeBoundaryTests
     private static WorkshopConstruction DecodeSave(PartId part, float? threshold, uint? targetCount = null)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
-        return WorkshopSaveCodec.Decode(SaveFixture.Finish(builder, BuildRecord(builder, part, threshold, targetCount), 2)).Construction;
+        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, threshold, targetCount), 2)).Construction;
     }
 
     private static float DecodedSetting(WorkshopConstruction construction, Part part)
@@ -198,12 +198,12 @@ public sealed class ConstructionDecodeBoundaryTests
                     WorkshopInput.Clock(new(2), 1, 1, 0, 0, 0, 0, 1, intervalSeconds: 2f))),
             new(3));
         var save = WorkshopSaveCodec.Encode(saved);
-        Assert.Equal(2, WorkshopSaveCodec.Decode(save).Construction.Instances.Count);
+        Assert.Equal(2, WorkshopSaveCodec.Decode(SaveFixture.Elements,save).Construction.Instances.Count);
         for (var n = 0; n < save.Length; n++)
         {
             var length = n;
             Assert.Equal(WorkshopSaveRejection.Truncated,
-                Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(save.AsSpan(0, length))).Reason);
+                Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,save.AsSpan(0, length))).Reason);
         }
     }
 }

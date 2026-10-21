@@ -88,7 +88,7 @@ public sealed class WorkshopBowlingTests
     {
         var save = new WorkshopSavedConstruction(TwoLanes(), new(5));
         var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         var basketball = Assert.IsType<WorkshopBall>(decoded.Construction.Instances[2]);
@@ -120,7 +120,7 @@ public sealed class WorkshopBowlingTests
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
             var savedBytes = SaveFixture.Finish(builder, crOffset, 5);
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(savedBytes));
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
         }
         // Material bits of one kind under the other kind's tag are not that kind.
         var swapped1 = decoded.Construction with {
@@ -129,7 +129,7 @@ public sealed class WorkshopBowlingTests
         var b1 = new Google.FlatBuffers.FlatBufferBuilder(512);
         var cr1 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b1, swapped1, validate: false);
         var swappedBytes1 = SaveFixture.Finish(b1, cr1, 5);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(swappedBytes1));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,swappedBytes1));
 
         var swapped2 = decoded.Construction with {
             Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], basketball with { Material = BallMaterial.For(PartId.BowlingBall) }, decoded.Construction.Instances[3])
@@ -137,7 +137,7 @@ public sealed class WorkshopBowlingTests
         var b2 = new Google.FlatBuffers.FlatBufferBuilder(512);
         var cr2 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b2, swapped2, validate: false);
         var swappedBytes2 = SaveFixture.Finish(b2, cr2, 5);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(swappedBytes2));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,swappedBytes2));
     }
 
     [Fact]

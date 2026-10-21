@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Murdoch-22: reproduces the E2eRunner identities (tools/E2eRunner/SourceIdentity.cs, BundleIdentity.cs) for a checkout.
+# Usage: bash digests.sh.txt <checkout-root> [bundle-dir]
+set -eu
+root=$1
+cd "$root"
+manifest() { while IFS= read -r -d '' p; do
+    if [ -f "$p" ]; then h=$(shasum -a 256 "$p" | cut -d' ' -f1); else h=missing; fi
+    printf '%s\t%s\n' "$p" "$h"; done; }
+files() { git ls-files -z --cached --others --exclude-standard -- tools | tr '\0' '\n' | LC_ALL=C sort -u | tr '\n' '\0'; }
+echo "head=$(git rev-parse HEAD)"
+echo "statusDigest=$(git status --porcelain=v1 -z --untracked-files=all | shasum -a 256 | cut -d' ' -f1)"
+suite=$(files | tr '\0' '\n' | grep -E '^tools/e2e/|^tools/E2eRunner/|^tools/[^/]+\.mjs$' | tr '\n' '\0' | manifest | shasum -a 256 | cut -d' ' -f1)
+runner=$(files | tr '\0' '\n' | grep -E '^tools/E2eRunner/' | tr '\n' '\0' | manifest | shasum -a 256 | cut -d' ' -f1)
+echo "suiteSourceDigest=$suite"
+echo "runnerSourceDigest=$runner"
+if [ $# -ge 2 ]; then
+  cd "$2"
+  bundle=$(find . -type f | sed 's|^\./||' | LC_ALL=C sort | while IFS= read -r p; do printf '%s\t%s\n' "$p" "$(shasum -a 256 "$p" | cut -d' ' -f1)"; done | shasum -a 256 | cut -d' ' -f1)
+  echo "bundleIdentity($2)=$bundle files=$(find . -type f | wc -l | tr -d ' ')"
+fi

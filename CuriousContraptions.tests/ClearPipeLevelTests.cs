@@ -91,7 +91,7 @@ public sealed class ClearPipeLevelTests
 
         var save = new WorkshopSavedConstruction(placed, new(10));
         var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
 
         var updated = ClearPipe.WithPrecision(placed, new((Half)0.45));

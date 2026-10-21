@@ -178,7 +178,7 @@ public sealed class JoinedPipeTests
             (receiver.Capture.Margin.Value, receiver.Capture.SpeedLimit.Value, receiver.Capture.Dwell.Value, receiver.ForceRegion.MaximumAcceleration.Value));
         var placed = lesson.WithInstance(Snapped(lesson, 2));
         var saved = new WorkshopSavedConstruction(placed, new(5));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var updated = JoinedPipe.WithPrecision(placed, new((Half).45));
         Assert.Equal((Half).174, updated.Receiver!.Value.Capture.Margin.Value);
         Assert.Equal(placed.Instances.Single(i => i.Id == PipeId), updated.Instances.Single(i => i.Id == PipeId));

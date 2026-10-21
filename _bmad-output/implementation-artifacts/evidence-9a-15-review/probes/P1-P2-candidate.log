@@ -1,0 +1,52 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/elements.bundle.json (22 elements)
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.35]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.89]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.03]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.25]   Finished:    CuriousContraptions.tests (ID = '57752423e76596c95af3d47d96a89a9f59f0455145f35ea331bce09b47d225a9')
+  Passed CuriousContraptions.Tests.Murdoch23Probes.P2_TheIntactLessonLoads [157 ms]
+  Passed CuriousContraptions.Tests.Murdoch23Probes.P1_AnUnknownInventoryElementIsRefusedNamingIt [2 ms]
+
+Test Run Successful.
+Total tests: 2
+     Passed: 2
+ Total time: 1.5654 Seconds

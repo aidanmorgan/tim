@@ -1,0 +1,31 @@
+mutant R5-save-refusal-omits-id head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:38:51Z
+diff --git a/engine/gpu/WorkshopSavePrevalidation.cs b/engine/gpu/WorkshopSavePrevalidation.cs
+index a5d891a0..6ac431b2 100644
+--- a/engine/gpu/WorkshopSavePrevalidation.cs
++++ b/engine/gpu/WorkshopSavePrevalidation.cs
+@@ -71,7 +71,7 @@ internal static class WorkshopSavePrevalidation
+         if (string.IsNullOrWhiteSpace(id)) throw Refuse(WorkshopSaveRejection.MissingField, $"{owner} names no element.");
+         var part = new PartId(id);
+         if (!elements.Contains(part))
+-            throw Refuse(WorkshopSaveRejection.UnknownElement, $"{owner} names the element '{id}', which this game does not have.");
++            throw Refuse(WorkshopSaveRejection.UnknownElement, $"{owner} names an element this game does not have.");
+         return part;
+     }
+ 
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveIsValidatedAgainstTheLoadedBundle [< 1 ms]
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "balloon") [< 1 ms]
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [< 1 ms]
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [< 1 ms]
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AStoredSaveNamingAnUnknownElementIsRefusedNamingIt [< 1 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [13 ms]
+[xUnit.net 00:00:06.75]     CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [FAIL]
+[xUnit.net 00:00:20.06]     CuriousContraptions.Tests.BundleElementIdTests.ASaveIsValidatedAgainstTheLoadedBundle [FAIL]
+[xUnit.net 00:00:20.06]     CuriousContraptions.Tests.BundleElementIdTests.AStoredSaveNamingAnUnknownElementIsRefusedNamingIt [FAIL]
+[xUnit.net 00:00:20.11]     CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "balloon") [FAIL]
+[xUnit.net 00:00:20.11]     CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "kite") [FAIL]
+[xUnit.net 00:00:20.11]     CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "tennis") [FAIL]
+Failed!  - Failed:     6, Passed:  1900, Skipped:     0, Total:  1906, Duration: 34 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1 end=2026-10-21T08:39:35Z
+VERDICT killed
+reverted status_lines=0

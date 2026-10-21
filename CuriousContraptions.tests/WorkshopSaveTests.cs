@@ -29,7 +29,7 @@ public sealed class WorkshopSaveTests
         var escaped = new List<string>();
         foreach (var bytes in corpus)
         {
-            var error = Record.Exception(() => WorkshopSaveCodec.Decode(bytes));
+            var error = Record.Exception(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
             if (error is not (null or WorkshopSaveRejectedException)) escaped.Add($"{bytes.Length} bytes: {error.GetType().FullName}: {error.Message}");
         }
         Assert.Empty(escaped);
@@ -45,7 +45,7 @@ public sealed class WorkshopSaveTests
         var construction = Saved().Construction.WithInstance(receiver);
         var saved = new WorkshopSavedConstruction(construction, new(7));
         var bytes = WorkshopSaveCodec.Encode(saved);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(saved, decoded);
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
         {
@@ -97,7 +97,7 @@ public sealed class WorkshopSaveTests
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
         var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
-        SaveFixture.Refused(Half.IsFinite(invalidVal) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
+        SaveFixture.Refused(Half.IsFinite(invalidVal) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
     }
 
@@ -114,10 +114,10 @@ public sealed class WorkshopSaveTests
         var saved = Saved();
         var bytes = WorkshopSaveCodec.Encode(saved);
         Assert.True(bytes.Length >= 16);
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(bytes));
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(bytes)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+        Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
         var empty = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty), new(1));
-        Assert.Equal(empty, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(empty)));
+        Assert.Equal(empty, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(empty)));
     }
 
     [Theory]
@@ -135,20 +135,20 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, nextBodyId);
         if (crOffset.HasValue) CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset.Value);
         builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, identifier);
-        SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,builder.SizedByteArray()));
     }
 
     [Fact]
     public void TruncatedTrailingAndInvalidAllocatorReject()
     {
         var bytes = WorkshopSaveCodec.Encode(Saved());
-        SaveFixture.Refused(WorkshopSaveRejection.Truncated, () => WorkshopSaveCodec.Decode(bytes.AsSpan(..^1)));
-        SaveFixture.Refused(WorkshopSaveRejection.Truncated, () => WorkshopSaveCodec.Decode(bytes.AsSpan(..10)));
-        SaveFixture.Refused(WorkshopSaveRejection.TrailingBytes, () => WorkshopSaveCodec.Decode([.. bytes, 0]));
+        SaveFixture.Refused(WorkshopSaveRejection.Truncated, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes.AsSpan(..^1)));
+        SaveFixture.Refused(WorkshopSaveRejection.Truncated, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes.AsSpan(..10)));
+        SaveFixture.Refused(WorkshopSaveRejection.TrailingBytes, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,[.. bytes, 0]));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction);
         var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-        SaveFixture.Refused(WorkshopSaveRejection.InvalidAllocator, () => WorkshopSaveCodec.Decode(savedBytes));
+        SaveFixture.Refused(WorkshopSaveRejection.InvalidAllocator, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(Saved() with { NextBodyId = new(3) }));
     }
 
@@ -174,7 +174,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instancesOffset);
         var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
         var savedBytes = SaveFixture.Finish(builder, crOffset, 10);
-        SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.Decode(savedBytes));
+        SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public sealed class WorkshopSaveTests
         var b = WorkshopInput.Ramp(new(5), -.7, 2.7, 0, 0, 0, 0, 1, new(new((Half)2.5), new((Half).75))) with { Locked = true };
         saved = saved with { Construction = saved.Construction.WithInstance(a).WithInstance(b) };
         var bytes = WorkshopSaveCodec.Encode(saved);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(saved, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
@@ -229,7 +229,7 @@ public sealed class WorkshopSaveTests
         Assert.Null(changed.Ball);
         Assert.Equal(receiver.Id, changed.Receiver!.Value.Id);
         var saved = new WorkshopSavedConstruction(changed, new(7));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
     }
 
     [Fact]
@@ -261,8 +261,8 @@ public sealed class WorkshopSaveTests
         construction = construction.WithInstance(a).WithInstance(b);
         var saved = new WorkshopSavedConstruction(construction, new(15));
         var bytes = WorkshopSaveCodec.Encode(saved);
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(bytes));
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(bytes)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+        Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
         Assert.True(construction.Ball!.Value.Locked); Assert.True(construction.Receiver!.Value.Locked);
         Assert.Equal(new GpuBodyId(11), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(12), construction.Puzzle.Goal.Target);
@@ -280,7 +280,7 @@ public sealed class WorkshopSaveTests
             Assert.Equal(expected.ForceRegion.SupportMargin, guide.SupportMargin);
             Assert.Equal(a, updated.Instances[2]); Assert.Equal(b, updated.Instances[3]);
             var changedSave = new WorkshopSavedConstruction(updated, new(15));
-            Assert.Equal(changedSave, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(changedSave)));
+            Assert.Equal(changedSave, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(changedSave)));
         }
     }
 
@@ -323,16 +323,16 @@ public sealed class WorkshopSaveTests
     {
         var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)1));
         var bytes = WorkshopSaveCodec.Encode(new(construction, new(3)));
-        Assert.Equal(new WorkshopSavedConstruction(construction, new(3)), WorkshopSaveCodec.Decode(bytes)); // control
+        Assert.Equal(new WorkshopSavedConstruction(construction, new(3)), WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)); // control
         // The assistance vector's own length word (198): two profiles short is a missing field, never a default profile.
         var length = bytes.AsSpan().IndexOf(new byte[] { (byte)WorkshopPuzzleWire.AssistanceBytes, 0, 0, 0 });
         Assert.True(length > 0, "the saved puzzle's assistance vector length");
         var shortened = (byte[])bytes.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(shortened.AsSpan(length), WorkshopPuzzleWire.ProfileBytes);
-        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(shortened));
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,shortened));
         var foreign = (byte[])bytes.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(foreign.AsSpan(4), 1);
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(foreign));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,foreign));
     }
 
     [Fact]
@@ -391,14 +391,14 @@ public sealed class WorkshopSaveTests
     {
         var save = ActivationSaved();
         var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         Assert.Equal((Half).8, ((WorkshopSwitch)decoded.Construction.Instances[0]).Trigger.Threshold.Value);
         // Authored values are canonical data, never replaced by the Free Workshop default.
         var changed = save with { Construction = save.Construction.WithInstance(
             ((WorkshopSwitch)save.Construction.Instances[0]) with { Trigger = new(new((Half).47)) }) };
-        Assert.Equal(changed, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(changed)));
+        Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(changed)));
         Assert.Single(decoded.Construction.Connections);
     }
 
@@ -482,6 +482,6 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.ConstructionRecord.AddConnections(builder, connectionsVector);
         var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
         var savedBytes = SaveFixture.Finish(builder, crOffset, save.NextBodyId.Value);
-        SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(savedBytes));
+        SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
     }
 }

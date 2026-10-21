@@ -1,0 +1,13 @@
+head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:31:15Z status_lines=0
+build exit=0 2026-10-21T08:31:29Z
+test exit=0 2026-10-21T08:32:37Z
+second batch start=2026-10-21T08:32:51Z head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 status_lines=0
+release build exit=0
+node done; fails=0
+lifecycle exit=0
+wire exit=0
+web restore exit=0
+ownership exit=0
+hook exit=0
+anvil check --since 0519cedb exit=0
+second batch end=2026-10-21T08:34:30Z status_lines=0

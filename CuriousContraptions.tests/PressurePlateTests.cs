@@ -428,7 +428,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         {
             // AC7 (Murdoch-10 B1): the non-default 2.0 kg is saved and loaded through the real save codec, reloads bit for bit,
             // and the reloaded construction is what runs.
-            var reloaded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(7)))).Construction;
+            var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(7)))).Construction;
             var reloadedPlate = Assert.Single(reloaded.Instances.OfType<WorkshopPressurePlate>());
             Assert.Equal(BitConverter.SingleToUInt32Bits(2f), BitConverter.SingleToUInt32Bits(reloadedPlate.MinimumMass));
             bench = reloaded;
@@ -676,7 +676,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
         // Save/Load through the real codec: the reloaded bench is identical and replays the same committed run.
         var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
-        var reloaded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved));
+        var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
         var (_, replay, _) = await RunAndReset(reloaded.Construction, Ticks);
         AssertSameState(reads[^1], replay[^1], "the reloaded bench's run");

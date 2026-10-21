@@ -1,0 +1,20 @@
+mutant R7-readd-numeric-schema-part-field head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:41:57Z
+diff --git a/schemas/workshop_wire.fbs b/schemas/workshop_wire.fbs
+index ed27862a..554c4879 100644
+--- a/schemas/workshop_wire.fbs
++++ b/schemas/workshop_wire.fbs
+@@ -203,6 +203,7 @@ struct ConnectionRecord {
+ table InstanceRecord {
+     id: uint64;
+     part_id: string;
++    part_number: uint32;
+     locked: bool;
+     cell: Vec3i;
+     local: Vec3f;
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+  Failed CuriousContraptions.Tests.BundleElementIdTests.NoSchemaFieldCarriesANumericPartId [6 ms]
+[xUnit.net 00:00:01.81]     CuriousContraptions.Tests.BundleElementIdTests.NoSchemaFieldCarriesANumericPartId [FAIL]
+Failed!  - Failed:     1, Passed:  1905, Skipped:     0, Total:  1906, Duration: 34 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1 end=2026-10-21T08:42:48Z
+VERDICT killed
+reverted status_lines=0

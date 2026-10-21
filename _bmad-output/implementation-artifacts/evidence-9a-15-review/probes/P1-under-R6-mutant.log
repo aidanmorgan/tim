@@ -1,0 +1,102 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/elements/elements.bundle.json (22 elements)
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.04]     CuriousContraptions.Tests.Murdoch23Probes.P1_AnUnknownInventoryElementIsRefusedNamingIt [FAIL]
+  Failed CuriousContraptions.Tests.Murdoch23Probes.P1_AnUnknownInventoryElementIsRefusedNamingIt [2 ms]
+  Error Message:
+   Assert.Throws() Failure: Exception type was not an exact match
+Expected: typeof(CuriousContraptions.Gpu.WorkshopSaveRejectedException)
+Actual:   typeof(CuriousContraptions.Gpu.WorkshopEditRejectedException)
+---- CuriousContraptions.Gpu.WorkshopEditRejectedException : Changed domino effect fixture or goal.
+  Stack Trace:
+     at CuriousContraptions.Tests.SaveFixture.Refused(WorkshopSaveRejection reason, Action decode) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/SaveFixture.cs:line 35
+   at CuriousContraptions.Tests.Murdoch23Probes.P1_AnUnknownInventoryElementIsRefusedNamingIt() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/Murdoch23Probes.cs:line 19
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace -----
+   at CuriousContraptions.Gpu.DominoEffect.Validate(WorkshopPuzzle puzzle, WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/engine/gpu/DominoEffect.cs:line 40
+   at CuriousContraptions.Gpu.WorkshopPuzzle.Validate(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/engine/gpu/WorkshopPuzzle.cs:line 86
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/engine/gpu/WorkshopConstruction.cs:line 145
+   at CuriousContraptions.Gpu.WorkshopSaveCodec.Construct(SavedConstruction saved) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/engine/gpu/WorkshopSaveCodec.cs:line 77
+   at CuriousContraptions.Gpu.WorkshopSaveCodec.Decode(IReadOnlySet`1 elements, ReadOnlySpan`1 bytes) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/engine/gpu/WorkshopSaveCodec.cs:line 50
+   at CuriousContraptions.Tests.Murdoch23Probes.<>c__DisplayClass1_0.<P1_AnUnknownInventoryElementIsRefusedNamingIt>b__0() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut/CuriousContraptions.tests/Murdoch23Probes.cs:line 20
+
+Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2, Duration: 179 ms - CuriousContraptions.tests.dll (net10.0)

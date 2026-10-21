@@ -1,0 +1,23 @@
+mutant R1-readd-ToNumericId head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:35:07Z
+diff --git a/engine/PartId.cs b/engine/PartId.cs
+index 671b44be..0b6ff558 100644
+--- a/engine/PartId.cs
++++ b/engine/PartId.cs
+@@ -46,4 +46,10 @@ public readonly record struct PartId : IComparable<PartId>
+     public static readonly PartId Counter = new("counter");
+     public static readonly PartId Clock = new("clock");
+     public static readonly PartId Latch = new("latch");
++
++    public uint ToNumericId() => Value switch
++    {
++        "ball" => 1,
++        _ => 0
++    };
+ }
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+  Failed CuriousContraptions.Tests.BundleElementIdTests.NoNumericPartIdConversionRemains [32 ms]
+[xUnit.net 00:00:15.56]     CuriousContraptions.Tests.BundleElementIdTests.NoNumericPartIdConversionRemains [FAIL]
+Failed!  - Failed:     1, Passed:  1905, Skipped:     0, Total:  1906, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1 end=2026-10-21T08:35:51Z
+VERDICT killed
+reverted status_lines=0

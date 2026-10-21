@@ -210,9 +210,9 @@ development_status:
   # 10
   9a-2-single-flatbuffers-codec: done
   # 11
-  9a-15-bundle-element-id-save-wire: in-progress
+  9a-15-bundle-element-id-save-wire: done
   # 12
-  9a-17-bundle-ports-and-footprint: backlog
+  9a-17-bundle-ports-and-footprint: in-progress
   # 13: owner amendment 21 Oct 2026, right after 9a-17
   9a-3-typed-transport-control-commands: backlog
   # 14: owner amendment 21 Oct 2026, right after 9a-17
@@ -465,5 +465,6 @@ development_status:
   f-16-catalogue-follow-ups: backlog
   # filed by 9a-2 (21 Oct 2026): foreign record fields, lesson and workbench save refusals, publish allocation, numeric ids (9a-15)
   f-17-single-codec-follow-ups: backlog
+  f-18-bundle-element-id-follow-ups: backlog
 
 action_items: []

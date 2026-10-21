@@ -1,0 +1,33 @@
+mutant R2b-readd-hardcoded-Decodable-list head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:36:25Z
+diff --git a/engine/gpu/WorkshopSavePrevalidation.cs b/engine/gpu/WorkshopSavePrevalidation.cs
+index a5d891a0..735bf6ba 100644
+--- a/engine/gpu/WorkshopSavePrevalidation.cs
++++ b/engine/gpu/WorkshopSavePrevalidation.cs
+@@ -65,12 +65,19 @@ internal static class WorkshopSavePrevalidation
+         return part;
+     }
+ 
++    private static readonly HashSet<string> Decodable = new(StringComparer.Ordinal)
++    {
++        "ball", "bowling", "basket", "ramp", "wall", "switch", "delay", "spring", "battery", "bumper", "domino", "lamp", "latch", "pipe",
++        "pipe_bend_45", "pipe_bend_90", "funnel", "powered_gate", "ball_detector", "pressure_plate", "counter", "clock",
++    };
++
+     /// <summary>A saved element id: present, and one of the loaded bundle's elements; anything else is refused naming the id.</summary>
+     private static PartId Element(string? id, IReadOnlySet<PartId> elements, string owner)
+     {
+         if (string.IsNullOrWhiteSpace(id)) throw Refuse(WorkshopSaveRejection.MissingField, $"{owner} names no element.");
+         var part = new PartId(id);
+-        if (!elements.Contains(part))
++        ArgumentNullException.ThrowIfNull(elements);
++        if (!Decodable.Contains(id))
+             throw Refuse(WorkshopSaveRejection.UnknownElement, $"{owner} names the element '{id}', which this game does not have.");
+         return part;
+     }
+--- dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj 
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveIsValidatedAgainstTheLoadedBundle [1 ms]
+[xUnit.net 00:00:34.07]     CuriousContraptions.Tests.BundleElementIdTests.ASaveIsValidatedAgainstTheLoadedBundle [FAIL]
+Failed!  - Failed:     1, Passed:  1905, Skipped:     0, Total:  1906, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1 end=2026-10-21T08:37:09Z
+VERDICT killed
+reverted status_lines=0

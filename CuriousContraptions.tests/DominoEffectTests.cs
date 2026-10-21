@@ -46,7 +46,7 @@ public sealed class DominoEffectTests
         var solved = Solved(Lesson());
         solved.Validate();
         var save = new WorkshopSavedConstruction(solved, new(8));
-        var decoded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(save));
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save));
         Assert.Equal(save, decoded);
         Assert.Equal(solved.Puzzle, decoded.Construction.Puzzle);
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));

@@ -1,0 +1,27 @@
+mutant R10-coverage-reads-PartId-cs head=d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27 start=2026-10-21T08:44:51Z
+diff --git a/tools/Coverage/CurrentCatalogue.cs b/tools/Coverage/CurrentCatalogue.cs
+index aa26c65a..54598174 100644
+--- a/tools/Coverage/CurrentCatalogue.cs
++++ b/tools/Coverage/CurrentCatalogue.cs
+@@ -17,7 +17,7 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
+     public static readonly SourcePath ConsumersPath = new("docs/planning/invest/current-consumers.md");
+     /// <summary>The generated element bundle (a build output of tools/BundleElements): its element ids are the declared part
+     /// identities (Story 9A.15).</summary>
+-    public static readonly SourcePath PartIdentityPath = new("elements/elements.bundle.json");
++    public static readonly SourcePath PartIdentityPath = new("engine/PartId.cs");
+     private const string DeclarationDirectory = "docs/planning/elements";
+     private const string ResourceDirectory = "elements";
+     // Every elements/<Package>/*ElementDeclaration.cs declares one part identity (Story 9A.14: the packages, through the generated
+--- dotnet test tools/Coverage.Tests/Coverage.Tests.csproj 
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [51 ms]
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [50 ms]
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [48 ms]
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource [53 ms]
+[xUnit.net 00:00:00.87]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource [FAIL]
+[xUnit.net 00:00:00.92]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [FAIL]
+[xUnit.net 00:00:00.92]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [FAIL]
+Failed!  - Failed:     4, Passed:    73, Skipped:     0, Total:    77, Duration: 181 ms - Coverage.Tests.dll (net10.0)
+test exit=1 end=2026-10-21T08:44:53Z
+VERDICT killed
+reverted status_lines=0

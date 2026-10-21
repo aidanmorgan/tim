@@ -40,7 +40,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instance));
                 var saved = new WorkshopSavedConstruction(construction, new(body));
                 var bytes = WorkshopSaveCodec.Encode(saved);
-                var decoded = WorkshopSaveCodec.Decode(bytes);
+                var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
                 Assert.Equal(id, Assert.Single(decoded.Construction.Instances).PartId);
                 Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
                 // The bench placement reaches the Simulation worker as a Construct command on the binary wire.

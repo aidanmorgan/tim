@@ -650,7 +650,7 @@ public static class WorkshopWireFlatBuffers
     private static Vec3f Required(Vec3f? value, string field) =>
         value ?? throw new WireFaultException(WireFaultReason.MissingField, $"An instance record requires its {field}.");
 
-    private static IWorkshopInstance MapInstance(InstanceRecord inst)
+    internal static IWorkshopInstance MapInstance(InstanceRecord inst)
     {
         if (string.IsNullOrEmpty(inst.PartId)) throw new WireFaultException(WireFaultReason.MissingField, "An instance record requires its element.");
         var c = inst.Cell ?? throw new WireFaultException(WireFaultReason.MissingField, "An instance record requires its cell.");
@@ -686,14 +686,16 @@ public static class WorkshopWireFlatBuffers
             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
             // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
-            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => new WorkshopGenericInstance(partId, id, cell, local, rotation,
-                WorkshopCanonicalColliders.For(partId), locked),
             "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation, WorkshopCanonicalColliders.BallDetectorColliders, locked),
             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
             "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
             "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
-            _ => throw new ArgumentException("Unsupported instance kind or parameters.")
+            // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
+            // a record nor colliders is no element this decoder knows, refused naming it.
+            _ => WorkshopCanonicalColliders.Declared(partId) is { } colliders
+                ? new WorkshopGenericInstance(partId, id, cell, local, rotation, colliders, locked)
+                : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names the element '{partId}', which this game does not have.")
         };
     }
 

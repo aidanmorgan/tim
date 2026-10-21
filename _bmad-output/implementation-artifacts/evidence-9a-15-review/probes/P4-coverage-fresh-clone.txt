@@ -1,0 +1,8 @@
+P4 fresh detached copy at d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27, no solution build; bundle present before: ls: elements/elements.bundle.json: No such file or directory
+   System.IO.InvalidDataException : The element bundle 'elements/elements.bundle.json' is missing; build tools/BundleElements to generate it.
+[xUnit.net 00:00:00.68]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [FAIL]
+[xUnit.net 00:00:00.68]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [FAIL]
+[xUnit.net 00:00:00.73]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [FAIL]
+[xUnit.net 00:00:00.73]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource [FAIL]
+Failed!  - Failed:     4, Passed:    73, Skipped:     0, Total:    77, Duration: 172 ms - Coverage.Tests.dll (net10.0)
+bundle present after: ls: elements/elements.bundle.json: No such file or directory

@@ -120,14 +120,14 @@ public sealed class WorkshopFormatTests
         // A well-formed buffer of another root (a command) and a save whose construction table is absent.
         var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Saved().Construction, Session: new(1, 2), Cadence: new(1), Projection: new(1)));
-        SaveFixture.Refused(WorkshopSaveRejection.UnknownIdentifier, () => WorkshopSaveCodec.Decode(command));
+        SaveFixture.Refused(WorkshopSaveRejection.UnknownIdentifier, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,command));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(64);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
         builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, WorkshopSaveCodec.Identifier);
-        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,builder.SizedByteArray()));
         // Control: the same codec admits its own encoding.
-        Assert.Equal(Saved(), WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(Saved())));
+        Assert.Equal(Saved(), WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(Saved())));
     }
 
     /// <summary>Only the verifier sees this: a part id string whose terminating zero is overwritten still reads as "pipe" through the
@@ -141,7 +141,7 @@ public sealed class WorkshopFormatTests
         Assert.True(at > 0, "the saved pipe's part id string");
         var corrupted = (byte[])bytes.Clone();
         corrupted[at + 4] = (byte)'x';
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(corrupted));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,corrupted));
     }
 
     /// <summary>A slot written by the retired versioned schema (magic, version, next body id, construction; a seven-word settings
@@ -167,7 +167,7 @@ public sealed class WorkshopFormatTests
         builder.AddUlong(2, 1, 0);
         builder.AddOffset(3, record.Value, 0);
         builder.FinishSizePrefixed(builder.EndTable(), WorkshopSaveCodec.Identifier);
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,builder.SizedByteArray()));
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public sealed class WorkshopFormatTests
         var corrupted = (byte[])bytes.Clone();
         // After the 4-byte size prefix: the root table offset points past the buffer.
         BinaryPrimitives.WriteUInt32LittleEndian(corrupted.AsSpan(4), (uint)bytes.Length * 4);
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(corrupted));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,corrupted));
         Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(corrupted)).Reason);
         Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(corrupted)).Reason);
     }

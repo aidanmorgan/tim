@@ -1,0 +1,36 @@
+HEAD d3f17d2789e14cbf6e98a17cfbd609f4f9fe3d27; tracked code differs from it in 0 diff-stat lines
+
+== Deleted: PartId.ToNumericId (with _ => 0) and PartId.FromNumericId
+$ rg -nw "ToNumericId|FromNumericId" <code roots and docs>
+rg exit 1
+
+== Deleted: the hard-coded Decodable element list in the save pre-validation
+$ rg -n "Decodable" engine
+rg exit 1
+
+== Deleted: the per-id generic decode list and the untyped unknown-kind refusal in the worker decode
+$ rg -n per-id generic list / "Unsupported instance kind" engine/gpu/WorkshopWireFlatBuffers.cs
+rg exit 1
+
+== Deleted: Coverage reading engine/PartId.cs
+$ rg -n "engine/PartId.cs|ToNumericId" tools/Coverage tools/Coverage.Tests
+rg exit 1
+
+== Kept: element-naming schema fields are strings
+205:    part_id: string;
+267:    inventory_part: string;
+
+== Out of scope, with owners: the same id list outside the serialisation boundary
+   engine/MachineWorld.Gpu.cs: main-thread placement capture (CaptureInstance: A3 conversions; its collider fallback: Story 9A.16)
+   engine/gpu/WorkshopConnections.cs: WorkshopPorts.For (Story 9A.17)
+engine/MachineWorld.Gpu.cs:131:            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+engine/gpu/WorkshopConnections.cs:39:        "ball" or "bowling" or "basket" or "ramp" or "wall" or "spring" or "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" => [],
+
+== For the record: whole repo (evidence directories excluded): planning text and history only
+./_bmad-output/implementation-artifacts/review-9a-14-bundle-sole-catalogue.md
+./_bmad-output/implementation-artifacts/spec-9a-14-bundle-sole-catalogue-source.md
+./_bmad-output/implementation-artifacts/spec-9a-15-bundle-element-id-save-wire.md
+./_bmad-output/implementation-artifacts/spec-9a-2-single-flatbuffers-codec.md
+./_bmad-output/planning-artifacts/architecture-conformance-audit-2026-10-18.md
+./_bmad-output/planning-artifacts/epics.md
+./_bmad-output/planning-artifacts/retro-verification-2026-10-18.md

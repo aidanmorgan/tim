@@ -8,6 +8,12 @@ namespace CuriousContraptions.Tests;
 /// assertion of a save's refusal with the reason that refused it.</summary>
 internal static class SaveFixture
 {
+    /// <summary>The loaded bundle's elements, as the registry loads them (Story 9A.15): every bundle entry the typed undelivered set
+    /// does not hold back. The save boundary validates every saved element id against this set.</summary>
+    public static IReadOnlySet<PartId> Elements { get; } = PartRegistry.Read(File.ReadAllText(
+            Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json")))
+        .Select(entry => new PartId(entry.Metadata.Id)).Where(id => !UndeliveredParts.Contains(id)).ToHashSet();
+
     public static byte[] Finish(FlatBufferBuilder builder, Offset<ConstructionRecord> record, ulong nextBodyId)
     {
         SavedConstruction.StartSavedConstruction(builder);

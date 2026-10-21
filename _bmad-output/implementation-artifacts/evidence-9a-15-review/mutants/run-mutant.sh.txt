@@ -1,0 +1,30 @@
+#!/bin/zsh
+# Murdoch-23 re-add / behaviour mutant runner for Story 9A.15. Usage: run-mutant.sh <name> [test-project] [filter]
+# Applies nothing itself: the mutant is the working-tree diff of the mutant copy (made with the Edit tool). It records the diff,
+# runs the test project (filter optional), records the summary, then reverts the copy.
+name=$1
+proj=${2:-CuriousContraptions.tests/CuriousContraptions.tests.csproj}
+filter=$3
+M=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch23-9a15-mut
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9a-15-review/mutants
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad
+cd $M || exit 2
+out=$E/$name.txt
+{
+  echo "mutant $name head=$(git rev-parse HEAD) start=$(date -u +%FT%TZ)"
+  git diff
+  echo "--- dotnet test $proj ${filter:+--filter $filter}"
+} > $out
+# -m:2 keeps the build to two nodes while the implementer's Full run is in Chrome.
+if [ -n "$filter" ]; then
+  nice -n 10 dotnet test $proj -m:2 --filter "$filter" > $S/mutant-raw.log 2>&1
+else
+  nice -n 10 dotnet test $proj -m:2 > $S/mutant-raw.log 2>&1
+fi
+code=$?
+grep -E "error [A-Z]+[0-9]+|\[FAIL\]|^  Failed |Passed!|Failed!" $S/mutant-raw.log | sort -u | head -40 >> $out
+echo "test exit=$code end=$(date -u +%FT%TZ)" >> $out
+if [ $code -ne 0 ]; then echo "VERDICT killed" >> $out; else echo "VERDICT survived" >> $out; fi
+git checkout -- .
+echo "reverted status_lines=$(git status --short | wc -l | tr -d ' ')" >> $out
+tail -12 $out
