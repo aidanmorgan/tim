@@ -24,8 +24,6 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal("latch", def.Id);
         Assert.Equal("Set/Reset latch", def.Title);
         Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
-        Assert.Equal(24u, PartId.Latch.ToNumericId());
-        Assert.Equal(PartId.Latch, PartId.FromNumericId(24));
 
         var part = registry.Create(PartId.Latch);
         try
@@ -131,7 +129,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var bytes = WorkshopSaveCodec.Encode(new(valid, new(6)));
         var invalid = valid with { Connections = new(Signal(latch.Id, counter.Id, WorkshopSocket.ActivationIn)) };
         EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly, () => WorkshopSaveCodec.Encode(new(invalid, new(6))));
-        Assert.Equal(output, Assert.Single(WorkshopSaveCodec.Decode(bytes).Construction.Connections.ToArray()));
+        Assert.Equal(output, Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes).Construction.Connections.ToArray()));
     }
 
     [Fact]
@@ -493,7 +491,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         AssertSame(construction, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Construction!.Value);
 
         var saved = new WorkshopSavedConstruction(construction, new(6));
-        var restored = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved));
+        var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         AssertSame(construction, restored.Construction);
         Assert.Equal(WorkshopSaveCodec.Encode(saved), WorkshopSaveCodec.Encode(restored));
     }

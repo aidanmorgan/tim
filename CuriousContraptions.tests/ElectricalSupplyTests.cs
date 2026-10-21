@@ -27,8 +27,8 @@ public sealed class ElectricalSupplyTests
         var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction with
             { Instances = new(battery with { Settings = settings with { Enabled = (ElectricalEnable)2 } }, bumper) }, validate: false);
         var savedBytes = SaveFixture.Finish(builder, record, 3);
-        SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(savedBytes));
-        var restored = WorkshopSaveCodec.Decode(original);
+        SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+        var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements,original);
         Assert.Equal(settings, Assert.IsType<WorkshopBattery>(restored.Construction.Instances[0]).Settings);
         Assert.Equal(original, WorkshopSaveCodec.Encode(restored));
         var scene = WorkshopPhysicsCompiler.Compile(restored.Construction, new(1, 2));

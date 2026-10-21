@@ -27,11 +27,11 @@ public sealed class DelayedSignalTests
         Assert.Equal(1,scene.Triggers.Length);
         Assert.Equal((Half)threshold, scene.Triggers[0].Threshold.Value);
         var save = new WorkshopSavedConstruction(construction, new(4));
-        Assert.Equal(save, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(save)));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save)));
         var changed = construction.WithInstance(WorkshopInput.Delay(new(4),0,1,0,0,0,0,1,DelayDuration.Default));
         changed = changed with { Connections = new(new(new(2),WorkshopSocket.ActivationOut,new(4),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
             new(new(4),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)) };
-        Assert.Equal(changed, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
+        Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Receiver(new(5),0,1,0,0,0,0,1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked=false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDelay=new((Half).5) } } }).Validate());
@@ -121,7 +121,7 @@ public sealed class DelayedSignalTests
     {
         var bytes=WorkshopSaveCodec.Encode(new(Lesson((Half)1),new(4)));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4),5);
-        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(bytes));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
         var goal=Lesson((Half)1).Puzzle.Goal;
         Assert.Throws<ArgumentException>(() => (goal with { Body=new(1) }).Validate());
         Assert.Throws<ArgumentException>(() => (goal with { SourceNode=goal.TargetNode }).Validate());

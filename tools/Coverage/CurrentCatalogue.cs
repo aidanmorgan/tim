@@ -15,12 +15,14 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
     public IReadOnlyDictionary<RequirementId, SourcePath> Admitted { get; init; } = new Dictionary<RequirementId, SourcePath>();
     public SourceArtifact[] AvailableResources { get; init; } = [];
     public static readonly SourcePath ConsumersPath = new("docs/planning/invest/current-consumers.md");
-    public static readonly SourcePath PartIdentityPath = new("engine/PartId.cs");
+    /// <summary>The generated element bundle (a build output of tools/BundleElements): its element ids are the declared part
+    /// identities (Story 9A.15).</summary>
+    public static readonly SourcePath PartIdentityPath = new("elements/elements.bundle.json");
     private const string DeclarationDirectory = "docs/planning/elements";
     private const string ResourceDirectory = "elements";
     // Every elements/<Package>/*ElementDeclaration.cs declares one part identity (Story 9A.14: the packages, through the generated
-    // bundle, are the only catalogue), and PartId's numeric wire table declares the closed set of identities those declarations
-    // must cover exactly.
+    // bundle, are the only catalogue), and the generated bundle's element ids are the set of identities those declarations must
+    // cover exactly, so a bundle that is stale against its packages fails here.
     private const string ResourceSearchPattern = "*ElementDeclaration.cs";
 
     public static CurrentCatalogue Read(DirectoryInfo root)
@@ -38,7 +40,10 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         });
         result = result.BindAcceptance(requirements);
         result.ValidateFixtures(File.ReadAllText(Path.Combine(root.FullName, "content/puzzles.json")));
-        var declared = DeclaredPartIdentities(File.ReadAllText(Path.Combine(root.FullName, PartIdentityPath.Value)));
+        var bundle = Path.Combine(root.FullName, PartIdentityPath.Value);
+        if (!File.Exists(bundle))
+            throw new InvalidDataException($"The element bundle '{PartIdentityPath.Value}' is missing; build tools/BundleElements to generate it.");
+        var declared = DeclaredPartIdentities(File.ReadAllText(bundle));
         var resources = Directory.GetDirectories(Path.Combine(root.FullName, ResourceDirectory))
             .SelectMany(package => Directory.GetFiles(package, ResourceSearchPattern, SearchOption.TopDirectoryOnly))
             .Select(path => new SourcePath(Path.GetRelativePath(root.FullName, path).Replace('\\', '/')))
@@ -184,17 +189,28 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         if (!seen.SetEquals(expected.Keys)) throw new InvalidDataException("Authored fixture membership differs.");
     }
 
-    /// <summary>The part identities declared by PartId's numeric wire table (every non-zero arm of ToNumericId).</summary>
-    public static RequirementId[] DeclaredPartIdentities(string source)
+    /// <summary>The part identities the generated element bundle declares: every <c>Elements[].Metadata.Id</c>, in bundle order.</summary>
+    public static RequirementId[] DeclaredPartIdentities(string bundle)
     {
-        var table = Regex.Match(source, @"ToNumericId\(\) => Value switch\s*\{(?<arms>[^}]*)\}");
-        if (!table.Success)
-            throw new InvalidDataException($"'{PartIdentityPath.Value}' has no ToNumericId part identity table.");
-        var arms = Regex.Matches(table.Groups["arms"].Value, "\"([a-z0-9_]+)\" => ([1-9][0-9]*),")
-            .Select(match => new RequirementId(match.Groups[1].Value)).ToArray();
-        if (arms.Length == 0 || arms.Distinct().Count() != arms.Length)
+        using var document = ParseBundle(bundle);
+        if (document.RootElement.ValueKind != JsonValueKind.Object || !document.RootElement.TryGetProperty("Elements"u8, out var elements) ||
+            elements.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException($"'{PartIdentityPath.Value}' has no Elements list.");
+        var ids = elements.EnumerateArray().Select(element =>
+            element.ValueKind == JsonValueKind.Object && element.TryGetProperty("Metadata"u8, out var metadata) &&
+            metadata.ValueKind == JsonValueKind.Object && metadata.TryGetProperty("Id"u8, out var id) &&
+            id.ValueKind == JsonValueKind.String && id.GetString() is { Length: > 0 } value
+                ? new RequirementId(value)
+                : throw new InvalidDataException($"'{PartIdentityPath.Value}' declares an element without a Metadata.Id.")).ToArray();
+        if (ids.Length == 0 || ids.Distinct().Count() != ids.Length)
             throw new InvalidDataException($"'{PartIdentityPath.Value}' declares a missing or duplicate part identity.");
-        return arms;
+        return ids;
+    }
+
+    private static JsonDocument ParseBundle(string bundle)
+    {
+        try { return JsonDocument.Parse(bundle); }
+        catch (JsonException error) { throw new InvalidDataException($"'{PartIdentityPath.Value}' is not JSON: {error.Message}", error); }
     }
 
     /// <summary>

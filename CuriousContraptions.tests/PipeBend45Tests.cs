@@ -146,7 +146,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         var save = new WorkshopSavedConstruction(construction, new(11));
 
         var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
@@ -292,7 +292,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
 
         var save = new WorkshopSavedConstruction(placed, new(10));
         var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
 
         var updated = GentleBend.WithPrecision(placed, new((Half)0.45));

@@ -22,7 +22,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         Assert.Equal(8.000001f, System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
             admitted.AsSpan(scene.World.ContactWorkOffset(0) + 16)));
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         Assert.Throws<ArgumentException>(() => new BumperWork(new(8f), new(0f), new(32f)).Validate());
         Assert.Throws<ArgumentException>(() => new BumperWork(new(float.NaN), new(1f), new(32f)).Validate());
     }

@@ -101,7 +101,7 @@ public sealed class WireFaultTests
         {
             case Message.Command: WorkshopWireFlatBuffers.DecodeCommand(bytes); break;
             case Message.Acknowledgement or Message.PhysicalRead: WorkshopWireFlatBuffers.DecodeResponse(bytes); break;
-            case Message.Save: WorkshopSaveCodec.Decode(bytes); break;
+            case Message.Save: WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes); break;
             default: throw new ArgumentOutOfRangeException(nameof(message));
         }
     }
@@ -242,7 +242,7 @@ public sealed class WireFaultTests
         var formerResponse = new byte[144];
         Session.WriteTo(formerResponse.AsSpan(40, 16));
         Assert.IsType<WireFaultException>(Record.Exception(() => WorkshopWireFlatBuffers.DecodeResponse(formerResponse)));
-        Assert.IsType<WorkshopSaveRejectedException>(Record.Exception(() => WorkshopSaveCodec.Decode(formerResponse)));
+        Assert.IsType<WorkshopSaveRejectedException>(Record.Exception(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,formerResponse)));
     }
 
     [Fact]

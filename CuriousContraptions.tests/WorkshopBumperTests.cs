@@ -67,8 +67,8 @@ public sealed class WorkshopBumperTests
             Assert.Equal((Half)expected.Item4,next.Receiver!.Value.ForceRegion.MaximumAcceleration.Value);
             var save = new WorkshopSavedConstruction(next, new(6));
             var bytes = WorkshopSaveCodec.Encode(save);
-            Assert.Equal(save, WorkshopSaveCodec.Decode(bytes));
-            Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(bytes)));
+            Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+            Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
             Assert.Equal(bumper, next.Instances.Single(value => value.Id == bumper.Id));
             Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1, 2)).ContactWorks.ToArray());
         }
@@ -102,9 +102,9 @@ public sealed class WorkshopBumperTests
             var badSave = SaveFixture.Finish(builder, crOffset, 3);
             // Pre-validation refuses an undefined puzzle or a non-finite precision; the lesson's authored-settings rule keeps its own
             // typed refusal.
-            if (!Enum.IsDefined(badPuzzle.Id)) SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(badSave));
-            else if (Half.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(badSave));
-            else EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(badSave));
+            if (!Enum.IsDefined(badPuzzle.Id)) SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
+            else if (Half.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
+            else EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
 
             var badCommand = command with { Construction = badConstruction };
             // The wire encoder validates the construction it carries: a puzzle rule's typed refusal, or for a
@@ -113,7 +113,7 @@ public sealed class WorkshopBumperTests
             Assert.Equal(Half.IsNaN(badPuzzle.Precision.Value) ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), refused.GetType());
         }
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(original));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,original));
         Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(wire));
     }
 
@@ -172,7 +172,7 @@ public sealed class WorkshopBumperTests
         {
             var next = BumperSidekick.WithPrecision(placed, new(precision)); next.Validate();
             var saved = new WorkshopSavedConstruction(next, new(4));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
         static void Check(System.Text.Json.JsonElement data, AssistanceProfile profile)
         {
@@ -493,7 +493,7 @@ public sealed class WorkshopBumperTests
         {
             var save = new WorkshopSavedConstruction(Construction(strength), new(3));
             var bytes = WorkshopSaveCodec.Encode(save);
-            Assert.Equal(save, WorkshopSaveCodec.Decode(bytes));
+            Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
             var bumper = Assert.IsType<WorkshopBumper>(save.Construction.Instances[1]);
             Assert.Equal(new WorkMass((float)1), bumper.Work.ReferenceMass);
             Assert.Equal(.5f * (float)strength * (float)strength, bumper.Work.Preload.Value);
@@ -502,7 +502,7 @@ public sealed class WorkshopBumperTests
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
             var savedBytes = SaveFixture.Finish(builder, crOffset, save.NextBodyId.Value);
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(savedBytes));
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
         }
     }
 

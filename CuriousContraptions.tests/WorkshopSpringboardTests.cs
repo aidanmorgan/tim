@@ -93,7 +93,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             Assert.Equal((Half)(precision == (Half)0 ? .3 : precision == (Half)1 ? .02 : .174), receiver.Capture.Margin.Value);
             Assert.Equal((Half)(ready ? 0 : precision == (Half)0 ? 12 : precision == (Half)1 ? 0 : 6.6), receiver.ForceRegion.MaximumAcceleration.Value);
             var saved = new WorkshopSavedConstruction(next, new(4));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
             Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1,2)).Prismatics.ToArray());
         }
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate());
@@ -150,8 +150,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
                 var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
                 var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
                 var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-                SaveFixture.Refused(float.IsFinite(invalidSettings.Stiffness) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
-                Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
+                SaveFixture.Refused(float.IsFinite(invalidSettings.Stiffness) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+                Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,accepted));
             }
         }
         finally { part.Free(); }
@@ -191,7 +191,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var actual = bodies[0];
         Assert.Equal(b.Local, actual.Body.Local); Assert.Equal(b.Rotation, actual.Rotation);
         var saved = new WorkshopSavedConstruction(construction, new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
     }
 
     [Fact]
@@ -226,14 +226,14 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var construction = Construction(new(stiffness, damping));
         var save = new WorkshopSavedConstruction(construction, new(3));
         var encoded = WorkshopSaveCodec.Encode(save);
-        Assert.Equal(save, WorkshopSaveCodec.Decode(encoded));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,encoded));
         var badConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(float.NaN, damping))));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
         var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
-        Assert.Equal(save, WorkshopSaveCodec.Decode(encoded));
+        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,encoded));
     }
 
     [Theory]
@@ -246,7 +246,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         settings.Validate();
         Assert.Equal(compression, settings.InitialCompression);
         var saved = new WorkshopSavedConstruction(Construction(settings), new(3));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var scene = WorkshopPhysicsCompiler.Compile(saved.Construction, new(1, 2));
         var plate = scene.Bodies.ToArray().Single(body => body.Id == WorkshopPhysicsCompiler.SpringboardPlate(new(2)));
         Assert.InRange(MathF.Abs((plate.Cell.Y + plate.Local.Y) / 16f - (1.14f - compression)), 0, 1e-7f);
@@ -273,8 +273,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
             var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-            SaveFixture.Refused(float.IsFinite(compression) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
+            SaveFixture.Refused(float.IsFinite(compression) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,accepted));
         }
         finally { part.Free(); }
     }

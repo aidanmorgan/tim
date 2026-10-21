@@ -210,7 +210,7 @@ development_status:
   # 10
   9a-2-single-flatbuffers-codec: review
   # 11
-  9a-15-bundle-element-id-save-wire: backlog
+  9a-15-bundle-element-id-save-wire: review
   # 12
   9a-17-bundle-ports-and-footprint: backlog
   # 13: owner amendment 21 Oct 2026, right after 9a-17

@@ -168,15 +168,18 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.True(a.CompareTo(c) < 0);
         Assert.True(c.CompareTo(a) > 0);
         Assert.Equal(0, a.CompareTo(b));
+    }
 
-        Assert.Equal(PartId.Basketball, PartId.FromNumericId(PartId.Basketball.ToNumericId()));
-        Assert.Equal(PartId.Springboard, PartId.FromNumericId(PartId.Springboard.ToNumericId()));
-        Assert.Equal(default(PartId), PartId.FromNumericId(0));
-        Assert.Throws<ArgumentException>(() => PartId.FromNumericId(999));
-        // Story 9A.14: the undelivered Tennis ball (13) and Balloon (14) have no wire identity until Story 12.1.
-        Assert.Throws<ArgumentException>(() => PartId.FromNumericId(13));
-        Assert.Throws<ArgumentException>(() => PartId.FromNumericId(14));
-        foreach (var part in UndeliveredParts.All) Assert.Equal(0u, UndeliveredParts.Id(part).ToNumericId());
+    /// <summary>Story 9A.15: the registry's element set is exactly the loaded bundle's deliverable elements, the set every save is
+    /// validated against.</summary>
+    [Fact]
+    public void TheRegistryElementsAreTheLoadedBundlesDeliverableElements()
+    {
+        Assert.Throws<InvalidOperationException>(() => new PartRegistry().Elements);
+        var registry = Loaded();
+        Assert.Equal(PaletteRows.ToHashSet(), registry.Elements.ToHashSet());
+        Assert.Equal(registry.Definitions.Keys.ToHashSet(), registry.Elements.ToHashSet());
+        foreach (var part in UndeliveredParts.All) Assert.DoesNotContain(UndeliveredParts.Id(part), registry.Elements);
     }
 
     private static string Root => twodog.Engine.ResolveProjectDir();
@@ -212,8 +215,8 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.DoesNotContain(GameSources(), path => File.ReadAllText(path).Contains("BallMaterialResource", StringComparison.Ordinal));
     }
 
-    /// <summary>Story 9A.14 deletion: the undelivered parts have no PartId constant and no wire identity until Story 12.1 delivers
-    /// their packages (a re-added PartId.Tennis or numeric arm fails here).</summary>
+    /// <summary>Story 9A.14 deletion: the undelivered parts have no PartId constant until Story 12.1 delivers their packages (a
+    /// re-added PartId.Tennis fails here), and a save naming one is refused naming it (Story 9A.15, F16-4).</summary>
     [Fact]
     public void TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity()
     {
@@ -225,7 +228,11 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             var id = UndeliveredParts.Id(part);
             Assert.DoesNotContain(id.Value, constants);
             Assert.DoesNotContain(part.ToString(), typeof(PartId).GetFields().Select(field => field.Name));
-            Assert.Equal(0u, id.ToNumericId());
+            var save = SaveFixture.Forged(new Gpu.WorkshopConstruction(new(1), Gpu.WorkshopCadenceSettings.Default(),
+                new([Gpu.WorkshopInput.Generic(id, new(1), 0, 1, 0, 0, 0, 0, 1, [])])), 2);
+            var refusal = SaveFixture.Refused(Gpu.WorkshopSaveRejection.UnknownElement,
+                () => Gpu.WorkshopSaveCodec.Decode(Loaded().Elements, save));
+            Assert.Contains($"'{id}'", refusal.Message, StringComparison.Ordinal);
         }
         var source = File.ReadAllText(Path.Combine(Root, "engine", "PartId.cs"));
         Assert.DoesNotMatch(@"\b(Tennis|Balloon)\b|""tennis""|""balloon""", source);

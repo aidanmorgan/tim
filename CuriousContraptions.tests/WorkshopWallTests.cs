@@ -18,8 +18,8 @@ public sealed class WorkshopWallTests
         {
             var saved = Saved(dimensions);
             var bytes = WorkshopSaveCodec.Encode(saved);
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(bytes));
-            Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(bytes)));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
+            Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
             var scene = WorkshopPhysicsCompiler.Compile(saved.Construction, new(1, 2));
             var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
             Assert.Equal(Wall(dimensions).Rotation, body.Rotation);
@@ -89,7 +89,7 @@ public sealed class WorkshopWallTests
                 var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
                 var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
                 var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
-                SaveFixture.Refused(Half.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
+                SaveFixture.Refused(Half.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
             }
         }
         Assert.Equal(valid, WorkshopSaveCodec.Encode(Saved(WallDimensions.Default)));

@@ -17,6 +17,8 @@ public enum WireFaultReason : uint
     MissingField,
     /// <summary>A field holds a value outside its declared range.</summary>
     OutOfRange,
+    /// <summary>An instance names an element id the decoder has no element for (Story 9A.15); the message names the id.</summary>
+    UnknownElement,
 }
 
 /// <summary>A refused Workshop wire buffer: decoded once, never retried through another codec. Deliberately not an

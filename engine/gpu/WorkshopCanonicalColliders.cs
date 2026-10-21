@@ -15,7 +15,12 @@ public static class WorkshopCanonicalColliders
     private static IReadOnlyList<ExtractedCollider>? _ballDetectorColliders;
     public static IReadOnlyList<ExtractedCollider> BallDetectorColliders => _ballDetectorColliders ??= CreateBallDetectorColliders();
 
-    public static IReadOnlyList<ExtractedCollider> For(PartId partId) => partId.Value switch
+    public static IReadOnlyList<ExtractedCollider> For(PartId partId) =>
+        Declared(partId) ?? throw new ArgumentException($"No canonical colliders declared for part '{partId}'.");
+
+    /// <summary>The part's canonical colliders, or null when it declares none. Until Story 9A.16 carries the bundle's colliders on
+    /// the wire, this table is the worker's only collider source, and so the set of collider-only elements its decode knows.</summary>
+    public static IReadOnlyList<ExtractedCollider>? Declared(PartId partId) => partId.Value switch
     {
         "ball_detector" => BallDetectorColliders,
         "pipe_bend_45" => PipeBend45Colliders,
@@ -26,7 +31,7 @@ public static class WorkshopCanonicalColliders
         "counter" => CounterColliders,
         "clock" => ClockColliders,
         "latch" => LatchColliders,
-        _ => throw new ArgumentException($"No canonical colliders declared for part '{partId}'.")
+        _ => null
     };
 
     private static IReadOnlyList<ExtractedCollider>? _latchColliders;

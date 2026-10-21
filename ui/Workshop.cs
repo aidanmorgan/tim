@@ -893,8 +893,9 @@ public partial class Workshop : Node3D
             var encoded = await BrowserWorkshopSaveStore.Load(0);
             if (_workshopUiRemoved) return;
             if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
-            // Browser storage is untrusted input: anything but an admissible save is the save codec's typed refusal.
-            var saved = WorkshopSaveCodec.DecodeStored(encoded);
+            // Browser storage is untrusted input: anything but an admissible save of the loaded bundle's elements is the save
+            // codec's typed refusal.
+            var saved = WorkshopSaveCodec.DecodeStored(World.Registry.Elements, encoded);
             if (saved.Construction.Settings != World.Construction.Settings)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.SaveSettingsMismatch, "This save uses different simulation settings.");
             // SubmitConstruction owns the existing GPU admission and installation barrier.

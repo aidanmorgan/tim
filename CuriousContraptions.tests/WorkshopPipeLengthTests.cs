@@ -235,7 +235,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     {
         var saved = new WorkshopSavedConstruction(Bench(metres), new(3));
         var bytes = WorkshopSaveCodec.Encode(saved);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(saved, decoded);
         Assert.Equal(metres, Assert.IsType<WorkshopPipe>(decoded.Construction.Instances[1]).Length.Metres);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
@@ -281,8 +281,8 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     {
         var bench = Bench(2);
         var stored = bench with { Instances = new(bench.Instances[0], (WorkshopPipe)bench.Instances[1] with { Length = new(metres) }) };
-        SaveFixture.Refused(float.IsFinite(metres) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RawSave(stored)));
+        SaveFixture.Refused(float.IsFinite(metres) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,RawSave(stored)));
         // Control: the same hand-built record with an admitted length decodes.
-        Assert.Equal(bench, WorkshopSaveCodec.Decode(RawSave(bench)).Construction);
+        Assert.Equal(bench, WorkshopSaveCodec.Decode(SaveFixture.Elements,RawSave(bench)).Construction);
     }
 }

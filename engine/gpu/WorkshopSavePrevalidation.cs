@@ -7,13 +7,17 @@ namespace CuriousContraptions.Gpu;
 /// <summary>The structural pre-validation of a stored construction save (Story 9A.2), run on its verified record before any
 /// domain construction: every enum is defined, every number is finite and inside the range its part declares (after the
 /// binary16 narrowing the decoder applies, so a value the domain would round into range is admitted and one it would round out
-/// of range is not), identities are nonzero and unique, every reference resolves and every connection joins matching declared
+/// of range is not), every element id is one of the loaded bundle's elements (Story 9A.15), identities are nonzero and unique,
+/// every reference resolves and every connection joins matching declared
 /// ports. A violation is the player's typed refusal; it admits exactly what domain construction admits
 /// (WorkshopSaveRejectionTests pins the parity lane by lane), so a domain guard that still fires afterwards is a defect.</summary>
 internal static class WorkshopSavePrevalidation
 {
-    public static void Check(SavedConstruction saved)
+    /// <summary>Checks <paramref name="saved"/> against the loaded bundle's <paramref name="elements"/>: every saved element id must be
+    /// one of them (Story 9A.15).</summary>
+    public static void Check(SavedConstruction saved, IReadOnlySet<PartId> elements)
     {
+        ArgumentNullException.ThrowIfNull(elements);
         var record = saved.Construction ?? throw Refuse(WorkshopSaveRejection.MissingField, "The save holds no construction.");
         if (record.Revision == 0) throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved construction revision is zero.");
         CheckSettings(record);
@@ -21,12 +25,12 @@ internal static class WorkshopSavePrevalidation
         for (var i = 0; i < record.InstancesLength; i++)
         {
             var instance = record.Instances(i)!.Value;
-            var part = CheckInstance(instance);
+            var part = CheckInstance(instance, elements);
             if (!parts.TryAdd(new(instance.Id), part))
                 throw Refuse(WorkshopSaveRejection.DuplicateInstance, $"Two saved parts share identity {instance.Id}.");
         }
         CheckConnections(record, parts);
-        CheckPuzzle(record);
+        CheckPuzzle(record, elements);
         foreach (var id in parts.Keys)
             if (saved.NextBodyId <= id.Value)
                 throw Refuse(WorkshopSaveRejection.InvalidAllocator, "The save's next part identity is not above every saved identity.");
@@ -48,12 +52,9 @@ internal static class WorkshopSavePrevalidation
 
     // ---------- instances ----------
 
-    private static PartId CheckInstance(InstanceRecord instance)
+    private static PartId CheckInstance(InstanceRecord instance, IReadOnlySet<PartId> elements)
     {
-        if (string.IsNullOrEmpty(instance.PartId)) throw Refuse(WorkshopSaveRejection.MissingField, "A saved part names no element.");
-        if (!Decodable.Contains(instance.PartId))
-            throw Refuse(WorkshopSaveRejection.UnknownElement, $"No delivered element is called '{instance.PartId}'.");
-        var part = new PartId(instance.PartId);
+        var part = Element(instance.PartId, elements, $"Part {instance.Id}");
         if (instance.Id == 0) throw Refuse(WorkshopSaveRejection.OutOfRange, "A saved part has identity zero.");
         var cell = instance.Cell ?? throw Refuse(WorkshopSaveRejection.MissingField, $"Part {instance.Id} has no cell.");
         var local = instance.Local ?? throw Refuse(WorkshopSaveRejection.MissingField, $"Part {instance.Id} has no local position.");
@@ -64,12 +65,15 @@ internal static class WorkshopSavePrevalidation
         return part;
     }
 
-    /// <summary>Every element a save record decodes to (the construction record's decode arms).</summary>
-    private static readonly HashSet<string> Decodable = new(StringComparer.Ordinal)
+    /// <summary>A saved element id: present, and one of the loaded bundle's elements; anything else is refused naming the id.</summary>
+    private static PartId Element(string? id, IReadOnlySet<PartId> elements, string owner)
     {
-        "ball", "bowling", "basket", "ramp", "wall", "switch", "delay", "spring", "battery", "bumper", "domino", "lamp", "latch", "pipe",
-        "pipe_bend_45", "pipe_bend_90", "funnel", "powered_gate", "ball_detector", "pressure_plate", "counter", "clock",
-    };
+        if (string.IsNullOrWhiteSpace(id)) throw Refuse(WorkshopSaveRejection.MissingField, $"{owner} names no element.");
+        var part = new PartId(id);
+        if (!elements.Contains(part))
+            throw Refuse(WorkshopSaveRejection.UnknownElement, $"{owner} names the element '{id}', which this game does not have.");
+        return part;
+    }
 
     /// <summary>The canonical body axis rule (CanonicalBody): a finite local remainder in [-0.5, 0.5) of a cell inside the world.</summary>
     private static void Axis(ulong id, int cell, float local)
@@ -248,7 +252,7 @@ internal static class WorkshopSavePrevalidation
 
     /// <summary>An authored puzzle's record: defined enums, finite values, all three assistance profiles and a supported
     /// named goal. A Free construction carries no puzzle record. The lesson's own authored-settings rules stay its typed refusals.</summary>
-    private static void CheckPuzzle(ConstructionRecord record)
+    private static void CheckPuzzle(ConstructionRecord record, IReadOnlySet<PartId> elements)
     {
         if (record.Puzzle is not { } p) return;
         var puzzle = (WorkshopPuzzleId)p.Id;
@@ -263,8 +267,7 @@ internal static class WorkshopSavePrevalidation
         var delay = (Half)p.GoalDelay;
         if (!Half.IsFinite(precision) || precision < (Half)0 || precision > (Half)1 || !Half.IsFinite(delay) || delay < (Half)0 || delay > (Half)120)
             throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved puzzle precision or goal delay is outside its range.");
-        if (p.InventoryPart is { } inventory && !Decodable.Contains(inventory))
-            throw Refuse(WorkshopSaveRejection.UnknownElement, $"The saved puzzle's inventory names no delivered element '{inventory}'.");
+        if (p.InventoryPart is { } inventory) Element(inventory, elements, "The saved puzzle's inventory");
         // The named-goal rule (WorkshopGoal), over the fields the decoder maps into each goal kind.
         var admitted = (WorkshopGoalKind)p.GoalKind switch
         {

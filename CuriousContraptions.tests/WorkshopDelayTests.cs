@@ -31,7 +31,7 @@ public sealed class WorkshopDelayTests
                 new(new(1), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
                 new(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var saved = new WorkshopSavedConstruction(construction, new(4));
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(3));
         Assert.Equal(ColliderShapeKind.Box, box.Shape);
@@ -57,7 +57,7 @@ public sealed class WorkshopDelayTests
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
             var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
-            SaveFixture.Refused(Half.IsFinite(invalid) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
+            SaveFixture.Refused(Half.IsFinite(invalid) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
         }
         foreach (var invalid in new[] {double.NaN,double.PositiveInfinity,.09,12.01})
             Assert.Throws<ArgumentException>(() => DelayDuration.FromInput(invalid));

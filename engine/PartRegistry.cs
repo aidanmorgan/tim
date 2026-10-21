@@ -4,6 +4,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,7 +26,12 @@ public sealed class PartRegistry
 
     private readonly Dictionary<PartId, PartDefinition> _definitions = new();
     private IReadOnlyDictionary<PartId, PartAllowance>? _free;
+    private IReadOnlySet<PartId>? _elements;
     public IReadOnlyDictionary<PartId, PartDefinition> Definitions => _definitions;
+
+    /// <summary>The loaded bundle's element ids: every save and message element id is validated against this set at its
+    /// serialisation boundary (Story 9A.15).</summary>
+    public IReadOnlySet<PartId> Elements => _elements ?? throw new InvalidOperationException("The element bundle is not loaded.");
 
     /// <summary>The Free palette: every registered element, unlimited, in ascending declared palette order.</summary>
     public IReadOnlyDictionary<PartId, PartAllowance> Free => _free ?? throw new InvalidOperationException("The element bundle is not loaded.");
@@ -56,6 +62,7 @@ public sealed class PartRegistry
         _definitions.Clear();
         foreach (var definition in definitions) _definitions.Add(definition.PartId, definition);
         _free = free;
+        _elements = definitions.Select(definition => definition.PartId).ToFrozenSet();
     }
 
     /// <summary>The bundle's entries in ascending palette order, after the same structural validation the generator runs.</summary>

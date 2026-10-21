@@ -67,7 +67,7 @@ public sealed class WorkshopDominoTests
     {
         var save = new WorkshopSavedConstruction(Construction(), new(3));
         var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         var domino = Assert.IsType<WorkshopDomino>(decoded.Construction.Instances[1]);
@@ -89,7 +89,7 @@ public sealed class WorkshopDominoTests
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
             var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
             var forgedBytes = savedBytes;
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(forgedBytes));
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,forgedBytes));
         }
     }
 

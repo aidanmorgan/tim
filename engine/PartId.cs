@@ -2,6 +2,8 @@ using System;
 
 namespace CuriousContraptions;
 
+/// <summary>An element's identity: the bundle's string element id, which saves and messages carry as it is (Story 9A.15). There is
+/// no numeric form.</summary>
 public readonly record struct PartId : IComparable<PartId>
 {
     public string Value { get; }
@@ -44,59 +46,4 @@ public readonly record struct PartId : IComparable<PartId>
     public static readonly PartId Counter = new("counter");
     public static readonly PartId Clock = new("clock");
     public static readonly PartId Latch = new("latch");
-
-    public uint ToNumericId() => Value switch
-    {
-        "ball" => 1,
-        "basket" => 2,
-        "ramp" => 3,
-        "switch" => 4,
-        "lamp" => 5,
-        "wall" => 6,
-        "delay" => 7,
-        "bumper" => 8,
-        "domino" => 9,
-        "bowling" => 10,
-        "battery" => 11,
-        "spring" => 12,
-        "pipe" => 15,
-        "ball_detector" => 16,
-        "pipe_bend_45" => 17,
-        "pipe_bend_90" => 18,
-        "funnel" => 19,
-        "powered_gate" => 20,
-        "pressure_plate" => 21,
-        "counter" => 22,
-        "clock" => 23,
-        "latch" => 24,
-        _ => 0
-    };
-
-    public static PartId FromNumericId(uint id) => id switch
-    {
-        0 => default,
-        1 => Basketball,
-        2 => Receiver,
-        3 => Ramp,
-        4 => ImpactSwitch,
-        5 => SignalLamp,
-        6 => Wall,
-        7 => Delay,
-        8 => PinballBumper,
-        9 => Domino,
-        10 => BowlingBall,
-        11 => Battery,
-        12 => Springboard,
-        15 => Pipe,
-        16 => BallDetector,
-        17 => PipeBend45,
-        18 => PipeBend90,
-        19 => Funnel,
-        20 => PoweredGate,
-        21 => PressurePlate,
-        22 => Counter,
-        23 => Clock,
-        24 => Latch,
-        _ => throw new ArgumentException($"Unsupported numeric part id '{id}'.")
-    };
 }

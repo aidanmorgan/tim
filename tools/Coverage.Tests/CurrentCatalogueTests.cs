@@ -156,16 +156,20 @@ public class CurrentCatalogueTests
     }
 
     [Fact]
-    public void DeclaredPartIdentitiesComeFromEveryNonZeroNumericArm()
+    public void DeclaredPartIdentitiesComeFromEveryBundleElementId()
     {
-        const string table = "public uint ToNumericId() => Value switch\n{\n    \"ball\" => 1,\n    \"spring\" => 12,\n    _ => 0\n};";
-        Assert.Equal([Ball, new RequirementId("spring")], CurrentCatalogue.DeclaredPartIdentities(table));
-        Assert.Contains("no ToNumericId part identity table",
+        const string bundle = "{\"Elements\": [{\"Metadata\": {\"Id\": \"ball\"}}, {\"Metadata\": {\"Id\": \"spring\"}}]}";
+        Assert.Equal([Ball, new RequirementId("spring")], CurrentCatalogue.DeclaredPartIdentities(bundle));
+        Assert.Contains("is not JSON",
             Assert.Throws<InvalidDataException>(() => CurrentCatalogue.DeclaredPartIdentities("enum PartId {}")).Message);
+        Assert.Contains("has no Elements list",
+            Assert.Throws<InvalidDataException>(() => CurrentCatalogue.DeclaredPartIdentities("{\"Parts\": []}")).Message);
+        Assert.Contains("without a Metadata.Id",
+            Assert.Throws<InvalidDataException>(() => CurrentCatalogue.DeclaredPartIdentities("{\"Elements\": [{\"Metadata\": {\"Id\": 1}}]}")).Message);
         Assert.Contains("missing or duplicate part identity",
-            Assert.Throws<InvalidDataException>(() => CurrentCatalogue.DeclaredPartIdentities(table.Replace("\"spring\"", "\"ball\""))).Message);
+            Assert.Throws<InvalidDataException>(() => CurrentCatalogue.DeclaredPartIdentities(bundle.Replace("\"spring\"", "\"ball\""))).Message);
         Assert.Contains("missing or duplicate part identity",
-            Assert.Throws<InvalidDataException>(() => CurrentCatalogue.DeclaredPartIdentities("ToNumericId() => Value switch { _ => 0 }")).Message);
+            Assert.Throws<InvalidDataException>(() => CurrentCatalogue.DeclaredPartIdentities("{\"Elements\": []}")).Message);
     }
 
     [Fact]

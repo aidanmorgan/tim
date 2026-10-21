@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Google.FlatBuffers;
 using CuriousContraptions.Wire;
@@ -28,23 +29,24 @@ public static class WorkshopSaveCodec
         return builder.SizedByteArray();
     }
 
-    /// <summary>The browser store's text (untrusted): base64 of one save.</summary>
-    public static WorkshopSavedConstruction DecodeStored(string stored)
+    /// <summary>The browser store's text (untrusted): base64 of one save, validated against the loaded bundle's
+    /// <paramref name="elements"/>.</summary>
+    public static WorkshopSavedConstruction DecodeStored(IReadOnlySet<PartId> elements, string stored)
     {
         ArgumentNullException.ThrowIfNull(stored);
         var bytes = new byte[stored.Length];
         if (!Convert.TryFromBase64String(stored, bytes, out var length))
             throw new WorkshopSaveRejectedException(WorkshopSaveRejection.NotBase64, "This save cannot be loaded: the stored text is not a save.");
-        return Decode(bytes.AsSpan(0, length));
+        return Decode(elements, bytes.AsSpan(0, length));
     }
 
-    /// <summary>Untrusted stored bytes. Structural pre-validation runs first and is the only refusal
-    /// (<see cref="WorkshopSaveRejectedException"/>); domain construction then runs on an admitted record, and any exception it
-    /// raises is a defect that escapes as itself.</summary>
-    public static WorkshopSavedConstruction Decode(ReadOnlySpan<byte> bytes)
+    /// <summary>Untrusted stored bytes. Structural pre-validation runs first, against the loaded bundle's
+    /// <paramref name="elements"/>, and is the only refusal (<see cref="WorkshopSaveRejectedException"/>); domain construction then
+    /// runs on an admitted record, and any exception it raises is a defect that escapes as itself.</summary>
+    public static WorkshopSavedConstruction Decode(IReadOnlySet<PartId> elements, ReadOnlySpan<byte> bytes)
     {
         var saved = Open(bytes);
-        WorkshopSavePrevalidation.Check(saved);
+        WorkshopSavePrevalidation.Check(saved, elements);
         return Construct(saved);
     }
 

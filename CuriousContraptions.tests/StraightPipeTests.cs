@@ -141,7 +141,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         var save = new WorkshopSavedConstruction(construction, new(11));
 
         var bytes = WorkshopSaveCodec.Encode(save);
-        var decoded = WorkshopSaveCodec.Decode(bytes);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));

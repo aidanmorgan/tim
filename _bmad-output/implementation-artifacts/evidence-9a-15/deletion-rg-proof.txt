@@ -1,0 +1,22 @@
+HEAD 0519cedb3c103fa7ed4eb504e3106c2451042984
+$ rg -nw "ToNumericId|FromNumericId" <code roots and docs>
+rg exit 1 (1 = no hits)
+$ rg -n "Decodable" engine
+rg exit 1 (1 = no hits)
+$ rg -n per-id generic decode list / untyped unknown-kind refusal
+engine/MachineWorld.Gpu.cs:131:            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+engine/gpu/WorkshopConnections.cs:39:        "ball" or "bowling" or "basket" or "ramp" or "wall" or "spring" or "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" => [],
+rg exit 0 (1 = no hits)
+$ rg -n "engine/PartId.cs" tools/Coverage
+rg exit 1 (1 = no hits)
+$ rg -n element-naming fields in schemas/workshop_wire.fbs (all strings)
+205:    part_id: string;
+267:    inventory_part: string;
+$ rg -lw "ToNumericId|FromNumericId" . (whole repo, evidence dirs excluded: planning text and history only)
+./_bmad-output/implementation-artifacts/review-9a-14-bundle-sole-catalogue.md
+./_bmad-output/implementation-artifacts/spec-9a-14-bundle-sole-catalogue-source.md
+./_bmad-output/implementation-artifacts/spec-9a-15-bundle-element-id-save-wire.md
+./_bmad-output/implementation-artifacts/spec-9a-2-single-flatbuffers-codec.md
+./_bmad-output/planning-artifacts/architecture-conformance-audit-2026-10-18.md
+./_bmad-output/planning-artifacts/epics.md
+./_bmad-output/planning-artifacts/retro-verification-2026-10-18.md

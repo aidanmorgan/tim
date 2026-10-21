@@ -171,7 +171,7 @@ public sealed class WorkshopSaveRejectionTests
     private static Save One(Instance instance) => new([instance], []);
 
     private static WorkshopSaveRejection Rejection(byte[] bytes) =>
-        Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(bytes)).Reason;
+        Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)).Reason;
 
     private static Instance Ramp() => FromProduction(WorkshopInput.Ramp(new(1), 0, 1, 0, 0, 0, 0, 1, RampDimensions.Default));
     private static Instance Counter() => FromProduction(WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3));
@@ -179,13 +179,13 @@ public sealed class WorkshopSaveRejectionTests
     // ---------- every rejection reason ----------
 
     [Fact]
-    public void ValidHandBuiltSaveLoads() => Assert.Single(WorkshopSaveCodec.Decode(Bytes(One(Ramp()))).Construction.Instances);
+    public void ValidHandBuiltSaveLoads() => Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,Bytes(One(Ramp()))).Construction.Instances);
 
     [Fact]
     public void EveryKindRoundTripsThroughTheHandBuiltRecord()
     {
         var instances = EveryKind();
-        var decoded = WorkshopSaveCodec.Decode(Bytes(new(instances.Select(FromProduction).ToArray(), [])));
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,Bytes(new(instances.Select(FromProduction).ToArray(), [])));
         Assert.Equal(new WorkshopInstances(instances), decoded.Construction.Instances);
     }
 
@@ -214,22 +214,22 @@ public sealed class WorkshopSaveRejectionTests
         foreach (var lesson in lessons)
         {
             var saved = new WorkshopSavedConstruction(lesson, new(100));
-            Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
         var ready = SpringboardLessons.WithReceiver(lessons[2], WorkshopInput.Receiver(new(4), 2, .55, 0, 0, 0, 0, 1));
         var missing = ready.WithoutInstance(new(4));
         missing.Validate(); // control: the domain admits the lesson without its receiver
         var withoutReceiver = new WorkshopSavedConstruction(missing, new(100));
-        Assert.Equal(withoutReceiver, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(withoutReceiver)));
+        Assert.Equal(withoutReceiver, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(withoutReceiver)));
     }
 
     [Fact]
     public void StoredTextThatIsNotBase64IsRejected() =>
-        Assert.Equal(WorkshopSaveRejection.NotBase64, Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.DecodeStored("not base64!")).Reason);
+        Assert.Equal(WorkshopSaveRejection.NotBase64, Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements,"not base64!")).Reason);
 
     [Fact]
     public void StoredBase64DecodesTheSave() =>
-        Assert.Single(WorkshopSaveCodec.DecodeStored(Convert.ToBase64String(Bytes(One(Ramp())))).Construction.Instances);
+        Assert.Single(WorkshopSaveCodec.DecodeStored(SaveFixture.Elements,Convert.ToBase64String(Bytes(One(Ramp())))).Construction.Instances);
 
     public static TheoryData<string, WorkshopSaveRejection> Violations()
     {
@@ -335,7 +335,7 @@ public sealed class WorkshopSaveRejectionTests
     [Fact]
     public void TheRefusalIsAPlayerRejectionNotAFault()
     {
-        var error = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(Bytes(Violation("long ramp"))));
+        var error = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,Bytes(Violation("long ramp"))));
         Assert.True(WorkshopUiFailure.IsRejection(error));
         Assert.False(string.IsNullOrWhiteSpace(error.Message));
     }
@@ -362,7 +362,7 @@ public sealed class WorkshopSaveRejectionTests
     private static bool PreValidationRejects(byte[] bytes)
     {
         // Anything other than the typed refusal escaping here fails the test: pre-validation is complete.
-        try { WorkshopSaveCodec.Decode(bytes); return false; }
+        try { WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes); return false; }
         catch (WorkshopSaveRejectedException) { return true; }
     }
 
@@ -520,7 +520,7 @@ public sealed class WorkshopSaveRejectionTests
         var instances = EveryKind().Select(FromProduction).ToArray();
         var save = new Save(instances, [new(9, 22, (uint)WorkshopConnectionDomain.Electrical, (uint)WorkshopSocket.Supply, (uint)WorkshopSocket.PowerIn)]);
         var valid = Bytes(save);
-        Assert.Equal(instances.Length, WorkshopSaveCodec.Decode(valid).Construction.Instances.Count);
+        Assert.Equal(instances.Length, WorkshopSaveCodec.Decode(SaveFixture.Elements,valid).Construction.Instances.Count);
         var random = new Random(9_2);
         var corpus = new List<byte[]>();
         for (var length = 0; length < valid.Length; length++) corpus.Add(valid[..length]);
@@ -534,7 +534,7 @@ public sealed class WorkshopSaveRejectionTests
         var escaped = new List<string>();
         foreach (var bytes in corpus)
         {
-            var error = Record.Exception(() => WorkshopSaveCodec.Decode(bytes));
+            var error = Record.Exception(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
             if (error is not (null or WorkshopSaveRejectedException)) escaped.Add($"{error.GetType().Name}: {error.Message} at {error.StackTrace?.Split('\n')[0].Trim()}");
         }
         Assert.True(escaped.Count == 0, string.Join(Environment.NewLine, escaped.Distinct()));

@@ -1612,7 +1612,7 @@ So that two plates switch two gates independently.
 - F17-1: an instance record that carries a field of another element kind (a ramp record with a `radius`) is refused structurally; today the decoder ignores the foreign field.
 - F17-2: the workbench guide rule (`WorkbenchFullException`) and an authored lesson's settings rules (`PuzzleSettings`) refuse a stored save as `WorkshopSaveRejectedException` reasons; today they stay the domain's own typed refusals. Story 9A.26 deletes the lessons; fold the remainder there.
 - F17-3: the per-publish allocation of the FlatBuffers read (one array per committed read, the motion copy included) is measured and recorded against P0-034's budget. Story 9A.2 reuses one builder but did not measure.
-- F17-4: Story 9A.15 removes `PartId.ToNumericId`/`FromNumericId`: no wire or save reads them since Story 9A.2, and `tools/Coverage` must take its declared-identity list from the bundle instead.
+- F17-4: Story 9A.15 removes `PartId.ToNumericId`/`FromNumericId`: no wire or save reads them since Story 9A.2, and `tools/Coverage` must take its declared-identity list from the bundle instead. *Delivered by Story 9A.15 (in review, 21 Oct 2026).*
 
 ### Story F.16: Catalogue Follow-ups
 *Status: Backlog. Filed from the 9A.14+18 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-14-bundle-sole-catalogue.md)).*
@@ -1621,7 +1621,7 @@ So that two plates switch two gates independently.
 - Resolve items F16-1 and F16-3 to F16-7:
   - category grouping versus the old order;
   - native pins for the switch's colour, description, title and icon;
-  - naming the rejected Tennis/Balloon id (owned by 9A.15);
+  - naming the rejected Tennis/Balloon id (owned by 9A.15; delivered by Story 9A.15, in review, 21 Oct 2026);
   - a Workshop-level start-up refusal test;
   - the cosmetic items.
 
@@ -2815,7 +2815,7 @@ So that every part I pick can be placed and run.
 Story 12.1 creates their packages and returns them to the palette.
 
 ### Story 9A.15: Saves and Messages Carry the Bundle Element Id
-*Status: Backlog*
+*Status: Review (Amelia-22, 21 Oct 2026; [spec](../implementation-artifacts/spec-9a-15-bundle-element-id-save-wire.md), [evidence](../implementation-artifacts/evidence-9a-15/)). It also closes F16-4 and F17-4.*
 
 *Depends on: Story 9A.14. Audit: A2 (numeric switches).*
 

@@ -1,0 +1,9 @@
+CuriousContraptions.tests/BundleElementIdTests.cs(109,37): error CS1501: No overload for method 'Decode' takes 2 arguments
+CuriousContraptions.tests/BundleElementIdTests.cs(118,105): error CS1501: No overload for method 'DecodeStored' takes 2 arguments
+CuriousContraptions.tests/BundleElementIdTests.cs(129,38): error CS0117: 'WireFaultReason' does not contain a definition for 'UnknownElement'
+CuriousContraptions.tests/BundleElementIdTests.cs(139,38): error CS0117: 'WireFaultReason' does not contain a definition for 'UnknownElement'
+CuriousContraptions.tests/BundleElementIdTests.cs(48,69): error CS1501: No overload for method 'Decode' takes 2 arguments
+CuriousContraptions.tests/BundleElementIdTests.cs(71,105): error CS1501: No overload for method 'Decode' takes 2 arguments
+CuriousContraptions.tests/BundleElementIdTests.cs(73,75): error CS1501: No overload for method 'Decode' takes 2 arguments
+CuriousContraptions.tests/BundleElementIdTests.cs(95,43): error CS0117: 'WorkshopWireFlatBuffers' does not contain a definition for 'MapInstance'
+CuriousContraptions.tests/BundleElementIdTests.cs(96,80): error CS0117: 'WireFaultReason' does not contain a definition for 'UnknownElement'
