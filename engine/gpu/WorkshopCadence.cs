@@ -22,13 +22,15 @@ public readonly record struct PulseOrdinal(ulong Value);
 /// <summary>A reduced external scheduling ratio, not a game-value or integration timestep.</summary>
 public readonly record struct PulseRate(uint Numerator, uint Denominator)
 {
+    internal const string NoncanonicalMessage = "Unsupported or noncanonical pulse rate.";
+
     public void Validate()
     {
-        if (Numerator == 0 || Numerator > 240_000 || Denominator == 0 || Denominator > 10_000 ||
-            Numerator < 30UL * Denominator || Numerator > 240UL * Denominator ||
-            GreatestCommonDivisor(Numerator, Denominator) != 1)
-            throw new ArgumentException("Unsupported or noncanonical pulse rate.");
+        if (!IsCanonical) throw new ArgumentException(NoncanonicalMessage);
     }
+
+    internal bool IsCanonical => Numerator != 0 && Numerator <= 240_000 && Denominator != 0 && Denominator <= 10_000 &&
+        Numerator >= 30UL * Denominator && Numerator <= 240UL * Denominator && GreatestCommonDivisor(Numerator, Denominator) == 1;
 
     private static uint GreatestCommonDivisor(uint left, uint right)
     {
@@ -79,14 +81,21 @@ public readonly record struct WorkshopCadenceSettings(
 
     public void Validate()
     {
+        if (Rejection() is { } reason) throw new ArgumentException(reason);
+    }
+
+    /// <summary>Why these settings are not admitted, or null when they are: the one rule <see cref="Validate"/> enforces and a
+    /// stored save's pre-validation reports as its typed refusal.</summary>
+    internal string? Rejection()
+    {
         if (!Enum.IsDefined(Simulation) || Physical != PhysicalStepProfile.Canonical480Hz ||
             !Enum.IsDefined(Animation) || !Enum.IsDefined(Presentation))
-            throw new ArgumentException("Unsupported cadence selection.");
+            return "Unsupported cadence selection.";
         // PhysicalFrequency's exact binary16 representation is a compile-time fact, asserted by
         // WorkshopWireTests.PhysicalFrequencyIsExactlyRepresentableInTheHalfWireField.
         if ((ulong)SimulationRate.Numerator * PhysicalStepsPerCommit != PhysicalFrequency)
-            throw new ArgumentException("Physical profile rate is not exactly representable.");
-        PresentationRate.Validate();
+            return "Physical profile rate is not exactly representable.";
+        if (!PresentationRate.IsCanonical) return PulseRate.NoncanonicalMessage;
         var fixedRate = Presentation switch
         {
             PresentationCadence.AdmittedDisplay => PresentationRate,
@@ -95,10 +104,9 @@ public readonly record struct WorkshopCadenceSettings(
             PresentationCadence.Hz90 => new PulseRate(90, 1),
             PresentationCadence.Hz120 => new PulseRate(120, 1),
             PresentationCadence.Hz144 => new PulseRate(144, 1),
-            _ => throw new ArgumentException("Unknown presentation cadence.")
+            _ => default,
         };
-        if (PresentationRate != fixedRate)
-            throw new ArgumentException("Fixed presentation cadence has a different rate.");
+        return PresentationRate != fixedRate ? "Fixed presentation cadence has a different rate." : null;
     }
 
     private WorkshopCadenceSettings Validated() { Validate(); return this; }

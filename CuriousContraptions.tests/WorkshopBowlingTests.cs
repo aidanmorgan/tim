@@ -97,8 +97,7 @@ public sealed class WorkshopBowlingTests
         Assert.Equal(BallMaterial.For(PartId.Basketball), basketball.Material);
         Assert.Equal(PartId.BowlingBall, bowling.PartId);
         Assert.Equal(BallMaterial.For(PartId.BowlingBall), bowling.Material);
-        var bb = new Google.FlatBuffers.ByteBuffer(bytes);
-        var fbSave = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(bb);
+        var fbSave = WorkshopSaveCodec.Open(bytes);
         Assert.True(fbSave.Construction.HasValue);
         var fbBasketball = fbSave.Construction.Value.Instances(2)!.Value;
         var fbBowling = fbSave.Construction.Value.Instances(3)!.Value;
@@ -120,13 +119,8 @@ public sealed class WorkshopBowlingTests
             };
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
-            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 5);
-            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-            builder.Finish(end.Value);
-            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            var savedBytes = SaveFixture.Finish(builder, crOffset, 5);
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(savedBytes));
         }
         // Material bits of one kind under the other kind's tag are not that kind.
         var swapped1 = decoded.Construction with {
@@ -134,24 +128,16 @@ public sealed class WorkshopBowlingTests
         };
         var b1 = new Google.FlatBuffers.FlatBufferBuilder(512);
         var cr1 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b1, swapped1, validate: false);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(b1);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(b1, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b1, 5);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(b1, cr1);
-        b1.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b1).Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(b1.SizedByteArray()));
+        var swappedBytes1 = SaveFixture.Finish(b1, cr1, 5);
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(swappedBytes1));
 
         var swapped2 = decoded.Construction with {
             Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], basketball with { Material = BallMaterial.For(PartId.BowlingBall) }, decoded.Construction.Instances[3])
         };
         var b2 = new Google.FlatBuffers.FlatBufferBuilder(512);
         var cr2 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b2, swapped2, validate: false);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(b2);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(b2, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b2, 5);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(b2, cr2);
-        b2.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b2).Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(b2.SizedByteArray()));
+        var swappedBytes2 = SaveFixture.Finish(b2, cr2, 5);
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(swappedBytes2));
     }
 
     [Fact]

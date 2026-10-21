@@ -22,17 +22,8 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
 
     private static Dictionary<string, int> Owned(Script script) => script switch
     {
-        Script.SimulationWorker => new Dictionary<string, int>(PoseRing)
-        {
-            ["READ_CAPTURE_TIME"] = WorkshopWire.ResponseCaptureTimeOffset,
-            ["READ_BODY_COUNT"] = WorkshopWire.ResponseBodyCountOffset,
-            ["READ_BODIES_OFFSET"] = WorkshopWire.ReadBodiesOffset,
-            ["BODY_WIRE_BYTES"] = PhysicsBodyWire.ByteLength,
-            ["BODY_WIRE_CELL"] = PhysicsBodyWire.CellOffset,
-            ["BODY_WIRE_LOCAL"] = PhysicsBodyWire.LocalOffset,
-            ["BODY_WIRE_ROTATION"] = PhysicsBodyWire.RotationOffset,
-            ["BODY_WIRE_VELOCITY"] = PhysicsBodyWire.VelocityOffset,
-        },
+        // Story 9A.2: the worker reads no read layout; it copies the C#-composed pose slot, so it declares only the ring's own.
+        Script.SimulationWorker => new Dictionary<string, int>(PoseRing),
         Script.WorkshopClient => new Dictionary<string, int>(PoseRing) { ["POSE_INITIAL_BODIES"] = WorkshopPoseRing.InitialBodyCapacity },
         _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),
     };

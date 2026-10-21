@@ -102,11 +102,11 @@ public static class WorkshopScheduleWire
     public const int ResultBytes = 16;
     public const int AbortBytes = 8;
 
-    /// <summary>A Prepare payload: its fixed fields, then the endpoint's complete response, whose width is that read's own
-    /// populations (Story 9R.5b: no fixed response capacity).</summary>
-    public static int PrepareBytes(int endpointBytes) => endpointBytes >= WorkshopWire.ResponseHeaderBytes
+    /// <summary>A Prepare payload: its fixed fields, then the endpoint's complete size-prefixed FlatBuffers response, whose width is
+    /// that read's own populations (Story 9R.5b: no fixed response capacity). The endpoint decoder rejects any other content.</summary>
+    public static int PrepareBytes(int endpointBytes) => endpointBytes > 0
         ? checked(PrepareFieldBytes + endpointBytes)
-        : throw new ArgumentException("A prepared endpoint is shorter than a response header.");
+        : throw new ArgumentException("A prepared endpoint is empty.");
 
     public static int PayloadBytes(ScheduleControlKind kind) => kind switch
     {
@@ -125,13 +125,13 @@ public static class WorkshopScheduleWire
     public static void WriteHeader(ScheduleControlHeader header, Span<byte> destination, int payloadBytes)
     {
         header.Validate();
-        if (header.Kind == ScheduleControlKind.Prepare ? payloadBytes < PrepareFieldBytes + WorkshopWire.ResponseHeaderBytes
+        if (header.Kind == ScheduleControlKind.Prepare ? payloadBytes <= PrepareFieldBytes
             : payloadBytes != PayloadBytes(header.Kind))
             throw new ArgumentException("Invalid schedule-control payload width.");
         if (destination.Length != HeaderBytes) throw new ArgumentException("Invalid control header length.");
         destination.Clear();
         BinaryPrimitives.WriteUInt32LittleEndian(destination[4..], (uint)header.Kind);
-        WorkshopWire.WriteSession(destination[8..24], header.Session);
+        header.Session.WriteTo(destination[8..24]);
         BinaryPrimitives.WriteUInt64LittleEndian(destination[24..], header.MasterGeneration.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(destination[32..], header.Revision.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(destination[40..], header.Projection.Value);
@@ -150,11 +150,11 @@ public static class WorkshopScheduleWire
         var declared = BinaryPrimitives.ReadUInt32LittleEndian(control[56..]);
         // A Prepare declares its own width (its endpoint's populations); every other kind is fixed.
         if (!Enum.IsDefined(kind) || (kind == ScheduleControlKind.Prepare
-                ? declared < PrepareFieldBytes + WorkshopWire.ResponseHeaderBytes
+                ? declared <= PrepareFieldBytes
                 : declared != PayloadBytes(kind)) ||
             control.Length != HeaderBytes + (long)declared)
             throw new ArgumentException("Unsupported schedule-control length.");
-        var header = new ScheduleControlHeader(kind, WorkshopWire.ReadSession(control[8..24]),
+        var header = new ScheduleControlHeader(kind, RuntimeSessionId.Read(control[8..24]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(control[24..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(control[32..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(control[40..])),

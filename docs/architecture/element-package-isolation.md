@@ -136,7 +136,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | --- | --- | --- | --- |
 | A13 (runtime), A17, A18 | Story 9A.14 (in review) makes `PartRegistry` load only the generated bundle (`res://elements/elements.bundle.json`), with every scene in its package; the `.tres` catalogue, `parts/` and the static palette list are deleted, and Tennis and Balloon stay out of the registry and palette through the typed `UndeliveredParts` set until Story 12.1. The row closes at 9A.14's terminal Pass | 2 | 9A.14 (with 9A.18 icons merged) |
 | A15 | Every delivered element has a package (PKG-1 packaged `basket`, `bowling` and `spring`; PKG-2 `funnel`, `pipe`, `pipe_bend_45` and `pipe_bend_90`; PKG-3 `delay` and `switch`). Tennis and Balloon have no package; Story 9A.14 deletes their catalogue resources and Story 12.1 delivers them as packages | 1 | PKG-3 |
-| A2 | `engine/PartId.cs` holds named constants and numeric id switches that are the save/wire identity | 2 | 9A.15 (numeric switches); 9A.45a then 9A.45 (constants) |
+| A2 | `engine/PartId.cs` holds named constants and numeric id switches. Since Story 9A.2 no wire or save reads the numeric ids (the one codec carries the bundle's string identity); `tools/Coverage` still reads the numeric table as its declared-identity list | 2 | 9A.15 (numeric switches); 9A.45a then 9A.45 (constants) |
 | A3 (colliders), B2 | `WorkshopCanonicalColliders` tables and `?? WorkshopCanonicalColliders.For(...)` fallbacks | 1, 2, 9 | 9A.16 |
 | A3 (ports, footprints) | The `WorkshopPorts.For` switch table; the runtime does not yet read the footprints the packages declare (`WorkbenchFootprint.Of` was deleted by Story 9R.5b) | 1, 2 | 9A.17 |
 | A3 (icons) | Story 9A.14 (in review, with 9A.18 merged) deletes every element arm of `ui/WorkshopIcons.cs`; each package ships its `icon.svg` (`ElementMetadata.IconPath`) and the palette renders it. The row closes at 9A.14's terminal Pass | 1, 2 | 9A.14 |
@@ -151,7 +151,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | D2, D3 | The event ring has no runtime consumer; occurrences ride in reliable reads and main-thread pumps relay them | 3, 4 | 9A.23 + 9A.25b |
 | C2, C3 | `worker.js` accepts a raw `reliableStalled` flag and a raw `memoryRequest` channel outside the router | 3 | 9A.3 |
 | C4, C5 | `CCGPU` and `CCGOAL_SOLVED` console lines and `globalThis.WorkshopPoseRing`/`WorkshopAnimation` test hooks | 3 | 9A.24 |
-| B1 | `WorkshopCommandRouter` and `BrowserWorkshopClient` fall back to the legacy `WorkshopWire.Decode*` codec | 3, 9 | 9A.2 |
+| B1 | Story 9A.2 (in review) deletes the legacy binary codec (`WorkshopWire`) and its section codecs: commands, responses, schedule endpoints, the trace and saves are size-prefixed, identified FlatBuffers decoded once (`WireFaultException`), saves are pre-validated (`WorkshopSaveRejectedException`), and the workers parse no buffer. The row closes at 9A.2's terminal Pass | 3, 9 | 9A.2 |
 | B6 | `System.Half` binary16 lanes remain in production code (about 850 tokens) | f32 authority | 9A.44 (9.5a moves the timer lane first) |
 | MNA | No Modified Nodal Analysis exists (`git grep -i 'nodal\|MNA'` finds no code). The electrical model is compiled supply routes over a reachability graph (`engine/gpu/SupplyRoute.cs`, `WorkshopPhysicsCompiler` routes) | — (not a violation) | MNA is a named later capability, delivered by the first element story that needs it |
 

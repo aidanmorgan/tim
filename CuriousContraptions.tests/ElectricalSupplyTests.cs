@@ -26,12 +26,8 @@ public sealed class ElectricalSupplyTests
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction with
             { Instances = new(battery with { Settings = settings with { Enabled = (ElectricalEnable)2 } }, bumper) }, validate: false);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, record);
-        builder.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        var savedBytes = SaveFixture.Finish(builder, record, 3);
+        SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(savedBytes));
         var restored = WorkshopSaveCodec.Decode(original);
         Assert.Equal(settings, Assert.IsType<WorkshopBattery>(restored.Construction.Instances[0]).Settings);
         Assert.Equal(original, WorkshopSaveCodec.Encode(restored));

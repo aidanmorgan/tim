@@ -129,8 +129,8 @@ public sealed class ActivationTimerTests
                         new((float)4),new(12),ContactWorkEffect.Paid)}) : default);
             var response=new WorkshopResponse(default,WorkshopResponseKind.Read,new(WorkshopCommandOutcome.Applied,WorkshopRejection.None),
                 WorkshopSimulationPhase.Running,read,new(1,2),new(1),new(1),new(1),new(1),new(tick));
-            var encoded=WorkshopWire.Encode(response);
-            var decoded=WorkshopWire.DecodeResponse(encoded);
+            var encoded=WorkshopWireFlatBuffers.EncodeResponse(response);
+            var decoded=WorkshopWireFlatBuffers.DecodeResponse(encoded);
             Assert.True(read.HasSameContent(decoded.Read));
             Assert.Equal(withContact ? 1 : 0, decoded.Read.ContactWorks.Count);
             Assert.Equal(logical.Timers[0],decoded.Read.Timers[0]);
@@ -138,7 +138,7 @@ public sealed class ActivationTimerTests
         }
     }
     [Fact]
-    public void MalformedTimerReadAndWireRejectWithoutChangingCommittedState()
+    public void MalformedTimerReadRejectsWithoutChangingCommittedState()
     {
         var (network,scene,first,_) = Fixture();
         var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
@@ -146,15 +146,6 @@ public sealed class ActivationTimerTests
         foreach(var invalid in new[]{value with {DueTick=122},value with {StartedTick=2},
             value with {Phase=ActivationTimerPhase.Finished},value with {Node=new(99)}})
             Assert.Throws<ArgumentException>(()=>network.ValidateRead(counting.Activations,new(new[]{invalid}),new(3),4,scene));
-        var bytes=new byte[WorkshopTimerWire.ByteLength(1)];
-        WorkshopTimerWire.Write(counting.Timers,bytes);
-        Assert.Equal(value,WorkshopTimerWire.Read(bytes,1)[0]);
-        Assert.Throws<ArgumentException>(()=>WorkshopTimerWire.Read(new byte[WorkshopTimerWire.ByteLength(1)+1],1));
-        foreach(var offset in new[]{8,12,44,86})
-        {
-            var changed=(byte[])bytes.Clone(); changed[offset]=255;
-            Assert.Throws<ArgumentException>(()=>WorkshopTimerWire.Read(changed,1));
-        }
         Assert.Throws<ArgumentException>(()=>network.Consume(counting.Activations,counting.Timers,new[]{first,first},new(4),[]));
         Assert.Equal(value,counting.Timers[0]);
     }

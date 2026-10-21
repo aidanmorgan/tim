@@ -87,14 +87,9 @@ public sealed class WorkshopDominoTests
             var forgedConstruction = save.Construction with { Instances = new WorkshopInstances(save.Construction.Instances[0], domino with { Material = forgedMaterial }) };
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
-            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-            builder.Finish(end.Value);
-            var forgedBytes = builder.SizedByteArray();
-            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(forgedBytes));
+            var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
+            var forgedBytes = savedBytes;
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(forgedBytes));
         }
     }
 

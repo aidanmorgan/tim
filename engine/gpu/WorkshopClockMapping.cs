@@ -1,10 +1,29 @@
 using System;
+using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
 public readonly record struct RuntimeSessionId(ulong Low, ulong High)
 {
+    public const int ByteLength = 16;
     public void Validate() { if ((Low | High) == 0) throw new ArgumentException("A runtime session must be nonzero."); }
+
+    /// <summary>The session's 16 little-endian bytes (low word, then high word) in the fixed-layout records that carry it.</summary>
+    public void WriteTo(Span<byte> destination)
+    {
+        Validate();
+        if (destination.Length != ByteLength) throw new ArgumentException("A runtime session occupies 16 bytes.");
+        BinaryPrimitives.WriteUInt64LittleEndian(destination, Low);
+        BinaryPrimitives.WriteUInt64LittleEndian(destination[8..], High);
+    }
+
+    public static RuntimeSessionId Read(ReadOnlySpan<byte> source)
+    {
+        if (source.Length != ByteLength) throw new ArgumentException("A runtime session occupies 16 bytes.");
+        var session = new RuntimeSessionId(BinaryPrimitives.ReadUInt64LittleEndian(source), BinaryPrimitives.ReadUInt64LittleEndian(source[8..]));
+        session.Validate();
+        return session;
+    }
 }
 public enum WorkshopRuntimeRole : uint { Browser = 1, Simulation = 2, Animation = 3 }
 public readonly record struct MasterTimeNanoseconds(long Value)

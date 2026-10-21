@@ -56,13 +56,8 @@ public sealed class WorkshopDelayTests
             };
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
-            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
-            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-            builder.Finish(end.Value);
-            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
+            SaveFixture.Refused(Half.IsFinite(invalid) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
         }
         foreach (var invalid in new[] {double.NaN,double.PositiveInfinity,.09,12.01})
             Assert.Throws<ArgumentException>(() => DelayDuration.FromInput(invalid));

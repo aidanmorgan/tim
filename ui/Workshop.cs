@@ -893,11 +893,8 @@ public partial class Workshop : Node3D
             var encoded = await BrowserWorkshopSaveStore.Load(0);
             if (_workshopUiRemoved) return;
             if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
-            // Browser storage is untrusted input: text that is not base64 is the save codec's typed rejection.
-            var stored = new byte[encoded.Length];
-            if (!Convert.TryFromBase64String(encoded, stored, out var storedLength))
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
-            var saved = WorkshopSaveCodec.Decode(stored.AsSpan(0, storedLength));
+            // Browser storage is untrusted input: anything but an admissible save is the save codec's typed refusal.
+            var saved = WorkshopSaveCodec.DecodeStored(encoded);
             if (saved.Construction.Settings != World.Construction.Settings)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.SaveSettingsMismatch, "This save uses different simulation settings.");
             // SubmitConstruction owns the existing GPU admission and installation barrier.

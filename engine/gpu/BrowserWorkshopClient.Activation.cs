@@ -17,6 +17,10 @@ public sealed partial class BrowserWorkshopClient
     private ulong[] _memoryOrdinals = [];
 
     private static AnimationTargetId ActivationTarget(ActivationNodeId node) => new(checked(node.Value + 2));
+    /// <summary>The last physical ordinal a read commits: admission has none; every later committed read carries its motion (the
+    /// decoder refuses one without it).</summary>
+    private static uint CommittedOrdinal(WorkshopRead read) => read.Tick.Value == 0 ? 0
+        : (read.Motion ?? throw new InvalidOperationException("A committed read past admission lacks its motion.")).LastOrdinal;
     private void RetireActivationFeedback()
     {
         RetireTimerFeedback(); RetireElectricalFeedback();
@@ -37,7 +41,7 @@ public sealed partial class BrowserWorkshopClient
             var from = _memorySamples[i]?.Value ?? (Half)1 - to;
             var control = new WorkshopAnimationControl(ActivationTarget(value.Node), latest.Read.Epoch, checked(_animationSequence + 1),
                 (_memoryRequested[i]?.Generation ?? 0) + 1, AnimationControlKind.Transition, true, from, to, declaration.Duration,
-                declaration.Curve, latest.Read.Motion?.LastOrdinal ?? 0, default, AnimationProperty.ColourBlend);
+                declaration.Curve, CommittedOrdinal(latest.Read), default, AnimationProperty.ColourBlend);
             SendAnimation(control, schedule);
             _memoryRequested[i] = control; _memoryRetry[i] = false;
             return; // The single reliable Animation lease owns this control until its ACK.

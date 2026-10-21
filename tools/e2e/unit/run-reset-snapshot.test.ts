@@ -73,10 +73,9 @@ function saved(options: SavedOptions = {}): Uint8Array {
     ConstructionRecord.addConnections(builder, connectionsVector);
     const construction = ConstructionRecord.endConstructionRecord(builder);
     SavedConstruction.startSavedConstruction(builder);
-    SavedConstruction.addMagic(builder, 0x53574343);
     SavedConstruction.addNextBodyId(builder, 3n);
     SavedConstruction.addConstruction(builder, construction);
-    builder.finish(SavedConstruction.endSavedConstruction(builder));
+    builder.finishSizePrefixed(SavedConstruction.endSavedConstruction(builder), 'CCWS');
     return builder.asUint8Array().slice();
 }
 

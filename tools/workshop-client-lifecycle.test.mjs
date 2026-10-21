@@ -66,7 +66,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
         // A running Simulation beats the ring between its tick turns (worker.js); a hung one stops.
         if (simulationRuns) clockRing.beat(clock);
     };
-    const creation = api.create(Object.values(state), session, [2, 64, 72, 96, 160, 1, 2], [26640, 40, 56], 1, false,
+    const creation = api.create(Object.values(state), session, [2, 64, 72, 96, 160, 1, 2], 1, false,
         () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
     creation.catch(() => {});
     await workerCreated;
@@ -375,7 +375,8 @@ test('premature Animation output fails without delivering to the managed consume
 });
 
 function commandIdentity(sequence) {
-    const bytes = new Uint8Array(72);
+    // The 8-byte little-endian sequence C# hands the transport with a command (and the worker returns with its acknowledgement).
+    const bytes = new Uint8Array(8);
     new DataView(bytes.buffer).setBigUint64(0, sequence, true);
     return bytes;
 }
@@ -383,10 +384,10 @@ function stallStates(h) { return h.messages.filter(item => typeof item.reliableS
 
 test('delayed valid ACK clears current stall only after managed validation completion', async () => {
     const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
-    const bytes = commandIdentity(1n), pending = h.api.send(id, bytes);
+    const bytes = commandIdentity(1n), pending = h.api.send(id, bytes, bytes);
     h.clock(500); h.tick(); assert.deepEqual(stallStates(h), []);
     h.clock(501); h.tick(); assert.deepEqual(stallStates(h), [true]);
-    h.workers[0].onmessage({ data: { acknowledgement: bytes } }); await pending;
+    h.workers[0].onmessage({ data: { acknowledgement: bytes, sequence: bytes } }); await pending;
     assert.deepEqual(stallStates(h), [true], 'arrival is not validated completion');
     assert.deepEqual(h.api.acknowledgement(id, bytes), bytes);
     h.tick(); assert.deepEqual(stallStates(h), [true], 'leased but unvalidated remains unresolved');
@@ -401,13 +402,13 @@ test('delayed valid ACK clears current stall only after managed validation compl
 test('completing an older ACK cannot clear another aged request or exceed two leases', async () => {
     const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
     const a = commandIdentity(1n), b = commandIdentity(2n), c = commandIdentity(3n);
-    const pa = h.api.send(id, a), pb = h.api.send(id, b);
+    const pa = h.api.send(id, a, a), pb = h.api.send(id, b, b);
     h.clock(501); h.tick();
-    h.workers[0].onmessage({ data: { acknowledgement: a } }); await pa;
+    h.workers[0].onmessage({ data: { acknowledgement: a, sequence: a } }); await pa;
     h.api.acknowledgement(id, a);
-    await assert.rejects(h.api.send(id, c), /capacity/);
+    await assert.rejects(h.api.send(id, c, c), /capacity/);
     h.api.completeAcknowledgement(id, a); assert.deepEqual(stallStates(h), [true]);
-    h.workers[0].onmessage({ data: { acknowledgement: b } }); await pb;
+    h.workers[0].onmessage({ data: { acknowledgement: b, sequence: b } }); await pb;
     assert.throws(() => h.api.completeAcknowledgement(id, b), /not leased/);
     h.api.acknowledgement(id, b); h.api.completeAcknowledgement(id, b);
     assert.deepEqual(stallStates(h), [true, false]); h.api.dispose(id);
@@ -416,28 +417,28 @@ test('completing an older ACK cannot clear another aged request or exceed two le
 test('taken but invalid ACK cannot release capacity or report healthy without completion', async () => {
     const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
     const a = commandIdentity(1n), b = commandIdentity(2n), c = commandIdentity(3n);
-    const pa = h.api.send(id, a);
+    const pa = h.api.send(id, a, a);
     h.clock(501); h.tick();
-    h.workers[0].onmessage({ data: { acknowledgement: a } }); await pa;
+    h.workers[0].onmessage({ data: { acknowledgement: a, sequence: a } }); await pa;
     h.api.acknowledgement(id, a); // Managed rejection never calls completeAcknowledgement.
     assert.throws(() => h.api.acknowledgement(id, a), /not available/);
     assert.throws(() => h.api.completeAcknowledgement(id, c), /not leased/);
-    const pb = h.api.send(id, b); pb.catch(() => {});
-    await assert.rejects(h.api.send(id, c), /capacity/);
+    const pb = h.api.send(id, b, b); pb.catch(() => {});
+    await assert.rejects(h.api.send(id, c, c), /capacity/);
     h.clock(502); h.tick(); assert.deepEqual(stallStates(h), [true]);
     const handler = h.workers[0].onmessage;
     h.api.dispose(id);
-    handler({ data: { acknowledgement: b } });
+    handler({ data: { acknowledgement: b, sequence: b } });
     assert.throws(() => h.api.completeAcknowledgement(id, a), /disposed/);
     assert.deepEqual(stallStates(h), [true]);
 });
 
 for (const duplicate of [false, true]) test(`unmatched or duplicate ACK faults without clearing stall (${duplicate})`, async () => {
     const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
-    const a = commandIdentity(1n), pending = h.api.send(id, a); pending.catch(() => {});
+    const a = commandIdentity(1n), pending = h.api.send(id, a, a); pending.catch(() => {});
     h.clock(501); h.tick();
-    if (duplicate) { h.workers[0].onmessage({ data: { acknowledgement: a } }); await pending; }
-    h.workers[0].onmessage({ data: { acknowledgement: duplicate ? a : commandIdentity(2n) } });
+    if (duplicate) { h.workers[0].onmessage({ data: { acknowledgement: a, sequence: a } }); await pending; }
+    h.workers[0].onmessage({ data: { acknowledgement: duplicate ? a : commandIdentity(2n), sequence: duplicate ? a : commandIdentity(2n) } });
     assert.equal(h.api.status(id), state.Indeterminate);
     assert.equal(h.workers[0].terminated, true);
     assert.deepEqual(stallStates(h), [true]); h.api.dispose(id);

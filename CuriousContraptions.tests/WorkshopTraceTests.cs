@@ -140,7 +140,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal((ulong)count, Number(header[4]));
         Assert.Equal((ulong)chunks, Number(header[5]));
         Assert.Equal(TraceEnd.Complete, Reason(header[6]));
-        var construction = WorkshopWire.DecodeCommand(Convert.FromBase64String(header[7]));
+        var construction = WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[7]));
         Assert.Equal(Session, construction.Session);
         Assert.Equal(configured, construction.Construction);
         Assert.Equal(profile.Revision, construction.Cadence);
@@ -217,7 +217,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(3, output.TraceLines.Length);
         var header = output.TraceLines[0].Split(' ');
         Assert.Equal(TraceEnd.Reset, Reason(header[6]));
-        Assert.Equal(Session, WorkshopWire.DecodeCommand(Convert.FromBase64String(header[7])).Session);
+        Assert.Equal(Session, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[7])).Session);
     }
 
     [Fact]
@@ -243,8 +243,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(10UL, Number(next[2]));
         Assert.Equal(previousRecord, Convert.FromBase64String(lines[1].Split(' ')[6]));
         Assert.Equal(nextRecord, Convert.FromBase64String(lines[4].Split(' ')[6]));
-        Assert.Equal(Session, WorkshopWire.DecodeCommand(Convert.FromBase64String(previous[7])).Session);
-        Assert.Equal(nextSession, WorkshopWire.DecodeCommand(Convert.FromBase64String(next[7])).Session);
+        Assert.Equal(Session, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(previous[7])).Session);
+        Assert.Equal(nextSession, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(next[7])).Session);
     }
 
     [Fact]
@@ -425,7 +425,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(profile.RunTickLimit, Number(header[7]));
         Assert.Equal(profile.RunTickLimit, Number(header[8]));
         Assert.Equal(0UL, Number(header[10]));
-        var command = WorkshopWire.DecodeCommand(Convert.FromBase64String(header[11]));
+        var command = WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[11]));
         Assert.Equal(Session, command.Session);
         Assert.Equal(construction, command.Construction);
         Assert.Equal(new ProjectionEpoch(3), command.Projection);
@@ -567,7 +567,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.Flush(WorkshopSimulationPhase.Building);
         var header = output.TimingLines[0].Split(' ');
         Assert.Equal(10UL, Number(header[2]));
-        Assert.Equal(Session, WorkshopWire.DecodeCommand(Convert.FromBase64String(header[11])).Session);
+        Assert.Equal(Session, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[11])).Session);
     }
 
     [Fact]

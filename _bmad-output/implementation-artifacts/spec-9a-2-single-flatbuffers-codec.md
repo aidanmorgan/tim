@@ -2,7 +2,7 @@
 title: 'Story 9A.2: Single FlatBuffers Codec'
 type: 'refactor'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -36,9 +36,9 @@ context:
 ## Boundaries & Constraints
 
 **Always:**
-- One decode attempt per buffer. A failure raises a typed `WireFault` carrying a `WireFaultReason` enum: `Truncated`, `UnknownIdentifier`, `TrailingBytes`, `VerifierRejected`, `UnsupportedVersion`, `MissingField` or `OutOfRange`.
+- One decode attempt per buffer. A failure raises a typed `WireFault` (implemented as `WireFaultException`, the analyzers' CA1710 name) carrying a `WireFaultReason` enum: `Truncated`, `UnknownIdentifier`, `TrailingBytes`, `VerifierRejected`, `MissingField` or `OutOfRange`. *(Version items dropped: owner, 21 Oct 2026; Stories 9R.7 and 9A.1 removed every format version.)*
 - Lanes this story rewrites are f32 or integer, never `Half`.
-- Bump the wire, save and trace versions. An older save is rejected with a player-visible message, and the bench is kept (epics Open item h: "Saves from before a format bump are rejected").
+- No format versions (owner, 21 Oct 2026). A save that fails structural pre-validation is a typed `WorkshopSaveRejectedException` carrying a closed `WorkshopSaveRejection` reason; the player sees the refusal and the bench is kept.
 
 **Never:**
 - A second codec, a `catch`-and-retry, or `GetRootAs` without a verify.
@@ -53,7 +53,7 @@ context:
 | Truncated command, response or save | last byte cut | `WireFault(Truncated)`; no state change |
 | Wrong root identifier | a save handed to `DecodeCommand` | `WireFault(UnknownIdentifier)` |
 | Trailing bytes | valid buffer plus 1 byte | `WireFault(TrailingBytes)` |
-| Old save (v13) | a 9.4b-era save | the UI shows "This save is from an older version and cannot be loaded."; the bench is unchanged |
+| Save that fails pre-validation | any structural violation (a pre-9A.2 save among them) | the UI shows "This save cannot be loaded: <reason>"; the bench is unchanged |
 | Counter target missing, 0 or 10 | `target_count` absent or out of range | `WireFault(MissingField)` or `(OutOfRange)` |
 | Read at tick > 0 | a committed read | motion round-trips bit-exactly |
 
@@ -82,7 +82,7 @@ context:
 ## Tasks & Acceptance
 
 **Execution** ([R:9.4b] = re-read after 9.4b lands; [R:9R.0] = after 9R.0 lands, because namespaced `Program` changes `exports.CuriousContraptions.Simulation.Program` and 9R.0 retyped the router and client catches):
-1. [ ] **Tests first (red).** Create `CuriousContraptions.tests/WireFaultTests.cs` and add its `Compile Include`. It covers command, response, save and schedule-endpoint fixtures, each with truncated, wrong-identifier, trailing-byte, v13-save and counter-target cases; motion round trip at tick 0 and at tick > 0; and `RejectedInputIsNeverRetried` (a spy counts decode attempts and expects 1).
+1. [ ] **Tests first (red).** Create `CuriousContraptions.tests/WireFaultTests.cs` and add its `Compile Include`. It covers command, response, save and schedule-endpoint fixtures, each with truncated, wrong-identifier, trailing-byte, corrupt-root and counter-target cases (version cases dropped: owner, 21 Oct 2026); motion round trip at tick 0 and at tick > 0; and `RejectedInputIsNeverRetried` (a spy counts decode attempts and expects 1).
 2. [ ] `schemas/workshop_wire.fbs`, then `engine/gpu/WorkshopWireGenerated.cs` and `tools/e2e/workshop-wire.ts`. Regenerate with flatc 25.2.10 to match the vendored runtime ([R:9.4b] `CuriousContraptions.FlatBuffers/`). Record the exact command in `schemas/README.md`.
 3. [ ] `engine/gpu/WorkshopWireFlatBuffers.cs`. Change all of these:
    - `FinishSizePrefixed` with the identifier;
@@ -92,11 +92,11 @@ context:
    - delete the legacy blob path (`:43-44`, `:146-149`) and the `is { Length: 16 } ? … : default` session defaults (`:129`, `:450`), which become `MissingField`.
 4. [ ] `engine/gpu/WorkshopMessages.cs` (new) and `engine/gpu/RuntimeSessionId` (its existing declaration file). Move the records and validators, then retarget the clock, memory, hint and schedule callers. [R:9R.0]
 5. [ ] `CuriousContraptions.Simulation/Program.cs`, `Program.Schedule.cs` and `WorkshopTrace.cs`. Every response becomes FlatBuffers. Delete `ReadOutput`, `ResponseAbi` and the `output.Length` branch.
-   - Change `Publish` to `Publish(byte[] read, byte[] readIdentity24, byte[] poseSlot, …)`. The pose slot is a C#-owned fixed record `PoseRingSlotWire` (new, `engine/gpu/PoseRingSlotWire.cs`) that matches the 1040-byte slot. Bump the trace version. [R:9.4b] [R:9R.0]
+   - Change `Publish` to `Publish(byte[] read, byte[] readIdentity24, byte[] poseSlot, …)`. The pose slot is composed by the existing `WorkshopPoseRing` (`ComposeSlot`), as wide as the read's bodies (Story 9R.5b: no 1040-byte fixed slot). No trace version. [R:9.4b] [R:9R.0]
 6. [ ] `engine/gpu/WorkshopSchedule.cs`. A Prepare control carries a length-prefixed FlatBuffers endpoint. Delete `PrepareBytes = 80 + ResponseBytes`. `WorkshopPoseHistory.ReservedHistoryBytes` gets its own declared bound.
 7. [ ] `engine/gpu/WorkshopCommandRouter.cs`, `BrowserWorkshopClient.cs`, `BrowserWorkshopClient.Schedule.cs` and `CuriousContraptions.Animation.Worker/Program.cs`. Decode once and drop the `isFlatBuffer` reserve. `send(id, bytes, sequence)` passes the sequence explicitly. [R:9R.0]
 8. [ ] `worker.js` and `workshop-client.js`. Delete both `extractReadIdentity` copies, `sequence()`'s vtable parse, the `responseAbi` plumbing and the three `READ_BODIES_OFFSET`/`BODY_WIRE_*` constants. `writePoseRing` copies `poseSlot` verbatim. [R:9.4b] (both files are rewritten by the clock master)
-9. [ ] `engine/gpu/WorkshopSaveCodec.cs` and `ui/Workshop.cs`. Bump to version 14; `UnsupportedVersion` maps to the player message; delete the dead `ByteLength` (`:15`) and the catch-all at `:51-54`.
+9. [ ] `engine/gpu/WorkshopSaveCodec.cs` and `ui/Workshop.cs`. Structural pre-validation with the typed `WorkshopSaveRejectedException`; delete the catch-alls (`IsInvalidStoredValue`, `IsMalformedRecord`) and the save magic (the `CCWS` identifier replaces it). No version.
 10. [ ] Before deleting, run `rg -n "^public |^internal " engine/gpu/WorkshopWire.cs` and move every top-level type to `WorkshopMessages.cs` (at least `WorkshopWireVersion` at `:8`, the records at `:10-13`, and any kind enums declared there). Then delete `engine/gpu/WorkshopWire.cs` and its `.uid`.
     - Migrate `CuriousContraptions.tests/WorkshopWireTests.cs` (43 refs), `WorkshopReadTests.cs` (20), `WorkshopSaveTests.cs`, `WorkshopTraceTests.cs` and the minor callers (Appendix).
     - In `WorkerAbiTests.cs`, delete the three `Owned` rows but keep 9A.1's `WorkerDeclaresNoUnownedLayoutConstant` with an empty `Owned` set, so that `worker.js` may declare no layout constant. Update `tools/Coverage/CapabilityImplementationRequirements.cs:13` to `WorkshopWireFlatBuffers.cs`.
@@ -106,7 +106,7 @@ context:
 - **AC1.** Given the remaining `WorkshopWire` callers, when this story lands, then each of them encodes and decodes through `WorkshopWireFlatBuffers` and the schemas only. They include `Program.Schedule.cs`, `BrowserWorkshopClient.Schedule.cs`, the Animation `Program.cs`, `WorkshopTrace.cs`, `WorkshopSaveCodec.cs`, the read publication, the pose slot and the read identity.
 - **AC2.** Given `tools/e2e/workshop-wire.ts`, when the suites run, then it decodes the FlatBuffers format only.
 - **AC3.** Given a truncated, unknown-tag or trailing-byte command, response or save, when it is decoded, then a `WireFault` names the reason and nothing retries it through another codec (unit negative controls).
-- **AC4.** Given a v13 save, when the player loads it, then a visible message shows and the current bench is kept. The trace version is bumped.
+- **AC4.** Given a save that fails structural pre-validation, when the player loads it, then a typed `WorkshopSaveRejectedException` names the reason, a visible message shows and the current bench is kept (no migration, no version check).
 - **AC5.** `rg "WorkshopWire\."` returns 0 hits outside the FlatBuffers codec.
 - **AC6.** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview, including every Save/Load suite.
 
@@ -158,7 +158,22 @@ context:
 
 ## Implementation Notes
 
+Amelia-21, 21 Oct 2026. Evidence: `evidence-9a-2/`.
+
+- **One frame for every root.** `WorkshopWireFlatBuffers.OpenFrame` checks, in order: the 4-byte size prefix against the length (`Truncated`, `TrailingBytes`), the root identifier at bytes 8..12 (`UnknownIdentifier`), then the vendored verifier with that identifier (`VerifierRejected`). The vendored verifier throws `OverflowException` on some hostile signed offsets (`Convert.ToUInt32` in `FlatBufferVerify.cs:277`); that one call is translated to `VerifierRejected`, and no other catch exists on any decode path. A frame fault on a save becomes the same-named `WorkshopSaveRejection`.
+- **Names.** The spec's `WireFault` is `WireFaultException` (analyzer CA1710). It is not an `ArgumentException`.
+- **Motion** is `motion: [uint8]`: the physics ABI's own `PhysicsMotionRead` record, validated by `PhysicsMotionRead.Decode` against the read's bodies and tick. Its Half lanes stay for Story 9A.44. A committed read past tick 0 without motion is `MissingField`; admission's absent motion stays absent (no fabrication). `PhysicsMotionRead.Validate` no longer overflows on a hostile tick (the fuzz corpus found `checked(tick * steps)`).
+- **Counter** target is `target_count: uint32`: 0 is `MissingField`, beyond Int32 is `OutOfRange`; `WholeCount` and the f32 threshold are deleted.
+- **Session** is required on commands and responses (`MissingField`), never defaulted.
+- **Save pre-validation** (`WorkshopSavePrevalidation.Check`) runs on the verified record before any domain value is built: required records and fields, defined enums, finite values, every per-kind range after the decoder's binary16 narrowing, declared materials, unique nonzero identities, resolving connection references, the connection rules (the domain's own `WorkshopConnections.Validate`, now over a part lookup, whose typed refusal becomes `InvalidConnection`), the named-goal rule and the allocator. `WorkshopSaveRejectionTests.PreValidationAdmitsExactlyWhatTheDomainAdmits` pins parity lane by lane (every f32 lane of every kind, specials, sweeps and every domain boundary found by bisection), so a range change on either side fails. Domain construction (`WorkshopSaveCodec.Construct`) catches nothing; `WorkshopSaveRejectedException` joins `WorkshopUiFailure.IsRejection`. Residual (typed refusals, not faults): an authored lesson's own settings rules (`PuzzleSettings`, Story 9A.26 deletes the lessons) and the workbench guide rule (`WorkbenchFullException`); both filed as F17-2. Deliberately stricter than the domain, because no encoder writes them: a Free save that carries a puzzle record, a precision outside [0, 1] for any lesson, and an inventory part that names no delivered element. `EveryAuthoredLessonSaveLoadsIncludingAMissingGoalPart` shows none of them refuses a real save. A Captured goal's parts are *not* required to be on the bench (the first candidate required it and refused CAT-062b's MissingReceiver save; the test now pins that).
+- **Reads and acknowledgements.** The Simulation publishes `Publish(read, readIdentity24, poseSlot, …)` and acknowledges `Acknowledge(response, sequence8, …)`; the browser sends `send(id, command, sequence8)`. `WorkshopPoseRing.ComposeSlot` builds the slot (header with the capture time, then one record per body), which `worker.js` copies under its sequence lock. `ResponseAbi`, `CommandAbi`, `extractReadIdentity` and the `sequence()` vtable parse are deleted. One `FlatBufferBuilder` is reused for every published read, and `CCGPU_RETAINED` prints the already encoded bytes.
+- **Not split:** `tools/e2e/workshop-wire.ts` keeps its hand-written helpers below a marker (splitting would change 25 importers for no behaviour); `schemas/README.md` records the exact regeneration commands (flatc 25.2.10, verified to reproduce the committed C# byte for byte).
+- **Proof** (`evidence-9a-2/`): red `red-compile.txt`; Tier 1 `tier1-build.txt` (0 warnings), `tier1-release-build.txt`, `tier1-test.txt` (2,244 tests, 0 failed), `tier1-node.txt` (10 harnesses), `wire-contract.json`, `lifecycle-contract.log`, `ownership-oracles.log` (`--oracles .`, exit 0); mutants `mutants.txt`, `mutants-style-off.txt`, `mutant-ts-ac2.txt` (17 code mutants and 3 re-add mutants, all red; the scripts are kept beside them); deletions `deletion-rg-proof.txt`; Chrome: `targeted-1/2` (working tree, before the commit; the first found the goal-reference over-strictness), `targeted-3-refused-load` (the new engine-core-2b1 test 2: a truncated, trailing-byte, unframed and foreign-identifier slot are each refused with the bench kept), the one Full run `e2e-full-052d1134`, **verdict Fail**: 43 of 44 suites passed and CAT-020 failed 2 tests because the suite read the Counter target from the deleted f32 threshold; `e2e-cat020-49a88043` is a targeted Pass of CAT-020 and the smoke pair after the suite-only fix (it reads `target_count`). AC6's single 100% Full run is therefore not yet met; a second Full run is the coordinator's call. `targeted-2` ended `verdict=IdentityChanged` (a suite file was edited during it; all five suites passed). The Full run's timing counters (clock-master closeFindings 1, unresponsive 1, debtFaults 1, renewedLate 1, recal 4; arch-9a-catalogue wideOffset 1) equal those of the 9A.14 and 9A.1 Full runs: pre-existing, unchanged.
+- **Left to Story 9A.15:** `PartId.ToNumericId`/`FromNumericId` no longer carry any wire or save identity, but `tools/Coverage` reads that table as its declared-identity list.
+
 ## Spec Change Log
+
+- 21 Oct 2026 (coordinator, owner rule): every version item dropped (the `UnsupportedVersion` reason, the v13 row, the version bumps of Tasks 5 and 9, AC4's trace bump). AC4 is now the typed pre-validation refusal.
 
 ## Review Triage Log
 

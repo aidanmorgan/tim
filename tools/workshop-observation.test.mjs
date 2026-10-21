@@ -121,7 +121,7 @@ for (const captureMode of [1, 2]) {
     const derivation = derivationHost();
     const host = {
         ...derivation,
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56], ScheduleRoles: () => [1, 2],
+        ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         AnimationPeer: () => new Uint8Array(64),
         PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
@@ -152,27 +152,26 @@ for (const captureMode of [1, 2]) {
     assert.equal(messages.filter(item => item.read || item.acknowledgement).length, 0, 'preparation cannot publish a world');
     releasePreparation();
     await preparing;
+    // A published read as C# hands it to the worker (Story 9A.2): its bytes, its 24-byte receipt identity (session, then
+    // publication) and its composed pose slot. The worker never parses the bytes.
     function publication(identity) {
-        const bytes = new Uint8Array(26640);
-        bytes.fill(7, 40, 56);
-        new DataView(bytes.buffer).setBigUint64(56, identity, true);
-        return bytes;
+        const bytes = new Uint8Array(64); new DataView(bytes.buffer).setBigUint64(0, identity, true);
+        const receipt = new Uint8Array(24); receipt.fill(7, 0, 16);
+        new DataView(receipt.buffer).setBigUint64(16, identity, true);
+        return { bytes, identity: receipt };
     }
-    function receipt(bytes) {
-        const value = new Uint8Array(24);
-        value.set(bytes.subarray(40, 56));
-        value.set(bytes.subarray(56, 64), 16);
-        return value;
-    }
+    const receipt = read => read.identity.slice();
+    const publish = (read, pending, retain) => imports.publish(read.bytes, read.identity, new Uint8Array(16), pending, retain);
+    const posted = () => messages.filter(item => item.read).at(-1);
     const first = publication(1n), final = publication(2n);
     for (let index = 0; index < 8; index++) {
         const running = publication(BigInt(index + 10));
-        imports.publish(running, false);
+        publish(running, false);
         await self.onmessage({ data: { readAcknowledged: receipt(running) } });
     }
     assert.equal(flushes, 0, 'ordinary Running reads never call the observation export');
-    imports.publish(first, false);
-    imports.publish(final, true);
+    publish(first, false);
+    publish(final, true);
     assert.equal(flushes, 0);
     const wrong = receipt(first); wrong[0] ^= 1;
     await self.onmessage({ data: { readAcknowledged: wrong } });
@@ -190,7 +189,7 @@ for (const captureMode of [1, 2]) {
     assert.equal(flushes, 1, 'duplicate receipt does not flush again');
     throwOutput = true;
     const last = publication(3n);
-    imports.publish(last, true);
+    publish(last, true);
     const failuresBefore = messages.filter(item => item.failure).length;
     await self.onmessage({ data: { readAcknowledged: receipt(last) } });
     assert.equal(flushes, 2);
@@ -198,7 +197,8 @@ for (const captureMode of [1, 2]) {
     throwOutput = false;
     const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
     await Promise.resolve();
-    imports.acknowledge(new Uint8Array(26640), true);
+    imports.acknowledge(new Uint8Array(64), new Uint8Array(8), true);
+    assert.equal(messages.at(-1).sequence.length, 8, 'an acknowledgement carries the 8-byte sequence C# handed over');
     assert.equal(flushes, 2);
     release();
     await reset;
@@ -207,31 +207,31 @@ for (const captureMode of [1, 2]) {
     await self.onmessage({ data: { reliableStalled: false } });
     assert.deepEqual(stallStates, [true, false], 'actual worker forwards current boolean state');
     const held = publication(100n), eventOne = publication(102n), eventTwo = publication(104n), latest = publication(105n);
-    imports.publish(held, false);
-    imports.publish(publication(101n), false);
+    publish(held, false);
+    publish(publication(101n), false);
     assert.equal(imports.reserveOccurrenceRead(), true);
-    imports.publish(eventOne, false, true);
-    imports.publish(publication(103n), false);
+    publish(eventOne, false, true);
+    publish(publication(103n), false);
     assert.equal(imports.reserveOccurrenceRead(), true);
-    imports.publish(eventTwo, false, true);
-    imports.publish(latest, false);
+    publish(eventTwo, false, true);
+    publish(latest, false);
     const controlsBefore = messages.filter(item => item.scheduleControl).length;
     imports.scheduleControl(new Uint8Array([7]), 1);
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore);
     for (const expected of [eventOne, eventTwo, latest]) {
-        const current = messages.filter(item => item.read).at(-1).read;
-        await self.onmessage({ data: { readAcknowledged: receipt(current) } });
-        assert.deepEqual(messages.filter(item => item.read).at(-1).read, expected);
+        assert.equal(posted().readIdentity.length, 24, 'the worker posts the C# receipt identity with its read');
+        await self.onmessage({ data: { readAcknowledged: posted().readIdentity } });
+        assert.deepEqual(posted().read, expected.bytes);
         assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore,
             'installation cannot overtake a committed occurrence or final endpoint');
     }
     await self.onmessage({ data: { readAcknowledged: receipt(latest) } });
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore + 1);
     const capacityHeld = publication(200n);
-    imports.publish(capacityHeld, false);
+    publish(capacityHeld, false);
     for (let index = 0; index < 64; index++) {
         assert.equal(imports.reserveOccurrenceRead(), true);
-        imports.publish(publication(BigInt(201 + index)), false, true);
+        publish(publication(BigInt(201 + index)), false, true);
     }
     assert.equal(imports.reserveOccurrenceRead(), false, 'backpressure precedes the next GPU commit');
     await self.onmessage({ data: { readAcknowledged: receipt(capacityHeld) } });
@@ -253,7 +253,7 @@ for (const control of Object.values(StartupControl)) {
     let rejectPreparation;
     const host = {
         ...derivationHost(),
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56], ScheduleRoles: () => [1, 2],
+        ScheduleRoles: () => [1, 2],
         CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         AnimationPeer: () => new Uint8Array(64),
         PrepareGpu: () => new Promise((_, reject) => { rejectPreparation = reject; })
@@ -272,21 +272,18 @@ for (const control of Object.values(StartupControl)) {
     console.log(JSON.stringify({ startupControl: control, passed: true }));
 }
 
-// The transport's minimum width comes from the managed canonical ABI. Story 9R.5b: a construction command is as wide as its own
-// machine, so there is no maximum; the managed decoder admits or rejects the exact shape.
+// Story 9A.2: the worker reads no command width or layout. Every byte buffer goes to the one managed decoder, which admits or
+// refuses its exact framed shape; only a non-buffer envelope is the transport's own rejection.
 {
     let dispatched = 0;
-    const host = {
-        CommandAbi: () => [72], ResponseAbi: () => [144, 40, 56],
-        ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; }
-    };
+    const host = { ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; } };
     const { self, messages } = await loadWorker(host);
-    for (const width of [72, 1672, 5768, 70000]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
+    for (const width of [0, 7, 72, 70000]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
     assert.equal(dispatched, 4);
-    for (const width of [0, 71]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
+    await self.onmessage({ data: { bytes: [1, 2, 3] } });
     assert.equal(dispatched, 4);
-    assert.equal(messages.filter(message => message.rejected).length, 2);
-    console.log(JSON.stringify({ canonicalCommandWidth: true, accepted: [72, 1672, 5768, 70000], rejected: [0, 71] }));
+    assert.equal(messages.filter(message => message.rejected).length, 1);
+    console.log(JSON.stringify({ commandsReachTheManagedDecoder: true, dispatched: [0, 7, 72, 70000], rejected: ['array'] }));
 }
 
 // Blind hunter 10 (Story 9.4b final round): a scheduler turn that cannot resume is reported through the failure envelope,
@@ -294,7 +291,7 @@ for (const control of Object.values(StartupControl)) {
 {
     const resumed = [];
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56], ScheduleRoles: () => [1, 2],
+        ScheduleRoles: () => [1, 2],
         ResumeTurn: turn => { resumed.push(turn); if (turn === 7) throw new Error('Scheduler turn 7 was never requested.'); }
     };
     const { messages, imports } = await loadWorker(host);
@@ -308,7 +305,7 @@ for (const control of Object.values(StartupControl)) {
 }
 {
     const resumed = [];
-    const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56], ScheduleRoles: () => [1, 2], ResumeTurn: turn => resumed.push(turn) };
+    const host = { ScheduleRoles: () => [1, 2], ResumeTurn: turn => resumed.push(turn) };
     // Instrumented timers and turn channel: disposal must cancel the timed turn and close the channel, not merely rely on
     // the disposed guard (reviewer mutation: delete the cleanup and only the guard remains).
     const turnTimers = [], cleared = new Set(), closed = [];

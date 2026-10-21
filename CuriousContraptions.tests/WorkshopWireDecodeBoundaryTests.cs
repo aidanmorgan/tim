@@ -2,10 +2,10 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>The FlatBuffers decoders are a typed boundary: any malformed buffer is rejected with ArgumentException (the
-/// codec-sniffing callers depend on exactly that type) and never with a runtime exception from the buffer reader.
-/// The corpus is deterministic: every truncation and every single-bit flip of valid commands and responses, oversized
-/// and prefixed buffers, fixed-binary encodings of the other wire, and seeded random buffers.</summary>
+/// <summary>The one codec's decoders are a typed boundary (Story 9A.2): a malformed buffer is refused by its frame's typed
+/// WireFaultException or, once verified, by a decoded value's ArgumentException, never by a runtime exception from the buffer
+/// reader or the verifier. The corpus is deterministic: every truncation and every single-bit flip of valid commands and
+/// responses, oversized and prefixed buffers, and seeded random buffers.</summary>
 public sealed class WorkshopWireDecodeBoundaryTests
 {
     private static readonly RuntimeSessionId Session = new(0x1122334455667788UL, 0x8877665544332211UL);
@@ -20,21 +20,7 @@ public sealed class WorkshopWireDecodeBoundaryTests
     private static WorkshopResponse Acknowledgement() => new(new(10), WorkshopResponseKind.Acknowledgement,
         new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, default, Session: Session);
 
-    private static WorkshopResponse PhysicalRead()
-    {
-        var master = new ClockGeneration(1);
-        var stamp = new WorkshopClockStamp(WorkshopClockDomain.SimulationMonotonic, master, new(1_000_000), new(100));
-        var body = new PhysicsBodyRead(new CanonicalBody(new(1), 1, 1, default, default, default), CanonicalRotation.Identity, default, default);
-        var work = new ContactWorkRead(new(40), new(1), 1, new(16f), new(4f));
-        var occurrence = new ContactWorkOccurrence(new(0), new(1), new(1), 1, 8, (Half)0.5f, new ContactSpeed(4f), new Joules(8f), ContactWorkEffect.Paid);
-        var read = new WorkshopRead(new(1), new(1), new PhysicsBodyReadSet(new[] { body }), new(1), stamp,
-            new PhysicsCaptureRead(new[] { CaptureLatch.Clear(new(9)) }), null,
-            ContactWorks: new PhysicsContactWorkRead(new[] { work }, new[] { occurrence }),
-            Electrical: new PhysicsElectricalRead(new[] { new ElectricalSourceRead(new(50), new(1), new Joules(100f), new Joules(5f), ElectricalEnable.Enabled) }));
-        return new(default, WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
-            WorkshopSimulationPhase.Running, read, Session: Session, Publication: new(1), Cadence: new(1),
-            MasterGeneration: master, Projection: new(1), SourcePulse: new(1));
-    }
+    private static WorkshopResponse PhysicalRead() => WireFaultTests.PhysicalRead(3);
 
     private static IEnumerable<byte[]> Corpus(byte[] valid, Random random)
     {
@@ -74,68 +60,39 @@ public sealed class WorkshopWireDecodeBoundaryTests
         }
     }
 
-    // Returns the first decode failure whose type is not ArgumentException (or a subclass), or null.
+    // Returns the first decode failure that is neither the frame's typed fault nor a decoded value's ArgumentException, or null.
     private static string? FirstUntypedRejection(IEnumerable<byte[]> buffers, Action<byte[]> decode)
     {
         var index = 0;
         foreach (var bytes in buffers)
         {
             var error = Record.Exception(() => decode(bytes));
-            if (error is not (null or ArgumentException))
-                return $"buffer {index} ({bytes.Length} bytes): {error.GetType().FullName}: {error.Message}";
+            if (error is not (null or WireFaultException or ArgumentException))
+                return $"buffer {index} ({bytes.Length} bytes): {error.GetType().FullName}: {error.Message} {error.StackTrace}";
             index++;
         }
         return null;
     }
 
     [Fact]
-    public void MalformedCommandsAreRejectedOnlyWithArgumentException()
+    public void MalformedCommandsAreRejectedOnlyAsTypedFaults()
     {
         var random = new Random(20261018);
         var buffers = new[] { RunCommand(), ConstructCommand() }
             .SelectMany(command => Corpus(WorkshopWireFlatBuffers.EncodeCommand(command), random))
-            .Concat(Corpus(WorkshopWire.Encode(ConstructCommand()), random))
+            .Concat(Corpus(WorkshopWireFlatBuffers.EncodeCommand(ConstructCommand()), random))
             .Concat(RandomBuffers(random));
-        Assert.Null(FirstUntypedRejection(buffers, bytes => WorkshopWireFlatBuffers.DecodeCommand(bytes)));
+        var escaped = FirstUntypedRejection(buffers, bytes => WorkshopWireFlatBuffers.DecodeCommand(bytes)); Assert.True(escaped is null, escaped);
     }
 
     [Fact]
-    public void MalformedResponsesAreRejectedOnlyWithArgumentException()
+    public void MalformedResponsesAreRejectedOnlyAsTypedFaults()
     {
         var random = new Random(20261019);
         var buffers = new[] { Acknowledgement(), PhysicalRead() }
             .SelectMany(response => Corpus(WorkshopWireFlatBuffers.EncodeResponse(response), random))
             .Concat(RandomBuffers(random));
-        Assert.Null(FirstUntypedRejection(buffers, bytes => WorkshopWireFlatBuffers.DecodeResponse(bytes)));
+        var escaped = FirstUntypedRejection(buffers, bytes => WorkshopWireFlatBuffers.DecodeResponse(bytes)); Assert.True(escaped is null, escaped);
     }
 
-    // The sniffing callers fall back to the fixed-binary decoders, which form the same typed boundary.
-    [Fact]
-    public void MalformedFixedBinaryCommandsAreRejectedOnlyWithArgumentException()
-    {
-        var random = new Random(20261020);
-        var buffers = Corpus(WorkshopWire.Encode(ConstructCommand()), random)
-            .Concat(Corpus(WorkshopWire.Encode(RunCommand()), random))
-            .Concat(Corpus(WorkshopWireFlatBuffers.EncodeCommand(ConstructCommand()), random))
-            .Concat(RandomBuffers(random));
-        Assert.Null(FirstUntypedRejection(buffers, bytes => WorkshopWire.DecodeCommand(bytes)));
-    }
-
-    [Fact]
-    public void MalformedFixedBinaryResponsesAreRejectedOnlyWithArgumentException()
-    {
-        var random = new Random(20261021);
-        var buffers = Corpus(WorkshopWire.Encode(Acknowledgement()), random)
-            .Concat(Corpus(WorkshopWireFlatBuffers.EncodeResponse(PhysicalRead()), random))
-            .Concat(RandomBuffers(random));
-        Assert.Null(FirstUntypedRejection(buffers, bytes => WorkshopWire.DecodeResponse(bytes)));
-    }
-
-    [Fact]
-    public void FixedBinaryCommandsAreRejectedByTheFlatBuffersDecoderWithArgumentException()
-    {
-        var bytes = WorkshopWire.Encode(ConstructCommand());
-        Assert.ThrowsAny<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
-        Assert.Equal(WorkshopCommandKind.Construct, WorkshopWire.DecodeCommand(bytes).Kind);
-    }
 }

@@ -4,34 +4,26 @@ using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>The codec a command's acknowledgement answers in: the command's own.</summary>
-public enum WorkshopResponseCodec : uint { FlatBuffers = 1, Binary = 2 }
+/// <summary>A dispatched command's sequence (its acknowledgement's key, handed to the browser with the response so no script
+/// parses a buffer) and its encoded response.</summary>
+public readonly record struct WorkshopRoutedCommand(CommandSequence Sequence, Task<byte[]> Response);
 
-/// <summary>Two bounded reliable original requests/results, including one cancellation control.</summary>
-public sealed class WorkshopCommandRouter(Func<WorkshopCommand, WorkshopResponseCodec, Task<byte[]>> execute)
+/// <summary>Two bounded reliable original requests/results, including one cancellation control. Each command is decoded once by
+/// the one codec; a refused buffer is its <see cref="WireFaultException"/> and never reaches the executor.</summary>
+public sealed class WorkshopCommandRouter(Func<WorkshopCommand, Task<byte[]>> execute)
 {
     private ulong _lastSequence;
     private readonly Dictionary<ulong, (byte[] Request, Task<byte[]> Result)> _retained = new(2);
 
-    public Task<byte[]> Dispatch(byte[] bytes)
+    public WorkshopRoutedCommand Dispatch(byte[] bytes)
     {
-        var isFlatBuffer = false;
-        WorkshopCommand command;
-        try
-        {
-            command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
-            isFlatBuffer = true;
-        }
-        catch (ArgumentException)
-        {
-            // Not a FlatBuffers command (its decoder rejects foreign bytes with ArgumentException): fixed binary.
-            command = WorkshopWire.DecodeCommand(bytes);
-        }
+        ArgumentNullException.ThrowIfNull(bytes);
+        var command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
         if (_retained.TryGetValue(command.Sequence.Value, out var existing))
         {
             if (!bytes.AsSpan().SequenceEqual(existing.Request))
                 throw new ArgumentException("Duplicate sequence carries a different command.");
-            return existing.Result;
+            return new(command.Sequence, existing.Result);
         }
         if (_lastSequence == ulong.MaxValue || command.Sequence.Value != _lastSequence + 1)
             throw new ArgumentException("Command sequence is not the next reliable request.");
@@ -43,12 +35,10 @@ public sealed class WorkshopCommandRouter(Func<WorkshopCommand, WorkshopResponse
             if (retired == 0) throw new InvalidOperationException("Reliable command result capacity is full.");
         }
         var owned = (byte[])bytes.Clone();
-        // The binary response's width is its read's populations (Story 9R.5b), so it is encoded when the result exists.
-        var codec = isFlatBuffer ? WorkshopResponseCodec.FlatBuffers : WorkshopResponseCodec.Binary;
         if (retired != 0) _retained.Remove(retired);
         _lastSequence = command.Sequence.Value;
-        var result = execute(command, codec);
+        var result = execute(command);
         _retained.Add(command.Sequence.Value, (owned, result));
-        return result;
+        return new(command.Sequence, result);
     }
 }

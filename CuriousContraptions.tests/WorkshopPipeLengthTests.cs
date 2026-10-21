@@ -248,9 +248,6 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     public void TheCommandWireRoundTripsTheLength(float metres)
     {
         var construction = Bench(metres);
-        var bytes = new byte[WorkshopWire.ConstructionBytes(construction)];
-        WorkshopWire.WriteConstruction(bytes, construction);
-        Assert.Equal(construction, WorkshopWire.ReadConstruction(bytes));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction, Session: new(1, 2),
             Cadence: new(1), Projection: new(1));
         Assert.Equal(construction, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Construction);
@@ -259,27 +256,19 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     [Fact]
     public void TheCommandWireRejectsAPipeWithoutItsLength()
     {
-        var construction = Bench(2);
-        var bytes = new byte[WorkshopWire.ConstructionBytes(construction)];
-        WorkshopWire.WriteConstruction(bytes, construction);
-        var slot = bytes.AsSpan(WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes, WorkshopWire.InstanceBytes);
-        slot[112..116].Clear();
-        Assert.Throws<ArgumentException>(() => WorkshopWire.ReadConstruction(bytes));
-        WorkshopWire.WriteConstruction(bytes, construction);
-        slot[116] = 1; // non-zero padding after the length
-        Assert.Throws<ArgumentException>(() => WorkshopWire.ReadConstruction(bytes));
+        var bench = Bench(2);
+        var stored = bench with { Instances = new(bench.Instances[0], (WorkshopPipe)bench.Instances[1] with { Length = new(0) }) };
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        builder.Finish(WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, stored, validate: false).Value);
+        var record = CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray()));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(record));
     }
 
     private static byte[] RawSave(WorkshopConstruction construction)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction, validate: false);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, record);
-        builder.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value);
-        return builder.SizedByteArray();
+        return SaveFixture.Finish(builder, record, 3);
     }
 
     [Theory]
@@ -292,7 +281,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     {
         var bench = Bench(2);
         var stored = bench with { Instances = new(bench.Instances[0], (WorkshopPipe)bench.Instances[1] with { Length = new(metres) }) };
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(RawSave(stored)));
+        SaveFixture.Refused(float.IsFinite(metres) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(RawSave(stored)));
         // Control: the same hand-built record with an admitted length decodes.
         Assert.Equal(bench, WorkshopSaveCodec.Decode(RawSave(bench)).Construction);
     }

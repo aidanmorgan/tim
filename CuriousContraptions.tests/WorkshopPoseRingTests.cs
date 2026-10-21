@@ -6,6 +6,20 @@ namespace CuriousContraptions.tests;
 
 public class WorkshopPoseRingTests
 {
+    /// <summary>The Simulation worker's publication of one C#-composed slot (worker.js writePoseRing): the ring must already hold
+    /// the read's bodies (the worker grows it first), the slot is copied verbatim after its sequence word, and the records past
+    /// the read are cleared.</summary>
+    private static void Publish(byte[] ring, int slot, ulong sequence, long timestamp, PhysicsBodyReadSet bodies)
+    {
+        var capacity = WorkshopPoseRing.BodyCapacity(ring.Length);
+        var composed = WorkshopPoseRing.ComposeSlot(timestamp, bodies);
+        if (composed.Length > WorkshopPoseRing.SlotBytes(capacity)) throw new ArgumentException("The worker grows the ring before this read.");
+        var target = ring.AsSpan(WorkshopPoseRing.SlotOffset(slot, capacity), WorkshopPoseRing.SlotBytes(capacity));
+        target.Clear();
+        composed.AsSpan(sizeof(ulong)).CopyTo(target[sizeof(ulong)..]);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(target, sequence);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(WorkshopPoseRing.InitialBodyCapacity)]
@@ -68,7 +82,7 @@ public class WorkshopPoseRingTests
         var sequence = 42UL;
         var timestampNs = 123456789L;
 
-        WorkshopPoseRing.WriteSlot(ring, 1, sequence, timestampNs, bodySet);
+        Publish(ring, 1, sequence, timestampNs, bodySet);
 
         Span<PoseRingBody> bodies = stackalloc PoseRingBody[16];
         var success = WorkshopPoseRing.TryReadSlot(ring, 1, out var readSeq, out var readTimestamp, bodies, out var readCount);
@@ -112,13 +126,13 @@ public class WorkshopPoseRingTests
                 CanonicalRotation.Identity, default, default);
         var set = new PhysicsBodyReadSet(bodies);
         var ring = new byte[WorkshopPoseRing.TotalBytes(17)];
-        WorkshopPoseRing.WriteSlot(ring, 2, 8UL, 5L, set);
+        Publish(ring, 2, 8UL, 5L, set);
         Span<PoseRingBody> read = stackalloc PoseRingBody[17];
         Assert.True(WorkshopPoseRing.TryReadSlot(ring, 2, out _, out _, read, out var count));
         Assert.Equal(17, count);
         Assert.Equal(new GpuBodyId(17), read[16].Id);
         Assert.Throws<ArgumentException>(() =>
-            WorkshopPoseRing.WriteSlot(new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)], 0, 8UL, 5L, set));
+            Publish(new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)], 0, 8UL, 5L, set));
     }
 
     [Fact]
@@ -127,7 +141,7 @@ public class WorkshopPoseRingTests
         var ring = new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)];
         var bodySet = new PhysicsBodyReadSet([]);
         // Odd sequence means write in progress (Writer Protocol: 2k + 1)
-        WorkshopPoseRing.WriteSlot(ring, 0, 7UL, 1000L, bodySet);
+        Publish(ring, 0, 7UL, 1000L, bodySet);
 
         Span<PoseRingBody> bodies = stackalloc PoseRingBody[16];
         var success = WorkshopPoseRing.TryReadSlot(ring, 0, out _, out _, bodies, out _);

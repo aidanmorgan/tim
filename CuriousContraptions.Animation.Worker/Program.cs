@@ -108,7 +108,7 @@ public static partial class Program
                     expectedRevision != (_schedule?.Revision ?? default) || expectedProjection != (_schedule?.World.Epoch ?? default) ||
                     header.Revision.Value < expectedRevision.Value || header.Projection.Value <= expectedProjection.Value)
                     throw new ArgumentException("Stale Animation installation.");
-                var endpoint = WorkshopWire.DecodeResponse(data[80..]);
+                var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
                 if (endpoint.Session != Peer.Session || endpoint.MasterGeneration != Peer.Generation ||
                     endpoint.Cadence != header.Revision || endpoint.Projection != header.Projection ||
                     endpoint.Read.Epoch.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[56..]) ||
@@ -330,7 +330,7 @@ public static partial class Program
         if (!Half.IsFinite(channel) || channel < (Half)0 || channel > (Half)1)
             throw new ArgumentException("Invalid evaluated channel.");
         Output.AsSpan().Clear();
-        WorkshopWire.WriteSession(Output, Peer.Session);
+        Peer.Session.WriteTo(Output.AsSpan(0, RuntimeSessionId.ByteLength));
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(16), Peer.Generation.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(24), (cadence ?? _schedule!.Value.Revision).Value);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(32), control.Generation);

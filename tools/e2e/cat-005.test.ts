@@ -432,19 +432,21 @@ test('Battery electrical animation survives same-world cadence downshift through
             }
         });
         // No cadence UI exists. This is explicitly a protocol-boundary Chrome regression, not UI acceptance.
-        const result=await driver.page.evaluate(async data=>{
+        // Story 9A.2: the transport keys a command by the 8-byte sequence C# hands it, never by parsing the command.
+        const sequenceKey=Buffer.alloc(8);sequenceKey.writeBigUInt64LE(read.sequence()+1n);
+        const result=await driver.page.evaluate(async ([data,key])=>{
             const modulePath='/workshop-client.js'; // Browser-served module, not a Node package.
             const transport=await import(modulePath) as {
-                send(id:number,bytes:Uint8Array):Promise<void>;
+                send(id:number,bytes:Uint8Array,sequence:Uint8Array):Promise<void>;
                 acknowledgement(id:number,identity:Uint8Array):Uint8Array;
                 completeAcknowledgement(id:number,identity:Uint8Array):void;
             };
-            const bytes=new Uint8Array(data);
-            await transport.send(1,bytes);
-            const reply=transport.acknowledgement(1,bytes);
-            transport.completeAcknowledgement(1,bytes);
+            const bytes=new Uint8Array(data),sequence=new Uint8Array(key);
+            await transport.send(1,bytes,sequence);
+            const reply=transport.acknowledgement(1,sequence);
+            transport.completeAcknowledgement(1,sequence);
             return Array.from(reply);
-        },Array.from(bytes));
+        },[Array.from(bytes),Array.from(sequenceKey)]);
         const response=Buffer.from(result);
         const respFb=decodeWorkshopResponse(response);
         assert.equal(respFb.outcome(), CommandOutcome.Applied,'Existing ConfigureCadence command is applied');

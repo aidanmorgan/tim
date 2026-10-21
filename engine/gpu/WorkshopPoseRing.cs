@@ -58,20 +58,19 @@ public static class WorkshopPoseRing
         return SlotOffset(slot, bodyCapacity) + HeaderBytes + bodyIndex * BodyBytes;
     }
 
-    /// <summary>Writes one complete slot. A ring too small for the body set is a defect (the worker grows the ring first): nothing
-    /// is ever truncated.</summary>
-    public static void WriteSlot(Span<byte> ring, int slot, ulong sequence, long timestampNanoseconds, PhysicsBodyReadSet bodies)
+    /// <summary>One committed read's slot, composed in C# (Story 9A.2): the 16-byte header (sequence 0, the read's capture time in
+    /// nanoseconds) and one record per committed body. The Simulation worker copies it into the ring verbatim under its sequence
+    /// lock, growing the ring first when the read holds more bodies, and clears the records past it; no script reads a body layout.</summary>
+    public static byte[] ComposeSlot(long timestampNanoseconds, PhysicsBodyReadSet bodies)
     {
-        var capacity = BodyCapacity(ring.Length);
-        if (bodies.Count > capacity) throw new ArgumentException("The pose ring must grow before it holds this body set.");
-        var slotSpan = ring.Slice(SlotOffset(slot, capacity), SlotBytes(capacity));
+        var slot = new byte[SlotBytes(bodies.Count)];
+        BinaryPrimitives.WriteInt64LittleEndian(slot.AsSpan(8), timestampNanoseconds);
+        WriteBodies(slot.AsSpan(HeaderBytes), bodies);
+        return slot;
+    }
 
-        // Write header
-        BinaryPrimitives.WriteUInt64LittleEndian(slotSpan, sequence);
-        BinaryPrimitives.WriteInt64LittleEndian(slotSpan[8..], timestampNanoseconds);
-
-        // Write bodies
-        var bodyData = slotSpan[HeaderBytes..];
+    private static void WriteBodies(Span<byte> bodyData, PhysicsBodyReadSet bodies)
+    {
         bodyData.Clear();
         for (var i = 0; i < bodies.Count; i++)
         {

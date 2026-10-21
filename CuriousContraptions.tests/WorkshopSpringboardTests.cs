@@ -149,13 +149,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
                     new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(invalidSettings)));
                 var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
                 var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
-                CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-                CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-                CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-                CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-                var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-                builder.Finish(end.Value);
-                EditRefusal.Is(WorkshopEditRejection.OutOfRange, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+                var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
+                SaveFixture.Refused(float.IsFinite(invalidSettings.Stiffness) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
                 Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
             }
         }
@@ -236,13 +231,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(float.NaN, damping))));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.OutOfRange, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
+        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
         Assert.Equal(save, WorkshopSaveCodec.Decode(encoded));
     }
 
@@ -282,13 +272,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
                 new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(400, .2f, compression))));
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
-            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-            builder.Finish(end.Value);
-            EditRefusal.Is(WorkshopEditRejection.OutOfRange, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
+            SaveFixture.Refused(float.IsFinite(compression) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
         }
         finally { part.Free(); }

@@ -488,10 +488,6 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
                 Power(battery.Id, latch.Id), new(latch.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         construction.Validate();
 
-        Span<byte> binary = stackalloc byte[WorkshopWire.ConstructionBytes(construction)];
-        WorkshopWire.WriteConstruction(binary, construction);
-        AssertSame(construction, WorkshopWire.ReadConstruction(binary));
-
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), default, construction,
             Session: new RuntimeSessionId(1, 2), Cadence: new(1), Projection: new(1));
         AssertSame(construction, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Construction!.Value);

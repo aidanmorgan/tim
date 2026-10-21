@@ -24,7 +24,7 @@ public static class WorkshopAnimationWire
         session.Validate(); cadence.Validate(); Validate(control);
         if (master.Value == 0) throw new ArgumentException("Invalid animation master.");
         var bytes = new byte[ControlBytes];
-        WorkshopWire.WriteSession(bytes, session);
+        session.WriteTo(bytes.AsSpan(0, RuntimeSessionId.ByteLength));
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(16), master.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(24), cadence.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(32), control.Sequence);
@@ -135,7 +135,7 @@ public static class WorkshopAnimationWire
     };
     private static void Identity(ReadOnlySpan<byte> bytes, int length, RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence)
     {
-        if (bytes.Length != length || WorkshopWire.ReadSession(bytes[..16]) != session ||
+        if (bytes.Length != length || RuntimeSessionId.Read(bytes[..16]) != session ||
             BinaryPrimitives.ReadUInt64LittleEndian(bytes[16..]) != master.Value ||
             BinaryPrimitives.ReadUInt64LittleEndian(bytes[24..]) != cadence.Value)
             throw new ArgumentException("Invalid animation identity.");

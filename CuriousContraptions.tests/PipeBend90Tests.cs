@@ -156,8 +156,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal(72, decodedBend.DeclaredColliders.Count);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
-        var bb = new Google.FlatBuffers.ByteBuffer(bytes);
-        var fbSave = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(bb);
+        var fbSave = WorkshopSaveCodec.Open(bytes);
         Assert.True(fbSave.Construction.HasValue);
         var fbBend = fbSave.Construction.Value.Instances(1);
         Assert.True(fbBend.HasValue);

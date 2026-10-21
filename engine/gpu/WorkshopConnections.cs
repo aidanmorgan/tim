@@ -137,6 +137,15 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     }
     public void Validate(WorkshopInstances instances)
     {
+        ArgumentNullException.ThrowIfNull(instances);
+        Validate(id => instances.FirstOrDefault(part => part.Id == id)?.PartId);
+    }
+
+    /// <summary>The connection rules over the parts the construction names: a typed refusal for every inadmissible connection.
+    /// A stored save's pre-validation applies them to its saved part identities before any instance is constructed.</summary>
+    internal void Validate(Func<GpuBodyId, PartId?> partOf)
+    {
+        ArgumentNullException.ThrowIfNull(partOf);
         var seen = new HashSet<WorkshopConnection>();
         foreach (var link in _items)
         {
@@ -144,11 +153,11 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                 !Enum.IsDefined(link.Output) || !Enum.IsDefined(link.Input) ||
                 !Enum.IsDefined(link.Domain) || !seen.Add(link))
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported or duplicate connection.");
-            var source = instances.FirstOrDefault(part => part.Id == link.Source);
-            var target = instances.FirstOrDefault(part => part.Id == link.Target);
+            var source = partOf(link.Source);
+            var target = partOf(link.Target);
             if (source is null || target is null ||
-                !WorkshopPorts.Has(source.PartId, link.Output, link.Domain, WorkshopPortDirection.Output) ||
-                !WorkshopPorts.Has(target.PartId, link.Input, link.Domain, WorkshopPortDirection.Input))
+                !WorkshopPorts.Has(source.Value, link.Output, link.Domain, WorkshopPortDirection.Output) ||
+                !WorkshopPorts.Has(target.Value, link.Input, link.Domain, WorkshopPortDirection.Input))
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Connection does not own matching declared ports.");
             if (link.Domain == WorkshopConnectionDomain.Activation)
             {
@@ -158,13 +167,13 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation input.");
                 // A level output (latch, plate) drives only an input that admits a level (the Signal lamp), and such an input then
                 // follows that one level alone. The rule reads the declared port kinds, never the part identity.
-                if (WorkshopPorts.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level &&
-                    WorkshopPorts.Signal(target.PartId, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)
+                if (WorkshopPorts.Signal(source.Value, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level &&
+                    WorkshopPorts.Signal(target.Value, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLampOnly, "A level output can only light a Signal lamp.");
                 var feeds = _items.Where(other => other.Domain == WorkshopConnectionDomain.Activation && other.Target == link.Target && other.Input == link.Input).ToArray();
-                if (feeds.Length > 1 && feeds.Any(other => instances.FirstOrDefault(part => part.Id == other.Source) is { } feeder &&
-                        WorkshopPorts.Has(feeder.PartId, other.Output, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output) &&
-                        WorkshopPorts.Signal(feeder.PartId, other.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+                if (feeds.Length > 1 && feeds.Any(other => partOf(other.Source) is { } feeder &&
+                        WorkshopPorts.Has(feeder, other.Output, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output) &&
+                        WorkshopPorts.Signal(feeder, other.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.LampFollowsOneLevel, "A lamp that follows a level output takes no other signal.");
             }
             else

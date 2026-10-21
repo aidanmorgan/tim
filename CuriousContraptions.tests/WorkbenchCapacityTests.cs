@@ -246,7 +246,7 @@ public sealed class WorkbenchCapacityTests
         var response = new WorkshopResponse(new(4), WorkshopResponseKind.Acknowledgement, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Building, read, new(1, 2), default, new(1), new(1), new(1), new(0));
         foreach (var decoded in new[] { WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)),
-            WorkshopWire.DecodeResponse(WorkshopWire.Encode(response)) })
+            WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)) })
         {
             Assert.Equal(70_000u, decoded.Read.ContactWorks.Occurrence(0).Collider.Value);
             Assert.True(occurrence.HasSameBits(decoded.Read.ContactWorks.Occurrence(0)));

@@ -7,12 +7,12 @@ namespace CuriousContraptions.Gpu;
 
 public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Construction, GpuBodyId NextBodyId);
 
-/// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission. The game and its save
-/// ship in one bundle with one schema (owner decision, 21 Oct 2026): bytes that are not a structurally valid
-/// save of this schema are refused by the FlatBuffers verifier and the construction's own validation.</summary>
+/// <summary>Construction-only storage boundary; shares the one construction record codec with GPU admission. The game and its save
+/// ship in one bundle with one schema (owner decision, 21 Oct 2026): a save is one size-prefixed "CCWS" FlatBuffers root, and
+/// stored bytes that are not an admissible save of this schema are refused structurally, never migrated.</summary>
 public static class WorkshopSaveCodec
 {
-    public const uint Magic = 0x53574343; // CCWS
+    public const string Identifier = "CCWS";
 
     public static byte[] Encode(WorkshopSavedConstruction save)
     {
@@ -20,62 +20,62 @@ public static class WorkshopSaveCodec
         save.Construction.Validate();
         if (!AllocatorIsValid(save)) throw new ArgumentException("Saved construction allocator is invalid.");
         var builder = new FlatBufferBuilder(2048);
-        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, save.Construction);
+        var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, save.Construction);
         SavedConstruction.StartSavedConstruction(builder);
-        SavedConstruction.AddMagic(builder, Magic);
         SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
-        SavedConstruction.AddConstruction(builder, crOffset);
-        var end = SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
+        SavedConstruction.AddConstruction(builder, record);
+        builder.FinishSizePrefixed(SavedConstruction.EndSavedConstruction(builder).Value, Identifier);
         return builder.SizedByteArray();
     }
 
-    /// <summary>Untrusted stored bytes. A malformed save is the player's refusal (UnsupportedSave, with the failure as its
-    /// cause); a rule's own rejection keeps its reason; any other exception is a defect and escapes as one.</summary>
+    /// <summary>The browser store's text (untrusted): base64 of one save.</summary>
+    public static WorkshopSavedConstruction DecodeStored(string stored)
+    {
+        ArgumentNullException.ThrowIfNull(stored);
+        var bytes = new byte[stored.Length];
+        if (!Convert.TryFromBase64String(stored, bytes, out var length))
+            throw new WorkshopSaveRejectedException(WorkshopSaveRejection.NotBase64, "This save cannot be loaded: the stored text is not a save.");
+        return Decode(bytes.AsSpan(0, length));
+    }
+
+    /// <summary>Untrusted stored bytes. Structural pre-validation runs first and is the only refusal
+    /// (<see cref="WorkshopSaveRejectedException"/>); domain construction then runs on an admitted record, and any exception it
+    /// raises is a defect that escapes as itself.</summary>
     public static WorkshopSavedConstruction Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length < 16) throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
-        var save = Read(bytes);
-        try { save.Construction.Validate(); }
-        // The structural validators' declared input rejection: the stored construction is not admissible.
-        catch (Exception error) when (IsInvalidStoredValue(error))
+        var saved = Open(bytes);
+        WorkshopSavePrevalidation.Check(saved);
+        return Construct(saved);
+    }
+
+    /// <summary>The verified save root: a frame fault is the save's typed refusal, naming the same reason.</summary>
+    internal static SavedConstruction Open(ReadOnlySpan<byte> bytes)
+    {
+        try { return SavedConstruction.GetRootAsSavedConstruction(WorkshopWireFlatBuffers.OpenFrame(bytes, Identifier, SavedConstructionVerify.Verify)); }
+        catch (WireFaultException fault)
         {
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, error.Message, error);
+            var reason = fault.Reason switch
+            {
+                WireFaultReason.Truncated => WorkshopSaveRejection.Truncated,
+                WireFaultReason.TrailingBytes => WorkshopSaveRejection.TrailingBytes,
+                WireFaultReason.UnknownIdentifier => WorkshopSaveRejection.UnknownIdentifier,
+                WireFaultReason.VerifierRejected => WorkshopSaveRejection.VerifierRejected,
+                _ => throw new InvalidOperationException($"The save frame cannot fault with {fault.Reason}.", fault),
+            };
+            throw new WorkshopSaveRejectedException(reason, "This save cannot be loaded: " + fault.Message, fault);
         }
-        if (!AllocatorIsValid(save))
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Saved construction allocator is invalid.");
+    }
+
+    /// <summary>Domain construction of a pre-validated save. Nothing here is a refusal: the domain's argument guards are
+    /// programmer-error faults.</summary>
+    internal static WorkshopSavedConstruction Construct(SavedConstruction saved)
+    {
+        var record = saved.Construction ?? throw new InvalidOperationException("A pre-validated save holds its construction.");
+        var save = new WorkshopSavedConstruction(WorkshopWireFlatBuffers.MapConstructionRecord(record), new(saved.NextBodyId));
+        save.Construction.Validate();
+        if (!AllocatorIsValid(save)) throw new InvalidOperationException("A pre-validated save's allocator is invalid.");
         return save;
     }
-
-    // The FlatBuffers reader and the record decoder: only here are the reader's bounds failures a malformed save.
-    private static WorkshopSavedConstruction Read(ReadOnlySpan<byte> bytes)
-    {
-        var bb = new ByteBuffer(bytes.ToArray());
-        try
-        {
-            if (!new Verifier(bb).VerifyBuffer(null, false, SavedConstructionVerify.Verify))
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
-            var saved = SavedConstruction.GetRootAsSavedConstruction(bb);
-            if (saved.Magic != Magic || !saved.Construction.HasValue)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave, "Unsupported construction save.");
-            return new(WorkshopWireFlatBuffers.DecodeConstructionRecord(saved.Construction.Value), new(saved.NextBodyId));
-        }
-        catch (Exception error) when (IsMalformedRecord(error))
-        {
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedSave,
-                error.GetType() == typeof(ArgumentException) ? error.Message : "Unsupported construction save.", error);
-        }
-    }
-
-    /// <summary>The structural validators' declared input rejection of a stored value: exactly ArgumentException, or
-    /// ArgumentOutOfRangeException for an out-of-range field. Anything else from validation is a defect.</summary>
-    internal static bool IsInvalidStoredValue(Exception error) =>
-        error.GetType() == typeof(ArgumentException) || error.GetType() == typeof(ArgumentOutOfRangeException);
-
-    /// <summary>What malformed record bytes produce while reading: the decoder's input rejection and the FlatBuffers
-    /// reader's own bounds failures (IndexOutOfRangeException, OverflowException), only inside Read.</summary>
-    internal static bool IsMalformedRecord(Exception error) =>
-        IsInvalidStoredValue(error) || error.GetType() == typeof(IndexOutOfRangeException) || error.GetType() == typeof(OverflowException);
 
     private static bool AllocatorIsValid(WorkshopSavedConstruction save) =>
         save.NextBodyId.Value != 0 && save.Construction.Instances.All(instance => save.NextBodyId.Value > instance.Id.Value);

@@ -388,14 +388,14 @@ public sealed class WorkshopWireTests
     {
         var command = new WorkshopCommand(new(7), WorkshopCommandKind.Pause, new(3), default, null,
             RevisionKind: ExpectedRevisionKind.Any, Session: Session, Cadence: new(2), Projection: new(4));
-        var decoded = WorkshopWire.DecodeCommand(WorkshopWire.Encode(command));
-        Assert.True(WorkshopWire.Matches(decoded, new(3), new(42), Session, new(2), new(4)));
-        Assert.False(WorkshopWire.Matches(decoded, new(4), new(42), Session, new(2), new(4)));
-        Assert.False(WorkshopWire.Matches(decoded, new(3), new(42), new(99, 100), new(2), new(4)));
-        Assert.False(WorkshopWire.Matches(decoded, new(3), new(42), Session, new(3), new(4)));
-        Assert.False(WorkshopWire.Matches(decoded, new(3), new(42), Session, new(2), new(5)));
+        var decoded = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command));
+        Assert.True(WorkshopMessages.Matches(decoded, new(3), new(42), Session, new(2), new(4)));
+        Assert.False(WorkshopMessages.Matches(decoded, new(4), new(42), Session, new(2), new(4)));
+        Assert.False(WorkshopMessages.Matches(decoded, new(3), new(42), new(99, 100), new(2), new(4)));
+        Assert.False(WorkshopMessages.Matches(decoded, new(3), new(42), Session, new(3), new(4)));
+        Assert.False(WorkshopMessages.Matches(decoded, new(3), new(42), Session, new(2), new(5)));
         var exact = decoded with { RevisionKind = ExpectedRevisionKind.Exact, Revision = new(41) };
-        Assert.False(WorkshopWire.Matches(exact, new(3), new(42), Session, new(2), new(4)));
+        Assert.False(WorkshopMessages.Matches(exact, new(3), new(42), Session, new(2), new(4)));
     }
 
     [Fact]
@@ -730,13 +730,21 @@ public sealed class WorkshopWireTests
     [InlineData((byte)WorkshopRejection.Transport, true)]
     public void TheRetiredDeviceLossRejectionIsUndefinedOnTheWire(byte reason, bool admitted)
     {
-        var faulted = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
-            new(WorkshopCommandOutcome.Faulted, WorkshopRejection.Capacity), WorkshopSimulationPhase.Faulted,
-            Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
-        var binary = WorkshopWire.Encode(faulted);
-        binary[10] = reason;
-        Assert.Equal(admitted, Record.Exception(() => WorkshopWire.DecodeResponse(binary)) is null);
-        if (!admitted) Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(binary));
+        // Built through the schema: the encoder never writes an undefined reason, so the decoder is probed directly.
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(128);
+        var sessionBytes = new byte[RuntimeSessionId.ByteLength]; Session.WriteTo(sessionBytes);
+        var session = CuriousContraptions.Wire.WorkshopResponse.CreateSessionVectorBlock(builder, sessionBytes);
+        CuriousContraptions.Wire.WorkshopResponse.StartWorkshopResponse(builder);
+        CuriousContraptions.Wire.WorkshopResponse.AddSequence(builder, 1);
+        CuriousContraptions.Wire.WorkshopResponse.AddKind(builder, CuriousContraptions.Wire.ResponseKind.Acknowledgement);
+        CuriousContraptions.Wire.WorkshopResponse.AddOutcome(builder, CuriousContraptions.Wire.CommandOutcome.Faulted);
+        CuriousContraptions.Wire.WorkshopResponse.AddReason(builder, reason);
+        CuriousContraptions.Wire.WorkshopResponse.AddPhase(builder, CuriousContraptions.Wire.SimulationPhase.Faulted);
+        CuriousContraptions.Wire.WorkshopResponse.AddSession(builder, session);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.ResponseIdentifier);
+        var binary = builder.SizedByteArray();
+        Assert.Equal(admitted, Record.Exception(() => WorkshopWireFlatBuffers.DecodeResponse(binary)) is null);
+        if (!admitted) Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(binary));
     }
 
     [Theory]
@@ -749,7 +757,7 @@ public sealed class WorkshopWireTests
         var dispatched = cursor.ReadOrder;
         var ack = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
-        var original = WorkshopWire.Encode(ack);
+        var original = WorkshopWireFlatBuffers.EncodeResponse(ack);
         var later = new WorkshopResponse(default, WorkshopResponseKind.Read,
             new(sameRevisionFault ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                 sameRevisionFault ? WorkshopRejection.Capacity : WorkshopRejection.None),
@@ -757,30 +765,8 @@ public sealed class WorkshopWireTests
         Assert.True(AdmitRead(cursor, later));
         var delivery = AdmitAcknowledgement(cursor, command, ack, dispatched, false);
         Assert.False(delivery.Applicable);
-        Assert.Equal(original, WorkshopWire.Encode(delivery.Response));
+        Assert.Equal(original, WorkshopWireFlatBuffers.EncodeResponse(delivery.Response));
         Assert.Equal(later.Read.Revision, cursor.Revision);
-    }
-
-    /// <summary>Story 9R.7 (owner decision, 21 Oct 2026): the response header carries no format version. Bytes 12..15 are alignment
-    /// padding, written zero by every encoding, and a non-zero word there is refused as a malformed shape.</summary>
-    [Fact]
-    public void TheResponseHeaderHasZeroPaddingAndNoVersionWord()
-    {
-        var ack = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
-            Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
-        foreach (var response in new[] { ack, ack with { Phase = WorkshopSimulationPhase.Building } })
-        {
-            var bytes = WorkshopWire.Encode(response);
-            Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(12)));
-            Assert.Equal(response, WorkshopWire.DecodeResponse(bytes)); // control
-            foreach (var word in new uint[] { 1, 21, 22 })
-            {
-                var versioned = (byte[])bytes.Clone();
-                BinaryPrimitives.WriteUInt32LittleEndian(versioned.AsSpan(12), word);
-                Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(versioned));
-            }
-        }
     }
 
     [Fact]
@@ -828,32 +814,22 @@ public sealed class WorkshopWireTests
     public void AuthorityRevisionIsSeparateAndAnyControlSurvivesLaterTicks()
     {
         var exact = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(3), new(9), Construction, Session: Session, Cadence: new(1), Projection: new(1));
-        Assert.True(WorkshopWire.Matches(exact, new(3), new(9), Session, new(1), new(1)));
-        Assert.False(WorkshopWire.Matches(exact, new(3), new(10), Session, new(1), new(1)));
+        Assert.True(WorkshopMessages.Matches(exact, new(3), new(9), Session, new(1), new(1)));
+        Assert.False(WorkshopMessages.Matches(exact, new(3), new(10), Session, new(1), new(1)));
         var reset = new WorkshopCommand(new(2), WorkshopCommandKind.Reset, new(3), default, null,
             RevisionKind: ExpectedRevisionKind.Any, Session: Session, Cadence: new(1), Projection: new(1));
-        Assert.True(WorkshopWire.Matches(WorkshopWire.DecodeCommand(WorkshopWire.Encode(reset)), new(3), new(1234), Session, new(1), new(1)));
-        Assert.False(WorkshopWire.Matches(reset, new(4), new(1234), Session, new(1), new(1)));
-        Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(reset with { Revision = new(1) }));
-        Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(exact with { Revision = default, RevisionKind = ExpectedRevisionKind.Any }));
+        Assert.True(WorkshopMessages.Matches(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(reset)), new(3), new(1234), Session, new(1), new(1)));
+        Assert.False(WorkshopMessages.Matches(reset, new(4), new(1234), Session, new(1), new(1)));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(reset with { Revision = new(1) }));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(exact with { Revision = default, RevisionKind = ExpectedRevisionKind.Any }));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), default, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
-        var bytes = WorkshopWire.Encode(response);
+        var bytes = WorkshopWireFlatBuffers.EncodeResponse(response);
         var sourceResponse = response with { Read = response.Read with { Electrical = new PhysicsElectricalRead([new(new(10), new(1), new(3600.0002f), new(0f), ElectricalEnable.Enabled)]) } };
-        var sourceBytes = WorkshopWire.Encode(sourceResponse);
-        var sourceRoundTrip = WorkshopWire.DecodeResponse(sourceBytes);
+        var sourceBytes = WorkshopWireFlatBuffers.EncodeResponse(sourceResponse);
+        var sourceRoundTrip = WorkshopWireFlatBuffers.DecodeResponse(sourceBytes);
         Assert.True(sourceResponse.Read.Electrical.HasSameBits(sourceRoundTrip.Read.Electrical));
-        sourceBytes[104] = 1; // header padding (104..109) before the capture domain and presence bytes
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
-        sourceBytes[104] = 0; // a memory row count with no row
-        BinaryPrimitives.WriteUInt32LittleEndian(sourceBytes.AsSpan(WorkshopWire.ResponseMemoryCountOffset), 1);
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
-        // Story 9R.5b: every section is exactly its population; a read with no rows is the header and an empty motion payload.
-        Assert.Equal(WorkshopWire.ResponseHeaderBytes + PhysicsMotionRead.ByteLength(0), bytes.Length);
-        Assert.Equal(80, PhysicsBodyWire.ByteLength);
-        Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
-        bytes[WorkshopWire.ResponseBodyCountOffset] = 1; // a body count with no body row
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
+        Assert.Equal(response, WorkshopWireFlatBuffers.DecodeResponse(bytes));
     }
 
     public enum BodyWireLane { Linear, Angular }
@@ -895,11 +871,11 @@ public sealed class WorkshopWireTests
     {
         var identity = new WorkshopCommandIdentity(new(0x20000000000001), new(19), new(23), new(1), new(1));
         var command = new WorkshopCommand(new(8), WorkshopCommandKind.Cancel, new(19), new(23), null, identity, Session: Session, Cadence: new(1), Projection: new(1));
-        Assert.Equal(command, WorkshopWire.DecodeCommand(WorkshopWire.Encode(command)));
-        Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(command with { Target = null }));
-        var bytes = WorkshopWire.Encode(command);
+        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(command with { Target = null }));
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(56), 0);
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeCommand(bytes));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
     }
 
     [Fact]
@@ -922,22 +898,10 @@ public sealed class WorkshopWireTests
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
             new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
-        var bytes = WorkshopWire.Encode(command);
-        Assert.Equal(bytes, WorkshopWire.Encode(WorkshopWire.DecodeCommand(bytes)));
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
+        Assert.Equal(bytes, WorkshopWireFlatBuffers.EncodeCommand(WorkshopWireFlatBuffers.DecodeCommand(bytes)));
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void ObsoleteResponseSchemaRejectsEmptyAndBall(bool withBall)
-    {
-        var body = withBall ? new CanonicalBody(new(1), 3, 8, default, default, default) : (CanonicalBody?)null;
-        var response = new WorkshopResponse(new(0), WorkshopResponseKind.Read,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(3), new(8), body.HasValue ? Bodies(body.Value) : default)), Session, new(1), new(1), new(1), new(1), new(8));
-        var bytes = WorkshopWire.Encode(response);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(12), 15);
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
-    }
 
 
     private static PhysicsSceneDeclaration GenericScene => WorkshopPhysicsCompiler.Compile(
@@ -948,7 +912,7 @@ public sealed class WorkshopWireTests
         EditRefusal.Is(WorkshopEditRejection.IdentityExhausted, () => WorkshopPhysicsCompiler.Compile(Construction, new(101, 206)));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Construction, Session: Session, Cadence: new(1), Projection: new(1));
-        Assert.Equal(OnlyBall(Construction).Id, OnlyBall(WorkshopWire.DecodeCommand(WorkshopWire.Encode(command)).Construction!.Value).Id);
+        Assert.Equal(OnlyBall(Construction).Id, OnlyBall(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Construction!.Value).Id);
     }
 
     private static byte[] GenericAdmission() => PhysicsGpuAbi.Admission(GenericScene, new(2), Profile);
@@ -1326,26 +1290,28 @@ public sealed class WorkshopWireTests
     [InlineData(0x101u)]
     public void UnknownFullWidthCaptureDiscriminantRejects(uint phase)
     {
-        var read = Stamped(new(new(2), new(0), default, Captures: new([CaptureLatch.Clear(new(9))])));
+        const ulong sensor = 0x0123456789ABCDEFUL; // a distinctive identity to find the capture row on the wire
+        var read = Stamped(new(new(2), new(0), default, Captures: new([CaptureLatch.Clear(new(sensor))])));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));
-        var bytes = WorkshopWire.Encode(response);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WorkshopWire.ResponseLayout.Of(read).CapturesOffset + 8), phase);
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
+        var bytes = WorkshopWireFlatBuffers.EncodeResponse(response);
+        var row = bytes.AsSpan().IndexOf(BitConverter.GetBytes(sensor));
+        Assert.True(row > 0, "the capture row");
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(row + 8), phase);
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));
     }
 
     [Fact]
-    public void ResponseWriterRejectsInvalidBodyWithoutChangingReservedOutput()
+    public void ResponseEncoderRejectsAnInvalidBody()
     {
         var body = new CanonicalBody(new(1), 2, 0, default, default, default);
         var read = Stamped(new(new(2), new(0), Bodies(body)));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));
-        var bytes = WorkshopWire.Encode(response); var before = (byte[])bytes.Clone();
-        Assert.Throws<ArgumentException>(() => WorkshopWire.Write(response with { Read = read with { Bodies = Bodies(body with { Epoch = 3 }) } }, bytes));
-        Assert.Equal(before, bytes);
+        Assert.Equal(response, WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response))); // control
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(response with { Read = read with { Bodies = Bodies(body with { Epoch = 3 }) } }));
     }
 
     [Fact]
@@ -1353,21 +1319,20 @@ public sealed class WorkshopWireTests
     {
         var held = new TaskCompletionSource<byte[]>();
         var applied = new List<WorkshopCommand>();
-        var router = new WorkshopCommandRouter((command, reserved) => { applied.Add(command); return held.Task; });
+        var router = new WorkshopCommandRouter(command => { applied.Add(command); return held.Task; });
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), Construction, Session: Session, Cadence: new(1), Projection: new(1));
-        var bytes = WorkshopWire.Encode(command);
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var first = router.Dispatch(bytes);
         var duplicate = router.Dispatch((byte[])bytes.Clone());
-        Assert.Same(first, duplicate);
-        await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Kind = WorkshopCommandKind.Run, Construction = null })));
-        await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Epoch = new(2) })));
+        Assert.Same(first.Response, duplicate.Response);
+        Assert.Equal(command.Sequence, duplicate.Sequence);
+        Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command with { Kind = WorkshopCommandKind.Run, Construction = null })));
+        Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command with { Epoch = new(2) })));
         var different = command with { Construction = Construction.WithoutInstance(OnlyBall(Construction).Id) };
-        await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(different)));
-        bytes[16] ^= 1; // caller cannot change the retained identity after admission.
-        await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(bytes));
+        Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(different)));
         held.SetResult([1, 2, 3]);
-        Assert.Equal(new byte[] { 1, 2, 3 }, await first);
-        Assert.Same(first, router.Dispatch(WorkshopWire.Encode(command)));
+        Assert.Equal(new byte[] { 1, 2, 3 }, await first.Response);
+        Assert.Same(first.Response, router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command)).Response);
         Assert.Single(applied);
     }
 
@@ -1375,37 +1340,28 @@ public sealed class WorkshopWireTests
     public async Task MalformedAndOutOfOrderInputsDoNotConsumeNextReliableIdentity()
     {
         var seen = new List<CommandSequence>();
-        var router = new WorkshopCommandRouter((command, reserved) => { seen.Add(command.Sequence); return Task.FromResult(Array.Empty<byte>()); });
+        var router = new WorkshopCommandRouter(command => { seen.Add(command.Sequence); return Task.FromResult(Array.Empty<byte>()); });
         var next = new WorkshopCommand(new(1), WorkshopCommandKind.Run, new(1), new(1), null, Session: Session, Cadence: new(1), Projection: new(1));
-        var malformed = WorkshopWire.Encode(next);
-        BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(12), 99);
-        await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(malformed));
-        await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(next with { Sequence = new(2) })));
-        await router.Dispatch(WorkshopWire.Encode(next));
+        var encoded = WorkshopWireFlatBuffers.EncodeCommand(next);
+        Assert.Equal(WireFaultReason.Truncated, Assert.Throws<WireFaultException>(() => router.Dispatch(encoded[..^1])).Reason);
+        Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(() => router.Dispatch([.. encoded, 0])).Reason);
+        Assert.Throws<ArgumentException>(() => router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(next with { Sequence = new(2) })));
+        await router.Dispatch(encoded).Response;
         Assert.Equal(new[] { new CommandSequence(1) }, seen);
     }
 
     [Fact]
-    public async Task ActualRouterDispatchesFlatBuffersCommandAndAnswersInItsCodec()
+    public async Task ActualRouterDispatchesEachCommandOnceAndReturnsItsSequence()
     {
         var applied = new List<WorkshopCommand>();
-        var codecs = new List<WorkshopResponseCodec>();
-        var router = new WorkshopCommandRouter((command, codec) =>
-        {
-            applied.Add(command);
-            codecs.Add(codec);
-            return Task.FromResult(new byte[] { 42 });
-        });
+        var router = new WorkshopCommandRouter(command => { applied.Add(command); return Task.FromResult(new byte[] { 42 }); });
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Run, new(1), new(1), null, Session: Session, Cadence: new(1), Projection: new(1));
-        var fbBytes = WorkshopWireFlatBuffers.EncodeCommand(command);
-        var result = await router.Dispatch(fbBytes);
-        Assert.Equal(new byte[] { 42 }, result);
-        Assert.Single(applied);
-        Assert.Equal(new CommandSequence(1), applied[0].Sequence);
-        Assert.Equal(WorkshopResponseCodec.FlatBuffers, Assert.Single(codecs));
-        // Control: the next command in the fixed binary codec is answered in binary.
-        await router.Dispatch(WorkshopWire.Encode(command with { Sequence = new(2) }));
-        Assert.Equal(WorkshopResponseCodec.Binary, codecs[^1]);
+        var routed = router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command));
+        Assert.Equal(new CommandSequence(1), routed.Sequence);
+        Assert.Equal(new byte[] { 42 }, await routed.Response);
+        Assert.Equal(new CommandSequence(1), Assert.Single(applied).Sequence);
+        Assert.Equal(new CommandSequence(2), router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(command with { Sequence = new(2) })).Sequence);
+        Assert.Equal(2, applied.Count);
     }
 
     private static WorkshopMemoryRequest MemoryRequest => new(WorkshopMemoryKind.PostGc, WorkshopMemoryContext.Simulation,

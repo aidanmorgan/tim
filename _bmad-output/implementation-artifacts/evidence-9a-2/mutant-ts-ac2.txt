@@ -1,0 +1,9 @@
+== M17 (AC2) TS decoder reads the former unframed root (no size prefix, no identifier check)
+-    bb.setPosition(flatbuffers.SIZE_PREFIX_LENGTH);
+-    if (!bb.__has_identifier(identifier)) throw new Error(`not a ${identifier} buffer`);
++    // MUTANT: the former unframed read (root at position 0, no identifier)
+ℹ pass 5
+ℹ fail 19
+== control (restored)
+ℹ pass 24
+ℹ fail 0

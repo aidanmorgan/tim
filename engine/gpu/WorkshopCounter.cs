@@ -12,6 +12,8 @@ public readonly record struct WorkshopCounter(
 {
     /// <summary>The target count a newly placed counter starts with in the Workshop UI; no decoder or factory defaults to it.</summary>
     public const int PlacedTargetCount = 3;
+    public const int MinimumTargetCount = 1;
+    public const int MaximumTargetCount = 9;
     public PartId PartId => PartId.Counter;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
 
@@ -19,7 +21,7 @@ public readonly record struct WorkshopCounter(
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
-        if (TargetCount < 1 || TargetCount > 9)
-            throw new ArgumentException($"Counter {Id.Value} target count '{TargetCount}' is outside admitted range [1, 9].");
+        if (TargetCount < MinimumTargetCount || TargetCount > MaximumTargetCount)
+            throw new ArgumentException($"Counter {Id.Value} target count '{TargetCount}' is outside admitted range [{MinimumTargetCount}, {MaximumTargetCount}].");
     }
 }
