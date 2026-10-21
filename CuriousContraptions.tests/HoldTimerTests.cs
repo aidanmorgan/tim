@@ -264,6 +264,34 @@ public sealed class HoldTimerTests
         Assert.Equal(ActivationOccurrenceKind.Contact,Node(due,9).Kind);
         Assert.True(Node(due,9).EventOrdinal<due.Tick.Value*4);
     }
+    [Fact]
+    public void ScheduledStageNeedsNoOrientationReadButPhysicalStageRequiresIt()
+    {
+        var network=new ActivationNetwork([new(new(1),new(1),ActivationNodeKind.OrientationSource,default,Sensor:new(1))],[]);
+        var schedule=network.AdvanceScheduled(new(network.Clear(),network.ClearTimers(),network.ClearMemory()),new(1));
+        Assert.Equal(ActivationPhase.Clear,schedule.State.Activations[0].Phase);
+        var error=Assert.Throws<ArgumentException>(()=>network.ConsumeScheduled(schedule,[],new(1),[],[],default,[]));
+        Assert.Equal("Orientation sensor read is missing.",error.Message);
+    }
+
+    [Fact]
+    public void CompiledHoldGeometryMatchesItsDeclaredHousingAndFoot()
+    {
+        var scene=WorkshopPhysicsCompiler.Compile(new(new(2),WorkshopCadenceSettings.Default(),new(Part())),new(101,206));
+        var boxes=scene.Colliders.ToArray().Where(row=>row.Body.Value==3).ToArray();
+        Assert.Equal(2,boxes.Length);
+        Assert.All(boxes,row=>Assert.Equal(ColliderShapeKind.Box,row.Shape));
+        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((Half).7f,(Half).55f,(Half).325f) && row.Pose.Translation==new MetreVector((Half)0,(Half)0,(Half)0));
+        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((Half).8f,(Half).07f,(Half).425f) && row.Pose.Translation==new MetreVector((Half)0,(Half)(-.62f),(Half)0));
+        foreach(var box in boxes)
+        {
+            var material=scene.Materials.ToArray().Single(row=>row.Id==box.Material);
+            Assert.Equal(new Restitution((Half)1),material.Restitution);
+            Assert.Equal(new FrictionCoefficient((Half).3f),material.Friction);
+            Assert.Equal(new LinearSpeed((Half).1f),material.BounceThreshold);
+        }
+    }
+
     private sealed class GatedRealTransport : IWorkshopGpuTransport
     {
         private readonly CuriousContraptions.Simulation.BrowserGpuTransport _real=new();

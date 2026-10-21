@@ -198,7 +198,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         _ = godot;
         var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
         var rows = new List<System.Text.Json.Nodes.JsonNode>();
-        foreach (var package in Packages().OrderBy(package => package.Package, StringComparer.Ordinal))
+        // The immutable 9A.16 baseline predates Hold; its new geometry is checked separately.
+        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id != "hold_timer").OrderBy(package => package.Package, StringComparer.Ordinal))
         {
             Capture(package.Declaration.Metadata.Id, Placed(new PartId(package.Declaration.Metadata.Id)));
         }
@@ -385,6 +386,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("delay_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 1f,
                     Admits(value => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)value)]))), [])
             ],
+            "hold_timer" =>
+            [
+                ("hold_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 2f,
+                    Admits(value => WorkshopInput.Generic(new("hold_timer"), Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("hold_seconds"), (float)value)]))), [])
+            ],
             "switch" =>
             [
                 ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Half, (float)ContactTriggerSettings.Default.Threshold.Value,
@@ -412,7 +418,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" =>
+        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),

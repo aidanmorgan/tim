@@ -6,7 +6,7 @@
 
 **In flight:** Hold Timer CAT-033: declared rearming timed contact, package art/bindings and production C# unit behavior. [Current scope](_bmad-output/implementation-artifacts/spec-9-5-hold-timer.md). Package, shared timer staging, presentation and native controls are implemented; independent frozen review is next.
 
-**Blocker / owner / next check:** No unresolved design blocker. transport_implementer and retained reviewer transport_reviewer. Native Hold/editor/isolation 53/53, affected shared closure 549 passing plus both corrected fixture cases, bundle 137/137 and Release worker build are green. Freeze the scoped candidate for independent SnapshotApproval; publication remains pending. No element branch or compatibility path.
+**Blocker / owner / next check:** No unresolved design blocker. transport_implementer and retained reviewer transport_reviewer. Published f1fe8596 CI39654813219 failed25/2062 and skipped deployment. Forward fixes now pass340/340 affected native checks: orientation-stage ownership and complete catalogue fixture coverage. Retained reviewer must approve the corrected snapshot, then protected forward publication and exact-SHA CI/deployment checks resume. No element branch or compatibility path.
 
 **Next outcome:** Complete and publish Hold Timer, then follow the [delivery order](_bmad-output/planning-artifacts/epics.md#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).
 
