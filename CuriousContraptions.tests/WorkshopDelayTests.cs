@@ -94,7 +94,7 @@ public sealed class WorkshopDelayTests
         Assert.True(DeclaredPorts.Current.Has(PartId.Delay, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
         Assert.False(DeclaredPorts.Current.Has(PartId.Delay, WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
         new WorkshopInstances(Delay((float)1), Delay((float)2) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
-        var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)0));
+        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(Delay((float)1)).Validate());
     }
 

@@ -1557,9 +1557,11 @@ static getSizePrefixedRootAsPuzzleRecord(bb:flatbuffers.ByteBuffer, obj?:PuzzleR
   return (obj || new PuzzleRecord()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-id():number {
+id():string|null
+id(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+id(optionalEncoding?:any):string|Uint8Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
 placement():number {
@@ -1628,8 +1630,8 @@ static startPuzzleRecord(builder:flatbuffers.Builder) {
   builder.startObject(11);
 }
 
-static addId(builder:flatbuffers.Builder, id:number) {
-  builder.addFieldInt32(0, id, 0);
+static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, idOffset, 0);
 }
 
 static addPlacement(builder:flatbuffers.Builder, placement:number) {
@@ -1686,12 +1688,13 @@ static startRawAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
 
 static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
+  builder.requiredField(offset, 4) // id
   return offset;
 }
 
-static createPuzzleRecord(builder:flatbuffers.Builder, id:number, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalEventSource:bigint, goalDelay:number, rawAssistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalEventSource:bigint, goalDelay:number, rawAssistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
   PuzzleRecord.startPuzzleRecord(builder);
-  PuzzleRecord.addId(builder, id);
+  PuzzleRecord.addId(builder, idOffset);
   PuzzleRecord.addPlacement(builder, placement);
   PuzzleRecord.addPrecision(builder, precision);
   PuzzleRecord.addInventoryPart(builder, inventoryPartOffset);

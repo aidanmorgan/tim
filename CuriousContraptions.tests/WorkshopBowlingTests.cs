@@ -203,9 +203,9 @@ public sealed class WorkshopBowlingTests
     [Fact]
     public void AuthoredPuzzlesRequireTheBasketballKindAndNeverOfferTheBowlingBall()
     {
-        var first = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(100001), new(100002), new((Half).5));
-        var delayed = DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(), new(100001), new(100002), new(100003), new((Half).5));
-        var dominoes = DominoEffect.Create(new(1), WorkshopCadenceSettings.Default(), new(100001), new(100002), new(100003), new((Half).5));
+        var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+        var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+        var dominoes = PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
         foreach (var level in new[] { first, delayed, dominoes })
         {
             var ball = level.Ball!.Value;

@@ -61,10 +61,7 @@ public static class WorkshopInventoryPolicy
 
     public static IReadOnlyDictionary<PartId, PartAllowance> Authored(WorkshopPuzzle puzzle)
     {
-        if (puzzle.Id == WorkshopPuzzleId.Free) throw new ArgumentException("Free Workshop has no authored inventory.");
-        if (puzzle.Id == WorkshopPuzzleId.WallAndBumper)
-            return new PartInventoryDictionary((PartId.Wall, PartAllowance.Counted(1)),
-                (PartId.PinballBumper, PartAllowance.Counted(1)));
-        return new PartInventoryDictionary((puzzle.InventoryPart, PartAllowance.Counted(checked((int)puzzle.InventoryCount))));
+        if (!puzzle.Id.IsAuthored) throw new ArgumentException("Free Workshop has no authored inventory.");
+        return PuzzleCatalogue.Definition(puzzle.Id).InventoryRows();
     }
 }

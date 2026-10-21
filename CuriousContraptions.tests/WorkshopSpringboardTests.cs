@@ -14,8 +14,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     [InlineData(-.5)]
     public void ForgivingSpringForwardReceiverBoundaryUsesCompiledSourceScene(double offset)
     {
-        var lesson = SpringboardLessons.Create(WorkshopPuzzleId.SpringForward, new(1), WorkshopCadenceSettings.Default(),
-            new(1), new(2), new(3), new((Half)0));
+        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
         var construction = lesson.WithInstance(WorkshopInput.Springboard(new(3), -3, .8, 0,
             0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default));
         var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
@@ -38,46 +37,31 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
 
 
     [Theory]
-    [InlineData(WorkshopPuzzleId.SpringForward, "spring_forward")]
-    [InlineData(WorkshopPuzzleId.ReadyToRebound, "ready_to_rebound")]
-    public void LaunchLessonsPreserveSourceFixturesAssistanceAndNamedCapture(WorkshopPuzzleId lesson, string sourceId)
+    [InlineData("spring_forward", "spring_forward")]
+    [InlineData("ready_to_rebound", "ready_to_rebound")]
+    public void LaunchLessonsPreserveSourceFixturesAssistanceAndNamedCapture(string lessonId, string sourceId)
     {
+        var lesson = new PuzzleId(lessonId);
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
             twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(x => x.GetProperty("id").GetString() == sourceId);
-        var initial = SpringboardLessons.Create(lesson, new(1), WorkshopCadenceSettings.Default(),
-            new(1), new(2), new(3), new((Half)1));
-        foreach (var fixture in level.GetProperty("parts").EnumerateArray())
+        var initial = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
+        foreach (var (fixture, actual) in level.GetProperty("placements").EnumerateArray()
+            .Select(row => row.GetProperty("instance")).Zip(initial.Instances))
         {
-            IWorkshopInstance actual = fixture.GetProperty("kind").GetString() switch
-            {
-                "ball" => initial.Ball!.Value,
-                "basket" => initial.Receiver!.Value,
-                "spring" => initial.Instances.OfType<WorkshopSpringboard>().Single(),
-                _ => throw new InvalidDataException("Unexpected source fixture.")
-            };
-            var position = fixture.GetProperty("position");
-            Assert.Equal(WorkshopInput.Position(position[0].GetDouble()).Local, actual.Local.X);
-            Assert.Equal(WorkshopInput.Position(position[1].GetDouble()).Local, actual.Local.Y);
-            Assert.Equal(WorkshopInput.Position(position[2].GetDouble()).Local, actual.Local.Z);
-            Assert.Equal(new CellOrigin(WorkshopInput.Position(position[0].GetDouble()).Cell,
-                WorkshopInput.Position(position[1].GetDouble()).Cell, WorkshopInput.Position(position[2].GetDouble()).Cell), actual.Cell);
+            AuthoredContentAssertions.Placement(fixture, actual);
             Assert.True(actual.Locked);
-            var basis = new Basis(new Quaternion(actual.Rotation.X, actual.Rotation.Y, actual.Rotation.Z, actual.Rotation.W));
-            for (var column = 0; column < 3; column++)
-                for (var row = 0; row < 3; row++)
-                    Assert.InRange(Math.Abs(basis[column][row] - fixture.GetProperty("orientation")[column * 3 + row].GetDouble()), 0, 2e-7);
-            Profile(fixture.GetProperty("difficulty"), actual.PartId switch
+            AuthoredContentAssertions.Profile(fixture.GetProperty("assistance"), actual.PartId switch
             {
-                var id when id == PartId.Basketball => initial.Puzzle.BallAssistance,
-                var id when id == PartId.Receiver => initial.Puzzle.ReceiverAssistance,
-                var id when id == PartId.Springboard => initial.Puzzle.RampAssistance,
+                var id when id == PartId.Basketball => initial.Puzzle.PrimaryAssistance,
+                var id when id == PartId.Receiver => initial.Puzzle.TargetAssistance,
+                var id when id == PartId.Springboard => initial.Puzzle.PlacementAssistance,
                 _ => throw new InvalidDataException()
             });
         }
-        var ready = lesson == WorkshopPuzzleId.ReadyToRebound;
+        var ready = lesson == new PuzzleId("ready_to_rebound");
         Profile(level.GetProperty("solution")[0].GetProperty("difficulty"),
-            ready ? initial.Puzzle.ReceiverAssistance : initial.Puzzle.RampAssistance);
+            ready ? initial.Puzzle.TargetAssistance : initial.Puzzle.PlacementAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(initial.Puzzle);
         Assert.Single(inventory);
         Assert.Equal(PartAllowance.Counted(1), inventory[ready ? PartId.Receiver : PartId.Springboard]);
@@ -85,10 +69,10 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             : WorkshopInput.Springboard(new(3), -3, .8, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default);
         var construction = initial.WithInstance(placed); construction.Validate();
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
-        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor(construction.Receiver!.Value), construction.Puzzle.Goal.EventSource);
+        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor((construction.Receiver!.Value).Id), construction.Puzzle.Goal.EventSource);
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
         {
-            var next = SpringboardLessons.WithPrecision(construction, new(precision));
+            var next = PuzzleCatalogue.WithPrecision(construction, new(precision));
             var receiver = next.Receiver!.Value;
             Assert.Equal((Half)(precision == (Half)0 ? .3 : precision == (Half)1 ? .02 : .174), receiver.Capture.Margin.Value);
             Assert.Equal((Half)(ready ? 0 : precision == (Half)0 ? 12 : precision == (Half)1 ? 0 : 6.6), receiver.ForceRegion.MaximumAcceleration.Value);
@@ -96,8 +80,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
             Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1,2)).Prismatics.ToArray());
         }
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle = construction.Puzzle with { RampAssistance = default } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle = construction.Puzzle with { PlacementAssistance = default } }).Validate());
         if (ready)
         {
             var removed = construction.WithoutInstance(new(3)); removed.Validate();

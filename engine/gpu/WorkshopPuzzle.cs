@@ -2,7 +2,6 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick, BumperDepth, WallAndBumper, SpringForward, ReadyToRebound, ClearPipe, GentleBend, QuarterBend, JoinedPipe }
 public enum WorkshopPlacementMode : uint { Manual }
 public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter }
 public readonly record struct PuzzlePrecision(Half Value);
@@ -50,110 +49,21 @@ public readonly record struct AssistanceProfile(AssistanceKnot Forgiving, Assist
     }
 }
 
-public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacementMode Placement,
-    PuzzlePrecision Precision, PartId InventoryPart, uint InventoryCount, WorkshopGoal Goal, AssistanceProfile BallAssistance,
-    AssistanceProfile ReceiverAssistance, AssistanceProfile RampAssistance)
+public readonly record struct WorkshopPuzzle(PuzzleId Id, WorkshopPlacementMode Placement,
+    PuzzlePrecision Precision, PartId InventoryPart, uint InventoryCount, WorkshopGoal Goal,
+    AssistanceProfile PrimaryAssistance, AssistanceProfile TargetAssistance, AssistanceProfile PlacementAssistance)
 {
-    public AssistanceProfile WallAssistance => Id == WorkshopPuzzleId.WallAndBumper ? BumperAdvanced.WallAssistance : default;
-    public AssistanceProfile BendAssistance => RampAssistance;
+    public AssistanceProfile SecondaryAssistance => Id.IsAuthored ? PuzzleCatalogue.Definition(Id).Secondary : default;
 
     public void Validate(WorkshopConstruction construction)
     {
-        if (!Enum.IsDefined(Id) || Placement != WorkshopPlacementMode.Manual)
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported puzzle or placement mode.");
-        if (Id == WorkshopPuzzleId.Free)
+        if (!Id.IsAuthored)
         {
             if (this != default)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Free Workshop has no authored puzzle settings.");
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings,
+                    "Free Workshop has no authored settings.");
             return;
         }
-        // Authored puzzles name the Basketball kind explicitly; no other ball kind is offered or admitted.
-        var ballCount = 0;
-        foreach (var instance in construction.Instances)
-        {
-            if (instance is not WorkshopBall ball) continue;
-            if (ball.PartId != PartId.Basketball)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Authored puzzles admit only their named Basketball.");
-            ballCount++;
-        }
-        if (ballCount != 1)
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Authored puzzles require their one named Basketball.");
-        Goal.Validate();
-        if (Id is WorkshopPuzzleId.SpringForward or WorkshopPuzzleId.ReadyToRebound) { SpringboardLessons.Validate(this, construction); return; }
-        if (Id == WorkshopPuzzleId.DelayedSignal) { DelayedSignal.Validate(this, construction); return; }
-        if (Id == WorkshopPuzzleId.BumperSidekick) { BumperSidekick.Validate(this, construction); return; }
-        if (Id is WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper) { BumperAdvanced.Validate(this, construction); return; }
-        if (Id == WorkshopPuzzleId.DominoEffect) { DominoEffect.Validate(this, construction); return; }
-        if (Id == WorkshopPuzzleId.ClearPipe) { ClearPipe.Validate(this, construction); return; }
-        if (Id == WorkshopPuzzleId.GentleBend) { GentleBend.Validate(this, construction); return; }
-        if (Id == WorkshopPuzzleId.QuarterBend) { QuarterBend.Validate(this, construction); return; }
-        if (Id == WorkshopPuzzleId.JoinedPipe) { JoinedPipe.Validate(this, construction); return; }
-        PhysicsDeclarationBounds.Range(Precision.Value, (Half)0, (Half)1);
-        if (construction.Connections.Count != 0 || InventoryPart != PartId.Ramp || InventoryCount != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
-            BallAssistance != FirstPrinciples.BallAssistance || ReceiverAssistance != FirstPrinciples.ReceiverAssistance || RampAssistance != FirstPrinciples.RampAssistance)
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.PuzzleSettings, "Unsupported First principles authored settings.");
-        var expectedBall = FirstPrinciples.Ball(Goal.Body);
-        var expectedReceiver = FirstPrinciples.Receiver(Goal.Target, Precision);
-        if (construction.Ball != expectedBall || construction.Receiver != expectedReceiver ||
-            Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(expectedReceiver))
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed puzzle declarations changed.");
-        var receivers = 0; var ramps = 0;
-        foreach (var instance in construction.Instances)
-        {
-            if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopRamp) || instance is WorkshopRamp { Locked: true })
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported puzzle inventory instance.");
-            if (instance is WorkshopReceiver) receivers++;
-            if (instance is WorkshopRamp) ramps++;
-        }
-        if (receivers != 1)
-            throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Authored puzzles require their one named Receiver.");
-        if (ramps > InventoryCount) throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Ramp inventory exhausted.");
-    }
-}
-
-/// <summary>Typed authoring of content/puzzles.json:first_principles. No solution placement or numerical law lives here.</summary>
-public static class FirstPrinciples
-{
-    public static AssistanceProfile BallAssistance => new(
-        Knot((Half)0, (Half)3, (Half)100, (Half)0, (Half)0, (Half).3, (Half)3, (Half).15, (Half)0, (Half).2),
-        Knot((Half).45, (Half)1.5, (Half)45, (Half)0, (Half)0, (Half).174, (Half)2.325, (Half).24, (Half)0, (Half).47),
-        Knot((Half)1, (Half)0, (Half)0, (Half)0, (Half)0, (Half).02, (Half)1.5, (Half).35, (Half)0, (Half).8));
-    public static AssistanceProfile ReceiverAssistance => BallAssistance with
-    {
-        Forgiving = BallAssistance.Forgiving with { GuideAcceleration = new((Half)12) },
-        Balanced = BallAssistance.Balanced with { GuideAcceleration = new((Half)6.6) }
-    };
-    public static AssistanceProfile RampAssistance => BallAssistance with
-    {
-        Forgiving = BallAssistance.Forgiving with { MaximumPositionCorrection = new((Half).3), MaximumRotationCorrectionDegrees = (Half)5 },
-        Balanced = BallAssistance.Balanced with { MaximumPositionCorrection = new((Half).120000005), MaximumRotationCorrectionDegrees = (Half)2 }
-    };
-    private static AssistanceKnot Knot(Half precision, Half position, Half rotation, Half maximumPosition, Half maximumRotation,
-        Half margin, Half speed, Half dwell, Half guide, Half trigger) =>
-        new(precision, new(position), rotation, new(maximumPosition), maximumRotation, new((Half).4), new(margin), new(speed), new(dwell), new(guide), trigger);
-    public static WorkshopBall Ball(GpuBodyId id) => WorkshopInput.Basketball(id, -4, 6.5, 0, 0, 0, 0, 1) with { Locked = true };
-    public static WorkshopReceiver Receiver(GpuBodyId id, PuzzlePrecision precision)
-    {
-        var assistance = ReceiverAssistance.Evaluate(precision);
-        return WorkshopInput.Receiver(id, 2.5, .9, 0, 0, 0, 0, 1) with
-        {
-            Locked = true,
-            Capture = new(assistance.CaptureMargin, assistance.CaptureSpeed, assistance.CaptureDwell, SensorParticipation.Enabled),
-            ForceRegion = ReceiverForceRegion.Create(assistance.CaptureMargin, assistance.GuideAcceleration)
-        };
-    }
-    public static WorkshopConstruction Create(ConstructionRevision revision, WorkshopCadenceSettings settings, GpuBodyId ball, GpuBodyId receiver, PuzzlePrecision precision)
-    {
-        var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.FirstPrinciples, WorkshopPlacementMode.Manual, precision, PartId.Ramp, 2,
-            new(WorkshopGoalKind.Captured, ball, receiver, WorkshopPhysicsCompiler.CaptureSensor(Receiver(receiver, precision))), BallAssistance, ReceiverAssistance, RampAssistance);
-        var construction = new WorkshopConstruction(revision, settings, new(Ball(ball), Receiver(receiver, precision)), puzzle);
-        construction.Validate(); return construction;
-    }
-    public static WorkshopConstruction WithPrecision(WorkshopConstruction construction, PuzzlePrecision precision)
-    {
-        if (construction.Puzzle.Id != WorkshopPuzzleId.FirstPrinciples) throw new ArgumentException("Construction has no authored assistance.");
-        var next = construction.WithInstance(Receiver(construction.Puzzle.Goal.Target, precision)) with
-            { Puzzle = construction.Puzzle with { Precision = precision } };
-        next.Validate(); return next;
+        PuzzleCatalogue.Validate(this, construction);
     }
 }

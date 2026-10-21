@@ -19,7 +19,7 @@ public sealed class JoinedPipeTests
 
     private static WorkshopConstruction Lesson(Half precision) =>
         // Revision 2: the production Simulation admits the first Construct after its initial revision 1.
-        JoinedPipe.Create(new(2), WorkshopCadenceSettings.Default(), BallId, BendId, ReceiverId, new(precision));
+        PuzzleCatalogue.Create(new("joined_pipe"), new(2), WorkshopCadenceSettings.Default(), BallId, new(precision));
 
     private static JsonElement Content()
     {
@@ -75,43 +75,43 @@ public sealed class JoinedPipeTests
     {
         var level = Content();
         Assert.Equal("Meet in the middle", level.GetProperty("title").GetString());
-        Assert.Equal(["pipe"], level.GetProperty("inventory").EnumerateObject().Select(entry => entry.Name).ToArray());
-        Assert.Equal(1, level.GetProperty("inventory").GetProperty("pipe").GetInt32());
+        Assert.Equal(["pipe"], level.GetProperty("inventory").EnumerateArray().Select(entry => entry.GetProperty("part").GetString()!).ToArray());
+        Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "pipe").GetProperty("count").GetInt32());
 
         var construction = Lesson((Half)0);
         var puzzle = construction.Puzzle;
-        Assert.Equal((WorkshopPuzzleId.JoinedPipe, PartId.Pipe, 1u), (puzzle.Id, puzzle.InventoryPart, puzzle.InventoryCount));
-        var goal = Assert.Single(level.GetProperty("goals").EnumerateArray());
-        Assert.Equal(("captured", "receiver", "ball"), (goal.GetProperty("type").GetString(), goal.GetProperty("target").GetString(), goal.GetProperty("body").GetString()));
+        Assert.Equal((new PuzzleId("joined_pipe"), PartId.Pipe, 1u), (puzzle.Id, puzzle.InventoryPart, puzzle.InventoryCount));
+        var goal = level.GetProperty("goal");
+        Assert.Equal(("Captured", "fixture_3", "fixture_1"), (goal.GetProperty("kind").GetString(), goal.GetProperty("target").GetString(), goal.GetProperty("source").GetString()));
         Assert.Equal((WorkshopGoalKind.Captured, BallId, ReceiverId), (puzzle.Goal.Kind, puzzle.Goal.Body, puzzle.Goal.Target));
         Assert.Equal(PartAllowance.Counted(1), Assert.Single(WorkshopInventoryPolicy.Authored(puzzle)).Value);
         Assert.Equal(PartId.Pipe, Assert.Single(WorkshopInventoryPolicy.Authored(puzzle)).Key);
 
-        var parts = level.GetProperty("parts").EnumerateArray().ToDictionary(part => part.GetProperty("id").GetString()!);
-        Assert.Equal(["ball", "bend", "receiver"], parts.Keys.ToArray());
+        var parts = level.GetProperty("placements").EnumerateArray().ToDictionary(row => row.GetProperty("slot").GetString()!, row => row.GetProperty("instance"));
+        Assert.Equal(["fixture_1", "fixture_2", "fixture_3"], parts.Keys.ToArray());
         Assert.Equal(3, construction.Instances.Count);
         var expected = new Dictionary<string, (IWorkshopInstance Instance, string Kind, AssistanceProfile Knots)>
         {
-            ["ball"] = (construction.Instances.Single(i => i.Id == BallId), "ball", puzzle.BallAssistance),
-            ["bend"] = (construction.Instances.Single(i => i.Id == BendId), "pipe_bend_90", JoinedPipe.FixtureAssistance),
-            ["receiver"] = (construction.Instances.Single(i => i.Id == ReceiverId), "basket", puzzle.ReceiverAssistance),
+            ["fixture_1"] = (construction.Instances.Single(i => i.Id == BallId), "ball", puzzle.PrimaryAssistance),
+            ["fixture_2"] = (construction.Instances.Single(i => i.Id == BendId), "pipe_bend_90", PuzzleCatalogue.Definition(new("joined_pipe")).Primary),
+            ["fixture_3"] = (construction.Instances.Single(i => i.Id == ReceiverId), "basket", puzzle.TargetAssistance),
         };
         foreach (var (name, (instance, kind, knots)) in expected)
         {
             var source = parts[name];
-            Assert.Equal(kind, source.GetProperty("kind").GetString());
+            Assert.Equal(kind, source.GetProperty("part").GetString());
             Assert.Equal(kind == "basket" ? PartId.Receiver : kind == "ball" ? PartId.Basketball : PartId.PipeBend90, instance.PartId);
             Assert.True(source.GetProperty("locked").GetBoolean() && instance.Locked, $"{name} is a locked fixture");
-            CheckSourcePose(source, instance);
-            CheckProfile(source.GetProperty("difficulty"), knots);
+            AuthoredContentAssertions.Placement(source, instance);
+            AuthoredContentAssertions.Profile(source.GetProperty("assistance"), knots);
         }
         // The fixed bend is the ball's knots exactly (the content repeats them).
-        Assert.Equal(puzzle.BallAssistance, JoinedPipe.FixtureAssistance);
+        Assert.Equal(puzzle.PrimaryAssistance, PuzzleCatalogue.Definition(new("joined_pipe")).Primary);
 
         var solution = Assert.Single(level.GetProperty("solution").EnumerateArray());
         Assert.Equal(("pipe", false), (solution.GetProperty("kind").GetString(), solution.GetProperty("locked").GetBoolean()));
         Assert.Equal(2, solution.GetProperty("properties").GetProperty("length").GetDouble());
-        CheckProfile(solution.GetProperty("difficulty"), puzzle.RampAssistance);
+        CheckProfile(solution.GetProperty("difficulty"), puzzle.PlacementAssistance);
         Assert.Empty(level.GetProperty("solution_connections").EnumerateArray());
     }
 
@@ -163,7 +163,7 @@ public sealed class JoinedPipeTests
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Receiver!.Value with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 2 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
     }
 
     [Theory]
@@ -179,7 +179,7 @@ public sealed class JoinedPipeTests
         var placed = lesson.WithInstance(Snapped(lesson, 2));
         var saved = new WorkshopSavedConstruction(placed, new(5));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
-        var updated = JoinedPipe.WithPrecision(placed, new((Half).45));
+        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half).45));
         Assert.Equal((Half).174, updated.Receiver!.Value.Capture.Margin.Value);
         Assert.Equal(placed.Instances.Single(i => i.Id == PipeId), updated.Instances.Single(i => i.Id == PipeId));
     }
@@ -240,7 +240,7 @@ public sealed class JoinedPipeTests
         return unsnapped;
     }
 
-    private static void CheckSourcePose(JsonElement source, IWorkshopInstance instance, double tolerance = .001)
+    private static void CheckSourcePose(JsonElement source, WorkshopPipe instance, double tolerance = .001)
     {
         var position = source.GetProperty("position");
         Assert.InRange(Math.Abs((instance.Cell.X + (double)instance.Local.X) / 16 - position[0].GetDouble()), 0, tolerance);

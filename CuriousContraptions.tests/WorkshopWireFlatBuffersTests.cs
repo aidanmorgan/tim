@@ -166,10 +166,8 @@ public sealed class WorkshopWireFlatBuffersTests
     {
         var construction = kind switch
         {
-            WorkshopGoalKind.Captured => SpringboardLessons.Create(WorkshopPuzzleId.SpringForward, new(1),
-                WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new((Half)1)),
-            WorkshopGoalKind.ActivatedAfter => DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(),
-                new(1), new(2), new(3), new((Half).5)),
+            WorkshopGoalKind.Captured => PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1)),
+            WorkshopGoalKind.ActivatedAfter => PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).5)),
             WorkshopGoalKind.None => new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
                 new([WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1)])),
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
@@ -235,10 +233,9 @@ public sealed class WorkshopWireFlatBuffersTests
     [Fact]
     public void Construction_CapturedGoal_EncodesDeclaredBodyTargetAndSensor()
     {
-        var lesson = SpringboardLessons.Create(WorkshopPuzzleId.ReadyToRebound, new(1), WorkshopCadenceSettings.Default(),
-            new(1), new(2), new(3), new((Half)1));
+        var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
         var replacement = WorkshopInput.Receiver(new(4), 2, .55, 0, 0, 0, 0, 1);
-        var construction = SpringboardLessons.WithReceiver(lesson, replacement);
+        var construction = PuzzleCatalogue.WithInstance(lesson, replacement);
         var goal = construction.Puzzle.Goal;
         Assert.Equal(new GpuBodyId(1), goal.Body);
         Assert.Equal(new GpuBodyId(4), goal.Target);
@@ -250,7 +247,7 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal((uint)WorkshopGoalKind.Captured, puzzle.GoalKind);
         Assert.Equal(1UL, puzzle.GoalBody);
         Assert.Equal(4UL, puzzle.GoalTarget);
-        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor(construction.Receiver!.Value).Value, puzzle.GoalEventSource);
+        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor((construction.Receiver!.Value).Id).Value, puzzle.GoalEventSource);
         Assert.Equal(goal, WorkshopWireFlatBuffers.DecodeConstructionRecord(record).Puzzle.Goal);
     }
 

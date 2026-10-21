@@ -589,8 +589,8 @@ public sealed class CSharpStaticGateTests
         ["langversion"] = ["14.0"],
         // Exact generated bundle and authored fixture resources; no other resource is admitted implicitly.
         ["resource"] = ["../elements/elements.bundle.json,elements.bundle.json",
-            "content/fixtures/delayed_signal_source.json,content.fixtures.delayed_signal_source.json",
-            "../content/fixtures/delayed_signal_source.json,content.fixtures.delayed_signal_source.json"],
+            "content/puzzles.json,CuriousContraptions.Puzzles.json",
+            "../content/puzzles.json,CuriousContraptions.Puzzles.json"],
     };
 
     /// <summary>The build properties the generated MSBuild editorconfig may carry (analyzers read them). Those that switch
@@ -826,15 +826,6 @@ public sealed class CSharpStaticGateTests
         ("engine/gpu/WorkshopPhysicsCompiler.cs", "WorkshopPhysicsCompiler.PartIdentities"),
         ("engine/gpu/WorkshopConnections.cs", "WorkshopConnections.Validate"),
         ("engine/gpu/WorkshopPuzzle.cs", "WorkshopPuzzle.Validate"),
-        ("engine/gpu/SpringboardLessons.cs", "SpringboardLessons.Validate"),
-        ("engine/gpu/DelayedSignal.cs", "DelayedSignal.Validate"),
-        ("engine/gpu/BumperSidekick.cs", "BumperSidekick.Validate"),
-        ("engine/gpu/BumperAdvanced.cs", "BumperAdvanced.Validate"),
-        ("engine/gpu/DominoEffect.cs", "DominoEffect.Validate"),
-        ("engine/gpu/ClearPipe.cs", "ClearPipe.Validate"),
-        ("engine/gpu/GentleBend.cs", "GentleBend.Validate"),
-        ("engine/gpu/QuarterBend.cs", "QuarterBend.Validate"),
-        ("engine/gpu/JoinedPipe.cs", "JoinedPipe.Validate"),
         ("engine/gpu/WorkshopSpringboard.cs", "SpringboardSettings.Validate"),
         ("engine/gpu/WorkshopSaveCodec.cs", "WorkshopSaveCodec.Decode"),
     ];

@@ -38,18 +38,6 @@ public partial class Workshop : Node3D
     private const float PartDragThresholdPixels = 6;
     private Metres _depth;
     private float _azimuth, _elevation, _zoom = 13.8f;
-    private const int FreeWorkshopIndex = 1;
-    private const int DelayedSignalIndex = 2;
-    private const int DominoEffectIndex = 3;
-    private const int BumperSidekickIndex = 4;
-    private const int BumperDepthIndex = 5;
-    private const int WallAndBumperIndex = 6;
-    private const int SpringForwardIndex = 7;
-    private const int ReadyToReboundIndex = 8;
-    private const int ClearPipeIndex = 9;
-    private const int GentleBendIndex = 10;
-    private const int QuarterBendIndex = 11;
-    private const int JoinedPipeIndex = 12;
     private GpuBodyId _nextId = new(1);
     private IReadOnlyDictionary<PartId, PartAllowance> _inventory = new Dictionary<PartId, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
@@ -70,19 +58,12 @@ public partial class Workshop : Node3D
         MakeInterface();
         InitializeUiAnimations();
         MakeGuidance();
-        _picker.AddItem("First principles");
-        _picker.AddItem("Free workshop");
-        _picker.AddItem("Wait for it");
-        _picker.AddItem("The domino effect");
-        _picker.AddItem("A little sidekick");
-        _picker.AddItem("Bounce into depth");
-        _picker.AddItem("Build the rebound");
-        _picker.AddItem("Spring forward");
-        _picker.AddItem("Ready to rebound");
-        _picker.AddItem("Through the looking tube");
-        _picker.AddItem("A gentle turn");
-        _picker.AddItem("Around the corner");
-        _picker.AddItem("Meet in the middle");
+        var authoredChoices = PuzzleCatalogue.Playable;
+        var choices = new List<PuzzleId>(authoredChoices);
+        choices.Insert(Math.Min(1, choices.Count), default);
+        _puzzleChoices = choices.ToArray();
+        foreach (var choice in _puzzleChoices)
+            _picker.AddItem(choice.IsAuthored ? PuzzleCatalogue.Presentation(choice).Title : "Free workshop");
         // Story 9A.14: the catalogue is the generated element bundle alone; a missing or invalid bundle stops start-up here.
         // Story 9A.17: its declared ports are the only port source; construction validation reads them once installed.
         try { World.Registry.Load(); DeclaredPorts.Install(World.Registry.Ports); DeclaredPhysics.Install(World.Registry.Physics); }
@@ -93,7 +74,7 @@ public partial class Workshop : Node3D
             return;
         }
         PresentMode();
-        _picker.Select(FreeWorkshopIndex);
+        _picker.Select(Array.IndexOf(_puzzleChoices, default(PuzzleId)));
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
         catch (Exception error)
         {
@@ -815,31 +796,9 @@ public partial class Workshop : Node3D
 
     private void ShowHint()
     {
-        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.JoinedPipe
-            ? "Shorten the tube to fit, turn it downhill, then bring its lower mouth near the bend's upper mouth. A small move aligns the openings; the ball needs a continuous route."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.QuarterBend
-            ? "Point one mouth upward and the other toward the left-hand basket. The curve redirects motion, but does not add speed."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.GentleBend
-            ? "Turn the first mouth upward under the ball. The second mouth sends it down and left; gravity carries it through the curve."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.ClearPipe
-            ? "Tilt the tube downhill toward the basket. Its cream mouths are open; the clear walls keep the ball inside without adding speed."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.SpringForward
-            ? "Tilt the springboard toward the receiver. Let the falling ball compress it, or add initial compression near the ball for a finite launch."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.ReadyToRebound
-            ? "The compressed springboard releases when Run begins. Place the receiver in the ball’s path."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperDepth
-            ? "Use Q/E to orbit. Put the bumper in front of the falling ball to send it toward the receiver behind."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.WallAndBumper
-            ? "Resize and position the wall to return the bumper rebound toward the receiver."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperSidekick
-            ? "Put the bumper just left of the falling ball to send it toward the receiver."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples
-            ? "Start with a gentle slope below the ball. Use the second ramp to continue the journey toward the receiver."
-            : World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal
-                ? "Connect the switch to the delay, then the delay to the lamp. A trigger starts the one-second countdown; further triggers are ignored until Reset."
-                : World.Construction.Puzzle.Id == WorkshopPuzzleId.DominoEffect
-                    ? "Stand four tiles between the ball and the fixed end domino, one metre apart, so each falling tile strikes the next. Connect the end domino to the lamp."
-                    : "Place the Basketball at two different heights and compare its fall.";
+        _hint.Text = World.Construction.Puzzle.Id.IsAuthored
+            ? PuzzleCatalogue.Presentation(World.Construction.Puzzle.Id).Hint
+            : "Place the Basketball at two different heights and compare its fall.";
         if (_hint.Visible) HideHint();
         else { _hint.Visible = true; RevealHint(); }
         _objectivePanel.Size = new(266, 0);

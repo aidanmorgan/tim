@@ -101,7 +101,7 @@ public static class WorkshopPhysicsCompiler
             var targetIndex = 0UL;
             foreach (var target in construction.Instances.OfType<WorkshopBall>().OrderBy(b => b.Id.Value))
             {
-                var sensorId = construction.Puzzle.Id == WorkshopPuzzleId.Free ? first + 16 + targetIndex * 2 : first + 6;
+                var sensorId = !construction.Puzzle.Id.IsAuthored ? first + 16 + targetIndex * 2 : first + 6;
                 sensors.Add(new(new(sensorId), receiver.Id, target.Id, RigidLocalPose.Identity,
                     new((Half)(-.66), (Half)(-.4), (Half)(-.66)),
                     new((Half).66, (Half)((Half).45 + receiver.Capture.Margin.Value), (Half).66),
@@ -117,11 +117,11 @@ public static class WorkshopPhysicsCompiler
                 battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
         foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
             if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact &&
-                (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue))
+                (!construction.Puzzle.Id.IsAuthored || construction.Ball.HasValue))
                 triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, Targets(construction),
                     new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
         foreach (var bumper in construction.Instances.OfType<WorkshopBumper>())
-            if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
+            if (!construction.Puzzle.Id.IsAuthored || construction.Ball.HasValue)
                 contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, Targets(construction), bumper.Work.Strength,
                     bumper.Work.Preload, new(.05f), 72));
         foreach (var plate in construction.Instances.OfType<WorkshopPressurePlate>())
@@ -171,7 +171,7 @@ public static class WorkshopPhysicsCompiler
 
     public static ElectricalSourceId ElectricalSource(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
-    public static GpuSensorId CaptureSensor(WorkshopReceiver receiver) => new(checked(PartIdentities(receiver.Id) + 6));
+    public static GpuSensorId CaptureSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuContactTriggerId ContactTrigger(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
@@ -183,7 +183,7 @@ public static class WorkshopPhysicsCompiler
 
     public static GpuContactWorkId ContactWork(GpuBodyId owner) => new(checked(PartIdentities(owner) + 8));
 
-    private static BodyTargetSet Targets(WorkshopConstruction construction) => construction.Puzzle.Id == WorkshopPuzzleId.Free
+    private static BodyTargetSet Targets(WorkshopConstruction construction) => !construction.Puzzle.Id.IsAuthored
         ? new(BodyTargetKind.AllDynamic, default)
         : new(BodyTargetKind.NamedBody, construction.Ball?.Id ?? throw new ArgumentException("Missing named puzzle body."));
 

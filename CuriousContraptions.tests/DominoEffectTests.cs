@@ -9,7 +9,7 @@ public sealed class DominoEffectTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Lesson(Half precision = default) =>
-        DominoEffect.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new(precision));
+        PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
     private static readonly WorkshopConnection EndToLamp = new(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Solved(WorkshopConstruction lesson)
     {
@@ -22,7 +22,7 @@ public sealed class DominoEffectTests
     public void FixturesInventoryGoalAndPickerIdentityAreTheAuthoredLevel()
     {
         var lesson = Lesson((Half).45);
-        Assert.Equal(WorkshopPuzzleId.DominoEffect, lesson.Puzzle.Id);
+        Assert.Equal(new PuzzleId("domino_effect"), lesson.Puzzle.Id);
         Assert.Equal(PartId.Domino, lesson.Puzzle.InventoryPart);
         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
         Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default, new(2), new(3), new((Half)0)), lesson.Puzzle.Goal);
@@ -67,10 +67,10 @@ public sealed class DominoEffectTests
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(WorkshopInput.Domino(new(2), .5, .09, 0, 0, 0, 0, 1) with { Locked = true }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDelay = new((Half).5) } } }).Validate());
-        Assert.Throws<ArgumentException>(() => DominoEffect.WithPrecision(DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new((Half)0)), new((Half).5)));
-        Assert.Equal((Half).5, DominoEffect.WithPrecision(lesson, new((Half).5)).Puzzle.Precision.Value);
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDelay = new((Half).5) } } }).Validate());
+        Assert.Equal(new PuzzleId("delayed_signal"), PuzzleCatalogue.WithPrecision(PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0)), new((Half).5)).Puzzle.Id);
+        Assert.Equal((Half).5, PuzzleCatalogue.WithPrecision(lesson, new((Half).5)).Puzzle.Precision.Value);
         // A Domino offers no activation input: wiring into one is rejected before any admission.
         var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (lesson with { Connections = new(intoDomino) }).Validate());
@@ -94,14 +94,14 @@ public sealed class DominoEffectTests
     }
 
     [Fact]
-    public void LegacyAuthoredSourceNamesTheSameTitleInventoryAndLockedEndDomino()
+    public void AuthoredDataNamesTheTitleInventoryAndLockedEndDomino()
     {
         using var source = JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(p => p.GetProperty("id").GetString() == "domino_effect");
         Assert.Equal("The domino effect", level.GetProperty("title").GetString());
-        Assert.Equal(4, level.GetProperty("inventory").GetProperty("domino").GetInt32());
-        var end = level.GetProperty("parts").EnumerateArray().Single(p => p.GetProperty("id").GetString() == "end");
-        Assert.Equal("domino", end.GetProperty("kind").GetString());
+        Assert.Equal(4, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "domino").GetProperty("count").GetInt32());
+        var end = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).Single(row => row.GetProperty("part").GetString() == "domino");
+        Assert.Equal("domino", end.GetProperty("part").GetString());
         Assert.True(end.GetProperty("locked").GetBoolean());
     }
 }

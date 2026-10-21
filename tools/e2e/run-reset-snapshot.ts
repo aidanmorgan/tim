@@ -61,7 +61,7 @@ export const SNAPSHOT_SCHEMA = {
             ['initial_compression', 'float'], ['capacity', 'float'], ['maximum_power', 'float'], ['initial_fraction', 'float'],
             ['enabled', 'uint8'], ['strength', 'float'], ['reference_mass', 'float'], ['preload', 'float'],
             ['half_extents', 'Vec3f'], ['friction', 'float'], ['target_count', 'uint32'], ['parameters', '[ParameterRecord]']] },
-        PuzzleRecord: { kind: 'table', fields: [['id', 'uint32'], ['placement', 'uint32'], ['precision', 'float'],
+        PuzzleRecord: { kind: 'table', fields: [['id', 'string'], ['placement', 'uint32'], ['precision', 'float'],
             ['inventory_part', 'string'], ['inventory_count', 'uint32'], ['goal_kind', 'uint32'], ['goal_body', 'uint64'],
             ['goal_target', 'uint64'], ['goal_event_source', 'uint64'], ['goal_delay', 'float'], ['raw_assistance', '[uint8]']] },
         ConstructionRecord: { kind: 'table', fields: [['revision', 'uint64'], ['settings', 'CadenceSettingsRecord'],

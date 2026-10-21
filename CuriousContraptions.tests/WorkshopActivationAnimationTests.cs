@@ -516,10 +516,10 @@ public sealed class WorkshopActivationAnimationTests
         // Free play compiles one capture sensor per ball (first + 16 + 2i), so the authored-identity sensor is not the compiled one.
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Receiver(new(2),0,1,0,0,0,0,1)));
-        Assert.Equal(WorkshopPuzzleId.Free, construction.Puzzle.Id);
+        Assert.Equal(default(PuzzleId), construction.Puzzle.Id);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
         var sensor = scene.Sensors[0].Id;
-        Assert.NotEqual(WorkshopPhysicsCompiler.CaptureSensor((WorkshopReceiver)construction.Instances[1]), sensor);
+        Assert.NotEqual(WorkshopPhysicsCompiler.CaptureSensor(((WorkshopReceiver)construction.Instances[1]).Id), sensor);
         var client = Client(); Set(client, "_readConstruction", construction); Set(client, "_readScene", scene);
         var arguments = new object?[] { sensor, null };
         var mapped = (bool)typeof(BrowserWorkshopClient).GetMethod("TryCaptureOwner", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(client, arguments)!;

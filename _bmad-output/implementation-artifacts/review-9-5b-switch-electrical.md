@@ -22,3 +22,13 @@ Resolved same-owner findings: one-hop routes could not express seeded cycles; na
 ## Publication-dependent checks
 
 Normal protected commit must pass. Independently verify published tree equals this snapshot plus authorized receipt, remote main identity, exact-SHA CI native success, artifact/run association and successful deployment. Terminal Pass remains pending those checks. No additional local campaign or Chrome run is required solely for publication. Carry the eventual terminal receipt into the next normal publication.
+
+## Terminal scoped Pass — 22 October 2026
+
+Independent publication check96db47 verified remote main `484ec38f726474d61f59a68730604f5bd600a5fc`, source `9f5762c7222fb9fc44057f498b0a6004387d36b8`, and equal tree `78e15b843bb1b372e8b6eaf69861e1f48c74552e`; only this authorized review receipt differs from the approved snapshot. Normal hooks24359b passed124/124 with three clean builds and no Anvil warnings.
+
+Independent terminal check9155c8 verified CI39668936780 attempt2 completed successfully on that exact main SHA: native2086/2086, zero failures/skips,1m35s. Pages artifact12379562697 belongs to the same run/SHA, size78767353 bytes, digest `sha256:41fc5c29523da51910fda7c9549015c3b0f4260fefda17aa1335332e56990ff4`. Deployment7236728459 identifies the same SHA and succeeded at2026-10-21T20:37:17Z for https://aidanmorgan.github.io/tim/.
+
+Attempt1 remains a recorded unexplained build failure:119 missing-type/reference errors in the normal build following a successful playtest build (eee3a7/fe22fb; independent fcc6ed/f0f9dc/3dce69). Its CI binlogs were unavailable. The unchanged-source exact-order local reproduction passed both builds,20.62s/18.61s (32535b/a9b2a9), on macOS SDK10.0.402 rather than CI Ubuntu SDK10.0.401. One authorized unchanged-SHA diagnostic retry passed; no source or gate changed, and no root-cause repair is claimed.
+
+Verdict: scoped Pass for required-now 9.5b native behavior and publication. Browser qualification remains deferred until catalogue completion under the owner's current instruction. Direct-only finite-work accounting limits, future Motor/campaign integration and later global qualification remain explicit. Carry this terminal receipt into the next normal9A26 publication; no separate administrative publication is required.
