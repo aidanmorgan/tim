@@ -1,0 +1,11 @@
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Options\": []|\"Options\": [null]", expected: "is malformed: Elements[") [13 ms]
+  Error Message:
+   Assert.Contains() Failure: Sub-string not found
+String:    "The element bundle 'res://elements/elements.bundle"···
+--
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Elements\": [|\"Elements\": [null, ", expected: "is malformed: Elements[0] is null") [8 ms]
+  Error Message:
+   Assert.Throws() Failure: Exception type was not an exact match
+Expected: typeof(System.IO.InvalidDataException)
+--
+Failed!  - Failed:     2, Passed:    19, Skipped:     0, Total:    21, Duration: 189 ms - CuriousContraptions.tests.dll (net10.0)

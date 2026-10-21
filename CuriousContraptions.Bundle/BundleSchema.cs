@@ -64,9 +64,22 @@ public static class BundleSchema
         return JsonSerializer.Serialize(new BundleDocument(entries), BundleJsonContext.Default.BundleDocument) + "\n";
     }
 
-    /// <summary>The bundle these bytes hold. Malformed input throws <see cref="JsonException"/>.</summary>
-    public static BundleDocument Read(string json) =>
-        JsonSerializer.Deserialize(json, BundleJsonContext.Default.BundleDocument) ?? throw new JsonException("The bundle is null.");
+    /// <summary>The bundle these bytes hold. Malformed input throws <see cref="JsonException"/>, including a null where a list holds
+    /// references (an element, or a parameter option), which the nullable annotations cannot reject inside a list.</summary>
+    public static BundleDocument Read(string json)
+    {
+        var document = JsonSerializer.Deserialize(json, BundleJsonContext.Default.BundleDocument) ?? throw new JsonException("The bundle is null.");
+        for (var i = 0; i < document.Elements.Count; i++)
+        {
+            var entry = document.Elements[i] ?? throw new JsonException($"Elements[{i}] is null.");
+            var parameters = entry.Metadata.Parameters;
+            for (var p = 0; p < parameters.Count; p++)
+                for (var o = 0; o < parameters[p].Options.Count; o++)
+                    if (parameters[p].Options[o] is null)
+                        throw new JsonException($"Elements[{i}].Metadata.Parameters[{p}].Options[{o}] is null.");
+        }
+        return document;
+    }
 
     /// <summary>The declared domains one set bit each, in ascending bit order. An undefined bit is kept, so validation rejects it.</summary>
     public static IReadOnlyList<SimulationDomain> Domains(SimulationDomain domains) =>

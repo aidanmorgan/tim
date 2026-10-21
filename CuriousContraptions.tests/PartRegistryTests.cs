@@ -99,6 +99,8 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
 
     [Theory]
     [InlineData("malformed", "is malformed")]
+    [InlineData("\"Elements\": [|\"Elements\": [null, ", "is malformed: Elements[0] is null")]
+    [InlineData("\"Options\": []|\"Options\": [null]", "is malformed: Elements[")]
     [InlineData("\"ScenePath\":|\"Unknown\": 1, \"ScenePath\":", "is malformed")]
     [InlineData("\"Category\": \"Motion\"|\"Category\": \"Sideways\"", "is malformed")]
     [InlineData("\"Id\": \"bowling\"|\"Id\": \"ball\"", "BUNDLE001 duplicate id 'ball'")]
@@ -181,6 +183,10 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
 
     private static readonly string[] GameSourceDirectories = ["engine", "ui"];
 
+    /// <summary>The UI-control and socket-choice pictograms Story 9A.18 keeps, in ordinal order.</summary>
+    private static readonly string[] UiPictograms = ["cube", "extend_input", "extended_output", "first_input", "front", "move", "reset_input",
+        "resize", "retract_input", "retracted_output", "second_input", "set_input", "socket_reset", "socket_set"];
+
     private static string[] GameSources() =>
         GameSourceDirectories.SelectMany(directory => Directory.GetFiles(Path.Combine(Root, directory), "*.cs", SearchOption.AllDirectories)).ToArray();
 
@@ -199,6 +205,30 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.Empty(hits);
         Assert.Null(typeof(PartRegistry).GetMethod("Discover"));
         Assert.False(typeof(PartDefinition).IsSubclassOf(typeof(Resource)), "PartDefinition is a plain runtime record, not a Godot Resource");
+        // The resource form of the ball material is gone: no source file, no compile item and no type in the game assembly.
+        Assert.False(File.Exists(Path.Combine(Root, "engine", "BallMaterialResource.cs")));
+        Assert.DoesNotContain("BallMaterialResource", File.ReadAllText(Path.Combine(Root, "CuriousContraptions.csproj")), StringComparison.Ordinal);
+        Assert.DoesNotContain(typeof(MachineWorld).Assembly.GetTypes(), type => type.Name == "BallMaterialResource");
+        Assert.DoesNotContain(GameSources(), path => File.ReadAllText(path).Contains("BallMaterialResource", StringComparison.Ordinal));
+    }
+
+    /// <summary>Story 9A.14 deletion: the undelivered parts have no PartId constant and no wire identity until Story 12.1 delivers
+    /// their packages (a re-added PartId.Tennis or numeric arm fails here).</summary>
+    [Fact]
+    public void TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity()
+    {
+        var constants = typeof(PartId).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(field => field.FieldType == typeof(PartId)).Select(field => ((PartId)field.GetValue(null)!).Value).ToArray();
+        Assert.NotEmpty(constants);
+        foreach (var part in UndeliveredParts.All)
+        {
+            var id = UndeliveredParts.Id(part);
+            Assert.DoesNotContain(id.Value, constants);
+            Assert.DoesNotContain(part.ToString(), typeof(PartId).GetFields().Select(field => field.Name));
+            Assert.Equal(0u, id.ToNumericId());
+        }
+        var source = File.ReadAllText(Path.Combine(Root, "engine", "PartId.cs"));
+        Assert.DoesNotMatch(@"\b(Tennis|Balloon)\b|""tennis""|""balloon""", source);
     }
 
     /// <summary>Story 9A.14 deletion: no static Free palette list remains; the Free rows exist only as the registry's bundle order.</summary>
@@ -227,6 +257,13 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.DoesNotContain($"\"{id}\"", source, StringComparison.Ordinal);
             Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopIcons.Pictogram(id));
         }
+        // Ratchet: the pictogram table holds exactly the UI-control and socket-choice arms Story 9A.18 keeps, so any re-added
+        // element arm (delivered, undelivered or future, such as "motor") fails here.
+        var pictogram = source[source.IndexOf("public static Texture2D Pictogram", StringComparison.Ordinal)..source.IndexOf("private static ImageTexture Rasterise", StringComparison.Ordinal)];
+        var arms = System.Text.RegularExpressions.Regex.Matches(pictogram, "\"([a-z_]+)\"(?: or \"([a-z_]+)\")* =>")
+            .SelectMany(match => match.Groups.Values.Skip(1).SelectMany(group => group.Captures.Select(capture => capture.Value)))
+            .Order(StringComparer.Ordinal).ToArray();
+        Assert.Equal(UiPictograms, arms);
         // Control: the UI pictograms stay.
         Assert.NotNull(WorkshopIcons.Pictogram("socket_set"));
         Assert.NotNull(WorkshopIcons.Pictogram("resize"));

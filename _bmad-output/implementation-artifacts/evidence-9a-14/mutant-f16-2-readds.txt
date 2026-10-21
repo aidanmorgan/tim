@@ -1,0 +1,4 @@
+  Failed CuriousContraptions.Tests.PartRegistryTests.WorkshopIconsKeepsNoElementArm [8 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [1 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains [14 ms]
+Failed!  - Failed:     3, Passed:    19, Skipped:     0, Total:    22, Duration: 183 ms - CuriousContraptions.tests.dll (net10.0)
