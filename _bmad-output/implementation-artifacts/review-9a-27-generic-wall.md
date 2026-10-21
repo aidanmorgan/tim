@@ -50,3 +50,14 @@ No Chrome or repeat local campaign is required for publication under the latest 
 Approved replacement staged tree `e19ac45b995ded3db1e3cf889b2a9211d3ce89e5`, binary diff versus83de446d SHA256 `6b15404b094f84504779ec14fa5e6d09dde90ce038b7a4a20e308feddfc643e6`, including the existing review receipt. Reviewer independently verified both identities and inspected the changed catch path (178abf). This addendum may accompany that snapshot.
 
 The normal hook correctly blocked the earlier commit:123/124 checks passed, with one UI catch-classification violation. The correction reports the same typed OutOfRange refusal and returns before proposed construction, Undo or submission. No runtime admission rule or test assertion was weakened. Build22374 is clean; the full affected UI failure classification plus editor/resize controls passed37/37 (993441, session16586). Earlier evidence remains applicable to unchanged inputs. Normal protected commit may be retried; publication-dependent checks and pending-browser limits above are unchanged.
+
+
+## CI ratchet correction — affected SnapshotApproval
+
+Approved staged tree `731fd3f4dad49d7b100a56a78f95ce61ae83ea59`, diff versus published `beacc787f6b73572dddb5eae66c23dfd5b63667a` SHA256 `6448841b25a73eee38d1f1363b14ed8b3779161c733b675df88dc7003c09b108`. This addendum may accompany the snapshot. Reviewer checked actual Roslyn guard and identities (3622aa); runtime source is unchanged.
+
+CI39633245604 failed2013/2014 because the historical catch ratchet rejected the new legitimate domain-validation to typed-wire refusal boundary. The correction permits exactly one ArgumentException catch in WorkshopWireFlatBuffers.DecodeParameters, requires its only statement to throw WireFaultException.OutOfRange retaining the inner cause, and keeps the original allowlist everywhere else. It does not admit fallback, retry or swallowing. Build26062 clean; affected WireFaultTests/WorkshopSaveRejectionTests/WorkshopWallTests132/132 passed (aceac1,32100). The other2013 CI passes remain applicable.
+
+Requested negative control changed the verifier catch outside DecodeParameters from OverflowException to ArgumentException. The source-inspecting ratchet failed1/1 as intended in42ms (422573,73759) using matching binaries without rebuild. Owner restored exact runtime source; reviewer confirmed no unstaged runtime difference and unchanged staged tree. No repeated positive run is needed because relevant inputs are restored exactly.
+
+Normal protected forward publication is approved. Terminal delivery remains publication-pending until the corrected remote identity, CI and deployment/artifact checks succeed; browser qualification remains deferred.

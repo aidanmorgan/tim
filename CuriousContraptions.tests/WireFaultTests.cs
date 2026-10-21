@@ -1,5 +1,8 @@
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CuriousContraptions.Tests;
 
@@ -284,15 +287,31 @@ public sealed class WireFaultTests
         foreach (var file in new[] { "engine/gpu/WorkshopWire.cs", "engine/gpu/WorkshopActivationWire.cs", "engine/gpu/WorkshopTimerWire.cs",
                      "engine/gpu/WorkshopContactWorkWire.cs" })
             Assert.False(File.Exists(Path.Combine(root, file)), $"{file} is re-added.");
-        // No decode path retries or reclassifies: the only catch on the codecs' paths is the verifier's OverflowException, and the
-        // save path catches only the frame's own fault and the connection rule's typed refusal.
+        // No retry/alternate decoder: only the declared-parameter external boundary translates its
+        // validation exception into a typed wire refusal. Keep that exact catch separate from the codec-wide pin.
+        var parameterBoundaries = 0;
         foreach (var codec in new[] { "engine/gpu/WorkshopCommandRouter.cs", "engine/gpu/WorkshopWireFlatBuffers.cs",
                      "engine/gpu/WorkshopSaveCodec.cs", "engine/gpu/WorkshopSavePrevalidation.cs" })
         {
-            var catches = System.Text.RegularExpressions.Regex.Matches(File.ReadAllText(Path.Combine(root, codec)), @"\bcatch\b\s*(\(\s*(\w+)[^)]*\))?")
-                .Select(match => match.Groups[2].Success ? match.Groups[2].Value : "(all)").ToArray();
-            Assert.All(catches, caught => Assert.Contains(caught, AdmittedCatches));
+            var syntax = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, codec)), cancellationToken: TestContext.Current.CancellationToken)
+                .GetRoot(TestContext.Current.CancellationToken);
+            foreach (var clause in syntax.DescendantNodes().OfType<CatchClauseSyntax>())
+            {
+                if (codec == "engine/gpu/WorkshopWireFlatBuffers.cs" &&
+                    clause.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault()?.Identifier.ValueText == "DecodeParameters")
+                {
+                    parameterBoundaries++;
+                    Assert.Equal("ArgumentException", clause.Declaration?.Type.ToString());
+                    var refusal = Assert.IsType<ThrowStatementSyntax>(Assert.Single(clause.Block.Statements));
+                    var fault = Assert.IsType<ObjectCreationExpressionSyntax>(refusal.Expression);
+                    Assert.Equal("WireFaultException", fault.Type.ToString());
+                    Assert.Equal("WireFaultReason.OutOfRange", fault.ArgumentList!.Arguments[0].Expression.ToString());
+                    Assert.Equal(clause.Declaration!.Identifier.ValueText, fault.ArgumentList.Arguments[2].Expression.ToString());
+                }
+                else Assert.Contains(clause.Declaration?.Type.ToString() ?? "(all)", AdmittedCatches);
+            }
         }
+        Assert.Equal(1, parameterBoundaries);
         Assert.DoesNotContain("catch (ArgumentException)", File.ReadAllText(Path.Combine(root, "engine/gpu/BrowserWorkshopClient.cs")), StringComparison.Ordinal);
     }
 
