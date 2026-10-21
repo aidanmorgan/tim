@@ -1,0 +1,94 @@
+Story 9A.15 mutants on d3f17d27 (each applied with the Edit tool, built, its tests run, then restored with git checkout).
+Expected: every mutant turns at least one named test red.
+
+== M1 AC1 re-add the hard-coded Decodable list in place of the loaded bundle (WorkshopSavePrevalidation.Element)
+diff:  engine/gpu/WorkshopSavePrevalidation.cs | 8 +++++++-
+diff:  1 file changed, 7 insertions(+), 1 deletion(-)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveIsValidatedAgainstTheLoadedBundle
+Failed!  - Failed:     1, Passed:    97, Skipped:     0, Total:    98, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+
+== M2 AC2 the save refusal no longer names the id
+diff:  engine/gpu/WorkshopSavePrevalidation.cs | 2 +-
+diff:  1 file changed, 1 insertion(+), 1 deletion(-)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveIsValidatedAgainstTheLoadedBundle
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "balloon")
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "kite")
+  Failed CuriousContraptions.Tests.BundleElementIdTests.ASaveNamingAnUnknownElementIsRefusedNamingIt(element: "tennis")
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AStoredSaveNamingAnUnknownElementIsRefusedNamingIt
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity
+Failed!  - Failed:     6, Passed:    30, Skipped:     0, Total:    36, Duration: 348 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M3 AC2 the worker decode admits an unknown id as a collider-less generic instance
+diff:  engine/gpu/WorkshopWireFlatBuffers.cs | 4 +---
+diff:  1 file changed, 1 insertion(+), 3 deletions(-)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite")
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis")
+  Failed CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor
+Failed!  - Failed:     3, Passed:    10, Skipped:     0, Total:    13, Duration: 265 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M4 AC2 re-add the untyped unknown-kind ArgumentException in the worker decode
+diff:  engine/gpu/WorkshopWireFlatBuffers.cs | 2 +-
+diff:  1 file changed, 1 insertion(+), 1 deletion(-)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "kite")
+  Failed CuriousContraptions.Tests.BundleElementIdTests.AWorkerMessageNamingAnUnknownElementIsRefusedNamingIt(element: "tennis")
+  Failed CuriousContraptions.Tests.BundleElementIdTests.TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor
+Failed!  - Failed:     3, Passed:    10, Skipped:     0, Total:    13, Duration: 262 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M5 AC3 re-add PartId.ToNumericId with its _ => 0 default
+diff:  engine/PartId.cs | 6 ++++++
+diff:  1 file changed, 6 insertions(+)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.NoNumericPartIdConversionRemains
+Failed!  - Failed:     1, Passed:    12, Skipped:     0, Total:    13, Duration: 258 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M6 AC3 the schema's part_id becomes uint32
+diff:  schemas/workshop_wire.fbs | 2 +-
+diff:  1 file changed, 1 insertion(+), 1 deletion(-)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.NoSchemaFieldCarriesANumericPartId
+Failed!  - Failed:     1, Passed:    12, Skipped:     0, Total:    13, Duration: 258 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M7 AC1 the registry's element set also admits the undelivered elements
+diff:  engine/PartRegistry.cs | 2 +-
+diff:  1 file changed, 1 insertion(+), 1 deletion(-)
+build: succeeded
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheRegistryElementsAreTheLoadedBundlesDeliverableElements
+  Failed CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity
+Failed!  - Failed:     2, Passed:    21, Skipped:     0, Total:    23, Duration: 245 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M8 F17-4 Coverage takes the bundle's DisplayName, not its element Id
+diff:  tools/Coverage/CurrentCatalogue.cs | 2 +-
+diff:  1 file changed, 1 insertion(+), 1 deletion(-)
+build: succeeded
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.DeclaredPartIdentitiesComeFromEveryBundleElementId
+Failed!  - Failed:     5, Passed:    32, Skipped:     0, Total:    37, Duration: 151 ms - Coverage.Tests.dll (net10.0)
+
+== M9 re-add the per-id generic decode list ("pipe_bend_45" or ... => new WorkshopGenericInstance(..., For(partId)))
+diff:  CuriousContraptions.tests/BundleElementIdTests.cs | 10 ++++++++++
+diff:  engine/gpu/WorkshopWireFlatBuffers.cs             |  2 ++
+diff:  2 files changed, 12 insertions(+)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.TheWorkerDecodeKeepsNoPerIdGenericList
+Failed!  - Failed:     1, Passed:    13, Skipped:     0, Total:    14, Duration: 255 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M5b AC3 re-add PartId.FromNumericId alone
+diff:  CuriousContraptions.tests/BundleElementIdTests.cs | 10 ++++++++++
+diff:  engine/PartId.cs                                  |  6 ++++++
+diff:  2 files changed, 16 insertions(+)
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleElementIdTests.NoNumericPartIdConversionRemains
+Failed!  - Failed:     1, Passed:    13, Skipped:     0, Total:    14, Duration: 263 ms - CuriousContraptions.tests.dll (net10.0)
+
+== Result: all 10 mutants (M1-M8, M5b, M9) red; every mutant restored with git checkout.
+M9 and M5b ran with a working-tree guard test, TheWorkerDecodeKeepsNoPerIdGenericList, added to BundleElementIdTests.cs. The
+coordinator asked for an evidence-only commit with no product or test changes, so the guard was reverted and is not committed. The
+committed tests do not detect a re-added per-id generic list (it behaves exactly like the default arm). M5b stays red without the
+guard: NoNumericPartIdConversionRemains matches both names. Filed for the coordinator: commit that guard in a follow-up.

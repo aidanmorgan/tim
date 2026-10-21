@@ -56,4 +56,36 @@ Since Story 9A.2 the one FlatBuffers codec already carries each instance's strin
 
 ## Implementation notes
 
-See the [evidence](evidence-9a-15/) directory and the commit message for the per-AC proof.
+The code commit is `d3f17d27`, which Murdoch-23 passed in round 1. The commit on top of it adds evidence only. The generic-list
+guard used for M9 (`TheWorkerDecodeKeepsNoPerIdGenericList`) was a working-tree test and is not committed (see `mutants.txt`).
+Committing it is filed as a follow-up.
+
+**The AC1 boundary, stated explicitly.** Untrusted element ids enter the game in one place: a stored save. A stored save is
+validated against the loaded bundle (`World.Registry.Elements`) before any domain construction. A worker message is built only
+from ids already validated there: ids from the registry, from a save it admitted, or from the C# lessons' constants. So every id
+a message carries was validated against the loaded bundle at a serialisation boundary.
+
+The worker has no bundle. As a second line of defence, it refuses by name any id it cannot decode
+(`WireFaultReason.UnknownElement`). `EveryLoadedElementIsKnownToTheWorkerDecode` proves that every loaded element is known to
+the worker decode, so the worker never refuses an element the save boundary admitted. Traces encode the same Construct
+command, so they carry the same strings.
+
+| AC | Proof | Mutant (`evidence-9a-15/mutants.txt`) |
+|---|---|---|
+| 1. Each instance carries its typed `PartId` string, validated against the loaded bundle at the boundary | `ASaveCarriesEachInstancesBundleElementIdString`, `AWorkerMessageCarriesEachInstancesBundleElementIdString`, `ASaveIsValidatedAgainstTheLoadedBundle` (a `ramp` save is refused, naming `'ramp'`, when the passed set omits it; it loads when the set includes it), `TheRegistryElementsAreTheLoadedBundlesDeliverableElements`, `EveryLoadedElementIsKnownToTheWorkerDecode` | M1 (re-add `Decodable`), M7 (the registry set leaks undelivered ids) |
+| 2. An unknown id is rejected atomically, naming the id | Save: `ASaveNamingAnUnknownElementIsRefusedNamingIt` (`kite`, `tennis`, `balloon`), `AStoredSaveNaming…`, `TheUndeliveredParts…` (F16-4). Message: `AWorkerMessageNaming…`, `TheWorkerRouterRefusesAnUnknownElementBeforeItsExecutor`. Chrome: `engine-core-2b1` test 3 (the refusal names `'kite'`, the Load issues no command, the bench is kept, and the intact save loads) | M2 (unnamed), M3 (silent admit), M4 (untyped `ArgumentException`) |
+| 3. `rg -w "ToNumericId\|FromNumericId"` returns 0 hits, and no schema or save field carries a numeric id | `deletion-rg-proof.txt`; `NoNumericPartIdConversionRemains`, `NoSchemaFieldCarriesANumericPartId` | M5, M5b (re-add `To`/`From`), M6 (`part_id: uint32`), M8 (Coverage, F17-4), M9 (re-add the generic list: red only with the uncommitted guard) |
+| 4. No format versions; an invalid save gets a player-visible message, with no migration | The schema is unchanged and has no version field; the refusal reaches the status line through `WorkshopUiFailure.Report` (`engine-core-2b1` tests 2 and 3) | covered by M2 |
+| 5. Every suite that saves and loads passes | The Full run below | — |
+| 6. 0 warnings, `dotnet test` 100%, every e2e suite 100% in one run | `tier1-build.txt` (default and PlaytestDiagnostics), `tier1-release-build.txt`, `tier1-test.txt` (2,258 tests, 0 failed), `tier1-node.txt`, `wire-contract.json`, `lifecycle-contract.log`, `ownership-oracles.log` (`--oracles .`, exit 0), `tier1-anvil.txt`. Full run below | — |
+
+**Chrome.**
+- `targeted-1-working-tree`: Pass. The new test 3 and the smoke pair ran before the commit.
+- `e2e-full-d3f17d27`: the one Full run, on the committed code. All 47 suite records Pass, with 0 failures. The verdict is
+  `Incomplete(Contended)`: three SerialAlone suites (clock-master, pkg-3, arch-9a-catalogue) passed only under contended
+  observations. The load came from other sessions on the machine (load average 7–8 against a threshold of 7.23), not from this
+  run.
+- `e2e-serial-rerun-d3f17d27`: verdict `Pass`. The same commit reran those three suites plus the smoke pair, and each has a
+  Clean passing record.
+- The Full run's timing counters are the same as the 9A.2 and 9A.14 Full runs: clock-master closeFindings 1, unresponsive 1,
+  debtFaults 1, renewedLate 1, recal 4.
