@@ -149,7 +149,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | A16 | `SimulationEventKind.CounterReached` and `LatchSet` are element-named | 5 | 9A.22 |
 | D1 | The event ring has no runtime producer | 4 | 9A.22 |
 | D2, D3 | The event ring has no runtime consumer; occurrences ride in reliable reads and main-thread pumps relay them | 3, 4 | 9A.23 + 9A.25b |
-| C2, C3 | `worker.js` accepts a raw `reliableStalled` flag and a raw `memoryRequest` channel outside the router | 3 | 9A.3 |
+| C2, C3 | Story 9A.3 (in review) deletes the raw stall flag and the raw memory channel: the Simulation worker detects a reliable-read stall in its own receipt accounting (`WorkshopReliableReadLedger`, receipts matched in C#), memory observation is the typed `ObserveMemory` command answered by its acknowledgement, and an unknown command or worker envelope is refused with a typed reason (`WireFaultReason.UnknownCommand`, `WorkerEnvelopeRejection`). The row closes at 9A.3's terminal Pass | 3 | 9A.3 |
 | C4, C5 | `CCGPU` and `CCGOAL_SOLVED` console lines and `globalThis.WorkshopPoseRing`/`WorkshopAnimation` test hooks | 3 | 9A.24 |
 | B1 | Story 9A.2 (in review) deletes the legacy binary codec (`WorkshopWire`) and its section codecs: commands, responses, schedule endpoints, the trace and saves are size-prefixed, identified FlatBuffers decoded once (`WireFaultException`), saves are pre-validated (`WorkshopSaveRejectedException`), and the workers parse no buffer. The row closes at 9A.2's terminal Pass | 3, 9 | 9A.2 |
 | B6 | `System.Half` binary16 lanes remain in production code (about 850 tokens) | f32 authority | 9A.44 (9.5a moves the timer lane first) |

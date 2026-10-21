@@ -116,12 +116,14 @@ public static class WorkshopWireFlatBuffers
             throw new ArgumentException("Unsupported expected revision.");
 
         var kind = (WorkshopCommandKind)fb.Kind;
+        if (!Enum.IsDefined(kind))
+            throw new WireFaultException(WireFaultReason.UnknownCommand, $"The command names kind {(uint)fb.Kind}, which this game does not have.");
         var sequence = new CommandSequence(fb.Sequence);
         var cadence = new CadenceRevision(fb.Cadence);
         var projection = new ProjectionEpoch(fb.Projection);
         var hasSettings = kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.ConfigureCadence;
         if ((kind == WorkshopCommandKind.Initialize ? cadence.Value != 0 || projection.Value != 0 : cadence.Value == 0 || projection.Value == 0) ||
-            !Enum.IsDefined(kind) || sequence.Value == 0 ||
+            sequence.Value == 0 ||
             (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && revisionKind != ExpectedRevisionKind.Exact) ||
             hasSettings != fb.Settings.HasValue ||
             (kind == WorkshopCommandKind.ConfigureElectrical) != fb.Electrical.HasValue ||
@@ -180,6 +182,7 @@ public static class WorkshopWireFlatBuffers
         response.Session.Validate();
         if ((response.Kind == WorkshopResponseKind.Read) != (response.Publication.Value != 0))
             throw new ArgumentException("Invalid physical publication identity.");
+        ValidateMemory(response);
         WorkshopMessages.ValidateCapture(response.Read);
         WorkshopMessages.ValidateScheduleIdentity(response);
         WorkshopMessages.ValidatePhysicalRead(response.Read);
@@ -324,6 +327,10 @@ public static class WorkshopWireFlatBuffers
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
         if (memoryOffset.HasValue) Wire.WorkshopResponse.AddActivationMemory(builder, memoryOffset.Value);
         if (motion.HasValue) Wire.WorkshopResponse.AddMotion(builder, motion.Value);
+        if (response.Memory is { } observed)
+            Wire.WorkshopResponse.AddMemory(builder, MemoryObservationRecord.CreateMemoryObservationRecord(builder, observed.UsedBefore,
+                observed.UsedAfter, observed.DurationTicks, observed.Frequency, observed.AllocatedBefore, observed.AllocatedAfter,
+                observed.CollectionsBefore, observed.CollectionsAfter));
         builder.FinishSizePrefixed(Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, ResponseIdentifier);
         return builder.SizedByteArray();
     }
@@ -437,11 +444,24 @@ public static class WorkshopWireFlatBuffers
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 
+        WorkshopMemoryMeasurement? memory = fb.Memory is { } r
+            ? new(r.UsedBefore, r.UsedAfter, r.DurationTicks, r.Frequency, r.AllocatedBefore, r.AllocatedAfter, r.CollectionsBefore, r.CollectionsAfter)
+            : null;
         var response = new WorkshopResponse(sequence, kind, new WorkshopCommandResult(outcome, reason), phase, read, session,
             new PublicationSequence(fb.Publication), new CadenceRevision(fb.Cadence), master, new ProjectionEpoch(fb.Projection),
-            new PulseOrdinal(tick.Value));
+            new PulseOrdinal(tick.Value), memory);
         WorkshopMessages.ValidateScheduleIdentity(response);
+        ValidateMemory(response);
         return response;
+    }
+
+    /// <summary>A memory measurement rides only on an applied acknowledgement (the memory query's), and is a valid measurement.</summary>
+    private static void ValidateMemory(WorkshopResponse response)
+    {
+        if (response.Memory is not { } memory) return;
+        if (response.Kind != WorkshopResponseKind.Acknowledgement || response.Result.Outcome != WorkshopCommandOutcome.Applied)
+            throw new ArgumentException("Only an applied acknowledgement carries a memory measurement.");
+        memory.Validate();
     }
 
     public static Offset<ConstructionRecord> EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, bool validate = true)

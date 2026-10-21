@@ -9,7 +9,7 @@ let animationPort, clockMaster, derivationCheck, roles, lifetime = 0, disposed =
 // Scheduler turns (Program.NextTurn): declared before anything that can dispose the session.
 const turnChannel = new MessageChannel(), queuedTurns = [], turnTimers = new Set();
 let poseRing, poseSeqView, poseCapacity = 0, poseSlotIndex = 0, posePublicationSequence = 0n;
-let latestRead, pendingReadIdentity, occurrenceReadReserved = false; // a read is { bytes, identity }
+let latestRead, readInFlight = false, occurrenceReadReserved = false; // a read is { bytes, identity }
 const occurrenceReads = [], pendingScheduleControls = [], occurrenceReadCapacity = 64;
 
 // The pose ring layout owned by WorkshopPoseRing; WorkerAbiTests pins every value against its C# owner. Story 9A.2: this worker
@@ -75,7 +75,7 @@ function disposeOwned() {
     turnTimers.clear(); queuedTurns.length = 0;
     poseRing = poseSeqView = undefined; poseCapacity = 0;
     occurrenceReads.length = pendingScheduleControls.length = 0;
-    latestRead = undefined; occurrenceReadReserved = false;
+    latestRead = undefined; readInFlight = occurrenceReadReserved = false;
 }
 
 // The clock master context answers every requester's probe through the clock ring; this worker never does (Story 9.4b).
@@ -156,32 +156,38 @@ function forwardScheduleControl(bytes, recipient) {
 }
 
 function flushScheduleControls() {
-    if (pendingReadIdentity || latestRead || occurrenceReads.length) return;
+    if (readInFlight || latestRead || occurrenceReads.length) return;
     while (pendingScheduleControls.length) {
         const item = pendingScheduleControls.shift();
         forwardScheduleControl(item.bytes, item.recipient);
     }
 }
 
-// One read in flight: its receipt identity (session and publication) comes from C# with the read, and the browser echoes it.
+// One read in flight, posted in publication order: its receipt identity (session and publication) comes from C# with the read,
+// and the browser echoes it unread.
 function flushRead() {
-    if (pendingReadIdentity || (occurrenceReads.length === 0 && !latestRead)) return;
+    if (readInFlight || (occurrenceReads.length === 0 && !latestRead)) return;
     const read = occurrenceReads.length ? occurrenceReads.shift() : latestRead;
     if (read === latestRead) latestRead = undefined;
-    pendingReadIdentity = read.identity;
-    const readIdentity = read.identity.slice();
-    self.postMessage({ read: read.bytes, readIdentity, dispatchReadbackMs: 0 }, [read.bytes.buffer, readIdentity.buffer]);
+    readInFlight = true;
+    self.postMessage({ read: read.bytes, readIdentity: read.identity, dispatchReadbackMs: 0 }, [read.bytes.buffer, read.identity.buffer]);
 }
 
+// The trace flush is diagnostic output: its failure never stops the session, but it is always logged, never swallowed.
 function flushObservation() {
-    if (!observationPending || activeRequests !== 0 || pendingReadIdentity || latestRead || occurrenceReads.length) return;
+    if (!observationPending || activeRequests !== 0 || readInFlight || latestRead || occurrenceReads.length) return;
     observationPending = false;
-    try { host.FlushObservation(); } catch {}
+    try { host.FlushObservation(); }
+    catch (error) { console.error('CCGPU_TRACE_FLUSH_EXCEPTION', String(error)); }
 }
 
+// Story 9A.3: C# matches every receipt in its own reliable-read accounting (WorkshopReliableReadLedger), which is how the worker
+// detects a reliable-read stall. A receipt it refuses is a typed rejection reported as a transport failure, never ignored.
 function acknowledgeRead(receipt) {
-    if (!pendingReadIdentity || receipt.length !== 24 || !receipt.every((v, i) => v === pendingReadIdentity[i])) return;
-    pendingReadIdentity = undefined;
+    if (disposed) return;
+    try { host.AcknowledgeRead(receipt); }
+    catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); return; }
+    readInFlight = false;
     flushRead();
     flushScheduleControls();
     flushObservation();
@@ -208,7 +214,7 @@ runtime.setModuleImports('workshopGpu', {
     },
     scheduleControl(bytes, recipient) {
         const val = new Uint8Array(bytes);
-        if (pendingReadIdentity || latestRead || occurrenceReads.length) {
+        if (readInFlight || latestRead || occurrenceReads.length) {
             if (pendingScheduleControls.length >= 4) throw new Error('Schedule drain capacity exceeded.');
             pendingScheduleControls.push({ bytes: val, recipient });
         } else forwardScheduleControl(val, recipient);
@@ -251,8 +257,7 @@ host = exports.CuriousContraptions.Simulation.Program;
 roles = Array.from(host.ScheduleRoles());
 
 self.onmessage = async event => {
-    let received;
-    try { received = clockNow(); } catch { return; }
+    try { clockNow(); } catch { return; } // a failed native clock has already retired this session and reported it
     const bootstrap = event.data?.bootstrap;
     if (bootstrap instanceof Uint8Array) {
         try {
@@ -298,29 +303,21 @@ self.onmessage = async event => {
         catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
         return;
     }
-    if (typeof event.data?.reliableStalled === 'boolean') { if (!disposed) host.SetReliableStall(event.data.reliableStalled); return; }
     const receipt = event.data?.readAcknowledged;
     if (receipt instanceof Uint8Array) {
         acknowledgeRead(receipt);
         return;
     }
-    const memoryRequest = event.data?.memoryRequest;
-    if (memoryRequest instanceof Uint8Array) {
-        try {
-            if (memoryRequest.length !== 64) throw new Error('Invalid stopped memory request width.');
-            const result = new Uint8Array(host.ObserveMemory(memoryRequest,
-                activeRequests === 0 && !latestRead && !pendingReadIdentity));
-            if (clockNow() - received > 1000) {
-                console.error('CCGPU_MEMORY_LATE', Array.from(result).join(','));
-                throw new Error('Stopped worker collection exceeded 1000ms; reload to recover.');
-            }
-            self.postMessage({ memoryResult: result }, [result.buffer]);
-        } catch (error) { self.postMessage({ failure: true, detail: String(error) }); }
+    // Every command and query (memory observation among them) is one typed buffer for the managed decoder. Any other envelope,
+    // a retired channel name included, is refused by name with its typed reason and recorded in this worker's fault log.
+    const bytes = event.data?.bytes;
+    if (!(bytes instanceof Uint8Array)) {
+        const keys = event.data !== null && typeof event.data === 'object' ? Object.keys(event.data) : [];
+        self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(keys) });
         return;
     }
-    const bytes = event.data?.bytes;
-    if (!(bytes instanceof Uint8Array) || activeRequests >= 2) {
-        self.postMessage({ rejected: true, detail: 'Invalid or saturated Workshop command transport.' });
+    if (activeRequests >= 2) {
+        self.postMessage({ rejected: true, detail: host.RejectSaturatedCommand() });
         return;
     }
     activeRequests++;

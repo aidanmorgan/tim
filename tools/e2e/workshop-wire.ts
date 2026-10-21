@@ -31,7 +31,8 @@ export enum CommandKind {
   Resume = 8,
   Step = 9,
   Save = 10,
-  ConfigureElectrical = 11
+  ConfigureElectrical = 11,
+  ObserveMemory = 12
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
@@ -827,6 +828,68 @@ static createCadenceSettingsRecord(builder:flatbuffers.Builder, simulation: numb
   builder.writeInt32(animation);
   builder.writeInt32(physical);
   builder.writeInt32(simulation);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export class MemoryObservationRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):MemoryObservationRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+usedBefore():bigint {
+  return this.bb!.readInt64(this.bb_pos);
+}
+
+usedAfter():bigint {
+  return this.bb!.readInt64(this.bb_pos + 8);
+}
+
+durationTicks():bigint {
+  return this.bb!.readInt64(this.bb_pos + 16);
+}
+
+frequency():bigint {
+  return this.bb!.readInt64(this.bb_pos + 24);
+}
+
+allocatedBefore():bigint {
+  return this.bb!.readInt64(this.bb_pos + 32);
+}
+
+allocatedAfter():bigint {
+  return this.bb!.readInt64(this.bb_pos + 40);
+}
+
+collectionsBefore():number {
+  return this.bb!.readInt32(this.bb_pos + 48);
+}
+
+collectionsAfter():number {
+  return this.bb!.readInt32(this.bb_pos + 52);
+}
+
+static sizeOf():number {
+  return 56;
+}
+
+static createMemoryObservationRecord(builder:flatbuffers.Builder, used_before: bigint, used_after: bigint, duration_ticks: bigint, frequency: bigint, allocated_before: bigint, allocated_after: bigint, collections_before: number, collections_after: number):flatbuffers.Offset {
+  builder.prep(8, 56);
+  builder.writeInt32(collections_after);
+  builder.writeInt32(collections_before);
+  builder.writeInt64(BigInt(allocated_after ?? 0));
+  builder.writeInt64(BigInt(allocated_before ?? 0));
+  builder.writeInt64(BigInt(frequency ?? 0));
+  builder.writeInt64(BigInt(duration_ticks ?? 0));
+  builder.writeInt64(BigInt(used_after ?? 0));
+  builder.writeInt64(BigInt(used_before ?? 0));
   return builder.offset();
 }
 
@@ -1826,8 +1889,13 @@ motionArray():Uint8Array|null {
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
+memory(obj?:MemoryObservationRecord):MemoryObservationRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 50);
+  return offset ? (obj || new MemoryObservationRecord()).__init(this.bb_pos + offset, this.bb!) : null;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(23);
+  builder.startObject(24);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1976,6 +2044,10 @@ static createMotionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array)
 
 static startMotionVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(1, numElems, 1);
+}
+
+static addMemory(builder:flatbuffers.Builder, memoryOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(23, memoryOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {

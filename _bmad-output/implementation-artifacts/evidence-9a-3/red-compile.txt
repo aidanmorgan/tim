@@ -1,0 +1,12 @@
+Story 9A.3 red step: `dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj` at main 379cc24a plus only
+CuriousContraptions.tests/TypedTransportCommandTests.cs (and its Compile Include). Build FAILED, 0 warnings, 6 errors:
+
+TypedTransportCommandTests.cs(24,20): error CS0246: The type or namespace name 'WorkshopReliableReadLedger' could not be found
+TypedTransportCommandTests.cs(31,51): error CS0246: The type or namespace name 'WorkshopReliableReadLedger' could not be found
+TypedTransportCommandTests.cs(31,20): error CS0246: The type or namespace name 'ReadReceiptRejection' could not be found
+TypedTransportCommandTests.cs(168,83): error CS0246: The type or namespace name 'WorkshopMemoryMeasurement' could not be found
+TypedTransportCommandTests.cs(163,29): error CS0246: The type or namespace name 'WorkshopMemoryMeasurement' could not be found
+TypedTransportCommandTests.cs(145,37): error CS0246: The type or namespace name 'WorkshopReliableReadLedger' could not be found
+
+(The compiler stops at the missing types; WorkshopCommandKind.ObserveMemory, WorkshopMemoryQuery, WorkerEnvelopeRejection,
+WireFaultReason.UnknownCommand and WorkshopResponse.Memory are equally absent at main.)

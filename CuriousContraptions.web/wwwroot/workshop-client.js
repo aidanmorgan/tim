@@ -37,15 +37,12 @@ function sequence(bytes) {
     if (!(bytes instanceof Uint8Array) || bytes.length !== 8) throw new Error('Invalid command identity.');
     return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(0, true);
 }
-function updateReliableStall(client, current) {
+// The age of the oldest command still pending or unconsumed: the player's Backpressure and TimedOut state only. The browser posts
+// nothing about it; the Simulation worker detects a reliable-read stall in its own receipt accounting (Story 9A.3).
+function oldestCommandAge(client, current) {
     let oldest = 0;
     for (const pending of client.pending.values()) oldest = Math.max(oldest, current - pending.started);
     for (const receipt of client.acknowledgements.values()) oldest = Math.max(oldest, current - receipt.started);
-    const stalled = oldest > 500;
-    if (stalled !== client.stalled) {
-        client.stalled = stalled;
-        client.worker.postMessage({ reliableStalled: stalled });
-    }
     return oldest;
 }
 function fail(client, error, retiring = false) {
@@ -66,7 +63,6 @@ function fail(client, error, retiring = false) {
     client.clock = client.clockRing = undefined;
     for (const pending of client.pending.values()) pending.reject(error);
     client.pending.clear();
-    settleMemory(client, error);
     client.bootstrapReject?.(error);
     client.bootstrapReject = null;
     if (!retiring) stopIsolation(error);
@@ -102,7 +98,7 @@ async function admitDisplayRate() {
     });
 }
 export function displayRate(id) { return owner(id).displayRate; }
-export async function create(states, bootstrapBytes, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service, beginMemory, receiveMemory, releaseMemory) {
+export async function create(states, bootstrapBytes, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service) {
     if (clients.size !== 0 || retiredSession || creating) throw new Error('RecoveryBlocked: reload the page before creating another worker.');
     creating = true;
     let id;
@@ -127,9 +123,8 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
             serviceCallback: service, service: undefined, clockReplyCallback: clockReply,
             clockRing, clock: attachClockRing(clockRing),
-            state: ready, stalled: false, candidateTimedOut: false,
-            identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
-            memory: undefined,
+            state: ready,
+            identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
             presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n };
         attachPoseRing(client, poseRing);
@@ -257,8 +252,6 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         attachPoseRing(client, message.poseRing);
                     } else if (message.scheduleControl instanceof Uint8Array) {
                         deliver(client, message.scheduleControl, received, scheduleControl);
-                    } else if (typeof message.candidateTimedOut === 'boolean') {
-                        client.candidateTimedOut = message.candidateTimedOut;
                     } else if (message.acknowledgement instanceof Uint8Array) {
                         const key = sequence(message.sequence);
                         const pending = client.pending.get(key);
@@ -266,8 +259,6 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         client.pending.delete(key);
                         client.acknowledgements.set(key, { bytes: message.acknowledgement, started: pending.started, taken: false });
                         pending.resolve();
-                    } else if (message.memoryResult instanceof Uint8Array) {
-                        receiveMemoryResult(client, message.memoryResult, received);
                     } else if (message.read instanceof Uint8Array) {
                         // Complete C# validation/admission precedes return; JS retains no pose history.
                         deliver(client, message.read, received, physicalRead);
@@ -349,10 +340,9 @@ export function activate(id) {
             // bounds as counted telemetry (Story 9.4b, game-grade envelope).
             client.serviceCallback();
             checkSimulationLiveness(client, current);
-            const oldest = updateReliableStall(client, current);
-            client.state = oldest > 2000 || client.candidateTimedOut ? client.states.timedOut
+            const oldest = oldestCommandAge(client, current);
+            client.state = oldest > 2000 ? client.states.timedOut
                 : oldest > 50 ? client.states.backpressure : client.states.ready;
-
         } catch (error) { fail(client, error); }
     }, 10);
 }
@@ -405,7 +395,6 @@ function evidence(client, ring, total, recordBytes, capacity, afterSequence) {
     if (typeof afterSequence !== 'string' || !/^(0|[1-9][0-9]{0,19})$/.test(afterSequence))
         throw new Error('Evidence cursor must be an exact unsigned decimal sequence.');
     if (!ring) throw new Error('Evidence capture is unavailable in Production.');
-    if (client.memory) throw new Error('A stopped observation owns the evidence reservation.');
     const after = BigInt(afterSequence);
     if (after > total) throw new Error('Evidence cursor is ahead of this session.');
     const oldest = total >= BigInt(capacity) ? total - BigInt(capacity) + 1n : 1n;
@@ -449,80 +438,9 @@ export function clockProfileEvidence(id) {
 export function status(id) { return owner(id).state; }
 export function captureMode(id) { return owner(id).captureMode; }
 
-function settleMemory(client, error, bytes) {
-    const observation = client.memory;
-    if (!observation) return;
-    client.memory = undefined;
-    clearTimeout(observation.timeout);
-    observation.request = undefined;
-    observation.simulation = undefined;
-    try { client.releaseMemory(); }
-    catch (releaseError) { error ??= releaseError; }
-    if (error) observation.reject(error);
-    else observation.resolve(bytes);
-}
-export function observeMemory(id) {
-    const client = owner(id);
-    if (client.failure) return Promise.reject(client.failure);
-    if (client.memory || client.pending.size || client.acknowledgements.size || client.eventBytes ||
-        client.state !== client.states.ready)
-        return Promise.reject(new Error('Memory observation requires an idle Ready transport.'));
-    const started = now();
-    return new Promise((resolve, reject) => {
-        const observation = { resolve, reject, started, request: undefined, simulation: undefined, timeout: undefined };
-        client.memory = observation;
-        observation.timeout = setTimeout(() => {
-            if (client.memory === observation)
-                fail(client, new Error('Stopped memory observation exceeded 1000ms; reload to recover.'));
-        }, 1000);
-        try {
-            client.beginMemory();
-            if (!observation.request) throw new Error('Memory observation did not produce its owned request.');
-        } catch (error) { settleMemory(client, error); }
-    });
-}
-export function sendMemoryRequest(id, bytes) {
-    const client = owner(id), observation = client.memory;
-    if (!observation || observation.request || !(bytes instanceof Uint8Array) || bytes.length !== 64)
-        throw new Error('No unique stopped memory request is owned.');
-    observation.request = new Uint8Array(bytes);
-    const memoryRequest = new Uint8Array(bytes);
-    client.worker.postMessage({ memoryRequest }, [memoryRequest.buffer]);
-}
-function receiveMemoryResult(client, bytes, received) {
-    const observation = client.memory;
-    if (!observation?.request || observation.simulation || bytes.length !== 128)
-        throw new Error('Unexpected, malformed or duplicate stopped memory response.');
-    if (received - observation.started > 1000) {
-        console.error('CCGPU_MEMORY_LATE', Array.from(bytes).join(','));
-        throw new Error('Stopped memory response exceeded 1000ms; reload to recover.');
-    }
-    observation.simulation = bytes;
-    deliver(client, bytes, received, client.receiveMemory);
-    if (client.memory === observation)
-        settleMemory(client, new Error('Worker rejected the stopped collector observation.'));
-}
-export function completeMemoryObservation(id, bytes) {
-    const client = owner(id), observation = client.memory;
-    if (!observation?.simulation || client.eventBytes !== observation.simulation ||
-        !(bytes instanceof Uint8Array) || bytes.length !== 128)
-        throw new Error('Stopped browser result does not own the response lease.');
-    const combined = new Uint8Array(256);
-    combined.set(bytes);
-    combined.set(observation.simulation, 128);
-    const elapsed = now() - observation.started;
-    if (elapsed > 1000) {
-        console.error('CCGPU_MEMORY_LATE', Array.from(combined).join(','));
-        throw new Error('Stopped collection exceeded 1000ms; reload to recover.');
-    }
-    if (new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(12, true) !== 1)
-        settleMemory(client, new Error('Browser collector observation is unsupported.'));
-    else settleMemory(client, undefined, combined);
-}
 export function send(id, bytes, sequenceBytes) {
     const client = owner(id);
     if (client.failure) return Promise.reject(client.failure);
-    if (client.memory) return Promise.reject(new Error('A stopped memory observation owns the transport.'));
     const key = sequence(new Uint8Array(sequenceBytes));
     if (client.pending.size + client.acknowledgements.size >= 2 || client.pending.has(key) || client.acknowledgements.has(key))
         return Promise.reject(new Error('Workshop transport capacity or identity violation.'));
@@ -547,7 +465,6 @@ export function completeAcknowledgement(id, identity) {
     if (!receipt?.taken) throw new Error('The command acknowledgement is not leased.');
     // C# has validated the complete response and its command/session identity.
     client.acknowledgements.delete(key);
-    updateReliableStall(client, now());
 }
 export function dispose(id) {
     const client = clients.get(id);

@@ -2564,7 +2564,7 @@ So that a malformed message fails visibly instead of being silently reinterprete
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview, including every suite that saves and loads.
 
 ### Story 9A.3: Transport Controls as Typed Commands and Queries
-*Status: Backlog*
+*Status: Review (21 Oct 2026). Amelia-24 implemented it on main `379cc24a` ([spec and evidence](../implementation-artifacts/spec-9a-3-typed-transport-control-commands.md)).*
 
 *Depends on: Story 9A.2. Position 13, right after 9A.17 (owner amendment, 21 Oct 2026). Audit: C2, C3.*
 

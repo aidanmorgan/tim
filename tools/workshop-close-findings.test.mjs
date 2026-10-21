@@ -123,9 +123,9 @@ test('a declared fault does not excuse another fault that also occurred', () => 
     assert.deepEqual(findings.map(finding => finding.message), ['The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}']);
 });
 test('an undeclared debt fault is a finding', () => {
-    const findings = sessionFaultFindings(observed(['CCGPU_DEBT_FAULT: committedTick=9 reliableStalled=False']));
-    assert.deepEqual(findings.map(finding => finding.message),
-        ['The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=9 reliableStalled=False']);
+    const line = 'CCGPU_DEBT_FAULT: committedTick=9 reason=ReliableStalled oldestUnreceipted=4 ageMs=501';
+    const findings = sessionFaultFindings(observed([line]));
+    assert.deepEqual(findings.map(finding => finding.message), [`The simulation stopped on 1 debt fault(s); first: ${line}`]);
     assert.deepEqual(sessionFaultFindings(observed([])), [], 'no fault, nothing declared: no finding (control)');
 });
 test('unknown session faults are rejected', () => {

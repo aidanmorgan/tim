@@ -26,7 +26,9 @@ enum CommandKind : uint32 {
     Resume = 8,
     Step = 9,
     Save = 10,
-    ConfigureElectrical = 11
+    ConfigureElectrical = 11,
+    // The stopped memory observation query (Story 9A.3): its acknowledgement carries WorkshopResponse.memory.
+    ObserveMemory = 12
 }
 
 enum CommandOutcome : uint8 {
@@ -184,6 +186,19 @@ struct CadenceSettingsRecord {
     presentation_rate_denominator: uint32;
 }
 
+// One stopped collector measurement of the Simulation worker (Story 9A.3): managed usage before and after a full blocking
+// collection, its duration in Stopwatch ticks at frequency, and the allocation and collection counters around it.
+struct MemoryObservationRecord {
+    used_before: int64;
+    used_after: int64;
+    duration_ticks: int64;
+    frequency: int64;
+    allocated_before: int64;
+    allocated_after: int64;
+    collections_before: int32;
+    collections_after: int32;
+}
+
 struct CommandIdentityRecord {
     sequence: uint64;
     epoch: uint64;
@@ -312,6 +327,8 @@ table WorkshopResponse {
     activation_memory: [ActivationMemoryRecord];
     // The committed render trajectory: the physics ABI's PhysicsMotionRead record, validated against this read's bodies and tick.
     motion: [uint8];
+    // Present only on the acknowledgement of an applied memory query command.
+    memory: MemoryObservationRecord;
 }
 
 table WorkshopCommand {

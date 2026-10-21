@@ -234,6 +234,7 @@ public enum CommandKind : uint
   Step = 9,
   Save = 10,
   ConfigureElectrical = 11,
+  ObserveMemory = 12,
 };
 
 public enum CommandOutcome : byte
@@ -579,6 +580,36 @@ static public class InstanceRecordVerify
       && verifier.VerifyField(tablePos, 78 /*Friction*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 80 /*TargetCount*/, 4 /*uint*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
+  }
+}
+
+public struct MemoryObservationRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public MemoryObservationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public long UsedBefore { get { return __p.bb.GetLong(__p.bb_pos + 0); } }
+  public long UsedAfter { get { return __p.bb.GetLong(__p.bb_pos + 8); } }
+  public long DurationTicks { get { return __p.bb.GetLong(__p.bb_pos + 16); } }
+  public long Frequency { get { return __p.bb.GetLong(__p.bb_pos + 24); } }
+  public long AllocatedBefore { get { return __p.bb.GetLong(__p.bb_pos + 32); } }
+  public long AllocatedAfter { get { return __p.bb.GetLong(__p.bb_pos + 40); } }
+  public int CollectionsBefore { get { return __p.bb.GetInt(__p.bb_pos + 48); } }
+  public int CollectionsAfter { get { return __p.bb.GetInt(__p.bb_pos + 52); } }
+
+  public static Offset<CuriousContraptions.Wire.MemoryObservationRecord> CreateMemoryObservationRecord(FlatBufferBuilder builder, long UsedBefore, long UsedAfter, long DurationTicks, long Frequency, long AllocatedBefore, long AllocatedAfter, int CollectionsBefore, int CollectionsAfter) {
+    builder.Prep(8, 56);
+    builder.PutInt(CollectionsAfter);
+    builder.PutInt(CollectionsBefore);
+    builder.PutLong(AllocatedAfter);
+    builder.PutLong(AllocatedBefore);
+    builder.PutLong(Frequency);
+    builder.PutLong(DurationTicks);
+    builder.PutLong(UsedAfter);
+    builder.PutLong(UsedBefore);
+    return new Offset<CuriousContraptions.Wire.MemoryObservationRecord>(builder.Offset);
   }
 }
 
@@ -995,8 +1026,9 @@ public struct WorkshopResponse : IFlatbufferObject
   public ArraySegment<byte>? GetMotionBytes() { return __p.__vector_as_arraysegment(48); }
 #endif
   public byte[] GetMotionArray() { return __p.__vector_as_array<byte>(48); }
+  public CuriousContraptions.Wire.MemoryObservationRecord? Memory { get { int o = __p.__offset(50); return o != 0 ? (CuriousContraptions.Wire.MemoryObservationRecord?)(new CuriousContraptions.Wire.MemoryObservationRecord()).__assign(o + __p.bb_pos, __p.bb) : null; } }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(23); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(24); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -1038,6 +1070,7 @@ public struct WorkshopResponse : IFlatbufferObject
   public static VectorOffset CreateMotionVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreateMotionVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
   public static void StartMotionVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static void AddMemory(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.MemoryObservationRecord> memoryOffset) { builder.AddStruct(23, memoryOffset.Value, 0); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -1075,6 +1108,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfData(tablePos, 44 /*Electrical*/, 32 /*CuriousContraptions.Wire.ElectricalSourceRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 46 /*ActivationMemory*/, 40 /*CuriousContraptions.Wire.ActivationMemoryRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 48 /*Motion*/, 1 /*byte*/, false)
+      && verifier.VerifyField(tablePos, 50 /*Memory*/, 56 /*CuriousContraptions.Wire.MemoryObservationRecord*/, 8, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

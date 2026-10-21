@@ -27,9 +27,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private WorkshopConstruction _construction;
     private ulong _sequence;
     private int _pending;
-    private ulong _memorySequence;
-    private WorkshopMemoryRequest? _memoryRequest;
-    private PublicationSequence _observedPublication;
     private bool _disposed;
     private readonly WorkshopClientCursor _cursor;
     public WorkshopCommandIdentity? Pending { get; private set; }
@@ -62,18 +59,11 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         [JSMarshalAs<JSType.Function>] Action physicalRead,
         [JSMarshalAs<JSType.Function>] Action scheduleControl,
         [JSMarshalAs<JSType.Function>] Action animationOutput,
-        [JSMarshalAs<JSType.Function>] Action service,
-        [JSMarshalAs<JSType.Function>] Action beginMemory,
-        [JSMarshalAs<JSType.Function>] Action receiveMemory,
-        [JSMarshalAs<JSType.Function>] Action releaseMemory);
+        [JSMarshalAs<JSType.Function>] Action service);
     [JSImport("bootstrap", "workshopClient")]
     private static partial byte[] MasterBootstrap(int client);
     [JSImport("activate", "workshopClient")]
     private static partial void ActivateClient(int client);
-    [JSImport("sendMemoryRequest", "workshopClient")]
-    private static partial void SendMemoryRequest(int client, byte[] request);
-    [JSImport("completeMemoryObservation", "workshopClient")]
-    private static partial void CompleteMemoryObservation(int client, byte[] result);
     [JSImport("eventBytes", "workshopClient")]
     private static partial byte[] EventBytes(int client);
     [JSImport("eventMilliseconds", "workshopClient")]
@@ -115,7 +105,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                     WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
                     WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
                 (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
-                client.Service, client.BeginMemory, client.ReceiveMemory, client.ReleaseMemory));
+                client.Service));
             var peer = WorkshopClockWire.DecodePeer(MasterBootstrap(client._id.Value));
             if (peer.Session != session || peer.Generation.Value != 1 || peer.RequesterGeneration.Value != 1 ||
                 peer.RequesterRole != WorkshopRuntimeRole.Browser)
@@ -155,7 +145,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        if (_memoryRequest is not null) throw new InvalidOperationException("A stopped memory observation owns this client.");
         if (kind == WorkshopCommandKind.Construct && _constructionOwner is not null)
             throw new InvalidOperationException("A construction candidate already owns the client.");
         if (_pending >= 2) throw new InvalidOperationException("Workshop command queue is full.");
@@ -163,6 +152,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var sequence = new CommandSequence(_sequence + 1);
         // Pause targets the current drained endpoint; physical commits may advance after B sends it.
         var revisionKind = kind is WorkshopCommandKind.Pause or WorkshopCommandKind.Reset or WorkshopCommandKind.Cancel or WorkshopCommandKind.Dispose or WorkshopCommandKind.ConfigureElectrical
+            or WorkshopCommandKind.ObserveMemory
             ? ExpectedRevisionKind.Any : ExpectedRevisionKind.Exact;
         var command = new WorkshopCommand(sequence, kind, Epoch,
             revisionKind == ExpectedRevisionKind.Any ? default : Revision, construction, target, revisionKind, Peer.Session, _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, settings, electrical);
@@ -182,6 +172,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             var response = WorkshopWireFlatBuffers.DecodeResponse(Acknowledgement(_id.Value, encodedIdentity));
             try
             {
+                WorkshopMemoryQuery.ValidateCarriage(kind, response);
                 var prepared = _cursor.PrepareAcknowledgement(command, response, dispatchedReadOrder, _disposed);
                 if (prepared.Applicable)
                 {
@@ -211,6 +202,14 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             }
         }
         finally { _pending--; if (_constructionOwner == identity) { _proposedConstruction = null; _constructionOwner = null; } if (Pending == identity) Pending = null; }
+    }
+
+    /// <summary>The stopped memory observation query (Story 9A.3): one typed command whose acknowledgement carries the Simulation
+    /// worker's measurement, paired with this context's own measurement taken after it.</summary>
+    public async Task<WorkshopMemoryReply> QueryMemory()
+    {
+        var delivery = await Execute(WorkshopCommandKind.ObserveMemory);
+        return WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, delivery.Response, WorkshopMemoryMeasurement.Capture);
     }
 
     public Task<WorkshopDelivery> CancelPending()
@@ -274,7 +273,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (response.Cadence != active.Revision || response.Projection != active.World.Epoch)
             throw new ArgumentException("Future read cannot install a schedule.");
         var prepared = _cursor.PrepareRead(response);
-        if (response.Publication.Value > _observedPublication.Value) _observedPublication = response.Publication;
         if (!prepared.Applicable) return;
         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
         var history = PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(milliseconds));
@@ -292,7 +290,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var activations = read.Activations.Count;
         Fit(ref _activationRequested, activations); Fit(ref _activationSamples, activations);
         Fit(ref _activationOrdinals, activations); Fit(ref _activationFrameTaken, activations);
-        Fit(ref _memoryRequested, activations); Fit(ref _memorySamples, activations);
+        Fit(ref _memoryControls, activations); Fit(ref _memorySamples, activations);
         Fit(ref _memoryRetry, activations); Fit(ref _memoryOrdinals, activations);
         var timers = read.Timers.Count;
         Fit(ref _timerRequested, timers); Fit(ref _timerSamples, timers); Fit(ref _timerRetry, timers); Fit(ref _timerOrdinals, timers);
@@ -338,34 +336,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         #endif
     }
 
-    private void BeginMemory()
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-        if (_memoryRequest is not null || _pending != 0 || TransportState != WorkshopTransportState.Ready ||
-            !WorkshopMemoryWire.IsStopped(_cursor.Phase))
-            throw new InvalidOperationException("Memory observation requires a stopped, idle client.");
-        if (_memorySequence == ulong.MaxValue) throw new InvalidOperationException("Memory observation identity exhausted.");
-        var request = new WorkshopMemoryRequest(WorkshopMemoryKind.PostGc, WorkshopMemoryContext.Simulation,
-            Peer.Session, new(++_memorySequence), Epoch, Revision, _observedPublication);
-        _memoryRequest = request;
-        SendMemoryRequest(_id.Value, WorkshopMemoryWire.Encode(request));
-    }
-
-    private void ReceiveMemory()
-    {
-        var request = _memoryRequest ?? throw new InvalidOperationException("No stopped observation is owned.");
-        var result = WorkshopMemoryWire.DecodeResult(EventBytes(_id.Value));
-        if (_disposed || result.Request != request) throw new ArgumentException("Memory result belongs to another observation.");
-        if (result.Status != WorkshopMemoryStatus.Accepted) return;
-        if (_pending != 0 || TransportState != WorkshopTransportState.Ready || !WorkshopMemoryWire.IsStopped(_cursor.Phase) ||
-            request.Epoch != Epoch || request.Revision != Revision || request.Publication != _observedPublication)
-            throw new InvalidOperationException("Stopped observation lost its committed identity.");
-        var browser = WorkshopMemoryWire.Capture(request with { Context = WorkshopMemoryContext.Browser });
-        CompleteMemoryObservation(_id.Value, WorkshopMemoryWire.Encode(browser));
-    }
-
-    private void ReleaseMemory() => _memoryRequest = null;
-
     private void ThrowIfTransportFailed()
     {
         if (TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked)
@@ -386,9 +356,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
-        if (!_started || _memoryRequest is not null)
+        if (!_started)
         {
-            // Startup failure or a pending memory observation: retire locally without a worker command.
+            // Startup failure: retire locally without a worker command.
             // A client whose browser registration failed has no id (browser ids start at 1).
             _disposed = true; _clock?.Retire(); _history.Retire();
             if (_id.Value != 0) DisposeClient(_id.Value);

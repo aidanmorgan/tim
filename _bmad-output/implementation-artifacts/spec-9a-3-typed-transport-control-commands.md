@@ -2,7 +2,7 @@
 title: 'Story 9A.3: Transport Controls as Typed Commands and Queries'
 type: 'refactor'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'review'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -171,7 +171,59 @@ context:
 
 ## Implementation Notes
 
+Amelia-24, 21 Oct 2026, on main `379cc24a`. Story 9A.17 (in review) is not merged: it touches ports and footprints, not the
+schema, the codec or the transport, so this story does not depend on it.
+
+**What landed (code map as built):**
+- `engine/gpu/WorkshopReliableReadLedger.cs` (new, compiled natively so it is unit-tested): the worker's reliable-read accounting,
+  `ReadReceiptRejection` (Malformed, WrongSession, Unpublished, Retired) and `ReadReceiptRejectedException`. `Program.EmitRead`
+  publishes into it; `Program.AcknowledgeRead` (JSExport) matches every receipt; `RunLoopHost.DebtExceeded` and `StopForDebt` read
+  `Stalled` and `DebtReason` on the master clock.
+- `engine/gpu/WorkshopMemoryObservation.cs` (renamed from `WorkshopMemoryWire.cs`; it keeps `WorkshopCaptureMode` and
+  `WorkshopBuild`): `WorkshopMemoryMeasurement`, `WorkshopMemoryObservation`, `WorkshopMemoryReply` and `WorkshopMemoryQuery`
+  (`Admit`, `ValidateCarriage`, `Complete`).
+- `WorkshopCommandKind.ObserveMemory` (12), schema `CommandKind.ObserveMemory`, `struct MemoryObservationRecord` and
+  `WorkshopResponse.memory`; `WorkshopResponse.Memory`. Generated code from flatc 25.2.10, byte-identical to its output (C# whole
+  file; TS generated part).
+- `WireFaultReason.UnknownCommand`: `DecodeCommand` refuses an undefined kind before any other check of its shape.
+- `engine/gpu/WorkerEnvelopeRejection.cs` (new): `WorkerEnvelopeRejection` (UnknownEnvelope, CommandTransportSaturated) and
+  `WorkerEnvelopeRejectedException`; `Program.RejectUnknownEnvelope` and `RejectSaturatedCommand` record it in the worker fault log
+  (`CCGPU_WORKER_ENVELOPE_EXCEPTION`, new `FaultSite.WorkerEnvelope`) and return the detail the worker posts.
+- `BrowserWorkshopClient.QueryMemory()` over `Execute`; every acknowledgement passes `WorkshopMemoryQuery.ValidateCarriage`.
+
+**Decisions (owner delegation: decide small gaps, record each):**
+- **I1. A refused envelope is the existing `rejected` envelope,** not `failure`. The browser treats both alike
+  (`CCGPU_TRANSPORT_FAILURE` with the detail), so the matrix's observable outcome holds; the typed reason is managed.
+- **I2. The ledger is never cleared, Reset included** (Task 1 said "Reset clears"). Publication sequences never reset and the
+  worker's read queues survive Reset, so a receipt in flight across a Reset must still retire its read; clearing would turn it into a
+  `Retired` rejection and retire the session. A run started after a genuine stall stops again at once, which is correct.
+- **I3. The memory query is answered in `Execute`,** after the stale-generation and Busy guards and without taking
+  `_pendingCommand`, so it never sets a schedule transition. `Busy` covers a pending GPU operation or any unreceipted read (this
+  replaces the old script-computed `transportIdle`). The old `Stale` status is the command path's `StaleGeneration`.
+- **I4. The `Unsupported` memory status is deleted with no replacement rejection.** The GC APIs it guarded run on browser-wasm; a
+  failure would be a fault, never a fallback result.
+- **I5. The worker's per-request 1000 ms lateness checks (`CCGPU_MEMORY_LATE`) are deleted with the channel.** The query is bounded
+  like every command by the browser's TimedOut state (2 s).
+- **I6. The dead `candidateTimedOut` envelope is deleted.** Nothing posts it; the browser now refuses it as an unknown envelope.
+- **I7. `_memoryRequested` (State Latch feedback controls, unrelated to this channel) is renamed `_memoryControls`,** so the AC's
+  `rg memoryRequest` is literally empty.
+- **I8. The typed command and query definitions for the AC's `rg`** are the `WorkshopCommandKind` enum (`engine/gpu/WorkshopMessages.cs`),
+  the schema and the generated schema code. Everywhere else the query is named only as `WorkshopCommandKind.ObserveMemory` (or the
+  generated `CommandKind.ObserveMemory`). `TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction` enforces
+  exactly that, and it is the killer of every re-add mutant.
+- **I9. The `FlushObservation` swallow is contained and logged** (`CCGPU_TRACE_FLUSH_EXCEPTION`), never silent; the trace is
+  diagnostic, so its failure does not retire the session.
+- **I10. `CCGPU_DEBT_FAULT` now reads `reason=<WorkshopRejection> oldestUnreceipted=<publication> ageMs=<age>`,** so a stall fault
+  names the read that stalled.
+- **I11. The Node harness cannot encode FlatBuffers** (the `flatbuffers` module exists only for the e2e suites), and the worker parses
+  no buffer, so the typed query's encoding, routing and acknowledgement are proven natively; the harness proves the worker carries it
+  on the command transport, forwards every receipt to the ledger and refuses each retired envelope by name.
+- **I12. `QueryMemory` has no production caller,** as before (`observeMemory` had none). Story 9A.24's observation port exposes it.
+
 ## Spec Change Log
+
+- 21 Oct 2026 (Amelia-24): Task 1's "Reset clears" is replaced by I2 (the ledger is never cleared). The matrix row "Old envelope:
+  worker posts `failure`" is met through I1 (`rejected`, same browser outcome).
 
 ## Review Triage Log
 

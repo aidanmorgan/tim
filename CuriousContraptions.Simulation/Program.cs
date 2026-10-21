@@ -17,13 +17,14 @@ public static partial class Program
     private static WorkshopSimulation Simulation => _simulation ?? throw new InvalidOperationException("Worker clock has not bootstrapped.");
     private static WorkshopClockPeer Peer => _peer ?? throw new InvalidOperationException("Worker clock has not bootstrapped.");
     private static ulong _publication;
-    private static MemoryObservationId _lastMemoryObservation;
+    // The worker's own reliable-read accounting (Story 9A.3): every publication, and every browser receipt matched against it.
+    private static WorkshopReliableReadLedger? _reads;
+    private static WorkshopReliableReadLedger Reads => _reads ?? throw new InvalidOperationException("Worker session has not bootstrapped.");
     private static readonly WorkshopCommandRouter Commands = new(Execute);
     // One builder for every physical read this worker publishes: the per-tick encode reuses its storage.
     private static readonly Google.FlatBuffers.FlatBufferBuilder ReadBuilder = new(4096);
     private static ulong _loopOwner;
     private static WorkshopCommandIdentity? _pendingCommand;
-    private static bool _reliableStalled;
     private static readonly CuriousContraptions.Simulation.WorkshopTrace Trace = new();
     public static void Main() { }
 
@@ -46,6 +47,7 @@ public static partial class Program
         var origin = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         var peer = new WorkshopClockPeer(session, new(1), origin, new(1), new(100_000), WorkshopRuntimeRole.Browser);
         _device = new(new BrowserGpuTransport(), new(session.Low, session.High));
+        _reads = new(session);
         _peer = peer;
         return WorkshopClockWire.EncodePeer(peer);
     }
@@ -143,20 +145,24 @@ public static partial class Program
         catch (JSException) { return double.NaN; } // Incomplete observation never replaces the physical result.
     }
 
+    /// <summary>Matches the browser's receipt of a posted read (its 24-byte identity, echoed unread) and retires every read up to it.
+    /// A mismatch throws its typed <see cref="ReadReceiptRejectedException"/>; the worker reports it as a transport failure.</summary>
     [JSExport]
-    public static byte[] ObserveMemory(byte[] bytes, bool transportIdle)
+    public static void AcknowledgeRead(byte[] receipt) => Reads.Receipt(receipt);
+
+    /// <summary>Refuses an envelope no handler owns, naming its keys, and records it in this worker's fault log; returns the
+    /// rejection the worker reports to the browser.</summary>
+    [JSExport]
+    public static string RejectUnknownEnvelope(string[] keys) =>
+        RejectEnvelope(new(WorkerEnvelopeRejection.UnknownEnvelope, keys));
+
+    [JSExport]
+    public static string RejectSaturatedCommand() => RejectEnvelope(new(WorkerEnvelopeRejection.CommandTransportSaturated, []));
+
+    private static string RejectEnvelope(WorkerEnvelopeRejectedException rejection)
     {
-        var request = WorkshopMemoryWire.DecodeRequest(bytes);
-        if (request.Context != WorkshopMemoryContext.Simulation)
-            throw new ArgumentException("Wrong memory observation context.");
-        var status = request.Session != Peer.Session || request.Epoch != Simulation.Epoch ||
-            request.Revision != Simulation.Revision || request.Publication.Value != _publication || request.Id.Value <= _lastMemoryObservation.Value
-            ? WorkshopMemoryStatus.Stale
-            : !transportIdle || _pendingCommand is not null || Simulation.HasPendingGpuOperation || !WorkshopMemoryWire.IsStopped(Simulation.Phase)
-                ? WorkshopMemoryStatus.Busy : WorkshopMemoryStatus.Accepted;
-        if (status != WorkshopMemoryStatus.Stale) _lastMemoryObservation = request.Id;
-        return WorkshopMemoryWire.Encode(status == WorkshopMemoryStatus.Accepted
-            ? WorkshopMemoryWire.Capture(request) : new(request, status));
+        WorkshopDiagnostics.Fault(FaultSite.WorkerEnvelope, rejection);
+        return rejection.Message;
     }
 
 
@@ -189,6 +195,14 @@ public static partial class Program
         if ((_pendingCommand is not null || _preparedEndpoint is not null) && command.Kind != WorkshopCommandKind.Dispose)
             return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy), Simulation.Phase, Simulation.Committed));
+        if (command.Kind == WorkshopCommandKind.ObserveMemory)
+        {
+            // A query: answered by this acknowledgement, never queued behind a tick or a pending GPU operation.
+            var admitted = WorkshopMemoryQuery.Admit(Simulation.Phase, Simulation.HasPendingGpuOperation, Reads.Idle);
+            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement, admitted,
+                Simulation.Phase, Simulation.Committed,
+                Memory: admitted.Outcome == WorkshopCommandOutcome.Applied ? WorkshopMemoryMeasurement.Capture() : null));
+        }
         _pendingCommand = identity;
         try { return await Apply(command); }
         finally { if (_pendingCommand == identity) _pendingCommand = null; }
@@ -240,11 +254,7 @@ public static partial class Program
                 GC.Collect(2, GCCollectionMode.Aggressive, true, true);
                 var resetting = Simulation.Reset();
                 result = await resetting;
-                if (result.Outcome == WorkshopCommandOutcome.Applied)
-                {
-                    _loopOwner++;
-                    _reliableStalled = false;
-                }
+                if (result.Outcome == WorkshopCommandOutcome.Applied) _loopOwner++;
                 break;
             case WorkshopCommandKind.Dispose:
                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Disposed);
@@ -252,7 +262,8 @@ public static partial class Program
                 await Simulation.DisposeAsync();
                 result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
                 break;
-            default: throw new ArgumentException("Unsupported Workshop command.");
+            // Cancel and the memory query are answered in Execute; the decoder refuses every undefined kind.
+            default: throw new WireFaultException(WireFaultReason.UnknownCommand, $"Command kind {(uint)command.Kind} has no executor.");
         }
         if (result.Outcome == WorkshopCommandOutcome.Applied && _preparedEndpoint is not null)
         {
@@ -325,14 +336,26 @@ public static partial class Program
         private static WorkshopSchedule Schedule => _schedule ?? throw new InvalidOperationException("Missing physical schedule.");
         public bool Owns => owner == _loopOwner && Simulation.Phase == WorkshopSimulationPhase.Running;
         public bool Blocked => Simulation.HasPendingGpuOperation || _preparedEndpoint is not null || _pendingCommand is not null;
-        public bool DebtExceeded => _reliableStalled || Schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, MasterNow());
+        public bool DebtExceeded
+        {
+            get
+            {
+                var now = MasterNow();
+                return Reads.Stalled(now) || Schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, now);
+            }
+        }
         public bool AtRunLimit => Simulation.Committed.Tick.Value == Simulation.Profile.RunTickLimit;
         public bool CaughtUp => Simulation.Committed.Tick.Value >= Schedule.World.DueTick(Schedule.Settings, MasterNow()).Value;
 
         public ValueTask StopForDebt()
         {
-            Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reliableStalled={_reliableStalled}");
-            Simulation.Stop(_reliableStalled ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity);
+            var now = MasterNow();
+            var reason = Reads.DebtReason(now);
+            var oldest = Reads.Oldest;
+            var age = oldest is { } read ? (now.Value - read.Published.Value) / 1_000_000 : 0;
+            Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reason={reason} " +
+                $"oldestUnreceipted={oldest?.Publication.Value ?? 0} ageMs={age}");
+            Simulation.Stop(reason);
             Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
             EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
             return ValueTask.CompletedTask;
@@ -387,6 +410,7 @@ public static partial class Program
             Projection: _schedule?.World.Epoch ?? default,
             SourcePulse: new(Simulation.Committed.Tick.Value));
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(readResponse, ReadBuilder);
+        Reads.Publish(sequence, MasterNow());
         _publication++;
         // Existing read-only observation channel, in the production build every Chrome suite runs against (owner decision
         // h; Story 9A.24 replaces it with the typed observation port): retained energy/event commits prove finite
@@ -399,7 +423,4 @@ public static partial class Program
         Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
             Trace.CanFlush(Simulation.Phase), retainOccurrence);
     }
-
-    [JSExport]
-    public static void SetReliableStall(bool stalled) => _reliableStalled = stalled;
 }

@@ -42,6 +42,9 @@ export const SNAPSHOT_SCHEMA = {
         CadenceSettingsRecord: { kind: 'struct', fields: [['simulation', 'uint32'], ['physical', 'uint32'],
             ['animation', 'uint32'], ['presentation', 'uint32'], ['presentation_rate_numerator', 'uint32'],
             ['presentation_rate_denominator', 'uint32']] },
+        MemoryObservationRecord: { kind: 'struct', fields: [['used_before', 'int64'], ['used_after', 'int64'],
+            ['duration_ticks', 'int64'], ['frequency', 'int64'], ['allocated_before', 'int64'], ['allocated_after', 'int64'],
+            ['collections_before', 'int32'], ['collections_after', 'int32']] },
         ConnectionRecord: { kind: 'struct', fields: [['source', 'uint64'], ['target', 'uint64'], ['domain', 'uint32'],
             ['from_socket', 'uint32'], ['to_socket', 'uint32']] },
         InstanceRecord: { kind: 'table', fields: [['id', 'uint64'], ['part_id', 'string'], ['locked', 'bool'], ['cell', 'Vec3i'],
@@ -65,7 +68,8 @@ export const SNAPSHOT_SCHEMA = {
             ['projection', 'uint64'], ['session', '[uint8]'], ['capture', 'ClockStamp'], ['bodies', '[BodyRead]'],
             ['captures', '[CaptureLatchRead]'], ['activations', '[ActivationRecord]'], ['timers', '[TimerRecord]'],
             ['contact_works', '[ContactWorkStoreRecord]'], ['occurrences', '[ContactWorkOccurrenceRecord]'],
-            ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]']] },
+            ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]'],
+            ['memory', 'MemoryObservationRecord']] },
     } as Readonly<Record<string, TypeListing>>,
 } as const;
 
