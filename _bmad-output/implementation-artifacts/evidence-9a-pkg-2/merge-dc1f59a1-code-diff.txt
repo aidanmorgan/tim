@@ -1,0 +1,1 @@
+$ git diff --stat 66597b36 08e72760 -- . ':(exclude)_bmad-output'  -> (empty output above; exit 0): the merged head's code equals the candidate
