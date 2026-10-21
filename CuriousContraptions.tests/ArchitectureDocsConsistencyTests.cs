@@ -23,7 +23,8 @@ public sealed class ArchitectureDocsConsistencyTests(ITestOutputHelper output)
     /// engine assembly, and the deleted worker binary16 accessors.</summary>
     private static readonly Regex[] RetiredPhrases =
     [
-        new(@"res://parts/catalog", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
+        // Story 9A.14 deleted the whole res://parts tree: the bundle is the sole catalogue and scenes live in their packages.
+        new(@"res://parts/", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
         new(@"\.tres\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
         new(@"pose-ring\.js", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
         new(@"CuriousContraptions\.Engine\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
@@ -57,7 +58,7 @@ public sealed class ArchitectureDocsConsistencyTests(ITestOutputHelper output)
 
     [Fact]
     public void TheBanCheckRejectsAReinstatedPhrase() =>
-        Assert.NotEmpty(FindRetiredPhrases("PartRegistry.Discover() scans res://parts/catalog/*.tres at startup."));
+        Assert.NotEmpty(FindRetiredPhrases("The registry loads its scenes from res://parts/scenes at startup."));
 
     [Fact]
     public void EveryRelativeLinkInTheAuthorityDocsResolves()

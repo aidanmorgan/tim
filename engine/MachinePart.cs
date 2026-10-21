@@ -124,18 +124,9 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.Parameters.Count != 0 && definition.PartId != PartId.Clock)
-            throw new ArgumentException("Unsupported canonical part declaration.");
         var id = definition.PartId;
-        if (id == PartId.Clock && definition.Parameters.TryGetValue("interval_seconds", out var intervalSec))
-        {
-            ApplyIntervalSeconds(intervalSec);
-        }
-        if (id == PartId.Basketball || id == PartId.BowlingBall)
-        {
-            if (definition.Ball is null) throw new ArgumentException("Canonical ball material resource is required.");
-            definition.Ball.Capture(id);
-        }
+        if ((id == PartId.Basketball || id == PartId.BowlingBall) && definition.Ball is null)
+            throw new ArgumentException("A ball kind requires its declared bundle material.");
         Definition = definition;
         Name = definition.Id; // Godot resource/node-name boundary only.
     }
@@ -236,9 +227,8 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     }
     private void BuildDeclarative()
     {
-        if (Definition?.Ball is not null && (Definition.PartId == PartId.Basketball || Definition.PartId == PartId.BowlingBall))
+        if (Definition?.Ball is { } material && (Definition.PartId == PartId.Basketball || Definition.PartId == PartId.BowlingBall))
         {
-            var material = Definition.Ball.Capture(Definition.PartId);
             var radius = (float)material.Radius.Value;
             PickRadius = radius + .12f;
             foreach (var child in Visual.GetChildren())

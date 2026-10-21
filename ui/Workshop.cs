@@ -83,6 +83,14 @@ public partial class Workshop : Node3D
         _picker.AddItem("A gentle turn");
         _picker.AddItem("Around the corner");
         _picker.AddItem("Meet in the middle");
+        // Story 9A.14: the catalogue is the generated element bundle alone; a missing or invalid bundle stops start-up here.
+        try { World.Registry.Load(); }
+        catch (System.IO.InvalidDataException error)
+        {
+            WorkshopDiagnostics.Fault(FaultSite.Startup, error);
+            if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "PARTS UNAVAILABLE";
+            return;
+        }
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -371,7 +379,7 @@ public partial class Workshop : Node3D
             var button = Button(definition.Title + "  × " + countText, () => ChooseTool(key));
             button.Disabled = remaining.Exhausted || !CanEdit;
             button.TooltipText = ""; // Description already appears in the drawer when chosen.
-            button.Icon = WorkshopIcons.Pictogram(definition.Id);
+            button.Icon = WorkshopIcons.Element(definition.IconPath);
             button.SetMeta("part_kind", definition.Id);
             button.CustomMinimumSize = new(180, 40);
             button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;

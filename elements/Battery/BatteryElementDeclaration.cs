@@ -10,9 +10,12 @@ public sealed class BatteryElementDeclaration : IElectricalElement
     public ElementMetadata Metadata => new(
         Id: "battery",
         Category: ElementCategory.Power,
-        DisplayNameKey: "part_battery",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/battery.tscn",
+        DisplayName: "Battery",
+        Description: "Supplies electricity through a wire; activation signals cannot replace a battery.",
+        Color: new(0.87f, 0.44f, 0.35f, 1f),
+        PaletteOrder: 11,
+        IconPath: "res://elements/Battery/icon.svg",
+        ScenePath: "res://elements/Battery/battery.tscn",
         Parameters:
         [
             new("enabled", ParameterUnit.None, ParameterKind.Choice, Minimum: 0f, Maximum: 1f, Default: 1f, Options: ["Disabled", "Enabled"])

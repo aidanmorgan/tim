@@ -1,0 +1,8 @@
+  Failed CuriousContraptions.Tests.PartRegistryTests.WorkshopIconsKeepsNoElementArm [12 ms]
+   Assert.DoesNotContain() Failure: Sub-string found
+Found:  ""ball""
+  Failed CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains [15 ms]
+   Assert.Empty() Failure: Collection was not empty
+  Failed CuriousContraptions.Tests.PartRegistryTests.NoStaticFreePaletteListRemains [2 ms]
+   Assert.DoesNotContain() Failure: Filter matched in collection
+Failed!  - Failed:     3, Passed:     0, Skipped:     0, Total:     3, Duration: 45 ms - CuriousContraptions.tests.dll (net10.0)

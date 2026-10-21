@@ -15,5 +15,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
     <ProjectReference Include="../BundleElements/BundleElements.csproj" />
     <Using Include="Xunit" />
+    <Using Include="CuriousContraptions.Bundle" />
   </ItemGroup>
 </Project>

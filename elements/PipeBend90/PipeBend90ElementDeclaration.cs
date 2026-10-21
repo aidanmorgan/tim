@@ -15,8 +15,11 @@ public sealed class PipeBend90ElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "pipe_bend_90",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_pipe_bend_90",
-        IconPath: null,
+        DisplayName: "90° pipe bend",
+        Description: "A 90-degree hollow curve. Turns falling balls through a right angle with a smooth hollow bend.",
+        Color: new(0.4f, 0.72f, 0.79f, 1f),
+        PaletteOrder: 18,
+        IconPath: "res://elements/PipeBend90/icon.svg",
         ScenePath: "res://elements/PipeBend90/pipe_bend_90.tscn",
         Parameters: []);
 

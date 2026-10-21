@@ -16,14 +16,17 @@
     <ProjectReference Include="../../CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj" />
     <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
     <ProjectReference Include="../../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+    <!-- Story 9A.14: the one bundle schema and validator, shared with the game that loads the bundle. -->
+    <ProjectReference Include="../../CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj" />
     <!-- Every element package, by glob: a new elements/<Name>/<Name>.csproj is discovered with no list to edit. -->
     <ProjectReference Include="../../elements/*/*.csproj" />
   </ItemGroup>
 
   <!-- Story 9A.4: every build of this tool generates the bundle, so `dotnet build CuriousContraptions.slnx` fails on an invalid
-       package. The web host builds this project before the Godot export and before publish (GenerateElementBundle). -->
+       package. The web host builds this project before the Godot export and before publish (GenerateElementBundle). Story 9A.14:
+       the game loads res://elements/elements.bundle.json and nothing else. -->
   <Target Name="RunElementBundleGenerator" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true'">
-    <Exec Command="&quot;$(BundleHost)&quot; &quot;$(TargetPath)&quot; --root &quot;$(BundleRepositoryRoot)&quot; --out &quot;$(TargetDir)elements.bundle.json&quot; --out &quot;$(BundleRepositoryRoot)parts/elements.bundle.json&quot;" />
+    <Exec Command="&quot;$(BundleHost)&quot; &quot;$(TargetPath)&quot; --root &quot;$(BundleRepositoryRoot)&quot; --out &quot;$(TargetDir)elements.bundle.json&quot; --out &quot;$(BundleRepositoryRoot)elements/elements.bundle.json&quot;" />
     <ItemGroup>
       <FileWrites Include="$(TargetDir)elements.bundle.json" />
     </ItemGroup>

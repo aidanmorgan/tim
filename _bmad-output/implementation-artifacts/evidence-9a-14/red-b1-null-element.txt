@@ -1,0 +1,6 @@
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Options\": []|\"Options\": [null]", expected: "is malformed: Elements[") [17 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Elements\": [|\"Elements\": [null, ", expected: "is malformed: Elements[0] is null") [7 ms]
+Expected: typeof(System.IO.InvalidDataException)
+Actual:   typeof(System.NullReferenceException)
+---- System.NullReferenceException : Object reference not set to an instance of an object.
+Failed!  - Failed:     2, Passed:     9, Skipped:     0, Total:    11, Duration: 106 ms - CuriousContraptions.tests.dll (net10.0)

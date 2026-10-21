@@ -68,9 +68,9 @@ public class CurrentCatalogueTests
         Assert.Equal("FIX-001-001", plan.Fixtures[0].Id.Value);
         Assert.Equal("lesson/ball", plan.Fixtures[0].Instance.Value);
         plan.ValidateFixtures(Content);
-        var (artifacts, admitted) = plan.ValidateResources([Ball], [BallResource], _ => "Id = \"ball\"");
+        var (artifacts, admitted) = plan.ValidateResources([Ball], [BallResource], _ => "Id: \"ball\"");
         var artifact = Assert.Single(artifacts);
-        Assert.Equal("parts/catalog/ball.tres", artifact.Path.Value);
+        Assert.Equal("elements/Ball/BallElementDeclaration.cs", artifact.Path.Value);
         Assert.Equal(BallResource, Assert.Single(admitted).Value);
         Assert.Equal(3, plan.Elements.Length);
         Assert.False(ElementAudit.Analyze(plan.Elements.Select(element => element.Source), [],
@@ -115,18 +115,18 @@ public class CurrentCatalogueTests
 
     private static readonly RequirementId Ball = new("ball");
     private static readonly RequirementId Bowling = new("bowling");
-    private static readonly SourcePath BallResource = new("parts/catalog/ball.tres");
-    private static readonly SourcePath OtherResource = new("parts/catalog/other.tres");
+    private static readonly SourcePath BallResource = new("elements/Ball/BallElementDeclaration.cs");
+    private static readonly SourcePath OtherResource = new("elements/Other/OtherElementDeclaration.cs");
     public enum ResourceRejection { Missing, NoId, TwoIds, Undeclared, Uncatalogued, SharedId, DeclaredWithoutResource, DuplicateDeclared }
 
     [Theory]
-    [InlineData(ResourceRejection.Missing, "'parts/catalog/ball.tres' is missing")]
-    [InlineData(ResourceRejection.NoId, "'parts/catalog/ball.tres' declares 0 Ids")]
-    [InlineData(ResourceRejection.TwoIds, "'parts/catalog/ball.tres' declares 2 Ids")]
+    [InlineData(ResourceRejection.Missing, "'elements/Ball/BallElementDeclaration.cs' is missing")]
+    [InlineData(ResourceRejection.NoId, "'elements/Ball/BallElementDeclaration.cs' declares 0 Ids")]
+    [InlineData(ResourceRejection.TwoIds, "'elements/Ball/BallElementDeclaration.cs' declares 2 Ids")]
     [InlineData(ResourceRejection.Undeclared, "Id 'bowling' is not a declared part identity")]
     [InlineData(ResourceRejection.Uncatalogued, "Id 'unknown' has no current catalogue declaration")]
-    [InlineData(ResourceRejection.SharedId, "'ball' is declared by both 'parts/catalog/ball.tres' and 'parts/catalog/other.tres'")]
-    [InlineData(ResourceRejection.DeclaredWithoutResource, "have no catalogue resource: bowling.")]
+    [InlineData(ResourceRejection.SharedId, "'ball' is declared by both 'elements/Ball/BallElementDeclaration.cs' and 'elements/Other/OtherElementDeclaration.cs'")]
+    [InlineData(ResourceRejection.DeclaredWithoutResource, "have no element declaration: bowling.")]
     [InlineData(ResourceRejection.DuplicateDeclared, "Missing or duplicate declared part identity")]
     public void CatalogueResourceRejectionNamesTheResourceAndIdentity(ResourceRejection rejection, string message)
     {
@@ -135,12 +135,12 @@ public class CurrentCatalogueTests
         {
             ResourceRejection.Missing => () => plan.ValidateResources([Ball], [BallResource], _ => null),
             ResourceRejection.NoId => () => plan.ValidateResources([Ball], [BallResource], _ => "Scene = null"),
-            ResourceRejection.TwoIds => () => plan.ValidateResources([Ball], [BallResource], _ => "Id = \"ball\"\nId = \"ball\""),
-            ResourceRejection.Undeclared => () => plan.ValidateResources([Ball], [BallResource], _ => "Id = \"bowling\""),
-            ResourceRejection.Uncatalogued => () => plan.ValidateResources([new("unknown")], [BallResource], _ => "Id = \"unknown\""),
-            ResourceRejection.SharedId => () => plan.ValidateResources([Ball], [BallResource, OtherResource], _ => "Id = \"ball\""),
-            ResourceRejection.DeclaredWithoutResource => () => plan.ValidateResources([Ball, Bowling], [BallResource], _ => "Id = \"ball\""),
-            ResourceRejection.DuplicateDeclared => () => plan.ValidateResources([Ball, Ball], [BallResource], _ => "Id = \"ball\""),
+            ResourceRejection.TwoIds => () => plan.ValidateResources([Ball], [BallResource], _ => "Id: \"ball\"\nId: \"ball\""),
+            ResourceRejection.Undeclared => () => plan.ValidateResources([Ball], [BallResource], _ => "Id: \"bowling\""),
+            ResourceRejection.Uncatalogued => () => plan.ValidateResources([new("unknown")], [BallResource], _ => "Id: \"unknown\""),
+            ResourceRejection.SharedId => () => plan.ValidateResources([Ball], [BallResource, OtherResource], _ => "Id: \"ball\""),
+            ResourceRejection.DeclaredWithoutResource => () => plan.ValidateResources([Ball, Bowling], [BallResource], _ => "Id: \"ball\""),
+            ResourceRejection.DuplicateDeclared => () => plan.ValidateResources([Ball, Ball], [BallResource], _ => "Id: \"ball\""),
             _ => throw new ArgumentOutOfRangeException(nameof(rejection), rejection, "Unknown resource rejection.")
         };
         Assert.Contains(message, Assert.Throws<InvalidDataException>(() => validate()).Message);
@@ -150,7 +150,7 @@ public class CurrentCatalogueTests
     public void CatalogueResourceBindsByItsOwnIdNotItsFileNameAndAcceptsCrLf()
     {
         var (_, admitted) = Parse().ValidateResources([Ball, Bowling], [OtherResource, BallResource],
-            path => path == OtherResource ? "Id = \"ball\"\r\n" : "Id = \"bowling\"\r\n");
+            path => path == OtherResource ? "Id: \"ball\"\r\n" : "Id: \"bowling\"\r\n");
         Assert.Equal(OtherResource, admitted[Ball]);
         Assert.Equal(BallResource, admitted[Bowling]);
     }
@@ -175,8 +175,8 @@ public class CurrentCatalogueTests
         while (root is not null && !File.Exists(Path.Combine(root.FullName, CurrentCatalogue.ConsumersPath.Value))) root = root.Parent;
         Assert.NotNull(root);
         var plan = CurrentCatalogue.Read(root);
-        Assert.Equal(24, plan.Admitted.Count);
-        Assert.Equal(new SourcePath("parts/catalog/springboard.tres"), plan.Admitted[new("spring")]);
+        Assert.Equal(22, plan.Admitted.Count);
+        Assert.Equal(new SourcePath("elements/Springboard/SpringboardElementDeclaration.cs"), plan.Admitted[new("spring")]);
         Assert.Equal(plan.Admitted.Values.OrderBy(path => path.Value, StringComparer.Ordinal),
             plan.AvailableResources.Select(artifact => artifact.Path));
     }
@@ -191,7 +191,7 @@ public class CurrentCatalogueTests
         Assert.Equal(3, report.Changed);
         Assert.False(report.SourceInventoryCurrent);
         var oldResources = CoverageAudit.Seed(original.Select(source => source with
-            { Location = "parts/catalog/" + source.Key.Id.Value + ".tres", Hash = RequirementDiscovery.Hash("old resource") }));
+            { Location = "elements/" + source.Key.Id.Value + "/ElementDeclaration.cs", Hash = RequirementDiscovery.Hash("old resource") }));
         Assert.False(CoverageAudit.Analyze(original, oldResources).SourceInventoryCurrent);
         Assert.False(CoverageAudit.Analyze(original, inventory).CompletionProven);
     }

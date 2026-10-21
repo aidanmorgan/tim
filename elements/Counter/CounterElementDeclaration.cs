@@ -13,9 +13,12 @@ public sealed class CounterElementDeclaration : ISignalElement, IElectricalEleme
     public ElementMetadata Metadata => new(
         Id: "counter",
         Category: ElementCategory.Control,
-        DisplayNameKey: "part_counter",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/counter.tscn",
+        DisplayName: "Counter",
+        Description: "Counts trigger events, lighting one dot per event. At three it emits once and keeps its electrical contact closed until Reset. Connect a supply to power downstream devices.",
+        Color: new(0.91f, 0.72f, 0.39f, 1f),
+        PaletteOrder: 22,
+        IconPath: "res://elements/Counter/icon.svg",
+        ScenePath: "res://elements/Counter/counter.tscn",
         Parameters:
         [
             new("target_count", ParameterUnit.None, ParameterKind.WholeNumber, Minimum: 1f, Maximum: 9f, Default: 3f, Options: [])

@@ -1,5 +1,6 @@
 using System.Reflection;
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Bundle;
 
 namespace CuriousContraptions.BundleElements;
 

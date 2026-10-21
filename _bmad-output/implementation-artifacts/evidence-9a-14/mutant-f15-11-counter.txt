@@ -1,0 +1,4 @@
+  Failed CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [44 ms]
+Expected: 3
+Actual:   4
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 50 ms - CuriousContraptions.tests.dll (net10.0)

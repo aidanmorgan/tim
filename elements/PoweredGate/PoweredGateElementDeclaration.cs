@@ -16,9 +16,12 @@ public sealed class PoweredGateElementDeclaration : IMechanicalElement, IElectri
     public ElementMetadata Metadata => new(
         Id: "powered_gate",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_powered_gate",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/powered_gate.tscn",
+        DisplayName: "Powered gate",
+        Description: "Electricity retracts the gold shutter. Without power it returns closed, stopping if a ball blocks its path. Its mouths snap to tubes.",
+        Color: new(0.97f, 0.796f, 0.322f, 1f),
+        PaletteOrder: 20,
+        IconPath: "res://elements/PoweredGate/icon.svg",
+        ScenePath: "res://elements/PoweredGate/powered_gate.tscn",
         Parameters: []);
 
     public ElementFootprint Footprint => new(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 1);

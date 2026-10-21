@@ -21,7 +21,7 @@ public sealed class TubeMouthSnapTests
     private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         return registry.Definitions;
     }
 
@@ -236,7 +236,8 @@ public sealed class TubeMouthSnapTests
     /// <summary>A two-mouth test tube along local X with half length 1 and the given bore at both ends.</summary>
     private static PartDefinition TestTube(string id, float bore, Vector3? endPosition = null, Quaternion? endRotation = null)
     {
-        var definition = new PartDefinition { Id = id };
+        var definition = new PartDefinition(new PartId(id), id, id, CuriousContraptions.Abstractions.ElementCategory.Motion, Colors.White,
+            "res://elements/Pipe/icon.svg", null, null);
         var flip = new Quaternion(Vector3.Up, Mathf.Pi);
         definition.SetExtractedData(Array.Empty<ExtractedCollider>(), new Dictionary<string, ExtractedPortLocator>
         {

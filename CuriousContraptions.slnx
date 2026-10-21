@@ -9,6 +9,7 @@
     <Project Path="CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj" />
     <Project Path="CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
     <Project Path="CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+    <Project Path="CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj" />
   </Folder>
   <Folder Name="/elements/">
     <Project Path="elements/Ball/Ball.csproj" />

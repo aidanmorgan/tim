@@ -1,0 +1,1 @@
+NoPrimarySuite: elements/Ball/BallElementDeclaration.cs changes ball, which no suite declares as its Primary; add the element's suite (or its Primary) to SuiteCatalogue.

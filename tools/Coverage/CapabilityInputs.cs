@@ -134,29 +134,32 @@ public static class CapabilityInputs
     }
 
     public sealed record ResourceClosure(SourceArtifact[] Artifacts, SourceSymbol[] Symbols);
-    public static ResourceClosure ReadResourceClosure(DirectoryInfo root, SourcePath resource)
+    /// <summary>An admitted element's closure: its package declaration, the scene its ScenePath names, and that scene's root
+    /// script (Story 9A.14: the package declaration replaced the catalogue resource).</summary>
+    public static ResourceClosure ReadResourceClosure(DirectoryInfo root, SourcePath declaration)
     {
-        var definition = File.ReadAllText(Path.Combine(root.FullName, resource.Value));
-        var scene = ResourceLink(definition, ResourceBinding.CatalogueScene);
+        var definition = File.ReadAllText(Path.Combine(root.FullName, declaration.Value));
+        var scenes = Regex.Matches(definition, "\\bScenePath: \"res://([^\"]+)\"");
+        if (scenes.Count != 1) throw new InvalidDataException("Missing or duplicate admitted scene path.");
+        var scene = new SourcePath(scenes[0].Groups[1].Value);
+        if (!scene.Value.EndsWith(".tscn", StringComparison.Ordinal) || scene.Value.Contains("..", StringComparison.Ordinal))
+            throw new InvalidDataException("Admitted scene path is not a project scene.");
         var sceneText = File.ReadAllText(Path.Combine(root.FullName, scene.Value));
-        var script = ResourceLink(sceneText, ResourceBinding.RootScript);
+        var script = RootScript(sceneText);
         var scriptText = File.ReadAllText(Path.Combine(root.FullName, script.Value));
-        return new([new(resource, RequirementDiscovery.Hash(definition)), new(scene, RequirementDiscovery.Hash(sceneText))],
+        return new([new(declaration, RequirementDiscovery.Hash(definition)), new(scene, RequirementDiscovery.Hash(sceneText))],
             [new(script, new(Path.GetFileNameWithoutExtension(script.Value)), RequirementDiscovery.Hash(scriptText))]);
     }
 
-    private enum ResourceBinding { CatalogueScene, RootScript }
-    private static SourcePath ResourceLink(string text, ResourceBinding binding)
+    private static SourcePath RootScript(string text)
     {
         var sections = Regex.Matches(text, @"(?m)^\[([^\r\n]+)\]\r?$").Cast<Match>().ToArray();
-        var roots = sections.Where(section => binding == ResourceBinding.CatalogueScene
-            ? section.Groups[1].Value == "resource"
-            : section.Groups[1].Value.StartsWith("node ", StringComparison.Ordinal) &&
+        var roots = sections.Where(section => section.Groups[1].Value.StartsWith("node ", StringComparison.Ordinal) &&
                 !Regex.IsMatch(section.Groups[1].Value, @"\bparent\s*=")).ToArray();
         if (roots.Length != 1) throw new InvalidDataException("Missing or duplicate admitted root resource section.");
         var start = roots[0].Index + roots[0].Length;
         var end = sections.FirstOrDefault(section => section.Index >= start)?.Index ?? text.Length;
-        var property = binding == ResourceBinding.CatalogueScene ? "Scene" : "script";
+        const string property = "script";
         var assignments = text[start..end].Split('\n').Select(line => line.Trim())
             .Where(line => Regex.IsMatch(line, "^" + property + @"\s*=")).ToArray();
         if (assignments.Length != 1) throw new InvalidDataException("Missing or duplicate admitted resource property binding.");
@@ -173,9 +176,7 @@ public static class CapabilityInputs
         }
         if (!declarations.TryGetValue(reference.Groups[1].Value, out var selected))
             throw new InvalidDataException("Admitted resource binding references an unknown external identity.");
-        var type = binding == ResourceBinding.CatalogueScene ? "PackedScene" : "Script";
-        var extension = binding == ResourceBinding.CatalogueScene ? ".tscn" : ".cs";
-        if (selected.Type != type || !selected.Path.Value.EndsWith(extension, StringComparison.Ordinal))
+        if (selected.Type != "Script" || !selected.Path.Value.EndsWith(".cs", StringComparison.Ordinal))
             throw new InvalidDataException("Admitted resource binding has the wrong type.");
         return selected.Path;
     }

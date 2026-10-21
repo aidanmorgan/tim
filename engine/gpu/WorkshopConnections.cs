@@ -36,7 +36,7 @@ public static class WorkshopPorts
         "counter" => CounterPorts,
         "clock" => ClockPorts,
         "latch" => LatchPorts,
-        "ball" or "bowling" or "basket" or "ramp" or "wall" or "spring" or "tennis" or "balloon" or "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" => [],
+        "ball" or "bowling" or "basket" or "ramp" or "wall" or "spring" or "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" => [],
         _ => throw new ArgumentException("Unsupported port owner.")
     };
     private static WorkshopPort PowerIn => new(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null);

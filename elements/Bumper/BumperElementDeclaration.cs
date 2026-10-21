@@ -11,9 +11,12 @@ public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalEl
     public ElementMetadata Metadata => new(
         Id: "bumper",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_bumper",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/bumper.tscn",
+        DisplayName: "Pinball bumper",
+        Description: "A round spring-loaded bumper kicks a ball away from its point of impact.",
+        Color: new(0.87f, 0.44f, 0.35f, 1f),
+        PaletteOrder: 7,
+        IconPath: "res://elements/Bumper/icon.svg",
+        ScenePath: "res://elements/Bumper/bumper.tscn",
         Parameters:
         [
             new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [])

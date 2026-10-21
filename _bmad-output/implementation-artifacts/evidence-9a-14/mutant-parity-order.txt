@@ -1,0 +1,6 @@
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageCarriesItsCatalogueTitleAndPaletteRow [4 ms]
+   Assert.Equal() Failure: Collections differ at index 7
+Expected: "ramp"
+Actual:   "domino"
+           ↑ (pos 0)
+Failed!  - Failed:     1, Passed:     9, Skipped:     0, Total:    10, Duration: 160 ms - CuriousContraptions.tests.dll (net10.0)

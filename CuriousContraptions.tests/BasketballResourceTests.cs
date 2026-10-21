@@ -28,23 +28,21 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void ActualResourceAndSceneUseCanonicalMaterialBits()
+    public void TheBundleAndSceneUseCanonicalMaterialBits()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         var definition = registry.Definitions[PartId.Basketball];
-        Assert.Empty(definition.Parameters);
-        var material = definition.Ball!.Capture(PartId.Basketball);
+        var material = definition.Ball!.Value;
         Assert.Equal((ushort)13681, BitConverter.HalfToUInt16Bits(material.Radius.Value));
         Assert.Equal((ushort)14438, BitConverter.HalfToUInt16Bits(material.Bounce.Value));
         Assert.Equal((ushort)10363, BitConverter.HalfToUInt16Bits(material.Rolling.Value));
         Assert.Equal(BallMaterial.For(PartId.Basketball), material);
-        Assert.Throws<ArgumentException>(() => definition.Ball!.Capture(PartId.BowlingBall)); // Basketball bits are not a Bowling ball
+        Assert.Throws<ArgumentException>(() => material.Validate(PartId.BowlingBall)); // Basketball bits are not a Bowling ball
         var bowlingDefinition = registry.Definitions[PartId.BowlingBall];
-        Assert.Empty(bowlingDefinition.Parameters);
-        var bowlingMaterial = bowlingDefinition.Ball!.Capture(PartId.BowlingBall);
+        var bowlingMaterial = bowlingDefinition.Ball!.Value;
         Assert.Equal(BallMaterial.For(PartId.BowlingBall), bowlingMaterial);
         Assert.Equal((ushort)13435, BitConverter.HalfToUInt16Bits(bowlingMaterial.Radius.Value));
         Assert.Equal((ushort)17408, BitConverter.HalfToUInt16Bits(bowlingMaterial.Mass.Value));
@@ -67,7 +65,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void DelayArtworkUsesSharedFullTurnAndSourcePhasePalette()
     {
-        var registry=new PartRegistry(); registry.Discover();
+        var registry=new PartRegistry(); registry.Load();
         var delay=(MachinePart)registry.Create(PartId.Delay);
         try
         {
@@ -100,7 +98,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette()
     {
-        var registry=new PartRegistry(); registry.Discover();
+        var registry=new PartRegistry(); registry.Load();
         var receiver=(MachinePart)registry.Create(PartId.Receiver);
         try
         {
@@ -127,7 +125,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples()
     {
-        var registry=new PartRegistry(); registry.Discover();
+        var registry=new PartRegistry(); registry.Load();
         var bumper=(MachinePart)registry.Create(PartId.PinballBumper);
         var toggle=(MachinePart)registry.Create(PartId.ImpactSwitch);
         try
@@ -197,7 +195,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ADeclaredDelayPartBindsTheDelayCurve()
     {
-        var registry = new PartRegistry(); registry.Discover();
+        var registry = new PartRegistry(); registry.Load();
         var part = registry.Create(PartId.Delay);
         try
         {
@@ -218,10 +216,12 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void UnknownCatalogueAndOldFloatDeclarationRejectBeforeConstruction()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unsupported")));
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("999")));
-        using var obsolete = new PartDefinition { Id = "ball" };
+        // A ball kind without its declared material is refused before construction.
+        var obsolete = new PartDefinition(PartId.Basketball, "Basketball", "A ball.", CuriousContraptions.Abstractions.ElementCategory.Motion,
+            Colors.Orange, "res://elements/Ball/icon.svg", null, null);
         var ball = new MachinePart();
         try { Assert.Throws<ArgumentException>(() => ball.Configure(obsolete)); }
         finally { ball.Free(); }

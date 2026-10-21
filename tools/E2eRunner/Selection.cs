@@ -59,41 +59,9 @@ internal sealed partial class ImpactContext
         return File.Exists(full) ? File.ReadAllText(full) : null;
     }
 
-    [GeneratedRegex(@"^Id\s*=\s*""([^""]+)""", RegexOptions.Multiline)]
-    private static partial Regex CatalogueId();
-    [GeneratedRegex(@"path=""res://(parts/scenes/[^""]+\.tscn)""")]
-    private static partial Regex CatalogueScene();
-
-    /// <summary>The part a catalogue resource declares (its Id line), at head or, when deleted, at base.</summary>
-    public PartId? CataloguePart(string path) =>
-        (ReadHead(path) ?? ReadBase(path)) is { } text && CatalogueId().Match(text) is { Success: true } match ? new PartId(match.Groups[1].Value) : null;
-
-    /// <summary>Every catalogue resource at head with its part and scene.</summary>
-    public IEnumerable<(PartId Part, string? Scene)> Catalogue()
-    {
-        var directory = Path.Combine(_root, "parts", "catalog");
-        if (!Directory.Exists(directory)) yield break;
-        foreach (var file in Directory.EnumerateFiles(directory, "*.tres").Order(StringComparer.Ordinal))
-        {
-            var text = File.ReadAllText(file);
-            if (CatalogueId().Match(text) is not { Success: true } id) continue;
-            var scene = CatalogueScene().Match(text);
-            yield return (new PartId(id.Groups[1].Value), scene.Success ? scene.Groups[1].Value : null);
-        }
-    }
-
-    /// <summary>Every part whose catalogue resource or bundle element references a scene.</summary>
-    public IReadOnlySet<PartId> ScenePart(string scenePath)
-    {
-        var parts = new SortedSet<PartId>(Catalogue().Where(entry => entry.Scene == scenePath).Select(entry => entry.Part));
-        if (ReadHead(BundlePath) is { } bundle)
-            foreach (var element in BundleElements(bundle) ?? [])
-                if (element.ScenePath == "res://" + scenePath) parts.Add(element.Part);
-        return parts;
-    }
-
-    /// <summary>The generated element bundle (Story 9A.4): a build output, read from the working tree and never from git.</summary>
-    public const string BundlePath = "parts/elements.bundle.json";
+    /// <summary>The generated element bundle (Story 9A.4): a build output, read from the working tree and never from git. Story 9A.14
+    /// made it the game's only catalogue, so an element change is always a change under its elements/&lt;Package&gt; directory.</summary>
+    public const string BundlePath = "elements/elements.bundle.json";
     public const string LevelsPath = "content/puzzles.json";
 
     internal sealed record BundlePort(string PortId, SimulationDomain Domain, PortDirection Direction);
@@ -215,7 +183,7 @@ internal static class Selector
                 foreach (var importer in importers) add(importer, $"shared module: imports {path}");
                 return new(path, rule.Kind, rule.Name, null, $"{importers.Length} importing suite(s)");
             case ImpactKind.Element:
-                var parts = ElementParts(path, context);
+                var parts = ElementParts(path);
                 if (parts.Count == 0) return Full(FullReason.Unknown, "no part resolves from this element path");
                 // Connected suites come from the generated bundle's ports; without it the selection would silently miss them.
                 if (headBundle is null) return Full(FullReason.Unknown, $"{ImpactContext.BundlePath} is missing or does not parse (build the solution first)");
@@ -243,17 +211,10 @@ internal static class Selector
         }
     }
 
-    private static SortedSet<PartId> ElementParts(string path, ImpactContext context)
+    private static SortedSet<PartId> ElementParts(string path)
     {
         var parts = new SortedSet<PartId>();
         if (ImpactRules.PackagePart(path) is { } package) parts.Add(package);
-        else if (path.StartsWith("parts/catalog/", StringComparison.Ordinal)) { if (context.CataloguePart(path) is { } part) parts.Add(part); }
-        else if (path.StartsWith("parts/icons/", StringComparison.Ordinal))
-        {
-            var stem = Path.GetFileNameWithoutExtension(path);
-            parts.UnionWith(context.Catalogue().Where(entry => entry.Part.Value == stem).Select(entry => entry.Part));
-        }
-        else if (path.StartsWith("parts/scenes/", StringComparison.Ordinal)) parts.UnionWith(context.ScenePart(path));
         return parts;
     }
 

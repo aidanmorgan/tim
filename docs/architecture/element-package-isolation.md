@@ -134,12 +134,12 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 
 | Finding | What the tree does today | Breaks invariant | Owner |
 | --- | --- | --- | --- |
-| A13 (runtime), A17, A18 | `engine/PartRegistry.cs` loads the `.tres` catalogue (`parts/catalog/*.tres`, scenes in `parts/scenes/`), not the bundle; Tennis and Balloon are offered but not constructible | 2 | 9A.14 (with 9A.18 icons merged) |
-| A15 | Every delivered element has a package once PKG-3 (in review) packages `delay` and `switch` (PKG-1 packaged `basket`, `bowling` and `spring`; PKG-2 packaged `funnel`, `pipe`, `pipe_bend_45` and `pipe_bend_90`). The catalogue ids left without a package are Tennis and Balloon, which are offered but not constructible (A18, 9A.14) and are delivered as packages by Story 12.1. The row closes at PKG-3's terminal Pass | 1 | PKG-3 |
+| A13 (runtime), A17, A18 | Story 9A.14 (in review) makes `PartRegistry` load only the generated bundle (`res://elements/elements.bundle.json`), with every scene in its package; the `.tres` catalogue, `parts/` and the static palette list are deleted, and Tennis and Balloon stay out of the registry and palette through the typed `UndeliveredParts` set until Story 12.1. The row closes at 9A.14's terminal Pass | 2 | 9A.14 (with 9A.18 icons merged) |
+| A15 | Every delivered element has a package (PKG-1 packaged `basket`, `bowling` and `spring`; PKG-2 `funnel`, `pipe`, `pipe_bend_45` and `pipe_bend_90`; PKG-3 `delay` and `switch`). Tennis and Balloon have no package; Story 9A.14 deletes their catalogue resources and Story 12.1 delivers them as packages | 1 | PKG-3 |
 | A2 | `engine/PartId.cs` holds named constants and numeric id switches that are the save/wire identity | 2 | 9A.15 (numeric switches); 9A.45a then 9A.45 (constants) |
 | A3 (colliders), B2 | `WorkshopCanonicalColliders` tables and `?? WorkshopCanonicalColliders.For(...)` fallbacks | 1, 2, 9 | 9A.16 |
 | A3 (ports, footprints) | The `WorkshopPorts.For` switch table; the runtime does not yet read the footprints the packages declare (`WorkbenchFootprint.Of` was deleted by Story 9R.5b) | 1, 2 | 9A.17 |
-| A3 (icons) | `ui/WorkshopIcons.cs` per-element arms | 1, 2 | 9A.14 |
+| A3 (icons) | Story 9A.14 (in review, with 9A.18 merged) deletes every element arm of `ui/WorkshopIcons.cs`; each package ships its `icon.svg` (`ElementMetadata.IconPath`) and the palette renders it. The row closes at 9A.14's terminal Pass | 1, 2 | 9A.14 |
 | A3 (decode arms, `CaptureInstance`), A5, A6, A11 | Per-element records, factories, type-pattern dispatch in the compilers and per-element UI panels | 1, 5 | 9A.27 (Wall), then 9.5a, C-Switch, C-Ramp+Receiver, C-Balls, C-Bumper+Spring, C-Gate, 9A.39 (Battery), C-Lamp+Detector, 9A.32 (Domino), C-Plate, C-Clock, C-Memory |
 | A4, A10 | `MachinePart.BuildDeclarative` per-element presentation arms and `CosmeticCurves.*` per-element curves in the engine | 1 | 9A.25a (committed-state bindings), 9A.25b (one-shot bindings, with 9A.23) |
 | A7 | The solver recognises the gate by joint limit `1.55` and `ActuatorSliderDrive` | 5 | C-Gate (9A.19); C-Plate (9A.20) for the plate |
@@ -161,7 +161,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
 | --- | --- |
 | A8: the solver read the authoring graph at tick time | Story 9.4: compiled `SupplyRoute` table at Run |
 | A14: `elements/*`, the domain Abstractions and `tools/BundleElements` were not in the solution | `CuriousContraptions.slnx` lists them |
-| A13 (build), G10: `tools/BundleElements` hand-listed 13 declarations, wrote a lossy tracked bundle (empty vectors) with a `GeneratedAt` field, and was not a build target | Story 9A.4: packages are discovered by glob and validated, and the lossless bundle is a git-ignored build output of every solution build and web publish (`BundleRoundTripTests`, `BundleCatalogueParityTests`) |
+| A13 (build), G10: `tools/BundleElements` hand-listed 13 declarations, wrote a lossy tracked bundle (empty vectors) with a `GeneratedAt` field, and was not a build target | Story 9A.4: packages are discovered by glob and validated, and the lossless bundle is a git-ignored build output of every solution build and web publish (`BundleRoundTripTests`, and the cutover guard that Story 9A.14 deleted with the catalogue) |
 | D4 (JS producer): `writeEventRing` and the never-written JS ring scaffold | Story 9.4b |
 | B3: the JS-boundary exports (`AllocateElectrical` … `AbiOffsets`) in `CuriousContraptions.Simulation/Program.cs` | Gone from the tree (`rg` returns 0) |
 | B4: the dead `worker.js` layout constants | Story 9.4b; the constants that remain are pinned and used (`WorkerAbiTests`) |

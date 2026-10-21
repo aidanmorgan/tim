@@ -7,7 +7,7 @@ namespace CuriousContraptions.CoverageTests;
 public class ElementManifestTests
 {
     private static SourceRequirement Catalogue(RequirementId id)=>
-        new(new(RequirementOrigin.Catalogue,id),"parts/catalog/"+id.Value+".tres",
+        new(new(RequirementOrigin.Catalogue,id),"elements/"+id.Value+"/ElementDeclaration.cs",
             "Shared title",RequirementDiscovery.Hash(id.Value));
     private static readonly RequirementId First=new("first");
     private static readonly RequirementId Second=new("second");

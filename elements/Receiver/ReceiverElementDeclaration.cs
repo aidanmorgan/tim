@@ -14,8 +14,11 @@ public sealed class ReceiverElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "basket",
         Category: ElementCategory.Goals,
-        DisplayNameKey: "part_basket",
-        IconPath: null,
+        DisplayName: "Receiver",
+        Description: "Catch and hold the named ball. The halo shows the current tolerance.",
+        Color: new(0.29f, 0.67f, 0.58f, 1f),
+        PaletteOrder: 2,
+        IconPath: "res://elements/Receiver/icon.svg",
         ScenePath: "res://elements/Receiver/basket.tscn",
         Parameters:
         [

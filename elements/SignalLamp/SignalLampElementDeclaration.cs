@@ -11,9 +11,12 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
     public ElementMetadata Metadata => new(
         Id: "lamp",
         Category: ElementCategory.Goals,
-        DisplayNameKey: "part_lamp",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/lamp.tscn",
+        DisplayName: "Signal lamp",
+        Description: "Lights when its ActivationIn socket receives a signal.",
+        Color: new(0.98f, 0.86f, 0.51f, 1f),
+        PaletteOrder: 4,
+        IconPath: "res://elements/SignalLamp/icon.svg",
+        ScenePath: "res://elements/SignalLamp/lamp.tscn",
         Parameters: []);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);

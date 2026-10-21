@@ -398,10 +398,14 @@ public sealed class GltfColliderExtractionTests
         }
     }
 
+    /// <summary>A scene-less definition, as a test fixture builds one; the registry builds real ones from the bundle.</summary>
+    private static PartDefinition Fixture(string id) => new(new PartId(id), id, id, CuriousContraptions.Abstractions.ElementCategory.Structure,
+        Colors.White, "res://elements/Wall/icon.svg", null, null);
+
     [Fact]
     public void PartDefinitionExposesCollidersAndPortLocators()
     {
-        using var def = new PartDefinition { Id = "test_fixture" };
+        var def = Fixture("test_fixture");
         Assert.Empty(def.Colliders);
         Assert.Empty(def.PortLocators);
         Assert.Empty(def.Ports);
@@ -419,7 +423,7 @@ public sealed class GltfColliderExtractionTests
     [Fact]
     public void MachinePartQueriesPortTransform()
     {
-        using var def = new PartDefinition { Id = "test_part" };
+        var def = Fixture("test_part");
         var port = new ExtractedPortLocator("socket_a", new Vector3(0.5f, 1.2f, -0.3f), Quaternion.Identity);
         def.SetExtractedData(Array.Empty<ExtractedCollider>(), new Dictionary<string, ExtractedPortLocator> { ["socket_a"] = port });
 

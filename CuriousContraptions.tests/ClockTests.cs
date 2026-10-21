@@ -14,17 +14,15 @@ public sealed class ClockTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversClockDefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.Clock));
         var def = registry.Definitions[PartId.Clock];
         Assert.Equal(PartId.Clock, def.PartId);
         Assert.Equal("clock", def.Id);
         Assert.Equal("Repeating clock", def.Title);
-        Assert.Equal("Control", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
         Assert.NotNull(def.Scene);
-        Assert.True(def.Parameters.ContainsKey("interval_seconds"));
-        Assert.Equal(1.0f, (float)def.Parameters["interval_seconds"]);
 
         var part = registry.Create(PartId.Clock);
         try
@@ -73,7 +71,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ClockScene_ExtractsExactTwoCollidersAndPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://parts/scenes/clock.tscn");
+        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/SystemClock/clock.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

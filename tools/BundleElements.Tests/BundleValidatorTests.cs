@@ -7,7 +7,7 @@ namespace CuriousContraptions.BundleElements.Tests;
 public sealed class BundleValidatorTests
 {
     private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages) =>
-        BundleValidator.Validate(packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
+        PackageValidator.Validate(packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
             .Select(error => error.ToString()).ToArray();
 
     [Fact]
@@ -16,7 +16,80 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ADuplicateIdNamesBothPackages() =>
         Assert.Equal(["BUNDLE001 duplicate id 'x' (FixtureA, FixtureB)"],
-            Errors(("FixtureA", new Fixture { Id = "x" }), ("FixtureB", new Fixture { Id = "x" })));
+            Errors(("FixtureA", new Fixture { Id = "x" }), ("FixtureB", new Fixture { Id = "x", PaletteOrder = 2 })));
+
+    [Fact]
+    public void ADuplicatePaletteOrderNamesBothPackages() =>
+        Assert.Equal(["BUNDLE008 duplicate palette order 4 (FixtureA, FixtureB)"],
+            Errors(("FixtureA", new Fixture { Id = "a", PaletteOrder = 4 }), ("FixtureB", new Fixture { Id = "b", PaletteOrder = 4 })));
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-3)]
+    public void APaletteOrderMustBePositive(int order) =>
+        Assert.Equal(["BUNDLE006 FixtureOrder.Metadata.PaletteOrder: outside its declared range"],
+            Errors(("FixtureOrder", new Fixture { PaletteOrder = order })));
+
+    [Theory]
+    [InlineData("", "Fixture")]
+    [InlineData(" Fixture", "Fixture")]
+    [InlineData("Fixture", "")]
+    public void TitlesAndDescriptionsMustBeText(string title, string description) =>
+        Assert.Equal([$"BUNDLE010 FixtureText.Metadata.{(title.Trim() == title && title.Length > 0 ? "Description" : "DisplayName")}: empty or padded text"],
+            Errors(("FixtureText", new Fixture { DisplayName = title, Description = description })));
+
+    [Theory]
+    [InlineData(-0.01f)]
+    [InlineData(1.01f)]
+    public void AColourChannelMustLieInUnitRange(float red) =>
+        Assert.Equal(["BUNDLE006 FixtureColour.Metadata.Color.R: outside its declared range"],
+            Errors(("FixtureColour", new Fixture { Color = new(red, .5f, .5f, 1f) })));
+
+    [Theory]
+    [InlineData("res://parts/scenes/fixture.tscn")]
+    [InlineData("res://elements/../fixture.tscn")]
+    [InlineData("elements/Fixture/fixture.tscn")]
+    public void AnAssetPathMustBeAPackagePath(string path) =>
+        Assert.Equal([$"BUNDLE007 FixturePath.Metadata.ScenePath: '{path}' is not a package asset path"],
+            Errors(("FixturePath", new Fixture { ScenePath = path })));
+
+    [Fact]
+    public void APortNormalMustBeAUnitDirection()
+    {
+        PortDescriptor Port(Vector3 normal) => new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse,
+            Vector3.Zero, normal);
+        Assert.Empty(Errors(("Fixture", new Fixture { Ports = [Port(-Vector3.UnitY)] })));
+        Assert.Equal(["BUNDLE006 FixtureNormal.Ports[0].Normal: outside its declared range"],
+            Errors(("FixtureNormal", new Fixture { Ports = [Port(new(0f, 2f, 0f))] })));
+    }
+
+    /// <summary>Stories 9A.14 and 9A.18: a missing icon (or scene) fails the bundle build, and an asset outside the package's own
+    /// directory is refused even when the file exists.</summary>
+    [Fact]
+    public void AMissingOrForeignPackageAssetFailsTheBuild()
+    {
+        var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Path.Combine(root, "elements", "Fixture"));
+        Directory.CreateDirectory(Path.Combine(root, "elements", "Other"));
+        try
+        {
+            File.WriteAllText(Path.Combine(root, "elements", "Fixture", "fixture.tscn"), "");
+            File.WriteAllText(Path.Combine(root, "elements", "Other", "icon.svg"), "");
+            BundlePackage[] packages = [new("Fixture", new Fixture())];
+            Assert.Equal(["BUNDLE009 Fixture.Metadata.IconPath: 'res://elements/Fixture/icon.svg' is not a file in elements/Fixture/"],
+                PackageValidator.Assets(root, packages).Select(error => error.ToString()));
+            File.WriteAllText(Path.Combine(root, "elements", "Fixture", "icon.svg"), "");
+            Assert.Empty(PackageValidator.Assets(root, packages));
+            Assert.Equal(["BUNDLE009 Fixture.Metadata.IconPath: 'res://elements/Other/icon.svg' is not a file in elements/Fixture/"],
+                PackageValidator.Assets(root, [new("Fixture", new Fixture { IconPath = "res://elements/Other/icon.svg" })])
+                    .Select(error => error.ToString()));
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    [Fact]
+    public void EveryRealPackageShipsItsIconAndScene() =>
+        Assert.Empty(PackageValidator.Assets(TestRepository.Root, PackageDiscovery.Discover(TestRepository.Root).Packages));
 
     [Fact]
     public void ANonFiniteValueNamesThePackageAndTheField() =>

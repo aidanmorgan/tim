@@ -1,0 +1,3 @@
+  Failed CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [44 ms]
+   switch: trigger threshold 0.85 declared, 0.8 compiled.
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 50 ms - CuriousContraptions.tests.dll (net10.0)

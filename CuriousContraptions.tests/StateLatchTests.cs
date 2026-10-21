@@ -19,12 +19,11 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversLatchAndPresentationRestoresRestOnReset()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         var def = registry.Definitions[PartId.Latch];
         Assert.Equal("latch", def.Id);
         Assert.Equal("Set/Reset latch", def.Title);
-        Assert.Equal("Control", def.Category);
-        Assert.Empty(def.Parameters);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
         Assert.Equal(24u, PartId.Latch.ToNumericId());
         Assert.Equal(PartId.Latch, PartId.FromNumericId(24));
 
@@ -71,7 +70,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void LatchScene_ExtractsHousingFootAndFivePortLocators()
     {
-        var instance = ResourceLoader.Load<PackedScene>("res://parts/scenes/latch.tscn").Instantiate<Node3D>();
+        var instance = ResourceLoader.Load<PackedScene>("res://elements/StateLatch/latch.tscn").Instantiate<Node3D>();
         try
         {
             var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(instance);

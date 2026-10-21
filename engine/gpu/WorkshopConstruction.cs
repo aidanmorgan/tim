@@ -53,7 +53,7 @@ public readonly record struct BallMaterial(
     Metres Radius, Kilograms Mass, Restitution Bounce, InverseSeconds Drag, Acceleration Buoyancy,
     FrictionCoefficient Friction, LinearSpeed BounceThreshold, RollingResistance Rolling)
 {
-    /// <summary>Game-scale declarations (parts/catalog/*.tres carry the same bits): Basketball 0.34 m / 1 kg / bounce 0.55 / rolling
+    /// <summary>Game-scale declarations (the ball and bowling element packages declare the same values): Basketball 0.34 m / 1 kg / bounce 0.55 / rolling
     /// resistance 0.035 (an inflated shell); Bowling ball 0.28 m / 4 kg / bounce 0.14 / rolling resistance 0.03 (a smaller, heavier hard shell). Both share
     /// drag 0.04 1/s, no buoyancy, friction 0.3 and a 0.1 m/s bounce threshold. A ball struck to 1 m/s on the bench rests within 4.5 s.</summary>
     public static BallMaterial For(PartId id) => id.Value switch

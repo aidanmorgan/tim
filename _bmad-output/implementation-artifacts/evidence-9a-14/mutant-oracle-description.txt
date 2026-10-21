@@ -1,0 +1,5 @@
+  Failed CuriousContraptions.BundleElements.Tests.CatalogueOracleParityTests.EveryPackageDeclaresItsCatalogueTitleDescriptionColourAndCategory [24 ms]
+   Assert.Equal() Failure: Strings differ
+Expected: ···"ng one dot per event. At three it emits once and k"···
+Actual:   ···"ng one dot per event. At four it emits once and ke"···
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 33 ms - BundleElements.Tests.dll (net10.0)

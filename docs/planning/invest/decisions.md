@@ -162,7 +162,7 @@ Adopt open-source, industry-standard **glTF 2.0 binary (`.glb`)** as the univers
 Earlier implementations relied on a closed `WorkshopPartKind` C# enum and hard-coded file path registrations in `PartRegistry.Discover()`. Introducing or altering any puzzle element required modifying engine enums, updating switch statements across the codebase, and creating brittle test dependencies. This directly contradicted the requirement that new puzzle elements must be pure declarative data without engine code modifications.
 
 ### Decision
-1. **Dynamic Directory Discovery:** `PartRegistry.Discover()` scans `res://parts/catalog/*.tres` dynamically at runtime using Godot's `DirAccess.GetFilesAt`.
+1. **Dynamic Discovery:** parts are discovered without a hand list. Story 6.5b scanned the former `.tres` catalogue at runtime; Story 9A.14 retired that scan, and `tools/BundleElements` now discovers the `elements/*` packages at build time into the one bundle that `PartRegistry.Load()` reads.
 2. **Extensible Strongly-Typed Identities:** Puzzle parts are identified by a strongly typed `PartId` record struct wrapping a canonical string identifier (e.g. `PartId("basketball")`, `PartId("springboard")`). Closed enums for puzzle parts are permanently deprecated and eliminated.
 3. **Generic Part Instantiation:** `PartRegistry.Create(PartId)` instantiates parts directly from `definition.Scene` and configures them as generic `MachinePart` entities without switch statements.
 4. **Dynamic Inventory Allocation:** In Free Workshop mode, `WorkshopInventoryPolicy.Free` populates the palette dynamically from all discovered `PartRegistry.Definitions` with unlimited allowances.

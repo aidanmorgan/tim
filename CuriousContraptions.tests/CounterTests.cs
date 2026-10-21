@@ -14,16 +14,15 @@ public sealed class CounterTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversCounterDefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.Counter));
         var def = registry.Definitions[PartId.Counter];
         Assert.Equal(PartId.Counter, def.PartId);
         Assert.Equal("counter", def.Id);
         Assert.Equal("Counter", def.Title);
-        Assert.Equal("Control", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
         Assert.NotNull(def.Scene);
-        Assert.Empty(def.Parameters);
 
         var part = registry.Create(PartId.Counter);
         try
@@ -74,7 +73,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void CounterScene_ExtractsExactTwoCollidersAndPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://parts/scenes/counter.tscn");
+        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/Counter/counter.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

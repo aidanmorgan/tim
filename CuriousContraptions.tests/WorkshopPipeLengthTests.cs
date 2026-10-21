@@ -92,7 +92,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     public void TheDefaultLengthHasTheSceneTubeShape()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         var scene = registry.Definitions[PartId.Pipe].Colliders;
         var generated = WorkshopCanonicalColliders.Pipe(PipeLength.Default);
         Assert.Equal(scene.Count, generated.Count);
@@ -115,7 +115,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     public void MouthsSitAtTheCollarFacesOfTheLength(float metres)
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         var definitions = registry.Definitions;
         var length = new PipeLength(metres);
         var start = TubeMouthSnap.LocalMouth(definitions[PartId.Pipe], TubeMouthEnd.Start, length);
@@ -146,7 +146,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     public void APipeMoverMustDeclareItsLength()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         Assert.Throws<ArgumentException>(() => TubeMouthSnap.Find(registry.Definitions, [Pipe(2)], new(PartId.Pipe, new(2), false),
             new(3, 3, 0), Quaternion.Identity));
         Assert.Throws<ArgumentException>(() => TubeMouthSnap.Find(registry.Definitions, [Pipe(2)], new(PartId.PipeBend90, new(2), false, new(2)),
@@ -161,7 +161,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     public void ArtworkAndPickRadiusFollowTheLength(float metres)
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         var part = registry.Create(PartId.Pipe);
         try
         {
@@ -205,7 +205,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         var world = new MachineWorld();
         try
         {
-            world.Registry.Discover();
+            world.Registry.Load();
             var resized = Pipe(2, 4);
             typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world,
                 new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(resized)));

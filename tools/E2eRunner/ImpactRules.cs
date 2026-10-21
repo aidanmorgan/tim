@@ -38,7 +38,6 @@ internal static class ImpactRules
         ["engine/PartDefinition.cs"] = WorkshopArea.Palette,
         ["engine/PartRegistry.cs"] = WorkshopArea.Palette,
         ["engine/PartId.cs"] = WorkshopArea.Palette,
-        ["engine/BallMaterialResource.cs"] = WorkshopArea.Palette,
         ["ui/WorkshopIcons.cs"] = WorkshopArea.Palette,
         ["engine/Workbench.cs"] = WorkshopArea.BenchPlacement,
         ["ui/WorkshopBenchPlacement.cs"] = WorkshopArea.BenchPlacement,
@@ -99,9 +98,6 @@ internal static class ImpactRules
             path => TopLevelIn(path, "tools/e2e", ".ts") && !SuiteCatalogue.IsSuitePath(path)),
         new("tools/*.mjs (shared module)", ImpactKind.SharedTestModule, path => TopLevelIn(path, "tools", ".mjs")),
         new("elements/<package>/**", ImpactKind.Element, path => ElementDirectory(path) is { } directory && ElementPackages.ContainsKey(directory)),
-        new("parts/catalog/*.tres", ImpactKind.Element, path => TopLevelIn(path, "parts/catalog", ".tres")),
-        new("parts/icons/*.png", ImpactKind.Element, path => TopLevelIn(path, "parts/icons", ".png")),
-        new("parts/scenes/*.tscn", ImpactKind.Element, path => TopLevelIn(path, "parts/scenes", ".tscn")),
         new("content/puzzles.json", ImpactKind.Level, path => path == "content/puzzles.json"),
         new("engine/** (outside engine/gpu), ui/**, scenes/** (area table)", ImpactKind.WorkshopArea,
             path => (Under(path, "engine") && !Under(path, "engine/gpu")) || Under(path, "ui") || Under(path, "scenes")),
@@ -109,6 +105,7 @@ internal static class ImpactRules
         new("workers, client, contracts and schemas", ImpactKind.Full,
             path => Under(path, "CuriousContraptions.Simulation") || path.StartsWith("CuriousContraptions.Animation", StringComparison.Ordinal) ||
                 Under(path, "CuriousContraptions.web") || path.StartsWith("CuriousContraptions.Abstractions", StringComparison.Ordinal) ||
+                Under(path, "CuriousContraptions.Bundle") ||
                 Under(path, "CuriousContraptions.FlatBuffers") || Under(path, "schemas"),
             FullReason.SharedRuntime),
         new("tools/{BundleElements,Preview}/**", ImpactKind.Full,

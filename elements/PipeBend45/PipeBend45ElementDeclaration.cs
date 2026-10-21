@@ -15,8 +15,11 @@ public sealed class PipeBend45ElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "pipe_bend_45",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_pipe_bend_45",
-        IconPath: null,
+        DisplayName: "45° pipe bend",
+        Description: "A 45-degree hollow curve. Turns falling balls smoothly through a gentle angle under gravity.",
+        Color: new(0.4f, 0.72f, 0.79f, 1f),
+        PaletteOrder: 17,
+        IconPath: "res://elements/PipeBend45/icon.svg",
         ScenePath: "res://elements/PipeBend45/pipe_bend_45.tscn",
         Parameters: []);
 

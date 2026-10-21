@@ -19,7 +19,7 @@ public sealed class SelectionTests
     {
         var selection = Select(["elements/Counter/CounterElementDeclaration.cs"]);
         Assert.Equal(SelectionMode.Selected, selection.Mode);
-        Assert.Equal(["cat-002", "cat-005", "cat-015a", "cat-017", "cat-020", "cat-023b", "cat-037", "cat-051", "cat-052",
+        Assert.Equal(["arch-9a-catalogue", "cat-002", "cat-005", "cat-015a", "cat-017", "cat-020", "cat-023b", "cat-037", "cat-051", "cat-052",
             "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "palette-placement"], Names(selection));
         Assert.Contains("cat-052-lamp\tintegration: places counter", selection.Suites.Select(suite => suite.ReasonLine));
         var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
@@ -32,10 +32,10 @@ public sealed class SelectionTests
     }
 
     [Theory]
-    [InlineData("parts/scenes/ball.tscn", "ball")]
-    [InlineData("parts/catalog/ball.tres", "ball")]
+    [InlineData("elements/Ball/ball.tscn", "ball")]
+    [InlineData("elements/Ball/icon.svg", "ball")]
     [InlineData("elements/SignalLamp/SignalLampElementDeclaration.cs", "lamp")]
-    [InlineData("parts/catalog/basket.tres", "basket")]
+    [InlineData("elements/Receiver/ReceiverElementDeclaration.cs", "basket")]
     // PKG-3: the moved scenes map to their parts by content; their primary suites are cat-022 (Story 9.5a) and cat-063 (C-Switch).
     [InlineData("elements/DelayBox/delay.tscn", "delay")]
     [InlineData("elements/ImpactSwitch/switch.tscn", "switch")]
@@ -50,19 +50,23 @@ public sealed class SelectionTests
     public void PartPreplacedByADeclaredLevelSelectsThatLevelsSuites()
     {
         // domino_effect's locked ball is a Bowling ball: changing it must select the suites that declare that level (B1, spec D6).
-        var selection = Select(["parts/catalog/bowling.tres"]);
+        var selection = Select(["elements/BowlingBall/BowlingBallElementDeclaration.cs"]);
         Assert.Equal(SelectionMode.Selected, selection.Mode);
         var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
         Assert.Contains("cat-023b\tintegration: level domino_effect places bowling", lines);
         Assert.Contains("clock-master\tintegration: level domino_effect places bowling", lines);
-        Assert.Contains("cat-014\town: parts/catalog/bowling.tres changes bowling; integration: places bowling", lines);
+        Assert.Contains("cat-014\town: elements/BowlingBall/BowlingBallElementDeclaration.cs changes bowling; integration: places bowling", lines);
     }
 
-    [Fact]
-    public void SharedSceneMapsToEveryReferencingPart()
+    /// <summary>Story 9A.14 deleted the parts tree: a path under it names no element, so it is unknown and selects the full run.</summary>
+    [Theory]
+    [InlineData("parts/catalog/ball.tres")]
+    [InlineData("parts/scenes/ball.tscn")]
+    public void APathUnderTheDeletedPartsTreeIsUnknown(string path)
     {
-        var context = new ImpactContext(TestRepository.Root, Head);
-        Assert.Equal(["ball", "balloon", "tennis"], context.ScenePart("parts/scenes/ball.tscn").Select(part => part.Value));
+        var selection = Select([path]);
+        Assert.Equal(SelectionMode.Full, selection.Mode);
+        Assert.Equal(FullReason.Unknown, Assert.Single(selection.Paths).Full);
     }
 
     [Fact]
@@ -85,7 +89,7 @@ public sealed class SelectionTests
         Assert.Equal([new("ActivationIn", SimulationDomain.Signal, PortDirection.Input), new("ActivationOut", SimulationDomain.Signal, PortDirection.Output),
             new("PowerIn", SimulationDomain.Electrical, PortDirection.Input), new ImpactContext.BundlePort("Supply", SimulationDomain.Electrical, PortDirection.Output)],
             counter.Ports);
-        Assert.Equal("res://parts/scenes/counter.tscn", counter.ScenePath);
+        Assert.Equal("res://elements/Counter/counter.tscn", counter.ScenePath);
     }
 
     [Theory]
@@ -103,7 +107,7 @@ public sealed class SelectionTests
     public void SharedConsoleModuleSelectsItsImporters()
     {
         var selection = Select(["tools/workshop-console.mjs"]);
-        Assert.Equal(["anim-1a", "capacity-9r", "capacity-9r5b", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
+        Assert.Equal(["anim-1a", "arch-9a-catalogue", "capacity-9r", "capacity-9r5b", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
             "cat-048b", "cat-049", "cat-050", "cat-050-joined", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
             "engine-core-2b4", "engine-core-2c", "pkg-1", "pkg-3", "tube-snapping"], Names(selection));
     }
@@ -147,8 +151,9 @@ public sealed class SelectionTests
     {
         var selection = Select(["ui/WorkshopBenchPlacement.cs", "engine/PartRegistry.cs"]);
         // Story 9R.6: tube-snapping also exercises bench placement (the typed mouth snap, engine/TubeMouthSnap.cs).
-        // PKG-1 and PKG-3: pkg-1 and pkg-3 place their packaged parts from the palette onto the bench.
-        Assert.Equal(["engine-core-2a1", "engine-core-2b1", "palette-placement", "pkg-1", "pkg-3", "tube-snapping"], Names(selection));
+        // PKG-1 and PKG-3: pkg-1 and pkg-3 place their packaged parts from the palette onto the bench; Story 9A.14's
+        // arch-9a-catalogue places every bundle element.
+        Assert.Equal(["arch-9a-catalogue", "engine-core-2a1", "engine-core-2b1", "palette-placement", "pkg-1", "pkg-3", "tube-snapping"], Names(selection));
         Assert.Contains("palette-placement\tarea: Palette (engine/PartRegistry.cs); area: BenchPlacement (ui/WorkshopBenchPlacement.cs)",
             selection.Suites.Select(suite => suite.ReasonLine));
     }
@@ -182,9 +187,8 @@ public sealed class SelectionTests
         Assert.Equal(["cat-049", .. Smoke], Names(Select(["tools/e2e/cat-049.test.ts"])));
 
     [Theory]
-    [InlineData("parts/catalog/springboard.tres", "spring")]
-    [InlineData("parts/catalog/counter.tres", "counter")]
-    [InlineData("parts/scenes/clock.tscn", "clock")]
+    [InlineData("elements/Counter/icon.svg", "counter")]
+    [InlineData("elements/SystemClock/clock.tscn", "clock")]
     [InlineData("elements/Springboard/springboard.tscn", "spring")]
     [InlineData("elements/Funnel/funnel.tscn", "funnel")]
     [InlineData("elements/Pipe/pipe.tscn", "pipe")]

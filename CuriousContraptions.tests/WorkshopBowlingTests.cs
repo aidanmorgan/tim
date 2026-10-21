@@ -199,10 +199,10 @@ public sealed class WorkshopBowlingTests
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(Bowling(1, 0))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Empty(WorkshopPorts.For(PartId.BowlingBall).ToArray());
-        Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.BowlingBall]);
-        Assert.Contains(PartId.BowlingBall, WorkshopInventoryPolicy.Free.Keys);
-        Assert.Contains(PartId.Battery, WorkshopInventoryPolicy.Free.Keys);
-        Assert.Contains(PartId.Springboard, WorkshopInventoryPolicy.Free.Keys);
+        Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.BowlingBall]);
+        Assert.Contains(PartId.BowlingBall, WorkbenchCapacityTests.FreePalette.Keys);
+        Assert.Contains(PartId.Battery, WorkbenchCapacityTests.FreePalette.Keys);
+        Assert.Contains(PartId.Springboard, WorkbenchCapacityTests.FreePalette.Keys);
 
         // One Receiver declares a residence sensor and a guide per ball of either kind, with the shared capture settings.
         var receiver = WorkshopInput.Receiver(new(5), 0, 1, 0, 0, 0, 0, 1);

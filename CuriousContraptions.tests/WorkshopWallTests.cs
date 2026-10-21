@@ -146,9 +146,8 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ActualResourceThreeAxesArtworkAndProjectionFollowCanonicalFullPose()
     {
-        var registry = new PartRegistry(); registry.Discover();
+        var registry = new PartRegistry(); registry.Load();
         var definition = registry.Definitions[PartId.Wall];
-        Assert.Empty(definition.Parameters);
         Assert.Single(definition.Colliders);
         var part = Assert.IsAssignableFrom<MachinePart>(registry.Create(PartId.Wall));
         try
@@ -194,7 +193,7 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     [Fact]
     public void ExistingRampSelectionRingTracksResizeAndCanonicalRestore()
     {
-        var registry = new PartRegistry(); registry.Discover();
+        var registry = new PartRegistry(); registry.Load();
         var ramp = Assert.IsAssignableFrom<MachinePart>(registry.Create(PartId.Ramp));
         try
         {

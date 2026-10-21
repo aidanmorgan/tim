@@ -1,0 +1,2 @@
+tools/e2e/arch-9a-catalogue.test.ts
+tools/e2e/palette-placement.test.ts

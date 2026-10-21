@@ -546,17 +546,16 @@ public sealed class WorkshopPhysicsLawTests
     // (a future Springboard-specific name) is still found.
     private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|SoftConstraintCoefficients\.FromSpring)\b";
 
-    /// <summary>Murdoch-2 R2-F5: the scanned element names are the catalogue's, never a hand list. Every word of every
-    /// part Id in <c>parts/catalog</c> and every element package Id in <c>elements/</c> (letters only, three or more), so a
-    /// new catalogue part is scanned the day it is added (spring, pipe, funnel, detector and clock included). Display
-    /// titles are not identifiers: their English words ("set", "clear", "signal") name no element.</summary>
+    /// <summary>Murdoch-2 R2-F5: the scanned element names are the catalogue's, never a hand list. Every word of every element
+    /// package Id in <c>elements/</c> and of every undelivered part (letters only, three or more), so a new element is scanned the
+    /// day its package is added (spring, pipe, funnel, detector and clock included). Display titles are not identifiers: their
+    /// English words ("set", "clear", "signal") name no element.</summary>
     private static readonly string[] ElementNames = CatalogueElementWords();
 
     private static string[] CatalogueElementWords()
     {
         var root = twodog.Engine.ResolveProjectDir();
-        var catalogue = Directory.GetFiles(Path.Combine(root, "parts/catalog"), "*.tres")
-            .SelectMany(path => Regex.Matches(File.ReadAllText(path), @"(?m)^Id = ""([^""]+)""").Select(match => match.Groups[1].Value));
+        var catalogue = UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value);
         var packages = Directory.GetFiles(Path.Combine(root, "elements"), "*ElementDeclaration.cs", SearchOption.AllDirectories)
             .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
                 !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
@@ -671,8 +670,8 @@ public sealed class WorkshopPhysicsLawTests
 
     [Fact]
     public void TheScannedElementNamesAreDerivedFromTheCatalogue() =>
-        Assert.All(Directory.GetFiles(Path.Combine(twodog.Engine.ResolveProjectDir(), "parts/catalog"), "*.tres"), path =>
-            Assert.Contains(Regex.Match(File.ReadAllText(path), @"(?m)^Id = ""([a-z]+)").Groups[1].Value, ElementNames));
+        Assert.All(PartRegistry.Read(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json"))), entry =>
+            Assert.Contains(Regex.Match(entry.Metadata.Id, "^[a-z]+").Value, ElementNames));
 
     [Fact]
     public void EveryPinnedViolationsOwnerIsOpenAndTheListIsEmptyOnce9A19IsDone()

@@ -11,9 +11,12 @@ public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElemen
     public ElementMetadata Metadata => new(
         Id: "domino",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_domino",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/domino.tscn",
+        DisplayName: "Domino",
+        Description: "A physical tile: knock it over to hit the next domino. Its activation output signals once it has turned 45° from its placed pose.",
+        Color: new(0.91f, 0.83f, 0.65f, 1f),
+        PaletteOrder: 9,
+        IconPath: "res://elements/Domino/icon.svg",
+        ScenePath: "res://elements/Domino/domino.tscn",
         Parameters: []);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0);

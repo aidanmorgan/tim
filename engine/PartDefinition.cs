@@ -1,43 +1,42 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
 
-[GlobalClass]
-public partial class PartDefinition : Resource
+/// <summary>One catalogue part as the game uses it: a plain runtime record built by <see cref="PartRegistry"/> from one element
+/// bundle entry (Story 9A.14). Its scene is the package's own scene; its colliders and port locators are extracted from that scene
+/// once, on first use. A ball kind carries the declared material its bundle entry states.</summary>
+public sealed class PartDefinition
 {
-    private string _id = "";
-    [Export] public string Id
+    public PartDefinition(PartId partId, string title, string description, ElementCategory category, Color color, string iconPath,
+        PackedScene? scene, BallMaterial? ball)
     {
-        get => _id;
-        set
-        {
-            _id = value;
-            PartId = string.IsNullOrWhiteSpace(value) ? default : new PartId(value);
-        }
+        PartId = partId;
+        Title = title;
+        Description = description;
+        Category = category;
+        Color = color;
+        IconPath = iconPath;
+        Scene = scene;
+        Ball = ball;
     }
-    public PartId PartId { get; private set; }
-    /// <summary>Declared material of a dynamic sphere; required for every ball kind.</summary>
-    [Export] public BallMaterialResource? Ball { get; set; }
-    [Export] public string Title { get; set; } = "";
-    [Export] public string Category { get; set; } = "Structure";
-    [Export(PropertyHint.MultilineText)] public string Description { get; set; } = "";
 
-    private PackedScene? _scene;
-    [Export]
-    public PackedScene Scene
-    {
-        get => _scene!;
-        set
-        {
-            _scene = value;
-            _colliders = null;
-            _portLocators = null;
-            if (value is not null) EnsureExtracted();
-        }
-    }
+    public PartId PartId { get; }
+    /// <summary>The element id at the Godot node-name and metadata boundary.</summary>
+    public string Id => PartId.Value;
+    public string Title { get; }
+    public string Description { get; }
+    public ElementCategory Category { get; }
+    /// <summary>The element's approved palette colour (DESIGN.md).</summary>
+    public Color Color { get; }
+    /// <summary>The package's icon.svg, which the palette renders.</summary>
+    public string IconPath { get; }
+    public PackedScene? Scene { get; }
+    /// <summary>Declared material of a dynamic sphere; present for every ball kind.</summary>
+    public BallMaterial? Ball { get; }
 
     private IReadOnlyList<ExtractedCollider>? _colliders;
     private IReadOnlyDictionary<string, ExtractedPortLocator>? _portLocators;
@@ -47,7 +46,7 @@ public partial class PartDefinition : Resource
         get
         {
             EnsureExtracted();
-            return _colliders ?? Array.Empty<ExtractedCollider>();
+            return _colliders!;
         }
     }
 
@@ -56,7 +55,7 @@ public partial class PartDefinition : Resource
         get
         {
             EnsureExtracted();
-            return _portLocators ?? new Dictionary<string, ExtractedPortLocator>();
+            return _portLocators!;
         }
     }
 
@@ -73,14 +72,14 @@ public partial class PartDefinition : Resource
     private void EnsureExtracted()
     {
         if (_colliders is not null) return;
-        if (_scene is null)
+        if (Scene is null)
         {
             _colliders = Array.Empty<ExtractedCollider>();
             _portLocators = new Dictionary<string, ExtractedPortLocator>();
             return;
         }
 
-        var instance = _scene.Instantiate();
+        var instance = Scene.Instantiate();
         if (instance is Node3D node3D)
         {
             var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(node3D);
@@ -95,7 +94,4 @@ public partial class PartDefinition : Resource
             _portLocators = new Dictionary<string, ExtractedPortLocator>();
         }
     }
-
-    [Export] public Color Color { get; set; } = new("#f4bd69");
-    [Export] public Godot.Collections.Dictionary<string, float> Parameters { get; set; } = new();
 }

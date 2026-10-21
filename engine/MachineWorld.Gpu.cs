@@ -77,13 +77,12 @@ public partial class MachineWorld
         }
     }
 
-    /// <summary>Any ball kind: the catalogue resource's bits are captured and must equal the kind's declared material.</summary>
+    /// <summary>Any ball kind: the material its bundle entry declares (checked against the kind's declared material at load).</summary>
     public WorkshopBall CaptureBall(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation)
     {
         if (!Registry.Definitions.TryGetValue(id, out var definition))
             throw new ArgumentException("Unsupported ball kind.");
-        var material = definition.Ball?.Capture(id)
-            ?? throw new ArgumentException("A ball requires canonical resource values.");
+        var material = definition.Ball ?? throw new ArgumentException("A ball requires its declared bundle material.");
         var q = rotation.Normalized(); // Named Godot input boundary, before canonical quantization.
         return WorkshopInput.Ball(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W)
             with { Material = material };

@@ -34,8 +34,6 @@ public readonly record struct PartId : IComparable<PartId>
     public static readonly PartId Domino = new("domino");
     public static readonly PartId Battery = new("battery");
     public static readonly PartId Springboard = new("spring");
-    public static readonly PartId Tennis = new("tennis");
-    public static readonly PartId Balloon = new("balloon");
     public static readonly PartId Pipe = new("pipe");
     public static readonly PartId BallDetector = new("ball_detector");
     public static readonly PartId PipeBend45 = new("pipe_bend_45");
@@ -61,8 +59,6 @@ public readonly record struct PartId : IComparable<PartId>
         "bowling" => 10,
         "battery" => 11,
         "spring" => 12,
-        "tennis" => 13,
-        "balloon" => 14,
         "pipe" => 15,
         "ball_detector" => 16,
         "pipe_bend_45" => 17,
@@ -91,8 +87,6 @@ public readonly record struct PartId : IComparable<PartId>
         10 => BowlingBall,
         11 => Battery,
         12 => Springboard,
-        13 => Tennis,
-        14 => Balloon,
         15 => Pipe,
         16 => BallDetector,
         17 => PipeBend45,

@@ -15,8 +15,11 @@ public sealed class SpringboardElementDeclaration : ISliderElement
     public ElementMetadata Metadata => new(
         Id: "spring",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_spring",
-        IconPath: null,
+        DisplayName: "Springboard",
+        Description: "A moving plate compresses its spring under contact and returns stored elastic energy.",
+        Color: new(0.96f, 0.7f, 0.33f, 1f),
+        PaletteOrder: 12,
+        IconPath: "res://elements/Springboard/icon.svg",
         ScenePath: "res://elements/Springboard/springboard.tscn",
         Parameters:
         [

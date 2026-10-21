@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: CAT-023a: Dynamic box rigid body & upright stability (Domino)
+    # Subtest: 1. Negative control: an upright Domino alone on the bench stands still for 3 s within the rest tolerances
+    ok 1 - 1. Negative control: an upright Domino alone on the bench stands still for 3 s within the rest tolerances
+      ---
+      duration_ms: 5170.028042
+      type: 'test'
+      ...
+    # Subtest: 2. Struck by a Basketball dropped onto its upper third the Domino topples past 60 deg and settles flat without jitter
+    ok 2 - 2. Struck by a Basketball dropped onto its upper third the Domino topples past 60 deg and settles flat without jitter
+      ---
+      duration_ms: 8849.622125
+      type: 'test'
+      ...
+    # Subtest: 3. Reset restores the placed upright pose exactly and the next Run topples the tile again
+    ok 3 - 3. Reset restores the placed upright pose exactly and the next Run topples the tile again
+      ---
+      duration_ms: 4298.173916
+      type: 'test'
+      ...
+    # Subtest: 4. Save / reload / Load restores the Domino kind and pose and the loaded construction topples the same way
+    ok 4 - 4. Save / reload / Load restores the Domino kind and pose and the loaded construction topples the same way
+      ---
+      duration_ms: 5583.861209
+      type: 'test'
+      ...
+    1..4
+ok 1 - CAT-023a: Dynamic box rigid body & upright stability (Domino)
+  ---
+  duration_ms: 28089.951375
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 28345.340084
