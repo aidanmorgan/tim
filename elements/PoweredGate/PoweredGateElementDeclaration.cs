@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
@@ -6,42 +7,49 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.PoweredGate;
 
+/// <summary>The gate's static frame. A placed gate also compiles its moving blade, a second body on a prismatic slider (the footprint
+/// counts both); declaring the blade's own collider and material belongs to Story 9A.16.</summary>
 public sealed class PoweredGateElementDeclaration : IMechanicalElement, IElectricalElement
 {
+    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
+
     public ElementMetadata Metadata => new(
         Id: "powered_gate",
-        Category: "Mechanisms",
+        Category: ElementCategory.Motion,
         DisplayNameKey: "part_powered_gate",
-        IconPath: "res://parts/icons/powered_gate.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/powered_gate.tscn",
-        Parameters: new Dictionary<string, object>());
+        Parameters: []);
+
+    public ElementFootprint Footprint => new(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 1);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("power_in", SimulationDomain.Electrical, PortDirection.Input, new Vector3(0, -0.7f, 0), -Vector3.UnitY)
+        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders =>
-    [
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.1f, 0.8f, 0.1f),
-            Offset: new Vector3(-0.7f, 0, 0),
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f)),
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.1f, 0.8f, 0.1f),
-            Offset: new Vector3(0.7f, 0, 0),
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f)),
-        new(
-            ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.6f, 0.75f, 0.05f),
-            Offset: Vector3.Zero,
-            Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
-    ];
+    /// <summary>The 16-box ring around the 0.65 m bore (each box turned about +X to its angle), the motor housing above it and the
+    /// two blade rails.</summary>
+    public IReadOnlyList<ColliderDescriptor> Colliders
+    {
+        get
+        {
+            var colliders = new List<ColliderDescriptor>(19);
+            const float ringRadius = 0.675f;
+            for (var i = 0; i < 16; i++)
+            {
+                var theta = i * (MathF.Tau / 16f);
+                var halfTheta = theta * 0.5f;
+                var rotation = Quaternion.Normalize(new Quaternion(MathF.Sin(halfTheta), 0, 0, MathF.Cos(halfTheta)));
+                colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.4f, 0.025f, 0.14f),
+                    new Vector3(0, ringRadius * MathF.Cos(theta), ringRadius * MathF.Sin(theta)), rotation, Surface));
+            }
+            colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.4f, 0.325f, 0.9f), new Vector3(0, 1.65f, 0), Quaternion.Identity, Surface));
+            colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.12f, 0.85f, 0.06f), new Vector3(0, 0.65f, -0.82f), Quaternion.Identity, Surface));
+            colliders.Add(new(ColliderShapeKind.Box, new Vector3(0.12f, 0.85f, 0.06f), new Vector3(0, 0.65f, 0.82f), Quaternion.Identity, Surface));
+            return colliders;
+        }
+    }
 
     public IReadOnlyList<EventDescriptor> Events =>
     [
@@ -50,15 +58,16 @@ public sealed class PoweredGateElementDeclaration : IMechanicalElement, IElectri
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Electrical;
 
-    public KinematicMode KinematicMode => KinematicMode.Kinematic;
+    public KinematicMode KinematicMode => KinematicMode.Static;
 
     public RigidBodyMassProperties MassProperties => new(
-        Mass: 1.0f,
+        Mass: 0f,
         CentreOfMass: Vector3.Zero,
-        InertiaTensor: new Vector3(0.1f, 0.1f, 0.1f),
-        LinearDrag: 0.05f,
-        Gravity: new Vector3(0, -9.81f, 0));
+        InertiaTensor: Vector3.Zero,
+        LinearDrag: 0f,
+        Gravity: Vector3.Zero);
 
+    /// <summary>The blade slides along the frame's +Y.</summary>
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints =>
     [
         new("slider", Vector3.Zero, Quaternion.Identity, Vector3.UnitY)

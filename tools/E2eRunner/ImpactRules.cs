@@ -1,7 +1,7 @@
 namespace CuriousContraptions.E2eRunner;
 
 /// <summary>What a changed path affects (spec ImpactRules task). Each path resolves to exactly one kind.</summary>
-internal enum ImpactKind { NoBrowserImpact = 1, Suite, SharedTestModule, Element, ElementBundle, Level, WorkshopArea, Full }
+internal enum ImpactKind { NoBrowserImpact = 1, Suite, SharedTestModule, Element, Level, WorkshopArea, Full }
 
 /// <summary>Why a path selects the full run (the guide's Tier 3 triggers, plus central interaction files and unknown paths).</summary>
 internal enum FullReason { MaterialEngine = 1, SharedRuntime, SharedDriverInfrastructure, AllInteraction, RunnerItself, Build, Unknown }
@@ -99,7 +99,6 @@ internal static class ImpactRules
         new("parts/catalog/*.tres", ImpactKind.Element, path => TopLevelIn(path, "parts/catalog", ".tres")),
         new("parts/icons/*.png", ImpactKind.Element, path => TopLevelIn(path, "parts/icons", ".png")),
         new("parts/scenes/*.tscn", ImpactKind.Element, path => TopLevelIn(path, "parts/scenes", ".tscn")),
-        new("parts/elements.bundle.json", ImpactKind.ElementBundle, path => path == "parts/elements.bundle.json"),
         new("content/puzzles.json", ImpactKind.Level, path => path == "content/puzzles.json"),
         new("engine/** (outside engine/gpu), ui/**, scenes/** (area table)", ImpactKind.WorkshopArea,
             path => (Under(path, "engine") && !Under(path, "engine/gpu")) || Under(path, "ui") || Under(path, "scenes")),

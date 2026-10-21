@@ -9,22 +9,29 @@ public sealed class RampElementDeclaration : IMechanicalElement
 {
     public ElementMetadata Metadata => new(
         Id: "ramp",
-        Category: "Structures",
+        Category: ElementCategory.Structure,
         DisplayNameKey: "part_ramp",
-        IconPath: "res://parts/icons/ramp.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/ramp.tscn",
-        Parameters: new Dictionary<string, object>());
+        Parameters:
+        [
+            new("length", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0.125f, Maximum: 4f, Default: 3f, Options: []),
+            new("width", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0.125f, Maximum: 4f, Default: 1.3f, Options: [])
+        ]);
+
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
+    /// <summary>The slab at the default dimensions: half the length, half the 0.18 m thickness and half the width.</summary>
     public IReadOnlyList<ColliderDescriptor> Colliders =>
     [
         new(
             ColliderShapeKind.Box,
-            Dimensions: new Vector3(1.5f, 0.09f, 0.65f),
+            HalfExtents: new Vector3(1.5f, 0.09f, 0.65f),
             Offset: Vector3.Zero,
             Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];

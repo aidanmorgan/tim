@@ -1605,6 +1605,14 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.14: E2E Runner Selection Follow-ups
+*Status: Backlog. Filed by Story 9A.4 on 21 Oct 2026 ([evidence](../implementation-artifacts/evidence-9a-4/runner-select-diff-844981c9.txt)).*
+
+**Acceptance Criteria:**
+- `select --diff` and `run --diff` let a path that forces Full win over a `NoPrimarySuite` refusal raised by another path. Today `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball`, although the same diff touches the Abstractions, `tools/BundleElements` and `tools/E2eRunner`, each of which selects Full.
+- `ball` has a Primary suite, or its absence is a declared and tested decision. Every C-Balls story changes `elements/Ball`.
+- `tools/BundleElements.Tests/**` has a rule (no browser impact), instead of selecting Full as an unmatched path.
+
 ### Story F.12: Architecture Doc Follow-ups
 *Status: Backlog. Filed from the 9A.0 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-0-architecture-authority-docs.md)).*
 
@@ -2501,7 +2509,7 @@ So that a stalled connection stops the run in a predictable way.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.4: Lossless Bundle Build Gate
-*Status: Backlog*
+*Status: Review (Amelia-16, 21 Oct 2026; [spec and evidence](../implementation-artifacts/spec-9a-4-lossless-bundle-build-gate.md)).*
 
 *Depends on: Story 9R.5b (the current tree). Position 5. The former dependency on Story 9A.0 recorded number order only (corrected 21 Oct 2026). Audit: A13 (build side), A14, G10.*
 
@@ -2796,6 +2804,8 @@ So that a part never behaves differently because a fallback table was used.
 - **And** at runtime, colliders come only from the bundle. An element with a body but no collider fails the bundle build (Story 9A.4 validation), and a construction referencing an element with no colliders is rejected explicitly.
 - **And** a golden compile test captured before the change proves that every element's compiled collider rows are unchanged within f32 representation.
 - **And** `rg -w "WorkshopCanonicalColliders|LatchColliders|CreateLatchColliders"` returns 0 hits, and no runtime caller of `GltfPhysicsBodyExtractor` remains.
+- **And** the powered gate's moving blade, a second body on a prismatic slider, is declared in its package: its collider ((0.06, 0.72, 0.72) half-extents), its material (restitution 0.1, friction 0.3, threshold 0.1), its mass and its slider. Story 9A.4 declares only the frame and a footprint of 2 bodies, because the Abstractions cannot express a second body. *Filed by Story 9A.4, 21 Oct 2026.*
+- **And** the ball detector's scene-extracted ring, which `CaptureInstance` prefers over the canonical table, is reconciled with its package before the canonical table is deleted (the gate's scene colliders were not compared): today at least its second collider's rotation differs, (-0.19509006, 0, 0, 0.9807853) in the scene and (0.19509034, 0, 0, 0.9807853) in the canonical table and the package. *Filed by Story 9A.4, 21 Oct 2026.*
 - **And** `cat-048a`, `cat-048b`, `cat-049`, `cat-050`, `cat-030` and `cat-037` pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 

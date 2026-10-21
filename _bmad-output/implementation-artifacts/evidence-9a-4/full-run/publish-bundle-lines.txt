@@ -1,0 +1,4 @@
+61:  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a701795d6eefb0fce/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+62:  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a701795d6eefb0fce/parts/elements.bundle.json (13 elements)
+288:  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a701795d6eefb0fce/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+289:  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a701795d6eefb0fce/parts/elements.bundle.json (13 elements)

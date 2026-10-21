@@ -10,26 +10,28 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
 {
     public ElementMetadata Metadata => new(
         Id: "lamp",
-        Category: "Indicators",
+        Category: ElementCategory.Goals,
         DisplayNameKey: "part_lamp",
-        IconPath: "res://parts/icons/lamp.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/lamp.tscn",
-        Parameters: new Dictionary<string, object>());
+        Parameters: []);
 
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+
+    /// <summary>The only input that admits a level: a lamp then follows that one level output alone.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("signal_in", SimulationDomain.Signal, PortDirection.Input, new Vector3(0, -0.35f, 0), -Vector3.UnitY),
-        new("power_in", SimulationDomain.Electrical, PortDirection.Input, new Vector3(0, -0.35f, 0), -Vector3.UnitY)
+        new("ActivationIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders =>
     [
         new(
             ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.425f, 0.1f, 0.425f),
+            HalfExtents: new Vector3(0.425f, 0.1f, 0.425f),
             Offset: new Vector3(0, -0.35f, 0),
             Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>

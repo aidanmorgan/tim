@@ -1,0 +1,7 @@
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ABodyWithoutAColliderIsRefused [2 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonMechanicalBodyWithoutAColliderIsRefused [1 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"Category\": \"Structure\"", replacement: "\"Category\": \"structure\"") [10 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"ShapeKind\": \"Box\"", replacement: "\"ShapeKind\": \"box\"") [< 1 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"Category\": \"Structure\"", replacement: "\"Category\": \"Motion, Goals\"") [< 1 ms]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"KinematicMode\": \"Static\"", replacement: "\"KinematicMode\": \" Static\"") [< 1 ms]
+Failed!  - Failed:     6, Passed:    34, Skipped:     0, Total:    40, Duration: 134 ms - BundleElements.Tests.dll (net10.0)

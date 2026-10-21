@@ -10,25 +10,27 @@ public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElemen
 {
     public ElementMetadata Metadata => new(
         Id: "domino",
-        Category: "Mechanisms",
+        Category: ElementCategory.Motion,
         DisplayNameKey: "part_domino",
-        IconPath: "res://parts/icons/domino.png",
+        IconPath: null,
         ScenePath: "res://parts/scenes/domino.tscn",
-        Parameters: new Dictionary<string, object>());
+        Parameters: []);
+
+    public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0);
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("signal_out", SimulationDomain.Signal, PortDirection.Output, new Vector3(0, 0.2f, 0), Vector3.UnitY)
+        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, .55f, 0f), Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders =>
     [
         new(
             ColliderShapeKind.Box,
-            Dimensions: new Vector3(0.15f, 0.45f, 0.05f),
+            HalfExtents: new Vector3(0.125f, 0.55f, 0.325f),
             Offset: Vector3.Zero,
             Rotation: Quaternion.Identity,
-            Material: new MaterialProperties(Restitution: 0.1f, Friction: 0.5f, RollingResistance: 0f, BounceThreshold: 0.1f))
+            Material: new MaterialProperties(Restitution: 0.05f, Friction: 0.6f, RollingResistance: 0f, BounceThreshold: 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events =>
@@ -41,7 +43,7 @@ public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElemen
     public KinematicMode KinematicMode => KinematicMode.Dynamic;
 
     public RigidBodyMassProperties MassProperties => new(
-        Mass: 0.1f,
+        Mass: 0.4f,
         CentreOfMass: Vector3.Zero,
         InertiaTensor: new Vector3(0.007f, 0.007f, 0.001f),
         LinearDrag: 0f,

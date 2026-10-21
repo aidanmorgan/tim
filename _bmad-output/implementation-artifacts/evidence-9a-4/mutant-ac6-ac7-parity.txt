@@ -1,0 +1,8 @@
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [17 ms]
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [14 ms]
+   SystemClock.Metadata.Parameters[0] (interval_seconds): the runtime refuses a declared bound.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimePortsInOrder [7 ms]
+   Counter.Ports[0]: position <0, 0.72, 0.2> declared, <0, 0.72, 0.1> at runtime.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [59 ms]
+   PressurePlate.Colliders[0].Material: MaterialProperties { Restitution = 0.1, Friction = 0.5, RollingResistance = 0, BounceThreshold = 0.1 } declared, ContactMaterialDeclaration { Id = GpuMaterialId { Value = 4294967808 }, Restitution = Restitution { Value = 0.1 }, BounceThreshold = LinearSpeed { Value = 0.1 }, Friction = FrictionCoefficient { Value = 0.3 }, RollingResistance = RollingResistance { Value = 0 } } at runtime.
+Failed!  - Failed:     4, Passed:     1, Skipped:     0, Total:     5, Duration: 119 ms - CuriousContraptions.tests.dll (net10.0)

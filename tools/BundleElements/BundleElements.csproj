@@ -4,21 +4,28 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>CuriousContraptions.BundleElements</RootNamespace>
+    <BundleRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../'))</BundleRepositoryRoot>
+    <BundleHost Condition="'$(DOTNET_HOST_PATH)' != ''">$(DOTNET_HOST_PATH)</BundleHost>
+    <BundleHost Condition="'$(DOTNET_HOST_PATH)' == ''">dotnet</BundleHost>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="BundleElements.Tests" />
     <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
-    <ProjectReference Include="../../elements/Ball/Ball.csproj" />
-    <ProjectReference Include="../../elements/Bumper/Bumper.csproj" />
-    <ProjectReference Include="../../elements/Domino/Domino.csproj" />
-    <ProjectReference Include="../../elements/Ramp/Ramp.csproj" />
-    <ProjectReference Include="../../elements/Wall/Wall.csproj" />
-    <ProjectReference Include="../../elements/Battery/Battery.csproj" />
-    <ProjectReference Include="../../elements/PoweredGate/PoweredGate.csproj" />
-    <ProjectReference Include="../../elements/PressurePlate/PressurePlate.csproj" />
-    <ProjectReference Include="../../elements/Counter/Counter.csproj" />
-    <ProjectReference Include="../../elements/SignalLamp/SignalLamp.csproj" />
-    <ProjectReference Include="../../elements/BallDetector/BallDetector.csproj" />
-    <ProjectReference Include="../../elements/SystemClock/SystemClock.csproj" />
-    <ProjectReference Include="../../elements/StateLatch/StateLatch.csproj" />
+    <ProjectReference Include="../../CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
+    <ProjectReference Include="../../CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj" />
+    <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
+    <ProjectReference Include="../../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+    <!-- Every element package, by glob: a new elements/<Name>/<Name>.csproj is discovered with no list to edit. -->
+    <ProjectReference Include="../../elements/*/*.csproj" />
   </ItemGroup>
+
+  <!-- Story 9A.4: every build of this tool generates the bundle, so `dotnet build CuriousContraptions.slnx` fails on an invalid
+       package. The web host builds this project before the Godot export and before publish (GenerateElementBundle). -->
+  <Target Name="RunElementBundleGenerator" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Exec Command="&quot;$(BundleHost)&quot; &quot;$(TargetPath)&quot; --root &quot;$(BundleRepositoryRoot)&quot; --out &quot;$(TargetDir)elements.bundle.json&quot; --out &quot;$(BundleRepositoryRoot)parts/elements.bundle.json&quot;" />
+    <ItemGroup>
+      <FileWrites Include="$(TargetDir)elements.bundle.json" />
+    </ItemGroup>
+  </Target>
 </Project>

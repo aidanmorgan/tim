@@ -92,15 +92,20 @@ internal sealed partial class ImpactContext
         return parts;
     }
 
+    /// <summary>The generated element bundle (Story 9A.4): a build output, read from the working tree and never from git.</summary>
     public const string BundlePath = "parts/elements.bundle.json";
     public const string LevelsPath = "content/puzzles.json";
 
-    internal sealed record BundlePort(string PortId, SimulationDomain Domain, int Direction);
-    internal sealed record BundleElement(PartId Part, string? ScenePath, IReadOnlyList<BundlePort> Ports, string Json);
+    internal sealed record BundlePort(string PortId, SimulationDomain Domain, PortDirection Direction);
+    internal sealed record BundleElement(PartId Part, string? ScenePath, IReadOnlyList<BundlePort> Ports);
 
-    /// <summary>The bundle's elements, or null when the JSON does not parse as a bundle.</summary>
+    /// <summary>The bundle's elements, or null when the JSON does not parse as a bundle. Enum fields are written by name; an
+    /// unknown name does not parse.</summary>
     public static IReadOnlyList<BundleElement>? BundleElements(string json)
     {
+        static TEnum Named<TEnum>(JsonElement value) where TEnum : struct, Enum =>
+            value.GetString() is { } name && Enum.GetNames<TEnum>().Contains(name) ? Enum.Parse<TEnum>(name)
+                : throw new FormatException($"Undefined {typeof(TEnum).Name} '{value}'.");
         try
         {
             using var document = JsonDocument.Parse(json);
@@ -109,9 +114,8 @@ internal sealed partial class ImpactContext
             {
                 var metadata = element.GetProperty("Metadata");
                 var ports = element.GetProperty("Ports").EnumerateArray().Select(port => new BundlePort(port.GetProperty("PortId").GetString()!,
-                    (SimulationDomain)port.GetProperty("Domain").GetUInt32(), port.GetProperty("Direction").GetInt32())).ToArray();
-                elements.Add(new BundleElement(new PartId(metadata.GetProperty("Id").GetString()!),
-                    metadata.TryGetProperty("ScenePath", out var scene) ? scene.GetString() : null, ports, element.GetRawText()));
+                    Named<SimulationDomain>(port.GetProperty("Domain")), Named<PortDirection>(port.GetProperty("Direction")))).ToArray();
+                elements.Add(new BundleElement(new PartId(metadata.GetProperty("Id").GetString()!), metadata.GetProperty("ScenePath").GetString(), ports));
             }
             return elements;
         }
@@ -172,7 +176,7 @@ internal static class Selector
             if (!list.Contains(reason, StringComparer.Ordinal)) list.Add(reason);
         }
 
-        var headBundle = context.ReadHead(ImpactContext.BundlePath) is { } bundleText ? ImpactContext.BundleElements(bundleText) ?? [] : [];
+        var headBundle = context.ReadHead(ImpactContext.BundlePath) is { } bundleText ? ImpactContext.BundleElements(bundleText) : null;
         foreach (var path in changedPaths.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
             impacts.Add(Classify(path, context, headBundle, Add));
 
@@ -188,7 +192,7 @@ internal static class Selector
         return new Selection(SelectionMode.Selected, selected, impacts);
     }
 
-    private static PathImpact Classify(string path, ImpactContext context, IReadOnlyList<ImpactContext.BundleElement> headBundle,
+    private static PathImpact Classify(string path, ImpactContext context, IReadOnlyList<ImpactContext.BundleElement>? headBundle,
         Action<SuiteId, string> add)
     {
         var rule = ImpactRules.Resolve(path);
@@ -213,18 +217,10 @@ internal static class Selector
             case ImpactKind.Element:
                 var parts = ElementParts(path, context);
                 if (parts.Count == 0) return Full(FullReason.Unknown, "no part resolves from this element path");
+                // Connected suites come from the generated bundle's ports; without it the selection would silently miss them.
+                if (headBundle is null) return Full(FullReason.Unknown, $"{ImpactContext.BundlePath} is missing or does not parse (build the solution first)");
                 foreach (var part in parts) SelectElement(part, path, headBundle, context.LevelParts, add);
                 return new(path, rule.Kind, rule.Name, null, string.Join(",", parts));
-            case ImpactKind.ElementBundle:
-                var before = context.ReadBase(path) is { } baseText ? ImpactContext.BundleElements(baseText) : [];
-                var after = context.ReadHead(path) is { } headText ? ImpactContext.BundleElements(headText) : [];
-                if (before is null || after is null) return Full(FullReason.Unknown, "the element bundle does not parse");
-                var difference = before.Select(element => (element.Part, element.Json)).ToHashSet();
-                difference.SymmetricExceptWith(after.Select(element => (element.Part, element.Json)));
-                var changed = difference.Select(entry => entry.Part).Distinct().Order().ToArray();
-                if (changed.Length == 0) return new(path, ImpactKind.NoBrowserImpact, rule.Name, null, "no element changed (GeneratedAt only)");
-                foreach (var part in changed) SelectElement(part, path, headBundle, context.LevelParts, add);
-                return new(path, rule.Kind, rule.Name, null, string.Join(",", changed));
             case ImpactKind.Level:
                 var baseLevels = context.ReadBase(path) is { } baseLevelText ? ImpactContext.Levels(baseLevelText) : new Dictionary<LevelId, string>();
                 var headLevels = context.ReadHead(path) is { } headLevelText ? ImpactContext.Levels(headLevelText) : new Dictionary<LevelId, string>();
