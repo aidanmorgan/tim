@@ -487,12 +487,12 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         {
             var checkpoint = network.Consume(activations, timers, [], new((ulong)tick), [], [], electrical, memory: memory);
             activations = checkpoint.Activations; timers = checkpoint.Timers; memory = checkpoint.Memory;
-            if (latchClosedAt == 0 && network.ContactClosed(activations, latch.Id)) latchClosedAt = tick;
-            if (counterClosedAt == 0 && network.ContactClosed(activations, counter.Id)) counterClosedAt = tick;
+            if (latchClosedAt == 0 && network.ContactClosed(activations, network.ClearTimers(), latch.Id)) latchClosedAt = tick;
+            if (counterClosedAt == 0 && network.ContactClosed(activations, network.ClearTimers(), counter.Id)) counterClosedAt = tick;
         }
         Assert.Equal(120, latchClosedAt);   // first pulse sets the latch
         Assert.Equal(240, counterClosedAt); // the counter (target 2) closes on the second pulse, never on elapsed time alone
-        Assert.Throws<ArgumentException>(() => network.ContactClosed(activations, clock.Id));
+        Assert.Throws<ArgumentException>(() => network.ContactClosed(activations, network.ClearTimers(), clock.Id));
     }
 
     [Fact]

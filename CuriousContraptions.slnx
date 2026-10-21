@@ -19,6 +19,7 @@
     <Project Path="elements/Bumper/Bumper.csproj" />
     <Project Path="elements/Counter/Counter.csproj" />
     <Project Path="elements/DelayBox/DelayBox.csproj" />
+    <Project Path="elements/HoldTimer/HoldTimer.csproj" />
     <Project Path="elements/Domino/Domino.csproj" />
     <Project Path="elements/Funnel/Funnel.csproj" />
     <Project Path="elements/ImpactSwitch/ImpactSwitch.csproj" />

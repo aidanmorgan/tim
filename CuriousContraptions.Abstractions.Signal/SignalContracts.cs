@@ -33,8 +33,13 @@ public interface ISignalElement : IPuzzleElementDeclaration
     SignalCounterDescriptor? Counter { get; }
 }
 
-/// <summary>A one-shot timer whose duration comes from a declared seconds parameter.</summary>
-public readonly record struct SignalTimerDescriptor(string DurationParameter);
+public enum TimerCompletionPolicy : byte { Latch, Rearm }
+public enum TimerBoundary : byte { BeforeNetworks, BeforePhysics }
+public enum TimerElapsedSignal : byte { None, Activation }
+
+/// <summary>A timed window with declared duration, completion and delivery policies.</summary>
+public readonly record struct SignalTimerDescriptor(string DurationParameter, TimerCompletionPolicy Completion,
+    TimerBoundary Boundary, TimerElapsedSignal ElapsedSignal);
 
 public interface ITimerElement : ISignalElement
 {

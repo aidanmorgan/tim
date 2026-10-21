@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Gpu;
 
@@ -67,7 +68,10 @@ public readonly record struct ActivationOccurrence(ActivationOccurrenceKind Kind
     }
 }
 
-public readonly record struct ActivationTimerDeclaration(ActivationNodeId Node, uint DurationTicks)
+public readonly record struct ActivationTimerDeclaration(ActivationNodeId Node, uint DurationTicks,
+    TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch,
+    TimerBoundary Boundary = TimerBoundary.BeforePhysics,
+    TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation)
 {
     public static uint Duration(float seconds, SimulationCadence cadence)
     {
@@ -84,7 +88,9 @@ public readonly record struct ActivationTimerDeclaration(ActivationNodeId Node, 
 
     public void Validate()
     {
-        if (Node.Value == 0 || DurationTicks == 0) throw new ArgumentException("Invalid timer declaration.");
+        if (Node.Value == 0 || DurationTicks == 0 || !Enum.IsDefined(Completion) || !Enum.IsDefined(Boundary) || !Enum.IsDefined(ElapsedSignal) ||
+            (Completion == TimerCompletionPolicy.Rearm && (ElapsedSignal != TimerElapsedSignal.None || Boundary != TimerBoundary.BeforeNetworks)) ||
+            (Completion == TimerCompletionPolicy.Latch && (ElapsedSignal != TimerElapsedSignal.Activation || Boundary != TimerBoundary.BeforePhysics))) throw new ArgumentException("Invalid timer declaration.");
     }
 }
 
@@ -118,14 +124,19 @@ public readonly record struct ActivationTimerState(ActivationNodeId Node, Activa
         _ = ActivationTime.Boundary(new(due), substeps);
         return new(Node, ActivationTimerPhase.Counting, start, due, occurrence);
     }
-    public ActivationTimerState Complete(SimulationTick boundary, uint substeps, out ActivationOccurrence? occurrence)
+    public ActivationTimerState Complete(ActivationTimerDeclaration declaration, SimulationTick boundary, uint substeps, out ActivationOccurrence? occurrence)
     {
-        Validate(); _ = ActivationTime.Boundary(boundary, substeps); occurrence = null;
+        Validate(); declaration.Validate();
+        if (Node != declaration.Node) throw new ArgumentException("Timer declaration does not own this state.");
+        _ = ActivationTime.Boundary(boundary, substeps); occurrence = null;
         if (Phase != ActivationTimerPhase.Counting || DueTick > boundary.Value) return this;
-        occurrence = new(ActivationOccurrenceKind.TimerElapsed, Node,
-            ActivationTime.Boundary(new(DueTick), substeps), Input.Cause);
-        occurrence.Value.Validate();
-        return this with { Phase = ActivationTimerPhase.Finished };
+        if (declaration.ElapsedSignal == TimerElapsedSignal.Activation)
+        {
+            occurrence = new(ActivationOccurrenceKind.TimerElapsed, Node,
+                ActivationTime.Boundary(new(DueTick), substeps), Input.Cause);
+            occurrence.Value.Validate();
+        }
+        return declaration.Completion == TimerCompletionPolicy.Rearm ? Ready(Node) : this with { Phase = ActivationTimerPhase.Finished };
     }
 }
 

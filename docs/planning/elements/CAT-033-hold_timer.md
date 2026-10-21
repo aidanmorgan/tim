@@ -10,7 +10,7 @@ Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `
 | Requirement anchor | [current-cat-033](../requirements.md#current-cat-033); retained behaviour [todo-261](../requirements.md#todo-261) |
 | Mapped identities | none owned. Related: [TH-34 Timed toaster ejector](../invest/named-elements.md#thermal-34) composes a generic timer; its requirement row stands as the source. |
 | Roadmap story | 9.5 "Hold Timer Pulse Stretcher" (Epic 9) |
-| Status | not started |
+| Status | implemented; native review in progress, browser qualification deferred until catalogue complete |
 
 ## 2. Declaration
 
@@ -22,8 +22,8 @@ Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `
 | Typed sockets and ports | `ActivationIn` Activation Input at (0, 0.65, 0.2); `PowerIn` Electrical Input at (−0.78, 0, 0); `Supply` Electrical Output at (0.78, 0, 0) (`parts/HoldTimerPart.cs@a6c914e:L37-L42`). Electrical route `PowerIn`→`Supply` closed while the timer is Counting (`parts/HoldTimerPart.cs@a6c914e:L43-L44`). No activation output. |
 | Sensors and activation | Trigger activation starts a window if Ready; a busy trigger is ignored (`parts/HoldTimerPart.cs@a6c914e:L51-L56`). |
 | Work and energy stores | none; the timer closes a supplied contact and never creates electricity (`parts/HoldTimerPart.cs@a6c914e:L9-L9`). |
-| Parameters | `hold_seconds`: float seconds, range 0.1–12 inclusive, default 2.0 (`parts/HoldTimerPart.cs@a6c914e:L45-L50`, `parts/catalog/hold_timer.tres@a6c914e:L14-L14`). Window ticks = ceil(seconds / tick) (`engine/SceneTimerDeclaration.cs@a6c914e:L12-L18`). Carry forward as f32 seconds; do not copy the binary16 `DelayDuration` encoding (`engine/gpu/WorkshopDelay.cs@a6c914e:L6-L33`; remaining f32 migration per `docs/gpu-f32-physics.md@a6c914e:L96-L96`). |
-| Cosmetic curves and UI bindings | (1) Remaining bar: gold bar scales along X from anchor −0.5 with fraction = committed remaining fraction (1 at trigger → 0 at expiry), minimum scale 0.001, visible only while the timer is active (`parts/HoldTimerPart.cs@a6c914e:L25-L32`). (2) Indicator lamp slate `#556573` → gold `#f7cb52`, 0.1 s SmoothStep, follows the window (owner active), independent of supply (`parts/HoldTimerPart.cs@a6c914e:L33-L35`). Current cosmetic `Timer` source carries phase and a 0..1 blend (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L13`), used by Delay. |
+| Parameters | `hold_seconds`: float seconds, range 0.1–12 inclusive, default 2.0 (`parts/HoldTimerPart.cs@a6c914e:L45-L50`, `parts/catalog/hold_timer.tres@a6c914e:L14-L14`). Window ticks = checked MathF.Ceiling of rounded f32(seconds × cadence rate) (`engine/SceneTimerDeclaration.cs@a6c914e:L12-L18`). Carry forward as f32 seconds; do not copy the binary16 `DelayDuration` encoding (`engine/gpu/WorkshopDelay.cs@a6c914e:L6-L33`; remaining f32 migration per `docs/gpu-f32-physics.md@a6c914e:L96-L96`). |
+| Cosmetic curves and UI bindings | (1) Remaining bar: gold bar scales along X from anchor −0.5 with fraction = committed remaining fraction (1 at trigger → 0 at expiry), minimum scale 0.001, visible only while the timer is active (`parts/HoldTimerPart.cs@a6c914e:L25-L32`). (2) Indicator lamp slate `#556573` → gold `#f7cb52`, 0.1 s SmoothStep, follows the window (owner active), independent of supply (`parts/HoldTimerPart.cs@a6c914e:L33-L35`). Historical cosmetic `Timer` source carried phase and a 0..1 blend (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L13`), used by Delay. |
 | Art | Housing in catalogue colour `#66b8c9` (0.40, 0.72, 0.79); navy `#293954` foot; cream `#fff8e9` face 1.18 × 0.72 × 0.045 at z 0.35; navy track 1 × 0.14 × 0.025 at (0, 0.1, 0.39); gold `#f7cb52` bar 1 × 0.10 × 0.035 at (0, 0.1, 0.415), hidden at rest; three `#e8b764` contact pads r 0.08 at (±0.78, 0, 0) and (0, 0.65, 0.2) — "two contact pads distinguish the hold relay from the round delay clock"; indicator r 0.07 at (0, −0.22, 0.40) (`parts/HoldTimerPart.cs@a6c914e:L58-L72`). Selection ring 0.95 (`parts/HoldTimerPart.cs@a6c914e:L60-L60`). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L87-L87`. Design: "Hold timer" row of [DESIGN.md · Motion and state feedback](../../../DESIGN.md#motion-and-state-feedback). |
 | Catalogue / inventory | Id `hold_timer`, Title "Hold timer", Category Control, colour (0.40, 0.72, 0.79), Parameters `{"hold_seconds": 2.0}`; Description: "An activation closes this electrical contact for two seconds. Connect a battery to its input: the timer does not create power. Busy triggers are ignored; it rearms when time is up." (`parts/catalog/hold_timer.tres@a6c914e:L8-L14`). Inventory 1 in `saved_for_later` (harvest H18). |
 
@@ -31,17 +31,12 @@ Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `
 
 Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction, TimedCommand (P0-022/023 shared evaluator/feedback registration).
 
-**Exists now**
-- Timer node in the activation network: Ready → Counting on the first input (busy input ignored), due = ceiling start tick + duration ticks, then `Finished` (latching) with an elapsed occurrence: `engine/gpu/ActivationTimers.cs@a6c914e:L66-L113`; wired by `engine/gpu/ActivationNetwork.cs@a6c914e:L194-L231`.
-- Cadence-to-ticks conversion: `engine/gpu/WorkshopDelay.cs@a6c914e:L16-L33`.
-- Timer cosmetic source (phase + blend): `engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L13`, used by `parts/DelayPart.cs@a6c914e:L35-L46`.
-- Note: these types hold binary16 (`Half`) values — `ActivationTime` phases, `DelayDuration` seconds, the cosmetic blend and durations — listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Extending them for the hold timer inherits that debt (open question 3).
-
-**Missing**
-- A rearming completion policy (Counting → Ready at expiry, so a later trigger starts a new window) and a timer with no elapsed output — Story 9.5. The current timer only latches to `Finished` (`engine/gpu/ActivationTimers.cs@a6c914e:L104-L112`), and the network emits each source at most once per world (`engine/gpu/ActivationNetwork.cs@a6c914e:L206-L208`).
-- Window expiry ordered before same-tick delayed occurrences and before the electrical solve (H11) — Story 9.5.
-- Supplied contact `PowerIn`→`Supply` closed while Counting — Story 8.1 network (open question 1).
-- Remaining-fraction scalar extent binding (bar) — Story 9.5.
+**Current capabilities (Story 9.5)**
+- Shared declared timer policies select Rearm/BeforeNetworks/None for Hold and preserve Delay's Latch/BeforePhysics/Activation. Duration and phase use canonical f32; start/due ticks remain integers.
+- Candidate scheduling expires contacts, then routes already-due deliveries to BeforeNetworks timer destinations before supply integration. Remaining destinations merge chronologically with physical occurrences after the solve. Commit/discard covers both timer and physical state.
+- A newly observed physical trigger commits its window at that tick; consumer motion begins on the next physical integration, as with the existing plate. An already-due Delay opens the Hold window before that boundary's consumer integration.
+- Supplied contact and remaining-fraction/visibility/indicator bindings are generic capabilities. No element identifier branch, activation output, or independent update loop.
+- Common collider/speed/capture ABI remains owned by 9A.44; this timer/presentation extension does not claim full numeric migration.
 
 **Element dependencies**: an activation source (Switch CAT-063, Delay CAT-022); Battery (CAT-005) and a supplied consumer for any observable output (the legacy tests used Powered gate, CAT-051; [current-consumers](../invest/current-consumers.md#cat-033-i) names Motor, CAT-042); `saved_for_later` also needs Motor (CAT-042) and Wound spring (CAT-071).
 
@@ -106,8 +101,8 @@ Authority: [CAT-033](../requirements.md#current-cat-033), [todo-261](../requirem
 - **Save/Load.** `hold_seconds` and the explicit Activation link round-trip (H16).
 - **Integrations.** Delay→Hold (H15); `saved_for_later` once Motor and Wound spring exist (H18).
 
-## 6. Open questions
+## 6. Resolved delivery decisions
 
-1. **Output domain in Story 9.5.** The Story 9.5 AC says "the output activates … for exactly 2.0 simulated seconds", but the legacy and the requirement give the hold timer only a supplied electrical contact (no activation output); the supply network (Story 8.1) now precedes Story 9.5. Whether 9.5 proves the output through the Story 8.1 supplied contact, or adds an output the requirement does not define: unspecified — owner decision.
-2. **"Pending event state".** The requirement says "display and pending event state Reset exactly", but the legacy hold timer queues no events (elapsed signal `None`, busy triggers dropped). Which pending state the requirement means: unspecified — owner decision.
-3. **binary16 activation and cosmetic lanes.** The timer node, delay duration and cosmetic curve the hold timer extends still hold binary16 values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether Story 9.5 migrates those lanes to f32 before extending them, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision.
+1. Output means the supplied PowerIn→Supply contact only; no ActivationOut is added.
+2. Reset clears timers, pending scheduled delivery and committed presentation together; it never invents an expiry occurrence. Busy triggers are dropped.
+3. Story 9.5 uses the f32 timer/phase delivered by 9.5a and f32 presentation delivered by 9A.25a. Shared physical ABI migration remains 9A.44. Historical harvest above remains evidence, not a second current implementation.

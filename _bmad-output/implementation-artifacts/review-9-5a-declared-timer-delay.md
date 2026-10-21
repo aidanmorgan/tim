@@ -26,3 +26,11 @@ Native functional acceptance is satisfied within this reviewed candidate: generi
 ## Publication-dependent checks
 
 Normal hooks must pass. Verify approved inputs plus this authorized receipt equal published source/main trees; independently verify remote main, exact-SHA CI native success, Pages artifact/run identity and deployment success. Terminal publication remains incomplete until those checks pass. No additional local campaign or Chrome run is required solely for publication under current owner policy. Retain the eventual terminal receipt for the next normal publication.
+
+## Terminal publication verification — 22 October 2026
+
+Scoped Pass. Independent receipt33a0eb verified remote main `8b93a3afd81a50bcff73175809868e13ceae3b44`, tree `dec3d01556ae1588217053e6dd4daac40281cae8`, equal to source `eb5f07451fdc81c3a9a40a6d7f97f8e672f28d7f`; approved inputs differ only by this authorized review receipt.
+
+Independent receipts8157bc/6e427c confirm exact-SHA CI39647691674 completed successfully. C# game tests2042/2042 passed, zero failed/skipped,1m34s. Pages artifact12368623913 belongs to that run/SHA, size77694572, digest `sha256:8f51afcb67243b8bcb4527ecb4e64794085dc5cb5b982cbf21177c4c9d5b7e7e`. Deployment7233524992 reports success at2026-10-21T18:05:58Z for the same SHA at https://aidanmorgan.github.io/tim/.
+
+All required-now publication checks are satisfied. Deferred browser qualification and9A.44 common numeric lanes remain explicit. This terminal receipt travels with the next normal publication; no standalone administrative commit is required.

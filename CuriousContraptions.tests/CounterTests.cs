@@ -262,7 +262,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         Assert.Equal(0U, network.Memory(memory, counter.Id).Count);
         Assert.Equal(3, network.GetCounterTarget(counter.Id));
-        Assert.False(network.ContactClosed(activations, counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
 
         var sensorId = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
         var ballBodyId = new GpuBodyId(10);
@@ -274,7 +274,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         activations = cp1.Activations; timers = cp1.Timers; memory = cp1.Memory;
 
         Assert.Equal(1U, network.Memory(memory, counter.Id).Count);
-        Assert.False(network.ContactClosed(activations, counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
         var lampSlot = network.Nodes.ToArray().ToList().FindIndex(n => n.Id.Value == lamp.Id.Value);
         Assert.Equal(ActivationPhase.Clear, activations[lampSlot].Phase);
 
@@ -288,7 +288,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         activations = cp2.Activations; timers = cp2.Timers; memory = cp2.Memory;
 
         Assert.Equal(2U, network.Memory(memory, counter.Id).Count);
-        Assert.False(network.ContactClosed(activations, counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
 
         // Tick 3: passage 3 (target reached!)
         var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, (Half)0, new((Half)2f));
@@ -296,7 +296,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         activations = cp3.Activations; timers = cp3.Timers; memory = cp3.Memory;
 
         Assert.Equal(3U, network.Memory(memory, counter.Id).Count);
-        Assert.True(network.ContactClosed(activations, counter.Id));
+        Assert.True(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
 
         // Lamp must be latched now!
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
@@ -311,14 +311,14 @@ public sealed class CounterTests(NativeSceneFixture godot)
         }
 
         // Remains reached and saturated
-        Assert.True(network.ContactClosed(activations, counter.Id));
+        Assert.True(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
 
         // Clearing (admission) restores counter to 0 and lamp to Clear
         activations = network.Clear();
         memory = network.ClearMemory();
         Assert.Equal(0U, network.Memory(memory, counter.Id).Count);
-        Assert.False(network.ContactClosed(activations, counter.Id));
+        Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
         Assert.Equal(ActivationPhase.Clear, activations[lampSlot].Phase);
     }
 
@@ -349,14 +349,14 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(2U, network.Memory(committed.Memory, counter.Id).Count);
         var retried = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);
         Assert.Equal(3U, network.Memory(retried.Memory, counter.Id).Count);
-        Assert.True(network.ContactClosed(retried.Activations, counter.Id));
+        Assert.True(network.ContactClosed(retried.Activations, network.ClearTimers(), counter.Id));
 
         // Admission (Reset) recompiles the network and clears the row: count 0, no last input, contact open.
         var reset = WorkshopActivationCompiler.Compile(construction);
         var cleared = network.Memory(reset.ClearMemory(), counter.Id);
         Assert.Equal(ActivationMemory.Clear(reset.Nodes.ToArray().Single(node => node.Owner == counter.Id)), cleared);
         Assert.Equal(0U, cleared.Count);
-        Assert.False(reset.ContactClosed(reset.Clear(), counter.Id));
+        Assert.False(reset.ContactClosed(reset.Clear(), reset.ClearTimers(), counter.Id));
 
         // A checkpoint without the counter's row is rejected rather than counted from an implicit zero.
         Assert.Throws<ArgumentException>(() => network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)]));

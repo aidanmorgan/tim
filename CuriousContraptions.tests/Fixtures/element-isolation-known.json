@@ -983,6 +983,11 @@
     {"File":"ui/WorkshopPuzzle.cs","Symbol":"Workshop.SelectModeFromPickerAsync","Rule":"PackageIdentifier","Token":"WallAndBumperIndex","Count":3,"Owner":"Lessons"}
   ],
   "Generic": [
+    {"File":"CuriousContraptions.Abstractions.Signal/SignalContracts.cs","Symbol":"TimerCompletionPolicy","Token":"Latch","Count":1,"Meaning":"DeclaredCapability"},
+    {"File":"CuriousContraptions.Bundle/BundleValidator.cs","Symbol":"BundleValidator.EntryCheck.Signal","Token":"Latch","Count":1,"Meaning":"DeclaredCapability"},
+    {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNodeDeclaration","Token":"Latch","Count":1,"Meaning":"DeclaredCapability"},
+    {"File":"engine/gpu/ActivationTimers.cs","Symbol":"ActivationTimerDeclaration","Token":"Latch","Count":1,"Meaning":"DeclaredCapability"},
+    {"File":"engine/gpu/ActivationTimers.cs","Symbol":"ActivationTimerDeclaration.Validate","Token":"Latch","Count":1,"Meaning":"DeclaredCapability"},
     {"File":"CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs","Symbol":"ElectricalRole","Token":"Switch","Count":1,"Meaning":"DeclaredCapability"},
     {"File":"CuriousContraptions.Abstractions.Signal/SignalContracts.cs","Symbol":"ISignalElement.Counter","Token":"Counter","Count":1,"Meaning":"DeclaredCapability"},
     {"File":"CuriousContraptions.Abstractions.Signal/SignalContracts.cs","Symbol":"ISignalElement.Counter","Token":"SignalCounterDescriptor","Count":1,"Meaning":"DeclaredCapability"},
@@ -1153,7 +1158,7 @@
     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.StateLatchPhase","Token":"StateLatch","Count":1,"Meaning":"DeclaredCapability"},
     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.StateLatchPhase","Token":"StateLatchPhase","Count":1,"Meaning":"DeclaredCapability"},
     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.ValidateOccurrence","Token":"Counter","Count":1,"Meaning":"DeclaredCapability"},
-    {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.ValidateRead","Token":"ActivationLatch","Count":2,"Meaning":"CaptureProtocol"},
+    {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.ValidateRead","Token":"ActivationLatch","Count":3,"Meaning":"CaptureProtocol"},
     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.ValidateRead","Token":"Counter","Count":1,"Meaning":"DeclaredCapability"},
     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.ValidateRead","Token":"StateLatch","Count":1,"Meaning":"DeclaredCapability"},
     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork._latchRequests","Token":"StateLatchRequest","Count":1,"Meaning":"DeclaredCapability"},

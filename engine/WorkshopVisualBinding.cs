@@ -4,7 +4,7 @@ using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions;
 
-public enum WorkshopVisualProperty { LocalX, LocalY, LocalZ, LocalRotationZ, UniformScale, ScaleX, ScaleY, ScaleZ, AlbedoRed, AlbedoGreen, AlbedoBlue, EmissionRed, EmissionGreen, EmissionBlue }
+public enum WorkshopVisualProperty { LocalX, LocalY, LocalZ, LocalRotationZ, UniformScale, ScaleX, ScaleY, ScaleZ, AlbedoRed, AlbedoGreen, AlbedoBlue, EmissionRed, EmissionGreen, EmissionBlue, Visible }
 
 /// <summary>Render boundary for immutable property bindings evaluated by shared Animation.</summary>
 public sealed class WorkshopVisualBinding
@@ -17,12 +17,13 @@ public sealed class WorkshopVisualBinding
         if (!Enum.IsDefined(property)) throw new ArgumentException("Unknown visual binding property.");
         _target = target; _property = property;
         _neutral = Value(property, neutral); _active = Value(property, active);
-        if (property is >= WorkshopVisualProperty.AlbedoRed &&
+        if (property is >= WorkshopVisualProperty.AlbedoRed and <= WorkshopVisualProperty.EmissionBlue &&
             (target is not MeshInstance3D mesh || mesh.MaterialOverride is not StandardMaterial3D))
             throw new ArgumentException("Colour binding requires its owned material.");
     }
     private static AnimationValue Value(WorkshopVisualProperty property, float value) => property switch
     {
+        WorkshopVisualProperty.Visible => new(new AnimationColourBlend(value)),
         WorkshopVisualProperty.LocalRotationZ => new(new AnimationRadians(value)),
         WorkshopVisualProperty.UniformScale or WorkshopVisualProperty.ScaleX or WorkshopVisualProperty.ScaleY or WorkshopVisualProperty.ScaleZ => new(new AnimationScale(value)),
         WorkshopVisualProperty.LocalX or WorkshopVisualProperty.LocalY or WorkshopVisualProperty.LocalZ => new(new AnimationMetres(value)),
@@ -36,6 +37,7 @@ public sealed class WorkshopVisualBinding
     {
         if (sample.Property != _neutral.Property) throw new ArgumentException("Visual sample property differs from its declaration.");
         var value = BitConverter.UInt32BitsToSingle(sample.CanonicalBits);
+        if (_property == WorkshopVisualProperty.Visible) { _target.Visible = value >= .5f; return; }
         if (_property is WorkshopVisualProperty.LocalX or WorkshopVisualProperty.LocalY or WorkshopVisualProperty.LocalZ)
         {
             var position = _target.Position;

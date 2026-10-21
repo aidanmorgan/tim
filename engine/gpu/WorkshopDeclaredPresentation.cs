@@ -237,6 +237,8 @@ public sealed class WorkshopDeclaredPresentation
                 }
                 break;
             case PresentationDriver.CommittedTimerProgress:
+            case PresentationDriver.CommittedTimerRemaining:
+            case PresentationDriver.CommittedTimerActive:
             case PresentationDriver.CommittedTimerPhase:
                 for (var i = 0; i < read.Timers.Count; i++)
                 {
@@ -244,6 +246,11 @@ public sealed class WorkshopDeclaredPresentation
                     if (timer.Node != track.Node.Id) continue;
                     if (d.Driver == PresentationDriver.CommittedTimerPhase)
                         return TimerPhase(timer.Phase) == d.Phase ? 1 : 0;
+                    if (d.Driver == PresentationDriver.CommittedTimerActive)
+                        return timer.Phase == ActivationTimerPhase.Counting ? 1 : 0;
+                    if (d.Driver == PresentationDriver.CommittedTimerRemaining)
+                        return timer.Phase == ActivationTimerPhase.Counting
+                            ? Math.Clamp((float)(timer.DueTick - read.Tick.Value) / (timer.DueTick - timer.StartedTick), 0, 1) : 0;
                     return timer.Phase switch
                     {
                         ActivationTimerPhase.Ready => 0,
@@ -336,6 +343,7 @@ public sealed class WorkshopDeclaredPresentation
 
     public static AnimationProperty Property(PresentationProperty property) => property switch
     {
+        PresentationProperty.Visible => AnimationProperty.ColourBlend,
         PresentationProperty.LocalRotationZ => AnimationProperty.LocalRotationAngle,
         PresentationProperty.LocalX or PresentationProperty.LocalY or PresentationProperty.LocalZ => AnimationProperty.LocalTranslation,
         PresentationProperty.UniformScale or PresentationProperty.ScaleX or PresentationProperty.ScaleY or PresentationProperty.ScaleZ => AnimationProperty.UniformScale,

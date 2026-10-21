@@ -1,5 +1,6 @@
 using System.Numerics;
 using CuriousContraptions.Abstractions.Electrical;
+using CuriousContraptions.Abstractions.Signal;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
 
@@ -137,6 +138,7 @@ public static class BundleValidator
                     OutOfRange("Presentation.Timing");
                 bool AdmitsValue(float input) => float.IsFinite(input) && (binding.Property switch
                 {
+                    PresentationProperty.Visible => input is 0f or 1f,
                     PresentationProperty.UniformScale or PresentationProperty.ScaleX or PresentationProperty.ScaleY or PresentationProperty.ScaleZ => input > 0,
                     PresentationProperty.AlbedoRed or PresentationProperty.AlbedoGreen or PresentationProperty.AlbedoBlue or
                         PresentationProperty.EmissionRed or PresentationProperty.EmissionGreen or PresentationProperty.EmissionBlue => input is >= 0 and <= 1,
@@ -152,7 +154,9 @@ public static class BundleValidator
                     PresentationDriver.CommittedOscillatorPhase => binding.Curve == PresentationCurve.ExponentialFollow && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
                     PresentationDriver.CommittedOscillatorPulse => binding.Curve == PresentationCurve.LinearDecay && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Maximum,
                     PresentationDriver.CommittedContactLoadPhase => binding.Curve == PresentationCurve.CubicSmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
-                    PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
+                    PresentationDriver.CommittedTimerActive => binding.Overlap == PresentationOverlap.Replace &&
+                        ((binding.Curve == PresentationCurve.Linear && binding.Duration == 0) || (binding.Curve == PresentationCurve.SmoothStep && binding.Duration > 0)),
+                    PresentationDriver.CommittedTimerRemaining or PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
                         PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState =>
                             binding.Curve == PresentationCurve.Linear && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
                     _ => false
@@ -414,8 +418,14 @@ public static class BundleValidator
             if (signal.Timer is { } timer)
             {
                 Real("Timer.DurationParameter", timer.DurationParameter, parameters);
+                Defined("Timer.Completion", timer.Completion);
+                Defined("Timer.Boundary", timer.Boundary);
+                Defined("Timer.ElapsedSignal", timer.ElapsedSignal);
+                if ((timer.Completion == TimerCompletionPolicy.Rearm && (timer.ElapsedSignal != TimerElapsedSignal.None || timer.Boundary != TimerBoundary.BeforeNetworks)) ||
+                    (timer.Completion == TimerCompletionPolicy.Latch && (timer.ElapsedSignal != TimerElapsedSignal.Activation || timer.Boundary != TimerBoundary.BeforePhysics)))
+                    OutOfRange("Timer.Policy");
                 if (!ports.Any(port => port.Socket == PortSocket.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
-                    !ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    (timer.ElapsedSignal == TimerElapsedSignal.Activation && !ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse)))
                     OutOfRange("Timer.Ports");
                 if (!parameters.Any(parameter => parameter.Key == timer.DurationParameter && parameter.Unit == ParameterUnit.Second && parameter.Minimum > 0f))
                     OutOfRange("Timer.DurationParameter");

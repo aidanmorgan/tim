@@ -239,7 +239,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
 
         // Downstream Counter reached 5
         Assert.Equal(5U, network.Memory(activeMemory, counter.Id).Count);
-        Assert.True(network.ContactClosed(activeActivations, counter.Id));
+        Assert.True(network.ContactClosed(activeActivations, network.ClearTimers(), counter.Id));
     }
 
     [Fact]
@@ -273,7 +273,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.Equal(OscillatorPhase.Stopped, network.Memory(activeMemory, clock.Id).Phase);
         Assert.Equal(0U, network.Memory(activeMemory, clock.Id).Count);
         Assert.Equal(0U, network.Memory(activeMemory, counter.Id).Count);
-        Assert.False(network.ContactClosed(activeActivations, counter.Id));
+        Assert.False(network.ContactClosed(activeActivations, network.ClearTimers(), counter.Id));
     }
 
     [Fact]

@@ -90,15 +90,19 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     private int _pending;
     // Bistable activation nodes (State Latch memory, the level indicators it drives, and contact-load levels) compile once per construction revision;
     // read validation consults this set instead of walking the authored construction every tick.
-    private (ConstructionRevision Revision, HashSet<ActivationNodeId> Nodes) _bistable;
+    private (ConstructionRevision Revision, HashSet<ActivationNodeId> Nodes, Dictionary<ActivationNodeId, ActivationNodeDeclaration> Timers) _bistable;
     private HashSet<ActivationNodeId> BistableNodes()
     {
         if (_bistable.Nodes is null || _bistable.Revision != Construction.Revision)
         {
             var nodes = new HashSet<ActivationNodeId>();
+            var timers = new Dictionary<ActivationNodeId, ActivationNodeDeclaration>();
             foreach (var node in WorkshopActivationCompiler.Compile(Construction).Nodes)
+            {
                 if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
-            _bistable = (Construction.Revision, nodes);
+                if (node.Kind == ActivationNodeKind.Timer) timers.Add(node.Id, node);
+            }
+            _bistable = (Construction.Revision, nodes, timers);
         }
         return _bistable.Nodes;
     }
@@ -518,7 +522,21 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         for (var i = 0; i < read.Timers.Count; i++)
         {
             var before = source.Timers[i]; var after = read.Timers[i]; after.Validate();
-            if (before.Node != after.Node || after.Phase < before.Phase ||
+            if (!_bistable.Timers.TryGetValue(before.Node, out var declaration) || before.Node != after.Node)
+                throw new ArgumentException("Committed timer identity changed.");
+            if (declaration.Completion == CuriousContraptions.Abstractions.Signal.TimerCompletionPolicy.Rearm)
+            {
+                if (after.Phase == ActivationTimerPhase.Finished ||
+                    (before.Phase == ActivationTimerPhase.Counting && before.DueTick > read.Tick.Value && after != before) ||
+                    (after.Phase == ActivationTimerPhase.Counting &&
+                        (after.DueTick != checked(after.StartedTick + declaration.DurationTicks) || after.DueTick <= read.Tick.Value ||
+                         after.StartedTick > read.Tick.Value || after.Input.Time.CeilingTick(Profile.Substeps) != after.StartedTick ||
+                         ((before.Phase == ActivationTimerPhase.Ready || before.DueTick <= read.Tick.Value) && after.StartedTick <= source.Tick.Value) ||
+                         (before.Phase == ActivationTimerPhase.Counting && before.DueTick <= read.Tick.Value && after.StartedTick < before.DueTick))))
+                    throw new ArgumentException("Committed rearming timer changed outside its boundary.");
+                continue;
+            }
+            if (after.Phase < before.Phase ||
                 (before.Phase != ActivationTimerPhase.Ready &&
                     (after.StartedTick != before.StartedTick || after.DueTick != before.DueTick || after.Input != before.Input)))
                 throw new ArgumentException("Committed timer identity or countdown changed.");

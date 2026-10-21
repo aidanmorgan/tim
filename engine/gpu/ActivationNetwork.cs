@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Gpu;
 
@@ -20,7 +21,9 @@ public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
 public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
     ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default, GpuColliderId Collider = default,
-    GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0);
+    GpuContactLoadSensorId ContactLoad = default, uint ReleaseHoldTicks = 0,
+    TimerCompletionPolicy Completion = TimerCompletionPolicy.Latch, TimerBoundary Boundary = TimerBoundary.BeforePhysics,
+    TimerElapsedSignal ElapsedSignal = TimerElapsedSignal.Activation);
 /// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
 public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, WorkshopSocket Input);
 
@@ -77,6 +80,15 @@ public readonly struct PhysicsActivationRead
 /// <summary>The committed discrete checkpoint: activations, timers and the Counter/Clock memory rows (Story 9R.1 D3).</summary>
 public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activations, PhysicsTimerRead Timers,
     PhysicsMemoryRead Memory = default);
+
+/// <summary>Uncommitted scheduled state and due occurrences awaiting their post-physics destinations.</summary>
+public sealed class ActivationSchedule
+{
+    public ActivationCheckpoint State { get; }
+    internal ActivationOccurrence[] Deferred { get; }
+    internal ActivationSchedule(ActivationCheckpoint state, ActivationOccurrence[] deferred)
+    { State = state; Deferred = deferred; }
+}
 
 /// <summary>One bounded C# discrete network. Catalogue parts declare nodes; none owns a clock or callback.</summary>
 public sealed class ActivationNetwork
@@ -136,7 +148,12 @@ public sealed class ActivationNetwork
                 (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 || node.TargetCount > 9 : node.TargetCount != 0) ||
                 (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerSource.Value != 0 || node.Collider.Value != 0)))
                 throw new ArgumentException("Invalid activation node declaration.");
-            if (node.Kind == ActivationNodeKind.Timer) timers.Add(new(node.Id, node.DurationTicks));
+            if (node.Kind == ActivationNodeKind.Timer)
+            {
+                var timer = new ActivationTimerDeclaration(node.Id, node.DurationTicks, node.Completion, node.Boundary, node.ElapsedSignal);
+                timer.Validate();
+                timers.Add(timer);
+            }
         }
         foreach (var passage in _passageSensors)
         {
@@ -218,9 +235,12 @@ public sealed class ActivationNetwork
         throw new ArgumentException("State latch not found for owner.");
     }
     /// <summary>A switched contact (State Latch, Counter or contact-load level) is closed exactly while its committed value is Latched.</summary>
-    public bool ContactClosed(PhysicsActivationRead values, GpuBodyId owner)
+    public bool ContactClosed(PhysicsActivationRead values, PhysicsTimerRead timers, GpuBodyId owner)
     {
-        ValidatePopulation(values, ClearTimers());
+        ValidatePopulation(values, timers);
+        for (var i = 0; i < _timers.Length; i++)
+            if (_nodes[Slot(_timers[i].Node)].Owner == owner && _timers[i].Completion == TimerCompletionPolicy.Rearm)
+                return timers[i].Phase == ActivationTimerPhase.Counting;
         for (var i = 0; i < _nodes.Length; i++)
             if (_nodes[i].Owner == owner && _nodes[i].Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.Counter or ActivationNodeKind.ContactLoadSource)
                 return values[i].Phase == ActivationPhase.Latched;
@@ -232,7 +252,30 @@ public sealed class ActivationNetwork
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
         ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
-        Span<byte> eventBuffer = default, PhysicsMemoryRead memory = default, ReadOnlySpan<ContactLoadSensorRead> contactLoads = default)
+        Span<byte> eventBuffer = default, PhysicsMemoryRead memory = default, ReadOnlySpan<ContactLoadSensorRead> contactLoads = default) =>
+        Consume(committed, committedTimers, events, boundary, orientations, passages, electrical, eventBuffer, memory, contactLoads, EvaluationStage.Physical, [], out _);
+
+    private enum EvaluationStage { Scheduled, Physical }
+
+    /// <summary>Stages already-due timer transitions and deliveries before the electrical/physical solve. The input checkpoint is immutable.</summary>
+    public ActivationSchedule AdvanceScheduled(ActivationCheckpoint committed, SimulationTick boundary)
+    {
+        var state = Consume(committed.Activations, committed.Timers, [], boundary, [], [], default, default, committed.Memory, [],
+            EvaluationStage.Scheduled, [], out var deferred);
+        return new(state, deferred);
+    }
+
+    public ActivationCheckpoint ConsumeScheduled(ActivationSchedule scheduled, ReadOnlySpan<ContactTriggerRead> events,
+        SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations, ReadOnlySpan<PassageSensorRead> passages,
+        PhysicsElectricalRead electrical, ReadOnlySpan<ContactLoadSensorRead> contactLoads) =>
+        Consume(scheduled.State.Activations, scheduled.State.Timers, events, boundary, orientations, passages, electrical,
+            default, scheduled.State.Memory, contactLoads, EvaluationStage.Physical, scheduled.Deferred, out _);
+
+    private ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
+        ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
+        ReadOnlySpan<PassageSensorRead> passages, PhysicsElectricalRead electrical, Span<byte> eventBuffer,
+        PhysicsMemoryRead memory, ReadOnlySpan<ContactLoadSensorRead> contactLoads, EvaluationStage stage,
+        ReadOnlySpan<ActivationOccurrence> scheduledOccurrences, out ActivationOccurrence[] deferredOccurrences)
     {
         ValidatePopulation(committed, committedTimers);
         ValidateMemory(memory);
@@ -250,6 +293,8 @@ public sealed class ActivationNetwork
         Span<StateLatchRequest> latchRequests = _latchRequests; latchRequests.Clear();
         Span<ActivationOccurrence> latchSetBy = _latchSetBy; latchSetBy.Clear();
         var count = 0;
+        var deferred = stage == EvaluationStage.Scheduled ? new List<ActivationOccurrence>() : null;
+        foreach (var occurrence in scheduledOccurrences) Push(ref count, occurrence);
         for (var i = 0; i < events.Length; i++)
         {
             var item = events[i]; var slot = -1;
@@ -333,15 +378,17 @@ public sealed class ActivationNetwork
             }
             Push(ref count, occurrence);
         }
-        CommitContactLoads(values, rows, contactLoads, boundary, end);
-        for (var i = 0; i < _timers.Length; i++)
-        {
-            timers[i] = timers[i].Complete(boundary, _substeps, out var elapsed);
-            if (elapsed is { } occurrence) Push(ref count, occurrence);
-        }
+        if (stage == EvaluationStage.Physical) CommitContactLoads(values, rows, contactLoads, boundary, end);
+        for (var pass = 0; pass < 2; pass++)
+            for (var i = 0; i < _timers.Length; i++)
+            {
+                if (_timers[i].Boundary != (pass == 0 ? TimerBoundary.BeforeNetworks : TimerBoundary.BeforePhysics)) continue;
+                timers[i] = timers[i].Complete(_timers[i], boundary, _substeps, out var elapsed);
+                if (elapsed is { } occurrence) Push(ref count, occurrence);
+            }
         for (var i = 0; i < _nodes.Length; i++)
         {
-            if (_nodes[i].Kind != ActivationNodeKind.Oscillator) continue;
+            if (stage != EvaluationStage.Physical || _nodes[i].Kind != ActivationNodeKind.Oscillator) continue;
             var node = _nodes[i];
             var isPowered = false;
             if (node.PowerSource.Value != 0)
@@ -402,7 +449,7 @@ public sealed class ActivationNetwork
             for (var i = 1; i < count; i++) if (Compare(_pending[i], _pending[first]) < 0) first = i;
             var occurrence = _pending[first]; _pending[first] = _pending[--count];
             var source = Slot(occurrence.Emitter);
-            if (values[source].Phase != ActivationPhase.Clear)
+            if (stage == EvaluationStage.Physical && values[source].Phase != ActivationPhase.Clear)
             {
                 if (_nodes[source].Kind == ActivationNodeKind.PassageSource &&
                     occurrence.Time.CompareTo(values[source].Occurrence.Time) > 0)
@@ -419,12 +466,16 @@ public sealed class ActivationNetwork
                     throw new ArgumentException("Duplicate source emission.");
                 }
             }
-            if (values[source].Phase == ActivationPhase.Clear)
+            if (stage == EvaluationStage.Physical && values[source].Phase == ActivationPhase.Clear)
                 values[source] = ActivationLatch.From(_nodes[source], occurrence);
+            deferred?.Add(occurrence);
             foreach (var edge in _edges)
             {
                 if (edge.Source != occurrence.Emitter) continue;
                 var target = Slot(edge.Target);
+                var earlyDestination = _nodes[target].Kind == ActivationNodeKind.Timer && _nodes[target].Boundary == TimerBoundary.BeforeNetworks;
+                if (stage == EvaluationStage.Scheduled && !earlyDestination) continue;
+                if (stage == EvaluationStage.Physical && earlyDestination && scheduledOccurrences.Contains(occurrence)) continue;
                 if (_nodes[target].Kind == ActivationNodeKind.StickyFirstInput)
                 {
                     if (values[target].Phase == ActivationPhase.Clear) values[target] = ActivationLatch.From(_nodes[target], occurrence);
@@ -455,7 +506,7 @@ public sealed class ActivationNetwork
                 {
                     var index = TimerSlot(edge.Target);
                     timers[index] = timers[index].Trigger(_timers[index], occurrence, _substeps);
-                    timers[index] = timers[index].Complete(boundary, _substeps, out var elapsed);
+                    timers[index] = timers[index].Complete(_timers[index], boundary, _substeps, out var elapsed);
                     if (elapsed is { } due)
                     {
                         Push(ref count, due);
@@ -486,6 +537,7 @@ public sealed class ActivationNetwork
             var target = Slot(edge.Target);            values[target] = values[source].Phase == ActivationPhase.Latched
                 ? ActivationLatch.From(_nodes[target], values[source].Occurrence) : ActivationLatch.Clear(_nodes[target]);
         }
+        deferredOccurrences = deferred?.ToArray() ?? [];
         return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]));
     }
 
@@ -617,6 +669,21 @@ public sealed class ActivationNetwork
         for (var i = 0; i < _timers.Length; i++)
         {
             var state = timers[i]; var declared = _timers[i]; var slot = Slot(state.Node);
+            if (declared.Completion == TimerCompletionPolicy.Rearm)
+            {
+                if (values[slot] != ActivationLatch.Clear(_nodes[slot]))
+                    throw new ArgumentException("Silent timer retained an output.");
+                if (state.Phase == ActivationTimerPhase.Ready) continue;
+                ValidateOccurrence(state.Input, end, scene);
+                var connected = false;
+                foreach (var edge in _edges)
+                    if (edge.Target == state.Node && edge.Source == state.Input.Emitter) connected = true;
+                var origin = state.Input.Time.CeilingTick(substeps);
+                if (!connected || state.Phase != ActivationTimerPhase.Counting || state.StartedTick != origin ||
+                    state.DueTick != checked(origin + declared.DurationTicks) || state.DueTick <= tick.Value)
+                    throw new ArgumentException("Rearming timer read differs from its declaration or deadline.");
+                continue;
+            }
             var expected = EarliestInput(state.Node, values);
             if (expected is null)
             {
@@ -767,7 +834,8 @@ public static class WorkshopActivationCompiler
                     ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput, default));
             else if (instance is WorkshopGenericInstance generic && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is { } timer)
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.Timer, default,
-                    ActivationTimerDeclaration.Duration(generic.Parameters[new ParameterId(timer.DurationParameter)], construction.Settings.Simulation)));
+                    ActivationTimerDeclaration.Duration(generic.Parameters[new ParameterId(timer.DurationParameter)], construction.Settings.Simulation),
+                    Completion: timer.Completion, Boundary: timer.Boundary, ElapsedSignal: timer.ElapsedSignal));
             // A Domino owns a node only while wired: its orientation sensor compiles under the same condition.
             else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
                 nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));

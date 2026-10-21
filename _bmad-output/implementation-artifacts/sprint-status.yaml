@@ -234,13 +234,13 @@ development_status:
   # 17: early isolation ratchet (split from 9a-45)
   9a-45a-early-isolation-ratchet: done
   # 18: declared timer and switched contact, Delay converted, timer lane f32
-  9-5a-declared-timer-switched-contact-delay-conversion: in-progress
+  9-5a-declared-timer-switched-contact-delay-conversion: done
   # merged into 9-5a (21 Oct 2026)
   9a-38-generic-instance-delay-box: backlog
   # merged into 9-5a (21 Oct 2026) as its suite-first guard
   9r-17-cat-022-delay-box-suite: backlog
   # 19: first new element after the critical path
-  9-5-hold-timer-pulse-stretcher: backlog
+  9-5-hold-timer-pulse-stretcher: review
   # 19a: owner 21 Oct 2026; requires t-2
   t-3-trim-duplicated-chrome-variants: backlog
 

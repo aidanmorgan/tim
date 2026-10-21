@@ -2,13 +2,13 @@
 
 **Goal:** 150 progressively taught challenge levels, unlimited Free Workshop and the complete catalogue through the named qualification gates.
 
-**Verified outcome:** 9A.45a isolation ratchet has independent terminal scoped Pass on `bd37b95294d18da2416d58a08fa0312403193232`: CI2035/2035, deployment7232685236. [Review and identities](_bmad-output/implementation-artifacts/review-9a-45a-isolation-ratchet.md).
+**Verified outcome:** 9.5a declared timer/generic Delay has independent terminal scoped Pass on8b93a3afd81a50bcff73175809868e13ceae3b44: CI2042/2042, deployment7233524992. [Review](_bmad-output/implementation-artifacts/review-9-5a-declared-timer-delay.md).
 
-**In flight:** 9.5a converts Delay to generic typed f32 parameters and declares timer/supply capabilities. [Current scope, native baseline and deferred browser criteria](_bmad-output/implementation-artifacts/spec-9-5a-declared-timer-delay.md). Production cutover is complete. Native editor/ratchet22/22, affected wire/coordinator212/212 and bundle67/67 passed; physical timer controls passed in the retained affected run. Debug and Release worker builds are clean.
+**In flight:** Hold Timer CAT-033: declared rearming timed contact, package art/bindings and production C# unit behavior. [Current scope](_bmad-output/implementation-artifacts/spec-9-5-hold-timer.md). Package, shared timer staging, presentation and native controls are implemented; independent frozen review is next.
 
-**Blocker / owner / retry:** No unresolved design blocker. Owner transport_implementer; reviewer transport_reviewer. Next check: exact frozen independent review and SnapshotApproval, then protected publication. The common speed/collider ABI remains9A.44; this slice migrates timer phase/duration.
+**Blocker / owner / next check:** No unresolved design blocker. transport_implementer and retained reviewer transport_reviewer. Native Hold/editor/isolation 53/53, affected shared closure 549 passing plus both corrected fixture cases, bundle 137/137 and Release worker build are green. Freeze the scoped candidate for independent SnapshotApproval; publication remains pending. No element branch or compatibility path.
 
-**Next outcome:** 9.5a → 9.5 under the [delivery order](_bmad-output/planning-artifacts/epics.md#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination). No runtime fallback or compatibility bridge; C# UNIT behavior is primary.
+**Next outcome:** Complete and publish Hold Timer, then follow the [delivery order](_bmad-output/planning-artifacts/epics.md#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).
 
 **Verification policy:** C# UNIT tests executing production simulation are PRIMARY proof; integration checks supplement them. Prove controls, boundaries, ticks and supported Reset/save/load. Build affected inputs once and reuse matching outputs with `--no-build --no-restore`. No routine Chrome/E2E until ALL named puzzle elements are implemented; browser qualification remains pending. [Current authority](_bmad-output/planning-artifacts/autonomous-development-guide.md#verification-tiers).
 
