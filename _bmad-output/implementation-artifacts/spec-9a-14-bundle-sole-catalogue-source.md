@@ -49,4 +49,37 @@ Amelia-20, under the owner's delegation to decide small gaps; no AC is weakened.
 - **CL4. `PackageRuntimeParityTests`.** The guard's comparisons against runtime tables that this story does not delete (ports, colliders, footprint, bodies, sliders, placement defaults, ball materials) stay, renamed, until each table's owning story (9A.16, 9A.17, the conversions) deletes it. F15-11 adds the signal declarations the runtime reads: the switch trigger threshold (compiled contact trigger), the domino topple threshold (compiled orientation sensor angle) and the counter target. Level thresholds, pulse durations, latch modes, event kinds and port normals have no runtime reader yet; port normals gain a structural unit-length rule instead.
 - **CL5. Description and colour (F15-10).** Both are declared and carried in the bundle; the colour drives the switch button, and the description is carried for the drawer (no current UI reads it).
 - **CL6. UI pictograms.** Story 9A.18 keeps the UI-control and socket-choice pictograms; `socket_set`, `socket_reset`, `move`, `front` and `cube`, which have live callers, are kept too.
-- **CL7. History hits.** The AC's `rg "res://parts/catalog|BundleCatalogueParityTests"` returns hits only in history: the Story 6.5b planning cards (`docs/planning/invest/{decisions,vertical-delivery,engine}.md`), the isolation authority's closed-findings row for Story 9A.4, and the `_bmad-output` records.
+- **CL7. Stale references reworded.** The three Story 6.5b planning lines (`docs/planning/invest/{decisions,engine,vertical-delivery}.md`) and the isolation authority's closed-findings row for Story 9A.4 no longer name the deleted path or test; the AC's `rg "res://parts/catalog|BundleCatalogueParityTests"` now hits only the `_bmad-output` records. The isolation authority's A13, A15 and A3 (icons) rows describe the delivered state and close at 9A.14's terminal Pass.
+
+## Verification
+
+**Identities.** Code commit `0645f57d`; merge of main `679c36cd` (PKG-3 done; `_bmad-output` only, no code difference) as `57826e42`; the follow-up docs commit adds the F15-11 event-kind assertion (test only), the doc rewording and this record. Full run bundle identity `c12a6d4e750a2b7f9ec4e14da4073c6a7c91814b5116dedc2890605189068ffe` (start = end), Chrome 155.0.8059.86.
+
+**Per-AC proof.**
+
+| AC | Proof | Evidence |
+|---|---|---|
+| 9A.14 registry loads only the bundle; plain records; package scenes | `PartRegistryTests.Load_RegistersEveryBundleElementFromItsPackageInPaletteOrder`, `Create_InstantiatesAndConfiguresEachLoadedPart`, `NoCatalogueResourceOrResourceLoaderRemains` | tier1-test.txt |
+| missing or invalid bundle stops start-up naming the problem | `AnInvalidBundleRefusesTheWholeLoadNamingTheProblem` (9 cases), `AMissingOrEmptyBundleRefusesTheLoad`; `Workshop.ReadyAsync` shows the message | tier1-test.txt |
+| palette lists every bundle element, same titles, order and icons | Chrome `arch-9a-catalogue` palette screenshots byte-equal to the base capture; native title/order/icon parity before the cutover | e2e-full-57826e42/, base-capture/, green-parity-before-cutover.txt |
+| Tennis and Balloon absent | `AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette`, `PalettePlacementTests`, palette-placement suite | tier1-test.txt, e2e-full-57826e42/ |
+| `arch-9a-catalogue` in Chrome: 22 rows, each placed, one bench run/reset/save-load | 25/25 in the full run | e2e-full-57826e42/arch-9a-catalogue.tap |
+| old loader and static list gone (`git ls-files`, `rg`) | 0 tracked files under `parts/`; re-add tests | deletion-rg-proof.txt, mutant-deletion-readds.txt |
+| 9A.18 icon.svg via IconPath, palette renders it | `WorkshopIconsKeepsNoElementArm`, pixel parity, Chrome screenshots | mutant-parity-title-icon.txt |
+| 9A.18 missing icon fails the bundle build | `AMissingOrForeignPackageAssetFailsTheBuild`; the real build fails with BUNDLE009 | red-missing-icon-build.txt |
+| `WorkshopIcons.cs` keeps no element arm | `rg` 0 for every element id; re-add test | deletion-rg-proof.txt |
+| F15-10 title, description, colour for every package | oracle parity against the `.tres` text of `8b646ffe` | CatalogueOracleParityTests.cs.txt, green-oracle-parity.txt |
+| F15-11 signal declarations the runtime reads | `EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime` | f15-11-runtime-readers.txt |
+| 0 warnings, tests 100%, full Chrome run 100% | Debug and Release 0 warnings; 2,259/2,259 tests; full run Pass 44 files, 240/240 | tier1-release-build.txt, tier1-test.txt, e2e-full-57826e42/summary.txt |
+
+**Mutants** (each red, then reverted): palette order, title and icon pixels (mutant-parity-order.txt, mutant-parity-title-icon.txt); colour and description (mutant-oracle-colour.txt, mutant-oracle-description.txt); missing icon (red-missing-icon-build.txt); switch trigger threshold, domino threshold, counter target and clock event kind (mutant-f15-11-*.txt); re-added static palette list, `.tres` scan and `"ball"` pictogram arm (mutant-deletion-readds.txt); palette order in Chrome (mutant-e2e-palette-order.tap: the screenshot test fails).
+
+**Tier 1** (on `57826e42` plus the test-only and docs edits): `dotnet build` Debug and Release 0 warnings; `dotnet test CuriousContraptions.slnx` 2,259/2,259 (tier1-test.txt); Ownership `--oracles .` exit 0, 22/22 attacks rejected (ownership-oracles.log); WireContract 108 oracles, 0 failures, LifecycleContract exit 0 (wire-contract.json, lifecycle-contract.log); Node harnesses 88/88 (tier1-node.txt); `anvil check` on the changed non-C# files, 0 warnings. WireContract, LifecycleContract and the Node harnesses ran before the commit; the later edits touch tests and docs only.
+
+**Runner.** `select --diff 8b646ffe` refuses with `NoPrimarySuite` for `ball` (runner-select-diff-8b646ffe.txt), as PKG-3 CL4 recorded, so the one full run used the `full` verb on the committed merge `57826e42`: verdict Pass, 44 files, 240/240 tests, every observation Clean, no rerun (e2e-full-57826e42/summary.txt). The follow-up edits are `CuriousContraptions.tests/**` and `docs/**`, both NoBrowserImpact.
+
+**Filed (non-blocking residuals).**
+- The start-up refusal is proven at the registry; no Workshop-level native test drives `ReadyAsync` with a refused bundle.
+- The palette baselines are byte-pinned to this Chrome build (155.0.8059.86); a browser update needs a recapture.
+- F15-11 fields with no runtime reader: trigger pulse durations and modes, level thresholds, latch modes and the other event kinds (9A.22, 9A.23 + 9A.25b and the family conversions); port normals have a structural rule only.
+- `PartDefinition.Description` has no UI reader yet.

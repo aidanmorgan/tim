@@ -1,0 +1,21 @@
+F15-11: which package signal declarations does the runtime read? (Amelia-20, 21 Oct 2026, tree 57826e42 + docs/tests edits)
+
+$ rg -n -i "pulseduration|pulse_duration|PulseLength|PulseSeconds|PulseTicks|SignalLatchMode|\bLatchMode\b|SignalTriggerMode|TriggerMode|Abstractions\.SimulationEventKind|EventDescriptor|PayloadSchema" engine ui CuriousContraptions.Simulation CuriousContraptions.Animation CuriousContraptions.Animation.Worker
+engine/gpu/BrowserWorkshopClient.Schedule.cs:150/159/168  sample.PulseDuration   (animation contact-sample pulse, a presentation duration; not the declared SignalTriggerDescriptor.PulseDurationSeconds)
+engine/gpu/WorkshopHint.cs:13/99/100                       PulseDuration          (hint UI animation sample)
+engine/gpu/BrowserWorkshopClient.ContactWork.cs:122        sample.PulseDuration   (contact-work control duration)
+engine/gpu/ActivationNetwork.cs:388   SimulationEventKind.TriggerActivated  published for the oscillator tick (the System Clock)
+engine/gpu/ActivationNetwork.cs:478   SimulationEventKind.LatchSet          published for a State Latch memory change
+
+$ rg -n "PortDescriptor|\.Normal\b" engine ui CuriousContraptions.Simulation CuriousContraptions.Animation.Worker
+Only contact normals in CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs (contact.Normal, c.Normal); no reader of PortDescriptor or a port normal.
+
+Result:
+- Read by the runtime, now compared in PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime:
+  switch Triggers[0].Threshold (compiled contact trigger), domino Triggers[0].Threshold (WorkshopDomino.ActivationThreshold, the compiled
+  orientation sensor), counter Counter.Threshold (WorkshopCounter.PlacedTargetCount), clock Events TriggerActivated and latch Events
+  LatchSet (the kinds ActivationNetwork publishes).
+- No runtime reader (no counterpart to compare; each becomes comparable when its owning story makes the runtime read the declaration):
+  trigger PulseDurationSeconds and SignalTriggerMode, level thresholds (lamp, pressure plate), SignalLatchMode, Counter.ResetOnThreshold,
+  the other event kinds and their payload schemas (9A.22 event ring producer, 9A.23 + 9A.25b consumers), port normals (held to unit
+  length structurally by BundleValidator; BundleValidatorTests.APortNormalMustBeAUnitDirection).
