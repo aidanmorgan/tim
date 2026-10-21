@@ -1,0 +1,58 @@
+using System.Text.Json;
+using CuriousContraptions.Abstractions;
+
+namespace CuriousContraptions.BundleElements.Tests;
+
+/// <summary>Murdoch-17 probes (not a deliverable): edge cases of the strict reader and of the validator.</summary>
+public sealed class Murdoch17Probes
+{
+    // P1: a comma-joined name list for a non-flags enum. Expected: rejected (unknown name).
+    [Fact]
+    public void P1_CommaJoinedCategoryIsRejected()
+    {
+        var json = BundleSchema.Write([new Fixture()]);
+        var mutated = json.Replace("\"Category\": \"Structure\"", "\"Category\": \"Motion, Goals\"", StringComparison.Ordinal);
+        Assert.NotEqual(json, mutated);
+        var read = Record.Exception(() => BundleSchema.Read(mutated));
+        Assert.True(read is JsonException, $"read as {(read is null ? BundleSchema.Read(mutated).Elements[0].Metadata.Category.ToString() : read.GetType().Name)}");
+    }
+
+    // P2: a case-folded enum name. Expected: rejected (names are exact).
+    [Fact]
+    public void P2_LowerCaseCategoryIsRejected()
+    {
+        var json = BundleSchema.Write([new Fixture()]);
+        var mutated = json.Replace("\"Category\": \"Structure\"", "\"Category\": \"structure\"", StringComparison.Ordinal);
+        var read = Record.Exception(() => BundleSchema.Read(mutated));
+        Assert.True(read is JsonException, $"read as {(read is null ? BundleSchema.Read(mutated).Elements[0].Metadata.Category.ToString() : read.GetType().Name)}");
+    }
+
+    // P3: a non-mechanical declaration whose footprint declares a body but no collider. Expected by AC4's wording ("a body without a
+    // collider"): refused.
+    [Fact]
+    public void P3_NonMechanicalBodyWithoutColliderIsRefused() =>
+        Assert.Contains(BundleValidator.Validate([new BundlePackage("FixtureSignalBody", new SecondFixture())]),
+            error => error.Code == BundleErrorCode.BodyWithoutCollider);
+
+    // P3b: a non-mechanical declaration whose footprint declares one body and which declares no collider. Expected by AC4's
+    // wording ("a body without a collider"): refused with BUNDLE004.
+    [Fact]
+    public void P3bNonMechanicalDeclaredBodyWithoutColliderIsRefused() =>
+        Assert.Contains(BundleValidator.Validate([new BundlePackage("FixtureSignalBody", new SignalBodyFixture())]),
+            error => error.Code == BundleErrorCode.BodyWithoutCollider);
+
+    private sealed class SignalBodyFixture : IPuzzleElementDeclaration
+    {
+        public ElementMetadata Metadata => new("signal_body", ElementCategory.Control, "part_signal_body", null, "res://x.tscn", []);
+        public ElementFootprint Footprint => new(1, 0, 0);
+        public IReadOnlyList<PortDescriptor> Ports => [];
+        public IReadOnlyList<ColliderDescriptor> Colliders => [];
+        public IReadOnlyList<EventDescriptor> Events => [];
+        public SimulationDomain SupportedDomains => SimulationDomain.Signal;
+    }
+
+    // P4: an empty or duplicate-by-case id. Expected: at least the empty id is refused.
+    [Fact]
+    public void P4_EmptyIdIsRefused() =>
+        Assert.NotEmpty(BundleValidator.Validate([new BundlePackage("FixtureEmpty", new Fixture { Id = "" })]));
+}

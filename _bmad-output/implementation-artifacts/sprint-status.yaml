@@ -178,7 +178,7 @@ development_status:
   # merged into 9a-1 (coordinator ruling, 21 Oct 2026); filed by 9a-0 (owner: no format versioning)
   f-10-retire-remaining-format-versions: done # merged into 9a-1
   # 5
-  9a-4-lossless-bundle-build-gate: review
+  9a-4-lossless-bundle-build-gate: done
   # 6
   9a-pkg-1-receiver-bowling-springboard-packages: backlog
   # merged into 9a-pkg-1 (21 Oct 2026)

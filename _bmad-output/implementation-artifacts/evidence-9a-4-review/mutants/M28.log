@@ -1,0 +1,112 @@
+# mutant M28 on tools/BundleElements/BundleElements.csproj
+diff --git a/tools/BundleElements/BundleElements.csproj b/tools/BundleElements/BundleElements.csproj
+index 367ef9b0..3b3c3209 100644
+--- a/tools/BundleElements/BundleElements.csproj
++++ b/tools/BundleElements/BundleElements.csproj
+@@ -23,7 +23,7 @@
+   <!-- Story 9A.4: every build of this tool generates the bundle, so `dotnet build CuriousContraptions.slnx` fails on an invalid
+        package. The web host builds this project before the Godot export and before publish (GenerateElementBundle). -->
+   <Target Name="RunElementBundleGenerator" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true'">
+-    <Exec Command="&quot;$(BundleHost)&quot; &quot;$(TargetPath)&quot; --root &quot;$(BundleRepositoryRoot)&quot; --out &quot;$(TargetDir)elements.bundle.json&quot; --out &quot;$(BundleRepositoryRoot)parts/elements.bundle.json&quot;" />
++    <Exec Command="&quot;$(BundleHost)&quot; &quot;$(TargetPath)&quot; --root &quot;$(BundleRepositoryRoot)&quot; --out &quot;$(TargetDir)elements.bundle.json&quot; --out &quot;$(BundleRepositoryRoot)parts/elements.bundle.json&quot; --out &quot;$(BundleRepositoryRoot)CuriousContraptions.web/AppBundle/elements.bundle.json&quot;" />
+     <ItemGroup>
+       <FileWrites Include="$(TargetDir)elements.bundle.json" />
+     </ItemGroup>
+# check: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --nologo && dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --nologo --filter FullyQualifiedName~CSharpStaticGateTests
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/bin/Debug/net10.0/Wall.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/bin/Debug/net10.0/Battery.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/parts/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.web/AppBundle/elements.bundle.json (13 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    34, Skipped:     0, Total:    34, Duration: 140 ms - BundleElements.Tests.dll (net10.0)
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.tests/CuriousContraptions.tests.csproj (in 114 ms).
+  22 of 23 projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/bin/Debug/net10.0/Battery.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/bin/Debug/net10.0/Ball.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/bin/Debug/net10.0/Counter.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/parts/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.web/AppBundle/elements.bundle.json (13 elements)
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (3 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:05.43]     CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports [5 ms]
+  Error Message:
+   1 C# static gate violation(s):
+tools/BundleElements/BundleElements.csproj:RunElementBundleGenerator: target changed (hash 5136905cf5976667e4ec33ad0eb0cc53dabea3289fca096c0f1a185c28ae9afb, pinned 5add0e34660e17b63246833c89af8800cd4fb0d7bf09ddf7c34fd408e1f9ddf6)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 249
+   at CuriousContraptions.Tests.CSharpStaticGateTests.RepositoryMsBuildLogicIsOnlyThePinnedTargetsAndImports() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1165
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    88, Skipped:     0, Total:    89, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+# exit=1
+M28 KILLED

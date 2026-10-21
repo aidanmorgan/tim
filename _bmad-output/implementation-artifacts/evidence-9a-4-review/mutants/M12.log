@@ -1,0 +1,38 @@
+# mutant M12 on tools/BundleElements/BundleValidator.cs
+diff --git a/tools/BundleElements/BundleValidator.cs b/tools/BundleElements/BundleValidator.cs
+index 0bfd07f9..c04737ad 100644
+--- a/tools/BundleElements/BundleValidator.cs
++++ b/tools/BundleElements/BundleValidator.cs
+@@ -129,7 +129,7 @@ public static class BundleValidator
+                 Finite($"AnchorPoints[{i}].LocalRotation", anchor.LocalRotation);
+                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
+             }
+-            if (mechanical.Colliders.Count == 0)
++            if (false)
+                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{package}.Colliders: a mechanical body declares no collider"));
+         }
+ 
+# check: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/BundleValidator.cs(133,17): error CS0162: Unreachable code detected [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/BundleElements.csproj]
+# exit=1
+M12 KILLED

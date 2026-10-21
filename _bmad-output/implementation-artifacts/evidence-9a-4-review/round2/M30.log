@@ -1,0 +1,56 @@
+# mutant M30 on tools/BundleElements/BundleValidator.cs
+diff --git a/tools/BundleElements/BundleValidator.cs b/tools/BundleElements/BundleValidator.cs
+index 040d9e83..8740fa64 100644
+--- a/tools/BundleElements/BundleValidator.cs
++++ b/tools/BundleElements/BundleValidator.cs
+@@ -58,7 +58,7 @@ public static class BundleValidator
+             if (footprint.MovingBodies < 0 || footprint.MovingBodies > footprint.Bodies) OutOfRange("Footprint.MovingBodies");
+             if (footprint.PrismaticConstraints < 0) OutOfRange("Footprint.PrismaticConstraints");
+             // Any package with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
+-            if ((footprint.Bodies > 0 || declaration is IMechanicalElement) && declaration.Colliders.Count == 0)
++            if ((declaration is IMechanicalElement) && declaration.Colliders.Count == 0)
+                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{package}.Colliders: a body declares no collider"));
+             for (var i = 0; i < declaration.Ports.Count; i++) Port($"Ports[{i}]", declaration.Ports[i]);
+             for (var i = 0; i < declaration.Colliders.Count; i++) Collider($"Colliders[{i}]", declaration.Colliders[i]);
+# check: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Battery/bin/Debug/net10.0/Battery.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Domino/bin/Debug/net10.0/Domino.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/parts/elements.bundle.json (13 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.57]     CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonMechanicalBodyWithoutAColliderIsRefused [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonMechanicalBodyWithoutAColliderIsRefused [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["BUNDLE004 FixtureLamp.Colliders: a body declares n"···]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonMechanicalBodyWithoutAColliderIsRefused() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements.Tests/BundleValidatorTests.cs:line 51
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    39, Skipped:     0, Total:    40, Duration: 142 ms - BundleElements.Tests.dll (net10.0)
+# exit=1
+M30 KILLED

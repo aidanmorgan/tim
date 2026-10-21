@@ -1605,8 +1605,14 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
-### Story F.14: E2E Runner Selection Follow-ups
+### Story F.14: E2E Runner Selection and Bundle Gate Follow-ups
 *Status: Backlog. Filed by Story 9A.4 on 21 Oct 2026 ([evidence](../implementation-artifacts/evidence-9a-4/runner-select-diff-844981c9.txt)).*
+- *It also covers the 9A.4 review findings:*
+  - *deletion ratchets: an empty property bag, an ignored bundle file, the runner rule (F14-2);*
+  - *mass and inertia parity (F14-3);*
+  - *rejecting an empty element id (F14-4);*
+  - *a Release generator build (F14-6);*
+  - *a randomised-order test run (F14-8).*
 
 **Acceptance Criteria:**
 - `select --diff` and `run --diff` let a path that forces Full win over a `NoPrimarySuite` refusal raised by another path. Today `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball`, although the same diff touches the Abstractions, `tools/BundleElements` and `tools/E2eRunner`, each of which selects Full.
@@ -2509,7 +2515,7 @@ So that a stalled connection stops the run in a predictable way.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.4: Lossless Bundle Build Gate
-*Status: Review (Amelia-16, 21 Oct 2026; [spec and evidence](../implementation-artifacts/spec-9a-4-lossless-bundle-build-gate.md)).*
+*Status: Done (21 Oct 2026). Murdoch-17 gave a scoped Pass in round 2, on `1ba4eb95` ([review](../implementation-artifacts/review-9a-4-lossless-bundle-build-gate.md); [spec and evidence](../implementation-artifacts/spec-9a-4-lossless-bundle-build-gate.md)). Findings F14-1 to F14-8 are filed to Story F.14.*
 
 *Depends on: Story 9R.5b (the current tree). Position 5. The former dependency on Story 9A.0 recorded number order only (corrected 21 Oct 2026). Audit: A13 (build side), A14, G10.*
 
