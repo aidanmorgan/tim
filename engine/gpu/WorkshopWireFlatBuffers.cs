@@ -13,6 +13,57 @@ namespace CuriousContraptions.Gpu;
 /// <see cref="WireFaultException"/> naming why. Nothing else decodes these messages.</summary>
 public static class WorkshopWireFlatBuffers
 {
+
+    /// <summary>Content uses the same current record constructor as wire input, after strict content/package admission.</summary>
+    internal static IWorkshopInstance MapAuthoredInstance(AuthoredInstanceTemplate template, GpuBodyId id)
+    {
+        var builder = new FlatBufferBuilder(512);
+        var part = builder.CreateString(template.Part.Value);
+        var parameterOffsets = template.Parameters.Select(pair =>
+            ParameterRecord.CreateParameterRecord(builder, builder.CreateString(pair.Key.Value), pair.Value)).ToArray();
+        var parameters = InstanceRecord.CreateParametersVector(builder, parameterOffsets);
+        var values = template.Scalars;
+        InstanceRecord.StartInstanceRecord(builder);
+        InstanceRecord.AddId(builder, id.Value);
+        InstanceRecord.AddPartId(builder, part);
+        InstanceRecord.AddLocked(builder, template.Locked);
+        InstanceRecord.AddCell(builder, Vec3i.CreateVec3i(builder, template.Cell.X, template.Cell.Y, template.Cell.Z));
+        InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, template.Local.X, template.Local.Y, template.Local.Z));
+        InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, template.Rotation.X, template.Rotation.Y, template.Rotation.Z, template.Rotation.W));
+        InstanceRecord.AddRadius(builder, values[AuthoredScalar.Radius]);
+        InstanceRecord.AddMass(builder, values[AuthoredScalar.Mass]);
+        InstanceRecord.AddBounce(builder, values[AuthoredScalar.Bounce]);
+        InstanceRecord.AddDrag(builder, values[AuthoredScalar.Drag]);
+        InstanceRecord.AddBuoyancy(builder, values[AuthoredScalar.Buoyancy]);
+        InstanceRecord.AddMargin(builder, values[AuthoredScalar.Margin]);
+        InstanceRecord.AddSpeedLimit(builder, values[AuthoredScalar.SpeedLimit]);
+        InstanceRecord.AddDwell(builder, values[AuthoredScalar.Dwell]);
+        InstanceRecord.AddParticipation(builder, (uint)template.Participation);
+        InstanceRecord.AddForceMin(builder, Vec3f.CreateVec3f(builder, template.ForceMinimum.X, template.ForceMinimum.Y, template.ForceMinimum.Z));
+        InstanceRecord.AddForceMax(builder, Vec3f.CreateVec3f(builder, template.ForceMaximum.X, template.ForceMaximum.Y, template.ForceMaximum.Z));
+        InstanceRecord.AddSupportHeight(builder, values[AuthoredScalar.SupportHeight]);
+        InstanceRecord.AddSupportMargin(builder, values[AuthoredScalar.SupportMargin]);
+        InstanceRecord.AddMaxAcceleration(builder, values[AuthoredScalar.MaximumAcceleration]);
+        InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
+        InstanceRecord.AddWidth(builder, values[AuthoredScalar.Width]);
+        InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
+        InstanceRecord.AddStiffness(builder, values[AuthoredScalar.Stiffness]);
+        InstanceRecord.AddDamping(builder, values[AuthoredScalar.Damping]);
+        InstanceRecord.AddInitialCompression(builder, values[AuthoredScalar.InitialCompression]);
+        InstanceRecord.AddCapacity(builder, values[AuthoredScalar.Capacity]);
+        InstanceRecord.AddMaximumPower(builder, values[AuthoredScalar.MaximumPower]);
+        InstanceRecord.AddInitialFraction(builder, values[AuthoredScalar.InitialFraction]);
+        InstanceRecord.AddEnabled(builder, (byte)template.Enabled);
+        InstanceRecord.AddStrength(builder, values[AuthoredScalar.Strength]);
+        InstanceRecord.AddReferenceMass(builder, values[AuthoredScalar.ReferenceMass]);
+        InstanceRecord.AddPreload(builder, values[AuthoredScalar.Preload]);
+        InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, template.HalfExtents.X, template.HalfExtents.Y, template.HalfExtents.Z));
+        InstanceRecord.AddFriction(builder, values[AuthoredScalar.Friction]);
+        InstanceRecord.AddTargetCount(builder, template.TargetCount);
+        InstanceRecord.AddParameters(builder, parameters);
+        builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
+        return MapInstance(InstanceRecord.GetRootAsInstanceRecord(new ByteBuffer(builder.SizedByteArray())));
+    }
     public const string CommandIdentifier = "CCWC";
     public const string ResponseIdentifier = "CCWR";
     private const int IdentifierOffset = FlatBufferConstants.SizePrefixLength + sizeof(int);
@@ -513,22 +564,23 @@ public static class WorkshopWireFlatBuffers
         if (validate) construction.Validate();
 
         Offset<PuzzleRecord>? puzzleOffset = null;
-        if (construction.Puzzle.Id != WorkshopPuzzleId.Free)
+        if (construction.Puzzle.Id.IsAuthored)
         {
             var puzzle = construction.Puzzle;
+            var puzzleIdOffset = builder.CreateString(puzzle.Id.Value);
             var invPartOffset = puzzle.InventoryPart.Value != null ? builder.CreateString(puzzle.InventoryPart.Value) : default;
 
             var assistanceBytes = new byte[WorkshopPuzzleWire.AssistanceBytes];
-            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(0, WorkshopPuzzleWire.ProfileBytes), puzzle.BallAssistance);
-            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes), puzzle.ReceiverAssistance);
-            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(2 * WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes), puzzle.RampAssistance);
+            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(0, WorkshopPuzzleWire.ProfileBytes), puzzle.PrimaryAssistance);
+            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes), puzzle.TargetAssistance);
+            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(2 * WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes), puzzle.PlacementAssistance);
             var assistVec = PuzzleRecord.CreateRawAssistanceVector(builder, assistanceBytes);
 
             var goalBody = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.SourceNode.Value : puzzle.Goal.Body.Value;
             var goalTarget = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.TargetNode.Value : puzzle.Goal.Target.Value;
 
             PuzzleRecord.StartPuzzleRecord(builder);
-            PuzzleRecord.AddId(builder, (uint)puzzle.Id);
+            PuzzleRecord.AddId(builder, puzzleIdOffset);
             PuzzleRecord.AddPlacement(builder, (uint)puzzle.Placement);
             PuzzleRecord.AddPrecision(builder, (float)puzzle.Precision.Value);
             if (puzzle.InventoryPart.Value != null) PuzzleRecord.AddInventoryPart(builder, invPartOffset);
@@ -676,7 +728,7 @@ public static class WorkshopWireFlatBuffers
             new PulseRate(s.PresentationRateNumerator, s.PresentationRateDenominator));
 
         WorkshopPuzzle puzzle = default;
-        if (cr.Puzzle is { } p && (WorkshopPuzzleId)p.Id != WorkshopPuzzleId.Free)
+        if (cr.Puzzle is { } p)
         {
             var kind = (WorkshopGoalKind)p.GoalKind;
             var sensor = new GpuSensorId(p.GoalEventSource);
@@ -686,7 +738,7 @@ public static class WorkshopWireFlatBuffers
             var assistance = p.GetRawAssistanceArray();
             if (assistance is not { Length: WorkshopPuzzleWire.AssistanceBytes })
                 throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its three assistance profiles.");
-            puzzle = new WorkshopPuzzle((WorkshopPuzzleId)p.Id, (WorkshopPlacementMode)p.Placement, new((Half)p.Precision),
+            puzzle = new WorkshopPuzzle(new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity.")), (WorkshopPlacementMode)p.Placement, new((Half)p.Precision),
                 p.InventoryPart != null ? new PartId(p.InventoryPart) : default, p.InventoryCount, goal,
                 WorkshopPuzzleWire.ReadProfile(assistance.AsSpan(0, WorkshopPuzzleWire.ProfileBytes)),
                 WorkshopPuzzleWire.ReadProfile(assistance.AsSpan(WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes)),

@@ -252,9 +252,9 @@ development_status:
   # merged into 9a-c-switch (21 Oct 2026) as its suite-first guard; threshold editor via the generic editor
   9r-15-cat-063-impact-switch-suite: done # native scoped Pass; Chrome qualification post-catalogue
   # 21 (element). Owner decision 18 Oct 2026 (open scheduling item b): Switch electrical mode before the Both gate.
-  9-5b-impact-switch-electrical-mode: review
+  9-5b-impact-switch-electrical-mode: done
   # 22 (deletion)
-  9a-26-lessons-as-content-data: backlog
+  9a-26-lessons-as-content-data: review
   # 23 (element)
   9-6-dual-supply-both-gate: backlog
   # 24 (deletion)

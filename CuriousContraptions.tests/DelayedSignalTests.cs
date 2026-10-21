@@ -11,20 +11,12 @@ public sealed class DelayedSignalTests
     public void AuthoredSourceIdentityRejectsMalformedUnknownMissingAndDuplicateFieldsAtomically()
     {
         var before = Lesson((Half).45);
-        var fixture = AuthoredParameterFixture.Load("content.fixtures.delayed_signal_source.json");
+        var fixture = PuzzleCatalogue.Definition(new("delayed_signal")).Placements[1].Instance;
         Assert.Equal(PartId.ImpactSwitch, fixture.Part);
-        Assert.Equal(new ParameterId("trigger_threshold"), fixture.Parameter);
-        foreach (var json in new[]
-        {
-            "{}", "[]", "{\"part\":\"switch\"}",
-            "{\"part\":\"unknown\",\"parameter\":\"trigger_threshold\"}",
-            "{\"part\":\"switch\",\"parameter\":\"unknown\"}",
-            "{\"part\":\"switch\",\"part\":\"switch\",\"parameter\":\"trigger_threshold\"}",
-            "{\"part\":\"switch\",\"parameter\":\"trigger_threshold\",\"extra\":\"x\"}",
-            "{\"part\":1,\"parameter\":\"trigger_threshold\"}"
-        }) Assert.Throws<ArgumentException>(() => AuthoredParameterFixture.Parse(json));
-        Assert.ThrowsAny<JsonException>(() => AuthoredParameterFixture.Parse("{"));
-        Assert.Throws<System.IO.InvalidDataException>(() => AuthoredParameterFixture.Load("missing.fixture"));
+        Assert.True(fixture.Parameters.ContainsKey(new("trigger_threshold")));
+        foreach (var json in new[] { "{}", "[]", "[{\"id\":\"x\",\"id\":\"x\"}]" })
+            Assert.Throws<System.IO.InvalidDataException>(() => PuzzleContentReader.ReadIndex(json));
+        Assert.ThrowsAny<JsonException>(() => PuzzleContentReader.ReadIndex("{"));
         Assert.Equal(before, Lesson((Half).45));
         var reversed = before with { Instances = new(before.Instances.Reverse().ToArray()) };
         reversed.Validate(); // source lookup uses identity, not first generic-instance position.
@@ -45,7 +37,7 @@ public sealed class DelayedSignalTests
     }
 
     private static WorkshopConstruction Lesson(Half precision) =>
-        DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new(precision));
+        PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
 
     [Theory]
     [InlineData(0, .2)]
@@ -72,7 +64,7 @@ public sealed class DelayedSignalTests
         Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Receiver(new(5),0,1,0,0,0,0,1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked=false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDelay=new((Half).5) } } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDelay=new((Half).5) } } }).Validate());
     }
 
     [Theory]
@@ -129,18 +121,18 @@ public sealed class DelayedSignalTests
         using var source=JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(),"content/puzzles.json")));
         var level=source.RootElement.EnumerateArray().Single(p=>p.GetProperty("id").GetString()=="delayed_signal");
         Assert.Equal("Wait for it",level.GetProperty("title").GetString());
-        Assert.Equal(1,level.GetProperty("inventory").GetProperty("delay").GetInt32());
-        var goal=level.GetProperty("goals")[0];
-        Assert.Equal("activated_after",goal.GetProperty("type").GetString());
-        Assert.Equal("switch",goal.GetProperty("body").GetString());
-        Assert.Equal("lamp",goal.GetProperty("target").GetString());
-        Assert.Equal(1,goal.GetProperty("minimum_delay_seconds").GetInt32());
-        foreach(var part in level.GetProperty("parts").EnumerateArray())
+        Assert.Equal(1,level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "delay").GetProperty("count").GetInt32());
+        var goal=level.GetProperty("goal");
+        Assert.Equal("ActivatedAfter",goal.GetProperty("kind").GetString());
+        Assert.Equal("fixture_2",goal.GetProperty("source").GetString());
+        Assert.Equal("fixture_3",goal.GetProperty("target").GetString());
+        Assert.Equal(1,goal.GetProperty("minimum_seconds").GetInt32());
+        foreach(var part in level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")))
         {
             Assert.True(part.GetProperty("locked").GetBoolean());
-            Check(part.GetProperty("difficulty"),DelayedSignal.FixedAssistance);
+            AuthoredContentAssertions.Profile(part.GetProperty("assistance"),PuzzleCatalogue.Definition(new("delayed_signal")).Placements[1].Instance.Assistance);
         }
-        Check(level.GetProperty("solution")[0].GetProperty("difficulty"),DelayedSignal.DelayAssistance);
+        Check(level.GetProperty("solution")[0].GetProperty("difficulty"),PuzzleCatalogue.Definition(new("delayed_signal")).Inventory[0].Assistance);
         static void Check(JsonElement data,AssistanceProfile profile)
         {
             var knots=new[]{profile.Forgiving,profile.Balanced,profile.Precise};

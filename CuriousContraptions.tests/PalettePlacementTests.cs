@@ -240,8 +240,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var world = DiscoveredWorld();
         try
         {
-            var lesson = SpringboardLessons.Create(WorkshopPuzzleId.ReadyToRebound, new(1), WorkshopCadenceSettings.Default(),
-                new(1), new(2), new(3), new((Half).5));
+            var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).5));
             typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world, lesson);
             var undo = 0;
             // The Receiver captures, but the lesson's Receiver composition refuses an identity outside the authored domain.
@@ -322,6 +321,30 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     {
         scene.Free();
         godot.Engine.Iteration();
+    }
+
+    [Fact]
+    public void PuzzleSelectionReservesIdentityBeforeSubmittingOrChangingUndo()
+    {
+        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        try
+        {
+            var id = new PuzzleId("first_principles");
+            var count = (ulong)PuzzleCatalogue.Definition(id).Placements.Length;
+            var exhausted = new GpuBodyId(ulong.MaxValue - count + 1);
+            SetField(scene, "_nextId", exhausted);
+            var before = scene.World.Construction;
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo");
+            undo.Add(before);
+            Assert.Empty(InvokeHandler(scene, "SelectModeFromPicker", Array.IndexOf(Field<PuzzleId[]>(scene, "_puzzleChoices"), id)));
+            Assert.Equal(before, scene.World.Construction);
+            Assert.Equal(exhausted, Field<GpuBodyId>(scene, "_nextId"));
+            Assert.Single(undo);
+            Assert.Empty(client.Commands);
+            Assert.Equal("Puzzle identities are exhausted.", Field<Label>(scene, "_status").Text);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
     }
 
     [Fact]

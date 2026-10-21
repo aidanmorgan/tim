@@ -957,11 +957,11 @@ public sealed class WorkshopWireTests
     [InlineData(1)]
     public void GuideDeclarationPreservesAuthoredKnotsAndRejectsCandidateMutation(double precision)
     {
-        var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)precision));
+        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)precision));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         Assert.Equal(1, scene.Guides.Length);
         var guide = scene.Guides[0];
-        var knot = construction.Puzzle.ReceiverAssistance.Evaluate(construction.Puzzle.Precision);
+        var knot = construction.Puzzle.TargetAssistance.Evaluate(construction.Puzzle.Precision);
         Assert.Equal(construction.Puzzle.Goal.Body, guide.Target);
         Assert.Equal(construction.Puzzle.Goal.Target, guide.Frame);
         Assert.Equal(knot.GuideAcceleration, guide.MaximumAcceleration);
@@ -986,7 +986,7 @@ public sealed class WorkshopWireTests
     [Fact]
     public void GuideAdmissionRejectsUnsupportedOrAmbiguousForceOwnership()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)0)), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0)), new(1, 2));
         var guide = scene.Guides[0];
         PhysicsSceneDeclaration Replace(params PlanarGuideDeclaration[] values) => new(scene.Document, scene.NextIdentity,
             scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, values);

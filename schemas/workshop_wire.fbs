@@ -298,7 +298,7 @@ table InstanceRecord {
 }
 
 table PuzzleRecord {
-    id: uint32;
+    id: string (required);
     placement: uint32;
     precision: float;
     inventory_part: string;

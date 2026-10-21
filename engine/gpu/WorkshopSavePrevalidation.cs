@@ -256,10 +256,10 @@ internal static class WorkshopSavePrevalidation
     private static void CheckPuzzle(ConstructionRecord record, IReadOnlySet<PartId> elements)
     {
         if (record.Puzzle is not { } p) return;
-        var puzzle = (WorkshopPuzzleId)p.Id;
-        if (!Enum.IsDefined(puzzle) || !Enum.IsDefined((WorkshopPlacementMode)p.Placement) || !Enum.IsDefined((WorkshopGoalKind)p.GoalKind))
+        if (string.IsNullOrWhiteSpace(p.Id))
+            throw Refuse(WorkshopSaveRejection.MissingField, "The saved puzzle lacks an authored identity.");
+        if (!Enum.IsDefined((WorkshopPlacementMode)p.Placement) || !Enum.IsDefined((WorkshopGoalKind)p.GoalKind))
             throw Refuse(WorkshopSaveRejection.UndefinedEnum, "The saved puzzle names an undefined puzzle, placement or goal.");
-        if (puzzle == WorkshopPuzzleId.Free) throw Refuse(WorkshopSaveRejection.OutOfRange, "A Free Workshop save carries puzzle settings.");
         if (!float.IsFinite(p.Precision) || !float.IsFinite(p.GoalDelay))
             throw Refuse(WorkshopSaveRejection.NonFinite, "The saved puzzle has a non-finite precision or goal delay.");
         if (p.RawAssistanceLength != WorkshopPuzzleWire.AssistanceBytes)

@@ -13,7 +13,7 @@ namespace CuriousContraptions.Tests;
 public sealed class PipeBend90Tests(NativeSceneFixture godot)
 {
     private static WorkshopConstruction Lesson(Half precision) =>
-        QuarterBend.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new(precision));
+        PuzzleCatalogue.Create(new("quarter_bend"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
 
     [Fact]
     public void PartRegistry_DiscoversPipeBend90DefinitionAndConfiguresInstance()
@@ -219,24 +219,24 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         using var source = JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(p => p.GetProperty("id").GetString() == "quarter_bend");
         Assert.Equal("Around the corner", level.GetProperty("title").GetString());
-        Assert.Equal(1, level.GetProperty("inventory").GetProperty("pipe_bend_90").GetInt64());
+        Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "pipe_bend_90").GetProperty("count").GetInt64());
 
         var construction = Lesson((Half)0);
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
 
-        var fixtures = level.GetProperty("parts");
-        CheckSourcePose(fixtures[0], construction.Ball!.Value.Cell, construction.Ball!.Value.Local, construction.Ball!.Value.Rotation);
-        CheckSourcePose(fixtures[1], construction.Receiver!.Value.Cell, construction.Receiver!.Value.Local, construction.Receiver!.Value.Rotation);
+        var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
+        AuthoredContentAssertions.Placement(fixtures[0], construction.Ball!.Value);
+        AuthoredContentAssertions.Placement(fixtures[1], construction.Receiver!.Value);
         Assert.True(construction.Ball!.Value.Locked && construction.Receiver!.Value.Locked);
 
-        CheckProfile(fixtures[0].GetProperty("difficulty"), construction.Puzzle.BallAssistance);
-        CheckProfile(fixtures[1].GetProperty("difficulty"), construction.Puzzle.ReceiverAssistance);
+        AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
+        AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
 
         var solution = level.GetProperty("solution").EnumerateArray().ToArray();
         CheckProfile(solution.Single(v => v.GetProperty("kind").GetString() == "pipe_bend_90").GetProperty("difficulty"),
-            construction.Puzzle.BendAssistance);
+            construction.Puzzle.PlacementAssistance);
 
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
         Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PipeBend90]);
@@ -268,7 +268,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(pipe).Validate());
 
         // Tampering with assistance profiles is rejected
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
     }
 
@@ -295,7 +295,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
 
-        var updated = QuarterBend.WithPrecision(placed, new((Half)0.45));
+        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
         Assert.Equal((Half)0.174, updated.Receiver!.Value.Capture.Margin.Value);
     }
 
@@ -320,20 +320,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal(scene.Sensors[0].Id, placed.Puzzle.Goal.EventSource);
     }
 
-    private static void CheckSourcePose(JsonElement source, CellOrigin cell,
-        LocalPosition local, CanonicalRotation rotation)
-    {
-        var position = source.GetProperty("position");
-        Assert.InRange(Math.Abs((cell.X + (double)local.X) / 16 - position[0].GetDouble()), 0, .001);
-        Assert.InRange(Math.Abs((cell.Y + (double)local.Y) / 16 - position[1].GetDouble()), 0, .001);
-        Assert.InRange(Math.Abs((cell.Z + (double)local.Z) / 16 - position[2].GetDouble()), 0, .001);
-        var q = new Godot.Quaternion((float)rotation.X, (float)rotation.Y, (float)rotation.Z, (float)rotation.W).Normalized();
-        var basis = new Godot.Basis(q);
-        var orientation = source.GetProperty("orientation");
-        for (var column = 0; column < 3; column++)
-            for (var row = 0; row < 3; row++)
-                Assert.InRange(Math.Abs(basis[column][row] - orientation[column * 3 + row].GetDouble()), 0, .002);
-    }
+
 
     private static void CheckProfile(JsonElement data, AssistanceProfile profile)
     {

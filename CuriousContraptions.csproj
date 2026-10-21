@@ -1,5 +1,6 @@
 <Project Sdk="Godot.NET.Sdk/4.7.2">
-    <ItemGroup><EmbeddedResource Include="content/fixtures/delayed_signal_source.json" LogicalName="content.fixtures.delayed_signal_source.json" /></ItemGroup>
+    <ItemGroup>
+    <EmbeddedResource Include="content/puzzles.json" LogicalName="CuriousContraptions.Puzzles.json" /></ItemGroup>
     <ItemGroup><InternalsVisibleTo Include="CuriousContraptions.tests" /></ItemGroup>
     <PropertyGroup>
         <Nullable>enable</Nullable>

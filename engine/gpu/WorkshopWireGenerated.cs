@@ -727,7 +727,13 @@ public struct PuzzleRecord : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
   public PuzzleRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public uint Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public string Id { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetIdBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetIdBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetIdArray() { return __p.__vector_as_array<byte>(4); }
   public uint Placement { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public float Precision { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public string InventoryPart { get { int o = __p.__offset(10); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
@@ -753,7 +759,7 @@ public struct PuzzleRecord : IFlatbufferObject
   public byte[] GetRawAssistanceArray() { return __p.__vector_as_array<byte>(24); }
 
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> CreatePuzzleRecord(FlatBufferBuilder builder,
-      uint id = 0,
+      StringOffset idOffset = default(StringOffset),
       uint placement = 0,
       float precision = 0.0f,
       StringOffset inventory_partOffset = default(StringOffset),
@@ -775,12 +781,12 @@ public struct PuzzleRecord : IFlatbufferObject
     PuzzleRecord.AddInventoryPart(builder, inventory_partOffset);
     PuzzleRecord.AddPrecision(builder, precision);
     PuzzleRecord.AddPlacement(builder, placement);
-    PuzzleRecord.AddId(builder, id);
+    PuzzleRecord.AddId(builder, idOffset);
     return PuzzleRecord.EndPuzzleRecord(builder);
   }
 
   public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
-  public static void AddId(FlatBufferBuilder builder, uint id) { builder.AddUint(0, id, 0); }
+  public static void AddId(FlatBufferBuilder builder, StringOffset idOffset) { builder.AddOffset(0, idOffset.Value, 0); }
   public static void AddPlacement(FlatBufferBuilder builder, uint placement) { builder.AddUint(1, placement, 0); }
   public static void AddPrecision(FlatBufferBuilder builder, float precision) { builder.AddFloat(2, precision, 0.0f); }
   public static void AddInventoryPart(FlatBufferBuilder builder, StringOffset inventoryPartOffset) { builder.AddOffset(3, inventoryPartOffset.Value, 0); }
@@ -798,6 +804,7 @@ public struct PuzzleRecord : IFlatbufferObject
   public static void StartRawAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> EndPuzzleRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
+    builder.Required(o, 4);  // id
     return new Offset<CuriousContraptions.Wire.PuzzleRecord>(o);
   }
 }
@@ -808,7 +815,7 @@ static public class PuzzleRecordVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyField(tablePos, 4 /*Id*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyString(tablePos, 4 /*Id*/, true)
       && verifier.VerifyField(tablePos, 6 /*Placement*/, 4 /*uint*/, 4, false)
       && verifier.VerifyField(tablePos, 8 /*Precision*/, 4 /*float*/, 4, false)
       && verifier.VerifyString(tablePos, 10 /*InventoryPart*/, false)

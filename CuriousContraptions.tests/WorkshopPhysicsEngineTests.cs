@@ -347,7 +347,7 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(3.5, false)] // control: a Receiver far beyond the launch arc never captures
     public void ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(double offset, bool captures)
     {
-        var lesson = SpringboardLessons.Create(WorkshopPuzzleId.SpringForward, new(1), Settings, new(1), new(2), new(3), new((Half)0));
+        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), Settings, new(1), new((Half)0));
         var construction = lesson.WithInstance(WorkshopInput.Springboard(new(3), -3, .8, 0,
             0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default));
         var receiver = construction.Receiver!.Value;

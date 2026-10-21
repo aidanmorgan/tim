@@ -5,6 +5,141 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopSaveTests
 {
+
+    public enum ContentDamage { UnknownPart, UnknownParameter, MissingParameter, OutOfRange, MissingField, WrongBoolean, ForeignGoal, UnknownField, UndefinedState }
+
+    [Theory]
+    [InlineData(ContentDamage.UnknownPart)]
+    [InlineData(ContentDamage.UnknownParameter)]
+    [InlineData(ContentDamage.MissingParameter)]
+    [InlineData(ContentDamage.OutOfRange)]
+    [InlineData(ContentDamage.MissingField)]
+    [InlineData(ContentDamage.WrongBoolean)]
+    [InlineData(ContentDamage.ForeignGoal)]
+    [InlineData(ContentDamage.UnknownField)]
+    [InlineData(ContentDamage.UndefinedState)]
+    public void ContentLoadRejectsMalformedDeclarationsBeforeExposure(ContentDamage damage)
+    {
+        _ = SaveFixture.Elements;
+        var before = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half).45));
+        var content = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")))!.AsArray();
+        var entry = content.Single(row => row!["id"]!.GetValue<string>() == "delayed_signal")!;
+        var instance = entry["placements"]![1]!["instance"]!;
+        switch (damage)
+        {
+            case ContentDamage.UnknownPart: instance["part"] = "unknown"; break;
+            case ContentDamage.UnknownParameter: instance["parameters"]!["unknown"] = 1; break;
+            case ContentDamage.MissingParameter: instance["parameters"]!.AsObject().Remove("trigger_threshold"); break;
+            case ContentDamage.OutOfRange: instance["parameters"]!["trigger_threshold"] = 65; break;
+            case ContentDamage.MissingField: instance.AsObject().Remove("rotation"); break;
+            case ContentDamage.WrongBoolean: instance["locked"] = "true"; break;
+            case ContentDamage.ForeignGoal: entry["goal"]!["source"] = "foreign"; break;
+            case ContentDamage.UnknownField: entry["extra"] = 1; break;
+            case ContentDamage.UndefinedState: instance["enabled"] = 256; break;
+            default: throw new ArgumentOutOfRangeException(nameof(damage));
+        }
+        var error = Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(content.ToJsonString()));
+        Assert.Contains("delayed_signal", error.Message);
+        Assert.Equal(before, PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half).45)));
+    }
+
+    [Fact]
+    public void ContentLoadRejectsEmptyDuplicateAndNoPlayableCatalogue()
+    {
+        _ = SaveFixture.Elements;
+        Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions("[]"));
+        var json = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json"));
+        Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(json.Replace("\"part\": \"ball\"", "\"part\": \"ball\", \"part\": \"ball\"")));
+        Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(json.Replace("\"availability\": \"Playable\"", "\"availability\": \"Planned\"")));
+        Assert.Equal(12, PuzzleCatalogue.ReadDefinitions(json).Count);
+    }
+
+    public enum PlacedConfigurationDamage { Capture, ForceBounds, SupportHeight, Participation }
+
+    [Theory]
+    [InlineData(PlacedConfigurationDamage.Capture)]
+    [InlineData(PlacedConfigurationDamage.ForceBounds)]
+    [InlineData(PlacedConfigurationDamage.SupportHeight)]
+    [InlineData(PlacedConfigurationDamage.Participation)]
+    public void PlacedGoalConfigurationRejectsForgeryButPreservesPlayerPose(PlacedConfigurationDamage damage)
+    {
+        _ = SaveFixture.Elements;
+        var initial = PuzzleCatalogue.Create(new("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
+        var input = WorkshopInput.Receiver(new(8), 2.25, 1.75, .5, 0, 0, 0, 1);
+        var valid = initial.WithInstance(input); valid.Validate();
+        var receiver = valid.Receiver!.Value;
+        Assert.Equal(input.Cell, receiver.Cell); Assert.Equal(input.Local, receiver.Local); Assert.Equal(input.Rotation, receiver.Rotation);
+        Assert.Equal(receiver.Id, valid.Puzzle.Goal.Target);
+        var saved = new WorkshopSavedConstruction(valid, new(9));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
+        var forged = damage switch
+        {
+            PlacedConfigurationDamage.Capture => receiver with { Capture = receiver.Capture with { Margin = new((Half).1) } },
+            PlacedConfigurationDamage.ForceBounds => receiver with { ForceRegion = receiver.ForceRegion with { Maximum = new((Half)2, (Half)2, (Half)2) } },
+            PlacedConfigurationDamage.SupportHeight => receiver with { ForceRegion = receiver.ForceRegion with { SupportHeight = new((Half).75) } },
+            PlacedConfigurationDamage.Participation => receiver with { Capture = receiver.Capture with { Participation = SensorParticipation.Disabled } },
+            _ => throw new ArgumentOutOfRangeException(nameof(damage))
+        };
+        var bad = valid with { Instances = valid.Instances.With(forged) };
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, bad.Validate);
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, bad, validate: false);
+        var bytes = SaveFixture.Finish(builder, record, 9);
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
+    }
+
+    [Fact]
+    public void ContentPreservesPrechangeLessonGeometryInventoryAndProfiles()
+    {
+        _ = SaveFixture.Elements;
+        var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true, WriteIndented = true };
+        var rows = new List<System.Text.Json.Nodes.JsonNode>();
+        foreach (var value in new[] { (Half)0, (Half).45, (Half)1 })
+        {
+            var settings = WorkshopCadenceSettings.Default();
+            var p = new PuzzlePrecision(value);
+            (string Id, WorkshopConstruction Construction)[] lessons =
+            [
+                ("first_principles", PuzzleCatalogue.Create(new("first_principles"), new(1), settings, new(11), p)),
+                ("spring_forward", PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), settings, new(11), p)),
+                ("ready_to_rebound", PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), settings, new(11), p)),
+                ("bumper_sidekick", PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), settings, new(11), p)),
+                ("bumper_depth", PuzzleCatalogue.Create(new PuzzleId("bumper_depth"), new(1), settings, new(11), p)),
+                ("wall_and_bumper", PuzzleCatalogue.Create(new PuzzleId("wall_and_bumper"), new(1), settings, new(11), p)),
+                ("domino_effect", PuzzleCatalogue.Create(new("domino_effect"), new(1), settings, new(11), p)),
+                ("delayed_signal", PuzzleCatalogue.Create(new("delayed_signal"), new(1), settings, new(11), p)),
+                ("clear_pipe", PuzzleCatalogue.Create(new("clear_pipe"), new(1), settings, new(11), p)),
+                ("gentle_bend", PuzzleCatalogue.Create(new("gentle_bend"), new(1), settings, new(11), p)),
+                ("quarter_bend", PuzzleCatalogue.Create(new("quarter_bend"), new(1), settings, new(11), p)),
+                ("joined_pipe", PuzzleCatalogue.Create(new("joined_pipe"), new(1), settings, new(11), p))
+            ];
+            foreach (var (id, construction) in lessons)
+            {
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var puzzle = construction.Puzzle;
+                rows.Add(System.Text.Json.JsonSerializer.SerializeToNode(new
+                {
+                    Id = id, Precision = (float)value,
+                    Instances = construction.Instances.Select(instance =>
+                        instance is WorkshopGenericInstance generic
+                            ? System.Text.Json.JsonSerializer.SerializeToNode(new { generic.PartId, generic.Id, generic.Cell, generic.Local, generic.Rotation, generic.Locked, Parameters = generic.Parameters.Select(pair => new { Key = pair.Key.Value, pair.Value }).ToArray() }, options)
+                            : System.Text.Json.JsonSerializer.SerializeToNode(instance, instance.GetType(), options)).ToArray(),
+                    Inventory = WorkshopInventoryPolicy.Authored(puzzle).Select(pair => new { Part = pair.Key.Value, pair.Value }).ToArray(),
+                    puzzle.Goal, BallAssistance = puzzle.PrimaryAssistance, ReceiverAssistance = puzzle.TargetAssistance, RampAssistance = puzzle.PlacementAssistance, WallAssistance = puzzle.SecondaryAssistance,
+                    Bodies = scene.Bodies.ToArray(), Colliders = scene.Colliders.ToArray(),
+                    Materials = scene.Materials.ToArray(), Prismatics = scene.Prismatics.ToArray()
+                }, options)!);
+            }
+        }
+        Assert.Equal(36, rows.Count);
+        var baseline = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(
+            twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures/lessons-484ec38.json")))!.AsArray();
+        Assert.Equal(baseline.Count, rows.Count);
+        for (var i = 0; i < rows.Count; i++)
+            Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(baseline[i], rows[i]),
+                $"Lesson golden differs at {rows[i]["Id"]}, precision {rows[i]["Precision"]}.");
+    }
     // Every malformed stored save, in a deterministic corpus (each truncation, each single-bit flip and seeded random
     // buffers of a valid save with parts and connections), decodes or is the typed save refusal; nothing else escapes.
     [Fact]
@@ -41,7 +176,7 @@ public sealed class WorkshopSaveTests
     [InlineData(1)]
     public void ReceiverForceRegionSurvivesSaveAndCompilesWithoutPuzzleSelection(double precision)
     {
-        var receiver = FirstPrinciples.Receiver(new(3), new((Half)precision)) with { Locked = false };
+        var receiver = ((WorkshopReceiver)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(new(3), new((Half)precision))) with { Locked = false };
         var construction = Saved().Construction.WithInstance(receiver);
         var saved = new WorkshopSavedConstruction(construction, new(7));
         var bytes = WorkshopSaveCodec.Encode(saved);
@@ -255,7 +390,7 @@ public sealed class WorkshopSaveTests
     public void FirstPrinciplesSettingsAndTwoRampsRoundTripAtEveryAuthoredKnot(double value)
     {
         var precision = new PuzzlePrecision((Half)value);
-        var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(11), new(12), precision);
+        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(11), precision);
         var a = WorkshopInput.Ramp(new(13), -3.4, 4.3, 0, 0, 0, 0, 1, RampDimensions.Default);
         var b = WorkshopInput.Ramp(new(14), -.7, 2.7, 0, 0, 0, 0, 1, new(new((Half)2.5), new((Half)1)));
         construction = construction.WithInstance(a).WithInstance(b);
@@ -267,13 +402,13 @@ public sealed class WorkshopSaveTests
         Assert.Equal(new GpuBodyId(11), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(12), construction.Puzzle.Goal.Target);
         Assert.Equal(2u, construction.Puzzle.InventoryCount);
-        var updated = FirstPrinciples.WithPrecision(construction, new((Half).5));
+        var updated = PuzzleCatalogue.WithPrecision(construction, new((Half).5));
         Assert.Equal(a, updated.Instances[2]); Assert.Equal(b, updated.Instances[3]);
         Assert.Equal(construction.Puzzle.Goal, updated.Puzzle.Goal);
         foreach (var knot in new[] { (Half)0, (Half).45, (Half)1 })
         {
-            updated = FirstPrinciples.WithPrecision(updated, new(knot));
-            var expected = FirstPrinciples.Receiver(construction.Puzzle.Goal.Target, new(knot));
+            updated = PuzzleCatalogue.WithPrecision(updated, new(knot));
+            var expected = ((WorkshopReceiver)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(construction.Puzzle.Goal.Target, new(knot)));
             Assert.Equal(expected, updated.Receiver);
             var guide = Assert.Single(WorkshopPhysicsCompiler.Compile(updated, new(1, 2)).Guides.ToArray());
             Assert.Equal(expected.ForceRegion.MaximumAcceleration, guide.MaximumAcceleration);
@@ -297,18 +432,18 @@ public sealed class WorkshopSaveTests
     [InlineData(PuzzleDamage.Lock)]
     public void InvalidPuzzleContextRejectsBeforeAdmission(PuzzleDamage damage)
     {
-        var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half).45));
+        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
         var puzzle = construction.Puzzle;
         var changed = damage switch
         {
-            PuzzleDamage.Id => construction with { Puzzle = puzzle with { Id = (WorkshopPuzzleId)999 } },
+            PuzzleDamage.Id => construction with { Puzzle = puzzle with { Id = new PuzzleId("unknown") } },
             PuzzleDamage.Mode => construction with { Puzzle = puzzle with { Placement = (WorkshopPlacementMode)999 } },
             PuzzleDamage.Precision => construction with { Puzzle = puzzle with { Precision = new(Half.NaN) } },
             PuzzleDamage.Inventory => construction with { Puzzle = puzzle with { InventoryCount = 3 } },
             PuzzleDamage.Body => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { Body = new(9) } } },
             PuzzleDamage.Target => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { Target = new(9) } } },
             PuzzleDamage.EventSource => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { EventSource = new(9) } } },
-            PuzzleDamage.Profile => construction with { Puzzle = puzzle with { ReceiverAssistance = default } },
+            PuzzleDamage.Profile => construction with { Puzzle = puzzle with { TargetAssistance = default } },
             PuzzleDamage.Lock => construction.WithInstance(construction.Ball!.Value with { Locked = false }),
             _ => throw new ArgumentOutOfRangeException(nameof(damage))
         };
@@ -321,7 +456,7 @@ public sealed class WorkshopSaveTests
     [Fact]
     public void ShortPuzzleAssistanceAndAForeignRootOffsetReject()
     {
-        var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)1));
+        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
         var bytes = WorkshopSaveCodec.Encode(new(construction, new(3)));
         Assert.Equal(new WorkshopSavedConstruction(construction, new(3)), WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)); // control
         // The assistance vector's own length word (198): two profiles short is a missing field, never a default profile.
@@ -338,7 +473,7 @@ public sealed class WorkshopSaveTests
     [Fact]
     public void NamedGoalUsesCommittedBodySensorAndEpochWithoutAnimationFeedback()
     {
-        var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)1));
+        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
         var goal = construction.Puzzle.Goal; var ball = construction.Ball!.Value;
         var body = new CanonicalBody(ball.Id, 2, 1, ball.Cell, ball.Local, default);
         var bodies = new PhysicsBodyReadSet(new[] { new PhysicsBodyRead(body, ball.Rotation, default, default) });
@@ -357,9 +492,9 @@ public sealed class WorkshopSaveTests
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement[0];
         Assert.Equal("first_principles", level.GetProperty("id").GetString());
-        Check(level.GetProperty("parts")[0].GetProperty("difficulty"), FirstPrinciples.BallAssistance);
-        Check(level.GetProperty("parts")[1].GetProperty("difficulty"), FirstPrinciples.ReceiverAssistance);
-        foreach (var ramp in level.GetProperty("solution").EnumerateArray()) Check(ramp.GetProperty("difficulty"), FirstPrinciples.RampAssistance);
+        AuthoredContentAssertions.Profile(level.GetProperty("placements")[0].GetProperty("instance").GetProperty("assistance"), PuzzleCatalogue.Definition(new("first_principles")).Primary);
+        AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), PuzzleCatalogue.Definition(new("first_principles")).Target);
+        foreach (var ramp in level.GetProperty("solution").EnumerateArray()) Check(ramp.GetProperty("difficulty"), PuzzleCatalogue.Definition(new("first_principles")).Placement);
         static void Check(System.Text.Json.JsonElement data, AssistanceProfile profile)
         {
             var values = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
@@ -439,7 +574,7 @@ public sealed class WorkshopSaveTests
     [Fact]
     public void FirstPrinciplesRejectsForeignInstancesAndConnections()
     {
-        var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(11), new(12), new((Half)1));
+        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half)1));
         var activation = ActivationSaved().Construction;
         foreach (var instance in activation.Instances)
             EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(instance).Validate());
@@ -488,5 +623,33 @@ public sealed class WorkshopSaveTests
         var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
         var savedBytes = SaveFixture.Finish(builder, crOffset, save.NextBodyId.Value);
         SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+    }
+}
+
+internal static class AuthoredContentAssertions
+{
+    internal static void Placement(System.Text.Json.JsonElement data, IWorkshopInstance instance)
+    {
+        Assert.Equal(new PartId(data.GetProperty("part").GetString()!), instance.PartId);
+        var cell = data.GetProperty("cell"); var local = data.GetProperty("local"); var rotation = data.GetProperty("rotation");
+        Assert.Equal(new CellOrigin(cell[0].GetInt32(), cell[1].GetInt32(), cell[2].GetInt32()), instance.Cell);
+        Assert.Equal(new LocalPosition(local[0].GetSingle(), local[1].GetSingle(), local[2].GetSingle()), instance.Local);
+        Assert.Equal(new CanonicalRotation(rotation[0].GetSingle(), rotation[1].GetSingle(), rotation[2].GetSingle(), rotation[3].GetSingle()), instance.Rotation);
+        Assert.Equal(data.GetProperty("locked").GetBoolean(), instance.Locked);
+    }
+
+    internal static void Profile(System.Text.Json.JsonElement data, AssistanceProfile profile)
+    {
+        var knots = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
+        Assert.Equal(knots.Length, data.GetArrayLength());
+        for (var i = 0; i < knots.Length; i++)
+        {
+            var k = knots[i];
+            Half[] values = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+                k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
+                k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
+            Assert.Equal(values.Length, data[i].GetArrayLength());
+            for (var j = 0; j < values.Length; j++) Assert.Equal(values[j], (Half)data[i][j].GetSingle());
+        }
     }
 }

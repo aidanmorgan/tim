@@ -264,25 +264,25 @@ public sealed class WorkshopSaveRejectionTests
         var precision = new PuzzlePrecision((Half)1);
         var lessons = new[]
         {
-            FirstPrinciples.Create(new(1), settings, new(1), new(2), precision),
-            SpringboardLessons.Create(WorkshopPuzzleId.SpringForward, new(1), settings, new(1), new(2), new(3), precision),
-            SpringboardLessons.Create(WorkshopPuzzleId.ReadyToRebound, new(1), settings, new(1), new(2), new(3), precision),
-            BumperSidekick.Create(new(1), settings, new(1), new(2), precision),
-            BumperAdvanced.Create(WorkshopPuzzleId.BumperDepth, new(1), settings, new(1), new(2), precision),
-            BumperAdvanced.Create(WorkshopPuzzleId.WallAndBumper, new(1), settings, new(1), new(2), precision),
-            DominoEffect.Create(new(1), settings, new(1), new(2), new(3), precision),
-            DelayedSignal.Create(new(1), settings, new(1), new(2), new(3), precision),
-            ClearPipe.Create(new(1), settings, new(1), new(2), precision),
-            GentleBend.Create(new(1), settings, new(1), new(2), precision),
-            QuarterBend.Create(new(1), settings, new(1), new(2), precision),
-            JoinedPipe.Create(new(1), settings, new(1), new(2), new(3), precision),
+            PuzzleCatalogue.Create(new("first_principles"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new PuzzleId("bumper_depth"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new PuzzleId("wall_and_bumper"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new("domino_effect"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new("delayed_signal"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new("clear_pipe"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new("gentle_bend"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new("quarter_bend"), new(1), settings, new(1), precision),
+            PuzzleCatalogue.Create(new("joined_pipe"), new(1), settings, new(1), precision),
         };
         foreach (var lesson in lessons)
         {
             var saved = new WorkshopSavedConstruction(lesson, new(100));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
-        var ready = SpringboardLessons.WithReceiver(lessons[2], WorkshopInput.Receiver(new(4), 2, .55, 0, 0, 0, 0, 1));
+        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Receiver(new(4), 2, .55, 0, 0, 0, 0, 1));
         var missing = ready.WithoutInstance(new(4));
         missing.Validate(); // control: the domain admits the lesson without its receiver
         var withoutReceiver = new WorkshopSavedConstruction(missing, new(100));

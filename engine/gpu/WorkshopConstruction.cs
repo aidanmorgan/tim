@@ -129,9 +129,7 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
     public WorkshopBall? Ball => Instances.Find<WorkshopBall>();
     public WorkshopReceiver? Receiver => Instances.Find<WorkshopReceiver>();
     public WorkshopConstruction WithInstance(IWorkshopInstance instance) =>
-        Puzzle.Id == WorkshopPuzzleId.ReadyToRebound && instance is WorkshopReceiver receiver
-            ? SpringboardLessons.WithReceiver(this, receiver)
-            : this with { Instances = Instances.With(instance) };
+        PuzzleCatalogue.WithInstance(this, instance);
     public WorkshopConnections Connections { get; init; } = Connections ?? WorkshopConnections.Empty;
     public WorkshopConstruction WithoutInstance(GpuBodyId id) => this with { Instances = Instances.Without(id), Connections = Connections.Without(id) };
     public static Acceleration Gravity => new((Half)9.81);

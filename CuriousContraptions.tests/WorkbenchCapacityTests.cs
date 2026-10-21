@@ -65,7 +65,7 @@ public sealed class WorkbenchCapacityTests
     public void CampaignInventoriesAndFixturesAreUnchanged()
     {
         // Fixture identities sit far above the shared test counter so WithInstance appends rather than replaces.
-        var first = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(100001), new(100002), new((Half).5));
+        var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
         Assert.Equal(PartId.Ramp, first.Puzzle.InventoryPart);
         Assert.Equal(2u, first.Puzzle.InventoryCount);
         var ramps = first.WithInstance(Make(PartId.Ramp, 0)).WithInstance(Make(PartId.Ramp, 1));
@@ -74,7 +74,7 @@ public sealed class WorkbenchCapacityTests
         Assert.ThrowsAny<ArgumentException>(() => first.WithInstance(Make(PartId.Receiver, 3)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => first.WithInstance(Make(PartId.Wall, 4)).Validate());
 
-        var delayed = DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(), new(100001), new(100002), new(100003), new((Half).5));
+        var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
         Assert.Equal(PartId.Delay, delayed.Puzzle.InventoryPart);
         Assert.Equal(1u, delayed.Puzzle.InventoryCount);
         var delay = delayed.WithInstance(Make(PartId.Delay, 0));

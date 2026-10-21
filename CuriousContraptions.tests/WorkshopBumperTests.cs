@@ -8,58 +8,58 @@ public sealed class WorkshopBumperTests
 {
 
     [Theory]
-    [InlineData(WorkshopPuzzleId.BumperDepth, "bumper_depth")]
-    [InlineData(WorkshopPuzzleId.WallAndBumper, "wall_and_bumper")]
+    [InlineData("bumper_depth", "bumper_depth")]
+    [InlineData("wall_and_bumper", "wall_and_bumper")]
     public void AdvancedLessonsPreserveSourceFixturesProfilesInventoryAndSave(
-        WorkshopPuzzleId lesson, string sourceId)
+        string lessonId, string sourceId)
     {
+        var lesson = new PuzzleId(lessonId);
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
             twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == sourceId);
-        var construction = BumperAdvanced.Create(lesson, new(1), WorkshopCadenceSettings.Default(),
-            new(1), new(2), new((Half)0));
+        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
-        var fixtures = level.GetProperty("parts");
-        CheckSourcePose(fixtures[0], construction.Ball!.Value.Cell, construction.Ball!.Value.Local, construction.Ball!.Value.Rotation);
-        CheckSourcePose(fixtures[1], construction.Receiver!.Value.Cell, construction.Receiver!.Value.Local, construction.Receiver!.Value.Rotation);
+        var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
+        AuthoredContentAssertions.Placement(fixtures[0], construction.Ball!.Value);
+        AuthoredContentAssertions.Placement(fixtures[1], construction.Receiver!.Value);
         Assert.True(construction.Ball!.Value.Locked && construction.Receiver!.Value.Locked);
-        CheckProfile(fixtures[0].GetProperty("difficulty"), construction.Puzzle.BallAssistance);
-        CheckProfile(fixtures[1].GetProperty("difficulty"), construction.Puzzle.ReceiverAssistance);
+        AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
+        AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
         var solution = level.GetProperty("solution").EnumerateArray().ToArray();
         CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "bumper").GetProperty("difficulty"),
-            construction.Puzzle.RampAssistance);
+            construction.Puzzle.PlacementAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
         Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PinballBumper]);
         var bumper = WorkshopInput.Bumper(new(3), 0, 1.5, 0, 0, 0, 0, 1, BumperWork.Default);
         var placed = construction.WithInstance(bumper);
         var wall = WorkshopInput.Generic(PartId.Wall, new(4), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f));
-        if (lesson == WorkshopPuzzleId.WallAndBumper)
+        if (lesson == new PuzzleId("wall_and_bumper"))
         {
             Assert.Equal(2, inventory.Count);
             Assert.Equal(PartAllowance.Counted(1), inventory[PartId.Wall]);
-            Assert.Equal(1, level.GetProperty("inventory").GetProperty("wall").GetInt32());
+            Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "wall").GetProperty("count").GetInt32());
             CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "wall").GetProperty("difficulty"),
-                construction.Puzzle.WallAssistance);
+                construction.Puzzle.SecondaryAssistance);
             placed = placed.WithInstance(wall);
             EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(wall with { Id = new(5) }).Validate());
         }
         else
         {
             Assert.Single(inventory);
-            Assert.Equal(default, construction.Puzzle.WallAssistance);
-            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(wall).Validate());
+            Assert.Equal(default, construction.Puzzle.SecondaryAssistance);
+            EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(wall).Validate());
         }
         placed.Validate();
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(5) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(bumper with { Locked = true }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => placed.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
         {
-            var next = BumperAdvanced.WithPrecision(placed, new(precision));
+            var next = PuzzleCatalogue.WithPrecision(placed, new(precision));
             var expected = precision == (Half)0 ? (.3,3,.15,12) : precision == (Half)1 ? (.02,1.5,.35,0) : (.174,2.325,.24,6.6);
             Assert.Equal((Half)expected.Item1,next.Receiver!.Value.Capture.Margin.Value);
             Assert.Equal((Half)expected.Item2,next.Receiver!.Value.Capture.SpeedLimit.Value);
@@ -76,11 +76,12 @@ public sealed class WorkshopBumperTests
 
 
     [Theory]
-    [InlineData(WorkshopPuzzleId.BumperDepth)]
-    [InlineData(WorkshopPuzzleId.WallAndBumper)]
-    public void AdvancedLessonSaveAndCommandRejectMalformedIdentityProfileAndInventory(WorkshopPuzzleId lesson)
+    [InlineData("bumper_depth")]
+    [InlineData("wall_and_bumper")]
+    public void AdvancedLessonSaveAndCommandRejectMalformedIdentityProfileAndInventory(string lessonId)
     {
-        var construction = BumperAdvanced.Create(lesson,new(1),WorkshopCadenceSettings.Default(),new(1),new(2),new((Half).45));
+        var lesson = new PuzzleId(lessonId);
+        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
         var saved = new WorkshopSavedConstruction(construction,new(3));
         var original = WorkshopSaveCodec.Encode(saved);
         var command = new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),construction,
@@ -88,10 +89,10 @@ public sealed class WorkshopBumperTests
         var wire = WorkshopWireFlatBuffers.EncodeCommand(command);
         var malformedPuzzles = new[]
         {
-            construction.Puzzle! with { Id = (WorkshopPuzzleId)uint.MaxValue },
+            construction.Puzzle! with { Id = new PuzzleId("unknown") },
             construction.Puzzle! with { InventoryCount = 2 },
             construction.Puzzle! with { Precision = new(Half.NaN) },
-            construction.Puzzle! with { RampAssistance = FirstPrinciples.RampAssistance }
+            construction.Puzzle! with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement }
         };
 
         foreach (var badPuzzle in malformedPuzzles)
@@ -100,10 +101,8 @@ public sealed class WorkshopBumperTests
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
             var badSave = SaveFixture.Finish(builder, crOffset, 3);
-            // Pre-validation refuses an undefined puzzle or a non-finite precision; the lesson's authored-settings rule keeps its own
-            // typed refusal.
-            if (!Enum.IsDefined(badPuzzle.Id)) SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
-            else if (Half.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
+            // Extensible unknown identities use the authored puzzle refusal; nonfinite precision is a structural refusal.
+            if (Half.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
             else EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
 
             var badCommand = command with { Construction = badConstruction };
@@ -117,20 +116,7 @@ public sealed class WorkshopBumperTests
         Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(wire));
     }
 
-    private static void CheckSourcePose(System.Text.Json.JsonElement source, CellOrigin cell,
-        LocalPosition local, CanonicalRotation rotation)
-    {
-        var position = source.GetProperty("position");
-        Assert.InRange(Math.Abs((cell.X + (double)local.X) / 16 - position[0].GetDouble()), 0, .001);
-        Assert.InRange(Math.Abs((cell.Y + (double)local.Y) / 16 - position[1].GetDouble()), 0, .001);
-        Assert.InRange(Math.Abs((cell.Z + (double)local.Z) / 16 - position[2].GetDouble()), 0, .001);
-        var q = new Godot.Quaternion((float)rotation.X, (float)rotation.Y, (float)rotation.Z, (float)rotation.W).Normalized();
-        var basis = new Godot.Basis(q);
-        var orientation = source.GetProperty("orientation");
-        for (var column = 0; column < 3; column++)
-            for (var row = 0; row < 3; row++)
-                Assert.InRange(Math.Abs(basis[column][row] - orientation[column * 3 + row].GetDouble()), 0, .002);
-    }
+
 
     private static void CheckProfile(System.Text.Json.JsonElement data, AssistanceProfile profile)
     {
@@ -153,24 +139,25 @@ public sealed class WorkshopBumperTests
     {
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == "bumper_sidekick");
-        Assert.Equal(1, level.GetProperty("inventory").GetProperty("bumper").GetInt32());
-        var construction = BumperSidekick.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)0));
+        Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "bumper").GetProperty("count").GetInt32());
+        var construction = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
-        Check(level.GetProperty("parts")[0].GetProperty("difficulty"), construction.Puzzle.BallAssistance);
-        Check(level.GetProperty("parts")[1].GetProperty("difficulty"), construction.Puzzle.ReceiverAssistance);
-        Check(level.GetProperty("solution")[0].GetProperty("difficulty"), construction.Puzzle.RampAssistance);
+        AuthoredContentAssertions.Profile(level.GetProperty("placements")[0].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
+        AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.TargetAssistance);
+        Check(level.GetProperty("solution")[0].GetProperty("difficulty"), construction.Puzzle.PlacementAssistance);
         Assert.Equal(WorkshopInput.Basketball(new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, construction.Ball);
-        var sourceReceiver = level.GetProperty("parts")[1].GetProperty("position");
-        Assert.Equal(2, sourceReceiver[0].GetDouble()); Assert.Equal(.9, sourceReceiver[1].GetDouble());
+        AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), construction.Receiver!.Value);
+        Assert.Equal(WorkshopInput.Position(2).Cell, construction.Receiver.Value.Cell.X);
+        Assert.Equal(WorkshopInput.Position(.9).Local, construction.Receiver.Value.Local.Y);
         var bumper = new WorkshopBumper(new(3), new(-51, 24, 0), default, CanonicalRotation.Identity, BumperWork.Default);
         var placed = construction.WithInstance(bumper); placed.Validate();
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(4) }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
         var unpaid = placed.WithInstance(bumper with { Work = BumperWork.FromCanonicalStrength(0) }); unpaid.Validate();
         Assert.Equal(0f, ((WorkshopBumper)unpaid.Instances.Single(value => value.Id == bumper.Id)).Work.Preload.Value);
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
         {
-            var next = BumperSidekick.WithPrecision(placed, new(precision)); next.Validate();
+            var next = PuzzleCatalogue.WithPrecision(placed, new(precision)); next.Validate();
             var saved = new WorkshopSavedConstruction(next, new(4));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
