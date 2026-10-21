@@ -165,6 +165,7 @@ Results:
 - The moving-body BUNDLE004 message now uses main's wording, "a body declares no collider".
 - Main's changes outside the records touch only `tools/BundleElements*` and the parity test, so no runtime input changed.
 - After the merge, `dotnet test CuriousContraptions.slnx` passes 2216/2216, with build 0 warnings ([log](evidence-9a-pkg-1/tier1-test-after-main-12658442.txt)). Every body in the three packages declares colliders: 5 Receiver walls, 1 ball sphere, and the springboard's base slab and plate.
+- pkg-1 and the smoke pair on merge `9cca93c8`: Pass, 9/9 ([summary](evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/summary.txt)).
 
 **Reuse of the 20-suite run.** The diff from `ce460ddc` to `ba4678d9` touches only test, runner and docs files: `tools/e2e/pkg-1.test.ts`, `tools/e2e/README.md`, `tools/E2eRunner/SuiteCatalogue.cs`, `tools/E2eRunner.Tests/SelectionTests.cs` and the `_bmad-output` records. No runtime or bundle input changed, so the 20-suite run on `ce460ddc` still applies.
 
