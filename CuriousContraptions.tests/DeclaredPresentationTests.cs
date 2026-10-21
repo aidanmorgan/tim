@@ -278,7 +278,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = WorkshopInput.Battery(new(4), -6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
         var lamp = WorkshopInput.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
-        var delay = WorkshopInput.Delay(new(6), 3, 3, 0, 0, 0, 0, 1, new(new((Half).5f)));
+        var delay = WorkshopInput.Generic(PartId.Delay, new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float).5f)]));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery, lamp, delay),
             Connections: new(

@@ -5,7 +5,7 @@ using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Elements.Battery;
 
-public sealed class BatteryElementDeclaration : IElectricalElement, ISceneGeometryElement
+public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.8f, PresentationAxes.None,
         [
@@ -60,6 +60,8 @@ public sealed class BatteryElementDeclaration : IElectricalElement, ISceneGeomet
     ];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
+
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.Source, null, PortSocket.Supply);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

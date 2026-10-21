@@ -58,7 +58,7 @@ public readonly struct PhysicsMemoryRead
     {
         if (Count != other.Count) return false;
         for (var i = 0; i < Count; i++)
-            if (this[i] != other[i] || !HalfBits.Equal(this[i].Last.Phase, other[i].Last.Phase)) return false;
+            if (this[i] != other[i] || !F32Bits.Equal(this[i].Last.Phase, other[i].Last.Phase)) return false;
         return true;
     }
 }

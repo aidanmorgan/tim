@@ -12,6 +12,36 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class StateLatchTests(NativeSceneFixture godot)
 {
+
+    [Fact]
+    public void IdenticalSocketsWithoutDeclaredSupplyCapabilityNeverSupply()
+    {
+        var battery = WorkshopInput.Battery(new(1), -4, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 4, 0, 0, 0, 0, 0, 1);
+        var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
+            Connections: new(Power(battery.Id, latch.Id), Power(latch.Id, gate.Id)));
+        var expected = WorkshopPhysicsCompiler.SupplyFeed(routed, gate.Id, DeclaredPhysics.Of);
+        Assert.Equal((SupplyRouteKind.Switched, battery.Id, latch.Id), expected);
+        foreach (var removed in new[] { battery.PartId, latch.PartId })
+        {
+            CuriousContraptions.Bundle.BundleEntry Without(PartId part)
+            {
+                var entry = DeclaredPhysics.Of(part);
+                return part == removed ? entry with { Electrical = entry.Electrical! with { Supply = null } } : entry;
+            }
+            Assert.Null(WorkshopPhysicsCompiler.SupplyFeed(routed, gate.Id, Without));
+            Assert.Equal(DeclaredPhysics.Of(removed).Ports, Without(removed).Ports);
+        }
+        var direct = routed with { Connections = new(Power(battery.Id, gate.Id)) };
+        Assert.Equal((SupplyRouteKind.Direct, battery.Id, default(GpuBodyId)),
+            WorkshopPhysicsCompiler.SupplyFeed(direct, gate.Id, DeclaredPhysics.Of));
+        Assert.Null(WorkshopPhysicsCompiler.SupplyFeed(direct, gate.Id, part =>
+        {
+            var entry = DeclaredPhysics.Of(part);
+            return entry.Electrical is { } electrical ? entry with { Electrical = electrical with { Supply = null } } : entry;
+        }));
+    }
     private static readonly Color Slate = new("#556573");
     private static readonly Color Gold = new("#f7cb52");
 

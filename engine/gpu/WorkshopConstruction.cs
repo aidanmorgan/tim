@@ -190,14 +190,6 @@ public static class WorkshopInput
             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), trigger);
         result.Validate(); return result;
     }
-    public static WorkshopDelay Delay(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, DelayDuration duration)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopDelay(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), duration);
-        result.Validate(); return result;
-    }
     public static WorkshopSpringboard Springboard(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, SpringboardSettings settings)
     {

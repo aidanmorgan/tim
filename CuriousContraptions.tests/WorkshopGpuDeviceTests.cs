@@ -264,7 +264,7 @@ public sealed class WorkshopGpuDeviceTests
             WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Switch(new(2), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
             WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Delay(new(4), -3, 1, 0, 0, 0, 0, 1, DelayDuration.Default)), Connections: new(new WorkshopConnection(
+            WorkshopInput.Generic(PartId.Delay, new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
                 new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var first = await device.Admit(construction, new(1), Profile, new(1));
         device.Commit(first.Sequence); device.Discard(first.Sequence);

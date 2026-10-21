@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Bundle;
 
 namespace CuriousContraptions.Gpu;
@@ -84,7 +85,7 @@ public static class WorkshopPhysicsCompiler
                     slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
             }
             if (instance.PartId == PartId.PoweredGate && SupplyFeed(construction, instance.Id) is { } supplied)
-                supplyRoutes.Add(new(new(first + 5), ElectricalSource(supplied.Battery), supplied.Kind,
+                supplyRoutes.Add(new(new(first + 5), ElectricalSource(supplied.SourceBody), supplied.Kind,
                     supplied.Kind == SupplyRouteKind.Switched ? supplied.Via : default));
         }
         foreach (var domino in construction.Instances.OfType<WorkshopDomino>())
@@ -151,7 +152,11 @@ public static class WorkshopPhysicsCompiler
     /// <item>a State Latch, Counter or Pressure Plate whose PowerIn ← a Battery → <see cref="SupplyRouteKind.Switched"/> via that
     /// switch, closed by the switch's own committed contact.</item>
     /// </list>Null when the consumer, or its intermediate, has no battery supply.</summary>
-    private static (SupplyRouteKind Kind, GpuBodyId Battery, GpuBodyId Via)? SupplyFeed(WorkshopConstruction construction, GpuBodyId consumer)
+    private static (SupplyRouteKind Kind, GpuBodyId SourceBody, GpuBodyId Via)? SupplyFeed(WorkshopConstruction construction, GpuBodyId consumer) =>
+        SupplyFeed(construction, consumer, DeclaredPhysics.Of);
+
+    internal static (SupplyRouteKind Kind, GpuBodyId SourceBody, GpuBodyId Via)? SupplyFeed(WorkshopConstruction construction,
+        GpuBodyId consumer, Func<PartId, BundleEntry> declaration)
     {
         GpuBodyId Source(GpuBodyId target, Func<IWorkshopInstance, bool> admitted)
         {
@@ -161,14 +166,14 @@ public static class WorkshopPhysicsCompiler
                     return link.Source;
             return default;
         }
-        static bool IsBattery(IWorkshopInstance instance) => instance is WorkshopBattery;
-        var supplier = Source(consumer, instance => instance is WorkshopBattery or WorkshopLatch or WorkshopCounter or WorkshopPressurePlate);
+        SupplyCapabilityKind? Capability(IWorkshopInstance instance) => declaration(instance.PartId).Electrical?.Supply?.Kind;
+        var supplier = Source(consumer, instance => Capability(instance) is SupplyCapabilityKind.Source or SupplyCapabilityKind.SwitchedContact);
         if (supplier == default) return null;
-        if (construction.Instances.Any(instance => instance.Id == supplier && IsBattery(instance)))
+        if (construction.Instances.Any(instance => instance.Id == supplier && Capability(instance) == SupplyCapabilityKind.Source))
             return (SupplyRouteKind.Direct, supplier, default);
-        var battery = Source(supplier, IsBattery);
-        if (battery == default) return null;
-        return (SupplyRouteKind.Switched, battery, supplier);
+        var sourceBody = Source(supplier, instance => Capability(instance) == SupplyCapabilityKind.Source);
+        if (sourceBody == default) return null;
+        return (SupplyRouteKind.Switched, sourceBody, supplier);
     }
     public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
     {

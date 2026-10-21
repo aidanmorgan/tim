@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.StateLatch;
 
-public sealed class StateLatchElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
+public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
         [
@@ -63,6 +63,8 @@ public sealed class StateLatchElementDeclaration : ISignalElement, IElectricalEl
     public SignalLatchMode LatchMode => SignalLatchMode.SetReset;
 
     public SignalCounterDescriptor? Counter => null;
+
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

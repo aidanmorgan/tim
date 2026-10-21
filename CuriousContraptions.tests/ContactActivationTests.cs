@@ -12,7 +12,7 @@ public sealed class ContactActivationTests
 
     private static PhysicsActivationRead Consume(ActivationNetwork network, PhysicsActivationRead prior, ContactTriggerRead[] events)
     {
-        var tick = events.Length == 0 ? 1UL : events.Max(e => new ActivationTime(e.EventOrdinal,e.EventPhase).CeilingTick(4));
+        var tick = events.Length == 0 ? 1UL : events.Max(e => new ActivationTime(e.EventOrdinal,(float)e.EventPhase).CeilingTick(4));
         return network.Consume(prior, network.ClearTimers(), events, new(tick), []).Activations;
     }
     private static void ValidateRead(ActivationNetwork network, PhysicsActivationRead read, SimulationTick tick,

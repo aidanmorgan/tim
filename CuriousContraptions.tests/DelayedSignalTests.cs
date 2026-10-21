@@ -6,6 +6,21 @@ namespace CuriousContraptions.Tests;
 
 public sealed class DelayedSignalTests
 {
+
+    [Fact]
+    public void F32PhaseAtFarOriginKeepsTinyOffsetsAndOrdinalBorrow()
+    {
+        var start = new ActivationTime(uint.MaxValue - 480, 0f);
+        var at = new ActivationTime(uint.MaxValue, 0f);
+        Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(start, at with { Phase = -float.Epsilon }, new((Half)1)));
+        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(start, at, new((Half)1)));
+        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(start, at with { Phase = float.Epsilon }, new((Half)1)));
+        var borrowed = new ActivationTime(uint.MaxValue - 481, 2047f);
+        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(borrowed, at with { Phase = -2047f }, new((Half)1)));
+        Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(borrowed,
+            new(uint.MaxValue - 1, -2047f), new((Half)1)));
+    }
+
     private static WorkshopConstruction Lesson(Half precision) =>
         DelayedSignal.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new(3), new(precision));
 
@@ -28,7 +43,7 @@ public sealed class DelayedSignalTests
         Assert.Equal((Half)threshold, scene.Triggers[0].Threshold.Value);
         var save = new WorkshopSavedConstruction(construction, new(4));
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save)));
-        var changed = construction.WithInstance(WorkshopInput.Delay(new(4),0,1,0,0,0,0,1,DelayDuration.Default));
+        var changed = construction.WithInstance(WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1));
         changed = changed with { Connections = new(new(new(2),WorkshopSocket.ActivationOut,new(4),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
             new(new(4),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)) };
         Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
@@ -45,22 +60,22 @@ public sealed class DelayedSignalTests
     [InlineData(2047)]
     public void SignedPhaseJustBeforeAtAfterAndFarOrigin(double phase)
     {
-        var start = new ActivationTime(1000,(Half)phase);
-        var at = new ActivationTime(1480,(Half)phase);
+        var start = new ActivationTime(1000,(float)phase);
+        var at = new ActivationTime(1480,(float)phase);
         Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(start,at,new((Half)1)));
-        var earlier = Half.BitDecrement((Half)phase);
-        if (earlier >= (Half)(-2048))
+        var earlier = MathF.BitDecrement((float)phase);
+        if (earlier >= -2048f)
             Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(start,at with { Phase=earlier },new((Half)1)));
         Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(at,start,new((Half)0)));
-        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(uint.MaxValue-480,(Half)phase),new(uint.MaxValue,(Half)phase),new((Half)1)));
-        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(1,(Half)0),new(uint.MaxValue,(Half)0),new((Half)120)));
+        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(uint.MaxValue-480,(float)phase),new(uint.MaxValue,(float)phase),new((Half)1)));
+        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(1,0f),new(uint.MaxValue,0f),new((Half)120)));
     }
 
     [Fact]
     public void DyadicMinimumDoesNotRoundElapsedBeforeComparison()
     {
-        Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(new(0,(Half)0),new(4290,(Half)(-1)),new((Half)8.9375)));
-        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(0,(Half)0),new(4290,(Half)0),new((Half)8.9375)));
+        Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(new(0,0f),new(4290,-1f),new((Half)8.9375)));
+        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(0,0f),new(4290,0f),new((Half)8.9375)));
         Assert.Throws<ArgumentException>(() => WorkshopGoalEvaluator.ElapsedAtLeast(default,default,new(Half.NaN)));
     }
 
@@ -68,15 +83,15 @@ public sealed class DelayedSignalTests
     public void GoalUsesTargetOccurrenceNotRootCauseOrTimerAndRejectsEarlyLatch()
     {
         var goal = Lesson((Half)1).Puzzle.Goal;
-        var source = new ActivationTime(100,(Half)12);
+        var source = new ActivationTime(100,(float)12);
         var cause = new ActivationCause(new(7),new(1),new(9),source,new((Half)2));
         var sourceNode = new ActivationNodeDeclaration(new(2),new(2),ActivationNodeKind.ContactSource,new(7));
         var targetNode = new ActivationNodeDeclaration(new(3),new(3),ActivationNodeKind.StickyFirstInput,default);
         var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,new(2),source,cause));
-        var delayed = ActivationLatch.From(targetNode,new(ActivationOccurrenceKind.TimerElapsed,new(4),new(584,(Half)0),cause));
+        var delayed = ActivationLatch.From(targetNode,new(ActivationOccurrenceKind.TimerElapsed,new(4),new(584,0f),cause));
         var read = new WorkshopRead(new(2),new(146),default,Activations:new([trigger,delayed]));
         Assert.Equal(WorkshopGoalPhase.Solved,WorkshopGoalEvaluator.Evaluate(goal,read,new(2)));
-        Assert.Equal(new ActivationTime(584,(Half)0),WorkshopGoalEvaluator.Occurrence(goal,read,new(2)));
+        Assert.Equal(new ActivationTime(584,(float)0),WorkshopGoalEvaluator.Occurrence(goal,read,new(2)));
         Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read,new(3)));
         var early = ActivationLatch.From(targetNode,trigger.Occurrence);
         Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([trigger,early]) },new(2)));

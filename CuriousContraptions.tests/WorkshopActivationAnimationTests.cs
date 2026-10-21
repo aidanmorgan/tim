@@ -10,7 +10,7 @@ public sealed class WorkshopActivationAnimationTests
 {
     private static readonly RuntimeSessionId Session = new(11, 22);
     private static readonly ActivationLatch Latch = new(new(2), new(2), ActivationPhase.Latched,
-        new(55), new(1), new(44), 10, (Half)0, new((Half).8), ActivationOccurrenceKind.Contact, new(2), 10, (Half)0);
+        new(55), new(1), new(44), 10, 0f, new((Half).8), ActivationOccurrenceKind.Contact, new(2), 10, 0f);
     private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
         true, (float)1, (float)1, (float)1, AnimationCurve.Linear, 10, (float)0, AnimationProperty.ColourBlend);
 
@@ -155,7 +155,7 @@ public sealed class WorkshopActivationAnimationTests
     public void DeclaredPropertyRejectsForeignChannelAndResetCannotReviveOldWorld()
     {
         var client = Client();
-        var timer = WorkshopInput.Delay(new(1), 0, 1, 0, 0, 0, 0, 1, DelayDuration.Default);
+        var timer = WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(timer));
         Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
         var first = DeclaredPhysics.Of(PartId.Delay).Presentation.Bindings[0];
@@ -177,7 +177,7 @@ public sealed class WorkshopActivationAnimationTests
     public void GoalFeedbackOwnsOccurrenceAcrossCadenceRetryAndReset()
     {
         var goal = Control with { Target=new(ulong.MaxValue), Property=AnimationProperty.Opacity };
-        var occurrence = new ActivationTime(goal.EventOrdinal,(Half)goal.EventPhase);
+        var occurrence = new ActivationTime(goal.EventOrdinal,(float)goal.EventPhase);
         var client=Client(); Set(client,"_goalRequested",occurrence); SetPending(client,goal,new(1));
         client.ReceiveAnimation(Output(goal,new(1),AnimationOutputKind.Acknowledgement,1));
         Assert.NotNull(Field<WorkshopAnimationSample?>(client,"_goalSample"));

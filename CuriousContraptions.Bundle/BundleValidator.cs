@@ -1,4 +1,5 @@
 using System.Numerics;
+using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
 
@@ -90,8 +91,8 @@ public static class BundleValidator
             Presentation(entry.Presentation, entry.Metadata.Parameters);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
-            if (entry.Electrical is { } electrical) Electrical(electrical);
-            if (entry.Signal is { } signal) Signal(signal);
+            if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports);
+            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports);
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
@@ -374,8 +375,20 @@ public static class BundleValidator
                 errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.{path}: '{key}' names no declared Real parameter"));
         }
 
-        private void Electrical(ElectricalPayload electrical)
+        private void Electrical(ElectricalPayload electrical, IReadOnlyList<PortDescriptor> ports)
         {
+            if (electrical.Supply is { } supply)
+            {
+                Defined("Supply.Kind", supply.Kind);
+                Defined("Supply.Output", supply.Output);
+                if (supply.Input is { } input) Defined("Supply.Input", input);
+                if (!electrical.Nodes.Any(node => node.Role == (supply.Kind == SupplyCapabilityKind.Source ? ElectricalRole.Source : ElectricalRole.Switch)) ||
+                    supply.Output != PortSocket.Supply ||
+                    (supply.Kind == SupplyCapabilityKind.Source ? supply.Input is not null : supply.Input != PortSocket.PowerIn) ||
+                    !ports.Any(port => port.Socket == supply.Output && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Output) ||
+                    (supply.Input is { } incoming && !ports.Any(port => port.Socket == incoming && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input)))
+                    OutOfRange("Supply");
+            }
             for (var i = 0; i < electrical.Nodes.Count; i++)
             {
                 var node = electrical.Nodes[i];
@@ -388,7 +401,7 @@ public static class BundleValidator
             }
         }
 
-        private void Signal(SignalPayload signal)
+        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
         {
             for (var i = 0; i < signal.Triggers.Count; i++)
             {
@@ -398,6 +411,15 @@ public static class BundleValidator
                 Finite($"Triggers[{i}].PulseDurationSeconds", trigger.PulseDurationSeconds);
             }
             Defined("LatchMode", signal.LatchMode);
+            if (signal.Timer is { } timer)
+            {
+                Real("Timer.DurationParameter", timer.DurationParameter, parameters);
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
+                    !ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    OutOfRange("Timer.Ports");
+                if (!parameters.Any(parameter => parameter.Key == timer.DurationParameter && parameter.Unit == ParameterUnit.Second && parameter.Minimum > 0f))
+                    OutOfRange("Timer.DurationParameter");
+            }
         }
 
         private void Fluid(FluidPayload fluid)

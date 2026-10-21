@@ -414,9 +414,9 @@ public static class WorkshopWireFlatBuffers
         {
             var a = fb.Activations(i)!.Value;
             actValues[i] = new ActivationLatch(new ActivationNodeId(a.Node), new GpuBodyId(a.Owner), (ActivationPhase)a.Phase,
-                new GpuEventSourceId(a.Source), new GpuBodyId(a.Body), new GpuColliderId(a.Collider), a.EventOrdinal, (Half)a.EventPhase,
+                new GpuEventSourceId(a.Source), new GpuBodyId(a.Body), new GpuColliderId(a.Collider), a.EventOrdinal, a.EventPhase,
                 new LinearSpeed((Half)a.ApproachSpeed), (ActivationOccurrenceKind)a.Kind, new ActivationNodeId(a.Emitter),
-                a.CauseOrdinal, (Half)a.CausePhase);
+                a.CauseOrdinal, a.CausePhase);
         }
 
         var timerValues = new ActivationTimerState[fb.TimersLength];
@@ -427,9 +427,9 @@ public static class WorkshopWireFlatBuffers
             ActivationOccurrence input = default;
             if (timerPhase != ActivationTimerPhase.Ready)
                 input = new ActivationOccurrence((ActivationOccurrenceKind)t.InputKind, new ActivationNodeId(t.InputEmitter),
-                    new ActivationTime(t.InputOrdinal, (Half)t.InputPhase),
+                    new ActivationTime(t.InputOrdinal, t.InputPhase),
                     new ActivationCause(new GpuEventSourceId(t.CauseSource), new GpuBodyId(t.CauseBody), new GpuColliderId(t.CauseCollider),
-                        new ActivationTime(t.CauseOrdinal, (Half)t.CausePhase), new LinearSpeed((Half)t.InputApproachSpeed)));
+                        new ActivationTime(t.CauseOrdinal, t.CausePhase), new LinearSpeed((Half)t.InputApproachSpeed)));
             timerValues[i] = new ActivationTimerState(new ActivationNodeId(t.Node), timerPhase, t.StartedTick, t.DueTick, input);
         }
 
@@ -472,7 +472,7 @@ public static class WorkshopWireFlatBuffers
         {
             var m = fb.ActivationMemory(i)!.Value;
             memoryValues[i] = new ActivationMemory(new ActivationNodeId(m.Node), (ActivationNodeKind)m.Kind, m.Count,
-                new ActivationTime(m.LastOrdinal, (Half)m.LastPhase), (OscillatorPhase)m.Phase, m.DueTick);
+                new ActivationTime(m.LastOrdinal, m.LastPhase), (OscillatorPhase)m.Phase, m.DueTick);
         }
 
         // A committed read past admission carries its motion; admission's absent motion stays absent (nothing is fabricated).
@@ -590,9 +590,6 @@ public static class WorkshopWireFlatBuffers
                     break;
                 case WorkshopSwitch trigger:
                     InstanceRecord.AddThreshold(builder, (float)trigger.Trigger.Threshold.Value);
-                    break;
-                case WorkshopDelay delay:
-                    InstanceRecord.AddDuration(builder, (float)delay.Duration.Seconds.Value);
                     break;
                 case WorkshopSpringboard spring:
                     InstanceRecord.AddStiffness(builder, spring.Settings.Stiffness);
@@ -740,7 +737,6 @@ public static class WorkshopWireFlatBuffers
             "basket" => MapReceiver(inst, id, cell, local, rotation, locked),
             "ramp" => new WorkshopRamp(id, cell, local, rotation, new(new((Half)inst.Length), new((Half)inst.Width)), locked),
             "switch" => new WorkshopSwitch(id, cell, local, rotation, new ContactTriggerSettings(new LinearSpeed((Half)inst.Threshold)), locked),
-            "delay" => new WorkshopDelay(id, cell, local, rotation, new DelayDuration(new DurationSeconds((Half)inst.Duration)), locked),
             "spring" => new WorkshopSpringboard(id, cell, local, rotation, new SpringboardSettings(inst.Stiffness, inst.Damping, inst.InitialCompression), locked),
             "battery" => new WorkshopBattery(id, cell, local, rotation,
                 new ElectricalSourceSettings(new Joules(inst.Capacity), new Watts(inst.MaximumPower), inst.InitialFraction, (ElectricalEnable)inst.Enabled), locked),

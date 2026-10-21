@@ -232,9 +232,9 @@ development_status:
   # merged into 9a-27 (21 Oct 2026) as its suite-first guard
   9r-14-cat-066-wall-suite: backlog
   # 17: early isolation ratchet (split from 9a-45)
-  9a-45a-early-isolation-ratchet: review
+  9a-45a-early-isolation-ratchet: done
   # 18: declared timer and switched contact, Delay converted, timer lane f32
-  9-5a-declared-timer-switched-contact-delay-conversion: backlog
+  9-5a-declared-timer-switched-contact-delay-conversion: in-progress
   # merged into 9-5a (21 Oct 2026)
   9a-38-generic-instance-delay-box: backlog
   # merged into 9-5a (21 Oct 2026) as its suite-first guard

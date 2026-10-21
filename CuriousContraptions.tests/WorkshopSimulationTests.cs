@@ -619,7 +619,7 @@ public sealed class WorkshopSimulationTests
         var construction = new WorkshopConstruction(new(2), Settings, new(
             WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
             WorkshopInput.Switch(new(2),0,1,0,0,0,0,1,ContactTriggerSettings.Default),
-            WorkshopInput.Delay(new(3),-3,1,0,0,0,0,1,DelayDuration.Default)),
+            WorkshopInput.Generic(PartId.Delay, new(3), -3, 1, 0, 0, 0, 0, 1)),
             Connections:new(new WorkshopConnection(new(2),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)));
         var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();

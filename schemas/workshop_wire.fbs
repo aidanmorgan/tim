@@ -268,9 +268,8 @@ table InstanceRecord {
     length: float;
     width: float;
 
-    // Switch / Delay
+    // Switch
     threshold: float;
-    duration: float;
 
     // Springboard
     stiffness: float;

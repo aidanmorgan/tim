@@ -745,7 +745,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2);
         var counter = WorkshopInput.Counter(new(3), 0, GateHeight, -3, 0, 0, 0, 1, 3);
-        var delay = WorkshopInput.Delay(new(4), 0, GateHeight, 3, 0, 0, 0, 1, DelayDuration.Default);
+        var delay = WorkshopInput.Generic(PartId.Delay, new(4), 0, GateHeight, 3, 0, 0, 0, 1);
         var latch = WorkshopInput.Latch(new(5), 3, GateHeight, -3, 0, 0, 0, 1);
         var hit = WorkshopInput.Switch(new(6), 3, GateHeight, 3, 0, 0, 0, 1, ContactTriggerSettings.Default);
         var instances = new WorkshopInstances(plate, lamp, counter, delay, latch, hit);

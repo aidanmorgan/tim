@@ -378,7 +378,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
         ActivationMemory[] rows =
         [
             new(new(2), ActivationNodeKind.Oscillator, 3, default, OscillatorPhase.Running, 480),
-            new(new(3), ActivationNodeKind.Counter, 2, new(17, (Half)0.25), OscillatorPhase.Stopped, 0),
+            new(new(3), ActivationNodeKind.Counter, 2, new(17, .25f), OscillatorPhase.Stopped, 0),
         ];
         var bodies = new PhysicsBodyReadSet([new PhysicsBodyRead(new CanonicalBody(new(1), 1, 0, default, default, default),
             CanonicalRotation.Identity, default, default)]);

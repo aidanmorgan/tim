@@ -4,7 +4,7 @@ Controllers run in the C# host of the physics worker with typed identities, enum
 
 ## Delay, Hold Timer and oscillator
 
-Delay is one-shot Ready → Counting → Finished. A trigger starts one countdown; busy/finished retriggers are ignored until Reset. Authored delay is 0.1–12 seconds, default 1 second, converted by ceiling to a positive checked integer-tick duration. Reject invalid duration/identity, foreign snapshots, clock discontinuity and deadline overflow.
+Delay is one-shot Ready → Counting → Finished. A trigger starts one countdown; busy/finished retriggers are ignored until Reset. Authored delay is 0.1–12 seconds, default 1 second, converted at the scheduling boundary by `MathF.Ceiling(seconds * cadence)`, with the product rounded in canonical f32 before checked conversion to a positive integer tick count. Validate finite admitted duration first; at120Hz,0.1f maps to12ticks and0.2f to24. Reject invalid duration/identity, foreign snapshots, clock discontinuity and deadline overflow.
 
 Hold Timer rearms at completion before networks without emitting an elapsed activation. Delay completes before physics and emits its activation. Busy triggers never restart either deadline. Larger advances preserve every crossed occurrence with its actual due tick and deterministic identity order. Borrowed output cannot be retained without copying. Reset/Load rebuilds fresh controller state.
 

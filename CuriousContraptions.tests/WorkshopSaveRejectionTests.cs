@@ -17,7 +17,7 @@ public sealed class WorkshopSaveRejectionTests
     public enum Field
     {
         Id, PartId, Locked, Cell, Local, Rotation, Radius, Mass, Bounce, Drag, Buoyancy, Margin, SpeedLimit, Dwell, Participation,
-        ForceMin, ForceMax, SupportHeight, SupportMargin, MaxAcceleration, Length, Width, Threshold, Duration,
+        ForceMin, ForceMax, SupportHeight, SupportMargin, MaxAcceleration, Length, Width, Threshold,
         Stiffness, Damping, InitialCompression, Capacity, MaximumPower, InitialFraction, Enabled, Strength, ReferenceMass, Preload,
         HalfExtents, Friction, TargetCount, Parameters,
     }
@@ -118,7 +118,7 @@ public sealed class WorkshopSaveRejectionTests
                 Field.Buoyancy => record.Buoyancy, Field.Margin => record.Margin, Field.SpeedLimit => record.SpeedLimit, Field.Dwell => record.Dwell,
                 Field.Participation => record.Participation, Field.SupportHeight => record.SupportHeight, Field.SupportMargin => record.SupportMargin,
                 Field.MaxAcceleration => record.MaxAcceleration, Field.Length => record.Length, Field.Width => record.Width,
-                Field.Threshold => record.Threshold, Field.Duration => record.Duration, Field.Stiffness => record.Stiffness,
+                Field.Threshold => record.Threshold, Field.Stiffness => record.Stiffness,
                 Field.Damping => record.Damping, Field.InitialCompression => record.InitialCompression, Field.Capacity => record.Capacity,
                 Field.MaximumPower => record.MaximumPower, Field.InitialFraction => record.InitialFraction, Field.Enabled => record.Enabled,
                 Field.Strength => record.Strength, Field.ReferenceMass => record.ReferenceMass, Field.Preload => record.Preload,
@@ -141,7 +141,6 @@ public sealed class WorkshopSaveRejectionTests
         "basket" => [Field.Margin, Field.SpeedLimit, Field.Dwell, Field.Participation, Field.ForceMin, Field.ForceMax, Field.SupportHeight, Field.SupportMargin, Field.MaxAcceleration],
         "ramp" => [Field.Length, Field.Width],
         "switch" or "pressure_plate" or "clock" => [Field.Threshold],
-        "delay" => [Field.Duration],
         "spring" => [Field.Stiffness, Field.Damping, Field.InitialCompression],
         "battery" => [Field.Capacity, Field.MaximumPower, Field.InitialFraction, Field.Enabled],
         "bumper" => [Field.Strength, Field.ReferenceMass, Field.Preload],
@@ -160,7 +159,7 @@ public sealed class WorkshopSaveRejectionTests
         WorkshopInput.Ramp(new(4), -2, 1, 0, 0, 0, 0, 1, RampDimensions.Default),
         WorkshopInput.Generic(PartId.Wall, new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
         WorkshopInput.Switch(new(6), 2, 0, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
-        WorkshopInput.Delay(new(7), 3, 0, 0, 0, 0, 0, 1, DelayDuration.Default),
+        WorkshopInput.Generic(PartId.Delay, new(7), 3, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Springboard(new(8), 5, 0, 0, 0, 0, 0, 1, SpringboardSettings.Default),
         WorkshopInput.Battery(new(9), 6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
         WorkshopInput.Bumper(new(10), 7, 0, 0, 0, 0, 0, 1, BumperWork.Default),

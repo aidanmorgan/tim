@@ -382,8 +382,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "delay" =>
             [
-                ("duration_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Half, (float)DelayDuration.Default.Seconds.Value,
-                    Admits(value => WorkshopInput.Delay(Owner, 0, 3, 0, 0, 0, 0, 1, new DelayDuration(new((Half)value)))), [])
+                ("delay_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 1f,
+                    Admits(value => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)value)]))), [])
             ],
             "switch" =>
             [
@@ -419,7 +419,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
         "switch" => WorkshopInput.Switch(Owner, 0, 3, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
-        "delay" => WorkshopInput.Delay(Owner, 0, 3, 0, 0, 0, 0, 1, DelayDuration.Default),
+        "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),
         _ => throw new ArgumentException($"No placement for packaged part '{id}'.")
     };
 

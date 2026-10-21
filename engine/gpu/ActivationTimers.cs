@@ -7,12 +7,12 @@ public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2, Ori
 public enum ActivationTimerPhase : uint { Ready, Counting, Finished }
 
 /// <summary>Canonical physical boundary time, also used for integer-boundary controller outputs.</summary>
-public readonly record struct ActivationTime(uint Ordinal, Half Phase) : IComparable<ActivationTime>
+public readonly record struct ActivationTime(uint Ordinal, float Phase) : IComparable<ActivationTime>
 {
     public void Validate()
     {
-        if (!Half.IsFinite(Phase) || Phase < (Half)(-2048) || Phase >= (Half)2048 ||
-            (Ordinal == 0 && Phase < (Half)0))
+        if (!float.IsFinite(Phase) || Phase < -2048f || Phase >= 2048f ||
+            (Ordinal == 0 && Phase < 0f))
             throw new ArgumentException("Invalid activation occurrence time.");
     }
     public int CompareTo(ActivationTime other) =>
@@ -25,12 +25,12 @@ public readonly record struct ActivationTime(uint Ordinal, Half Phase) : ICompar
     {
         Validate(); ValidateSubsteps(substeps);
         var tick = Ordinal / substeps;
-        return checked((ulong)tick + (Ordinal % substeps != 0 || Phase > (Half)0 ? 1UL : 0UL));
+        return checked((ulong)tick + (Ordinal % substeps != 0 || Phase > 0f ? 1UL : 0UL));
     }
     public static ActivationTime Boundary(SimulationTick tick, uint substeps)
     {
         ValidateSubsteps(substeps);
-        return new(checked((uint)(tick.Value * substeps)), (Half)0);
+        return new(checked((uint)(tick.Value * substeps)), 0f);
     }
     private static void ValidateSubsteps(uint value)
     {
@@ -49,7 +49,7 @@ public readonly record struct ActivationCause(GpuEventSourceId Source, GpuBodyId
     {
         Time.Validate();
         if (Source.Value == 0 || Body.Value == 0 || Collider.Value == 0 ||
-            !Half.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < (Half)0 || ApproachSpeed.Value > (Half)4096)
+            !float.IsFinite((float)ApproachSpeed.Value) || (float)ApproachSpeed.Value < 0f || (float)ApproachSpeed.Value > 4096f)
             throw new ArgumentException("Invalid physical activation provenance.");
     }
 }
@@ -62,13 +62,26 @@ public readonly record struct ActivationOccurrence(ActivationOccurrenceKind Kind
         Time.Validate(); Cause.Validate();
         if (!Enum.IsDefined(Kind) || Emitter.Value == 0 || Time.CompareTo(Cause.Time) < 0 ||
             (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation or ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.CounterReached or ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.ContactLoad && Time != Cause.Time) ||
-            (Kind == ActivationOccurrenceKind.TimerElapsed && !PhysicsDeclarationBounds.Zero(Time.Phase)))
+            (Kind == ActivationOccurrenceKind.TimerElapsed && Time.Phase != 0f))
             throw new ArgumentException("Invalid activation occurrence.");
     }
 }
 
 public readonly record struct ActivationTimerDeclaration(ActivationNodeId Node, uint DurationTicks)
 {
+    public static uint Duration(float seconds, SimulationCadence cadence)
+    {
+        if (!float.IsFinite(seconds) || seconds <= 0f) throw new ArgumentException("Invalid timer duration.");
+        var rate = cadence switch
+        {
+            SimulationCadence.Hz60 => 60f,
+            SimulationCadence.Hz120 => 120f,
+            SimulationCadence.Hz240 => 240f,
+            _ => throw new ArgumentException("Unsupported timer cadence.")
+        };
+        return checked((uint)MathF.Ceiling(seconds * rate));
+    }
+
     public void Validate()
     {
         if (Node.Value == 0 || DurationTicks == 0) throw new ArgumentException("Invalid timer declaration.");

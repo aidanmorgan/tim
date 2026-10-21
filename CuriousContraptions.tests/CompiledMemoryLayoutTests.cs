@@ -12,7 +12,7 @@ public sealed class CompiledMemoryLayoutTests
             WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1),
             WorkshopInput.Switch(new(2), 0, 2, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
             WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Delay(new(4), 2, 2, 0, 0, 0, 0, 1, DelayDuration.Default),
+            WorkshopInput.Generic(PartId.Delay, new(4), 2, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Switch(new(5), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances);
         return WorkshopPhysicsCompiler.Compile(construction, new(1, 2));

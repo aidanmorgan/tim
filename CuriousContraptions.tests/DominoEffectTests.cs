@@ -80,7 +80,7 @@ public sealed class DominoEffectTests
     public void GoalSolvesOnlyWhenTheEndDominoAndTheLampAreBothLatched()
     {
         var goal = Lesson().Puzzle.Goal;
-        var time = new ActivationTime(300, (Half)0);
+        var time = new ActivationTime(300,(float)0);
         var cause = new ActivationCause(new(7), new(2), new(9), time, new((Half)0));
         var end = new ActivationNodeDeclaration(new(2), new(2), ActivationNodeKind.OrientationSource, default, 0, new(7));
         var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.StickyFirstInput, default);
