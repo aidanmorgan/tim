@@ -1,0 +1,58 @@
+parent=ce460ddc index=ba4678d9 staged=     101
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Mw3ZcU/solution.binlog
+
+Time Elapsed 00:00:12.08
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Mw3ZcU/playtest.binlog
+
+Time Elapsed 00:00:08.83
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.Mw3ZcU/web.binlog
+
+Time Elapsed 00:00:06.17
+Anvil snapshot 0.ts: tools/E2eRunner.Tests/SelectionTests.cs
+Anvil snapshot 1.ts: tools/E2eRunner/SuiteCatalogue.cs
+Anvil snapshot 2.ts: tools/e2e/pkg-1.test.ts
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-21T01:14:47.506758+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.qlhcMS/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   123, Skipped:     0, Total:   123, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+pre-commit-hook exit=0

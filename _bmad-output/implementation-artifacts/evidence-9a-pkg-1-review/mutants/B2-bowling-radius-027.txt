@@ -1,0 +1,30 @@
+mutant B2-bowling-radius-027 on 8333682f
+ elements/BowlingBall/BowlingBallElementDeclaration.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/elements/BowlingBall/BowlingBallElementDeclaration.cs b/elements/BowlingBall/BowlingBallElementDeclaration.cs
+index 9cc4bb26..3882f3d9 100644
+--- a/elements/BowlingBall/BowlingBallElementDeclaration.cs
++++ b/elements/BowlingBall/BowlingBallElementDeclaration.cs
+@@ -26,7 +26,7 @@ public sealed class BowlingBallElementDeclaration : IMechanicalElement
+     [
+         new(
+             ColliderShapeKind.Sphere,
+-            HalfExtents: new Vector3(0.28f, 0.28f, 0.28f),
++            HalfExtents: new Vector3(0.27f, 0.27f, 0.27f),
+             Offset: Vector3.Zero,
+             Rotation: Quaternion.Identity,
+             Material: new MaterialProperties(Restitution: 0.14f, Friction: 0.3f, RollingResistance: 0.03f, BounceThreshold: 0.1f))
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [48 ms]
+  Error Message:
+   BowlingBall.Colliders[0]: half-extents <0.27, 0.27, 0.27> declared, radius 0.28 and MetreVector { X = 0, Y = 0, Z = 0 } at runtime.
+   at CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch18-pkg1/CuriousContraptions.tests/BundleCatalogueParityTests.cs:line 123
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryBallPackageDeclaresItsCatalogueBallMaterial [3 ms]
+  Error Message:
+   BowlingBall: declared ball material differs from BallMaterial { Radius = Metres { Value = 0.28 }, Mass = Kilograms { Value = 4 }, Bounce = Restitution { Value = 0.14 }, Drag = InverseSeconds { Value = 0.04 }, Buoyancy = Acceleration { Value = 0 }, Friction = FrictionCoefficient { Value = 0.3 }, BounceThreshold = LinearSpeed { Value = 0.1 }, Rolling = RollingResistance { Value = 0.03 } }.
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+Failed!  - Failed:     2, Passed:     6, Skipped:     0, Total:     8, Duration: 120 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 146 ms - BundleElements.Tests.dll (net10.0)

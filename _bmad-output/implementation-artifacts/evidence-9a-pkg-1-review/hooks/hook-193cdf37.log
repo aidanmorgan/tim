@@ -1,0 +1,120 @@
+parent=980e222d index=193cdf37 staged=      71
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.ApFk3C/solution.binlog
+
+Time Elapsed 00:00:11.35
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.ApFk3C/playtest.binlog
+
+Time Elapsed 00:00:11.68
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.ApFk3C/web.binlog
+
+Time Elapsed 00:00:06.93
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions/ColliderDescriptor.cs
+Anvil snapshot 1.ts: CuriousContraptions.Abstractions/ElementCategory.cs
+Anvil snapshot 2.ts: CuriousContraptions.Abstractions/ElementFootprint.cs
+Anvil snapshot 3.ts: CuriousContraptions.Abstractions/ElementMetadata.cs
+Anvil snapshot 4.ts: CuriousContraptions.Abstractions/IPuzzleElementDeclaration.cs
+Anvil snapshot 5.ts: CuriousContraptions.Abstractions/ParameterDescriptor.cs
+Anvil snapshot 6.ts: CuriousContraptions.Abstractions/PortDescriptor.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/BundleCatalogueParityTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/CSharpStaticGateTests.cs
+Anvil snapshot 9.ts: elements/Ball/BallElementDeclaration.cs
+Anvil snapshot 10.ts: elements/BallDetector/BallDetectorElementDeclaration.cs
+Anvil snapshot 11.ts: elements/Battery/BatteryElementDeclaration.cs
+Anvil snapshot 12.ts: elements/Bumper/BumperElementDeclaration.cs
+Anvil snapshot 13.ts: elements/Counter/CounterElementDeclaration.cs
+Anvil snapshot 14.ts: elements/Domino/DominoElementDeclaration.cs
+Anvil snapshot 15.ts: elements/PoweredGate/PoweredGateElementDeclaration.cs
+Anvil snapshot 16.ts: elements/PressurePlate/PressurePlateElementDeclaration.cs
+Anvil snapshot 17.ts: elements/Ramp/RampElementDeclaration.cs
+Anvil snapshot 18.ts: elements/SignalLamp/SignalLampElementDeclaration.cs
+Anvil snapshot 19.ts: elements/StateLatch/StateLatchElementDeclaration.cs
+Anvil snapshot 20.ts: elements/SystemClock/SystemClockElementDeclaration.cs
+Anvil snapshot 21.ts: elements/Wall/WallElementDeclaration.cs
+Anvil snapshot 22.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 23.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 24.ts: tools/BundleElements.Tests/Fixtures.cs
+Anvil snapshot 25.ts: tools/BundleElements.Tests/SolutionMembershipTests.cs
+Anvil snapshot 26.ts: tools/BundleElements/BundleGenerator.cs
+Anvil snapshot 27.ts: tools/BundleElements/BundleSchema.cs
+Anvil snapshot 28.ts: tools/BundleElements/BundleValidator.cs
+Anvil snapshot 29.ts: tools/BundleElements/PackageDiscovery.cs
+Anvil snapshot 30.ts: tools/BundleElements/Program.cs
+Anvil snapshot 31.ts: tools/E2eRunner.Tests/SelectionTests.cs
+Anvil snapshot 32.ts: tools/E2eRunner/ImpactRules.cs
+Anvil snapshot 33.ts: tools/E2eRunner/Selection.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-21T01:26:24.817226+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts",
+    "26.ts",
+    "27.ts",
+    "28.ts",
+    "29.ts",
+    "30.ts",
+    "31.ts",
+    "32.ts",
+    "33.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 27,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.7b23mm/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   123, Skipped:     0, Total:   123, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+pre-commit-hook exit=0

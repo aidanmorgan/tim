@@ -1,0 +1,64 @@
+parent=18429f75 index=9cca93c8 staged=     112
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.BBCkUb/solution.binlog
+
+Time Elapsed 00:00:12.37
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.BBCkUb/playtest.binlog
+
+Time Elapsed 00:00:11.80
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.BBCkUb/web.binlog
+
+Time Elapsed 00:00:06.08
+Anvil snapshot 0.ts: CuriousContraptions.tests/BundleCatalogueParityTests.cs
+Anvil snapshot 1.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 2.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 3.ts: tools/BundleElements.Tests/Fixtures.cs
+Anvil snapshot 4.ts: tools/BundleElements/BundleSchema.cs
+Anvil snapshot 5.ts: tools/BundleElements/BundleValidator.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-21T01:15:31.203181+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 13,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Y6K66V/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   123, Skipped:     0, Total:   123, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+pre-commit-hook exit=0

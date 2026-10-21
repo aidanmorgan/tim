@@ -1,0 +1,19 @@
+mutant V2-upper-limit-check-removed on 8333682f
+ tools/BundleElements/BundleValidator.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/tools/BundleElements/BundleValidator.cs b/tools/BundleElements/BundleValidator.cs
+index 59bff925..1d894c7a 100644
+--- a/tools/BundleElements/BundleValidator.cs
++++ b/tools/BundleElements/BundleValidator.cs
+@@ -146,7 +146,7 @@ public static class BundleValidator
+             if (Finite(path + ".LowerLimit", slider.LowerLimit) & Finite(path + ".UpperLimit", slider.UpperLimit))
+             {
+                 if (slider.LowerLimit > 0f) OutOfRange(path + ".LowerLimit");
+-                else if (slider.UpperLimit < 0f || slider.UpperLimit <= slider.LowerLimit) OutOfRange(path + ".UpperLimit");
++                else if (float.IsInfinity(slider.UpperLimit)) OutOfRange(path + ".UpperLimit");
+             }
+             Real(path + ".StiffnessParameter", slider.StiffnessParameter, parameters);
+             Real(path + ".DampingParameter", slider.DampingParameter, parameters);
+build: succeeded
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 128 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 146 ms - BundleElements.Tests.dll (net10.0)

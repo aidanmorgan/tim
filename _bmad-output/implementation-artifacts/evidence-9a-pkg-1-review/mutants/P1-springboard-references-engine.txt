@@ -1,0 +1,22 @@
+mutant P1-springboard-references-engine on 8333682f
+ elements/Springboard/Springboard.csproj | 1 +
+ 1 file changed, 1 insertion(+)
+diff --git a/elements/Springboard/Springboard.csproj b/elements/Springboard/Springboard.csproj
+index 244fc91c..981595a7 100644
+--- a/elements/Springboard/Springboard.csproj
++++ b/elements/Springboard/Springboard.csproj
+@@ -8,5 +8,6 @@
+   <ItemGroup>
+     <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+     <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
++    <ProjectReference Include="../../CuriousContraptions.csproj" />
+   </ItemGroup>
+ </Project>
+build: succeeded
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 119 ms - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(package: "Springboard") [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+   at InvokeStub_PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+Failed!  - Failed:     1, Passed:    65, Skipped:     0, Total:    66, Duration: 149 ms - BundleElements.Tests.dll (net10.0)

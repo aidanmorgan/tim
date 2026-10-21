@@ -1,0 +1,171 @@
+Mode: Full
+Tier 3 required: yes
+path	CuriousContraptions.tests/BundleCatalogueParityTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/ProbeTests.cs.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/deletion-greps.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/implementer-full-run-summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run.out	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/preview.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/publish.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/summary.json	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/merge-run/summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M01.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M02.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M03.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M04.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M05.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M06.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M07.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M08.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M09.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M10.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M11.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M12.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M13.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M14.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M15.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M16.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M17.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M18.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M19.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M20.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M21.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M22.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M23.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M24.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M25.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M26.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M27.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M28.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/M29.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/baseline-bt.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/baseline-build.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/baseline-pt.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/results-round-b.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/mutants/results.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/probes.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/M25.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/M30.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/M31.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-2.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-3.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-seed1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-seed2.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-seed3.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-seed4.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-seed5.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/dispose-restored-seed6.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed10.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed11.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed12.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed2.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed3.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed4.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed5.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed6.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed7.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed8.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/fixed-seed9.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/probes.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/results.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/test-run-1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/test-run-2.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/test-run-3.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/test-run-4.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/round2/test-run-5.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/select-merge-diff.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/anvil-check-doc.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/anvil-check.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/build.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/lifecycle.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/node.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/ownership-oracles.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/release-build.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/test-full.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/web-restore.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4-review/tier1/wire.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/mutant-m25-mechanical-only.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-b1-emptied-lamp-build.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-red.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-select-diff-b8910e92.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-smoke/summary.json	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-smoke/summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-tier1-build.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-tier1-dotnet-test.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-4/round2-tier1-node.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/engine-core-2a1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/engine-core-2a1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/engine-core-2a1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/engine-core-2b1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/engine-core-2b1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/engine-core-2b1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/pkg-1.derivations.jsonl	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/pkg-1.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/pkg-1.tap	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/preview.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/publish.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/summary.json	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/e2e-pkg-1-9cca93c8/summary.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-1/tier1-test-after-main-12658442.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/review-9a-4-lossless-bundle-build-gate.md	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/spec-9a-4-lossless-bundle-build-gate.md	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/sprint-status.yaml	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/planning-artifacts/epics.md	NoBrowserImpact	_bmad-output/**
+path	tools/BundleElements.Tests/BundleRoundTripTests.cs	Full(Unknown)	unmatched path
+path	tools/BundleElements.Tests/BundleValidatorTests.cs	Full(Unknown)	unmatched path
+path	tools/BundleElements.Tests/Fixtures.cs	Full(Unknown)	unmatched path
+path	tools/BundleElements/BundleSchema.cs	Full(SharedDriverInfrastructure)	tools/{BundleElements,Preview}/**
+path	tools/BundleElements/BundleValidator.cs	Full(SharedDriverInfrastructure)	tools/{BundleElements,Preview}/**
+clock-master	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-017	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-023b	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-037	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-014	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+anim-1a	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+anim-1b	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+anim-1c	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-023a	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-020	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+capacity-9r	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-062	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-051-own-supply	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-052-two-plates	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-052-lamp	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+capacity-9r5b	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+tube-snapping	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-050-joined	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+pkg-1	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-002	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-005	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-015a	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-015a-sidekick	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-015b	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-030	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-048a	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-048b	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-049	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-050	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-051	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-052	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+cat-062b	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2a1	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2a2	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2a3	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2a4	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2b1	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2b2	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2b3	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2b4	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+engine-core-2c	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+palette-placement	full: tools/BundleElements.Tests/BundleRoundTripTests.cs (Unknown, unmatched path)
+select exit=0

@@ -1,0 +1,24 @@
+mutant R1-force-accel-max-11 on 8333682f
+ elements/Receiver/ReceiverElementDeclaration.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/elements/Receiver/ReceiverElementDeclaration.cs b/elements/Receiver/ReceiverElementDeclaration.cs
+index aea91688..894c8f2b 100644
+--- a/elements/Receiver/ReceiverElementDeclaration.cs
++++ b/elements/Receiver/ReceiverElementDeclaration.cs
+@@ -24,7 +24,7 @@ public sealed class ReceiverElementDeclaration : IMechanicalElement
+             new("capture_dwell", ParameterUnit.Second, ParameterKind.Real, Minimum: 1f / 1024f, Maximum: 30f, Default: 0.35f, Options: []),
+             new("capture_participation", ParameterUnit.None, ParameterKind.Choice, Minimum: 0f, Maximum: 1f, Default: 1f, Options: ["Disabled", "Enabled"]),
+             new("force_support_margin", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0f, Maximum: 1f, Default: 0f, Options: []),
+-            new("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Minimum: 0f, Maximum: 12f, Default: 0f, Options: [])
++            new("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Minimum: 0f, Maximum: 11f, Default: 0f, Options: [])
+         ]);
+ 
+     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [14 ms]
+  Error Message:
+   Receiver.Metadata.Parameters[5] (force_maximum_acceleration): the runtime admits above the declared maximum.
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 153 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 153 ms - BundleElements.Tests.dll (net10.0)

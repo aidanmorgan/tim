@@ -1,0 +1,24 @@
+mutant D2-basket-back-in-unpackaged-set on 8333682f
+ CuriousContraptions.tests/BundleCatalogueParityTests.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/CuriousContraptions.tests/BundleCatalogueParityTests.cs b/CuriousContraptions.tests/BundleCatalogueParityTests.cs
+index 54a34945..dea307c1 100644
+--- a/CuriousContraptions.tests/BundleCatalogueParityTests.cs
++++ b/CuriousContraptions.tests/BundleCatalogueParityTests.cs
+@@ -65,7 +65,7 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
+         }
+         var packaged = Packages().Select(package => package.Declaration.Metadata.Id).ToHashSet(StringComparer.Ordinal);
+         Assert.Subset(catalogue, packaged);
+-        Assert.Equal(["balloon", "delay", "funnel", "pipe", "pipe_bend_45", "pipe_bend_90", "switch", "tennis"],
++        Assert.Equal(["balloon", "basket", "delay", "funnel", "pipe", "pipe_bend_45", "pipe_bend_90", "switch", "tennis"],
+             catalogue.Where(id => !packaged.Contains(id)));
+     }
+ 
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.TheCatalogueIdsWithoutAPackageAreExactlyTheEightListed [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ at index 1
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 127 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 164 ms - BundleElements.Tests.dll (net10.0)
