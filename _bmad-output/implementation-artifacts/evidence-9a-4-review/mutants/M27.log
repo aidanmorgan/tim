@@ -1,0 +1,63 @@
+# mutant M27 on CuriousContraptions.Abstractions/ColliderDescriptor.cs
+diff --git a/CuriousContraptions.Abstractions/ColliderDescriptor.cs b/CuriousContraptions.Abstractions/ColliderDescriptor.cs
+index 07290c89..44c0eae6 100644
+--- a/CuriousContraptions.Abstractions/ColliderDescriptor.cs
++++ b/CuriousContraptions.Abstractions/ColliderDescriptor.cs
+@@ -22,7 +22,7 @@ public readonly record struct MaterialProperties(
+ /// half-extent on every axis.</summary>
+ public readonly record struct ColliderDescriptor(
+     ColliderShapeKind ShapeKind,
+-    Vector3 HalfExtents,
++    Vector3 Dimensions,
+     Vector3 Offset,
+     Quaternion Rotation,
+     MaterialProperties Material);
+# check: dotnet build tools/BundleElements/BundleElements.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/WallElementDeclaration.cs(32,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/Wall.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/RampElementDeclaration.cs(31,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/Ramp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/DominoElementDeclaration.cs(30,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/Domino.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/BallElementDeclaration.cs(27,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/CounterElementDeclaration.cs(37,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/Counter.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/CounterElementDeclaration.cs(38,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/Counter.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/BatteryElementDeclaration.cs(32,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/Battery.csproj]
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLampElementDeclaration.cs(31,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLamp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlateElementDeclaration.cs(38,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlateElementDeclaration.cs(39,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/BumperElementDeclaration.cs(33,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/Bumper.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatchElementDeclaration.cs(36,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatch.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatchElementDeclaration.cs(37,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatch.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClockElementDeclaration.cs(35,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClock.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClockElementDeclaration.cs(36,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClock.csproj]
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/WallElementDeclaration.cs(32,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/Wall.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/RampElementDeclaration.cs(31,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/Ramp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/DominoElementDeclaration.cs(30,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/Domino.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/BallElementDeclaration.cs(27,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/CounterElementDeclaration.cs(37,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/Counter.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/CounterElementDeclaration.cs(38,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/Counter.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/BatteryElementDeclaration.cs(32,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/Battery.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLampElementDeclaration.cs(31,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLamp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlateElementDeclaration.cs(38,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlateElementDeclaration.cs(39,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/BumperElementDeclaration.cs(33,13): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/Bumper.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatchElementDeclaration.cs(36,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatch.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatchElementDeclaration.cs(37,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatch.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClockElementDeclaration.cs(35,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClock.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClockElementDeclaration.cs(36,36): error CS1739: The best overload for 'ColliderDescriptor' does not have a parameter named 'HalfExtents' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClock.csproj]
+    0 Warning(s)
+    15 Error(s)
+
+Time Elapsed 00:00:00.88
+# exit=1
+M27 KILLED

@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonMechanicalBodyWithoutAColliderIsRefused [2 ms]
+Failed!  - Failed:     1, Passed:    39, Skipped:     0, Total:    40, Duration: 127 ms - BundleElements.Tests.dll (net10.0)

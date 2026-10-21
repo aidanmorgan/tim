@@ -1,0 +1,57 @@
+# mutant M26 on CuriousContraptions.Abstractions/ElementMetadata.cs
+diff --git a/CuriousContraptions.Abstractions/ElementMetadata.cs b/CuriousContraptions.Abstractions/ElementMetadata.cs
+index dfe34767..c888b553 100644
+--- a/CuriousContraptions.Abstractions/ElementMetadata.cs
++++ b/CuriousContraptions.Abstractions/ElementMetadata.cs
+@@ -6,7 +6,7 @@ namespace CuriousContraptions.Abstractions;
+ /// (Story 9A.18).</summary>
+ public readonly record struct ElementMetadata(
+     string Id,
+-    ElementCategory Category,
++    string Category,
+     string DisplayNameKey,
+     string? IconPath,
+     string ScenePath,
+# check: dotnet build tools/BundleElements/BundleElements.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClockElementDeclaration.cs(15,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClock.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/BumperElementDeclaration.cs(13,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/Bumper.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/RampElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/Ramp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLampElementDeclaration.cs(13,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLamp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/DominoElementDeclaration.cs(13,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/Domino.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/WallElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/Wall.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/CounterElementDeclaration.cs(15,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/Counter.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/BallElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/BallDetectorElementDeclaration.cs(16,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/BallDetector.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlateElementDeclaration.cs(16,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatchElementDeclaration.cs(15,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatch.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/PoweredGateElementDeclaration.cs(18,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/PoweredGate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/BatteryElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/Battery.csproj]
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClockElementDeclaration.cs(15,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/SystemClock.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/BumperElementDeclaration.cs(13,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/Bumper.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/RampElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/Ramp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLampElementDeclaration.cs(13,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/SignalLamp.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/DominoElementDeclaration.cs(13,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/Domino.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/WallElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/Wall.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/CounterElementDeclaration.cs(15,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/Counter.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/BallElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/Ball.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/BallDetectorElementDeclaration.cs(16,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/BallDetector.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlateElementDeclaration.cs(16,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/PressurePlate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatchElementDeclaration.cs(15,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/StateLatch.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/PoweredGateElementDeclaration.cs(18,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/PoweredGate.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/BatteryElementDeclaration.cs(12,19): error CS1503: Argument 2: cannot convert from 'CuriousContraptions.Abstractions.ElementCategory' to 'string' [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/Battery.csproj]
+    0 Warning(s)
+    13 Error(s)
+
+Time Elapsed 00:00:00.93
+# exit=1
+M26 KILLED

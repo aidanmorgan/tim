@@ -1,0 +1,56 @@
+# mutant M10 on tools/BundleElements/BundleValidator.cs
+diff --git a/tools/BundleElements/BundleValidator.cs b/tools/BundleElements/BundleValidator.cs
+index 0bfd07f9..e6d32f8c 100644
+--- a/tools/BundleElements/BundleValidator.cs
++++ b/tools/BundleElements/BundleValidator.cs
+@@ -104,7 +104,7 @@ public static class BundleValidator
+         private void Collider(string path, ColliderDescriptor collider)
+         {
+             Defined(path + ".ShapeKind", collider.ShapeKind);
+-            Finite(path + ".HalfExtents", collider.HalfExtents);
++            
+             Finite(path + ".Offset", collider.Offset);
+             Finite(path + ".Rotation", collider.Rotation);
+             Finite(path + ".Material.Restitution", collider.Material.Restitution);
+# check: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/parts/elements.bundle.json (13 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.38]     CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonFiniteValueNamesThePackageAndTheField [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonFiniteValueNamesThePackageAndTheField [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: ["BUNDLE002 FixtureNaN.Colliders[0].HalfExtents.x: n"···]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ANonFiniteValueNamesThePackageAndTheField() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleValidatorTests.cs:line 23
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    33, Skipped:     0, Total:    34, Duration: 143 ms - BundleElements.Tests.dll (net10.0)
+# exit=1
+M10 KILLED

@@ -1,0 +1,239 @@
+# mutant M08 on tools/BundleElements/BundleSchema.cs
+diff --git a/tools/BundleElements/BundleSchema.cs b/tools/BundleElements/BundleSchema.cs
+index 336f1a24..63c06a3f 100644
+--- a/tools/BundleElements/BundleSchema.cs
++++ b/tools/BundleElements/BundleSchema.cs
+@@ -92,7 +92,7 @@ public static class BundleSchema
+             writer.WriteStartArray();
+             writer.WriteNumberValue(value.X);
+             writer.WriteNumberValue(value.Y);
+-            writer.WriteNumberValue(value.Z);
++            writer.WriteNumberValue(0f);
+             writer.WriteEndArray();
+         }
+     }
+# check: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/parts/elements.bundle.json (13 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.47]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "SignalLamp") [FAIL]
+[xUnit.net 00:00:00.47]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "SystemClock") [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "SignalLamp") [93 ms]
+  Error Message:
+   Ports[0].Normal.z: -0 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 94
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "SystemClock") [5 ms]
+  Error Message:
+   Ports[0].Normal.z: -0 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 94
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.47]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Battery") [FAIL]
+[xUnit.net 00:00:00.48]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "BallDetector") [FAIL]
+[xUnit.net 00:00:00.48]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Ball") [FAIL]
+[xUnit.net 00:00:00.48]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Bumper") [FAIL]
+[xUnit.net 00:00:00.48]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Domino") [FAIL]
+[xUnit.net 00:00:00.48]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Wall") [FAIL]
+[xUnit.net 00:00:00.48]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Ramp") [FAIL]
+[xUnit.net 00:00:00.49]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Counter") [FAIL]
+[xUnit.net 00:00:00.49]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "PressurePlate") [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Battery") [1 ms]
+  Error Message:
+   Colliders[0].HalfExtents.z: 0.375 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 95
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "BallDetector") [4 ms]
+  Error Message:
+   Colliders[0].HalfExtents.z: 0.14 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 95
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Ball") [< 1 ms]
+  Error Message:
+   Colliders[0].HalfExtents.z: 0.34 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 95
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Bumper") [1 ms]
+  Error Message:
+   Ports[0].LocalPosition.z: 0.65 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 94
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Domino") [1 ms]
+  Error Message:
+   Colliders[0].HalfExtents.z: 0.325 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 95
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Wall") [1 ms]
+  Error Message:
+   Colliders[0].HalfExtents.z: 0.125 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 95
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Ramp") [< 1 ms]
+  Error Message:
+   Colliders[0].HalfExtents.z: 0.65 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 95
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Counter") [2 ms]
+  Error Message:
+   Ports[0].LocalPosition.z: 0.1 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 94
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "PressurePlate") [1 ms]
+  Error Message:
+   Ports[0].Normal.z: -0 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 94
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.49]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "PoweredGate") [FAIL]
+[xUnit.net 00:00:00.49]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "StateLatch") [FAIL]
+[xUnit.net 00:00:00.50]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.VectorsAndQuaternionsAreArraysAndEnumsAreNames [FAIL]
+[xUnit.net 00:00:00.50]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.SignedZeroAndSubnormalValuesRoundTripBitForBit [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "PoweredGate") [3 ms]
+  Error Message:
+   Ports[0].LocalPosition.z: 0.92 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 94
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "StateLatch") [1 ms]
+  Error Message:
+   Ports[2].Normal.z: -0 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 94
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.VectorsAndQuaternionsAreArraysAndEnumsAreNames [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                     ↓ (pos 10)
+Expected: "[1.5,0.25,3]"
+Actual:   "[1.5,0.25,0]"
+                     ↑ (pos 10)
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.VectorsAndQuaternionsAreArraysAndEnumsAreNames() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 70
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.SignedZeroAndSubnormalValuesRoundTripBitForBit [< 1 ms]
+  Error Message:
+   Colliders[0].HalfExtents.z: 0.1 vs 0
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 133
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 138
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 159
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 152
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 95
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.SignedZeroAndSubnormalValuesRoundTripBitForBit() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 48
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    15, Passed:    19, Skipped:     0, Total:    34, Duration: 144 ms - BundleElements.Tests.dll (net10.0)
+# exit=1
+M08 KILLED

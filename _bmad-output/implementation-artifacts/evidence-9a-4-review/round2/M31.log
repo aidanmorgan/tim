@@ -1,0 +1,66 @@
+# mutant M31 on tools/BundleElements/BundleSchema.cs
+diff --git a/tools/BundleElements/BundleSchema.cs b/tools/BundleElements/BundleSchema.cs
+index 801a3ff8..06c4413f 100644
+--- a/tools/BundleElements/BundleSchema.cs
++++ b/tools/BundleElements/BundleSchema.cs
+@@ -94,9 +94,9 @@ public static class BundleSchema
+         {
+             if (reader.TokenType != JsonTokenType.String) throw new JsonException($"Expected a {typeof(TEnum).Name} name.");
+             var name = reader.GetString();
+-            if (name is null || !Enum.GetNames<TEnum>().Contains(name, StringComparer.Ordinal))
++            if (name is null || !Enum.GetNames<TEnum>().Contains(name, StringComparer.OrdinalIgnoreCase))
+                 throw new JsonException($"'{name}' is not a {typeof(TEnum).Name} name.");
+-            return Enum.Parse<TEnum>(name, ignoreCase: false);
++            return Enum.Parse<TEnum>(name, ignoreCase: true);
+         }
+ 
+         public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options) =>
+# check: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Ball/bin/Debug/net10.0/Ball.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Counter/bin/Debug/net10.0/Counter.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/parts/elements.bundle.json (13 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.55]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"ShapeKind\": \"Box\"", replacement: "\"ShapeKind\": \"box\"") [FAIL]
+[xUnit.net 00:00:00.55]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"Category\": \"Structure\"", replacement: "\"Category\": \"structure\"") [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"ShapeKind\": \"Box\"", replacement: "\"ShapeKind\": \"box\"") [1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.Text.Json.JsonException)
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(String original, String replacement) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 90
+   at InvokeStub_BundleRoundTripTests.MalformedInputIsRejected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(original: "\"Category\": \"Structure\"", replacement: "\"Category\": \"structure\"") [< 1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.Text.Json.JsonException)
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.MalformedInputIsRejected(String original, String replacement) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 90
+   at InvokeStub_BundleRoundTripTests.MalformedInputIsRejected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:    38, Skipped:     0, Total:    40, Duration: 152 ms - BundleElements.Tests.dll (net10.0)
+# exit=1
+M31 KILLED

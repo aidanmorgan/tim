@@ -1,6 +1,7 @@
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.BundleElements.Tests;
 
@@ -46,6 +47,21 @@ public sealed class SecondFixture : IPuzzleElementDeclaration
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<EventDescriptor> Events => [];
     public SimulationDomain SupportedDomains => SimulationDomain.Signal;
+}
+
+/// <summary>A configurable non-mechanical (signal) fixture, shaped like the Signal lamp: it has a body and colliders but no
+/// mechanical payload. Internal, so the assembly-as-package discovery count above stays two.</summary>
+internal sealed class SignalFixture : ISignalElement
+{
+    public ElementMetadata Metadata => new("signal_fixture", ElementCategory.Goals, "part_signal_fixture", null, "res://signal.tscn", []);
+    public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
+    public IReadOnlyList<PortDescriptor> Ports => [];
+    public IReadOnlyList<ColliderDescriptor> Colliders { get; init; } = [Fixture.Box(new(.4f, .1f, .4f))];
+    public IReadOnlyList<EventDescriptor> Events => [];
+    public SimulationDomain SupportedDomains => SimulationDomain.Signal;
+    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
+    public SignalLatchMode LatchMode => SignalLatchMode.None;
+    public SignalCounterDescriptor? Counter => null;
 }
 
 internal static class TestRepository

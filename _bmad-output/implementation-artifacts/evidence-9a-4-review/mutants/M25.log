@@ -1,0 +1,54 @@
+# mutant M25 on elements/SignalLamp/SignalLampElementDeclaration.cs
+diff --git a/elements/SignalLamp/SignalLampElementDeclaration.cs b/elements/SignalLamp/SignalLampElementDeclaration.cs
+index 4a9bf767..7c077d2f 100644
+--- a/elements/SignalLamp/SignalLampElementDeclaration.cs
++++ b/elements/SignalLamp/SignalLampElementDeclaration.cs
+@@ -24,15 +24,7 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
+         new("ActivationIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
+     ];
+ 
+-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+-    [
+-        new(
+-            ColliderShapeKind.Box,
+-            HalfExtents: new Vector3(0.425f, 0.1f, 0.425f),
+-            Offset: new Vector3(0, -0.35f, 0),
+-            Rotation: Quaternion.Identity,
+-            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+-    ];
++    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+ 
+     public IReadOnlyList<EventDescriptor> Events =>
+     [
+# check: dotnet build tools/BundleElements/BundleElements.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Domino/bin/Debug/net10.0/Domino.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/Counter/bin/Debug/net10.0/Counter.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4/parts/elements.bundle.json (13 elements)
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.99
+# exit=0
+M25 SURVIVED

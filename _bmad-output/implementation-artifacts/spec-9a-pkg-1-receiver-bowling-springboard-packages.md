@@ -160,6 +160,12 @@ Results:
 
 **The Receiver level suites, on `2f8b0654`.** The seven inline-level suites above all passed: 10 files, 60/60 tests, including tube-snapping, which was rerun after a Contended first run ([summary](evidence-9a-pkg-1/e2e-receiver-levels-2f8b0654/summary.txt)).
 
+**The merge of main `12658442` (9A.4 round 2, `a8c0cf47`).**
+- One conflict, in `BundleValidator`. Main's rule is that any package with a body has a collider, whatever its domains. It replaces the old mechanical-only check, and PKG-1's slider checks sit beside it.
+- The moving-body BUNDLE004 message now uses main's wording, "a body declares no collider".
+- Main's changes outside the records touch only `tools/BundleElements*` and the parity test, so no runtime input changed.
+- After the merge, `dotnet test CuriousContraptions.slnx` passes 2216/2216, with build 0 warnings ([log](evidence-9a-pkg-1/tier1-test-after-main-12658442.txt)). Every body in the three packages declares colliders: 5 Receiver walls, 1 ball sphere, and the springboard's base slab and plate.
+
 **Reuse of the 20-suite run.** The diff from `ce460ddc` to `ba4678d9` touches only test, runner and docs files: `tools/e2e/pkg-1.test.ts`, `tools/e2e/README.md`, `tools/E2eRunner/SuiteCatalogue.cs`, `tools/E2eRunner.Tests/SelectionTests.cs` and the `_bmad-output` records. No runtime or bundle input changed, so the 20-suite run on `ce460ddc` still applies.
 
 The runner's bundleIdentity differed across the three publishes of unchanged runtime sources (`ceb64963…`, `589fffef…`, `3839c6e4…`), so the publish is not byte-reproducible. It was already so before PKG-1: `c948fec6` published twice with two identities in evidence-9a-4. This is filed as Story F.15, at the back of the queue and non-blocking.

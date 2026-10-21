@@ -1,0 +1,432 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.13)
+  Discovering: CuriousContraptions.tests
+  Discovered:  CuriousContraptions.tests
+  Starting:    CuriousContraptions.tests
+CCGPU_CONSTRUCT_EXCEPTION System.ArgumentException: Complete body set differs from the installed scene.
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet.ValidateScene(PhysicsSceneDeclaration scene, SimulationEpoch epoch, SimulationTick tick) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/PhysicsBodyReadSet.cs:line 83
+   at CuriousContraptions.Gpu.WorkshopSimulation.ValidateInitialRead(WorkshopRead read, WorkshopConstruction construction, SimulationEpoch epoch) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 478
+   at CuriousContraptions.Gpu.WorkshopSimulation.Construct(WorkshopConstruction candidate) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 182
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: GPU tick read does not match the active transaction.
+   at CuriousContraptions.Gpu.WorkshopSimulation.ValidateAdvancedRead(WorkshopRead source, WorkshopRead read) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 485
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 285
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: GPU body identity or centre of mass changed.
+   at CuriousContraptions.Gpu.WorkshopSimulation.ValidateAdvancedRead(WorkshopRead source, WorkshopRead read) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 531
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 285
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Injected native capture rejection.
+   at CuriousContraptions.Tests.WorkshopSimulationTests.ControlledClock.Capture() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/WorkshopSimulationTests.cs:line 486
+   at CuriousContraptions.Gpu.WorkshopSimulation.CaptureForCommit(WorkshopRead candidate) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 127
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 286
+CCGPU_ADVANCE_EXCEPTION System.InvalidOperationException: Injected old transport failure.
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 282
+CCGPU_CONSTRUCT_EXCEPTION System.ArgumentException: Admission changed a canonical body.
+   at CuriousContraptions.Gpu.PhysicsBodyReadSet.ValidateScene(PhysicsSceneDeclaration scene, SimulationEpoch epoch, SimulationTick tick) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/PhysicsBodyReadSet.cs:line 102
+   at CuriousContraptions.Gpu.WorkshopSimulation.ValidateInitialRead(WorkshopRead read, WorkshopConstruction construction, SimulationEpoch epoch) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 478
+   at CuriousContraptions.Gpu.WorkshopSimulation.Construct(WorkshopConstruction candidate) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 182
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: GPU body identity or centre of mass changed.
+   at CuriousContraptions.Gpu.WorkshopSimulation.ValidateAdvancedRead(WorkshopRead source, WorkshopRead read) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 531
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 285
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: GPU tick read does not match the active transaction.
+   at CuriousContraptions.Gpu.WorkshopSimulation.ValidateAdvancedRead(WorkshopRead source, WorkshopRead read) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 485
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 285
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: GPU tick read does not match the active transaction.
+   at CuriousContraptions.Gpu.WorkshopSimulation.ValidateAdvancedRead(WorkshopRead source, WorkshopRead read) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 485
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopSimulation.cs:line 285
+Native test project: /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/curious-native-tests-1dff5961617b429a93c77e08fd7e3803/project
+Native test log: /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/curious-native-tests-1dff5961617b429a93c77e08fd7e3803/godot.log
+Native test CA bundle: /etc/ssl/cert.pem
+Initializing Godot...
+cwd: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/bin/Debug/net10.0
+[AssemblyPreloader] Multiple game assemblies found in Debug (will pre-load all in alphabetical order):
+  - CuriousContraptions.Abstractions.dll
+  - CuriousContraptions.Animation.dll
+  - CuriousContraptions.FlatBuffers.dll
+  - CuriousContraptions.dll
+[AssemblyPreloader] Found 4 game assembly(ies)
+[AssemblyPreloader] Assembly 'CuriousContraptions.Abstractions' already loaded in Default context
+[AssemblyPreloader] Assembly 'CuriousContraptions.Animation' already loaded in Default context
+[AssemblyPreloader] Assembly 'CuriousContraptions.FlatBuffers' already loaded in Default context
+[AssemblyPreloader] Assembly 'CuriousContraptions' already loaded in Default context
+Godot project: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2
+Engine: 2dog 4.7.2.91, starting Godot instance...
+Engine: Godot instance created successfully!
+Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+Engine: Godot started successfully!
+Godot initialized successfully.
+CCGPU_UI_REJECTION CuriousContraptions.Gpu.WorkshopEditRejectedException: Authored body identity exceeds its domain.
+   at CuriousContraptions.Gpu.WorkshopPhysicsCompiler.PartIdentities(GpuBodyId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopPhysicsCompiler.cs:line 344
+   at CuriousContraptions.Gpu.WorkshopPhysicsCompiler.CaptureSensor(WorkshopReceiver receiver) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopPhysicsCompiler.cs:line 325
+   at CuriousContraptions.Gpu.SpringboardLessons.WithReceiver(WorkshopConstruction construction, WorkshopReceiver receiver) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/SpringboardLessons.cs:line 79
+   at CuriousContraptions.Gpu.WorkshopConstruction.WithInstance(IWorkshopInstance instance) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/WorkshopConstruction.cs:line 132
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/WorkshopBenchPlacement.cs:line 26
+CCGPU_UI_REJECTION CuriousContraptions.Gpu.WorkshopEditRejectedException: Unsupported instance part id 'balloon'.
+   at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 143
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/WorkshopBenchPlacement.cs:line 26
+CCGPU_UI_REJECTION CuriousContraptions.Gpu.WorkshopEditRejectedException: Unsupported instance part id 'tennis'.
+   at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 143
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/WorkshopBenchPlacement.cs:line 26
+CCGPU_UI_REJECTION CuriousContraptions.Gpu.WorkshopEditRejectedException: Unsupported instance part id 'no-such-part'.
+   at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 143
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/WorkshopBenchPlacement.cs:line 26
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU JAAAACAAWABMAAAASwBKAEkAPAAAAAAAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAAA4AAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAICAQEAAAAAAAAAAAAAABAAAAABAAAAAAAAAAEAAAAAAAAA
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_UI_REJECTION CuriousContraptions.Gpu.WorkshopEditRejectedException: Unsupported instance part id 'balloon'.
+   at CuriousContraptions.MachineWorld.CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 143
+   at CuriousContraptions.WorkshopBenchPlacement.Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation, Nullable`1 rampDimensions, Nullable`1 wallDimensions, Nullable`1 pipeLength, Action pushUndo) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/WorkshopBenchPlacement.cs:line 26
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+ERROR: Workshop handler 'Undo' failed: System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 418
+   at CuriousContraptions.Workshop.UndoAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 657
+   at CuriousContraptions.Workshop.Undo() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 651
+   at: void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/WorkshopGpu.cs:49)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string)
+       [1] void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/WorkshopGpu.cs:49)
+       [2] void CuriousContraptions.Workshop+<Undo>d__97.MoveNext() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:651)
+       [3] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [4] void CuriousContraptions.Workshop.Undo()
+       [5] void System.RuntimeMethodHandle.InvokeMethod(System.Runtime.CompilerServices.ObjectHandleOnStack, System.Void**, System.Runtime.CompilerServices.ObjectHandleOnStack, Interop+BOOL, System.Runtime.CompilerServices.ObjectHandleOnStack)
+       [6] object System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(object, System.Reflection.BindingFlags)
+       [7] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [8] System.Collections.Generic.List`1[System.Exception] CuriousContraptions.Tests.PalettePlacementTests.InvokeHandler(CuriousContraptions.Workshop, string, System.Object[]) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/PalettePlacementTests.cs:228)
+       [9] void CuriousContraptions.Tests.PalettePlacementTests.AFailingHandlerIsCaughtAtItsBoundaryLoggedOnceByNameAndShown() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/PalettePlacementTests.cs:327)
+       [10] void System.RuntimeMethodHandle.InvokeMethod(System.Runtime.CompilerServices.ObjectHandleOnStack, System.Void**, System.Runtime.CompilerServices.ObjectHandleOnStack, Interop+BOOL, System.Runtime.CompilerServices.ObjectHandleOnStack)
+       [11] object System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(object, System.Reflection.BindingFlags)
+       [12] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [13] void Xunit.v3.TestRunner`2+<>c__DisplayClass5_0+<<InvokeTest>b__1>d.MoveNext()
+       [14] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__1()
+       [15] void Xunit.v3.ExceptionAggregator+<RunAsync>d__13.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:124)
+       [16] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__0() (/_/src/xunit.v3.core/Runners/TestRunner.cs:144)
+       [17] void Xunit.v3.ExecutionTimer+<MeasureAsync>d__2.MoveNext() (/_/src/xunit.v3.core/Utility/ExecutionTimer.cs:58)
+       [18] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:143)
+       [19] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:93)
+       [20] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext()
+       [21] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [22] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1+<<RunTest>g__runTest|0>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [23] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [24] void Xunit.v3.TestRunner`2+<RunTest>d__15.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:356)
+       [25] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.RunTest(TContext) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:127)
+       [26] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [27] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [28] void Xunit.v3.TestRunnerBase`2+<Run>d__13.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [29] void Xunit.v3.XunitTestRunner+<Run>d__2.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestRunner.cs:55)
+       [30] void Xunit.v3.TestCaseRunner`3+<RunTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunner.cs:74)
+       [31] void Xunit.v3.XunitTestCaseRunnerBase`3+<RunTestCase>d__0.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunnerBase.cs:38)
+       [32] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.RunTestCase(TContext, System.Exception)
+       [33] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [34] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [35] void Xunit.v3.TestCaseRunnerBase`2+<Run>d__5.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [36] void Xunit.v3.XunitTestCaseRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:72)
+       [37] void Xunit.v3.XunitRunnerHelper+<RunXunitTestCase>d__3.MoveNext()
+       [38] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunnerBase`3.RunTestCase(TContext, TTestCase) (/_/src/xunit.v3.core/Runners/XunitTestMethodRunnerBase.cs:23)
+       [39] void Xunit.v3.TestMethodRunner`3+<RunTestCases>d__7.MoveNext()
+       [40] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [41] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [42] void Xunit.v3.TestMethodRunner`3+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [43] void Xunit.v3.XunitTestMethodRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestMethodRunner.cs:59)
+       [44] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.RunTestMethod(Xunit.v3.XunitTestClassRunnerContext, Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], System.Object[]) (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:77)
+       [45] void Xunit.v3.TestClassRunner`4+<RunTestMethods>d__9.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:303)
+       [46] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [47] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [48] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.RunTestMethods(TContext, System.Exception)
+       [49] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4+<>c__DisplayClass8_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [50] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [51] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [52] void Xunit.v3.TestClassRunner`4+<Run>d__8.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [53] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [54] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [55] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.Run(TContext)
+       [56] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner+<>c__DisplayClass4_0.<Run>b__0() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [57] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [58] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [59] void Xunit.v3.XunitTestClassRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [60] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [61] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [62] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.Run(Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [63] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.RunTestClass(Xunit.v3.XunitTestCollectionRunnerContext, Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:88)
+       [64] void Xunit.v3.TestCollectionRunner`4+<RunTestClasses>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:257)
+       [65] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [66] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [67] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.RunTestClasses(TContext, System.Exception)
+       [68] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [69] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [70] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [71] void Xunit.v3.TestCollectionRunner`4+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [72] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [73] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [74] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.Run(TContext)
+       [75] void Xunit.v3.XunitTestCollectionRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:66)
+       [76] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [77] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [78] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.Run(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [79] void Xunit.v3.XunitTestAssemblyRunnerBaseContext`2+<RunTestCollection>d__38.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBaseContext.cs:164)
+       [80] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [81] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [82] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBaseContext`2.RunTestCollection(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase], Xunit.v3.ITestCaseOrderer)
+       [83] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBase`4.RunTestCollection(TContext, TTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBase.cs:173)
+       [84] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner.<>n__0(Xunit.v3.XunitTestAssemblyRunnerContext, Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase])
+       [85] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner+<>c__DisplayClass4_0.<RunTestCollection>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:67)
+       [86] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1+<<Loop>b__0>d.MoveNext() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:99)
+       [87] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [88] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1.<Loop>b__0(object)
+       [89] void twodog.Testing.Xunit.GodotTestThread.Invoke<T>(System.ValueTuple`2[System.Threading.SendOrPostCallback,System.Object], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:121)
+       [90] void twodog.Testing.Xunit.GodotTestThread.Loop<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:111)
+       [91] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass0_0`1.<Run>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:85)
+       [92] void System.Threading.Thread+StartHelper.Callback(object)
+       [93] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU JAAAACAAWABMAAAAAAAAAEsAPAAAAAAAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAAA4AAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAgEAAAAAAAAAAAAAABAAAAABAAAAAAAAAAEAAAAAAAAA
+ERROR: Bench placement of 'ramp' as body 1 was admitted, but presenting it failed: System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 421
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 550
+   at: void CuriousContraptions.Workshop+<ClickAsync>d__90.MoveNext() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:550)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string)
+       [1] void CuriousContraptions.Workshop+<ClickAsync>d__90.MoveNext() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:550)
+       [2] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [3] System.Threading.Tasks.Task CuriousContraptions.Workshop.ClickAsync(Godot.Vector2)
+       [4] void CuriousContraptions.Workshop+<Click>d__89.MoveNext() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:516)
+       [5] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [6] void CuriousContraptions.Workshop.Click(Godot.Vector2)
+       [7] object <unknown>.InvokeStub_Workshop.Click(object, System.Span`1[System.Object])
+       [8] object System.Reflection.MethodBaseInvoker.InvokeWithOneArg(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [9] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [10] System.Collections.Generic.List`1[System.Exception] CuriousContraptions.Tests.PalettePlacementTests.InvokeHandler(CuriousContraptions.Workshop, string, System.Object[]) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/PalettePlacementTests.cs:228)
+       [11] System.Collections.Generic.List`1[System.Exception] CuriousContraptions.Tests.PalettePlacementTests.ClickBench(CuriousContraptions.Workshop) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/PalettePlacementTests.cs:219)
+       [12] void CuriousContraptions.Tests.PalettePlacementTests.AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/PalettePlacementTests.cs:294)
+       [13] void System.RuntimeMethodHandle.InvokeMethod(System.Runtime.CompilerServices.ObjectHandleOnStack, System.Void**, System.Runtime.CompilerServices.ObjectHandleOnStack, Interop+BOOL, System.Runtime.CompilerServices.ObjectHandleOnStack)
+       [14] object System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(object, System.Reflection.BindingFlags)
+       [15] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [16] void Xunit.v3.TestRunner`2+<>c__DisplayClass5_0+<<InvokeTest>b__1>d.MoveNext()
+       [17] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__1()
+       [18] void Xunit.v3.ExceptionAggregator+<RunAsync>d__13.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:124)
+       [19] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__0() (/_/src/xunit.v3.core/Runners/TestRunner.cs:144)
+       [20] void Xunit.v3.ExecutionTimer+<MeasureAsync>d__2.MoveNext() (/_/src/xunit.v3.core/Utility/ExecutionTimer.cs:58)
+       [21] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:143)
+       [22] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:93)
+       [23] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext()
+       [24] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [25] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1+<<RunTest>g__runTest|0>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [26] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [27] void Xunit.v3.TestRunner`2+<RunTest>d__15.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:356)
+       [28] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.RunTest(TContext) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:127)
+       [29] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [30] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [31] void Xunit.v3.TestRunnerBase`2+<Run>d__13.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [32] void Xunit.v3.XunitTestRunner+<Run>d__2.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestRunner.cs:55)
+       [33] void Xunit.v3.TestCaseRunner`3+<RunTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunner.cs:74)
+       [34] void Xunit.v3.XunitTestCaseRunnerBase`3+<RunTestCase>d__0.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunnerBase.cs:38)
+       [35] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.RunTestCase(TContext, System.Exception)
+       [36] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [37] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [38] void Xunit.v3.TestCaseRunnerBase`2+<Run>d__5.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [39] void Xunit.v3.XunitTestCaseRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:72)
+       [40] void Xunit.v3.XunitRunnerHelper+<RunXunitTestCase>d__3.MoveNext()
+       [41] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunnerBase`3.RunTestCase(TContext, TTestCase) (/_/src/xunit.v3.core/Runners/XunitTestMethodRunnerBase.cs:23)
+       [42] void Xunit.v3.TestMethodRunner`3+<RunTestCases>d__7.MoveNext()
+       [43] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [44] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [45] void Xunit.v3.TestMethodRunner`3+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [46] void Xunit.v3.XunitTestMethodRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestMethodRunner.cs:59)
+       [47] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.RunTestMethod(Xunit.v3.XunitTestClassRunnerContext, Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], System.Object[]) (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:77)
+       [48] void Xunit.v3.TestClassRunner`4+<RunTestMethods>d__9.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:303)
+       [49] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [50] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [51] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.RunTestMethods(TContext, System.Exception)
+       [52] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4+<>c__DisplayClass8_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [53] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [54] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [55] void Xunit.v3.TestClassRunner`4+<Run>d__8.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [56] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [57] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [58] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.Run(TContext)
+       [59] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner+<>c__DisplayClass4_0.<Run>b__0() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [60] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [61] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [62] void Xunit.v3.XunitTestClassRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [63] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [64] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [65] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.Run(Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [66] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.RunTestClass(Xunit.v3.XunitTestCollectionRunnerContext, Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:88)
+       [67] void Xunit.v3.TestCollectionRunner`4+<RunTestClasses>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:257)
+       [68] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [69] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [70] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.RunTestClasses(TContext, System.Exception)
+       [71] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [72] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [73] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [74] void Xunit.v3.TestCollectionRunner`4+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [75] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [76] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [77] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.Run(TContext)
+       [78] void Xunit.v3.XunitTestCollectionRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:66)
+       [79] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [80] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [81] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.Run(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [82] void Xunit.v3.XunitTestAssemblyRunnerBaseContext`2+<RunTestCollection>d__38.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBaseContext.cs:164)
+       [83] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [84] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [85] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBaseContext`2.RunTestCollection(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase], Xunit.v3.ITestCaseOrderer)
+       [86] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBase`4.RunTestCollection(TContext, TTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBase.cs:173)
+       [87] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner.<>n__0(Xunit.v3.XunitTestAssemblyRunnerContext, Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase])
+       [88] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner+<>c__DisplayClass4_0.<RunTestCollection>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:67)
+       [89] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1+<<Loop>b__0>d.MoveNext() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:99)
+       [90] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [91] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1.<Loop>b__0(object)
+       [92] void twodog.Testing.Xunit.GodotTestThread.Invoke<T>(System.ValueTuple`2[System.Threading.SendOrPostCallback,System.Object], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:121)
+       [93] void twodog.Testing.Xunit.GodotTestThread.Loop<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:111)
+       [94] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass0_0`1.<Run>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:85)
+       [95] void System.Threading.Thread+StartHelper.Callback(object)
+       [96] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+CCGPU JAAAACAAWABMAAAAAAAAAEsAPAAAAAAAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAAA4AAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAgIAAAAAAAAAAAAAABAAAAABAAAAAAAAAAEAAAAAAAAA
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__62_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/ui/Workshop.cs:line 88
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAADh9QUAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAFAQAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAgAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAADh9QUAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAFAQAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAgAAAAAAAAABAAAAAAAAAAEAAAAAAAAAEg4AAAAAAAACAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAADh9QUAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAFAQAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAgAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAADh9QUAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAFAQAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAgAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAwAAAAAAAAACAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAADh9QUAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAFAQAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAgAAAAAAAAABAAAAAAAAAAEAAAAAAAAAEg4AAAAAAAACAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAADh9QUAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAAAAAAAAAFAQAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU JAAAACAAYABUAAAAAAAAAFMARAAAADwAAAA0ACwAJAAgAAQAIAAAAAAOJwcAAAAAoIYBAAAAAAACAAAAAAAAAAAAAABAAAAAAgAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAEAAAAAsAAAAAAAAAFwAAAAAAAAA=
+CCGPU_PRESENTATION_EXCEPTION System.ArgumentException: Presented body has no unique owned visual binding.
+   at CuriousContraptions.MachineWorld.PresentWorkshopRead() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 264
+CCGPU_PRESENTATION_EXCEPTION System.InvalidOperationException: Sequence contains more than one matching element
+   at System.Linq.ThrowHelper.ThrowMoreThanOneMatchException()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Func`2 predicate, Boolean& found)
+   at System.Linq.Enumerable.SingleOrDefault[TSource](IEnumerable`1 source, Func`2 predicate)
+   at CuriousContraptions.MachineWorld.PresentWorkshopRead() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/engine/MachineWorld.Gpu.cs:line 264
+Shutting down Godot...
+WARNING: 2 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (./servers/rendering/renderer_canvas_cull.cpp:2735)
+WARNING: 53 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (./core/object/object.cpp:2536)
+Engine: Godot instance destroyed.
+Godot shut down successfully.
+CCGPU_TRACE_FLUSH_EXCEPTION System.IO.IOException: Deliberate diagnostic output failure.
+   at CuriousContraptions.Tests.WorkshopTraceTests.FailingOutput.WriteLine(String value) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.tests/WorkshopTraceTests.cs:line 618
+   at System.IO.TextWriter.SyncTextWriter.WriteLine(String value)
+   at System.Console.WriteLine(String value)
+   at CuriousContraptions.Simulation.WorkshopTrace.FlushSealed() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Simulation/WorkshopTrace.cs:line 161
+CONSTRUCTION_SAVE_TRUNCATION save=312 accepted=[311]
+CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":3,"outcomeName":"Inconclusive","epoch":0,"correction":0,"before":500,"master":500.5,"after":502,"qualified":16,"startupAttempts":16,"startupOutliers":0,"startupInconclusive":0,"startupUnanswered":0,"checks":1,"slews":0,"rederivations":0,"inconclusive":1,"unanswered":0,"checkRetries":0}
+CCGPU_CLOCK_DERIVATION {"report":0,"reportName":"Check","outcome":1,"outcomeName":"Slewed","epoch":0,"correction":0,"pendingCorrection":-0.005,"before":500,"master":500.034,"after":500.008,"qualified":16,"startupAttempts":16,"startupOutliers":0,"startupInconclusive":0,"startupUnanswered":0,"checks":1,"slews":1,"rederivations":0,"inconclusive":0,"unanswered":0,"checkRetries":0}
+  Finished:    CuriousContraptions.tests (ID = '2b70ba8497a1505b358e93140a474897b75b119fe0b638abd798b080fb165076')
+=== TEST EXECUTION SUMMARY ===
+   CuriousContraptions.tests  Total: 1918, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 25.587s
+ERROR: 10 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.
+ERROR: 1 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.

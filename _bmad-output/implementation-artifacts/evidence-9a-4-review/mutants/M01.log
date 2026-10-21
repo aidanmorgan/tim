@@ -1,0 +1,58 @@
+# mutant M01 on CuriousContraptions.slnx
+diff --git a/CuriousContraptions.slnx b/CuriousContraptions.slnx
+index d8b3893d..c735f628 100644
+--- a/CuriousContraptions.slnx
++++ b/CuriousContraptions.slnx
+@@ -22,9 +22,7 @@
+     <Project Path="elements/Ramp/Ramp.csproj" />
+     <Project Path="elements/SignalLamp/SignalLamp.csproj" />
+     <Project Path="elements/StateLatch/StateLatch.csproj" />
+-    <Project Path="elements/SystemClock/SystemClock.csproj" />
+-    <Project Path="elements/Wall/Wall.csproj" />
+-  </Folder>
++    <Project Path="elements/SystemClock/SystemClock.csproj" />  </Folder>
+   <Folder Name="/tools/">
+     <Project Path="tools/BundleElements/BundleElements.csproj" />
+     <Project Path="tools/BundleElements.Tests/BundleElements.Tests.csproj" />
+# check: dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (13 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/parts/elements.bundle.json (13 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.37]     CuriousContraptions.BundleElements.Tests.SolutionMembershipTests.TheSolutionContainsEveryPackageTheDomainAbstractionsAndTheGenerator [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.SolutionMembershipTests.TheSolutionContainsEveryPackageTheDomainAbstractionsAndTheGenerator [13 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+Expected: []
+Actual:   ["elements/Wall/Wall.csproj"]
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.SolutionMembershipTests.TheSolutionContainsEveryPackageTheDomainAbstractionsAndTheGenerator() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-mut/tools/BundleElements.Tests/SolutionMembershipTests.cs:line 37
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    33, Skipped:     0, Total:    34, Duration: 139 ms - BundleElements.Tests.dll (net10.0)
+# exit=1
+M01 KILLED

@@ -1,0 +1,39 @@
+$ git ls-files parts/elements.bundle.json
+exit=0 lines=       0
+$ rg "IReadOnlyDictionary<string, object>" CuriousContraptions.Abstractions/ElementMetadata.cs
+exit=1
+$ rg -n "IReadOnlyDictionary<string, object>|string Category|GeneratedAt|DateTime" CuriousContraptions.Abstractions* elements tools/BundleElements -g "*.cs"
+exit=1
+$ rg -n "ElementDeclaration|using CuriousContraptions.Elements" tools/BundleElements -g "!bin" -g "!obj"
+tools/BundleElements/BundleValidator.cs:29:public sealed record BundlePackage(string Package, IPuzzleElementDeclaration Declaration);
+tools/BundleElements/BundleValidator.cs:52:        public void Check(IPuzzleElementDeclaration declaration)
+tools/BundleElements/BundleSchema.cs:54:    public static BundleEntry Entry(IPuzzleElementDeclaration declaration)
+tools/BundleElements/BundleSchema.cs:67:    public static string Write(IEnumerable<IPuzzleElementDeclaration> declarations)
+tools/BundleElements/PackageDiscovery.cs:11:/// <see cref="IPuzzleElementDeclaration"/> with a public parameterless constructor.</summary>
+tools/BundleElements/PackageDiscovery.cs:51:            .Where(type => type.IsPublic && type.IsClass && !type.IsAbstract && typeof(IPuzzleElementDeclaration).IsAssignableFrom(type) &&
+tools/BundleElements/PackageDiscovery.cs:57:        return new([new(package, (IPuzzleElementDeclaration)Activator.CreateInstance(declarations[0])!)], []);
+exit=0
+$ rg -n "ProjectReference" tools/BundleElements/BundleElements.csproj
+14:    <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+15:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
+16:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj" />
+17:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
+18:    <ProjectReference Include="../../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+20:    <ProjectReference Include="../../elements/*/*.csproj" />
+$ rg -nw "Dimensions" CuriousContraptions.Abstractions elements tools/BundleElements -g "*.cs"
+exit=1
+$ rg -n "\"Version\"|Version =|SchemaVersion" tools/BundleElements elements CuriousContraptions.Abstractions -g "*.cs"
+exit=1
+$ rg -n "AppBundle" tools/BundleElements -g "*.cs"
+exit=1
+$ rg -n "ElementBundle" tools/E2eRunner tools/E2eRunner.Tests -g "*.cs"
+exit=1
+$ rg -n "\{\}" parts/elements.bundle.json
+exit=1
+$ rg -n "\"Version\"|GeneratedAt" parts/elements.bundle.json
+exit=1
+$ rg -n "elements.bundle.json" --hidden -g "!_bmad-output" -g "!**/bin/**" -g "!**/obj/**" -g "!.anvil"
+.gitignore:17:/parts/elements.bundle.json
+tools/BundleElements/BundleElements.csproj:26:    <Exec Command="&quot;$(BundleHost)&quot; &quot;$(TargetPath)&quot; --root &quot;$(BundleRepositoryRoot)&quot; --out &quot;$(TargetDir)elements.bundle.json&quot; --out &quot;$(BundleRepositoryRoot)parts/elements.bundle.json&quot;" />
+tools/BundleElements/BundleElements.csproj:28:      <FileWrites Include="$(TargetDir)elements.bundle.json" />
+tools/E2eRunner/Selection.cs:96:    public const string BundlePath = "parts/elements.bundle.json";

@@ -49,7 +49,7 @@ public static class BundleSchema
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectNullableAnnotations = true,
         RespectRequiredConstructorParameters = true,
-        Converters = { new JsonStringEnumConverter(allowIntegerValues: false), new Vector3Converter(), new QuaternionConverter() }
+        Converters = { new ExactEnumConverterFactory(), new Vector3Converter(), new QuaternionConverter() }
     };
 
     public static BundleEntry Entry(IPuzzleElementDeclaration declaration)
@@ -79,6 +79,31 @@ public static class BundleSchema
     /// <summary>The declared domains one flag each, in ascending flag order.</summary>
     public static IReadOnlyList<SimulationDomain> Domains(SimulationDomain domains) =>
         Enum.GetValues<SimulationDomain>().Where(flag => flag != SimulationDomain.None && domains.HasFlag(flag)).ToArray();
+
+    /// <summary>Enums by exact member name only: a number, a different case, surrounding space or a comma-joined flag list is
+    /// rejected on read, and a value with no single member name is rejected on write.</summary>
+    private sealed class ExactEnumConverterFactory : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert) => typeToConvert.IsEnum;
+
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+            (JsonConverter)Activator.CreateInstance(typeof(ExactEnumConverter<>).MakeGenericType(typeToConvert))!;
+    }
+
+    private sealed class ExactEnumConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
+    {
+        public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType != JsonTokenType.String) throw new JsonException($"Expected a {typeof(TEnum).Name} name.");
+            var name = reader.GetString();
+            if (name is null || !Enum.GetNames<TEnum>().Contains(name, StringComparer.Ordinal))
+                throw new JsonException($"'{name}' is not a {typeof(TEnum).Name} name.");
+            return Enum.Parse<TEnum>(name, ignoreCase: false);
+        }
+
+        public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options) =>
+            writer.WriteStringValue(Enum.GetName(value) ?? throw new JsonException($"{typeof(TEnum).Name} {value} has no member name."));
+    }
 
     private sealed class Vector3Converter : JsonConverter<Vector3>
     {

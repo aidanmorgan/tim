@@ -1,0 +1,57 @@
+# mutant M25 on elements/SignalLamp/SignalLampElementDeclaration.cs
+diff --git a/elements/SignalLamp/SignalLampElementDeclaration.cs b/elements/SignalLamp/SignalLampElementDeclaration.cs
+index 4a9bf767..7c077d2f 100644
+--- a/elements/SignalLamp/SignalLampElementDeclaration.cs
++++ b/elements/SignalLamp/SignalLampElementDeclaration.cs
+@@ -24,15 +24,7 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
+         new("ActivationIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
+     ];
+ 
+-    public IReadOnlyList<ColliderDescriptor> Colliders =>
+-    [
+-        new(
+-            ColliderShapeKind.Box,
+-            HalfExtents: new Vector3(0.425f, 0.1f, 0.425f),
+-            Offset: new Vector3(0, -0.35f, 0),
+-            Rotation: Quaternion.Identity,
+-            Material: new MaterialProperties(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f))
+-    ];
++    public IReadOnlyList<ColliderDescriptor> Colliders => [];
+ 
+     public IReadOnlyList<EventDescriptor> Events =>
+     [
+# check: dotnet build tools/BundleElements/BundleElements.csproj --nologo
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Domino/bin/Debug/net10.0/Domino.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Counter/bin/Debug/net10.0/Counter.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/Ball/bin/Debug/net10.0/Ball.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+BundleElements : error BUNDLE004: SignalLamp.Colliders: a body declares no collider [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/BundleElements.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/BundleElements.csproj(26,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.402/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll" --root "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/parts/elements.bundle.json"" exited with code 1.
+
+Build FAILED.
+
+BundleElements : error BUNDLE004: SignalLamp.Colliders: a body declares no collider [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/BundleElements.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/BundleElements.csproj(26,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.402/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll" --root "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch17-9a4-r2/parts/elements.bundle.json"" exited with code 1.
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:00.99
+# exit=1
+M25 KILLED
