@@ -1,0 +1,9 @@
+tools/e2e/cat-030.test.ts
+tools/e2e/cat-048a.test.ts
+tools/e2e/cat-048b.test.ts
+tools/e2e/cat-049.test.ts
+tools/e2e/cat-050.test.ts
+tools/e2e/cat-050-joined.test.ts
+tools/e2e/tube-snapping.test.ts
+tools/e2e/capacity-9r.test.ts
+tools/e2e/palette-placement.test.ts

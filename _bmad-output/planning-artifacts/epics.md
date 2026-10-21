@@ -1623,6 +1623,7 @@ So that two plates switch two gates independently.
   - *a Release generator build (F14-6);*
   - *a randomised-order test run (F14-8).*
 - *PKG-1 (21 Oct 2026) added owner-body motion, mass, drag and gravity parity for every mechanical package (`EveryMechanicalPackageDeclaresTheCompiledBodyMotionMassDragAndGravity`). Inertia is still not compared (F14-3).*
+- *PKG-2 (21 Oct 2026, [raw](../implementation-artifacts/evidence-9a-pkg-2/runner-select-diff-8333682f.txt)) found two selection gaps that force Full: a `parts/scenes/*.tscn` path deleted by a move into `elements/<Name>/` resolves to no part (`Full(Unknown)`), because only head catalogues are read; and `tools/BundleElements.Tests/**` matches no rule (`Full(Unknown)`), although the tests are browser-free.*
 
 **Acceptance Criteria:**
 - `select --diff` and `run --diff` let a path that forces Full win over a `NoPrimarySuite` refusal raised by another path. Today `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball`, although the same diff touches the Abstractions, `tools/BundleElements` and `tools/E2eRunner`, each of which selects Full.
