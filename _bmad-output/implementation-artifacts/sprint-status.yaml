@@ -180,13 +180,13 @@ development_status:
   # 5
   9a-4-lossless-bundle-build-gate: done
   # 6
-  9a-pkg-1-receiver-bowling-springboard-packages: review
+  9a-pkg-1-receiver-bowling-springboard-packages: done
   # merged into 9a-pkg-1 (21 Oct 2026)
-  9a-5-receiver-element-package: review
+  9a-5-receiver-element-package: done
   # merged into 9a-pkg-1 (21 Oct 2026)
-  9a-6-bowling-ball-element-package: review
+  9a-6-bowling-ball-element-package: done
   # merged into 9a-pkg-1 (21 Oct 2026)
-  9a-12-springboard-element-package: review
+  9a-12-springboard-element-package: done
   # 7
   9a-pkg-2-funnel-pipe-bend-packages: review
   # merged into 9a-pkg-2 (21 Oct 2026)

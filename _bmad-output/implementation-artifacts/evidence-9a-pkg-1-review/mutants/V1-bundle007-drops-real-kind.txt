@@ -1,0 +1,19 @@
+mutant V1-bundle007-drops-real-kind on 8333682f
+ tools/BundleElements/BundleValidator.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/tools/BundleElements/BundleValidator.cs b/tools/BundleElements/BundleValidator.cs
+index 59bff925..22208fd3 100644
+--- a/tools/BundleElements/BundleValidator.cs
++++ b/tools/BundleElements/BundleValidator.cs
+@@ -163,7 +163,7 @@ public static class BundleValidator
+         /// <summary>A key must name one of the element's declared Real parameters.</summary>
+         private void Real(string path, string key, IReadOnlyList<ParameterDescriptor> parameters)
+         {
+-            if (!parameters.Any(parameter => parameter.Key == key && parameter.Kind == ParameterKind.Real))
++            if (!parameters.Any(parameter => parameter.Key == key))
+                 errors.Add(new(BundleErrorCode.UnresolvedReference, $"{package}.{path}: '{key}' names no declared Real parameter"));
+         }
+ 
+build: succeeded
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 118 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 148 ms - BundleElements.Tests.dll (net10.0)

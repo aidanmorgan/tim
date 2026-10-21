@@ -1,0 +1,19 @@
+mutant B1-bowling-inertia on 8333682f
+ elements/BowlingBall/BowlingBallElementDeclaration.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/elements/BowlingBall/BowlingBallElementDeclaration.cs b/elements/BowlingBall/BowlingBallElementDeclaration.cs
+index 9cc4bb26..7de714e3 100644
+--- a/elements/BowlingBall/BowlingBallElementDeclaration.cs
++++ b/elements/BowlingBall/BowlingBallElementDeclaration.cs
+@@ -45,7 +45,7 @@ public sealed class BowlingBallElementDeclaration : IMechanicalElement
+     public RigidBodyMassProperties MassProperties => new(
+         Mass: 4f,
+         CentreOfMass: Vector3.Zero,
+-        InertiaTensor: new Vector3(0.12544f, 0.12544f, 0.12544f),
++        InertiaTensor: new Vector3(0.5f, 0.5f, 0.5f),
+         LinearDrag: 0.04f,
+         Gravity: new Vector3(0, -9.81f, 0));
+ 
+build: succeeded
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 121 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 160 ms - BundleElements.Tests.dll (net10.0)

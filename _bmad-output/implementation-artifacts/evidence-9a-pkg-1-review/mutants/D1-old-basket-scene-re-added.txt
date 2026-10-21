@@ -1,0 +1,5 @@
+mutant D1-old-basket-scene-re-added on 8333682f
+?? parts/scenes/basket.tscn
+build: succeeded
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 119 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 151 ms - BundleElements.Tests.dll (net10.0)

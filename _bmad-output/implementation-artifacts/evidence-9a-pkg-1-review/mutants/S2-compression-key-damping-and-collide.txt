@@ -1,0 +1,26 @@
+mutant S2-compression-key-damping-and-collide on 8333682f
+ elements/Springboard/SpringboardElementDeclaration.cs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+diff --git a/elements/Springboard/SpringboardElementDeclaration.cs b/elements/Springboard/SpringboardElementDeclaration.cs
+index 351912e8..28e5bc78 100644
+--- a/elements/Springboard/SpringboardElementDeclaration.cs
++++ b/elements/Springboard/SpringboardElementDeclaration.cs
+@@ -59,8 +59,8 @@ public sealed class SpringboardElementDeclaration : ISliderElement
+             UpperLimit: 0f,
+             StiffnessParameter: "stiffness",
+             DampingParameter: "damping",
+-            CompressionParameter: "initial_compression",
+-            BodiesCollide: false,
++            CompressionParameter: "damping",
++            BodiesCollide: true,
+             MovingBody: new(
+                 Mass: 0.25f,
+                 Gravity: new Vector3(0f, -9.81f, 0f),
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 125 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 151 ms - BundleElements.Tests.dll (net10.0)

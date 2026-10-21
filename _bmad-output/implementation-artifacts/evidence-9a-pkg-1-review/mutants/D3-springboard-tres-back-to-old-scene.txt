@@ -1,0 +1,25 @@
+mutant D3-springboard-tres-back-to-old-scene on 8333682f
+ parts/catalog/springboard.tres | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+?? parts/scenes/springboard.tscn
+diff --git a/parts/catalog/springboard.tres b/parts/catalog/springboard.tres
+index b8904a5e..a677c35d 100644
+--- a/parts/catalog/springboard.tres
++++ b/parts/catalog/springboard.tres
+@@ -1,7 +1,7 @@
+ [gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+ 
+ [ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+-[ext_resource type="PackedScene" path="res://elements/Springboard/springboard.tscn" id="2"]
++[ext_resource type="PackedScene" path="res://parts/scenes/springboard.tscn" id="2"]
+ 
+ [resource]
+ script = ExtResource("1")
+build: succeeded
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 129 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 153 ms - BundleElements.Tests.dll (net10.0)

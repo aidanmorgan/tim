@@ -1,0 +1,82 @@
+parent=193cdf37 index=ce460ddc staged=      44
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.wfwHa5/solution.binlog
+
+Time Elapsed 00:00:11.58
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.wfwHa5/playtest.binlog
+
+Time Elapsed 00:00:12.16
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.wfwHa5/web.binlog
+
+Time Elapsed 00:00:06.01
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs
+Anvil snapshot 1.ts: CuriousContraptions.Abstractions/ParameterDescriptor.cs
+Anvil snapshot 2.ts: CuriousContraptions.tests/BundleCatalogueParityTests.cs
+Anvil snapshot 3.ts: CuriousContraptions.tests/CSharpStaticGateTests.cs
+Anvil snapshot 4.ts: elements/BowlingBall/BowlingBallElementDeclaration.cs
+Anvil snapshot 5.ts: elements/Receiver/ReceiverElementDeclaration.cs
+Anvil snapshot 6.ts: elements/Springboard/SpringboardElementDeclaration.cs
+Anvil snapshot 7.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 8.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 9.ts: tools/BundleElements.Tests/Fixtures.cs
+Anvil snapshot 10.ts: tools/BundleElements.Tests/PackageReferenceTests.cs
+Anvil snapshot 11.ts: tools/BundleElements/BundleSchema.cs
+Anvil snapshot 12.ts: tools/BundleElements/BundleValidator.cs
+Anvil snapshot 13.ts: tools/E2eRunner.Tests/SelectionTests.cs
+Anvil snapshot 14.ts: tools/E2eRunner/ImpactRules.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-21T01:14:08.173776+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 17,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.PtVKkC/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   123, Skipped:     0, Total:   123, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+pre-commit-hook exit=0

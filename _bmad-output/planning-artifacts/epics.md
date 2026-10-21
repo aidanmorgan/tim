@@ -1605,7 +1605,13 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
-### Story F.15: Reproducible Publish Bundle Identity
+### Story F.15: Package Follow-ups (incl. Reproducible Publish Bundle Identity)
+*Also covers the PKG-1 review findings F15-1 to F15-5:*
+- *a test for the BUNDLE007 Real-parameter check;*
+- *a test for the slider upper-limit check;*
+- *a ratchet against re-adding moved scenes under `parts/scenes`;*
+- *`PackageReferenceTests` covers `Reference` and `Compile` items;*
+- *typed slider parameter keys ([review](../implementation-artifacts/review-9a-pkg-1.md)).*
 *Status: Backlog. Filed by PKG-1 on 21 Oct 2026 ([spec](../implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md#e2e-chrome)).*
 
 **Acceptance Criteria:**
@@ -2142,7 +2148,7 @@ These stories implement the [Delivery order](#delivery-order-coordinator-21-oct-
 - The positions are those of the Delivery order.
 
 ### Story PKG-1: Receiver, Bowling Ball and Springboard Element Packages (9A.5 + 9A.6 + 9A.12)
-*Status: Review (21 Oct 2026, candidate `ce460ddc`; [spec](../implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md)). Position 6.*
+*Status: Done (21 Oct 2026). Murdoch-18 gave a scoped Pass on `8333682f` ([review](../implementation-artifacts/review-9a-pkg-1.md); [spec](../implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md)). Position 6. Findings are filed to Story F.15.*
 
 *Depends on: Story 9A.4.*
 
