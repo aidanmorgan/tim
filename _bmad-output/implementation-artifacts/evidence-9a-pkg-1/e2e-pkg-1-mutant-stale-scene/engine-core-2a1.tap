@@ -1,0 +1,120 @@
+TAP version 13
+# Subtest: ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright E2E
+    # Subtest: 1. Clean boot: cross-origin isolation and WorkshopPoseRing initialized
+    not ok 1 - 1. Clean boot: cross-origin isolation and WorkshopPoseRing initialized
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/engine-core-2a1.test.ts:2:1235'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Empty-construction control: Run advances sequence with 0 bodies, Reset restores Build Mode
+    not ok 2 - 2. Empty-construction control: Run advances sequence with 0 bodies, Reset restores Build Mode
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/engine-core-2a1.test.ts:2:1836'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. Single-ball control: Place 1 Basketball via UI, Run observes gravitational motion, Reset restores elevation
+    not ok 3 - 3. Single-ball control: Place 1 Basketball via UI, Run observes gravitational motion, Reset restores elevation
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/engine-core-2a1.test.ts:2:2827'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 4. Dual-sphere multi-body simulation: Place 2 Basketballs, Run observes independent trajectories
+    not ok 4 - 4. Dual-sphere multi-body simulation: Place 2 Basketballs, Run observes independent trajectories
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/engine-core-2a1.test.ts:2:3949'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 5. Save & Load persistence roundtrip: Save via driver, reload page, Load restores both balls
+    not ok 5 - 5. Save & Load persistence roundtrip: Save via driver, reload page, Load restores both balls
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/engine-core-2a1.test.ts:2:5593'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..5
+not ok 1 - ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright E2E
+  ---
+  duration_ms: 120547.199125
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/engine-core-2a1.test.ts:2:936'
+  failureType: 'hookFailed'
+  error: |-
+    Workshop never became ready: {"isolated":true,"status":"\n        \n        \n            \n                \n                \n                \n                \n                \n                \n                \n                \n            \n        \n        \n        \n    ","notice":"","poseRing":null,"animationQualified":null}; recent console:
+           [35] 
+           [36] 
+    ERROR: Workshop handler '_Ready' failed: System.Collections.Generic.KeyNotFoundException: Arg_KeyNotFoundWithKey, basket
+       at System.Collections.Generic.Dictionary`2[[CuriousContraptions.PartId, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[CuriousContraptions.PartDefinition, CuriousContraptions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]].get_Item(PartId )
+       at CuriousContraptions.Workshop.RefreshPalette()
+       at CuriousContraptions.Workshop.PresentMode()
+       at CuriousContraptions.Workshop.ReadyAsync()
+       at CuriousContraptions.Workshop._Ready()
+       at: void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception) (:0)
+       C# backtrace (most recent call first):
+           [0] void Godot.NativeInterop.NativeFuncs.godotsharp_err_print_error(Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_string&, int, Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_string&, Godot.NativeInterop.godot_bool, Godot.NativeInterop.godot_error_handler_type)
+           [1] void Godot.GD.PushError(string)
+           [2] void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception)
+           [3] void CuriousContraptions.Workshop+<_Ready>d__70.MoveNext()
+           [4] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<CuriousContraptions.Workshop+<_Ready>d__70>(CuriousContraptions.Workshop+<_Ready>d__70&)
+           [5] void System.Runtime.CompilerServices.AsyncVoidMethodBuilder.Start<CuriousContraptions.Workshop+<_Ready>d__70>(CuriousContraptions.Workshop+<_Ready>d__70&)
+           [6] void CuriousContraptions.Workshop._Ready()
+           [7] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&)
+           [8] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&)
+           [9] bool CuriousContraptions.Workshop.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&)
+           [10] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*)
+           [11] void <Module>.wrapper_native_indirect_void_intptr_intptr_intptr_intptr(System.IntPtr&, nint, nint, nint, nint)
+           [12] bool twodog.LibGodot.CallGodotInstanceStart(nint)
+           [13] Godot.GodotInstance twodog.Engine.StartCore()
+           [14] Godot.GodotInstance twodog.Engine.Start()
+           [15] void Program+<Main>d__4.MoveNext()
+           [16] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<Program+<Main>d__4>(Program+<Main>d__4&)
+           [17] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]].Start<Program+<Main>d__4>(Program+<Main>d__4&)
+           [18] System.Threading.Tasks.Task`1[System.Int32] Program.Main(System.String[])
+           [19] object System.Reflection.RuntimeMethodInfo.InternalInvoke(object, System.IntPtr*, System.Exception&)
+           [20] object System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(object, System.IntPtr*)
+           [21] object System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(object, System.Span`1[System.Object], System.Reflection.BindingFlags)
+           [22] object System.Reflection.MethodBaseInvoker.InvokeWithOneArg(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+           [23] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+           [24] object System.Reflection.MethodBase.Invoke(object, System.Object[])
+           [25] System.Threading.Tasks.Task`1[System.Int32] System.Runtime.InteropServices.JavaScript.JSHostImplementation.CallEntrypoint(nint, System.String[], bool)
+           [26] void System.Runtime.InteropServices.JavaScript.JavaScriptExports.CallEntrypoint(System.Runtime.InteropServices.JavaScript.JSMarshalerArgument*)
+    Engine: Godot started successfully!
+    2dog is running in the browser!
+    Scene Root: Workshop
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    WorkshopDriver.waitForReady (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/workshop-driver.ts:541:19)
+    async WorkshopDriver.launch (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/workshop-driver.ts:423:9)
+    async SuiteContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a6028085bf7300f38/tools/e2e/engine-core-2a1.test.ts:12:18)
+    async TestHook.run (node:internal/test_runner/test:1409:7)
+    async Suite.runHook (node:internal/test_runner/test:1289:9)
+    async Suite.run (node:internal/test_runner/test:1899:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 0
+# fail 0
+# cancelled 5
+# skipped 0
+# todo 0
+# duration_ms 120836.349167

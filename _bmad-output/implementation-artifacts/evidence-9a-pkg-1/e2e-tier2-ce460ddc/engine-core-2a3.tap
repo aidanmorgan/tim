@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics Core
+    # Subtest: 1. Ramp contact & rolling: Ball contacts inclined ramp and rolls along surface
+    ok 1 - 1. Ramp contact & rolling: Ball contacts inclined ramp and rolls along surface
+      ---
+      duration_ms: 4050.488792
+      type: 'test'
+      ...
+    # Subtest: 2. Wall collision & deflection: Ball strikes Wall, rebounds via TGS Soft restitution
+    ok 2 - 2. Wall collision & deflection: Ball strikes Wall, rebounds via TGS Soft restitution
+      ---
+      duration_ms: 5998.714459
+      type: 'test'
+      ...
+    # Subtest: 3. Local-axis Wall resizing: Resized wall deflects ball at updated collision extents
+    ok 3 - 3. Local-axis Wall resizing: Resized wall deflects ball at updated collision extents
+      ---
+      duration_ms: 8816.177208
+      type: 'test'
+      ...
+    # Subtest: 4. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3] First principles 2-ramp solve: Ball rolls down both ramps into Receiver and achieves captured (direct pose ring publishing, pure TGS Soft compliance, speculative contacts without analytic interval sweeps)
+    ok 4 - 4. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3] First principles 2-ramp solve: Ball rolls down both ramps into Receiver and achieves captured (direct pose ring publishing, pure TGS Soft compliance, speculative contacts without analytic interval sweeps)
+      ---
+      duration_ms: 6283.206875
+      type: 'test'
+      ...
+    # Subtest: 5. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3, ENGINE-CORE-2b4, ENGINE-CORE-2c] Exact Reset and Save/Load persistence roundtrip in Chrome
+    ok 5 - 5. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3, ENGINE-CORE-2b4, ENGINE-CORE-2c] Exact Reset and Save/Load persistence roundtrip in Chrome
+      ---
+      duration_ms: 12316.772291
+      type: 'test'
+      ...
+    1..5
+ok 1 - ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics Core
+  ---
+  duration_ms: 41513.641875
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 41787.12075

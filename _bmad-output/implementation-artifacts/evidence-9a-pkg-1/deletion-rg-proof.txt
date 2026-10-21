@@ -1,0 +1,16 @@
+PKG-1 deletion proof, on ce460ddc (21 Oct 2026).
+
+$ git ls-files parts/scenes/basket.tscn parts/scenes/bowling.tscn parts/scenes/springboard.tscn
+(no output; exit 0)  -> the three scenes are gone from parts/scenes (git mv, 100% renames into elements/Receiver, elements/BowlingBall, elements/Springboard)
+
+$ rg -n 'parts/scenes/(basket|bowling|springboard)\.tscn' --glob '!docs/*-sources.json' --glob '!docs/s001-source-baseline.json' --glob '!_bmad-output/**' .
+./docs/coverage/engine/catalogue-01.json:171:          "Path": "parts/scenes/basket.tscn",
+./docs/planning/elements/CAT-004-basket.md:26:| Art | ... scene `parts/scenes/basket.tscn` ... (every reference in the row is pinned @a6c914e) |
+-> 0 production, test, tool or current-catalogue hits. The two remaining hits are historical records, left unchanged (AGENTS.md: historical artifacts
+   remain unchanged evidence): catalogue-01.json is a frozen coverage capture (it also names the long-deleted parts/BallPart.cs) and the CAT-004 row
+   pins every source reference to commit a6c914e. The excluded *-sources.json and s001-source-baseline.json files are hashed historical manifests.
+   The only production readers of the scene paths were the three parts/catalog/*.tres ext_resource lines, now res://elements/<Name>/<scene>.tscn.
+
+$ rg -n 'Assert.Equal\(\["balloon"' CuriousContraptions.tests/BundleCatalogueParityTests.cs
+68:        Assert.Equal(["balloon", "delay", "funnel", "pipe", "pipe_bend_45", "pipe_bend_90", "switch", "tennis"],
+-> basket, bowling and spring are gone from the parity guard's unpackaged set (11 -> 8 ids).

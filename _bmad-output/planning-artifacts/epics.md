@@ -2124,7 +2124,7 @@ These stories implement the [Delivery order](#delivery-order-coordinator-21-oct-
 - The positions are those of the Delivery order.
 
 ### Story PKG-1: Receiver, Bowling Ball and Springboard Element Packages (9A.5 + 9A.6 + 9A.12)
-*Status: Backlog. Position 6.*
+*Status: Review (21 Oct 2026, candidate `ce460ddc`; [spec](../implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md)). Position 6.*
 
 *Depends on: Story 9A.4.*
 
@@ -2543,7 +2543,7 @@ So that the bundle can become the only declaration the game loads.
 Each of these nine stories adds one `elements/<Name>/` project. It does not change runtime behaviour; it makes the atomic catalogue cutover in Story 9A.14 possible without dropping an element.
 
 ### Story 9A.5: Receiver Element Package (CAT-004, id `basket`)
-*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-1. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2567,7 +2567,7 @@ So that the bundle can carry it when the `.tres` catalogue is deleted.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.6: Bowling Ball Element Package (CAT-014, id `bowling`)
-*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-1. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2675,7 +2675,7 @@ So that its torus-segment colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.12: Springboard Element Package (CAT-062, id `spring`)
-*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-1. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
