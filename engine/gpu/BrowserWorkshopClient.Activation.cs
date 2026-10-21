@@ -11,7 +11,7 @@ public sealed partial class BrowserWorkshopClient
     private ulong[] _activationOrdinals = [];
     private bool[] _activationFrameTaken = [];
     // Bistable Memory feedback (State Latch): one Transition per committed On/Off change, on the node's own activation target.
-    private WorkshopAnimationControl?[] _memoryRequested = [];
+    private WorkshopAnimationControl?[] _memoryControls = [];
     private WorkshopAnimationSample?[] _memorySamples = [];
     private bool[] _memoryRetry = [];
     private ulong[] _memoryOrdinals = [];
@@ -25,7 +25,7 @@ public sealed partial class BrowserWorkshopClient
     {
         RetireTimerFeedback(); RetireElectricalFeedback();
         Array.Clear(_activationRequested); Array.Clear(_activationSamples); Array.Clear(_activationOrdinals);
-        Array.Clear(_memoryRequested); Array.Clear(_memorySamples); Array.Clear(_memoryRetry); Array.Clear(_memoryOrdinals);
+        Array.Clear(_memoryControls); Array.Clear(_memorySamples); Array.Clear(_memoryRetry); Array.Clear(_memoryOrdinals);
     }
     /// <summary>Drives a Memory cosmetic toward the committed value: Latched → 1 (On), Clear → 0 (Off). Off at admission needs no control.</summary>
     private void PumpMemory()
@@ -37,33 +37,33 @@ public sealed partial class BrowserWorkshopClient
             var value = latest.Read.Activations[i];
             if (!TryCosmeticDeclaration(value.Owner, AnimationFeedbackSource.Memory, out var declaration)) continue;
             var to = value.Phase == ActivationPhase.Latched ? (Half)1 : (Half)0;
-            if (_memoryRequested[i] is { } previous ? previous.To == to && !_memoryRetry[i] : to == (Half)0) continue;
+            if (_memoryControls[i] is { } previous ? previous.To == to && !_memoryRetry[i] : to == (Half)0) continue;
             var from = _memorySamples[i]?.Value ?? (Half)1 - to;
             var control = new WorkshopAnimationControl(ActivationTarget(value.Node), latest.Read.Epoch, checked(_animationSequence + 1),
-                (_memoryRequested[i]?.Generation ?? 0) + 1, AnimationControlKind.Transition, true, from, to, declaration.Duration,
+                (_memoryControls[i]?.Generation ?? 0) + 1, AnimationControlKind.Transition, true, from, to, declaration.Duration,
                 declaration.Curve, CommittedOrdinal(latest.Read), default, AnimationProperty.ColourBlend);
             SendAnimation(control, schedule);
-            _memoryRequested[i] = control; _memoryRetry[i] = false;
+            _memoryControls[i] = control; _memoryRetry[i] = false;
             return; // The single reliable Animation lease owns this control until its ACK.
         }
     }
     private int MemorySlot(AnimationTargetId target)
     {
-        for (var i = 0; i < _memoryRequested.Length; i++)
-            if (_memoryRequested[i] is { } control && control.Target == target) return i;
+        for (var i = 0; i < _memoryControls.Length; i++)
+            if (_memoryControls[i] is { } control && control.Target == target) return i;
         return -1;
     }
     private bool IsMemoryTarget(AnimationTargetId target) => MemorySlot(target) >= 0;
     private void RetryMemoryFeedback(WorkshopAnimationControl rejected)
     {
         var slot = MemorySlot(rejected.Target);
-        if (slot >= 0 && _memoryRequested[slot] == rejected) _memoryRetry[slot] = true;
+        if (slot >= 0 && _memoryControls[slot] == rejected) _memoryRetry[slot] = true;
     }
     private void ReceiveMemorySample(WorkshopAnimationSample sample, AnimationOutputKind kind, WorkshopSchedule active)
     {
         if (sample.World.Value < active.World.WorldGeneration.Value) return;
         var slot = MemorySlot(sample.Target);
-        if (slot < 0 || _memoryRequested[slot] is not { } control) throw new ArgumentException("Unowned memory animation.");
+        if (slot < 0 || _memoryControls[slot] is not { } control) throw new ArgumentException("Unowned memory animation.");
         if (sample.Generation < control.Generation) return;
         if (sample.World != active.World.WorldGeneration || sample.Generation != control.Generation ||
             sample.Property != AnimationProperty.ColourBlend || sample.EventOrdinal != control.EventOrdinal ||

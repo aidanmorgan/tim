@@ -1703,6 +1703,30 @@ As a developer, I want Chrome to keep each part's required UI proof and drop var
 **Acceptance Criteria:**
 - **AC1:** suites reset state between tests instead of reloading the page, where the Reset proof allows it. The expected saving is at most about 3 minutes.
 
+### Story F.20: Posted-Read Receipt Identity
+*Status: Backlog, back of queue. Story 9A.3 review B2/E2; qualification owner P0-032. [Review](../implementation-artifacts/review-9a-3-typed-transport-control-commands.md).*
+
+**Acceptance Criteria:**
+- Given a generated publication still queued behind the actual posted read, when its identity is spoofed as a receipt, then managed transport accounting rejects it without releasing the posted read or retiring undelivered occurrences.
+- Given the actual posted read's receipt, when it is accepted, then cumulative retirement still covers coalesced older publications; ordinary delayed receipts and Reset retain correct ownership.
+- Keep typed C# identity validation and one transport path. Prove positive, spoofed, duplicate and boundary cases against production accounting; no compatibility channel.
+
+### Story F.21: Bounded Memory-Query Completion
+*Status: Backlog, back of queue. Story 9A.3 review B6; qualification owners P0-032/P0-034. [Review](../implementation-artifacts/review-9a-3-typed-transport-control-commands.md).*
+
+**Acceptance Criteria:**
+- Define the query's terminal deadline and distinguish it from the UI TimedOut indication and non-cancellable collector execution.
+- Given a query whose declared deadline expires, when its acknowledgement is absent or late, then the caller receives an explicit terminal result, late replies capture nothing, and ownership is released safely without admitting conflicting simulation work.
+- Prove success, deadline boundary, late acknowledgement and disposal using the current typed query transport; retain stopped-only paired capture and no raw memory channel.
+
+### Story F.22: Stopped Reliable-Read Resource Bound
+*Status: Backlog, back of queue. Story 9A.3 review B8; qualification owners P0-032/P0-034. [Review](../implementation-artifacts/review-9a-3-typed-transport-control-commands.md).*
+
+**Acceptance Criteria:**
+- Given repeated stopped-world publications without receipts, when the declared accounting capacity is reached, then resource use remains bounded with explicit admission/backpressure behavior, never silent reliable loss.
+- Preserve exact published-identity rejection and cumulative retirement, including coalescing, queued occurrences and Reset; keep one authoritative accounting path.
+- Prove the capacity boundary and receipt recovery against production accounting, alongside ordinary lifecycle controls and the named resource-stress qualification.
+
 ### Story F.19: Bundle Ports Follow-ups
 *Status: Backlog. Filed from the Story 9A.17 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-17-bundle-ports-and-footprint.md)).*
 
@@ -2658,7 +2682,7 @@ So that a malformed message fails visibly instead of being silently reinterprete
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview, including every suite that saves and loads.
 
 ### Story 9A.3: Transport Controls as Typed Commands and Queries
-*Status: Backlog*
+*Status: Review (21 Oct 2026). Amelia-24 implemented it on main `379cc24a` ([spec and evidence](../implementation-artifacts/spec-9a-3-typed-transport-control-commands.md)).*
 
 *Depends on: Story 9A.2. Position 13, right after 9A.17 (owner amendment, 21 Oct 2026). Audit: C2, C3.*
 

@@ -1,0 +1,3 @@
+tools/e2e/clock-master.test.ts
+tools/e2e/cat-023b.test.ts
+tools/e2e/pkg-3.test.ts

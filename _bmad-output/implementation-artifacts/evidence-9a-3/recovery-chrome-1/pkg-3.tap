@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: PKG-3: Delay Box and Impact Switch element packages E2E
+    # Subtest: 1. The switch fires, the Delay lights the lamp, and each of two Resets restores the exact snapshot
+    ok 1 - 1. The switch fires, the Delay lights the lamp, and each of two Resets restores the exact snapshot
+      ---
+      duration_ms: 16583.682333
+      type: 'test'
+      ...
+    # Subtest: 2. Control: without the switch → Delay wire the switch fires but the lamp stays dark
+    ok 2 - 2. Control: without the switch → Delay wire the switch fires but the lamp stays dark
+      ---
+      duration_ms: 11182.878333
+      type: 'test'
+      ...
+    # Subtest: 3. Save, reload and Load restore the packaged parts and their wires bit for bit, and replay the delayed lamp
+    ok 3 - 3. Save, reload and Load restore the packaged parts and their wires bit for bit, and replay the delayed lamp
+      ---
+      duration_ms: 14433.61725
+      type: 'test'
+      ...
+    1..3
+ok 1 - PKG-3: Delay Box and Impact Switch element packages E2E
+  ---
+  duration_ms: 46495.066375
+  type: 'suite'
+  ...
+1..1
+# tests 3
+# suites 1
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 46735.003834

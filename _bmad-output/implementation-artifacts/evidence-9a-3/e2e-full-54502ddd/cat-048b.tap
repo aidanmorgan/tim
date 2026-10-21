@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: CAT-048b: Clear Pipe Level E2E (Through the looking tube)
+    # Subtest: 1. Select level clear_pipe: verify initial layout (locked ball, locked receiver, 1 pipe in inventory)
+    ok 1 - 1. Select level clear_pipe: verify initial layout (locked ball, locked receiver, 1 pipe in inventory)
+      ---
+      duration_ms: 1955.408125
+      type: 'test'
+      ...
+    # Subtest: 2. Negative control: without placing the pipe, ball falls straight to floor, missing receiver (goal not solved)
+    ok 2 - 2. Negative control: without placing the pipe, ball falls straight to floor, missing receiver (goal not solved)
+      ---
+      duration_ms: 9176.078708
+      type: 'test'
+      ...
+    # Subtest: 3. Solved run: pipe placed at (0, 3, 0) tilted -45 deg, ball traverses bore into receiver, achieving CCGOAL_SOLVED
+    ok 3 - 3. Solved run: pipe placed at (0, 3, 0) tilted -45 deg, ball traverses bore into receiver, achieving CCGOAL_SOLVED
+      ---
+      duration_ms: 9018.328875
+      type: 'test'
+      ...
+    # Subtest: 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
+    ok 4 - 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
+      ---
+      duration_ms: 12347.672291
+      type: 'test'
+      ...
+    # Subtest: 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+    ok 5 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+      ---
+      duration_ms: 11499.32275
+      type: 'test'
+      ...
+    1..5
+ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
+  ---
+  duration_ms: 48167.895
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 48444.863625

@@ -2,7 +2,8 @@
 title: 'Story 9A.3: Transport Controls as Typed Commands and Queries'
 type: 'refactor'
 created: '2026-10-18'
-status: 'ready-for-dev'
+status: 'in-review'
+baseline_commit: '379cc24a7fe17e666b234f8c0e7ed0b0c88d4292'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -157,7 +158,7 @@ context:
 
 - `rg -n "reliableStalled|SetReliableStall|memoryRequest|memoryResult|sendMemoryRequest|completeMemoryObservation|catch \{\}" CuriousContraptions.*/wwwroot engine CuriousContraptions.Simulation`: expected 0.
 - `node --test tools/workshop-observation.test.mjs tools/workshop-client-lifecycle.test.mjs`: expected all pass.
-- `dotnet test CuriousContraptions.slnx --filter "ReliableReadLedgerTests|ObserveMemoryQueryTests"`: expected all pass.
+- `dotnet test CuriousContraptions.slnx --filter "FullyQualifiedName~TypedTransportCommandTests"`: expected all pass.
 
 ## Legacy Deleted
 
@@ -171,9 +172,95 @@ context:
 
 ## Implementation Notes
 
+Amelia-24, 21 Oct 2026, on main `379cc24a`. Story 9A.17 (in review) is not merged: it touches ports and footprints, not the
+schema, the codec or the transport, so this story does not depend on it.
+
+**What landed (code map as built):**
+- `engine/gpu/WorkshopReliableReadLedger.cs` (new, compiled natively so it is unit-tested): the worker's reliable-read accounting,
+  `ReadReceiptRejection` (Malformed, WrongSession, Unpublished, Retired) and `ReadReceiptRejectedException`. `Program.EmitRead`
+  publishes into it; `Program.AcknowledgeRead` (JSExport) matches every receipt; `RunLoopHost.DebtExceeded` and `StopForDebt` read
+  `Stalled` and `DebtReason` on the master clock.
+- `engine/gpu/WorkshopMemoryObservation.cs` (renamed from `WorkshopMemoryWire.cs`; it keeps `WorkshopCaptureMode` and
+  `WorkshopBuild`): `WorkshopMemoryMeasurement`, `WorkshopMemoryObservation`, `WorkshopMemoryReply` and `WorkshopMemoryQuery`
+  (`Admit`, `ValidateCarriage`, `Complete`).
+- `WorkshopCommandKind.ObserveMemory` (12), schema `CommandKind.ObserveMemory`, `struct MemoryObservationRecord` and
+  `WorkshopResponse.memory`; `WorkshopResponse.Memory`. Generated code from flatc 25.2.10, byte-identical to its output (C# whole
+  file; TS generated part).
+- `WireFaultReason.UnknownCommand`: `DecodeCommand` refuses an undefined kind after frame, session and revision validation and before command-specific payload checks.
+- `engine/gpu/WorkerEnvelopeRejection.cs` (new): `WorkerEnvelopeRejection` (UnknownEnvelope, CommandTransportSaturated) and
+  `WorkerEnvelopeRejectedException`; `Program.RejectUnknownEnvelope` and `RejectSaturatedCommand` record it in the worker fault log
+  (`CCGPU_WORKER_ENVELOPE_EXCEPTION`, new `FaultSite.WorkerEnvelope`) and return the detail the worker posts.
+- `BrowserWorkshopClient.QueryMemory()` over `Execute`; every acknowledgement passes `WorkshopMemoryQuery.ValidateCarriage`.
+
+**Decisions (owner delegation: decide small gaps, record each):**
+- **I1. A refused envelope is the existing `rejected` envelope,** not `failure`. The browser treats both alike
+  (`CCGPU_TRANSPORT_FAILURE` with the detail), so the matrix's observable outcome holds; the typed reason is managed.
+- **I2. The ledger is never cleared, Reset included** (Task 1 said "Reset clears"). Publication sequences never reset and the
+  worker's read queues survive Reset, so a receipt in flight across a Reset must still retire its read; clearing would turn it into a
+  `Retired` rejection and retire the session. A run started after a genuine stall stops again at once, which is correct.
+- **I3. The memory query is answered in `Execute`,** after the stale-generation and Busy guards and without taking
+  `_pendingCommand`, so it never sets a schedule transition. `Busy` covers a pending GPU operation or any unreceipted read (this
+  replaces the old script-computed `transportIdle`). The old `Stale` status is the command path's `StaleGeneration`.
+- **I4. The `Unsupported` memory status is deleted with no replacement rejection.** The GC APIs it guarded run on browser-wasm; a
+  failure would be a fault, never a fallback result.
+- **I5. The worker's per-request 1000 ms lateness checks (`CCGPU_MEMORY_LATE`) are deleted with the channel.** The browser displays TimedOut after 2 s, as for other commands; that UI indication does not settle the pending query task.
+- **I6. The dead `candidateTimedOut` envelope is deleted.** Nothing posts it; the browser now refuses it as an unknown envelope.
+- **I7. `_memoryRequested` (State Latch feedback controls, unrelated to this channel) is renamed `_memoryControls`,** so the AC's
+  `rg memoryRequest` is literally empty.
+- **I8. The typed command and query definitions for the AC's `rg`** are the `WorkshopCommandKind` enum (`engine/gpu/WorkshopMessages.cs`),
+  the schema and the generated schema code. Everywhere else the query is named only as `WorkshopCommandKind.ObserveMemory` (or the
+  generated `CommandKind.ObserveMemory`). `TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction` enforces
+  exactly that, and it is the killer of every re-add mutant.
+- **I9. The `FlushObservation` swallow is contained and logged** (`CCGPU_TRACE_FLUSH_EXCEPTION`), never silent; the trace is
+  diagnostic, so its failure does not retire the session.
+- **I10. `CCGPU_DEBT_FAULT` now reads `reason=<WorkshopRejection> oldestUnreceipted=<publication> ageMs=<age>`,** so a stall fault
+  names the read that stalled.
+- **I11. The Node harness cannot encode FlatBuffers** (the `flatbuffers` module exists only for the e2e suites), and the worker parses
+  no buffer, so the typed query's encoding, routing and acknowledgement are proven natively; the harness proves the worker carries it
+  on the command transport, forwards every receipt to the ledger and refuses each retired envelope by name.
+- **I12. `QueryMemory` has no production caller,** as before (`observeMemory` had none). Story 9A.24's observation port exposes it.
+
 ## Spec Change Log
 
+- 21 Oct 2026 (Amelia-24): Task 1's "Reset clears" is replaced by I2 (the ledger is never cleared). The matrix row "Old envelope:
+  worker posts `failure`" is met through I1 (`rejected`, same browser outcome).
+
 ## Review Triage Log
+
+Recovered on 21 Oct 2026 by transport_implementer, independently reviewed by transport_reviewer. Candidate `54502ddd` was
+merged with main `c4f322bb` without committing; original evidence remains unchanged. The current verification-tier policy
+supersedes the old serial-all-suites wording. Refreshed scoped proof is complete; independent SnapshotApproval and publication verification remain pending.
+
+| Finding | Disposition |
+|---|---|
+| B1: never-published sequence gap accepted | Fixed. Membership is checked before cumulative retirement; red test failed before fix and all transport tests pass after it. |
+| B2: generated but unposted publication receipt | Deferred. Frozen receipt identity is a published publication; enforcing posted-only identity is tracked in Story F.20 (P0-032 qualification). |
+| B3: unknown companion keys on recognized envelope | Fixed. Generic envelope shape check rejects unknown keys atomically before dispatch; no retired-name allow-list. |
+| B4: Run overlaps browser memory capture | Fixed. Production memory-query owner excludes other commands through acknowledgement and synchronous capture; async native test covers the interval. |
+| B5: inapplicable memory acknowledgement captures | Fixed. Superseded/disposed ownership returns StaleGeneration without capture; native negative controls cover both. |
+| B6: timeout wording overstates completion | Corrected. TimedOut is a UI state, not a task-completion bound. Bounded-completion strengthening is tracked in Story F.21 (P0-034 qualification). |
+| B7: memory router test fabricates executor result | Added real-worker Chrome cases for stopped capture and Running WrongPhase; both pass in recovery-chrome-2 (13/13 clock-master tests). |
+| B8: adversarial stopped publication accumulation | Deferred to Story F.22 (P0-032/034 resource qualification); no player-reachable ordinary-lifecycle regression established. |
+| B9: verification filter selects no actual tests | Corrected to FullyQualifiedName~TypedTransportCommandTests. |
+| B10: undefined-kind check ordering overstated | Corrected implementation note to the actual decoder validation order. |
+| E1: memory capture concurrency | Same fix and proof as B4. |
+| E2: unposted receipt identity | Same frozen-contract disposition as B2. |
+| E3: actual memory executor missing | Same real-worker proof as B7. |
+| E4: Reset clears conflicts with surviving queues | I2 retained. Publication/receipt identities and queues span Reset; Node now exercises delayed receipt across Reset, and Chrome boundary case records its identity. |
+| V1: real memory executor coverage | Same actual Program.Dispatch proof as B7; no production test hook added. |
+| V2: real stall executor coverage | Added real-worker 650 ms missing-receipt fault and 400 ms control; both pass in recovery-chrome-2; retained screenshot shows stopped controls and the visible reset-to-retry footer. |
+
+Recovery fixes delete the permissive gap-receipt and mixed-envelope paths; memory observation now has one owner through browser
+capture. These changes add no compatibility path. Earlier Full evidence is reused only after the reviewer's applicability check.
+
+## Recovery Verification (21 Oct 2026)
+
+- Independent reviewer: native 2330/2330, Node 115/115, Lifecycle 510/0, Wire 108/0, Ownership exit 0, and Anvil changed 0 warnings. Release dependency rebuild resolved stale tool references without a source change.
+- [Recovery Chrome 1](evidence-9a-3/recovery-chrome-1/summary.json): retained failed attempt. The initial test held a receipt 400 ms while Reset requires drain within 250 ms (`Program.Schedule.cs:141`). Product behavior was correct; the test now separates the 400 ms healthy control from Reset, observes the actual Reset command, then releases the exact held receipt after 50 ms. Other selected suites passed, including cat-023b 4/4 and pkg-3 3/3.
+- [Recovery Chrome 2](evidence-9a-3/recovery-chrome-2/summary.json): 25/25 Clean, including all 13 clock-master tests, cat-023b 4/4 and the smoke pair. Real Program.Dispatch memory capture/WrongPhase and real missing-receipt stall execute here. [Stall screenshot](evidence-9a-3/recovery-chrome-2/clock-master.simulation-unresponsive.reliable-stall.png) retains player-visible stopped state.
+- [Recovery Chrome 3](evidence-9a-3/recovery-chrome-3/summary.json): 12/12 Clean. cat-023b now has three consecutive serial 4/4 runs on the merged production source. Each run records its own published bundle identity and matching start/end served checks; identities differ between publishes.
+- [Corrected decision mutations](evidence-9a-3/recovery-mutants.txt): targeted guard removals, exact restore identities and restored-source checks. Original mutation and interrupted serial-2 evidence remain unchanged.
+- No product source changed between the three refreshed Chrome runs. Only the Reset test correction separates runs 1 and 2. Reuse of earlier Full proof requires the reviewer's recorded applicability decision.
 
 ## Appendix: reference census (main tree, 18 Oct 2026)
 

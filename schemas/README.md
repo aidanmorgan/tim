@@ -13,6 +13,10 @@ reads and schedule endpoints) and the construction save. `engine/gpu/WorkshopWir
   carries a numeric part id (Story 9A.15). A stored save is validated against the loaded bundle's elements and an unknown id is a
   `WorkshopSaveRejection.UnknownElement` refusal naming it; the worker's command decode refuses an id it has no element for with
   `WireFaultReason.UnknownElement`, naming it.
+- Every transport control is a typed command or query (Story 9A.3). A command naming a kind the game does not have is a
+  `WireFaultReason.UnknownCommand` refusal naming it. The stopped memory observation is the `ObserveMemory` command; only its applied
+  acknowledgement carries `WorkshopResponse.memory`. A reliable-read stall is detected by the Simulation worker's own receipt
+  accounting, so no message carries a stall flag.
 - There is no format version (owner, 21 Oct 2026): the game and its saves ship in one bundle with one schema, and bad input is
   rejected structurally.
 

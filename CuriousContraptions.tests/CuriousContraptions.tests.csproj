@@ -137,6 +137,7 @@
         <Compile Include="WorkshopPhysicsLawSensorWorkTests.cs" />
         <Compile Include="WorkshopPhysicsLawPrismaticTests.cs" />
         <Compile Include="WorkshopTickLoopTests.cs" />
+        <Compile Include="TypedTransportCommandTests.cs" />
         <Compile Include="WorkshopClockDerivationTests.cs" />
         <Compile Include="ContactWorkLedgerPropertyTests.cs" />
         <Compile Include="ConstructionDecodeBoundaryTests.cs" />

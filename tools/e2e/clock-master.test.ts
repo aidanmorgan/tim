@@ -7,6 +7,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Worker } from 'playwright';
+import { CommandKind, CommandOutcome, SimulationPhase, decodeWorkshopResponse, encodeWorkshopCommand } from './workshop-wire.ts';
+enum CommandRejection { None = 0, WrongPhase = 4 }
 import { SessionFault, WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 
 // The retired-session screenshot is per-run evidence (tools/E2eRunner sets it in the run's output directory), never committed
@@ -450,3 +452,133 @@ test('The same stall with the Browser clock jumping 5 ms disagrees with the old 
         await assert.rejects(driver.closeAfterSuite(), /recalibrated a clock mapping 1 time/);
     } finally { if (!closed) await driver.close(); }
 });
+
+// Story 9A.3: intercept only the transport receipt, leaving the real WASM ledger and master clock running.
+test('Reliable reads coalesce for 400 ms and Reset preserves its in-flight receipt', { timeout: 120000 }, async () => {
+    const driver = await WorkshopDriver.launch();
+    try {
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(720, 485);
+        await driver.run();
+        const worker = simulationWorker(driver);
+        await worker.evaluate(() => new Promise<void>(resolve => {
+            const receive = self.onmessage!;
+            self.onmessage = event => {
+                if (event.data?.readAcknowledged instanceof Uint8Array) {
+                    self.onmessage = receive;
+                    setTimeout(() => { receive.call(self, event); resolve(); }, 400);
+                } else receive.call(self, event);
+            };
+        }));
+        assert.equal(driver.debtFaults.length, 0, '400 ms of coalescing stays below the reliable-read bound');
+        // Reset has its own 250 ms schedule-drain budget (Program.Schedule.cs:141). Release this separate receipt
+        // 50 ms after the actual Reset command begins, proving the ownership boundary inside that existing budget.
+        const heldIdentity = await worker.evaluate(() => new Promise<number[]>(resolve => {
+            const receive = self.onmessage!;
+            let held: MessageEvent | undefined;
+            self.onmessage = event => {
+                if (!held && event.data?.readAcknowledged instanceof Uint8Array) {
+                    held = event;
+                    resolve(Array.from(event.data.readAcknowledged) as number[]);
+                } else {
+                    const commandCrossedReceipt = held && event.data?.bytes instanceof Uint8Array;
+                    receive.call(self, event);
+                    if (commandCrossedReceipt) {
+                        setTimeout(() => {
+                            self.onmessage = receive;
+                            receive.call(self, held!);
+                            (self as unknown as { releasedReceipt: number[] }).releasedReceipt =
+                                Array.from(held!.data.readAcknowledged) as number[];
+                        }, 50);
+                    }
+                }
+            };
+        }));
+        assert.equal(heldIdentity.length, 24, 'a real receipt is held before Reset starts');
+        await driver.reset();
+        assert.deepEqual(await worker.evaluate(() => (self as unknown as { releasedReceipt: number[] }).releasedReceipt),
+            heldIdentity, 'the exact pre-Reset receipt was released after the actual Reset command began');
+        assert.equal(driver.debtFaults.length, 0, 'a receipt below the 500 ms bound never faults');
+        await driver.run(200);
+        assert.ok(await driver.readLatestPose(), 'Run resumes after the delayed pre-Reset receipt retires');
+        await driver.reset();
+    } finally { await driver.close(); }
+});
+
+test('A missing reliable-read receipt stops the real worker with ReliableStalled', { timeout: 120000 }, async () => {
+    const driver = await WorkshopDriver.launch();
+    let closed = false;
+    try {
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(720, 485);
+        await driver.run();
+        await simulationWorker(driver).evaluate(() => {
+            const receive = self.onmessage!;
+            self.onmessage = event => {
+                if (event.data?.readAcknowledged instanceof Uint8Array) {
+                    self.onmessage = receive;
+                    // Only this one in-flight receipt can arrive; newer reads remain queued in the worker.
+                    self.onmessage = next => {
+                        if (!(next.data?.readAcknowledged instanceof Uint8Array)) receive.call(self, next);
+                    };
+                    setTimeout(() => { self.onmessage = receive; receive.call(self, event); }, 650);
+                } else receive.call(self, event);
+            };
+        });
+        await until(() => driver.debtFaults.length > 0, 5000, driver);
+        assert.equal(driver.debtFaults.length, 1);
+        assert.match(driver.debtFaults[0], /reason=ReliableStalled/);
+        await driver.page.waitForTimeout(300);
+        await driver.page.screenshot({ path: SCREENSHOT!.replace(/\.png$/, '.reliable-stall.png') });
+        console.log(JSON.stringify({ reliableReadStall: driver.debtFaults[0] }));
+        closed = true;
+        await driver.closeExpecting(SessionFault.DebtFault);
+    } finally { if (!closed) await driver.close(); }
+});
+
+
+for (const running of [false, true]) {
+    test(`The real worker answers ObserveMemory while ${running ? 'Running' : 'Building'}`, { timeout: 120000 }, async () => {
+        const driver = await WorkshopDriver.launch();
+        let latest: Uint8Array | undefined;
+        driver.page.on('console', message => {
+            if (message.text().startsWith('CCGPU ')) latest = Buffer.from(message.text().slice(6), 'base64');
+        });
+        try {
+            await driver.selectTool('basketball');
+            await driver.placeOnCanvas(720, 485);
+            if (running) await driver.run();
+            else await driver.save();
+            assert.ok(latest, 'an actual UI command supplies the current transport identity');
+            const prior = decodeWorkshopResponse(latest);
+            const query = encodeWorkshopCommand({
+                sequence: prior.sequence() + 1n, kind: CommandKind.ObserveMemory,
+                epoch: prior.epoch(), revisionKind: 1, session: prior.sessionArray()!,
+                cadence: prior.cadence(), projection: prior.projection()
+            });
+            // This one query has no UI consumer yet. Deliver its real typed bytes to the shipped worker, recording its
+            // actual managed acknowledgement at the outgoing boundary so it cannot become an unsolicited browser ACK.
+            const raw = await simulationWorker(driver).evaluate(async bytes => {
+                const post = self.postMessage.bind(self);
+                let acknowledgement: number[] | undefined;
+                self.postMessage = ((message: { acknowledgement?: Uint8Array }, ...args: unknown[]) => {
+                    if (message.acknowledgement) acknowledgement = Array.from(message.acknowledgement);
+                    else (post as (...args: unknown[]) => void)(message, ...args);
+                }) as typeof self.postMessage;
+                try {
+                    await self.onmessage!.call(self, new MessageEvent('message', { data: { bytes: new Uint8Array(bytes) } }));
+                    return acknowledgement;
+                } finally { self.postMessage = post; }
+            }, Array.from(query));
+            assert.ok(raw, 'Program.Dispatch returned an acknowledgement');
+            const response = decodeWorkshopResponse(new Uint8Array(raw));
+            assert.equal(response.sequence(), prior.sequence() + 1n);
+            assert.equal(response.phase(), running ? SimulationPhase.Running : SimulationPhase.Building);
+            assert.equal(response.outcome(), running ? CommandOutcome.Rejected : CommandOutcome.Applied);
+            assert.equal(response.reason(), running ? CommandRejection.WrongPhase : CommandRejection.None);
+            if (running) assert.equal(response.memory(), null, 'Running captures nothing');
+            else assert.ok(response.memory()!.frequency() > 0n, 'the actual worker collector measured memory');
+            console.log(JSON.stringify({ observeMemoryPhase: response.phase(), outcome: response.outcome(), memory: response.memory() !== null }));
+        } finally { await driver.close(); }
+    });
+}

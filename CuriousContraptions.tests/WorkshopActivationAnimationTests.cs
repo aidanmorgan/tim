@@ -650,7 +650,7 @@ public sealed class WorkshopActivationAnimationTests
     private static readonly string[] FeedbackSlots =
     [
         "_activationRequested", "_activationSamples", "_activationOrdinals", "_activationFrameTaken",
-        "_memoryRequested", "_memorySamples", "_memoryRetry", "_memoryOrdinals",
+        "_memoryControls", "_memorySamples", "_memoryRetry", "_memoryOrdinals",
         "_timerRequested", "_timerSamples", "_timerRetry", "_timerOrdinals",
         "_captureRequested", "_captureSamples", "_captureOrdinals", "_captureFrameTaken",
         "_electricalRequested", "_electricalSamples", "_electricalRetry", "_electricalOrdinals",

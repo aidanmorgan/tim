@@ -1,0 +1,23 @@
+Output of `zsh rg-proof.sh` at 54502ddd (clean source tree):
+
+HEAD 54502ddd
+## AC: rg "reliableStalled|memoryRequest|SetReliableStall|ObserveMemory" (production), every hit:
+schemas/workshop_wire.fbs:31:    ObserveMemory = 12
+CuriousContraptions.Simulation/Program.cs:198:        if (command.Kind == WorkshopCommandKind.ObserveMemory)
+engine/gpu/WorkshopWireGenerated.cs:237:  ObserveMemory = 12,
+engine/gpu/WorkshopMessages.cs:5:/// <summary>Every Workshop command and query (closed set). <see cref="WorkshopCommandKind.ObserveMemory"/> is the stopped memory
+engine/gpu/WorkshopMessages.cs:7:public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory }
+engine/gpu/BrowserWorkshopClient.cs:155:            or WorkshopCommandKind.ObserveMemory
+engine/gpu/BrowserWorkshopClient.cs:211:        var delivery = await Execute(WorkshopCommandKind.ObserveMemory);
+engine/gpu/BrowserWorkshopClient.cs:212:        return WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, delivery.Response, WorkshopMemoryMeasurement.Capture);
+engine/gpu/WorkshopMemoryObservation.cs:53:/// The stopped memory observation query (Story 9A.3): a typed command, <see cref="WorkshopCommandKind.ObserveMemory"/>, routed with
+engine/gpu/WorkshopMemoryObservation.cs:71:        var expected = kind == WorkshopCommandKind.ObserveMemory && acknowledgement.Result.Outcome == WorkshopCommandOutcome.Applied;
+## the same, minus the typed definitions and WorkshopCommandKind.ObserveMemory uses (expected: nothing):
+## every other deleted symbol (expected: nothing):
+## deleted file (expected: nothing):
+DONE
+
+Every remaining hit is the typed command definition (the WorkshopCommandKind enum, the schema enum, the generated enum) or a use of
+the enum member WorkshopCommandKind.ObserveMemory (spec I8). `reliableStalled`, `memoryRequest` and `SetReliableStall` have 0
+production hits. TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction enforces the same set in dotnet test;
+mutants.txt records each re-add mutant it (or a harness) kills.

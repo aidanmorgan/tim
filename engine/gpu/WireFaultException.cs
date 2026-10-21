@@ -19,6 +19,8 @@ public enum WireFaultReason : uint
     OutOfRange,
     /// <summary>An instance names an element id the decoder has no element for (Story 9A.15); the message names the id.</summary>
     UnknownElement,
+    /// <summary>A command names a command kind this game does not have (Story 9A.3); the message names the kind.</summary>
+    UnknownCommand,
 }
 
 /// <summary>A refused Workshop wire buffer: decoded once, never retried through another codec. Deliberately not an

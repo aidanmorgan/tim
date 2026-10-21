@@ -478,4 +478,8 @@ development_status:
   t-5-coverage-based-suite-selection: backlog
   t-6-persistent-browser-sessions: backlog
 
+  f-20-posted-read-receipt-identity: backlog
+  f-21-bounded-memory-query-completion: backlog
+  f-22-stopped-reliable-read-resource-bound: backlog
+
 action_items: []

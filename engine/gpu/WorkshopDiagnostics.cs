@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 public enum FaultSite
 {
     Initialize = 1, Construct, Advance, Reset, Startup, LateDispose, RunLoop, StaleRunLoop, Warmup, Presentation,
-    Disposal, TraceFlush, Installation, UiHandler
+    Disposal, TraceFlush, Installation, UiHandler, WorkerEnvelope
 }
 
 /// <summary>
@@ -56,6 +56,7 @@ public static class WorkshopDiagnostics
         FaultSite.TraceFlush => "TRACE_FLUSH",
         FaultSite.Installation => "INSTALLATION",
         FaultSite.UiHandler => "UI_HANDLER",
+        FaultSite.WorkerEnvelope => "WORKER_ENVELOPE",
         _ => throw new ArgumentOutOfRangeException(nameof(site), site, "Undefined fault site.")
     };
 }

@@ -1,0 +1,12 @@
+node v26.12.0, HEAD 54502ddd, status digest 581ca70d81a8
+tools/workshop-animation-clock.test.mjs exit=0 ℹ pass 3 ℹ fail 0 
+tools/workshop-animation-output.test.mjs exit=0 ℹ pass 1 ℹ fail 0 
+tools/workshop-client-lifecycle.test.mjs exit=0 ℹ pass 39 ℹ fail 0 
+tools/workshop-clock-ring.test.mjs exit=0 ℹ pass 12 ℹ fail 0 
+tools/workshop-close-findings.test.mjs exit=0 ℹ pass 14 ℹ fail 0 
+tools/workshop-console.test.mjs exit=0 ℹ pass 4 ℹ fail 0 
+tools/workshop-isolation.test.mjs exit=0 ℹ pass 9 ℹ fail 0 
+tools/workshop-observation.test.mjs exit=0 ℹ pass 1 ℹ fail 0 
+tools/workshop-pose-ring.test.mjs exit=0 ℹ pass 5 ℹ fail 0 
+tools/workshop-save-storage.test.mjs exit=0 ℹ pass 3 ℹ fail 0 
+tools/e2e/unit/run-reset-snapshot.test.ts exit=0 ℹ pass 24 ℹ fail 0 

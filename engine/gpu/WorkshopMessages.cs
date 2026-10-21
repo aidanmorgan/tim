@@ -2,7 +2,9 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
+/// <summary>Every Workshop command and query (closed set). <see cref="WorkshopCommandKind.ObserveMemory"/> is the stopped memory
+/// observation query (Story 9A.3), answered by its acknowledgement's <see cref="WorkshopResponse.Memory"/>.</summary>
+public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
@@ -11,7 +13,7 @@ public readonly record struct WorkshopCommandIdentity(CommandSequence Sequence, 
 public readonly record struct WorkshopResponse(CommandSequence Sequence, WorkshopResponseKind Kind,
     WorkshopCommandResult Result, WorkshopSimulationPhase Phase, WorkshopRead Read, RuntimeSessionId Session = default, PublicationSequence Publication = default,
     CadenceRevision Cadence = default, ClockGeneration MasterGeneration = default,
-    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default);
+    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default, WorkshopMemoryMeasurement? Memory = null);
 
 /// <summary>The domain rules of Workshop commands and responses that every encoder and decoder of the one codec
 /// (<see cref="WorkshopWireFlatBuffers"/>) applies.</summary>

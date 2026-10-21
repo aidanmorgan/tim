@@ -115,21 +115,32 @@ async function loadWorker(host, additionalGlobals = {}) {
     return { self, messages, get imports() { return imports; } };
 }
 
+// Story 9A.3: the worker refuses every envelope no handler owns through the managed typed rejection, which names its keys
+// (WorkerEnvelopeRejectedException); these stand-ins return the same detail the managed one does.
+const envelopeRejections = record => ({
+    RejectUnknownEnvelope: keys => { record.push(Array.from(keys)); return 'Unsupported worker envelope: ' + (keys.length ? Array.from(keys).join(', ') : '(no keys)'); },
+    RejectSaturatedCommand: () => { record.push('saturated'); return 'The Workshop command transport already holds its two outstanding commands.'; }
+});
+const hex = bytes => Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+
 for (const captureMode of [1, 2]) {
     let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
-    const stallStates = [];
+    const receipts = [], rejectedEnvelopes = [], logged = [];
     const derivation = derivationHost();
     const host = {
         ...derivation,
+        ...envelopeRejections(rejectedEnvelopes),
         ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         AnimationPeer: () => new Uint8Array(64),
         PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
         Dispatch: async () => { await new Promise(resolve => { release = resolve; }); },
         FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); },
-        SetReliableStall: value => stallStates.push(value)
+        // The managed reliable-read ledger: every receipt reaches it, unparsed (it accepts all here; refusals are below).
+        AcknowledgeRead: receipt => { receipts.push(hex(receipt)); }
     };
-    const boundary = await loadWorker(host);
+    const recordingConsole = { ...console, error: (...items) => { logged.push(items.map(String).join(' ')); } };
+    const boundary = await loadWorker(host, { console: recordingConsole });
     const { self, messages, imports } = boundary;
     const sessionClock = clockRing.createClockRing();
     const preparing = self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode, clockRing: sessionClock,
@@ -145,9 +156,10 @@ for (const captureMode of [1, 2]) {
         'every check turn also beats the Simulation heartbeat the Browser watches');
     assert.equal(preparations, 1);
     // The Simulation worker no longer answers clock probes itself (Story 9.4b): the deleted raw probe envelope is
-    // now just an invalid command transport, rejected without dispatch.
+    // now an unknown envelope, refused by name without dispatch.
     await self.onmessage({ data: { clockProbe: new Uint8Array(80) } });
     assert.equal(messages.at(-1).rejected, true, 'a raw clock probe envelope has no handler in the Simulation worker');
+    assert.equal(messages.at(-1).detail, 'Unsupported worker envelope: clockProbe');
     assert.equal(messages.filter(item => item.clockReply).length, 0, 'the Simulation worker never posts a clock reply');
     assert.equal(messages.filter(item => item.read || item.acknowledgement).length, 0, 'preparation cannot publish a world');
     releasePreparation();
@@ -170,11 +182,10 @@ for (const captureMode of [1, 2]) {
         await self.onmessage({ data: { readAcknowledged: receipt(running) } });
     }
     assert.equal(flushes, 0, 'ordinary Running reads never call the observation export');
+    assert.deepEqual(receipts, Array.from({ length: 8 }, (_, index) => hex(publication(BigInt(index + 10)).identity)),
+        'every receipt reaches the managed ledger unparsed, in order');
     publish(first, false);
     publish(final, true);
-    assert.equal(flushes, 0);
-    const wrong = receipt(first); wrong[0] ^= 1;
-    await self.onmessage({ data: { readAcknowledged: wrong } });
     assert.equal(flushes, 0);
     await self.onmessage({ data: { readAcknowledged: receipt(first) } });
     assert.equal(flushes, 0, 'queued terminal is pending before observation flush');
@@ -185,8 +196,6 @@ for (const captureMode of [1, 2]) {
     release();
     await command;
     assert.equal(flushes, 1);
-    await self.onmessage({ data: { readAcknowledged: receipt(final) } });
-    assert.equal(flushes, 1, 'duplicate receipt does not flush again');
     throwOutput = true;
     const last = publication(3n);
     publish(last, true);
@@ -194,7 +203,10 @@ for (const captureMode of [1, 2]) {
     await self.onmessage({ data: { readAcknowledged: receipt(last) } });
     assert.equal(flushes, 2);
     assert.equal(messages.filter(item => item.failure).length, failuresBefore, 'observation failure is contained');
+    assert.deepEqual(logged, ['CCGPU_TRACE_FLUSH_EXCEPTION Error: Output unavailable'], 'and logged, never swallowed');
     throwOutput = false;
+    const beforeReset = publication(4n), afterReset = publication(5n);
+    publish(beforeReset, false);
     const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
     await Promise.resolve();
     imports.acknowledge(new Uint8Array(64), new Uint8Array(8), true);
@@ -202,10 +214,31 @@ for (const captureMode of [1, 2]) {
     assert.equal(flushes, 2);
     release();
     await reset;
-    assert.equal(flushes, 3, 'acknowledgement-only Reset announces sealed observation');
-    await self.onmessage({ data: { reliableStalled: true } });
-    await self.onmessage({ data: { reliableStalled: false } });
-    assert.deepEqual(stallStates, [true, false], 'actual worker forwards current boolean state');
+    assert.equal(flushes, 2, 'Reset cannot flush while its earlier read remains in flight');
+    publish(afterReset, true);
+    assert.deepEqual(posted().readIdentity, beforeReset.identity, 'Reset keeps the in-flight publication');
+    await self.onmessage({ data: { readAcknowledged: receipt(beforeReset) } });
+    assert.equal(receipts.at(-1), hex(beforeReset.identity), 'the delayed pre-Reset receipt reaches managed accounting');
+    assert.deepEqual(posted().readIdentity, afterReset.identity, 'the post-Reset publication drains afterwards');
+    await self.onmessage({ data: { readAcknowledged: receipt(afterReset) } });
+    assert.equal(flushes, 3, 'Reset observation flushes once both reads retire');
+    const nextRun = self.onmessage({ data: { bytes: new Uint8Array(72) } });
+    await Promise.resolve();
+    release();
+    await nextRun;
+    assert.equal(messages.filter(item => item.failure).length, failuresBefore, 'the recovered transport accepts the next Run');
+
+    // Story 9A.3 negative control: the deleted raw stall flag and raw memory channel are unknown envelopes, refused by name
+    // through the typed rejection; nothing reaches the ledger, the dispatcher or a stall setter.
+    const receiptsBefore = receipts.length;
+    for (const [data, detail] of [[{ reliableStalled: true }, 'reliableStalled'], [{ reliableStalled: false }, 'reliableStalled'],
+        [{ memoryRequest: new Uint8Array(64) }, 'memoryRequest'], [{ memoryResult: new Uint8Array(128) }, 'memoryResult']]) {
+        await self.onmessage({ data });
+        assert.equal(messages.at(-1).rejected, true);
+        assert.equal(messages.at(-1).detail, 'Unsupported worker envelope: ' + detail);
+    }
+    assert.equal(receipts.length, receiptsBefore);
+    assert.equal(host.SetReliableStall, undefined, 'no stall setter exists to forward to');
     const held = publication(100n), eventOne = publication(102n), eventTwo = publication(104n), latest = publication(105n);
     publish(held, false);
     publish(publication(101n), false);
@@ -240,10 +273,62 @@ for (const captureMode of [1, 2]) {
     for (let index = 0; index < 64; index++)
         await self.onmessage({ data: { readAcknowledged: receipt(publication(BigInt(201 + index))) } });
     imports.dispose();
-    await self.onmessage({ data: { reliableStalled: true } });
-    assert.deepEqual(stallStates, [true, false], 'disposed worker cannot update stall state');
-    console.log(JSON.stringify({ captureMode, passed: true, controls: ['preparationClockOverlap', 'noEarlyWorld', 'pending', 'staleReceipt',
-        'queuedTerminal', 'activeCommand', 'matchingReceipt', 'duplicateReceipt', 'outputFailure', 'ordinaryReadNoExport', 'acknowledgementOnlyReset', 'currentReliableStall', 'dispose'] }));
+    const receiptsAtDisposal = receipts.length;
+    await self.onmessage({ data: { readAcknowledged: receipt(publication(300n)) } });
+    assert.equal(receipts.length, receiptsAtDisposal, 'a disposed worker forwards no receipt');
+    assert.equal(rejectedEnvelopes.filter(item => item !== 'saturated').length, 5, 'one typed rejection per unknown envelope');
+    console.log(JSON.stringify({ captureMode, passed: true, controls: ['preparationClockOverlap', 'noEarlyWorld', 'pending', 'receiptsToLedger',
+        'queuedTerminal', 'activeCommand', 'matchingReceipt', 'outputFailureLogged', 'ordinaryReadNoExport', 'acknowledgementOnlyReset',
+        'retiredEnvelopesRejected', 'dispose'] }));
+}
+
+// Story 9A.3: a receipt the managed ledger refuses (a mismatched, duplicate or unpublished one) is a typed rejection reported
+// through the failure envelope, never a silent return; the session is retired, so no later read or receipt is handled.
+{
+    const forwarded = [];
+    const host = {
+        ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
+        AcknowledgeRead: receipt => {
+            forwarded.push(hex(receipt));
+            if (forwarded.length === 2) throw new Error('ReadReceiptRejectedException: Publication 1 is receipted, but publication 1 is already retired.');
+        }
+    };
+    const { self, messages, imports } = await loadWorker(host);
+    const identity = new Uint8Array(24); identity.fill(7, 0, 16); identity[16] = 1;
+    imports.publish(new Uint8Array(8), identity, new Uint8Array(16), false, false);
+    assert.equal(messages.filter(item => item.read).length, 1);
+    await self.onmessage({ data: { readAcknowledged: identity.slice() } });
+    assert.equal(messages.filter(item => item.failure).length, 0, 'an accepted receipt is no failure');
+    await self.onmessage({ data: { readAcknowledged: identity.slice() } });
+    const failure = messages.find(item => item.failure);
+    assert.match(failure?.detail ?? '', /ReadReceiptRejectedException: Publication 1 is receipted, but publication 1 is already retired/);
+    await self.onmessage({ data: { readAcknowledged: identity.slice() } });
+    assert.equal(forwarded.length, 2, 'the retired session forwards no later receipt');
+    console.log(JSON.stringify({ refusedReceiptIsAFailure: true }));
+}
+
+// Story 9A.3: the memory query travels the command transport like every command (one typed buffer for the managed decoder, its
+// acknowledgement keyed by its sequence); a third outstanding command is refused with its typed reason, never dispatched.
+{
+    const dispatched = [], rejected = [], releases = [];
+    const host = {
+        ScheduleRoles: () => [1, 2], ...envelopeRejections(rejected),
+        Dispatch: async bytes => { dispatched.push(hex(bytes)); await new Promise(resolve => { releases.push(resolve); }); }
+    };
+    const { self, messages, imports } = await loadWorker(host);
+    const query = new Uint8Array([0x51, 0x4d, 0x0c, 0x00]), other = new Uint8Array([1, 2, 3]);
+    const first = self.onmessage({ data: { bytes: query } });
+    const second = self.onmessage({ data: { bytes: other } });
+    await self.onmessage({ data: { bytes: new Uint8Array([9]) } });
+    assert.deepEqual(dispatched, ['514d0c00', '010203'], 'the query buffer reaches the managed decoder unchanged');
+    assert.equal(messages.at(-1).detail, 'The Workshop command transport already holds its two outstanding commands.');
+    assert.deepEqual(rejected, ['saturated']);
+    const sequence = new Uint8Array(8); sequence[0] = 1;
+    imports.acknowledge(new Uint8Array(16), sequence, false);
+    assert.deepEqual(Array.from(messages.at(-1).sequence), Array.from(sequence), 'its acknowledgement carries its sequence');
+    for (const release of releases) release();
+    await first; await second;
+    console.log(JSON.stringify({ memoryQueryOnCommandTransport: true }));
 }
 
 // The worker owns no WebGPU device since the pure C# WASM engine (Story 9.2b), so startup has only preparation
@@ -276,7 +361,7 @@ for (const control of Object.values(StartupControl)) {
 // refuses its exact framed shape; only a non-buffer envelope is the transport's own rejection.
 {
     let dispatched = 0;
-    const host = { ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; } };
+    const host = { ScheduleRoles: () => [1, 2], ...envelopeRejections([]), Dispatch: async () => { dispatched++; } };
     const { self, messages } = await loadWorker(host);
     for (const width of [0, 7, 72, 70000]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
     assert.equal(dispatched, 4);
@@ -330,4 +415,27 @@ for (const control of Object.values(StartupControl)) {
     assert.ok(cleared.has(turnTimers[0]), 'disposal clears the timed turn instead of leaving it to fire');
     assert.deepEqual(closed.sort(), ['port1', 'port2'], 'disposal closes both ends of the turn channel');
     console.log(JSON.stringify({ disposalCancelsSchedulerTurns: true }));
+}
+
+// A recognized transport field never makes an unknown companion field legal. Rejection is atomic.
+{
+    let dispatches = 0, receipts = 0, schedules = 0;
+    const host = {
+        ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
+        Dispatch: async () => { dispatches++; },
+        AcknowledgeRead: () => { receipts++; },
+        ScheduleResult: () => { schedules++; }
+    };
+    const { self, messages } = await loadWorker(host);
+    for (const data of [
+        { bytes: new Uint8Array(8), memoryRequest: true },
+        { readAcknowledged: new Uint8Array(24), reliableStalled: true },
+        { scheduleControl: new Uint8Array(8), unexpected: true }
+    ]) {
+        await self.onmessage({ data });
+        assert.equal(messages.at(-1).rejected, true);
+        assert.match(messages.at(-1).detail, /Unsupported worker envelope: (memoryRequest|reliableStalled|unexpected)/);
+    }
+    assert.deepEqual([dispatches, receipts, schedules], [0, 0, 0], 'mixed envelopes mutate no managed state');
+    console.log(JSON.stringify({ mixedEnvelopesRejectedAtomically: true }));
 }
