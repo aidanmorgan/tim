@@ -45,7 +45,7 @@ public sealed partial class BrowserWorkshopClient
             _uiQueue.RemoveAt(0);
             if (generation == 0) continue; // Visibility before the first Reveal has no registered target.
             var control = new WorkshopAnimationControl(declaration.AnimationTarget, default, checked(_animationSequence + 1), generation,
-                request.Kind, request.Visible, request.Kind == AnimationControlKind.Hide ? (Half)1 : (Half)0, (Half)1, declaration.Duration, declaration.Curve);
+                request.Kind, request.Visible, request.Kind == AnimationControlKind.Hide ? (float)1 : (float)0, (float)1, declaration.Duration, declaration.Curve);
             // The generation is owned with the lease; a faulted send faults the transport rather than reviving an older clip.
             _hintGeneration = generation;
             _uiControlHidden = request.Kind == AnimationControlKind.Hide || !request.Visible;
@@ -55,7 +55,7 @@ public sealed partial class BrowserWorkshopClient
     }
     private void ReceiveHintSample(WorkshopAnimationSample sample, AnimationOutputKind kind)
     {
-        if (sample.Property != AnimationProperty.Opacity || sample.World.Value != 0 || sample.EventOrdinal != 0 || sample.EventPhase != (Half)0)
+        if (sample.Property != AnimationProperty.Opacity || sample.World.Value != 0 || sample.EventOrdinal != 0 || sample.EventPhase != (float)0)
             throw new ArgumentException("Autonomous output carried a world event.");
         if (sample.Generation < _hintGeneration) return;
         if (sample.Generation != _hintGeneration) throw new ArgumentException("Future UI generation.");
@@ -71,7 +71,7 @@ public sealed partial class BrowserWorkshopClient
     private void RetryRejectedGoal(WorkshopAnimationControl command)
     {
         if (command.Target == UiCurves.Goal.AnimationTarget && command.World == Epoch && _goalRequested is { } occurrence &&
-            command.EventOrdinal == occurrence.Ordinal && HalfBits.Equal(command.EventPhase, occurrence.Phase))
+            command.EventOrdinal == occurrence.Ordinal && F32Bits.Equal(command.EventPhase, (float)occurrence.Phase))
             _goalRetry = true;
     }
     private void PumpGoal()
@@ -82,8 +82,8 @@ public sealed partial class BrowserWorkshopClient
         if (WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, latest.Read, Epoch) is not { } occurrence) return;
         var declaration = UiCurves.Goal;
         SendAnimation(new(declaration.AnimationTarget, Epoch, checked(_animationSequence + 1), 1,
-            AnimationControlKind.Endpoint, true, (Half)1, (Half)1, declaration.Duration,
-            declaration.Curve, occurrence.Ordinal, occurrence.Phase), schedule);
+            AnimationControlKind.Endpoint, true, (float)1, (float)1, declaration.Duration,
+            declaration.Curve, occurrence.Ordinal, (float)occurrence.Phase), schedule);
         _goalRequested = occurrence; _goalRetry = false;
     }
     private void ReceiveGoalSample(WorkshopAnimationSample sample, AnimationOutputKind kind, WorkshopSchedule active)
@@ -91,7 +91,7 @@ public sealed partial class BrowserWorkshopClient
         if (sample.World.Value < active.World.WorldGeneration.Value) return;
         if (_goalRequested is not { } occurrence || sample.World != active.World.WorldGeneration ||
             sample.Property != AnimationProperty.Opacity || sample.Generation != 1 ||
-            sample.EventOrdinal != occurrence.Ordinal || !HalfBits.Equal(sample.EventPhase, occurrence.Phase))
+            sample.EventOrdinal != occurrence.Ordinal || !F32Bits.Equal(sample.EventPhase, (float)occurrence.Phase))
             throw new ArgumentException("Goal feedback does not own the committed occurrence.");
         if (kind == AnimationOutputKind.Sample)
         {

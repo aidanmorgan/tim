@@ -8,6 +8,14 @@ namespace CuriousContraptions.Elements.StateLatch;
 
 public sealed class StateLatchElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
+        [
+            new("Visual/Rocker", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedActivation, -.25f, .25f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/IndicatorLamp", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "latch",
         Category: ElementCategory.Control,

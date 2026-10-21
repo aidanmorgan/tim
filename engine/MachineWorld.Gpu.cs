@@ -94,8 +94,7 @@ public partial class MachineWorld
         return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
     }
 
-    public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null, WallDimensions? wallDimensions = null,
-        PipeLength? pipeLength = null)
+    public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Vector3? dimensions = null)
     {
         var q = rotation.Normalized();
         return id.Value switch
@@ -103,9 +102,9 @@ public partial class MachineWorld
             "ball" or "bowling" => CaptureBall(id, bodyId, position, q),
             "basket" => CaptureReceiver(bodyId, position, q),
             "ramp" => WorkshopInput.Ramp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                rampDimensions ?? RampDimensions.Default),
+                dimensions is { } rampSize ? new(new((Half)rampSize.X), new((Half)rampSize.Z)) : RampDimensions.Default),
             "wall" => WorkshopInput.Wall(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                wallDimensions ?? WallDimensions.Default),
+                dimensions is { } wallSize ? WallDimensions.FromInput(wallSize.X, wallSize.Y, wallSize.Z) : WallDimensions.Default),
             "switch" => WorkshopInput.Switch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
             "delay" => WorkshopInput.Delay(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
@@ -125,7 +124,7 @@ public partial class MachineWorld
             "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             // The part's presented length; else the committed pipe keeps its own; a newly placed pipe starts at the declared default.
             "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                pipeLength ?? (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
+                dimensions is { } pipeSize ? new(pipeSize.X) : (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
                     PipeLength.Default)),
             "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
@@ -250,6 +249,7 @@ public partial class MachineWorld
                 WorkshopPhase = response.Phase;
                 ApplyWorkshopRead(response.Read);
             }
+            foreach (var part in _parts) _workshopClient.SetDeclaredVisible(part.AuthoredId, part.IsVisibleInTree());
             var selected = _workshopClient.TryPresent(Engine.GetProcessFrames(), out var presentation);
             if (selected)
             {
@@ -280,8 +280,8 @@ public partial class MachineWorld
                 if (part.HasCosmeticBindings && _workshopClient.TryCosmeticFrame(frame, _workshopPresentation, part.AuthoredId, out var cosmetic))
                     part.ApplyCosmetic(cosmetic);
             foreach (var part in _parts)
-                if (part.HasElectricalBindings && _workshopClient.TryElectricalFrame(frame, _workshopPresentation, part.AuthoredId, out var electrical))
-                    part.ApplyElectrical(electrical);
+                if (_workshopClient.TryDeclaredFrame(frame, _workshopPresentation, part.AuthoredId, out var declared))
+                    foreach (var property in declared) part.ApplyDeclaredProperty(property.Binding, property.Value);
             // Telemetry follows the lowest-identity ball of either kind; zero only while the construction has no ball.
             var ballId = Construction.Instances.OfType<WorkshopBall>().Select(b => b.Id).OrderBy(id => id.Value).FirstOrDefault();
             var ball = _parts.FirstOrDefault(part => part.AuthoredId == ballId);
@@ -333,17 +333,11 @@ public partial class MachineWorld
                 part.EnsureConstructed(); AddChild(part); _parts.Add(part); _bodies.Add(part);
             }
             if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
-            if (instance is WorkshopRamp ramp) part.ApplyRampDimensions(ramp.Dimensions);
-            if (instance is WorkshopWall wall) part.ApplyWallDimensions(wall.Dimensions);
-            if (instance is WorkshopPipe pipe) part.ApplyPipeLength(pipe.Length);
+            part.ApplyPresentationParameters(DeclaredPhysics.Parameters(instance));
             if (instance is WorkshopDelay delay) part.ApplyDuration(delay.Duration);
             if (instance is WorkshopBattery battery)
             {
                 part.ApplySource(battery.Settings);
-                var fraction = battery.Settings.InitialFraction;
-                var supply = battery.Settings.Enabled == ElectricalEnable.Enabled && fraction > 0 ? 1f : 0f;
-                part.ApplyElectrical(new(supply, fraction >= .25f ? 1f : 0f, fraction >= .5f ? 1f : 0f,
-                    fraction >= .75f ? 1f : 0f, fraction >= 1f ? 1f : 0f));
             }
             if (instance is WorkshopSpringboard spring)
             {

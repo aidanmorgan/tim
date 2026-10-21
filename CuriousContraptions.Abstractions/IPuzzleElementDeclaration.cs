@@ -4,6 +4,7 @@ namespace CuriousContraptions.Abstractions;
 
 public interface IPuzzleElementDeclaration
 {
+    ElementPresentation Presentation { get; }
     ElementMetadata Metadata { get; }
     ElementFootprint Footprint { get; }
     IReadOnlyList<PortDescriptor> Ports { get; }

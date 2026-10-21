@@ -45,8 +45,8 @@ public sealed record AnimationImpulseDefinition
         AnimationNumbers.Unit(peakPhase.Value);
         if(curve switch
         {
-            AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>peakPhase.Value!=(Half)0,
-            AnimationImpulseCurve.SineSquaredPulse=>peakPhase.Value!=(Half).5,
+            AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>peakPhase.Value!=(float)0,
+            AnimationImpulseCurve.SineSquaredPulse=>peakPhase.Value!=(float).5,
             AnimationImpulseCurve.SmoothRiseFall=>(double)peakPhase.Value<1e-6||(double)peakPhase.Value>1-1e-6,
             _=>true
         })throw new ArgumentOutOfRangeException(nameof(peakPhase));
@@ -56,13 +56,13 @@ public sealed record AnimationImpulseDefinition
     /// <summary>The one peak phase each curve admits; declarations and the worker share this table.</summary>
     public static AnimationPeakPhase CanonicalPeak(AnimationImpulseCurve curve)=>curve switch
     {
-        AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>new((Half)0),
-        AnimationImpulseCurve.SineSquaredPulse or AnimationImpulseCurve.SmoothRiseFall=>new((Half).5),
+        AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>new((float)0),
+        AnimationImpulseCurve.SineSquaredPulse or AnimationImpulseCurve.SmoothRiseFall=>new((float).5),
         _=>throw new ArgumentOutOfRangeException(nameof(curve))
     };
     internal double Envelope(double elapsed)
     {
-        if(elapsed<=0)return PeakPhase.Value==(Half)0?1:0;
+        if(elapsed<=0)return PeakPhase.Value==(float)0?1:0;
         if(elapsed>=(double)Duration.Value)return 0;
         var phase=elapsed/(double)Duration.Value;
         return Curve switch
@@ -114,7 +114,7 @@ internal sealed class AnimationImpulseState
     {
         if(id.Value==0||id.Value<=_lastOccurrence.Value)throw new ArgumentException("Impulse identities must increase within their binding.");
         AnimationNumbers.Unit(strength.Value);
-        if(strength.Value<=(Half)0)throw new ArgumentOutOfRangeException(nameof(strength));
+        if(strength.Value<=(float)0)throw new ArgumentOutOfRangeException(nameof(strength));
         if(_accepted==ulong.MaxValue)throw new InvalidOperationException("Impulse occurrence counter exhausted.");
         if(!double.IsFinite(occurredAt))throw new ArgumentOutOfRangeException(nameof(occurredAt));
         if(_count==_occurrences.Length)return AnimationImpulseAdmission.CapacityExhausted;
@@ -172,7 +172,7 @@ internal sealed class AnimationImpulseState
             {
                 var contribution=(double)occurrence.Strength.Value*(retainedFirstFrame?1:_definition.Envelope(elapsed));
                 // Logical canonical envelope observation, not a renderer-delta acknowledgement.
-                if((Half)contribution>(Half)0)occurrence.HasPresented=true;
+                if((float)contribution>(float)0)occurrence.HasPresented=true;
                 value=_definition.Overlap switch
                 {
                     AnimationImpulseOverlap.Maximum=>Math.Max(value,contribution),
@@ -187,7 +187,7 @@ internal sealed class AnimationImpulseState
         Array.Clear(_occurrences,retained,_count-retained);
         _count=retained;_pending=pending;
         if(_definition.Overlap==AnimationImpulseOverlap.HyperbolicTangentSum)value=Math.Tanh(value);
-        if(visible||_count==0)Value=new((Half)value);
+        if(visible||_count==0)Value=new((float)value);
         return Value;
     }
     public void Cancel()

@@ -7,6 +7,9 @@ namespace CuriousContraptions.Elements.Ball;
 
 public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(.46f, PresentationAxes.None,
+        [], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "ball",
         Category: ElementCategory.Motion,

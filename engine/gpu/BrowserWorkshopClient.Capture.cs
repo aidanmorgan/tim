@@ -45,8 +45,8 @@ public sealed partial class BrowserWorkshopClient
                 !TryCaptureOwner(capture.Sensor, out var owner) || CaptureRequestedFor(owner) ||
                 !TryCosmeticDeclaration(owner, AnimationFeedbackSource.Capture, out var declaration)) continue;
             var control = new WorkshopAnimationControl(CaptureTarget(owner), latest.Read.Epoch,
-                checked(_animationSequence + 1), 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, declaration.Duration,
-                declaration.Curve, capture.EventOrdinal, capture.EventPhase, AnimationProperty.ColourBlend);
+                checked(_animationSequence + 1), 1, AnimationControlKind.Endpoint, true, (float)1, (float)1, declaration.Duration,
+                declaration.Curve, capture.EventOrdinal, (float)capture.EventPhase, AnimationProperty.ColourBlend);
             // The slot is owned with the lease; a faulted send faults the transport rather than re-requesting.
             _captureRequested[i] = capture;
             SendAnimation(control, schedule);
@@ -58,7 +58,7 @@ public sealed partial class BrowserWorkshopClient
     {
         for (var i = 0; i < _captureRequested.Length; i++)
             if (_captureRequested[i] is { } requested && TryCaptureOwner(requested.Sensor, out var owner) && CaptureTarget(owner) == command.Target &&
-                command.World == Epoch && command.EventOrdinal == requested.EventOrdinal && HalfBits.Equal(command.EventPhase, requested.EventPhase))
+                command.World == Epoch && command.EventOrdinal == requested.EventOrdinal && F32Bits.Equal(command.EventPhase, (float)requested.EventPhase))
             { _captureRequested[i] = null; _captureSamples[i] = null; }
     }
     private void ReceiveCaptureSample(WorkshopAnimationSample sample, AnimationOutputKind kind, WorkshopSchedule active)
@@ -70,7 +70,7 @@ public sealed partial class BrowserWorkshopClient
         if (slot < 0 || _captureRequested[slot] is not { } capture ||
             sample.World != active.World.WorldGeneration || sample.Property != AnimationProperty.ColourBlend ||
             sample.Generation != 1 || sample.EventOrdinal != capture.EventOrdinal ||
-            !HalfBits.Equal(sample.EventPhase, capture.EventPhase))
+            !F32Bits.Equal(sample.EventPhase, (float)capture.EventPhase))
             throw new ArgumentException("Capture animation does not own its committed occurrence.");
         if (kind == AnimationOutputKind.Sample)
         {

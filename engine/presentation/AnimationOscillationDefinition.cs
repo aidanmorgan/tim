@@ -2,7 +2,7 @@ using System;
 
 namespace CuriousContraptions.Presentation;
 
-/// <summary>Analytic cosmetic underdamped motion, with canonical Half anchors and no physical feedback.</summary>
+/// <summary>Analytic cosmetic underdamped motion, with canonical float anchors and no physical feedback.</summary>
 public sealed record AnimationOscillationDefinition
 {
     public AnimationDecayPerSecond Decay { get; }
@@ -72,7 +72,7 @@ internal sealed class AnimationOscillationState
             throw new ArgumentException("Oscillation occurrences must increase within their binding.");
         if(_accepted==ulong.MaxValue)throw new InvalidOperationException("Oscillation occurrence counter exhausted.");
         AnimationNumbers.SignedUnit(strength.Value);
-        if(strength.Value==(Half)0)throw new ArgumentOutOfRangeException(nameof(strength));
+        if(strength.Value==(float)0)throw new ArgumentOutOfRangeException(nameof(strength));
         var state=Read(time);
         // Round BOTH new anchors first. The future envelope belongs to these exact stored bits.
         var position=state.Position;
@@ -86,8 +86,8 @@ internal sealed class AnimationOscillationState
         var decay=(double)_definition.Decay.Value;var frequency=(double)_definition.Frequency.Value;
         var a=position.Number;var b=(velocity.Number+decay*a)/frequency;
         var c=frequency*b-decay*a;var d=-frequency*a-decay*b;
-        // Finite Half displacement/velocity profile; no amplitude clipping or wider retained anchor.
-        if(Math.Sqrt(a*a+b*b)>(double)Half.MaxValue||Math.Sqrt(c*c+d*d)>(double)Half.MaxValue)
+        // Finite float displacement/velocity profile; no amplitude clipping or wider retained anchor.
+        if(Math.Sqrt(a*a+b*b)>(double)float.MaxValue||Math.Sqrt(c*c+d*d)>(double)float.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(velocity),"Canonical oscillation anchors exceed the supported envelope.");
     }
     public void ValidateKick(AnimationOccurrenceId occurrence,AnimationSignedStrength strength,double time)

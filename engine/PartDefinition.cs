@@ -30,6 +30,14 @@ public sealed class PartDefinition
         Ball = ball;
     }
 
+    internal void ValidateConstructionMaterial()
+    {
+        if (_physics.Mechanical is { KinematicMode: CuriousContraptions.Abstractions.Mechanical.KinematicMode.Dynamic } &&
+            _physics.Colliders.Count == 1 && _physics.Colliders[0].ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere && Ball is null)
+            throw new ArgumentException("A declared dynamic sphere requires its authored material.");
+        if (Ball is { } material) material.Validate(PartId);
+    }
+
     private readonly BundleEntry _physics;
 
     public PartId PartId { get; }
@@ -45,6 +53,9 @@ public sealed class PartDefinition
     public PackedScene? Scene { get; }
     /// <summary>Declared material of a dynamic sphere; present for every ball kind.</summary>
     public BallMaterial? Ball { get; }
+
+    public ElementPresentation Presentation => _physics.Presentation;
+    public IReadOnlyList<ParameterDescriptor> Parameters => _physics.Metadata.Parameters;
 
     public IReadOnlyList<ExtractedCollider> Colliders => BundleGeometry.Colliders(_physics).Select(DeclaredPhysics.Admit).ToArray();
 

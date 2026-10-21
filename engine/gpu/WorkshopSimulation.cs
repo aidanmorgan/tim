@@ -14,7 +14,7 @@ public enum WorkshopRejection { None = 0, Busy = 1, InvalidConstruction = 2, Wro
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
     PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default,
-    PhysicsMemoryRead Memory = default);
+    PhysicsMemoryRead Memory = default, PhysicsPresentationRead Presentation = default);
 public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, WorkshopRead Read);
 
 /// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>

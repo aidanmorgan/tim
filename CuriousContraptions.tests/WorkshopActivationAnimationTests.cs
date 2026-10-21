@@ -12,14 +12,14 @@ public sealed class WorkshopActivationAnimationTests
     private static readonly ActivationLatch Latch = new(new(2), new(2), ActivationPhase.Latched,
         new(55), new(1), new(44), 10, (Half)0, new((Half).8), ActivationOccurrenceKind.Contact, new(2), 10, (Half)0);
     private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
-        true, (Half)1, (Half)1, (Half)1, AnimationCurve.Linear, 10, (Half)0, AnimationProperty.ColourBlend);
+        true, (float)1, (float)1, (float)1, AnimationCurve.Linear, 10, (float)0, AnimationProperty.ColourBlend);
 
     [Theory]
     [InlineData(0f, 1f)]
     [InlineData(1f, 0f)]
     public void CommittedTransitionAdmitsBothDirectionsAndRejectsForeignChannel(float from, float to)
     {
-        var control = Control with { Kind = AnimationControlKind.Transition, From = (Half)from, To = (Half)to };
+        var control = Control with { Kind = AnimationControlKind.Transition, From = (float)from, To = (float)to };
         var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), control);
         Assert.Equal(control, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
         Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Control(Session, new(1), new(1), control with { World = default }));
@@ -31,9 +31,9 @@ public sealed class WorkshopActivationAnimationTests
     {
         var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), Control);
         Assert.Equal(Control, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
-        // Story 9A.1 (F.10): bytes 90..91 are zero padding where the version was; the retired version 5 now rejects.
-        Assert.Equal(0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(90)));
-        foreach (var (offset, value) in new[] { (90, 5), (90, 1), (78, 0), (78, 99), (92, 1) })
+        // Story 9A.1 (F.10): bytes 142..143 are zero padding where the version was; the retired version 5 now rejects.
+        Assert.Equal(0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(142)));
+        foreach (var (offset, value) in new[] { (142, 5), (142, 1), (140, 0), (140, 99), (92, 1) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(offset), (ushort)value);
             Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(changed, Session, new(1), new(1)));
@@ -41,20 +41,20 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(bytes, new(1, 2), new(1), new(1)));
         var output = Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1);
         Assert.Equal(AnimationProperty.ColourBlend, WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _).Property);
-        output[86] = 5; // the retired output version, where zero padding now stands
+        output[88] = 5; // the retired output version, where zero padding now stands
         Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _));
     }
 
     [Fact]
     public void SharedBindingEvaluationPreservesCanonicalNeutralActiveAndIntermediateValues()
     {
-        var neutral = new AnimationValue(new AnimationMetres((Half).06));
-        var active = new AnimationValue(new AnimationMetres((Half)(-.02)));
-        Assert.Equal(neutral, AnimationValue.Blend(neutral, active, new((Half)0)));
-        Assert.Equal(active, AnimationValue.Blend(neutral, active, new((Half)1)));
-        Assert.Equal((Half)(((double)(Half).06 + (double)(Half)(-.02)) * .5),
-            AnimationValue.Blend(neutral, active, new((Half).5)).Metres.Value);
-        Assert.Throws<ArgumentException>(() => AnimationValue.Blend(neutral, new(new AnimationOpacity((Half)1)), new((Half)1)));
+        var neutral = new AnimationValue(new AnimationMetres((float).06));
+        var active = new AnimationValue(new AnimationMetres((float)(-.02)));
+        Assert.Equal(neutral, AnimationValue.Blend(neutral, active, new((float)0)));
+        Assert.Equal(active, AnimationValue.Blend(neutral, active, new((float)1)));
+        Assert.Equal((float)(((double).06f + (double)(-.02f)) * .5),
+            AnimationValue.Blend(neutral, active, new((float).5)).Metres.Value);
+        Assert.Throws<ArgumentException>(() => AnimationValue.Blend(neutral, new(new AnimationOpacity((float)1)), new((float)1)));
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class WorkshopActivationAnimationTests
         client.ReceiveAnimation(Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1));
         Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
         Assert.Equal(Latch, Requested(client)[0]);
-        Assert.Equal((Half)1, Samples(client)[0]!.Value.Value);
+        Assert.Equal((float)1, Samples(client)[0]!.Value.Value);
     }
 
     [Fact]
@@ -82,20 +82,39 @@ public sealed class WorkshopActivationAnimationTests
     }
 
     [Fact]
-    public void ElectricalCadenceBoundaryRestartsOrdinalsButRetainsControlAndRejectsReplay()
+    public void DeclaredCadenceBoundaryRestartsOrdinalsAndRejectsReplay()
     {
         var client = Client();
-        var control = Control with { Target = new(4UL << 32) };
-        Field<ChannelControl?[]>(client, "_electricalRequested")[0] = control;
+        var battery = WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery));
+        Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
+        var control = Control with { Target = new(WorkshopDeclaredPresentation.TargetBase), Property = AnimationProperty.ColourRed };
         client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 100));
         var schedule = Schedule(1, 2);
         Invoke(client, "ReconcileAnimationSchedule", schedule); Set(client, "_schedule", schedule);
-        Assert.Equal(control, Field<ChannelControl?[]>(client, "_electricalRequested")[0]);
+        control = control with { Generation = schedule.World.Epoch.Value };
         client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1));
-        Assert.Equal(1ul, Field<ulong[]>(client, "_electricalOrdinals")[0]);
         Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1)));
         client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 200));
-        Assert.Equal(1ul, Field<ulong[]>(client, "_electricalOrdinals")[0]);
+        var samples = Field<Dictionary<AnimationTargetId, WorkshopAnimationSample>>(client, "_declaredSamples");
+        Assert.Equal(1UL, samples[control.Target].Pulse.Value);
+    }
+
+    [Fact]
+    public void SameConstructionProjectionReplacementRequeuesHiddenOwnerVisibility()
+    {
+        var client = Client();
+        var battery = WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery));
+        Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
+        var target = new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase);
+        Field<Dictionary<GpuBodyId, bool>>(client, "_declaredVisibility")[battery.Id] = false;
+        Field<Dictionary<AnimationTargetId, bool>>(client, "_declaredVisibilitySent")[target] = false;
+        var schedule = Schedule(1, 2);
+        Invoke(client, "ReconcileAnimationSchedule", schedule);
+        Assert.Empty(Field<Dictionary<AnimationTargetId, bool>>(client, "_declaredVisibilitySent"));
+        Assert.False(Field<Dictionary<GpuBodyId, bool>>(client, "_declaredVisibility")[battery.Id]);
+        Assert.Same(construction.Instances, Field<WorkshopConstruction?>(client, "_readConstruction")!.Value.Instances);
     }
 
     [Fact]
@@ -124,50 +143,41 @@ public sealed class WorkshopActivationAnimationTests
     public void TimerSegmentsSeedTheirCommittedEndpointAndRejectInconsistentIntervals()
     {
         var counting = AnimationTimerSegment.Create(new(68,188,128,2,AnimationTimerPhase.Counting));
-        Assert.Equal((Half).5, counting.Endpoint.Value);
-        Assert.Equal((Half)1, AnimationTimerSegment.Create(new(68,188,200,2,AnimationTimerPhase.Finished)).Endpoint.Value);
-        Assert.Equal((Half)0, AnimationTimerSegment.Create(new(0,0,5,0,AnimationTimerPhase.Ready)).Endpoint.Value);
+        Assert.Equal((float).5, counting.Endpoint.Value);
+        Assert.Equal((float)1, AnimationTimerSegment.Create(new(68,188,200,2,AnimationTimerPhase.Finished)).Endpoint.Value);
+        Assert.Equal((float)0, AnimationTimerSegment.Create(new(0,0,5,0,AnimationTimerPhase.Ready)).Endpoint.Value);
         Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(new(68,188,187,2,AnimationTimerPhase.Finished)));
         Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(new(68,188,188,2,AnimationTimerPhase.Counting)));
         Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(default));
     }
 
     [Fact]
-    public void TimerAcknowledgementBindsExactIntervalAndResetCannotReviveIt()
+    public void DeclaredPropertyRejectsForeignChannelAndResetCannotReviveOldWorld()
     {
-        var control = Control with { Target = new((1UL << 32) + 3), Kind = AnimationControlKind.TimerObservation,
-            Generation = 129, Timer = new(68,188,128,2,AnimationTimerPhase.Counting), From=(Half)0, To=(Half).5 };
-        var wire = WorkshopAnimationWire.Control(Session, new(1), new(1), control);
-        Assert.Equal(control, WorkshopAnimationWire.ReadControl(wire, Session, new(1), new(1)));
-        var client = Client(); SetPending(client, control, new(1));
-        Field<ChannelControl?[]>(client, "_timerRequested")[0] = control;
-        var wrong = control with { Timer = control.Timer with { Due=189 } };
-        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(wrong, new(1), AnimationOutputKind.Acknowledgement, control.Sequence)));
-        Assert.NotNull(Field<ChannelControl?>(client, "_animationPending"));
-        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Acknowledgement, control.Sequence));
-        Assert.NotNull(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
-        Field<ulong[]>(client, "_timerOrdinals")[0] = 100;
-        var cadence = Schedule(1,2); Invoke(client, "ReconcileAnimationSchedule", cadence); Set(client, "_schedule", cadence);
-        Assert.Equal(0ul, Field<ulong[]>(client, "_timerOrdinals")[0]);
-        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1));
-        Assert.NotNull(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
-        SetPending(client, control, new(2));
-        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Rejected, control.Sequence));
-        Assert.True(Field<bool[]>(client, "_timerRetry")[0]);
-        Assert.NotNull(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
-        SetPending(client, control, new(2));
-        var next = Schedule(2,3); Invoke(client, "ReconcileAnimationSchedule", next); Set(client, "_schedule", next);
-        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Acknowledgement, control.Sequence));
-        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
-        Assert.Null(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
-        Assert.False(Field<bool[]>(client, "_timerRetry")[0]);
+        var client = Client();
+        var timer = WorkshopInput.Delay(new(1), 0, 1, 0, 0, 0, 0, 1, DelayDuration.Default);
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(timer));
+        Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
+        var first = DeclaredPhysics.Of(PartId.Delay).Presentation.Bindings[0];
+        var control = Control with { Target = new(WorkshopDeclaredPresentation.TargetBase),
+            Property = WorkshopDeclaredPresentation.Property(first.Property), From = first.From, To = first.From };
+        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 1));
+        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(control with { Property = AnimationProperty.Opacity },
+            new(1), AnimationOutputKind.Sample, 2)));
+        var reset = Schedule(2, 2);
+        Invoke(client, "ReconcileAnimationSchedule", reset); Set(client, "_schedule", reset);
+        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 2));
+        var fresh = control with { World = new(2), Generation = reset.World.Epoch.Value };
+        client.ReceiveAnimation(Output(fresh, new(2), AnimationOutputKind.Sample, 1));
+        var samples = Field<Dictionary<AnimationTargetId, WorkshopAnimationSample>>(client, "_declaredSamples");
+        Assert.Equal(new SimulationEpoch(2), samples[control.Target].World);
     }
 
     [Fact]
     public void GoalFeedbackOwnsOccurrenceAcrossCadenceRetryAndReset()
     {
         var goal = Control with { Target=new(ulong.MaxValue), Property=AnimationProperty.Opacity };
-        var occurrence = new ActivationTime(goal.EventOrdinal,goal.EventPhase);
+        var occurrence = new ActivationTime(goal.EventOrdinal,(Half)goal.EventPhase);
         var client=Client(); Set(client,"_goalRequested",occurrence); SetPending(client,goal,new(1));
         client.ReceiveAnimation(Output(goal,new(1),AnimationOutputKind.Acknowledgement,1));
         Assert.NotNull(Field<WorkshopAnimationSample?>(client,"_goalSample"));
@@ -235,8 +245,8 @@ public sealed class WorkshopActivationAnimationTests
         Invoke(client, "ObserveContactFeedback", Read(passiveStore, second));
         Assert.Single(pulses.Cast<object>()); // The unpaid occurrence cannot create a powered ring.
         var control = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse,
-            From = (Half)0, To = (Half)1, Duration = CosmeticCurves.PinballBumper.Duration, EventOrdinal = hit.EventOrdinal, EventPhase = hit.EventPhase,
-            ImpulseCurve = CosmeticCurves.PinballBumper.ImpulseCurve, Overlap = CosmeticCurves.PinballBumper.Overlap };
+            From = (float)0, To = (float)1, Duration = CosmeticCurveDeclaration.For(PartId.PinballBumper).Duration, EventOrdinal = hit.EventOrdinal, EventPhase = (float)hit.EventPhase,
+            ImpulseCurve = CosmeticCurveDeclaration.For(PartId.PinballBumper).ImpulseCurve, Overlap = CosmeticCurveDeclaration.For(PartId.PinballBumper).Overlap };
         var encoded = WorkshopAnimationWire.Control(Session, new(1), new(1), control);
         Assert.Equal(control, WorkshopAnimationWire.ReadControl(encoded, Session, new(1), new(1)));
         var pulse = pulses[0]!;
@@ -249,7 +259,7 @@ public sealed class WorkshopActivationAnimationTests
         pulse.GetType().GetField("Requested")!.SetValue(pulse, control);
         SetPending(client, control, new(2));
         var wrong = Output(control, new(2), AnimationOutputKind.Acknowledgement, 1);
-        BinaryPrimitives.WriteUInt16LittleEndian(wrong.AsSpan(132), BitConverter.HalfToUInt16Bits((Half).4));
+        BinaryPrimitives.WriteSingleLittleEndian(wrong.AsSpan(132), (float).4);
         Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(wrong));
         Assert.NotNull(Field<ChannelControl?>(client, "_animationPending"));
         client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Acknowledgement, 1));
@@ -313,43 +323,43 @@ public sealed class WorkshopActivationAnimationTests
     [Fact]
     public void DeclaredImpulseEnvelopeCombinesOverlapInTheSharedBatchAndReturnsToNeutral()
     {
-        var declaration = CosmeticCurves.PinballBumper; declaration.Validate();
+        var declaration = CosmeticCurveDeclaration.For(PartId.PinballBumper); declaration.Validate();
         var envelope = new AnimationImpulseDefinition(new(declaration.Duration), declaration.ImpulseCurve, declaration.Overlap,
             AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Presentation, WorkshopAnimationWire.ImpulseCapacity,
             AnimationImpulseTiming.EventTime, declaration.ImpulsePeak);
         var batch = new AnimationBatch(4);
         var handle = batch.RegisterImpulses(new(new(3), AnimationProperty.ColourBlend), envelope,
-            new(new AnimationColourBlend((Half)0)), new(new AnimationColourBlend((Half)1)));
-        Half Value() => BitConverter.UInt16BitsToHalf(batch.Read(handle).Value.CanonicalBits);
+            new(new AnimationColourBlend((float)0)), new(new AnimationColourBlend((float)1)));
+        float Value() => BitConverter.UInt32BitsToSingle(batch.Read(handle).Value.CanonicalBits);
         var period = (double)declaration.Duration;
-        Assert.Equal(AnimationImpulseAdmission.Accepted, batch.EnqueueImpulse(handle, new(1), new((Half)1), 1));
+        Assert.Equal(AnimationImpulseAdmission.Accepted, batch.EnqueueImpulse(handle, new(1), new((float)1), 1));
         batch.Advance(1, 1 + period / 8, 0);
         var single = (double)Value();
         Assert.InRange(single, .14, .16); // sin²(π/8) of the declared SineSquaredPulse
-        Assert.Equal(AnimationImpulseAdmission.Accepted, batch.EnqueueImpulse(handle, new(2), new((Half)1), 1 + period / 8));
+        Assert.Equal(AnimationImpulseAdmission.Accepted, batch.EnqueueImpulse(handle, new(2), new((float)1), 1 + period / 8));
         batch.Advance(2, 1 + period / 4, 0);
         Assert.InRange((double)Value(), .5 + single - .01, .5 + single + .01); // saturating sum exceeds either contribution
         batch.Advance(3, 1 + period / 2, 0);
-        Assert.Equal((Half)1, Value()); // peak + partner is clamped to the admitted unit range
+        Assert.Equal(1f, Value()); // peak + partner is clamped to the admitted unit range
         batch.Advance(4, 1 + period * 1.5, 0);
-        Assert.Equal((Half)0, Value());
+        Assert.Equal(0f, Value());
         Assert.Equal(0, batch.ReadImpulses(handle).Playing);
-        Assert.Throws<ArgumentException>(() => batch.EnqueueImpulse(handle, new(2), new((Half)1), 3));
+        Assert.Throws<ArgumentException>(() => batch.EnqueueImpulse(handle, new(2), new((float)1), 3));
     }
 
     [Fact]
     public void CosmeticCurveDeclarationsValidateClosedSetsAndTheWireCarriesTheImpulseEnvelope()
     {
-        foreach (var declared in new[] { CosmeticCurves.ImpactSwitch, CosmeticCurves.SignalLamp, CosmeticCurves.Delay, CosmeticCurves.PinballBumper })
+        foreach (var declared in new[] { CosmeticCurveDeclaration.For(PartId.ImpactSwitch), new CosmeticCurveDeclaration(AnimationFeedbackSource.Timer, CuriousContraptions.Presentation.AnimationCurve.Linear, 0, default, default), CosmeticCurveDeclaration.For(PartId.PinballBumper) })
         { declared.Validate(); Assert.True(declared.IsDeclared); }
         CosmeticCurveDeclaration.None.Validate(); Assert.False(CosmeticCurveDeclaration.None.IsDeclared);
-        Assert.Throws<ArgumentException>(() => (CosmeticCurves.ImpactSwitch with { Duration = (Half)0 }).Validate());
-        Assert.Throws<ArgumentException>(() => (CosmeticCurves.Delay with { Duration = (Half)1 }).Validate());
-        Assert.Throws<ArgumentException>(() => (CosmeticCurves.PinballBumper with { Overlap = (AnimationImpulseOverlap)9 }).Validate());
-        Assert.Throws<ArgumentException>(() => (CosmeticCurves.ImpactSwitch with { Source = (AnimationFeedbackSource)7 }).Validate());
-        Assert.Throws<ArgumentException>(() => (CosmeticCurveDeclaration.None with { Duration = (Half).5 }).Validate());
-        var impulse = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse, From = (Half)0, To = (Half)1,
-            Duration = CosmeticCurves.PinballBumper.Duration, ImpulseCurve = CosmeticCurves.PinballBumper.ImpulseCurve, Overlap = CosmeticCurves.PinballBumper.Overlap };
+        Assert.Throws<ArgumentException>(() => (CosmeticCurveDeclaration.For(PartId.ImpactSwitch) with { Duration = (float)0 }).Validate());
+        Assert.Throws<ArgumentException>(() => (new CosmeticCurveDeclaration(AnimationFeedbackSource.Timer, CuriousContraptions.Presentation.AnimationCurve.Linear, 0, default, default) with { Duration = (float)1 }).Validate());
+        Assert.Throws<ArgumentException>(() => (CosmeticCurveDeclaration.For(PartId.PinballBumper) with { Overlap = (AnimationImpulseOverlap)9 }).Validate());
+        Assert.Throws<ArgumentException>(() => (CosmeticCurveDeclaration.For(PartId.ImpactSwitch) with { Source = (AnimationFeedbackSource)7 }).Validate());
+        Assert.Throws<ArgumentException>(() => (CosmeticCurveDeclaration.None with { Duration = (float).5 }).Validate());
+        var impulse = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse, From = (float)0, To = (float)1,
+            Duration = CosmeticCurveDeclaration.For(PartId.PinballBumper).Duration, ImpulseCurve = CosmeticCurveDeclaration.For(PartId.PinballBumper).ImpulseCurve, Overlap = CosmeticCurveDeclaration.For(PartId.PinballBumper).Overlap };
         var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), impulse);
         Assert.Equal(impulse, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt16LittleEndian(unknown.AsSpan(94), 9);
@@ -360,11 +370,11 @@ public sealed class WorkshopActivationAnimationTests
     [Fact]
     public void CaptureDeclarationIsTheReceiversDeclaredCurve()
     {
-        var curve = CosmeticCurves.Receiver; curve.Validate();
+        var curve = CosmeticCurveDeclaration.For(PartId.Receiver); curve.Validate();
         Assert.Equal(AnimationFeedbackSource.Capture, curve.Source); Assert.True(curve.IsDeclared);
         Assert.Equal(curve, WorkshopInput.Receiver(new(2), 0, 1, 0, 0, 0, 0, 1).Cosmetic);
-        Assert.Throws<ArgumentException>(() => (curve with { Duration = (Half)0 }).Validate());
-        Assert.Throws<ArgumentException>(() => (curve with { Duration = (Half)31 }).Validate());
+        Assert.Throws<ArgumentException>(() => (curve with { Duration = (float)0 }).Validate());
+        Assert.Throws<ArgumentException>(() => (curve with { Duration = (float)31 }).Validate());
         Assert.Throws<ArgumentException>(() => (curve with { ImpulseCurve = AnimationImpulseCurve.SineSquaredPulse }).Validate());
         Assert.Throws<ArgumentException>(() => (curve with { Overlap = AnimationImpulseOverlap.SaturatingSum }).Validate());
     }
@@ -382,7 +392,7 @@ public sealed class WorkshopActivationAnimationTests
         SetPending(client, capture, new(1));
         client.ReceiveAnimation(Output(capture, new(1), AnimationOutputKind.Acknowledgement, 1));
         Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
-        Assert.Equal((Half)1, Field<WorkshopAnimationSample?[]>(client, "_captureSamples")[0]!.Value.Value);
+        Assert.Equal((float)1, Field<WorkshopAnimationSample?[]>(client, "_captureSamples")[0]!.Value.Value);
         client.ReceiveAnimation(Output(capture, new(1), AnimationOutputKind.Sample, 7));
         Assert.Equal(7ul, Field<ulong[]>(client, "_captureOrdinals")[0]);
         Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(capture, new(1), AnimationOutputKind.Sample, 7)));
@@ -422,12 +432,12 @@ public sealed class WorkshopActivationAnimationTests
         var client = Client(); Set(client, "_readConstruction", construction); Set(client, "_readScene", scene);
         Field<CaptureLatch?[]>(client, "_captureRequested")[0] = latch;
         Field<WorkshopAnimationSample?[]>(client, "_captureSamples")[0] =
-            new WorkshopAnimationSample(new((3UL << 32) + 2), new(1), 1, new(5), new(5), (Half).5, 10, (Half)0, AnimationProperty.ColourBlend);
+            new WorkshopAnimationSample(new((3UL << 32) + 2), new(1), 1, new(5), new(5), (float).5, 10, (float)0, AnimationProperty.ColourBlend);
         var physical = Presented(latch);
         AdmitFrame(client, 7);
         var arguments = new object[] { physical, new GpuBodyId(2), null! };
         Assert.True(TrySample(client, "TryCaptureSample", arguments));
-        Assert.Equal(new WorkshopCosmeticSample((Half).5, AnimationTimerPhase.None), (WorkshopCosmeticSample)arguments[2]);
+        Assert.Equal(new WorkshopCosmeticSample((float).5, AnimationTimerPhase.None), (WorkshopCosmeticSample)arguments[2]);
         Assert.False(TrySample(client, "TryCaptureSample", new object[] { physical, new GpuBodyId(2), null! })); // once per frame
         Assert.False(TrySample(client, "TryCaptureSample", new object[] { physical, new GpuBodyId(9), null! })); // another body owns no capture
         AdmitFrame(client, 8);
@@ -438,11 +448,11 @@ public sealed class WorkshopActivationAnimationTests
     public void HintControlSampleAppliesOnceOnAnAdmittedFrameAndNeverWhileHidden()
     {
         var client = Client(); Set(client, "_hintGeneration", 1ul);
-        var sample = new WorkshopAnimationSample(UiCurves.Hint.AnimationTarget, default, 1, new(3), new(5), (Half).25, 0, (Half)0, AnimationProperty.Opacity);
+        var sample = new WorkshopAnimationSample(UiCurves.Hint.AnimationTarget, default, 1, new(3), new(5), (float).25, 0, (float)0, AnimationProperty.Opacity);
         Set(client, "_hintSample", sample); AdmitFrame(client, 7);
         var arguments = new object[] { WorkshopUiTarget.Hint, null! };
         Assert.True(TrySample(client, "TryUiControlSample", arguments));
-        Assert.Equal(new AnimationOpacity((Half).25), (AnimationOpacity)arguments[1]);
+        Assert.Equal(new AnimationOpacity((float).25), (AnimationOpacity)arguments[1]);
         Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Hint, null! })); // consumed for this frame
         Set(client, "_hintSample", sample); AdmitFrame(client, 8);
         Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Goal, null! })); // the goal is not control-fed
@@ -471,8 +481,8 @@ public sealed class WorkshopActivationAnimationTests
         // No JS transport exists here: the pump must have leased the first sensor's control before the send faults.
         var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpCapture"));
         Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
-        var curve = CosmeticCurves.Receiver;
-        Assert.Equal(new ChannelControl(new((3UL << 32) + 2), new(1), 1, 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, curve.Duration, curve.Curve, 10, (Half)0, AnimationProperty.ColourBlend),
+        var curve = CosmeticCurveDeclaration.For(PartId.Receiver);
+        Assert.Equal(new ChannelControl(new((3UL << 32) + 2), new(1), 1, 1, AnimationControlKind.Endpoint, true, (float)1, (float)1, curve.Duration, curve.Curve, 10, (float)0, AnimationProperty.ColourBlend),
             Field<ChannelControl?>(client, "_animationPending"));
         Assert.Equal(first, Field<CaptureLatch?[]>(client, "_captureRequested")[0]);
         Assert.Null(Field<CaptureLatch?[]>(client, "_captureRequested")[1]); // one halo per receiver
@@ -535,7 +545,7 @@ public sealed class WorkshopActivationAnimationTests
         var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpUiControls"));
         Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
         var hint = UiCurves.Hint;
-        Assert.Equal(new ChannelControl(hint.AnimationTarget, default, 1, 1, AnimationControlKind.Reveal, true, (Half)0, (Half)1, hint.Duration, hint.Curve),
+        Assert.Equal(new ChannelControl(hint.AnimationTarget, default, 1, 1, AnimationControlKind.Reveal, true, (float)0, (float)1, hint.Duration, hint.Curve),
             Field<ChannelControl?>(client, "_animationPending"));
         Assert.Empty(Field<System.Collections.ICollection>(client, "_uiQueue"));
         Assert.Equal(1ul, Field<ulong>(client, "_hintGeneration"));
@@ -595,9 +605,9 @@ public sealed class WorkshopActivationAnimationTests
         // No JS transport exists here: the pump must have built and leased the declared control before the send faults.
         var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpContactFeedback"));
         Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
-        var curve = CosmeticCurves.PinballBumper;
-        var expected = new ChannelControl(new((2UL << 32) + 2), new(1), 1, 1, AnimationControlKind.Impulse, true, (Half)0, (Half)1,
-            curve.Duration, curve.Curve, hit.EventOrdinal, hit.EventPhase, AnimationProperty.ColourBlend,
+        var curve = CosmeticCurveDeclaration.For(PartId.PinballBumper);
+        var expected = new ChannelControl(new((2UL << 32) + 2), new(1), 1, 1, AnimationControlKind.Impulse, true, (float)0, (float)1,
+            curve.Duration, curve.Curve, hit.EventOrdinal, (float)hit.EventPhase, AnimationProperty.ColourBlend,
             ImpulseCurve: curve.ImpulseCurve, Overlap: curve.Overlap);
         Assert.Equal(expected, Field<ChannelControl?>(client, "_animationPending"));
         Assert.Equal(expected, WorkshopAnimationWire.ReadControl(WorkshopAnimationWire.Control(Session, new(1), new(1), expected), Session, new(1), new(1)));
@@ -622,16 +632,16 @@ public sealed class WorkshopActivationAnimationTests
     [Fact]
     public void CommittedPulseOutputRejectsOverlongUnownedOrPaddedSegments()
     {
-        var curve = CosmeticCurves.PinballBumper;
-        var impulse = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse, From = (Half)0, To = (Half)1,
+        var curve = CosmeticCurveDeclaration.For(PartId.PinballBumper);
+        var impulse = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse, From = (float)0, To = (float)1,
             Duration = curve.Duration, ImpulseCurve = curve.ImpulseCurve, Overlap = curve.Overlap };
         var pulse = Output(impulse, new(1), AnimationOutputKind.Sample, 1);
         Assert.Equal(curve.Duration, WorkshopAnimationWire.Read(pulse, Session, new(1), new(1), out _).PulseDuration);
         foreach (var mutate in new Action<byte[]>[] {
-            bytes => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(132), BitConverter.HalfToUInt16Bits((Half)31)),
+            bytes => BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(132), (float)31),
             bytes => WorkshopAnimationWire.WriteTimer(bytes, new(68, 188, 128, 2, AnimationTimerPhase.Counting)),
-            bytes => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(134), 1),
-            bytes => BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(136), 1) })
+            bytes => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(138), 1),
+            bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(140), 1) })
         {
             var changed = (byte[])pulse.Clone(); mutate(changed);
             Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(changed, Session, new(1), new(1), out _));
@@ -650,10 +660,7 @@ public sealed class WorkshopActivationAnimationTests
     private static readonly string[] FeedbackSlots =
     [
         "_activationRequested", "_activationSamples", "_activationOrdinals", "_activationFrameTaken",
-        "_memoryControls", "_memorySamples", "_memoryRetry", "_memoryOrdinals",
-        "_timerRequested", "_timerSamples", "_timerRetry", "_timerOrdinals",
         "_captureRequested", "_captureSamples", "_captureOrdinals", "_captureFrameTaken",
-        "_electricalRequested", "_electricalSamples", "_electricalRetry", "_electricalOrdinals",
     ];
     private static void FitSlots(BrowserWorkshopClient client)
     {
@@ -679,15 +686,15 @@ public sealed class WorkshopActivationAnimationTests
         var bytes = new byte[WorkshopAnimationWire.OutputBytes];
         U64(0, Session.Low); U64(8, Session.High); U64(16, 1); U64(24, cadence.Value);
         U64(32, control.Generation); U64(40, ordinal);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(56), BitConverter.HalfToUInt16Bits(control.To));
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(58), (ushort)control.Property);
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(56), control.To);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(136), (ushort)control.Property);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(60), (uint)kind);
         U64(64, control.Target.Value); U64(72, control.World.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(80), control.EventOrdinal);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(84), control.EventPhase);
         WorkshopAnimationWire.WriteTimer(bytes, control.Timer);
         if (control.Kind == AnimationControlKind.Impulse)
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(132), BitConverter.HalfToUInt16Bits(control.Duration));
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(132), control.Duration);
         return bytes;
         void U64(int offset, ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset), value);
     }

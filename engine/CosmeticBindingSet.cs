@@ -15,7 +15,7 @@ internal sealed class CosmeticBindingSet
     public bool IsEmpty => _bindings.Count == 0;
     public CosmeticCurveDeclaration Declaration { get; private set; }
 
-    public void Add(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, Half neutral, Half active,
+    public void Add(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, float neutral, float active,
         AnimationTimerPhase phase)
     {
         declaration.Validate();
@@ -30,9 +30,9 @@ internal sealed class CosmeticBindingSet
     public void Apply(WorkshopCosmeticSample sample)
     {
         // Game-grade: an out-of-range or non-finite blend keeps the last committed values.
-        if (!Half.IsFinite(sample.Blend) || sample.Blend < (Half)0 || sample.Blend > (Half)1 || !Enum.IsDefined(sample.Phase)) return;
+        if (!float.IsFinite(sample.Blend) || sample.Blend < (float)0 || sample.Blend > (float)1 || !Enum.IsDefined(sample.Phase)) return;
         foreach (var (binding, phase) in _bindings)
             if (phase == AnimationTimerPhase.None) binding.Apply(new(sample.Blend));
-            else if (phase == sample.Phase) binding.Apply(new((Half)1));
+            else if (phase == sample.Phase) binding.Apply(new((float)1));
     }
 }

@@ -135,7 +135,7 @@ The coordinator adopted the re-examination and decided the items below. This ord
    - Every remaining arm and panel builds or edits a record type that lives until its own conversion. Deleting them in 9A.27 would need either a generic-to-record bridge, which AGENTS.md forbids, or every conversion folded into 9A.27.
    - So 9A.27 deletes the Wall arm and the `wallDimensions` parameter.
    - Each other arm (`"ball" or "bowling"`, `"basket"`, `"ramp"`, `"switch"`, `"delay"`, `"spring"`, `"battery"`, `"bumper"`, `"lamp"`, `"domino"`, `"ball_detector"`, `"pressure_plate"`, `"counter"`, `"clock"`, `"latch"`) and each panel (Springboard, Battery, Bumper, Clock, Delay) becomes a Story 9A.45a known-violations entry, tagged with its owning conversion. The ratchet then forces it out on time.
-   - **Coordinator decision needed:** accept this, or fold the conversions into 9A.27.
+   - **Resolved coordinator decision (21 October 2026):** 9A.27 owns Wall’s arm/panel/record and the necessary BumperAdvanced caller. Other arms/panels remain owned by their named conversions and 9A.45a; no bridge or combined conversion is required. Production C# unit proof comes first; browser cases remain post-catalogue.
 5. **Story 9A.44 runs as soon as its preconditions allow:** right after C-Memory (the last record conversion), 9A.25b and 9A.26. This follows its own rule that no lane is migrated and then deleted. Story 9.5a has already moved the timer lane.
 
 **Full order.** Positions are counted from 1.
@@ -3277,7 +3277,7 @@ If the element is the first to need a capability (dynamic body, contact trigger,
 - *the Wall half of `is WorkshopRamp or WorkshopWall` in `WorkshopPhysicsCompiler`;*
 - *`WorkshopWall` in the `Validate` whitelist.*
 
-*The coordinator asked (21 Oct 2026) that this story delete the whole `CaptureInstance` id list and the per-element configuration panels. The other arms and panels build or edit record types that live until their own conversions, so they are recorded as 9A.45a known-violations entries, each owned by its conversion. That is reconciliation item 4 of the Delivery order, open for the coordinator's decision.*
+*The coordinator asked (21 Oct 2026) that this story delete the whole `CaptureInstance` id list and the per-element configuration panels. The other arms and panels build or edit record types that live until their own conversions, so they are recorded as 9A.45a known-violations entries, each owned by its conversion. Reconciliation item 4 is resolved: retain those named owners; 9A.27 converts Wall only. 9A.25a has already replaced dimension-specific CaptureInstance parameters with the generic dimensions argument.*
 
 As a player,  
 I want to resize and configure a Wall through an editor built from its declared parameters,  

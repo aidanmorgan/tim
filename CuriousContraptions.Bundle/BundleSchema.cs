@@ -28,7 +28,8 @@ public sealed record BundleEntry(
     FluidPayload? Fluid,
     IReadOnlyList<ColliderParameterBinding> ColliderBindings,
     IReadOnlyList<TubeMouthDescriptor> TubeMouths,
-    IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings);
+    IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings,
+    ElementPresentation Presentation);
 
 /// <summary>The mechanical payload. <see cref="Sliders"/> is empty unless the element is an <see cref="ISliderElement"/>.</summary>
 public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMassProperties MassProperties,
@@ -58,7 +59,7 @@ public static class BundleSchema
             declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
             declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
-            declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : []);
+            declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation);
     }
 
     /// <summary>The bundle text for these declarations, ordered by ordinal element id.</summary>
@@ -111,7 +112,11 @@ public static class BundleSchema
         typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>),
         typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>), typeof(ExactEnumConverter<SignalLatchMode>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>),
-        typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>)
+        typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
+        typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
+        typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationCurve>),
+        typeof(ExactEnumConverter<PresentationOverlap>), typeof(ExactEnumConverter<PresentationBody>),
+        typeof(ExactEnumConverter<PresentationTimerPhase>)
     ])]
 [JsonSerializable(typeof(BundleDocument))]
 internal sealed partial class BundleJsonContext : JsonSerializerContext;

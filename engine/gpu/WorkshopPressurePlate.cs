@@ -28,7 +28,7 @@ public readonly record struct WorkshopPressurePlate(
         _ => throw new ArgumentException("Unsupported release-hold cadence.")
     };
     public PartId PartId => PartId.PressurePlate;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
 
     public void Validate()
     {

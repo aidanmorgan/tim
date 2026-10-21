@@ -38,6 +38,10 @@ export const SNAPSHOT_SCHEMA = {
             ['cause_collider', 'uint64'], ['cause_ordinal', 'uint32'], ['cause_phase', 'float']] },
         ActivationMemoryRecord: { kind: 'struct', fields: [['node', 'uint64'], ['kind', 'uint32'], ['count', 'uint32'],
             ['last_ordinal', 'uint32'], ['last_phase', 'float'], ['phase', 'uint32'], ['due_tick', 'uint64']] },
+        ActuatorDriveRecord: { kind: 'struct', fields: [['joint', 'uint64'], ['owner', 'uint64'], ['supply_closed', 'bool'],
+            ['coordinate', 'float'], ['speed', 'float'], ['lower', 'float'], ['upper', 'float']] },
+        ContactLoadRecord: { kind: 'struct', fields: [['sensor', 'uint64'], ['frame', 'uint64'], ['face', 'uint64'],
+            ['measured_mass', 'float'], ['phase', 'uint32']] },
         ClockStamp: { kind: 'struct', fields: [['time', 'int64'], ['uncertainty', 'uint64'], ['domain', 'uint8']] },
         CadenceSettingsRecord: { kind: 'struct', fields: [['simulation', 'uint32'], ['physical', 'uint32'],
             ['animation', 'uint32'], ['presentation', 'uint32'], ['presentation_rate_numerator', 'uint32'],
@@ -69,7 +73,8 @@ export const SNAPSHOT_SCHEMA = {
             ['captures', '[CaptureLatchRead]'], ['activations', '[ActivationRecord]'], ['timers', '[TimerRecord]'],
             ['contact_works', '[ContactWorkStoreRecord]'], ['occurrences', '[ContactWorkOccurrenceRecord]'],
             ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]'],
-            ['memory', 'MemoryObservationRecord']] },
+            ['memory', 'MemoryObservationRecord'], ['actuator_drives', '[ActuatorDriveRecord]'], ['contact_loads', '[ContactLoadRecord]'],
+            ['construction', 'ConstructionRecord']] },
     } as Readonly<Record<string, TypeListing>>,
 } as const;
 

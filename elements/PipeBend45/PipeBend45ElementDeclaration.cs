@@ -10,6 +10,9 @@ namespace CuriousContraptions.Elements.PipeBend45;
 /// (offset x, y, z, rotation x, y, z, w); the rotation is normalised as the runtime table normalises it.</summary>
 public sealed class PipeBend45ElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(2.2f, PresentationAxes.None,
+        [], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "pipe_bend_45",
         Category: ElementCategory.Motion,

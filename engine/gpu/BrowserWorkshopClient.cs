@@ -49,10 +49,12 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private static partial double NativeMilliseconds();
     [JSImport("probe", "workshopClient")]
     private static partial void SendProbe(int client, byte[] probe);
+#if PLAYTEST
     [JSImport("clockObservation", "workshopClient")]
     private static partial void RecordClockObservation(int client, byte[] observation);
     [JSImport("presentationObservation", "workshopClient")]
     private static partial void RecordPresentationObservation(int client, byte[] observation);
+#endif
 
     [JSImport("create", "workshopClient")]
     private static partial Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
@@ -298,16 +300,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var activations = read.Activations.Count;
         Fit(ref _activationRequested, activations); Fit(ref _activationSamples, activations);
         Fit(ref _activationOrdinals, activations); Fit(ref _activationFrameTaken, activations);
-        Fit(ref _memoryControls, activations); Fit(ref _memorySamples, activations);
-        Fit(ref _memoryRetry, activations); Fit(ref _memoryOrdinals, activations);
-        var timers = read.Timers.Count;
-        Fit(ref _timerRequested, timers); Fit(ref _timerSamples, timers); Fit(ref _timerRetry, timers); Fit(ref _timerOrdinals, timers);
         var captures = read.Captures.Count;
         Fit(ref _captureRequested, captures); Fit(ref _captureSamples, captures);
         Fit(ref _captureOrdinals, captures); Fit(ref _captureFrameTaken, captures);
-        var indicators = checked(read.Electrical.Count * IndicatorsPerSource);
-        Fit(ref _electricalRequested, indicators); Fit(ref _electricalSamples, indicators);
-        Fit(ref _electricalRetry, indicators); Fit(ref _electricalOrdinals, indicators);
     }
     private static void Fit<T>(ref T[] slots, int count)
     {
@@ -358,6 +353,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         {
             _readScene = WorkshopPhysicsCompiler.Compile(construction, new(Peer.Session.Low, Peer.Session.High));
             _readConstruction = construction;
+            InstallDeclaredTargets(construction);
         }
     }
 

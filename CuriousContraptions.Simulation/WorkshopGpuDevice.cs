@@ -179,7 +179,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),
                 expectedTick, bodies,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
-                Motion: validated.Motion, ContactWorks: contactWorks, Electrical: electrical, Memory: _candidateMemory);
+                Motion: validated.Motion, ContactWorks: contactWorks, Electrical: electrical, Memory: _candidateMemory,
+                Presentation: PhysicsGpuAbi.ReadPresentation(bytes, inputs, operation == WorkshopGpuOperation.Admit));
             _candidateWorld = bytes;
             _candidateProfile = profile;
 #if PLAYTEST

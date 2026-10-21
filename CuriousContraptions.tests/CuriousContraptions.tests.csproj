@@ -132,6 +132,8 @@
         <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
         <!-- The shipped worker's physics engine and transport, stepped natively (Story 9.4b). -->
         <Compile Include="WorkshopPhysicsEngineTests.cs" />
+        <Compile Include="DeclaredPresentationTests.cs" />
+        <Compile Include="PresentationBindingGoldenTests.cs" />
         <Compile Include="WorkshopPhysicsLawTests.cs" />
         <Compile Include="WorkshopPhysicsLawSensorWorkTests.cs" />
         <Compile Include="WorkshopPhysicsLawPrismaticTests.cs" />

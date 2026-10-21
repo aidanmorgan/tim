@@ -91,8 +91,8 @@ public sealed partial class BrowserWorkshopClient
             // Occurrence sequence is the worker's impulse identity; the declared envelope travels unchanged.
             var control = new WorkshopAnimationControl(ContactTarget(pulse.Owner), _contactWorld,
                 checked(_animationSequence + 1), occurrence.Sequence, AnimationControlKind.Impulse, true,
-                (Half)0, (Half)1, declaration.Duration, declaration.Curve,
-                occurrence.EventOrdinal, occurrence.EventPhase, AnimationProperty.ColourBlend,
+                (float)0, (float)1, declaration.Duration, declaration.Curve,
+                occurrence.EventOrdinal, (float)occurrence.EventPhase, AnimationProperty.ColourBlend,
                 ImpulseCurve: declaration.ImpulseCurve, Overlap: declaration.Overlap);
             SendAnimation(control, schedule); pulse.Requested = control; return;
         }
@@ -107,7 +107,7 @@ public sealed partial class BrowserWorkshopClient
         foreach (var pulse in _contactPulses)
             if (pulse.Sample is null && pulse.Requested is { } request &&
                 request.Target == sample.Target && request.World == sample.World && request.Generation == sample.Generation &&
-                request.EventOrdinal == sample.EventOrdinal && HalfBits.Equal(request.EventPhase, sample.EventPhase))
+                request.EventOrdinal == sample.EventOrdinal && F32Bits.Equal(request.EventPhase, sample.EventPhase))
                 pulse.Requested = null;
     }
     private void ReceiveContactSample(WorkshopAnimationSample sample, WorkshopSchedule active)
@@ -118,8 +118,8 @@ public sealed partial class BrowserWorkshopClient
             if (ContactTarget(pulse.Owner) != sample.Target || pulse.Event.Sequence != sample.Generation) continue;
             if (pulse.Requested is not { } control || sample.World != _contactWorld ||
                 sample.Property != AnimationProperty.ColourBlend || sample.Timer != default ||
-                sample.EventOrdinal != control.EventOrdinal || !HalfBits.Equal(sample.EventPhase, control.EventPhase) ||
-                !HalfBits.Equal(sample.PulseDuration, control.Duration))
+                sample.EventOrdinal != control.EventOrdinal || !F32Bits.Equal(sample.EventPhase, control.EventPhase) ||
+                !F32Bits.Equal(sample.PulseDuration, control.Duration))
                 throw new ArgumentException("Contact pulse does not own its committed occurrence.");
             pulse.Sample = sample;
             return;

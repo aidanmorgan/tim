@@ -47,7 +47,7 @@ public partial class Workshop
         if (!_hint.IsInsideTree()) return;
         _hintAnimationVisible = _hint.IsVisibleInTree();
         World.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, _hintAnimationVisible);
-        UiBinding(WorkshopUiTarget.Hint)?.Apply(new((Half)0));
+        UiBinding(WorkshopUiTarget.Hint)?.Apply(new(0f));
     }
     private void HideHint()
     {

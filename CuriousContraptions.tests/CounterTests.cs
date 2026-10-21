@@ -47,8 +47,13 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Assert.NotNull(visual.FindChild("Visual_Socket_PowerIn", recursive: false));
             Assert.NotNull(visual.FindChild("Visual_Socket_Supply", recursive: false));
 
-            // Test lamp update
-            part.UpdateCounterLamps(3);
+            // Native property application boundary; committed-count behavior is covered by simulation unit tests.
+            for (var i = 0; i < def.Presentation.Bindings.Count; i++)
+            {
+                var binding = def.Presentation.Bindings[i];
+                part.ApplyDeclaredProperty(i, WorkshopDeclaredPresentation.Value(binding.Property,
+                    binding.Threshold <= 3 ? binding.To : binding.From));
+            }
             var lamp0 = visual.FindChild("DotLamp_0", recursive: false) as MeshInstance3D;
             var lamp4 = visual.FindChild("DotLamp_4", recursive: false) as MeshInstance3D;
             Assert.NotNull(lamp0);

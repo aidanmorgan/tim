@@ -78,7 +78,7 @@ public readonly record struct BallMaterial(
 public readonly record struct WorkshopBall(
     GpuBodyId Id, PartId PartId, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BallMaterial Material, bool Locked = false) : IWorkshopInstance
 {
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         Material.Validate(PartId);
@@ -115,7 +115,7 @@ public readonly record struct WorkshopReceiver(
 {
     public ReceiverForceRegion ForceRegion { get; init; } = ReceiverForceRegion.Free;
     public PartId PartId => PartId.Receiver;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.Receiver;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

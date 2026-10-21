@@ -10,7 +10,7 @@ public readonly record struct WorkshopLatch(
     bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.Latch;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.StateLatch;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
 
     public void Validate()
     {

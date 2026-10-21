@@ -185,10 +185,36 @@ public static class WorkshopWireFlatBuffers
         ValidateMemory(response);
         WorkshopMessages.ValidateCapture(response.Read);
         WorkshopMessages.ValidateScheduleIdentity(response);
+        if (response.Construction is { } ownerConstruction) WorkshopMessages.ValidatePresentationOwners(response.Read, ownerConstruction);
         WorkshopMessages.ValidatePhysicalRead(response.Read);
 
         builder.Clear();
         var read = response.Read;
+        Offset<ConstructionRecord>? constructionOffset = response.Construction is { } construction
+            ? EncodeConstructionRecord(builder, construction) : null;
+        VectorOffset? actuatorOffset = null;
+        if (!read.Presentation.Actuators.IsEmpty)
+        {
+            Wire.WorkshopResponse.StartActuatorDrivesVector(builder, read.Presentation.Actuators.Length);
+            for (var i = read.Presentation.Actuators.Length - 1; i >= 0; i--)
+            {
+                var a = read.Presentation.Actuators[i];
+                ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Joint.Value, a.Owner.Value, a.SupplyClosed,
+                    a.Coordinate, a.Speed, a.Lower, a.Upper);
+            }
+            actuatorOffset = builder.EndVector();
+        }
+        VectorOffset? loadOffset = null;
+        if (!read.Presentation.Loads.IsEmpty)
+        {
+            Wire.WorkshopResponse.StartContactLoadsVector(builder, read.Presentation.Loads.Length);
+            for (var i = read.Presentation.Loads.Length - 1; i >= 0; i--)
+            {
+                var l = read.Presentation.Loads[i];
+                ContactLoadRecord.CreateContactLoadRecord(builder, l.Sensor.Value, l.Frame.Value, l.Face.Value, l.MeasuredMass, (uint)l.Phase);
+            }
+            loadOffset = builder.EndVector();
+        }
         var session = Session(builder, response.Session);
         VectorOffset? motion = read.Motion is { } committed ? Wire.WorkshopResponse.CreateMotionVectorBlock(builder, committed.Bytes.ToArray()) : null;
 
@@ -303,6 +329,9 @@ public static class WorkshopWireFlatBuffers
         }
 
         Wire.WorkshopResponse.StartWorkshopResponse(builder);
+        if (actuatorOffset.HasValue) Wire.WorkshopResponse.AddActuatorDrives(builder, actuatorOffset.Value);
+        if (loadOffset.HasValue) Wire.WorkshopResponse.AddContactLoads(builder, loadOffset.Value);
+        if (constructionOffset.HasValue) Wire.WorkshopResponse.AddConstruction(builder, constructionOffset.Value);
         Wire.WorkshopResponse.AddSequence(builder, response.Sequence.Value);
         Wire.WorkshopResponse.AddKind(builder, (ResponseKind)response.Kind);
         Wire.WorkshopResponse.AddOutcome(builder, (CommandOutcome)response.Result.Outcome);
@@ -424,6 +453,18 @@ public static class WorkshopWireFlatBuffers
             sources[i] = new ElectricalSourceRead(new ElectricalSourceId(e.Id), new GpuBodyId(e.Owner), new Joules(e.Remaining), new Joules(e.Debit), (ElectricalEnable)e.Enabled);
         }
 
+        var actuatorValues = new ActuatorDriveRead[fb.ActuatorDrivesLength];
+        for (var i = 0; i < actuatorValues.Length; i++)
+        {
+            var a = fb.ActuatorDrives(i)!.Value;
+            actuatorValues[i] = new(new(a.Joint), new(a.Owner), a.SupplyClosed, a.Coordinate, a.Speed, a.Lower, a.Upper);
+        }
+        var loadValues = new ContactLoadSensorRead[fb.ContactLoadsLength];
+        for (var i = 0; i < loadValues.Length; i++)
+        {
+            var l = fb.ContactLoads(i)!.Value;
+            loadValues[i] = new(new(l.Sensor), new(l.Frame), new(l.Face), l.MeasuredMass, (ContactLoadPhase)l.Phase);
+        }
         var memoryValues = new ActivationMemory[fb.ActivationMemoryLength];
         for (var i = 0; i < memoryValues.Length; i++)
         {
@@ -440,7 +481,7 @@ public static class WorkshopWireFlatBuffers
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores, occurrences),
-            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues));
+            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 
@@ -449,7 +490,7 @@ public static class WorkshopWireFlatBuffers
             : null;
         var response = new WorkshopResponse(sequence, kind, new WorkshopCommandResult(outcome, reason), phase, read, session,
             new PublicationSequence(fb.Publication), new CadenceRevision(fb.Cadence), master, new ProjectionEpoch(fb.Projection),
-            new PulseOrdinal(tick.Value), memory);
+            new PulseOrdinal(tick.Value), memory, fb.Construction is { } construction ? DecodeConstructionRecord(construction) : null);
         WorkshopMessages.ValidateScheduleIdentity(response);
         ValidateMemory(response);
         return response;

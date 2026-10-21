@@ -254,7 +254,7 @@ public partial class Workshop
         var grid = at.Snapped(Vector3.One * .1f);
         var rotation = PreviewRotation();
         // A new pipe is placed at its preview's length, which starts at the declared default (CaptureInstance does the same).
-        var length = part == PartId.Pipe ? _preview?.PipeLength ?? PipeLength.Default : (PipeLength?)null;
+        var length = part == PartId.Pipe ? _preview is { } preview ? new PipeLength(preview.Dimensions.X) : PipeLength.Default : (PipeLength?)null;
         var snap = CanEdit
             ? TubeMouthSnap.Find(World.Registry.Definitions, World.Construction.Instances, new(part, _nextId, false, length), grid, rotation)
             : null;
@@ -263,7 +263,7 @@ public partial class Workshop
 
     /// <summary>The snap a moved part would take on release (D4): never for a locked part, and only in idle construction.</summary>
     private TubeMouthSnapResult? MoveSnap(MachinePart part) => CanEdit
-        ? TubeMouthSnap.Find(World.Registry.Definitions, World.Construction.Instances, new(part.PartId, part.AuthoredId, part.Locked, part.PipeLength),
+        ? TubeMouthSnap.Find(World.Registry.Definitions, World.Construction.Instances, new(part.PartId, part.AuthoredId, part.Locked, part.PartId == PartId.Pipe ? new PipeLength(part.Dimensions.X) : null),
             part.Position, part.Quaternion)
         : null;
 

@@ -10,6 +10,14 @@ namespace CuriousContraptions.Elements.Receiver;
 public sealed class ReceiverElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
 
+    public ElementPresentation Presentation => new(.85f, PresentationAxes.None,
+        [
+            new("Visual/Visual_Halo", PresentationProperty.UniformScale, PresentationDriver.CapturePulse, 1.02f, 1.02f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Visual_Halo", PresentationProperty.AlbedoRed, PresentationDriver.CapturePulse, 189f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Visual_Halo", PresentationProperty.AlbedoGreen, PresentationDriver.CapturePulse, 244f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Visual_Halo", PresentationProperty.AlbedoBlue, PresentationDriver.CapturePulse, 189f / 255f, 1f, PresentationCurve.SmoothStep, .5f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "basket",
         Category: ElementCategory.Goals,

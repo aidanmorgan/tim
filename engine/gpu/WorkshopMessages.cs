@@ -13,7 +13,7 @@ public readonly record struct WorkshopCommandIdentity(CommandSequence Sequence, 
 public readonly record struct WorkshopResponse(CommandSequence Sequence, WorkshopResponseKind Kind,
     WorkshopCommandResult Result, WorkshopSimulationPhase Phase, WorkshopRead Read, RuntimeSessionId Session = default, PublicationSequence Publication = default,
     CadenceRevision Cadence = default, ClockGeneration MasterGeneration = default,
-    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default, WorkshopMemoryMeasurement? Memory = null);
+    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default, WorkshopMemoryMeasurement? Memory = null, WorkshopConstruction? Construction = null);
 
 /// <summary>The domain rules of Workshop commands and responses that every encoder and decoder of the one codec
 /// (<see cref="WorkshopWireFlatBuffers"/>) applies.</summary>
@@ -48,6 +48,20 @@ public static class WorkshopMessages
         }
     }
 
+    internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopConstruction construction)
+    {
+        // Render body reads omit static bodies; ownership belongs to the authored construction.
+        foreach (var actuator in read.Presentation.Actuators)
+            if (!HasOwner(actuator.Owner)) throw new ArgumentException("Actuator observation names a foreign owner.");
+        foreach (var load in read.Presentation.Loads)
+            if (!HasOwner(load.Frame)) throw new ArgumentException("Contact-load observation names a foreign owner.");
+        bool HasOwner(GpuBodyId owner)
+        {
+            foreach (var instance in construction.Instances) if (instance.Id == owner) return true;
+            return false;
+        }
+    }
+
     internal static void ValidateScheduleIdentity(WorkshopResponse response)
     {
         if (response.Read.Epoch.Value == 0)
@@ -68,7 +82,7 @@ public static class WorkshopMessages
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 }

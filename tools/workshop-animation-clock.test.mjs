@@ -23,10 +23,11 @@ function probe(sequence) {
 
 async function animationWorker() {
     let imports;
-    const replies = [], messages = [], channel = new MessageChannel(), ring = clockRing.createClockRing();
+    const replies = [], controls = [], reads = [], messages = [], channel = new MessageChannel(), ring = clockRing.createClockRing();
     const host = {
         OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {}, Service: () => {},
-        Reply: bytes => replies.push(bytes)
+        Reply: bytes => replies.push(bytes),
+        ScheduleControl: bytes => controls.push(bytes), CommittedRead: bytes => reads.push(bytes)
     };
     const runtime = {
         setModuleImports: (_, value) => { imports = value; },
@@ -49,7 +50,8 @@ async function animationWorker() {
     self.onmessage({ data: { bootstrap: new Uint8Array(64), masterPort: channel.port1, clockRing: ring } });
     const master = clockRing.attachClockRing(ring);
     return {
-        imports, replies, messages, self,
+        imports, replies, controls, reads, messages, self,
+        send: message => channel.port2.postMessage(message),
         serve: () => clockRing.serveRequests(master, { [clockRing.ClockRole.Animation]: peer }, () => 1),
         close: () => channel.port2.close()
     };
@@ -79,3 +81,28 @@ test('a clock reply landing after the Animation worker was disposed never reache
     assert.equal(worker.messages.filter(message => message.failure).length, 0, 'a late reply is discarded, not a failure');
     worker.close();
 });
+
+for (const name of ['scheduleControl', 'committedRead']) {
+    test('owned master-port accepts exactly one ' + name + ' payload', async () => {
+        const worker = await animationWorker();
+        worker.send({ [name]: new Uint8Array([1, 2, 3]) }); await settle();
+        assert.equal(worker.controls.length, name === 'scheduleControl' ? 1 : 0);
+        assert.equal(worker.reads.length, name === 'committedRead' ? 1 : 0);
+        assert.equal(worker.messages.filter(message => message.failure).length, 0);
+        worker.close();
+    });
+}
+for (const envelope of [
+    { scheduleControl: new Uint8Array(1), committedRead: new Uint8Array(1) },
+    { committedRead: new Uint8Array(1), unexpected: true },
+    { scheduleControl: new Uint8Array(1), unexpected: true },
+    { unexpected: new Uint8Array(1) }
+]) {
+    test('mixed or unknown master-port envelope calls neither managed entry', async () => {
+        const worker = await animationWorker();
+        worker.send(envelope); await settle();
+        assert.equal(worker.controls.length, 0); assert.equal(worker.reads.length, 0);
+        assert.equal(worker.messages.filter(message => message.failure).length, 1);
+        worker.close();
+    });
+}

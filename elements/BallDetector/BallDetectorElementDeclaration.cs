@@ -9,6 +9,13 @@ namespace CuriousContraptions.Elements.BallDetector;
 
 public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(1.15f, PresentationAxes.None,
+        [
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.ActivationPulse, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.ActivationPulse, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.ActivationPulse, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "ball_detector",
         Category: ElementCategory.Control,

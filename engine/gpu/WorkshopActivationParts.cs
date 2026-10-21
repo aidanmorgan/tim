@@ -14,7 +14,7 @@ public readonly record struct WorkshopSwitch(GpuBodyId Id, CellOrigin Cell, Loca
     CanonicalRotation Rotation, ContactTriggerSettings Trigger, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.ImpactSwitch;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.ImpactSwitch;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
@@ -26,7 +26,7 @@ public readonly record struct WorkshopLamp(GpuBodyId Id, CellOrigin Cell, LocalP
     CanonicalRotation Rotation, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.SignalLamp;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.SignalLamp;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
@@ -40,7 +40,7 @@ public readonly record struct WorkshopBallDetector(
 {
     public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
     public PartId PartId => PartId.BallDetector;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.BallDetector;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

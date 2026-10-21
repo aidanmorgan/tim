@@ -19,6 +19,11 @@ public interface IWorkshopInstance
     void Validate();
 }
 
+public interface IWorkshopElectricalSource : IWorkshopInstance
+{
+    ElectricalSourceSettings Settings { get; }
+}
+
 public interface IWorkshopDeclaredColliders : IWorkshopInstance
 {
     IReadOnlyList<ExtractedCollider> DeclaredColliders { get; }
@@ -30,7 +35,7 @@ public readonly record struct WorkshopGenericInstance(
     CanonicalRotation Rotation, bool Locked = false) : IWorkshopDeclaredColliders
 {
     public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         if (PartId == default) throw new ArgumentException("Generic instance requires a valid PartId.");
@@ -57,7 +62,7 @@ public readonly record struct WorkshopRamp(GpuBodyId Id, CellOrigin Cell, LocalP
     CanonicalRotation Rotation, RampDimensions Dimensions, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.Ramp;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

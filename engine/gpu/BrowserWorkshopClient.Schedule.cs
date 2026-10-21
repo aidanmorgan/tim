@@ -128,10 +128,11 @@ public sealed partial class BrowserWorkshopClient
     }
     private void ReconcileAnimationSchedule(WorkshopSchedule schedule)
     {
+        _declaredVisibilitySent.Clear();
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
         { RetireCaptureFeedback(); RetireActivationFeedback(); RetireGoalFeedback(); RetireContactFeedback(schedule.World.WorldGeneration); }
         if (_schedule?.Revision != schedule.Revision)
-        { _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); Array.Clear(_memoryOrdinals); Array.Clear(_timerOrdinals); Array.Clear(_electricalOrdinals); }
+        { _declaredSamples.Clear(); _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); }
     }
     private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
@@ -147,27 +148,25 @@ public sealed partial class BrowserWorkshopClient
         {
             if (_animationPending is not { } command || cadence != _animationPendingCadence || sample.Pulse.Value != command.Sequence ||
                 sample.Property != command.Property || sample.Target != command.Target || sample.World != command.World || sample.Generation != command.Generation ||
-                sample.Timer != command.Timer || !HalfBits.Equal(sample.PulseDuration,
-                    command.Kind == AnimationControlKind.Impulse ? command.Duration : (Half)0) || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
+                sample.Timer != command.Timer || !F32Bits.Equal(sample.PulseDuration,
+                    command.Kind == AnimationControlKind.Impulse ? command.Duration : (float)0) || sample.EventOrdinal != command.EventOrdinal || !F32Bits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); RetryElectricalFeedback(command); RetryMemoryFeedback(command); return; }
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); RetryDeclaredVisibility(command); return; }
         }
         if (cadence.Value < active.Revision.Value)
         {
             if (kind == AnimationOutputKind.Acknowledgement && sample.World == active.World.WorldGeneration &&
-                sample.PulseDuration > (Half)0)
+                sample.PulseDuration > (float)0)
                 RetryStaleContactAcknowledgement(sample);
             return;
         }
         // Target ranges are declared identities: fixed UI targets, then capture, contact, timer and activation ranges.
         if (sample.Target == UiCurves.Hint.AnimationTarget) ReceiveHintSample(sample, kind);
         else if (sample.Target == UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
-        else if (IsElectricalTarget(sample.Target)) ReceiveElectricalSample(sample, kind, active);
+        else if (sample.Target.Value >= WorkshopDeclaredPresentation.TargetBase) ReceiveDeclaredSample(sample, kind, active);
         else if (IsCaptureTarget(sample.Target)) ReceiveCaptureSample(sample, kind, active);
-        else if (sample.PulseDuration > (Half)0) ReceiveContactSample(sample, active);
-        else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);
-        else if (IsMemoryTarget(sample.Target)) ReceiveMemorySample(sample, kind, active);
+        else if (sample.PulseDuration > (float)0) ReceiveContactSample(sample, active);
         else ReceiveActivationSample(sample, kind, active);
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
     }

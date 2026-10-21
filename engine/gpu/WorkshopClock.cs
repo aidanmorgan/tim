@@ -16,7 +16,7 @@ public readonly record struct WorkshopClock(
     public const float MaxIntervalSeconds = 12.0f;
 
     public PartId PartId => PartId.Clock;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
 
     public void Validate()
     {

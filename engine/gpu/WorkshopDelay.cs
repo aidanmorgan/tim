@@ -37,7 +37,7 @@ public readonly record struct WorkshopDelay(GpuBodyId Id, CellOrigin Cell, Local
     CanonicalRotation Rotation, DelayDuration Duration, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.Delay;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.Delay;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

@@ -35,6 +35,6 @@ public readonly record struct AnimationTimerSegment(AnimationTimerObservation Ob
         var progress = observation.Phase == AnimationTimerPhase.Ready ? 0d :
             (double)(Math.Min(observation.Observed, observation.Due) - observation.Started) /
             (observation.Due - observation.Started);
-        return new(observation, new((Half)progress));
+        return new(observation, new((float)progress));
     }
 }

@@ -166,10 +166,10 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         {
             godot.Tree.Root.AddChild(part);
             part.EnsureConstructed();
-            Assert.Equal(PipeLength.Default, part.PipeLength);
+            Assert.Equal(PipeLength.Default.Metres, part.Dimensions.X);
             Assert.Equal(ResizeAxes.X, part.ResizableAxes);
-            part.ApplyPipeLength(new(metres));
-            Assert.Equal(new PipeLength(metres), part.PipeLength);
+            part.SetDimensions(new(metres, part.Dimensions.Y, part.Dimensions.Z));
+            Assert.Equal(metres, part.Dimensions.X);
             Assert.Equal(metres, part.Dimensions.X);
             var radius = MathF.Sqrt(MathF.Pow(metres / 2 + .09f, 2) + .78f * .78f);
             Assert.Equal(radius, part.PickRadius, 1e-5f);
@@ -183,11 +183,11 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
 
             // The resize handle commits only the length, clamped at the pointer boundary.
             part.SetDimensions(new(12, 5, 5));
-            Assert.Equal(new PipeLength(8), part.PipeLength);
+            Assert.Equal(8f, part.Dimensions.X);
             part.SetDimensions(new(.3f, 1, 1));
-            Assert.Equal(new PipeLength(1), part.PipeLength);
+            Assert.Equal(1f, part.Dimensions.X);
             Assert.Throws<ArgumentException>(() => part.SetDimensions(new(float.NaN, 1, 1)));
-            Assert.Equal(new PipeLength(1), part.PipeLength);
+            Assert.Equal(1f, part.Dimensions.X);
         }
         finally
         {
@@ -212,7 +212,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
                 new Quaternion(Vector3.Back, Mathf.DegToRad(-45))));
             Assert.Equal(new PipeLength(2), turned.Length);
             var presented = Assert.IsType<WorkshopPipe>(world.CaptureInstance(PartId.Pipe, new(4), new(1, 4, 0), Quaternion.Identity,
-                pipeLength: new(5)));
+                dimensions: new(5, 1.56f, 1.56f)));
             Assert.Equal(new PipeLength(5), presented.Length);
             var placed = Assert.IsType<WorkshopPipe>(world.CaptureInstance(PartId.Pipe, new(5), new(1, 4, 0), Quaternion.Identity));
             Assert.Equal(PipeLength.Default, placed.Length);

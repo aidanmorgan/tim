@@ -10,6 +10,9 @@ namespace CuriousContraptions.Elements.Springboard;
 /// typed parameters with the runtime's defaults and admitted ranges.</summary>
 public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(.9f, PresentationAxes.None,
+        [], [new("Visual/Plate", PresentationBody.Secondary, Vector3.Zero)], [new("Visual/Plate", new(0, -.075f, 0), "Visual/Coil", new(0, -.3f, 0), .365f)], []);
+
     public ElementMetadata Metadata => new(
         Id: "spring",
         Category: ElementCategory.Motion,

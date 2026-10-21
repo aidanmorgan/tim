@@ -10,83 +10,10 @@ public sealed partial class BrowserWorkshopClient
     private WorkshopAnimationSample?[] _activationSamples = [];
     private ulong[] _activationOrdinals = [];
     private bool[] _activationFrameTaken = [];
-    // Bistable Memory feedback (State Latch): one Transition per committed On/Off change, on the node's own activation target.
-    private WorkshopAnimationControl?[] _memoryControls = [];
-    private WorkshopAnimationSample?[] _memorySamples = [];
-    private bool[] _memoryRetry = [];
-    private ulong[] _memoryOrdinals = [];
-
     private static AnimationTargetId ActivationTarget(ActivationNodeId node) => new(checked(node.Value + 2));
-    /// <summary>The last physical ordinal a read commits: admission has none; every later committed read carries its motion (the
-    /// decoder refuses one without it).</summary>
-    private static uint CommittedOrdinal(WorkshopRead read) => read.Tick.Value == 0 ? 0
-        : (read.Motion ?? throw new InvalidOperationException("A committed read past admission lacks its motion.")).LastOrdinal;
     private void RetireActivationFeedback()
     {
-        RetireTimerFeedback(); RetireElectricalFeedback();
         Array.Clear(_activationRequested); Array.Clear(_activationSamples); Array.Clear(_activationOrdinals);
-        Array.Clear(_memoryControls); Array.Clear(_memorySamples); Array.Clear(_memoryRetry); Array.Clear(_memoryOrdinals);
-    }
-    /// <summary>Drives a Memory cosmetic toward the committed value: Latched → 1 (On), Clear → 0 (Off). Off at admission needs no control.</summary>
-    private void PumpMemory()
-    {
-        if (_animationPending is not null || _preparation is not null || _schedule is not { } schedule ||
-            _history.Latest is not { } latest || latest.Read.Epoch != schedule.World.WorldGeneration) return;
-        for (var i = 0; i < latest.Read.Activations.Count; i++)
-        {
-            var value = latest.Read.Activations[i];
-            if (!TryCosmeticDeclaration(value.Owner, AnimationFeedbackSource.Memory, out var declaration)) continue;
-            var to = value.Phase == ActivationPhase.Latched ? (Half)1 : (Half)0;
-            if (_memoryControls[i] is { } previous ? previous.To == to && !_memoryRetry[i] : to == (Half)0) continue;
-            var from = _memorySamples[i]?.Value ?? (Half)1 - to;
-            var control = new WorkshopAnimationControl(ActivationTarget(value.Node), latest.Read.Epoch, checked(_animationSequence + 1),
-                (_memoryControls[i]?.Generation ?? 0) + 1, AnimationControlKind.Transition, true, from, to, declaration.Duration,
-                declaration.Curve, CommittedOrdinal(latest.Read), default, AnimationProperty.ColourBlend);
-            SendAnimation(control, schedule);
-            _memoryControls[i] = control; _memoryRetry[i] = false;
-            return; // The single reliable Animation lease owns this control until its ACK.
-        }
-    }
-    private int MemorySlot(AnimationTargetId target)
-    {
-        for (var i = 0; i < _memoryControls.Length; i++)
-            if (_memoryControls[i] is { } control && control.Target == target) return i;
-        return -1;
-    }
-    private bool IsMemoryTarget(AnimationTargetId target) => MemorySlot(target) >= 0;
-    private void RetryMemoryFeedback(WorkshopAnimationControl rejected)
-    {
-        var slot = MemorySlot(rejected.Target);
-        if (slot >= 0 && _memoryControls[slot] == rejected) _memoryRetry[slot] = true;
-    }
-    private void ReceiveMemorySample(WorkshopAnimationSample sample, AnimationOutputKind kind, WorkshopSchedule active)
-    {
-        if (sample.World.Value < active.World.WorldGeneration.Value) return;
-        var slot = MemorySlot(sample.Target);
-        if (slot < 0 || _memoryControls[slot] is not { } control) throw new ArgumentException("Unowned memory animation.");
-        if (sample.Generation < control.Generation) return;
-        if (sample.World != active.World.WorldGeneration || sample.Generation != control.Generation ||
-            sample.Property != AnimationProperty.ColourBlend || sample.EventOrdinal != control.EventOrdinal ||
-            !HalfBits.Equal(sample.EventPhase, control.EventPhase))
-            throw new ArgumentException("Memory animation observation changed.");
-        if (kind == AnimationOutputKind.Sample)
-        {
-            if (sample.Pulse.Value <= _memoryOrdinals[slot]) throw new ArgumentException("Memory animation reversed.");
-            _memoryOrdinals[slot] = sample.Pulse.Value;
-        }
-        _memorySamples[slot] = sample;
-    }
-    private bool TryMemorySample(WorkshopPresentationSample physical, ActivationNodeId node, out WorkshopCosmeticSample result)
-    {
-        if (physical.Evidence.WorldEpoch == Epoch)
-            for (var i = 0; i < physical.Activations.Count; i++)
-            {
-                if (physical.Activations[i].Node != node || _memorySamples[i] is not { } sample || sample.World != Epoch ||
-                    sample.AppliedAt.Value > _frameMaster.Value) continue;
-                _lastPresentationApplied = _frameMaster;
-                result = new(sample.Value, AnimationTimerPhase.None); return true;
-            }
-        result = default; return false;
     }
     private void PumpActivations()
     {
@@ -98,8 +25,8 @@ public sealed partial class BrowserWorkshopClient
             if (activation.Phase != ActivationPhase.Latched || _activationRequested[i] is not null ||
                 !TryCosmeticDeclaration(activation.Owner, AnimationFeedbackSource.Activation, out var declaration)) continue;
             var control = new WorkshopAnimationControl(ActivationTarget(activation.Node), latest.Read.Epoch,
-                checked(_animationSequence + 1), 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, declaration.Duration,
-                declaration.Curve, activation.EventOrdinal, activation.EventPhase, AnimationProperty.ColourBlend);
+                checked(_animationSequence + 1), 1, AnimationControlKind.Endpoint, true, (float)1, (float)1, declaration.Duration,
+                declaration.Curve, activation.EventOrdinal, (float)activation.EventPhase, AnimationProperty.ColourBlend);
             SendAnimation(control, schedule);
             _activationRequested[i] = activation;
             return; // The existing single reliable Animation lease owns this control until its ACK.
@@ -114,7 +41,7 @@ public sealed partial class BrowserWorkshopClient
         if (slot < 0 || _activationRequested[slot] is not { } activation ||
             sample.World != active.World.WorldGeneration || sample.Property != AnimationProperty.ColourBlend ||
             sample.Generation != 1 || sample.EventOrdinal != activation.EventOrdinal ||
-            !HalfBits.Equal(sample.EventPhase, activation.EventPhase))
+            !F32Bits.Equal(sample.EventPhase, (float)activation.EventPhase))
             throw new ArgumentException("Activation animation does not own its committed occurrence.");
         if (kind == AnimationOutputKind.Sample)
         {

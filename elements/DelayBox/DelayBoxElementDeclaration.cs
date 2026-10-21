@@ -9,6 +9,20 @@ namespace CuriousContraptions.Elements.DelayBox;
 /// output once. The duration is a typed parameter with the runtime's default and admitted range.</summary>
 public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(.9f, PresentationAxes.None,
+        [
+            new("Visual/CountdownHand", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedTimerProgress, 0f, -6.2831855f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, 85f / 255f, 85f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready),
+            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, 101f / 255f, 101f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready),
+            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, 115f / 255f, 115f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Ready),
+            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, 85f / 255f, 232f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting),
+            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, 101f / 255f, 183f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting),
+            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, 115f / 255f, 100f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Counting),
+            new("Visual/Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedTimerPhase, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished),
+            new("Visual/Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedTimerPhase, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished),
+            new("Visual/Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedTimerPhase, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.Finished)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "delay",
         Category: ElementCategory.Control,

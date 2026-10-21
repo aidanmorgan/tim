@@ -7,6 +7,12 @@ namespace CuriousContraptions.Elements.Ramp;
 
 public sealed class RampElementDeclaration : IMechanicalElement, ISceneGeometryElement, IParameterizedGeometryElement
 {
+    public ElementPresentation Presentation => new(1.5f, PresentationAxes.XZ,
+        [], [], [], [new("Visual", PresentationProperty.ScaleX, "length", 1f / 3f, 0),
+            new("Visual", PresentationProperty.ScaleZ, "width", 1f / 1.3f, 0)],
+        new(new(3f, .18f, 1.3f), new(.5f, 0, 0), Vector3.Zero,
+            [new("length", PresentationAxes.X), new("width", PresentationAxes.Z)]));
+
     public ElementMetadata Metadata => new(
         Id: "ramp",
         Category: ElementCategory.Structure,

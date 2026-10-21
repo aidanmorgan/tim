@@ -8,6 +8,16 @@ namespace CuriousContraptions.Elements.SignalLamp;
 
 public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
+        [
+            new("Visual/Bulb", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActivation, 85f / 255f, 1f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Bulb", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActivation, 101f / 255f, 240f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Bulb", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActivation, 115f / 255f, 165f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Bulb", PresentationProperty.EmissionRed, PresentationDriver.CommittedActivation, 0f, 233f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Bulb", PresentationProperty.EmissionGreen, PresentationDriver.CommittedActivation, 0f, 178f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Bulb", PresentationProperty.EmissionBlue, PresentationDriver.CommittedActivation, 0f, 76f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "lamp",
         Category: ElementCategory.Goals,

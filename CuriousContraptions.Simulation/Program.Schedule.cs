@@ -77,7 +77,7 @@ public static partial class Program
             var projection = new ProjectionEpoch(checked(++_nextProjection));
             var endpoint = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), phase, read, Peer.Session, default,
-                profile.Revision, Peer.Generation, projection, new(read.Tick.Value));
+                profile.Revision, Peer.Generation, projection, new(read.Tick.Value), Construction: construction);
             // Validate the complete endpoint before retaining a candidate or touching either recipient.
             var encoded = WorkshopWireFlatBuffers.EncodeResponse(endpoint);
             _installationOwner = owner; _preparedEndpoint = endpoint; _preparedSettings = construction.Settings; _preparedTransition = _transition;

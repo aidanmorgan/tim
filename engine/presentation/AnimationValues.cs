@@ -3,36 +3,36 @@ using System;
 namespace CuriousContraptions.Presentation;
 
 // Authored and retained cosmetic values. Only external clock timestamps and temporary
-// evaluation arithmetic may be wider. Constructors also define the supported Half profile.
+// evaluation arithmetic may be wider. Constructors also define the supported f32 profile.
 internal static class AnimationNumbers
 {
-    public static Half Finite(Half value)
+    public static float Finite(float value)
     {
-        if (!Half.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+        if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
         return value;
     }
-    public static Half Positive(Half value)
+    public static float Positive(float value)
     {
         Finite(value);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
         return value;
     }
-    public static Half Unit(Half value)
+    public static float Unit(float value)
     {
         Finite(value);
-        if (value < (Half)0 || value > (Half)1) throw new ArgumentOutOfRangeException(nameof(value));
+        if (value < (float)0 || value > (float)1) throw new ArgumentOutOfRangeException(nameof(value));
         return value;
     }
-    public static Half SignedUnit(Half value)
+    public static float SignedUnit(float value)
     {
         Finite(value);
-        if (value < (Half)(-1) || value > (Half)1) throw new ArgumentOutOfRangeException(nameof(value));
+        if (value < (float)(-1) || value > (float)1) throw new ArgumentOutOfRangeException(nameof(value));
         return value;
     }
-    public static Half OscillationCoefficient(Half value)
+    public static float OscillationCoefficient(float value)
     {
         Finite(value);
-        if ((double)value < 1e-6) throw new ArgumentOutOfRangeException(nameof(value));
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1e-6f);
         return value;
     }
     public static double Elapsed(double time, double started)
@@ -45,107 +45,107 @@ internal static class AnimationNumbers
 
 public readonly record struct AnimationRadians
 {
-    public Half Value { get; }
-    public AnimationRadians(Half value) => Value = AnimationNumbers.Finite(value);
+    public float Value { get; }
+    public AnimationRadians(float value) => Value = AnimationNumbers.Finite(value);
 }
 
 public readonly record struct AnimationMetres
 {
-    public Half Value { get; }
-    public AnimationMetres(Half value) => Value = AnimationNumbers.Finite(value);
+    public float Value { get; }
+    public AnimationMetres(float value) => Value = AnimationNumbers.Finite(value);
 }
 
 public readonly record struct AnimationScale
 {
-    public Half Value { get; }
-    public AnimationScale(Half value) => Value = AnimationNumbers.Positive(value);
+    public float Value { get; }
+    public AnimationScale(float value) => Value = AnimationNumbers.Positive(value);
 }
 
 public readonly record struct AnimationOpacity
 {
-    public Half Value { get; }
-    public AnimationOpacity(Half value) => Value = AnimationNumbers.Unit(value);
+    public float Value { get; }
+    public AnimationOpacity(float value) => Value = AnimationNumbers.Unit(value);
 }
 
 public readonly record struct AnimationColourBlend
 {
-    public Half Value { get; }
-    public AnimationColourBlend(Half value) => Value = AnimationNumbers.Unit(value);
+    public float Value { get; }
+    public AnimationColourBlend(float value) => Value = AnimationNumbers.Unit(value);
 }
 
 public readonly record struct AnimationColourChannel
 {
-    public Half Value { get; }
-    public AnimationColourChannel(Half value) => Value = AnimationNumbers.Unit(value);
+    public float Value { get; }
+    public AnimationColourChannel(float value) => Value = AnimationNumbers.Unit(value);
 }
 
 public readonly record struct AnimationDurationSeconds
 {
-    public Half Value { get; }
-    public AnimationDurationSeconds(Half value) => Value = AnimationNumbers.Positive(value);
+    public float Value { get; }
+    public AnimationDurationSeconds(float value) => Value = AnimationNumbers.Positive(value);
 }
 
 public readonly record struct AnimationResponsePerSecond
 {
-    public Half Value { get; }
-    public AnimationResponsePerSecond(Half value) => Value = AnimationNumbers.Positive(value);
+    public float Value { get; }
+    public AnimationResponsePerSecond(float value) => Value = AnimationNumbers.Positive(value);
 }
 
 public readonly record struct AnimationDecayPerSecond
 {
-    public Half Value { get; }
-    public AnimationDecayPerSecond(Half value) => Value = AnimationNumbers.OscillationCoefficient(value);
+    public float Value { get; }
+    public AnimationDecayPerSecond(float value) => Value = AnimationNumbers.OscillationCoefficient(value);
 }
 
 public readonly record struct AnimationRadiansPerSecond
 {
-    public Half Value { get; }
-    public AnimationRadiansPerSecond(Half value) => Value = AnimationNumbers.Finite(value);
+    public float Value { get; }
+    public AnimationRadiansPerSecond(float value) => Value = AnimationNumbers.Finite(value);
 }
 
 public readonly record struct AnimationMetresPerSecond
 {
-    public Half Value { get; }
-    public AnimationMetresPerSecond(Half value) => Value = AnimationNumbers.Finite(value);
+    public float Value { get; }
+    public AnimationMetresPerSecond(float value) => Value = AnimationNumbers.Finite(value);
 }
 
 public readonly record struct AnimationFrequencyRadiansPerSecond
 {
-    public Half Value { get; }
-    public AnimationFrequencyRadiansPerSecond(Half value) => Value = AnimationNumbers.OscillationCoefficient(value);
+    public float Value { get; }
+    public AnimationFrequencyRadiansPerSecond(float value) => Value = AnimationNumbers.OscillationCoefficient(value);
 }
 
 public readonly record struct AnimationPlaybackRate
 {
-    public Half Value { get; }
-    public AnimationPlaybackRate(Half value) => Value = AnimationNumbers.Finite(value);
+    public float Value { get; }
+    public AnimationPlaybackRate(float value) => Value = AnimationNumbers.Finite(value);
 }
 
 public readonly record struct AnimationStrength
 {
-    public Half Value { get; }
-    public AnimationStrength(Half value) => Value = AnimationNumbers.Unit(value);
+    public float Value { get; }
+    public AnimationStrength(float value) => Value = AnimationNumbers.Unit(value);
 }
 
 public readonly record struct AnimationSignedStrength
 {
-    public Half Value { get; }
-    public AnimationSignedStrength(Half value) => Value = AnimationNumbers.SignedUnit(value);
+    public float Value { get; }
+    public AnimationSignedStrength(float value) => Value = AnimationNumbers.SignedUnit(value);
 }
 
 public readonly record struct AnimationPeakPhase
 {
-    public Half Value { get; }
-    public AnimationPeakPhase(Half value) => Value = AnimationNumbers.Unit(value);
+    public float Value { get; }
+    public AnimationPeakPhase(float value) => Value = AnimationNumbers.Unit(value);
 }
 
 public readonly record struct AnimationValue
 {
     public AnimationProperty Property { get; }
-    private readonly Half _value;
+    private readonly float _value;
     internal double Number => (double)_value;
-    public ushort CanonicalBits => BitConverter.HalfToUInt16Bits(_value);
-    private AnimationValue(AnimationProperty property, Half value)
+    public uint CanonicalBits => BitConverter.SingleToUInt32Bits(_value);
+    private AnimationValue(AnimationProperty property, float value)
     {
         Property = property; _value = value; Validate();
     }
@@ -174,7 +174,7 @@ public readonly record struct AnimationValue
             return new(_value);
         }
     }
-    private Half Require(AnimationProperty property)
+    private float Require(AnimationProperty property)
     {
         Validate();
         if (Property != property) throw new InvalidOperationException("Animation quantity has a different dimension/property.");
@@ -192,14 +192,14 @@ public readonly record struct AnimationValue
     {
         SameProperty(from, to);
         AnimationNumbers.Unit(progress.Value);
-        if (progress.Value == (Half)0) return from;
-        if (progress.Value == (Half)1) return to;
+        if (progress.Value == (float)0) return from;
+        if (progress.Value == (float)1) return to;
         return Narrow(from.Property, Math.FusedMultiplyAdd(to.Number - from.Number, (double)progress.Value, from.Number));
     }
     internal static AnimationValue Narrow(AnimationProperty property, double value)
     {
         if (!double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
-        return new(property, (Half)value);
+        return new(property, (float)value);
     }
     internal static void SameProperty(AnimationValue first, AnimationValue second)
     {
@@ -211,7 +211,7 @@ public readonly record struct AnimationValue
 public readonly record struct AnimationVelocity
 {
     public AnimationProperty Property { get; }
-    private readonly Half _value;
+    private readonly float _value;
     internal double Number => (double)_value;
     public AnimationVelocity(AnimationRadiansPerSecond value)
     {
@@ -233,8 +233,8 @@ public readonly record struct AnimationVelocity
     }
     internal static AnimationVelocity Narrow(AnimationProperty property, double value) => property switch
     {
-        AnimationProperty.LocalRotationAngle => new(new AnimationRadiansPerSecond((Half)value)),
-        AnimationProperty.LocalTranslation => new(new AnimationMetresPerSecond((Half)value)),
+        AnimationProperty.LocalRotationAngle => new(new AnimationRadiansPerSecond((float)value)),
+        AnimationProperty.LocalTranslation => new(new AnimationMetresPerSecond((float)value)),
         _ => throw new ArgumentException("Velocity requires a signed motion dimension.")
     };
 }
@@ -243,17 +243,17 @@ public readonly record struct AnimationVelocity
 // The repeat kind fixes its period: Once [0,1], Loop [0,1), PingPong [0,2).
 internal readonly record struct AnimationPhase
 {
-    public Half Value { get; }
-    private AnimationPhase(Half value) => Value = value;
+    public float Value { get; }
+    private AnimationPhase(float value) => Value = value;
     public static AnimationPhase Capture(double phase, AnimationRepeat repeat)
     {
         if (!double.IsFinite(phase)) throw new ArgumentOutOfRangeException(nameof(phase));
         var period = repeat == AnimationRepeat.PingPong ? 2.0 : 1.0;
-        if (repeat == AnimationRepeat.Once) return new((Half)Math.Clamp(phase, 0, 1));
+        if (repeat == AnimationRepeat.Once) return new((float)Math.Clamp(phase, 0, 1));
         if (!Enum.IsDefined(repeat)) throw new ArgumentOutOfRangeException(nameof(repeat));
         var reduced = phase % period;
         if (reduced < 0) reduced += period;
-        var canonical = (Half)reduced;
-        return new((double)canonical == period ? (Half)0 : canonical);
+        var canonical = (float)reduced;
+        return new((double)canonical == period ? (float)0 : canonical);
     }
 }

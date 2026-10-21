@@ -45,15 +45,25 @@ public sealed class ClockTests(NativeSceneFixture godot)
             Assert.NotNull(visual.FindChild("Visual_Socket_PowerIn", recursive: false));
             Assert.NotNull(visual.FindChild("Visual_Socket_ActivationOut", recursive: false));
 
-            // Test lamp update
-            part.UpdateClockLamp(true);
+            // Native property boundary; production simulation-to-animation behavior is covered separately.
+            for (var i = 0; i < def.Presentation.Bindings.Count; i++)
+            {
+                var binding = def.Presentation.Bindings[i];
+                if (binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPulse)
+                    part.ApplyDeclaredProperty(i, WorkshopDeclaredPresentation.Value(binding.Property, binding.To));
+            }
             var indicator = visual.FindChild("Visual_Indicator", recursive: false) as MeshInstance3D;
             Assert.NotNull(indicator);
             var matActive = indicator.MaterialOverride as StandardMaterial3D;
             Assert.NotNull(matActive);
             Assert.Equal(new Color("#f7cb52"), matActive.AlbedoColor);
 
-            part.UpdateClockLamp(false);
+            for (var i = 0; i < def.Presentation.Bindings.Count; i++)
+            {
+                var binding = def.Presentation.Bindings[i];
+                if (binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPulse)
+                    part.ApplyDeclaredProperty(i, WorkshopDeclaredPresentation.Value(binding.Property, binding.From));
+            }
             var matIdle = indicator.MaterialOverride as StandardMaterial3D;
             Assert.NotNull(matIdle);
             Assert.Equal(new Color("#556573"), matIdle.AlbedoColor);

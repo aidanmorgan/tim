@@ -155,7 +155,7 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
             var position = part.Position; var rotation = part.Quaternion;
             foreach (var dimensions in new[] { WallDimensions.Default, WallDimensions.Minimum, WallDimensions.Maximum })
             {
-                part.ApplyWallDimensions(dimensions);
+                part.SetDimensions(new((float)dimensions.Width.Value, (float)dimensions.Height.Value, (float)dimensions.Thickness.Value));
                 Assert.Equal(position, part.Position); Assert.Equal(rotation, part.Quaternion);
                 Assert.Equal(part.Dimensions, part.Visual.Scale);
                 Assert.Equal(part.Dimensions.Length() * .5f + .025f, ring.OuterRadius);
@@ -176,11 +176,11 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
                 }
             }
             part.SetDimensions(new(float.MaxValue, float.MaxValue, float.MaxValue));
-            Assert.Equal(WallDimensions.Maximum, part.WallDimensions);
+            Assert.Equal(new Vector3(8, 6, 2), part.Dimensions);
             Assert.Throws<ArgumentException>(() => part.SetDimensions(new(float.NaN, 2, .25f)));
-            Assert.Equal(WallDimensions.Maximum, part.WallDimensions);
+            Assert.Equal(new Vector3(8, 6, 2), part.Dimensions);
             Assert.Equal(position, part.Position); Assert.Equal(rotation, part.Quaternion);
-            part.ApplyWallDimensions(WallDimensions.Default);
+            part.SetDimensions(new(3, 2, .25f));
             Assert.Equal(part.Dimensions.Length() * .5f + .025f, ring.OuterRadius);
         }
         finally { part.GetParent()?.RemoveChild(part); part.Free(); }
@@ -195,9 +195,9 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
             godot.Tree.Root.AddChild(ramp);
             var ring = ramp.GetChildren().OfType<MeshInstance3D>().Select(mesh => mesh.Mesh).OfType<TorusMesh>().Single();
             var original = ring.OuterRadius;
-            ramp.ApplyRampDimensions(new(new((Half)2), new((Half)1)));
+            ramp.SetDimensions(new(2, .18f, 1));
             Assert.Equal(1.025f, ring.OuterRadius);
-            ramp.ApplyRampDimensions(RampDimensions.Default);
+            ramp.SetDimensions(new(3, .18f, 1.3f));
             Assert.Equal(original, ring.OuterRadius);
         }
         finally { ramp.GetParent()?.RemoveChild(ramp); ramp.Free(); }

@@ -10,7 +10,7 @@ public enum WorkshopUiTarget : uint { None = 0, Hint = 1, Goal = 2 }
 public enum WorkshopUiFeedback : uint { None = 0, Control = 1, Goal = 2 }
 
 /// <summary>Declared opacity curve for one UI target. Fixed animation target identities keep the worker element-free.</summary>
-public readonly record struct UiCurveDeclaration(WorkshopUiTarget Target, WorkshopUiFeedback Feedback, AnimationCurve Curve, Half Duration, Half Neutral)
+public readonly record struct UiCurveDeclaration(WorkshopUiTarget Target, WorkshopUiFeedback Feedback, AnimationCurve Curve, float Duration, float Neutral)
 {
     public bool IsDeclared => Target != WorkshopUiTarget.None;
     public AnimationTargetId AnimationTarget => Target switch
@@ -30,8 +30,8 @@ public readonly record struct UiCurveDeclaration(WorkshopUiTarget Target, Worksh
             if (this != default) throw new ArgumentException("Undeclared UI curve carries data.");
             return;
         }
-        if (!Half.IsFinite(Duration) || Duration <= (Half)0 || Duration > (Half)30 ||
-            !Half.IsFinite(Neutral) || Neutral < (Half)0 || Neutral > (Half)1)
+        if (!float.IsFinite(Duration) || Duration <= (float)0 || Duration > (float)30 ||
+            !float.IsFinite(Neutral) || Neutral < (float)0 || Neutral > (float)1)
             throw new ArgumentException("UI cosmetic requires a positive duration and a unit neutral opacity.");
     }
     public static UiCurveDeclaration For(WorkshopUiTarget target) => target switch
@@ -45,6 +45,6 @@ public readonly record struct UiCurveDeclaration(WorkshopUiTarget Target, Worksh
 /// <summary>The declared UI curves; the hint reveals from transparent, the goal label rests transparent until solved.</summary>
 public static class UiCurves
 {
-    public static UiCurveDeclaration Hint => new(WorkshopUiTarget.Hint, WorkshopUiFeedback.Control, AnimationCurve.SmoothStep, (Half).16, (Half)1);
-    public static UiCurveDeclaration Goal => new(WorkshopUiTarget.Goal, WorkshopUiFeedback.Goal, AnimationCurve.Linear, (Half)1, (Half)0);
+    public static UiCurveDeclaration Hint => new(WorkshopUiTarget.Hint, WorkshopUiFeedback.Control, AnimationCurve.SmoothStep, (float).16, (float)1);
+    public static UiCurveDeclaration Goal => new(WorkshopUiTarget.Goal, WorkshopUiFeedback.Goal, AnimationCurve.Linear, (float)1, (float)0);
 }

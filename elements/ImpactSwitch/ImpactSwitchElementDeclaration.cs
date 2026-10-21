@@ -10,6 +10,14 @@ namespace CuriousContraptions.Elements.ImpactSwitch;
 /// The trigger threshold is a typed parameter with the runtime's default and admitted range. Story 9.5b adds its electrical mode.</summary>
 public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
+        [
+            new("Visual/Button", PresentationProperty.LocalY, PresentationDriver.ActivationPulse, .06f, -.02f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Button", PresentationProperty.AlbedoRed, PresentationDriver.ActivationPulse, .94f, 191f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Button", PresentationProperty.AlbedoGreen, PresentationDriver.ActivationPulse, .43f, 245f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
+            new("Visual/Button", PresentationProperty.AlbedoBlue, PresentationDriver.ActivationPulse, .33f, 176f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "switch",
         Category: ElementCategory.Power,

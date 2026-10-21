@@ -9,6 +9,22 @@ namespace CuriousContraptions.Elements.PressurePlate;
 
 public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElectricalElement, ISignalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(1.5f, PresentationAxes.None,
+        [
+            new("Visual/Stud_0", PresentationProperty.AlbedoRed, PresentationDriver.CommittedContactLoadPhase, 85f / 255f, 247f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 232f / 255f),
+            new("Visual/Stud_0", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedContactLoadPhase, 101f / 255f, 203f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 183f / 255f),
+            new("Visual/Stud_0", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedContactLoadPhase, 115f / 255f, 82f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 100f / 255f),
+            new("Visual/Stud_1", PresentationProperty.AlbedoRed, PresentationDriver.CommittedContactLoadPhase, 85f / 255f, 247f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 232f / 255f),
+            new("Visual/Stud_1", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedContactLoadPhase, 101f / 255f, 203f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 183f / 255f),
+            new("Visual/Stud_1", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedContactLoadPhase, 115f / 255f, 82f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 100f / 255f),
+            new("Visual/Stud_2", PresentationProperty.AlbedoRed, PresentationDriver.CommittedContactLoadPhase, 85f / 255f, 247f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 232f / 255f),
+            new("Visual/Stud_2", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedContactLoadPhase, 101f / 255f, 203f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 183f / 255f),
+            new("Visual/Stud_2", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedContactLoadPhase, 115f / 255f, 82f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 100f / 255f),
+            new("Visual/Stud_3", PresentationProperty.AlbedoRed, PresentationDriver.CommittedContactLoadPhase, 85f / 255f, 247f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 232f / 255f),
+            new("Visual/Stud_3", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedContactLoadPhase, 101f / 255f, 203f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 183f / 255f),
+            new("Visual/Stud_3", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedContactLoadPhase, 115f / 255f, 82f / 255f, PresentationCurve.CubicSmoothStep, .125f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 100f / 255f)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "pressure_plate",
         Category: ElementCategory.Control,

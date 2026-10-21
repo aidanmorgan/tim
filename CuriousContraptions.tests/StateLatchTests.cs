@@ -39,22 +39,26 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             var rocker = (Node3D)visual.FindChild("Rocker", recursive: false)!;
             var lamp = (MeshInstance3D)visual.FindChild("IndicatorLamp", recursive: false)!;
 
-            // The latch binds exactly the Memory declaration its instance forwards; blend 1 is On, the neutral sample is Off.
-            Assert.True(part.HasCosmeticBindings);
-            Assert.Equal(CosmeticCurves.StateLatch, part.Cosmetic);
-            Assert.Equal(CosmeticCurves.StateLatch, WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1).Cosmetic);
-            Assert.Equal(AnimationFeedbackSource.Memory, part.Cosmetic.Source);
-            // CAT-037 §2: 0.125 s SmoothStep in both directions.
-            Assert.Equal((Half)0.125f, part.Cosmetic.Duration);
-            Assert.Equal(CuriousContraptions.Presentation.AnimationCurve.SmoothStep, part.Cosmetic.Curve);
+            Assert.False(part.HasCosmeticBindings);
+            Assert.False(WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1).Cosmetic.IsDeclared);
+            Assert.All(part.Definition.Presentation.Bindings, binding =>
+            {
+                Assert.Equal(CuriousContraptions.Abstractions.PresentationDriver.CommittedActivation, binding.Driver);
+                Assert.Equal(.125f, binding.Duration);
+                Assert.Equal(CuriousContraptions.Abstractions.PresentationCurve.SmoothStep, binding.Curve);
+            });
             // Icon-only socket choices: two distinct authored pictograms.
             Assert.NotSame(WorkshopIcons.Pictogram("socket_set"), WorkshopIcons.Pictogram("socket_reset"));
 
-            part.ApplyCosmetic(new((Half)1, CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            for (var i = 0; i < part.Definition.Presentation.Bindings.Count; i++)
+            {
+                var binding = part.Definition.Presentation.Bindings[i];
+                part.ApplyDeclaredProperty(i, WorkshopDeclaredPresentation.Value(binding.Property, binding.To));
+            }
             AssertColour(Gold, ((StandardMaterial3D)lamp.MaterialOverride).AlbedoColor);
             Assert.Equal(0.25f, rocker.Rotation.Z, 3);
 
-            part.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
+            part.ResetPhysicalVisuals();
             AssertColour(Slate, ((StandardMaterial3D)lamp.MaterialOverride).AlbedoColor);
             Assert.Equal(-0.25f, rocker.Rotation.Z, 3);
         }
@@ -497,7 +501,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.Equal(WorkshopSaveCodec.Encode(saved), WorkshopSaveCodec.Encode(restored));
     }
 
-    // Cosmetic channels travel as binary16 animation values, so colours match the palette to Half precision.
+    // Cosmetic channels travel as f32 animation values, so colours preserve the authored palette.
     private static void AssertColour(Color expected, Color actual)
     {
         Assert.Equal(expected.R, actual.R, 2);

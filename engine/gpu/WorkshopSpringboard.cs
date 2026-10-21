@@ -18,7 +18,7 @@ public readonly record struct WorkshopSpringboard(GpuBodyId Id, CellOrigin Cell,
     CanonicalRotation Rotation, SpringboardSettings Settings, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.Springboard;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

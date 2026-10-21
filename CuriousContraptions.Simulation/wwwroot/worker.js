@@ -240,6 +240,10 @@ runtime.setModuleImports('workshopGpu', {
         const res = { bytes: new Uint8Array(bytes), identity: new Uint8Array(identity) };
         if (res.identity.length !== 24) throw new Error('A physical read requires its 24-byte receipt identity.');
         writePoseRing(new Uint8Array(poseSlot));
+        if (animationPort) {
+            const committed = res.bytes.slice();
+            animationPort.postMessage({ committedRead: committed }, [committed.buffer]);
+        }
         if (retainOccurrence) {
             if (!occurrenceReadReserved || occurrenceReads.length >= occurrenceReadCapacity)
                 throw new Error('Committed occurrence lacks its reserved reliable read slot.');

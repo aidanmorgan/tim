@@ -712,6 +712,112 @@ static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, k
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class ActuatorDriveRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ActuatorDriveRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+joint():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+supplyClosed():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 16);
+}
+
+coordinate():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+speed():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+lower():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+upper():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+static sizeOf():number {
+  return 40;
+}
+
+static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, supply_closed: boolean, coordinate: number, speed: number, lower: number, upper: number):flatbuffers.Offset {
+  builder.prep(8, 40);
+  builder.pad(4);
+  builder.writeFloat32(upper);
+  builder.writeFloat32(lower);
+  builder.writeFloat32(speed);
+  builder.writeFloat32(coordinate);
+  builder.pad(3);
+  builder.writeInt8(Number(Boolean(supply_closed)));
+  builder.writeInt64(BigInt(owner ?? 0));
+  builder.writeInt64(BigInt(joint ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+export class ContactLoadRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ContactLoadRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+sensor():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+frame():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
+face():bigint {
+  return this.bb!.readUint64(this.bb_pos + 16);
+}
+
+measuredMass():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+phase():number {
+  return this.bb!.readUint32(this.bb_pos + 28);
+}
+
+static sizeOf():number {
+  return 32;
+}
+
+static createContactLoadRecord(builder:flatbuffers.Builder, sensor: bigint, frame: bigint, face: bigint, measured_mass: number, phase: number):flatbuffers.Offset {
+  builder.prep(8, 32);
+  builder.writeInt32(phase);
+  builder.writeFloat32(measured_mass);
+  builder.writeInt64(BigInt(face ?? 0));
+  builder.writeInt64(BigInt(frame ?? 0));
+  builder.writeInt64(BigInt(sensor ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class ClockStamp {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1894,8 +2000,33 @@ memory(obj?:MemoryObservationRecord):MemoryObservationRecord|null {
   return offset ? (obj || new MemoryObservationRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
+actuatorDrives(index: number, obj?:ActuatorDriveRecord):ActuatorDriveRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 52);
+  return offset ? (obj || new ActuatorDriveRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
+}
+
+actuatorDrivesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 52);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+contactLoads(index: number, obj?:ContactLoadRecord):ContactLoadRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 54);
+  return offset ? (obj || new ContactLoadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
+}
+
+contactLoadsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 54);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+construction(obj?:ConstructionRecord):ConstructionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(24);
+  builder.startObject(27);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -2048,6 +2179,26 @@ static startMotionVector(builder:flatbuffers.Builder, numElems:number) {
 
 static addMemory(builder:flatbuffers.Builder, memoryOffset:flatbuffers.Offset) {
   builder.addFieldStruct(23, memoryOffset, 0);
+}
+
+static addActuatorDrives(builder:flatbuffers.Builder, actuatorDrivesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(24, actuatorDrivesOffset, 0);
+}
+
+static startActuatorDrivesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(40, numElems, 8);
+}
+
+static addContactLoads(builder:flatbuffers.Builder, contactLoadsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(25, contactLoadsOffset, 0);
+}
+
+static startContactLoadsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(32, numElems, 8);
+}
+
+static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(26, constructionOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {

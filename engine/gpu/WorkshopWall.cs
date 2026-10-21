@@ -31,7 +31,7 @@ public readonly record struct WorkshopWall(GpuBodyId Id, CellOrigin Cell, LocalP
     CanonicalRotation Rotation, WallDimensions Dimensions, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.Wall;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

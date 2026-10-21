@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Presentation;
 
 public enum AnimationProperty { LocalRotationAngle = 1, LocalTranslation = 2, Opacity = 3, UniformScale = 4, ColourBlend = 5, ColourRed = 6, ColourGreen = 7, ColourBlue = 8 }
-public enum AnimationCurve { Linear, SmoothStep, SinePulse }
+public enum AnimationCurve { Linear, SmoothStep, SinePulse, CubicSmoothStep }
 public enum AnimationRepeat { Once, Loop, PingPong }
 public enum AnimationClock { Presentation, Simulation }
 public enum AnimationPlayback { Stopped, Playing, Completed }
@@ -82,6 +82,7 @@ public sealed record AnimationDefinition
         var amount = Curve switch
         {
             AnimationCurve.Linear => phase,
+            AnimationCurve.CubicSmoothStep => phase * phase * (3 - 2 * phase),
             AnimationCurve.SmoothStep => phase <= .5 ? smooth : 1 - smooth,
             AnimationCurve.SinePulse => Math.Sin(Math.PI * phase),
             _ => throw new InvalidOperationException("Unsupported animation curve.")
@@ -248,7 +249,7 @@ public sealed class AnimationBatch
         var index=_free[_freeCount-1];var version=checked(_versions[index]+1);
         _sampleCount=0;_freeCount--;_versions[index]=version;
         slot.Binding=binding;slot.Playback=AnimationPlayback.Stopped;slot.Value=slot.Initial;
-        slot.Rate=new((Half)1);slot.Admitted=Clock(slot.Clock);slot.Visible=true;slot.ActiveIndex=-1;
+        slot.Rate=new((float)1);slot.Admitted=Clock(slot.Clock);slot.Visible=true;slot.ActiveIndex=-1;
         _slots[index]=slot;_writers.Add(binding,index);Schedule(index);
         return new(this,Generation,index,version);
     }
@@ -298,7 +299,7 @@ public sealed class AnimationBatch
         ref var slot = ref _slots[index];
         _sampleCount = 0;
         slot.Started = slot.Admitted = clockTime;
-        slot.Offset = default; slot.Rate = new((Half)1); slot.Endpoint = AnimationEndpoint.To;
+        slot.Offset = default; slot.Rate = new((float)1); slot.Endpoint = AnimationEndpoint.To;
         slot.Value = slot.Definition!.From;
         slot.Playback = AnimationPlayback.Playing;
         Schedule(index);
@@ -347,7 +348,7 @@ public sealed class AnimationBatch
         slot.Offset = position; slot.Rate = rate;
         slot.Started = slot.Admitted = clockTime;
         slot.Value = value;
-        slot.Playback = rate.Value == (Half)0 ? AnimationPlayback.Stopped : AnimationPlayback.Playing;
+        slot.Playback = rate.Value == (float)0 ? AnimationPlayback.Stopped : AnimationPlayback.Playing;
         Schedule(index);
     }
 
@@ -362,7 +363,7 @@ public sealed class AnimationBatch
             var travel = elapsed * (double)slot.Rate.Value;
             if (!double.IsFinite(travel))
                 throw new ArgumentOutOfRangeException(nameof(clockTime), "Loop travel exceeds the supported finite external-clock range.");
-            // Modulo BEFORE division preserves huge finite clocks and minimum Half duration.
+            // Modulo BEFORE division preserves huge finite clocks and minimum float duration.
             var phase = (offset + (travel % duration) / duration) % 1;
             return phase < 0 ? phase + 1 : phase;
         }
@@ -401,7 +402,7 @@ public sealed class AnimationBatch
         var held = policy == AnimationStop.Hold && slot.Playback == AnimationPlayback.Playing
             ? AnimationPhase.Capture(Position(slot, clockTime),definition.Repeat) : slot.Offset;
         var heldValue = definition.Evaluate((double)held.Value,
-            definition.Repeat == AnimationRepeat.Once && held.Value >= (Half)1);
+            definition.Repeat == AnimationRepeat.Once && held.Value >= (float)1);
         _sampleCount = 0;
         if (policy == AnimationStop.RestoreInitial)
         {

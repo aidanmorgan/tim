@@ -1,7 +1,7 @@
 # Story 9A.16 independent review
 
 Reviewer: /root/transport_reviewer. Implementation owner: /root/transport_implementer.
-Current verdict: SnapshotApproval; implementation publication verification pending. Browser qualification remains pending post-catalogue E2E under the latest owner instruction.
+Current verdict: terminal scoped implementation Pass. Browser qualification remains pending post-catalogue E2E under the latest owner instruction.
 
 ## Exact candidate and scope
 
@@ -51,4 +51,16 @@ Original tool references:197/197 session33661 chunk63d62e;130/130 session81504 c
 All required pre-publication criteria within this bounded implementation scope pass; no unresolved unintended regression remains. Approve normal protected commit/main publication of the exact candidate above, with this review-only receipt.
 
 Publication-dependent checks: verify committed and remote active inputs match approved tree/diff; verify normal hooks and required CI/build succeed; verify deployment/artifact identity for that published revision. No routine production Chrome is required under the latest owner instruction. Terminal implementation Pass awaits these checks. Post-catalogue browser and later release/device/performance qualification remain explicitly pending.
+
+## Terminal publication verification — 21 October 2026
+
+Verdict: **Pass for Story9A.16 scoped implementation and publication.** No unresolved unintended regression within the reviewed scope; browser qualification is explicitly deferred, not passed.
+
+Published candidate2ac68eddb172ffc70f6503b5f7b307210c34137b and main mergec1682bc385834202e28a79b569bde66bba51f363 share treee5863f5255819453dad6d09abbd64679733de784. Independent comparison against approved97d994def293fa6fea0f997caecf7a93c9f27f94 differs only by this review receipt; origin/main matchesc1682bc3 (toolde128a, rechecked98df1a). Normal protected commit hooks passed zero-warning builds, Anvil zero findings and124/124 guards (original owner tool5bd9ce).
+
+[CI39615178886](https://github.com/aidanmorgan/tim/actions/runs/39615178886) completed success on exactc1682bc3: build and deploy success, game tests1935/1935 with zero failed/skipped,1m28s. Reviewer independently read the run and original log (tools98df1a/c7a07a). This is the current game-test inventory; build-time extraction tests are separately evidenced above, not silently counted as game tests.
+
+GitHub Pages artifact12353116242 belongs to the same run/SHA, is unexpired, and has digest sha256:625a5e64b2a32b005fd6a32e59583351280b1d83420055facb9345f0e98c35bd. Deployment7228663624 names exactc1682bc3 and reports success at https://aidanmorgan.github.io/tim/. Artifact/deployment identities independently verified via GitHub API (98df1a). No browser execution or deployed behavior qualification is claimed or required now under the latest owner instruction.
+
+All publication-dependent checks enumerated in SnapshotApproval are satisfied. Pending post-catalogue UI/gameplay cases remain in the spec. Required future browser/device/performance qualification and remaining Wall numeric migration are unchanged; this scoped implementation Pass does not close them.
 

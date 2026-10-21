@@ -84,8 +84,13 @@ self.onmessage = event => {
             port.onmessage = incoming => {
                 if (disposed) return;
                 try {
-                    if (incoming.data?.scheduleControl instanceof Uint8Array)
-                        host.ScheduleControl(incoming.data.scheduleControl);
+                    const envelope = incoming.data;
+                    if (!envelope || typeof envelope !== 'object' || Object.keys(envelope).length !== 1)
+                        throw new Error('Unsupported Animation master-port envelope.');
+                    if (envelope.scheduleControl instanceof Uint8Array)
+                        host.ScheduleControl(envelope.scheduleControl);
+                    else if (envelope.committedRead instanceof Uint8Array)
+                        host.CommittedRead(envelope.committedRead);
                     else throw new Error('Unsupported Animation master-port envelope.');
                 } catch (error) { fail(error); }
             };

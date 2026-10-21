@@ -8,6 +8,9 @@ namespace CuriousContraptions.Elements.Domino;
 
 public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(.6f, PresentationAxes.None,
+        [], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "domino",
         Category: ElementCategory.Motion,

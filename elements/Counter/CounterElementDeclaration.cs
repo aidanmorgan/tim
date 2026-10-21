@@ -8,6 +8,37 @@ namespace CuriousContraptions.Elements.Counter;
 
 public sealed class CounterElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
+        [
+            new("Visual/DotLamp_0", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_0", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_0", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 1f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_1", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 2f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_1", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 2f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_1", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 2f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_2", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 3f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_2", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 3f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_2", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 3f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_3", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 4f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_3", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 4f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_3", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 4f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_4", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 5f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_4", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 5f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_4", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 5f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_5", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 6f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_5", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 6f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_5", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 6f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_6", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 7f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_6", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 7f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_6", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 7f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_7", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 8f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_7", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 8f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_7", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 8f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_8", PresentationProperty.AlbedoRed, PresentationDriver.CommittedCount, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 9f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_8", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedCount, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 9f, PresentationTimerPhase.None),
+            new("Visual/DotLamp_8", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedCount, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .1f, PresentationOverlap.Replace, 9f, PresentationTimerPhase.None)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "counter",
         Category: ElementCategory.Control,

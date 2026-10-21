@@ -166,6 +166,24 @@ struct ActivationMemoryRecord {
     due_tick: uint64;
 }
 
+struct ActuatorDriveRecord {
+    joint: uint64;
+    owner: uint64;
+    supply_closed: bool;
+    coordinate: float;
+    speed: float;
+    lower: float;
+    upper: float;
+}
+
+struct ContactLoadRecord {
+    sensor: uint64;
+    frame: uint64;
+    face: uint64;
+    measured_mass: float;
+    phase: uint32;
+}
+
 struct ClockStamp {
     time: int64;
     uncertainty: uint64;
@@ -329,6 +347,10 @@ table WorkshopResponse {
     motion: [uint8];
     // Present only on the acknowledgement of an applied memory query command.
     memory: MemoryObservationRecord;
+    actuator_drives: [ActuatorDriveRecord];
+    contact_loads: [ContactLoadRecord];
+    // Present on an installation endpoint: Animation admits the same declared construction.
+    construction: ConstructionRecord;
 }
 
 table WorkshopCommand {

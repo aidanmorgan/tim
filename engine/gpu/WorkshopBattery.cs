@@ -16,10 +16,10 @@ public readonly record struct ElectricalSourceSettings(Joules Capacity, Watts Ma
 }
 
 public readonly record struct WorkshopBattery(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, ElectricalSourceSettings Settings, bool Locked = false) : IWorkshopInstance
+    CanonicalRotation Rotation, ElectricalSourceSettings Settings, bool Locked = false) : IWorkshopElectricalSource
 {
     public PartId PartId => PartId.Battery;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

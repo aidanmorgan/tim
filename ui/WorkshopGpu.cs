@@ -99,8 +99,7 @@ public partial class Workshop
             if (_selected.Locked) throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed puzzle instances cannot be edited.");
             var proposed = World.Construction.WithInstance(World.CaptureInstance(_selected.PartId,
                 _selected.AuthoredId, _selected.Position, _selected.Quaternion,
-                _selected.RampDimensions,
-                _selected.WallDimensions, _selected.PipeLength));
+                _selected.Dimensions));
             // Live pointer motion is an input preview, never retained canonical construction.
             World.RestoreConstructionPresentation();
             var accepted = await SubmitConstruction(proposed);

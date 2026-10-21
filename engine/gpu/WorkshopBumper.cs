@@ -37,7 +37,7 @@ public readonly record struct WorkshopBumper(GpuBodyId Id, CellOrigin Cell, Loca
     CanonicalRotation Rotation, BumperWork Work, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.PinballBumper;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.PinballBumper;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

@@ -8,6 +8,14 @@ namespace CuriousContraptions.Elements.SystemClock;
 
 public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(1.1f, PresentationAxes.None,
+        [
+            new("Visual/PendulumPivot", PresentationProperty.LocalRotationZ, PresentationDriver.CommittedOscillatorPhase, -.42f, .42f, PresentationCurve.ExponentialFollow, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 30f),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedOscillatorPulse, 85f / 255f, 247f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedOscillatorPulse, 101f / 255f, 203f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedOscillatorPulse, 115f / 255f, 82f / 255f, PresentationCurve.LinearDecay, .25f, PresentationOverlap.Maximum, 0f, PresentationTimerPhase.None)
+        ], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "clock",
         Category: ElementCategory.Control,

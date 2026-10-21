@@ -1,22 +1,45 @@
 using System;
 using CuriousContraptions.Presentation;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Committed physics feedback that drives one part's cosmetic blend. Closed set; None means undeclared.
-/// Activation is a one-shot occurrence; Memory follows a bistable committed activation value (State Latch On/Off) both ways.</summary>
-public enum AnimationFeedbackSource : uint { None = 0, Activation = 1, Timer = 2, ContactWork = 3, Capture = 4, Memory = 5 }
+/// Activation and capture are one-shot occurrences; ongoing state is evaluated from package bindings.</summary>
+public enum AnimationFeedbackSource : uint { None = 0, Activation = 1, Timer = 2, ContactWork = 3, Capture = 4 }
 
 /// <summary>Sampled 0..1 cosmetic blend plus the committed timer phase that keys phase bindings.</summary>
-public readonly record struct WorkshopCosmeticSample(Half Blend, AnimationTimerPhase Phase)
+public readonly record struct WorkshopCosmeticSample(float Blend, AnimationTimerPhase Phase)
 {
-    public static WorkshopCosmeticSample Neutral => new((Half)0, AnimationTimerPhase.Ready);
+    public static WorkshopCosmeticSample Neutral => new((float)0, AnimationTimerPhase.Ready);
 }
 
 /// <summary>Declared curve data for one part kind. Not persisted; the client forwards it unchanged to the animation worker.</summary>
-public readonly record struct CosmeticCurveDeclaration(AnimationFeedbackSource Source, AnimationCurve Curve, Half Duration,
+public readonly record struct CosmeticCurveDeclaration(AnimationFeedbackSource Source, AnimationCurve Curve, float Duration,
     AnimationImpulseCurve ImpulseCurve, AnimationImpulseOverlap Overlap)
 {
+    public static CosmeticCurveDeclaration From(PresentationBinding binding) => binding.Driver switch
+    {
+        PresentationDriver.ActivationPulse => new(AnimationFeedbackSource.Activation,
+            binding.Curve == PresentationCurve.SmoothStep ? AnimationCurve.SmoothStep : AnimationCurve.Linear, binding.Duration, default, default),
+        PresentationDriver.CapturePulse => new(AnimationFeedbackSource.Capture,
+            binding.Curve == PresentationCurve.SmoothStep ? AnimationCurve.SmoothStep : AnimationCurve.Linear, binding.Duration, default, default),
+        PresentationDriver.ContactImpulse => new(AnimationFeedbackSource.ContactWork, AnimationCurve.Linear, binding.Duration,
+            AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum),
+        _ => default
+    };
+    public static CosmeticCurveDeclaration For(PartId part)
+    {
+        var result = default(CosmeticCurveDeclaration);
+        foreach (var binding in DeclaredPhysics.Of(part).Presentation.Bindings)
+        {
+            var value = From(binding);
+            if (!value.IsDeclared) continue;
+            if (result.IsDeclared && result != value) throw new ArgumentException("One-shot relay requires one declared envelope per owner.");
+            result = value;
+        }
+        return result;
+    }
     public static CosmeticCurveDeclaration None => default;
     public bool IsDeclared => Source != AnimationFeedbackSource.None;
     public void Validate()
@@ -30,16 +53,15 @@ public readonly record struct CosmeticCurveDeclaration(AnimationFeedbackSource S
                 return;
             case AnimationFeedbackSource.Activation:
             case AnimationFeedbackSource.Capture:
-            case AnimationFeedbackSource.Memory:
-                if (!Half.IsFinite(Duration) || Duration <= (Half)0 || Duration > (Half)30 || ImpulseCurve != default || Overlap != default)
+                if (!float.IsFinite(Duration) || Duration <= (float)0 || Duration > (float)30 || ImpulseCurve != default || Overlap != default)
                     throw new ArgumentException("Activation and capture cosmetics require a positive duration and no impulse envelope.");
                 return;
             case AnimationFeedbackSource.Timer:
-                if (Duration != (Half)0 || ImpulseCurve != default || Overlap != default)
+                if (Duration != (float)0 || ImpulseCurve != default || Overlap != default)
                     throw new ArgumentException("Timer cosmetic takes its duration from the committed interval.");
                 return;
             case AnimationFeedbackSource.ContactWork:
-                if (!Half.IsFinite(Duration) || Duration <= (Half)0 || Duration > (Half)30 || Curve != AnimationCurve.Linear)
+                if (!float.IsFinite(Duration) || Duration <= (float)0 || Duration > (float)30 || Curve != AnimationCurve.Linear)
                     throw new ArgumentException("Contact cosmetic requires a positive duration and its impulse envelope.");
                 return;
             default: throw new ArgumentException("Unknown cosmetic feedback source.");
@@ -47,20 +69,4 @@ public readonly record struct CosmeticCurveDeclaration(AnimationFeedbackSource S
     }
     /// <summary>Peak phase each impulse envelope admits; declared curve data, not an evaluator.</summary>
     public AnimationPeakPhase ImpulsePeak => AnimationImpulseDefinition.CanonicalPeak(ImpulseCurve);
-}
-
-/// <summary>Per-part cosmetic constants referenced by both the instance record and its part artwork.</summary>
-public static class CosmeticCurves
-{
-    public static CosmeticCurveDeclaration ImpactSwitch => new(AnimationFeedbackSource.Activation, AnimationCurve.SmoothStep, (Half).16, default, default);
-    /// <summary>The lamp mirrors its committed node value: a sticky lamp lights once; a lamp following a latch lights and goes dark with it.</summary>
-    public static CosmeticCurveDeclaration SignalLamp => new(AnimationFeedbackSource.Memory, AnimationCurve.SmoothStep, (Half).16, default, default);
-    public static CosmeticCurveDeclaration Delay => new(AnimationFeedbackSource.Timer, AnimationCurve.Linear, (Half)0, default, default);
-    public static CosmeticCurveDeclaration PinballBumper => new(AnimationFeedbackSource.ContactWork, AnimationCurve.Linear, (Half).32,
-        AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum);
-    public static CosmeticCurveDeclaration Receiver => new(AnimationFeedbackSource.Capture, AnimationCurve.SmoothStep, (Half).5, default, default);
-    public static CosmeticCurveDeclaration BallDetector => new(AnimationFeedbackSource.Activation, AnimationCurve.SmoothStep, (Half).35, default, default);
-    /// <summary>State Latch rocker and lamp ease between Off and On over 0.125 s SmoothStep in either direction
-    /// (docs/planning/elements/CAT-037-latch.md §2 "Cosmetic curves and UI bindings").</summary>
-    public static CosmeticCurveDeclaration StateLatch => new(AnimationFeedbackSource.Memory, AnimationCurve.SmoothStep, (Half).125, default, default);
 }

@@ -87,11 +87,105 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
+            Presentation(entry.Presentation, entry.Metadata.Parameters);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
             if (entry.Electrical is { } electrical) Electrical(electrical);
             if (entry.Signal is { } signal) Signal(signal);
             if (entry.Fluid is { } fluid) Fluid(fluid);
+        }
+
+        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
+                OutOfRange("Presentation.PickRadius");
+            Defined("Presentation.ResizeAxes", value.ResizeAxes);
+            if ((value.ResizeAxes == PresentationAxes.None) != (value.Sizing is null)) OutOfRange("Presentation.Sizing");
+            if (value.Sizing is { } sizing)
+            {
+                Finite("Presentation.Sizing.Dimensions", sizing.Dimensions);
+                Finite("Presentation.Sizing.RadiusScale", sizing.RadiusScale);
+                Finite("Presentation.Sizing.RadiusOffset", sizing.RadiusOffset);
+                if (sizing.Dimensions.X <= 0 || sizing.Dimensions.Y <= 0 || sizing.Dimensions.Z <= 0 ||
+                    (sizing.Dimensions * sizing.RadiusScale + sizing.RadiusOffset).Length() <= 0) OutOfRange("Presentation.Sizing");
+                var axes = PresentationAxes.None;
+                foreach (var resize in sizing.Parameters)
+                {
+                    if (resize.Axis is not (PresentationAxes.X or PresentationAxes.Y or PresentationAxes.Z) ||
+                        (axes & resize.Axis) != 0 || !parameters.Any(p => p.Key == resize.Parameter))
+                        OutOfRange("Presentation.Sizing.Parameter");
+                    axes |= resize.Axis;
+                }
+                if (axes != value.ResizeAxes) OutOfRange("Presentation.Sizing.Axes");
+            }
+            var writers = new HashSet<(string, PresentationProperty, PresentationTimerPhase)>();
+            foreach (var binding in value.Bindings)
+            {
+                Text("Presentation.Node", binding.Node);
+                Defined("Presentation.Property", binding.Property);
+                Defined("Presentation.Driver", binding.Driver);
+                Defined("Presentation.Curve", binding.Curve);
+                Defined("Presentation.Overlap", binding.Overlap);
+                Defined("Presentation.Phase", binding.Phase);
+                Finite("Presentation.From", binding.From); Finite("Presentation.To", binding.To);
+                Finite("Presentation.Duration", binding.Duration); Finite("Presentation.Threshold", binding.Threshold);
+                Finite("Presentation.Response", binding.Response);
+                if (binding.Intermediate is { } middle) Finite("Presentation.Intermediate", middle);
+                if (binding.Duration < 0 || binding.Duration > 30 || binding.Response < 0 ||
+                    (binding.Curve == PresentationCurve.ExponentialFollow && binding.Response <= 0))
+                    OutOfRange("Presentation.Timing");
+                bool AdmitsValue(float input) => float.IsFinite(input) && (binding.Property switch
+                {
+                    PresentationProperty.UniformScale or PresentationProperty.ScaleX or PresentationProperty.ScaleY or PresentationProperty.ScaleZ => input > 0,
+                    PresentationProperty.AlbedoRed or PresentationProperty.AlbedoGreen or PresentationProperty.AlbedoBlue or
+                        PresentationProperty.EmissionRed or PresentationProperty.EmissionGreen or PresentationProperty.EmissionBlue => input is >= 0 and <= 1,
+                    _ => true
+                });
+                if (!AdmitsValue(binding.From) || !AdmitsValue(binding.To) || (binding.Intermediate is { } intermediate && !AdmitsValue(intermediate)))
+                    OutOfRange("Presentation.Value");
+                var supported = binding.Driver switch
+                {
+                    PresentationDriver.ActivationPulse or PresentationDriver.CapturePulse or PresentationDriver.CommittedActivation or
+                        PresentationDriver.CommittedCount => binding.Curve == PresentationCurve.SmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
+                    PresentationDriver.ContactImpulse => binding.Curve == PresentationCurve.SineSquaredPulse && binding.Duration > 0 && binding.Overlap == PresentationOverlap.SaturatingSum,
+                    PresentationDriver.CommittedOscillatorPhase => binding.Curve == PresentationCurve.ExponentialFollow && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
+                    PresentationDriver.CommittedOscillatorPulse => binding.Curve == PresentationCurve.LinearDecay && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Maximum,
+                    PresentationDriver.CommittedContactLoadPhase => binding.Curve == PresentationCurve.CubicSmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
+                    PresentationDriver.CommittedTimerProgress or PresentationDriver.CommittedTimerPhase or PresentationDriver.CommittedSupply or
+                        PresentationDriver.CommittedCharge or PresentationDriver.CommittedActuatorDrive or PresentationDriver.CommittedActuatorState =>
+                            binding.Curve == PresentationCurve.Linear && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
+                    _ => false
+                };
+                if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
+                    (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
+                    OutOfRange("Presentation.DriverCurve");
+                if (!writers.Add((binding.Node, binding.Property, binding.Phase)))
+                    errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.Presentation: duplicate property writer"));
+                if (binding.Phase != PresentationTimerPhase.None && binding.Driver != PresentationDriver.CommittedTimerPhase)
+                    OutOfRange("Presentation.Phase");
+            }
+            var bodies = new HashSet<PresentationBody>();
+            foreach (var body in value.Bodies)
+            {
+                Text("Presentation.Body.Node", body.Node); Defined("Presentation.Body", body.Body);
+                Finite("Presentation.Body.RestOffset", body.RestOffset);
+                if (!bodies.Add(body.Body)) OutOfRange("Presentation.Body");
+            }
+            foreach (var span in value.Spans)
+            {
+                Text("Presentation.Span.MovingNode", span.MovingNode); Text("Presentation.Span.Node", span.SpanNode);
+                Finite("Presentation.Span.MovingAnchor", span.MovingAnchor); Finite("Presentation.Span.FixedAnchor", span.FixedAnchor);
+                if (!Finite("Presentation.Span.RestLength", span.RestLength) || span.RestLength <= 0)
+                    OutOfRange("Presentation.Span.RestLength");
+            }
+            foreach (var parameter in value.Parameters)
+            {
+                if (!parameters.Any(p => p.Key == parameter.Parameter)) OutOfRange("Presentation.Parameter.Key");
+                Text("Presentation.Parameter.Node", parameter.Node); Text("Presentation.Parameter", parameter.Parameter);
+                Defined("Presentation.Parameter.Property", parameter.Property);
+                Finite("Presentation.Parameter.Multiplier", parameter.Multiplier);
+                Finite("Presentation.Parameter.Offset", parameter.Offset);
+            }
         }
 
         private void Geometry(BundleEntry entry)

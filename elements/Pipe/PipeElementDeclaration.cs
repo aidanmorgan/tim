@@ -12,6 +12,13 @@ public sealed class PipeElementDeclaration : IMechanicalElement, ISceneGeometryE
 {
     private const float DefaultLength = 3.6f;
 
+    public ElementPresentation Presentation => new(2.2f, PresentationAxes.X,
+        [], [], [], [new("Visual/Visual_Shell", PresentationProperty.ScaleY, "length", 1f / DefaultLength, 0),
+            new("Visual/Visual_Collar_Start", PresentationProperty.LocalX, "length", -.5f, 0),
+            new("Visual/Visual_Collar_End", PresentationProperty.LocalX, "length", .5f, 0)],
+        new(new(DefaultLength, 1.56f, 1.56f), new(.5f, 0, 0), new(.09f, .78f, 0),
+            [new("length", PresentationAxes.X)]));
+
     public ElementMetadata Metadata => new(
         Id: "pipe",
         Category: ElementCategory.Motion,

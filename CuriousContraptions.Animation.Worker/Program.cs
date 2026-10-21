@@ -15,6 +15,7 @@ public static partial class Program
     private static WorkshopClockMapping? _clock;
     private static WorkshopSchedule? _schedule;
     private static Preparation? _prepared;
+    private static WorkshopDeclaredPresentation? _declared;
     private static readonly AnimationControlDeferral Deferred = new();
     // Story 9R.5b: one track per animated target of the machine; both tables grow when a new target finds no vacancy, so the
     // machine's target population is the only bound (the initial size is only a starting allocation).
@@ -31,11 +32,19 @@ public static partial class Program
     private static readonly byte[] Output = new byte[WorkshopAnimationWire.OutputBytes];
     private static readonly byte[] Result = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.ResultBytes];
     private readonly record struct Preparation(ScheduleControlHeader Header, WorkshopCadenceSettings Settings,
-        SimulationEpoch World, SimulationTick Tick, WorkshopSimulationPhase Phase);
+        SimulationEpoch World, SimulationTick Tick, WorkshopSimulationPhase Phase, WorkshopDeclaredPresentation Presentation, WorkshopResponse Endpoint, bool Retained);
     private static WorkshopClockPeer Peer => _peer ?? throw new InvalidOperationException("Animation master is not installed.");
     private static WorkshopClockMapping Clock => _clock ?? throw new InvalidOperationException("Animation mapping is not installed.");
 
-    public static void Main() { }
+    public static void Main()
+    {
+        using var stream = typeof(Program).Assembly.GetManifestResourceStream("elements.bundle.json")
+            ?? throw new InvalidOperationException("Animation declaration bundle is missing.");
+        using var reader = new System.IO.StreamReader(stream);
+        var document = CuriousContraptions.Bundle.BundleSchema.Read(reader.ReadToEnd());
+        DeclaredPhysics.Install(document.Elements);
+        DeclaredPorts.Install(ElementPortCatalogue.FromBundle(document.Elements));
+    }
     [JSExport] public static int[] OutputKinds() => [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected];
     [JSImport("now", "workshopAnimation")] private static partial double NativeMilliseconds();
     [JSImport("probe", "workshopAnimation")] private static partial void SendProbe(byte[] bytes);
@@ -84,7 +93,13 @@ public static partial class Program
         _lastApplied = WorkshopPulse.Deadline(schedule.Settings.AnimationRate, due);
         for (var i = 0; i < Instances.Length; i++)
             if (Instances[i].Handle is { } handle)
-                Emit(AnimationOutputKind.Sample, due.Value, Instances[i].Control, BitConverter.UInt16BitsToHalf(Tracks.Read(handle).Value.CanonicalBits));
+                Emit(AnimationOutputKind.Sample, due.Value, Instances[i].Control, BitConverter.UInt32BitsToSingle(Tracks.Read(handle).Value.CanonicalBits));
+        if (_declared is { } declared)
+            foreach (var sample in declared.Advance((double)due.Value * schedule.Settings.AnimationRate.Denominator / schedule.Settings.AnimationRate.Numerator))
+                Emit(AnimationOutputKind.Sample, due.Value,
+                    new(sample.Target, schedule.World.WorldGeneration, 1, schedule.World.Epoch.Value,
+                        AnimationControlKind.Endpoint, true, 0, 0, .01f, AnimationCurve.Linear, Property: sample.Value.Property),
+                    BitConverter.UInt32BitsToSingle(sample.Value.CanonicalBits));
         _lastOrdinal = due.Value;
     }
 
@@ -115,7 +130,11 @@ public static partial class Program
                     endpoint.Read.Tick.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[64..]) ||
                     endpoint.Publication.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[72..]))
                     throw new ArgumentException("Prepared Animation endpoint differs from its envelope.");
-                _prepared = new(header, settings, endpoint.Read.Epoch, endpoint.Read.Tick, endpoint.Phase);
+                if (endpoint.Construction is not { } construction) throw new ArgumentException("Animation installation lacks its declared construction.");
+                var retained = transition != ScheduleTransition.Reset && _declared is not null && _declared.CanRetain(construction, endpoint);
+                if (retained) _declared!.ValidateRebind(construction, endpoint);
+                _prepared = new(header, settings, endpoint.Read.Epoch, endpoint.Read.Tick, endpoint.Phase,
+                    retained ? _declared! : new WorkshopDeclaredPresentation(construction, endpoint), endpoint, retained);
                 Respond(header, ScheduleControlKind.Prepared);
                 return;
             case ScheduleControlKind.Commit:
@@ -129,6 +148,8 @@ public static partial class Program
                     if (Instances[i].Handle is { } retiring && Instances[i].Control.World.Value != 0 &&
                         Instances[i].Control.World != schedule.World.WorldGeneration)
                     { Tracks.Remove(retiring); Instances[i] = default; }
+                if (candidate.Retained) candidate.Presentation.Rebind(candidate.Endpoint.Construction!.Value, candidate.Endpoint);
+                _declared = candidate.Presentation;
                 _schedule = schedule; _prepared = null; _lastOrdinal = schedule.FirstAnimation.Value - 1;
                 Respond(header, ScheduleControlKind.Applied);
                 DrainControl();
@@ -146,6 +167,17 @@ public static partial class Program
                 return;
             default: throw new ArgumentException("Unsupported Animation schedule control.");
         }
+    }
+
+    [JSExport]
+    public static void CommittedRead(byte[] bytes)
+    {
+        var response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
+        if (_schedule is not { } schedule || _prepared is not null || _declared is null) return;
+        // A queued read from a retired installation is harmless; a future/foreign identity is rejected by the owner.
+        if (response.Read.Epoch.Value < schedule.World.WorldGeneration.Value ||
+            response.Projection.Value < schedule.World.Epoch.Value || response.Cadence.Value < schedule.Revision.Value) return;
+        _declared.Accept(response);
     }
 
     private static bool Matches(ScheduleControlHeader first, ScheduleControlHeader second) =>
@@ -201,6 +233,16 @@ public static partial class Program
             _commandSequence = control.Sequence;
             Emit(AnimationOutputKind.Rejected, control.Sequence, control, control.From, cadence); return;
         }
+        if (control.Target.Value >= WorkshopDeclaredPresentation.TargetBase)
+        {
+            if (control.Kind != AnimationControlKind.Visibility || control.World != schedule.World.WorldGeneration ||
+                control.Generation != schedule.World.Epoch.Value || _declared is null)
+                throw new ArgumentException("Foreign declared visibility control.");
+            _declared.SetVisible(control.Target, control.Property, control.Visible);
+            _commandSequence = control.Sequence;
+            Emit(AnimationOutputKind.Acknowledgement, control.Sequence, control, control.From);
+            return;
+        }
         // This admission supports autonomous timed clips and world-bound constant endpoint drives.
         // Timed world feedback awaits its committed-history capability; it cannot borrow UI time.
         if (control.World.Value != 0 && control.Kind == AnimationControlKind.Reveal)
@@ -255,7 +297,7 @@ public static partial class Program
             // A retransmitted occurrence is already admitted; only a newer occurrence sequence enqueues.
             if (previous.Handle is null || control.Generation > previous.Control.Generation)
             {
-                var admission = Tracks.EnqueueImpulse(handle, new(control.Generation), new((Half)1),
+                var admission = Tracks.EnqueueImpulse(handle, new(control.Generation), new((float)1),
                     (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
                 if (admission == AnimationImpulseAdmission.CapacityExhausted)
                     Console.Error.WriteLine("Impulse occurrence dropped: animation target capacity exhausted.");
@@ -265,31 +307,31 @@ public static partial class Program
         }
         else if (control.Kind != AnimationControlKind.Visibility)
         {
-            Half from, to;
+            float from, to;
             bool start;
             if (control.Kind == AnimationControlKind.TimerObservation)
             {
                 if (control.Timer.Phase == AnimationTimerPhase.Counting)
                 {
                     from = AnimationTimerSegment.Create(control.Timer).Endpoint.Value;
-                    to = (Half)1;
+                    to = (float)1;
                     start = true;
                 }
                 else if (control.Timer.Phase == AnimationTimerPhase.Finished)
                 {
-                    from = to = (Half)1;
+                    from = to = (float)1;
                     start = false;
                 }
                 else
                 {
-                    from = to = (Half)0;
+                    from = to = (float)0;
                     start = false;
                 }
             }
             else if (control.Kind == AnimationControlKind.Endpoint && control.Property == AnimationProperty.ColourBlend)
             {
-                from = (Half)0;
-                to = (Half)1;
+                from = (float)0;
+                to = (float)1;
                 start = true;
             }
             else
@@ -299,7 +341,7 @@ public static partial class Program
                 start = control.Kind is AnimationControlKind.Reveal or AnimationControlKind.Transition;
             }
             var duration = control.Kind == AnimationControlKind.TimerObservation && control.Timer.Phase == AnimationTimerPhase.Counting
-                ? (Half)Math.Max(0.01, (control.Timer.Due - control.Timer.Observed) * (double)schedule.Settings.SimulationRate.Denominator / schedule.Settings.SimulationRate.Numerator)
+                ? (float)Math.Max(0.01, (control.Timer.Due - control.Timer.Observed) * (double)schedule.Settings.SimulationRate.Denominator / schedule.Settings.SimulationRate.Numerator)
                 : control.Duration;
             var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, from),
                 WorkshopAnimationWire.Value(control.Property, to), new AnimationDurationSeconds(duration),
@@ -322,13 +364,12 @@ public static partial class Program
         }
         _commandSequence = control.Sequence;
         Emit(AnimationOutputKind.Acknowledgement, control.Sequence, control,
-            BitConverter.UInt16BitsToHalf(Tracks.Read(Instances[slot].Handle!.Value).Value.CanonicalBits));
+            BitConverter.UInt32BitsToSingle(Tracks.Read(Instances[slot].Handle!.Value).Value.CanonicalBits));
     }
 
-    private static void Emit(AnimationOutputKind kind, ulong ordinal, WorkshopAnimationControl control, Half channel, CadenceRevision? cadence = null)
+    private static void Emit(AnimationOutputKind kind, ulong ordinal, WorkshopAnimationControl control, float channel, CadenceRevision? cadence = null)
     {
-        if (!Half.IsFinite(channel) || channel < (Half)0 || channel > (Half)1)
-            throw new ArgumentException("Invalid evaluated channel.");
+        _ = WorkshopAnimationWire.Value(control.Property, channel);
         Output.AsSpan().Clear();
         Peer.Session.WriteTo(Output.AsSpan(0, RuntimeSessionId.ByteLength));
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(16), Peer.Generation.Value);
@@ -336,16 +377,16 @@ public static partial class Program
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(32), control.Generation);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(40), ordinal);
         BinaryPrimitives.WriteInt64LittleEndian(Output.AsSpan(48), _lastApplied.Value);
-        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(56), BitConverter.HalfToUInt16Bits(channel));
-        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(58), (ushort)control.Property);
+        BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(56), channel);
+        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(136), (ushort)control.Property);
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(60), (uint)kind);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(64), control.Target.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(72), control.World.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(80), control.EventOrdinal);
-        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
+        BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(84), control.EventPhase);
         WorkshopAnimationWire.WriteTimer(Output, control.Timer);
         if (control.Kind == AnimationControlKind.Impulse)
-            BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(132), BitConverter.HalfToUInt16Bits(control.Duration));
+            BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(132), control.Duration);
         SendOutput(Output);
     }
 }

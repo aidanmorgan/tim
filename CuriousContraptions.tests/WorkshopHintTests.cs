@@ -12,9 +12,9 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
     // This native fixture supplies transport results, never a local animation clock/evaluator.
     // Actual A execution and clock qualification are covered by the owned Chrome evidence.
     private HintReadClient _client = null!;
-    private void Publish(Half opacity) => _client.Next = opacity;
+    private void Publish(float opacity) => _client.Next = opacity;
     private static void Solve(Label solved) { var colour = solved.Modulate; colour.A = 1; solved.Modulate = colour; }
-    private static readonly double QuarterDuration = (double)(Half).16 / 4;
+    private static readonly double QuarterDuration = (double)(float).16 / 4;
 
     private Workshop Scene()
     {
@@ -45,7 +45,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
     }
 
     [Fact]
-    public void ActualHintAppliesWorkerHalfSamplesAndRetiresConsumedValues()
+    public void ActualHintAppliesWorkerF32SamplesAndRetiresConsumedValues()
     {
         var scene = Scene();
         try
@@ -56,13 +56,13 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             Reveal(scene);
             Assert.True(hint.IsVisibleInTree());
             Assert.Equal(0, hint.Modulate.A);
-            Publish((Half).103515625);
+            Publish((float).103515625);
             scene._Process(QuarterDuration);
             Assert.Equal(.103515625f, hint.Modulate.A);
-            Publish((Half).896484375);
+            Publish((float).896484375);
             scene._Process(QuarterDuration * 2);
             Assert.Equal(.896484375f, hint.Modulate.A);
-            Publish((Half)1);
+            Publish((float)1);
             scene._Process(QuarterDuration);
             Assert.Equal(baseline, hint.Modulate);
             // Inactive frames must not keep owning/writing opacity.
@@ -84,7 +84,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         try
         {
             var hint = Reveal(scene);
-            Publish((Half).103515625);
+            Publish((float).103515625);
             scene._Process(QuarterDuration);
             var quarter = hint.Modulate;
             Press(scene, WorkshopUiControl.Menu);
@@ -96,7 +96,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             Assert.Equal(quarter, hint.Modulate);
             Press(scene, WorkshopUiControl.Goal);
             Assert.True(hint.IsVisibleInTree());
-            Publish((Half)1);
+            Publish((float)1);
             scene._Process(0);
             Assert.Equal(1, hint.Modulate.A);
             Assert.Equal(quarter.R, hint.Modulate.R);
@@ -125,7 +125,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             scene._Process(QuarterDuration);
             Assert.Equal(1, hint.Modulate.A);
             Press(scene, WorkshopUiControl.ShowHint);
-            Publish((Half).103515625f);
+            Publish((float).103515625f);
             scene._Process(QuarterDuration);
             Assert.Equal(.103515625f, hint.Modulate.A);
             var picker = Control<OptionButton>(scene, WorkshopUiControl.LevelPicker);
@@ -140,7 +140,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             Assert.Equal(.103515625f, hint.Modulate.A);
             scene._Process(QuarterDuration);
             Assert.Equal(.103515625f, hint.Modulate.A);
-            Publish((Half).5);
+            Publish((float).5);
             scene._Process(QuarterDuration * 2);
             Assert.Equal(.5f, hint.Modulate.A);
         }
@@ -154,7 +154,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         try
         {
             var hint = Reveal(scene);
-            Publish((Half).103515625);
+            Publish((float).103515625);
             scene._Process(QuarterDuration);
             godot.Tree.Root.RemoveChild(scene);
             Assert.Equal(1, hint.Modulate.A);
@@ -165,7 +165,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             Press(scene, WorkshopUiControl.ShowHint);
             Assert.True(hint.Visible);
             Assert.Equal(0, hint.Modulate.A);
-            Publish((Half).103515625);
+            Publish((float).103515625);
             scene._Process(QuarterDuration);
             Assert.Equal(0, hint.Modulate.A);
             Assert.True(_client.Disposed);
@@ -188,7 +188,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         {
             var hint = Reveal(scene);
             var before = hint.Modulate;
-            Publish((Half).103515625);
+            Publish((float).103515625);
             Assert.Throws<ArgumentOutOfRangeException>(() => scene._Process(delta));
             Assert.Equal(before, hint.Modulate);
             Assert.NotNull(_client.Next);
@@ -209,14 +209,14 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             Assert.Equal(WorkshopUiTarget.Goal, goal.Target);
             goal.ApplyNeutral();
             Assert.Equal(new Color(.2f, .4f, .6f, 0), label.Modulate);
-            goal.Apply(new((Half).5));
+            goal.Apply(new((float).5));
             Assert.Equal(new Color(.2f, .4f, .6f, .5f), label.Modulate);
             new WorkshopUiBinding(WorkshopUiTarget.Hint, label).ApplyNeutral();
             Assert.Equal(new Color(.2f, .4f, .6f, 1), label.Modulate);
             Assert.Equal(new AnimationTargetId(1), UiCurves.Hint.AnimationTarget);
             Assert.Equal(new AnimationTargetId(ulong.MaxValue), UiCurves.Goal.AnimationTarget);
-            Assert.Throws<ArgumentException>(() => (UiCurves.Hint with { Duration = (Half)0 }).Validate());
-            Assert.Throws<ArgumentException>(() => (UiCurves.Goal with { Neutral = (Half)1.5 }).Validate());
+            Assert.Throws<ArgumentException>(() => (UiCurves.Hint with { Duration = (float)0 }).Validate());
+            Assert.Throws<ArgumentException>(() => (UiCurves.Goal with { Neutral = (float)1.5 }).Validate());
             Assert.Throws<ArgumentException>(() => (UiCurves.Goal with { Target = WorkshopUiTarget.None }).Validate());
         }
         finally { label.Free(); }
@@ -225,11 +225,11 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
     [Fact]
     public void CanonicalHintUnitsRejectUndefinedValues()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationDurationSeconds(Half.NaN));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationDurationSeconds((Half)0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationOpacity(Half.PositiveInfinity));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationOpacity((Half)(-.01)));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationOpacity((Half)1.01));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationDurationSeconds(float.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationDurationSeconds((float)0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationOpacity(float.PositiveInfinity));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationOpacity((float)(-.01)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new AnimationOpacity((float)1.01));
     }
     [Fact]
     public void FiniteMaximumDeltaCannotInventAWorkerSample()
@@ -245,7 +245,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             Assert.Equal(1,hint.Modulate.A);
             Press(scene,WorkshopUiControl.ShowHint);
             Assert.Equal(0,hint.Modulate.A);
-            Publish((Half).103515625);
+            Publish((float).103515625);
             scene._Process(QuarterDuration);
             Assert.Equal(.103515625f,hint.Modulate.A);
             Assert.Equal(0,scene.World.Ticks);
@@ -283,7 +283,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         var scene = Scene();
         try
         {
-            var hint = Reveal(scene); Publish((Half).5); scene._Process(0);
+            var hint = Reveal(scene); Publish((float).5); scene._Process(0);
             typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
             SetSceneField(scene, "_displayedWorkshopPhase", WorkshopSimulationPhase.Building);
             InvokeScene(scene, "ReconcileCommittedUi");
@@ -358,7 +358,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         public AuthorityRevision Revision => default;
         public WorkshopCommandIdentity? Pending => null;
         public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
-        public Half? Next;
+        public float? Next;
         public bool Disposed;
         public bool LeaseBusy;
         public AnimationControlKind? Queued;
@@ -380,7 +380,8 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
             WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
             throw new InvalidOperationException("Gameplay is outside this hint read-consumer fixture.");
-        public bool TryElectricalFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out ElectricalIndicatorSample sample) { sample = default; return false; }
+        public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
+        public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No command is pending.");
         public ValueTask DisposeAsync() { Disposed = true; Next = null; return ValueTask.CompletedTask; }
     }

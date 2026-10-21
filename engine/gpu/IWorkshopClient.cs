@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Gpu;
@@ -16,7 +17,8 @@ internal interface IWorkshopClient : IAsyncDisposable
     bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity);
     /// <summary>One sampled cosmetic blend for the part whose instance declares a cosmetic curve.</summary>
     bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample);
-    bool TryElectricalFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out ElectricalIndicatorSample sample);
+    void SetDeclaredVisible(GpuBodyId owner, bool visible);
+    bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out IReadOnlyList<DeclaredPresentationSample> samples);
     SimulationEpoch Epoch { get; }
     AuthorityRevision Revision { get; }
     WorkshopCommandIdentity? Pending { get; }

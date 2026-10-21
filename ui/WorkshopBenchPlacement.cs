@@ -18,12 +18,12 @@ public readonly record struct BenchPlacementProposal(BenchPlacementRejection Rej
 public static class WorkshopBenchPlacement
 {
     public static BenchPlacementProposal Propose(MachineWorld world, PartId part, GpuBodyId body, Vector3 position, Quaternion rotation,
-        RampDimensions? rampDimensions, WallDimensions? wallDimensions, PipeLength? pipeLength, Action pushUndo)
+        Vector3? dimensions, Action pushUndo)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(pushUndo);
         WorkshopConstruction proposed;
-        try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, rampDimensions, wallDimensions, pipeLength)); }
+        try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, dimensions)); }
         catch (Exception error) when (error is WorkshopEditRejectedException or WorkbenchFullException)
         {
             // A part that a declared rule refuses to capture or compose is refused here, before any undo entry exists, and

@@ -545,7 +545,7 @@ public partial class Workshop : Node3D
             var (position, rotation, _) = PlacementPose(chosen, at);            var placedId = _nextId;
             // The proposal is the typed rejection path: a part that cannot be captured or composed leaves no undo entry.
             var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
-                _preview?.RampDimensions, _preview?.WallDimensions, _preview?.PipeLength, PushUndo);
+                _preview?.Dimensions, PushUndo);
             if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
             var accepted = false;
             try { accepted = await SubmitConstruction(placement.Construction); }

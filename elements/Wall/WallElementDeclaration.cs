@@ -7,6 +7,13 @@ namespace CuriousContraptions.Elements.Wall;
 
 public sealed class WallElementDeclaration : IMechanicalElement, ISceneGeometryElement, IParameterizedGeometryElement
 {
+    public ElementPresentation Presentation => new(1.5f, PresentationAxes.All,
+        [], [], [], [new("Visual", PresentationProperty.ScaleX, "width", 1, 0),
+            new("Visual", PresentationProperty.ScaleY, "height", 1, 0),
+            new("Visual", PresentationProperty.ScaleZ, "thickness", 1, 0)],
+        new(new(3f, 2f, .25f), new(.5f), Vector3.Zero,
+            [new("width", PresentationAxes.X), new("height", PresentationAxes.Y), new("thickness", PresentationAxes.Z)]));
+
     public ElementMetadata Metadata => new(
         Id: "wall",
         Category: ElementCategory.Structure,

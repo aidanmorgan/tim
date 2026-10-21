@@ -10,6 +10,9 @@ namespace CuriousContraptions.Elements.BowlingBall;
 /// rolling resistance as the collider material. It is not buoyant.</summary>
 public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(.4f, PresentationAxes.None,
+        [], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "bowling",
         Category: ElementCategory.Motion,

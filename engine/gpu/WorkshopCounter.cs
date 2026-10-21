@@ -15,7 +15,7 @@ public readonly record struct WorkshopCounter(
     public const int MinimumTargetCount = 1;
     public const int MaximumTargetCount = 9;
     public PartId PartId => PartId.Counter;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
 
     public void Validate()
     {

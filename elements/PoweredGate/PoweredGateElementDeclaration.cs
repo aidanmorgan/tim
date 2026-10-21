@@ -10,6 +10,13 @@ namespace CuriousContraptions.Elements.PoweredGate;
 /// <summary>The scene-owned frame and blade, with declared material, mass and fixed prismatic slider values.</summary>
 public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(1.5f, PresentationAxes.None,
+        [
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 232f / 255f),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActuatorState, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 183f / 255f),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActuatorState, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 100f / 255f)
+        ], [new("Visual/Blade", PresentationBody.Secondary, Vector3.Zero)], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "powered_gate",
         Category: ElementCategory.Motion,

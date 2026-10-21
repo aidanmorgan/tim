@@ -10,6 +10,9 @@ namespace CuriousContraptions.Elements.Funnel;
 /// bore. Its colliders are 4 rings of 16 wall boxes tilted to the taper, then 4 collar rim boxes at the inlet and 4 at the outlet.</summary>
 public sealed class FunnelElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
+    public ElementPresentation Presentation => new(1.75f, PresentationAxes.None,
+        [], [], [], []);
+
     public ElementMetadata Metadata => new(
         Id: "funnel",
         Category: ElementCategory.Motion,

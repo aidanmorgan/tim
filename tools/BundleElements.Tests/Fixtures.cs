@@ -32,6 +32,7 @@ public sealed class Fixture : ISliderElement
     public int PaletteOrder { get; init; } = 1;
     public string IconPath { get; init; } = "res://elements/Fixture/icon.svg";
     public string ScenePath { get; init; } = "res://elements/Fixture/fixture.tscn";
+    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
     public ElementMetadata Metadata => new(Id, Category, DisplayName, Description, Color, PaletteOrder, IconPath, ScenePath, Parameters);
     public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports { get; init; } = [];
@@ -47,6 +48,7 @@ public sealed class Fixture : ISliderElement
 /// <summary>A second public declaration in this assembly, so the assembly as a package declares two (BUNDLE005).</summary>
 public sealed class SecondFixture : IPuzzleElementDeclaration
 {
+    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
     public ElementMetadata Metadata => new("second", ElementCategory.Goals, "Second", "A second fixture.", new(.5f, .5f, .5f, 1f), 2, "res://elements/Second/icon.svg", "res://elements/Second/second.tscn", []);
     public ElementFootprint Footprint => new(0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports => [];
@@ -59,6 +61,7 @@ public sealed class SecondFixture : IPuzzleElementDeclaration
 /// mechanical payload. Internal, so the assembly-as-package discovery count above stays two.</summary>
 internal sealed class SignalFixture : ISignalElement
 {
+    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
     public ElementMetadata Metadata => new("signal_fixture", ElementCategory.Goals, "Signal fixture", "A signal fixture.", new(.5f, .5f, .5f, 1f), 3, "res://elements/SignalFixture/icon.svg",
         "res://elements/SignalFixture/signal.tscn", []);
     public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
