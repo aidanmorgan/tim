@@ -188,15 +188,15 @@ development_status:
   # merged into 9a-pkg-1 (21 Oct 2026)
   9a-12-springboard-element-package: done
   # 7
-  9a-pkg-2-funnel-pipe-bend-packages: backlog
+  9a-pkg-2-funnel-pipe-bend-packages: review
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-8-funnel-element-package: backlog
+  9a-8-funnel-element-package: review
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-9-pipe-element-package: backlog
+  9a-9-pipe-element-package: review
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-10-pipe-bend-45-element-package: backlog
+  9a-10-pipe-bend-45-element-package: review
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-11-pipe-bend-90-element-package: backlog
+  9a-11-pipe-bend-90-element-package: review
   # 8
   9a-pkg-3-delay-switch-packages: backlog
   # merged into 9a-pkg-3 (21 Oct 2026)

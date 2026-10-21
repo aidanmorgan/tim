@@ -45,7 +45,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     [Fact]
     public void FunnelScene_ExtractsExact72CollidersAndTwoMouthPortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://parts/scenes/funnel.tscn");
+        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/Funnel/funnel.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

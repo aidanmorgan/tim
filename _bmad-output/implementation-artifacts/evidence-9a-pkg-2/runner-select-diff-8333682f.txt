@@ -1,0 +1,95 @@
+Mode: Full
+Tier 3 required: yes
+path	CuriousContraptions.slnx	Full(Build)	build files
+path	CuriousContraptions.tests/BundleCatalogueParityTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/CSharpStaticGateTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/FunnelTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/PipeBend45Tests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/PipeBend90Tests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	CuriousContraptions.tests/StraightPipeTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/deletion-rg-proof.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/lifecycle-contract.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/mutants.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/ownership-oracles.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/red-bundle-tests.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/red-parity-tests.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/red-selection-tests.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/runner-select-diff-8333682f.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/scene-vs-canonical-probe.cs.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/scene-vs-canonical-probe.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/tier1-node.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/tier1-test.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-pkg-2/wire-contract.json	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/sprint-status.yaml	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/planning-artifacts/epics.md	NoBrowserImpact	_bmad-output/**
+path	docs/architecture/element-package-isolation.md	NoBrowserImpact	docs/**
+path	elements/Funnel/Funnel.csproj	Full(Build)	build files
+path	elements/Funnel/FunnelElementDeclaration.cs	Element	elements/<package>/**: funnel
+path	elements/Funnel/FunnelElementDeclaration.cs.uid	Element	elements/<package>/**: funnel
+path	elements/Funnel/funnel.tscn	Element	elements/<package>/**: funnel
+path	elements/Pipe/Pipe.csproj	Full(Build)	build files
+path	elements/Pipe/PipeElementDeclaration.cs	Element	elements/<package>/**: pipe
+path	elements/Pipe/PipeElementDeclaration.cs.uid	Element	elements/<package>/**: pipe
+path	elements/Pipe/pipe.tscn	Element	elements/<package>/**: pipe
+path	elements/PipeBend45/PipeBend45.csproj	Full(Build)	build files
+path	elements/PipeBend45/PipeBend45ElementDeclaration.cs	Element	elements/<package>/**: pipe_bend_45
+path	elements/PipeBend45/PipeBend45ElementDeclaration.cs.uid	Element	elements/<package>/**: pipe_bend_45
+path	elements/PipeBend45/pipe_bend_45.tscn	Element	elements/<package>/**: pipe_bend_45
+path	elements/PipeBend90/PipeBend90.csproj	Full(Build)	build files
+path	elements/PipeBend90/PipeBend90ElementDeclaration.cs	Element	elements/<package>/**: pipe_bend_90
+path	elements/PipeBend90/PipeBend90ElementDeclaration.cs.uid	Element	elements/<package>/**: pipe_bend_90
+path	elements/PipeBend90/pipe_bend_90.tscn	Element	elements/<package>/**: pipe_bend_90
+path	parts/catalog/funnel.tres	Element	parts/catalog/*.tres: funnel
+path	parts/catalog/pipe.tres	Element	parts/catalog/*.tres: pipe
+path	parts/catalog/pipe_bend_45.tres	Element	parts/catalog/*.tres: pipe_bend_45
+path	parts/catalog/pipe_bend_90.tres	Element	parts/catalog/*.tres: pipe_bend_90
+path	parts/scenes/funnel.tscn	Full(Unknown)	parts/scenes/*.tscn: no part resolves from this element path
+path	parts/scenes/pipe.tscn	Full(Unknown)	parts/scenes/*.tscn: no part resolves from this element path
+path	parts/scenes/pipe_bend_45.tscn	Full(Unknown)	parts/scenes/*.tscn: no part resolves from this element path
+path	parts/scenes/pipe_bend_90.tscn	Full(Unknown)	parts/scenes/*.tscn: no part resolves from this element path
+path	tools/BundleElements.Tests/PackageReferenceTests.cs	Full(Unknown)	unmatched path
+path	tools/E2eRunner.Tests/SelectionTests.cs	Full(RunnerItself)	tools/E2eRunner*/**
+path	tools/E2eRunner/ImpactRules.cs	Full(RunnerItself)	tools/E2eRunner*/**
+clock-master	full: CuriousContraptions.slnx (Build, build files)
+cat-017	full: CuriousContraptions.slnx (Build, build files)
+cat-023b	full: CuriousContraptions.slnx (Build, build files)
+cat-037	full: CuriousContraptions.slnx (Build, build files)
+cat-014	full: CuriousContraptions.slnx (Build, build files)
+anim-1a	full: CuriousContraptions.slnx (Build, build files)
+anim-1b	full: CuriousContraptions.slnx (Build, build files)
+anim-1c	full: CuriousContraptions.slnx (Build, build files)
+cat-023a	full: CuriousContraptions.slnx (Build, build files)
+cat-020	full: CuriousContraptions.slnx (Build, build files)
+capacity-9r	full: CuriousContraptions.slnx (Build, build files)
+cat-062	full: CuriousContraptions.slnx (Build, build files)
+cat-051-own-supply	full: CuriousContraptions.slnx (Build, build files)
+cat-052-two-plates	full: CuriousContraptions.slnx (Build, build files)
+cat-052-lamp	full: CuriousContraptions.slnx (Build, build files)
+capacity-9r5b	full: CuriousContraptions.slnx (Build, build files)
+tube-snapping	full: CuriousContraptions.slnx (Build, build files)
+cat-050-joined	full: CuriousContraptions.slnx (Build, build files)
+pkg-1	full: CuriousContraptions.slnx (Build, build files)
+cat-002	full: CuriousContraptions.slnx (Build, build files)
+cat-005	full: CuriousContraptions.slnx (Build, build files)
+cat-015a	full: CuriousContraptions.slnx (Build, build files)
+cat-015a-sidekick	full: CuriousContraptions.slnx (Build, build files)
+cat-015b	full: CuriousContraptions.slnx (Build, build files)
+cat-030	full: CuriousContraptions.slnx (Build, build files)
+cat-048a	full: CuriousContraptions.slnx (Build, build files)
+cat-048b	full: CuriousContraptions.slnx (Build, build files)
+cat-049	full: CuriousContraptions.slnx (Build, build files)
+cat-050	full: CuriousContraptions.slnx (Build, build files)
+cat-051	full: CuriousContraptions.slnx (Build, build files)
+cat-052	full: CuriousContraptions.slnx (Build, build files)
+cat-062b	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2a1	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2a2	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2a3	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2a4	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2b1	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2b2	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2b3	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2b4	full: CuriousContraptions.slnx (Build, build files)
+engine-core-2c	full: CuriousContraptions.slnx (Build, build files)
+palette-placement	full: CuriousContraptions.slnx (Build, build files)
+exit=0

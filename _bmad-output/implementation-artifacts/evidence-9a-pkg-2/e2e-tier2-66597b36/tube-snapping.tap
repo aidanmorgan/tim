@@ -1,0 +1,99 @@
+TAP version 13
+# Subtest: Story 9R.6: typed tube-mouth snapping
+    # Subtest: 1. Snap: an offset, turned pipe previews the gold joint without a command, joins exactly, and one Undo removes only it
+    ok 1 - 1. Snap: an offset, turned pipe previews the gold joint without a command, joins exactly, and one Undo removes only it
+      ---
+      duration_ms: 10184.633958
+      type: 'test'
+      ...
+    # Subtest: 2. Far and boundary: mouths 0.72 m and 0.52 m away keep the grid pose; 0.42 m snaps
+    ok 2 - 2. Far and boundary: mouths 0.72 m and 0.52 m away keep the grid pose; 0.42 m snaps
+      ---
+      duration_ms: 8115.2095
+      type: 'test'
+      ...
+    # Subtest: 3. Angled: a pipe turned 40° keeps the grid pose; turned 15° it snaps
+    ok 3 - 3. Angled: a pipe turned 40° keeps the grid pose; turned 15° it snaps
+      ---
+      duration_ms: 11466.853833
+      type: 'test'
+      ...
+    # Subtest: 4. Occupied: a third pipe offered at the joined mouth keeps its grid pose
+    ok 4 - 4. Occupied: a third pipe offered at the joined mouth keeps its grid pose
+      ---
+      duration_ms: 6032.497125
+      type: 'test'
+      ...
+    # Subtest: 5. Wrong bore: the Funnel wide inlet (bore 1.3) keeps the grid pose; its outlet snaps
+    ok 5 - 5. Wrong bore: the Funnel wide inlet (bore 1.3) keeps the grid pose; its outlet snaps
+      ---
+      duration_ms: 6217.5175
+      type: 'test'
+      ...
+    # Subtest: 6. Locked mover: dragging the level's locked receiver issues no command and moves nothing
+    ok 6 - 6. Locked mover: dragging the level's locked receiver issues no command and moves nothing
+      ---
+      duration_ms: 3248.472125
+      type: 'test'
+      ...
+    # Subtest: 7. Run/Pause: no placement while Running or Paused; snapping returns after Reset
+    ok 7 - 7. Run/Pause: no placement while Running or Paused; snapping returns after Reset
+      ---
+      duration_ms: 8217.269958
+      type: 'test'
+      ...
+    # Subtest: 8. Moved tube (D4): releasing a dragged pipe near a free mouth snaps it; one Undo returns it
+    ok 8 - 8. Moved tube (D4): releasing a dragged pipe near a free mouth snaps it; one Undo returns it
+      ---
+      duration_ms: 6065.375
+      type: 'test'
+      ...
+    # Subtest: 9. Reset and Save/Load: the joined placement survives the exact Reset snapshot and a reload + Load
+    ok 9 - 9. Reset and Save/Load: the joined placement survives the exact Reset snapshot and a reload + Load
+      ---
+      duration_ms: 7417.116625
+      type: 'test'
+      ...
+# straight→45°: 160 publications; entered 14, left 51; min speed 3.733 m/s
+    # Subtest: 10. A ball crosses a snapped straight→45° joint continuously
+    ok 10 - 10. A ball crosses a snapped straight→45° joint continuously
+      ---
+      duration_ms: 21166.444875
+      type: 'test'
+      ...
+# 45°→45°: 160 publications; entered 18, left 55; min speed 4.456 m/s
+    # Subtest: 11. A ball crosses a snapped 45°→45° joint continuously
+    ok 11 - 11. A ball crosses a snapped 45°→45° joint continuously
+      ---
+      duration_ms: 21765.359458
+      type: 'test'
+      ...
+# straight→90°: 160 publications; entered 14, left 61; min speed 3.652 m/s
+    # Subtest: 12. A ball crosses a snapped straight→90° joint continuously
+    ok 12 - 12. A ball crosses a snapped straight→90° joint continuously
+      ---
+      duration_ms: 21280.470542
+      type: 'test'
+      ...
+# Funnel outlet→pipe: 160 publications; entered 13, left 48; min speed 3.572 m/s
+    # Subtest: 13. A ball crosses a snapped Funnel outlet→pipe joint continuously
+    ok 13 - 13. A ball crosses a snapped Funnel outlet→pipe joint continuously
+      ---
+      duration_ms: 21668.631791
+      type: 'test'
+      ...
+    1..13
+ok 1 - Story 9R.6: typed tube-mouth snapping
+  ---
+  duration_ms: 157002.504833
+  type: 'suite'
+  ...
+1..1
+# tests 13
+# suites 1
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 157259.707875

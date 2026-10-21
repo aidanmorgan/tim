@@ -1,0 +1,33 @@
+M1 (9A.8 funnel colliders): ring-2 wall width 0.46 -> 0.47
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [19 ms]
+   Funnel.Colliders[16]: half-extents <0.2425, 0.025, 0.235> declared, radius 0 and MetreVector { X = 0.2426, Y = 0.025, Z = 0.23 } at runtime.
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 139 ms - CuriousContraptions.tests.dll (net10.0)
+
+M2 (9A.9 pipe parameter and colliders): default length 3.6 -> 3.7
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-afac8f6ac2e30208b/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [20 ms]
+   Pipe.Colliders[0]: half-extents <1.85, 0.025, 0.14> declared, radius 0 and MetreVector { X = 1.8, Y = 0.025, Z = 0.14 } at runtime.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [7 ms]
+   Pipe.Metadata.Parameters[0] (length): default 3.7 declared, 3.6 at runtime.
+Failed!  - Failed:     2, Passed:     6, Skipped:     0, Total:     8, Duration: 130 ms - CuriousContraptions.tests.dll (net10.0)
+
+M3 (9A.10 bend-45 colliders): row 1 rotation x 0.3822225 -> 0.3822226, and M2b (9A.9 pipe range): maximum length 8 -> 9 (separate tests)
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-afac8f6ac2e30208b/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [22 ms]
+   PipeBend45.Colliders[1]: rotation {X:0.3822226 Y:-0.0187774 Z:-0.0453326 W:0.9227667} declared, CanonicalRotation { X = 0.3822225, Y = -0.0187774, Z = -0.0453326, W = 0.9227667 } at runtime.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [8 ms]
+   Pipe.Metadata.Parameters[0] (length): the runtime refuses a declared bound.
+Failed!  - Failed:     2, Passed:     6, Skipped:     0, Total:     8, Duration: 136 ms - CuriousContraptions.tests.dll (net10.0)
+
+M4 (9A.11 bend-90 colliders): last end-rim offset z 0.8 -> 0.81, and M5 (scene move): Funnel ScenePath back to res://parts/scenes/funnel.tscn (separate tests)
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-afac8f6ac2e30208b/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [4 ms]
+Expected: "res://elements/Funnel/funnel.tscn"
+Actual:   "res://parts/scenes/funnel.tscn"
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [27 ms]
+   PipeBend90.Colliders[71]: offset <0.7029437, -1.6970563, 0.81> declared, MetreVector { X = 0.703, Y = -1.697, Z = 0.8 } at runtime.
+Failed!  - Failed:     2, Passed:     6, Skipped:     0, Total:     8, Duration: 149 ms - CuriousContraptions.tests.dll (net10.0)
+
+M6 (package isolation): PipeBend90.csproj references the sibling elements/Pipe
+  Failed CuriousContraptions.BundleElements.Tests.PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(package: "PipeBend90") [2 ms]
+Failed!  - Failed:     1, Passed:    21, Skipped:     0, Total:    22, Duration: 48 ms - BundleElements.Tests.dll (net10.0)

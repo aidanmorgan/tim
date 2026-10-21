@@ -183,6 +183,10 @@ public sealed class SelectionTests
     [InlineData("parts/catalog/counter.tres", "counter")]
     [InlineData("parts/scenes/clock.tscn", "clock")]
     [InlineData("elements/Springboard/springboard.tscn", "spring")]
+    [InlineData("elements/Funnel/funnel.tscn", "funnel")]
+    [InlineData("elements/Pipe/pipe.tscn", "pipe")]
+    [InlineData("elements/PipeBend45/pipe_bend_45.tscn", "pipe_bend_45")]
+    [InlineData("elements/PipeBend90/pipe_bend_90.tscn", "pipe_bend_90")]
     public void CatalogueAndScenesMapByContent(string path, string part) =>
         Assert.Equal(part, Assert.Single(Select([path]).Paths).Detail);
 

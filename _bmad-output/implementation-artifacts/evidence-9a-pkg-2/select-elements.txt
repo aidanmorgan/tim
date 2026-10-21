@@ -1,0 +1,12 @@
+elements/Funnel/FunnelElementDeclaration.cs
+elements/Funnel/funnel.tscn
+elements/Pipe/PipeElementDeclaration.cs
+elements/Pipe/pipe.tscn
+elements/PipeBend45/PipeBend45ElementDeclaration.cs
+elements/PipeBend45/pipe_bend_45.tscn
+elements/PipeBend90/PipeBend90ElementDeclaration.cs
+elements/PipeBend90/pipe_bend_90.tscn
+parts/catalog/funnel.tres
+parts/catalog/pipe.tres
+parts/catalog/pipe_bend_45.tres
+parts/catalog/pipe_bend_90.tres

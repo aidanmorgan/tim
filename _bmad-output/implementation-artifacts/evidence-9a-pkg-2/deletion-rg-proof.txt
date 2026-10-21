@@ -1,0 +1,30 @@
+PKG-2 deletion proof (21 Oct 2026), on the staged candidate tree.
+
+$ git ls-files parts/scenes/funnel.tscn parts/scenes/pipe.tscn parts/scenes/pipe_bend_45.tscn parts/scenes/pipe_bend_90.tscn
+(no output; exit 0)  -> the four scenes are gone from parts/scenes
+
+$ git diff -M --cached --stat -- elements parts/scenes
+ {parts/scenes => elements/Funnel}/funnel.tscn           | 0
+ {parts/scenes => elements/Pipe}/pipe.tscn               | 0
+ {parts/scenes => elements/PipeBend45}/pipe_bend_45.tscn | 0
+ {parts/scenes => elements/PipeBend90}/pipe_bend_90.tscn | 0
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+-> 100% renames (git mv), not copies; scene bytes unchanged (art parity; the 19 Oct tube art defects stay with Story 9R.19).
+
+$ rg -n 'parts/scenes/(funnel|pipe|pipe_bend_45|pipe_bend_90)\.tscn' --glob '!docs/*-sources.json' --glob '!docs/s001-source-baseline.json' --glob '!_bmad-output/**' .
+./docs/coverage/engine/catalogue-01.json:1347 / :2174 / :2214 / :2258        (frozen coverage capture)
+./docs/planning/elements/CAT-030-funnel.md:26, :66                          (readiness spec harvested at a6c914e)
+./docs/planning/elements/CAT-048-pipe.md:26, :85                            (readiness spec harvested at a6c914e)
+./docs/planning/elements/CAT-049-pipe_bend_45.md:27, :67                    (readiness spec harvested at a6c914e)
+./docs/planning/elements/CAT-050-pipe_bend_90.md:27, :70                    (readiness spec harvested at a6c914e)
+./docs/planning/elements/legacy-disposition.md:884, :901, :902, :903        (Epic 7 ledger at baseline a6c914e)
+-> 0 production, test, tool or current-catalogue hits. Every remaining hit is a historical record pinned to baseline a6c914e or a
+   frozen capture, left unchanged as PKG-1 left the CAT-004 row and catalogue-01.json (AGENTS.md: historical artifacts remain unchanged
+   evidence). The excluded *-sources.json and s001-source-baseline.json files are hashed historical manifests.
+   The production readers of the scene paths were the four parts/catalog/*.tres ext_resource lines, now res://elements/<Name>/<scene>.tscn;
+   the test readers were FunnelTests, StraightPipeTests, PipeBend45Tests and PipeBend90Tests, now loading the moved scenes.
+
+$ rg -n 'Assert.Equal\(\["balloon"' CuriousContraptions.tests/BundleCatalogueParityTests.cs
+68:        Assert.Equal(["balloon", "delay", "switch", "tennis"],
+-> funnel, pipe, pipe_bend_45 and pipe_bend_90 are gone from the parity guard's unpackaged set (8 -> 4 ids;
+   TheCatalogueIdsWithoutAPackageAreExactlyTheFourListed).

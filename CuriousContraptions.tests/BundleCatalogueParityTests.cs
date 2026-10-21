@@ -53,9 +53,9 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         }
     }
 
-    /// <summary>PKG-1 (Stories 9A.5, 9A.6 and 9A.12) packaged basket, bowling and spring; Story 9A.4 listed eleven.</summary>
+    /// <summary>PKG-2 (Stories 9A.8 to 9A.11) packaged funnel, pipe, pipe_bend_45 and pipe_bend_90; PKG-1 listed eight.</summary>
     [Fact]
-    public void TheCatalogueIdsWithoutAPackageAreExactlyTheEightListed()
+    public void TheCatalogueIdsWithoutAPackageAreExactlyTheFourListed()
     {
         var catalogue = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var file in DirAccess.GetFilesAt("res://parts/catalog").Where(file => file.EndsWith(".tres", StringComparison.Ordinal)))
@@ -65,7 +65,7 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         }
         var packaged = Packages().Select(package => package.Declaration.Metadata.Id).ToHashSet(StringComparer.Ordinal);
         Assert.Subset(catalogue, packaged);
-        Assert.Equal(["balloon", "delay", "funnel", "pipe", "pipe_bend_45", "pipe_bend_90", "switch", "tennis"],
+        Assert.Equal(["balloon", "delay", "switch", "tennis"],
             catalogue.Where(id => !packaged.Contains(id)));
     }
 
@@ -314,7 +314,10 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         catch (ArgumentException) { return false; }
     };
 
-    private static readonly string[] Canonical = ["ball_detector", "powered_gate", "pressure_plate", "counter", "clock", "latch"];
+    /// <summary>PKG-2: the funnel and bends compile from their canonical tables, which the worker's wire decode and every load use. Their
+    /// scene-extracted colliders, which placement on the main thread prefers, differ in rotation bits (filed to Story 9A.16).</summary>
+    private static readonly string[] Canonical = ["ball_detector", "powered_gate", "pressure_plate", "counter", "clock", "latch", "funnel",
+        "pipe_bend_45", "pipe_bend_90"];
 
     /// <summary>The runtime parameters a newly placed part starts from (MachineWorld.CaptureInstance) and the bounds its record admits.</summary>
     private static (string Key, ParameterUnit Unit, ParameterKind Kind, Lane Lane, float Default, Func<float, bool> Admits, string[] Options)[] Parameters(string id)
@@ -396,6 +399,11 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
                 ("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, spring.InitialCompression,
                     Admits(value => (spring with { InitialCompression = value }).Validate()), [])
             ],
+            "pipe" =>
+            [
+                ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, PipeLength.Default.Metres,
+                    Admits(value => new PipeLength(value).Validate()), [])
+            ],
             _ => []
         };
     }
@@ -417,7 +425,9 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         "lamp" => WorkshopInput.Lamp(Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "powered_gate" => WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(id)),
+        "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" =>
+            WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.For(id)),
         "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
         "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
