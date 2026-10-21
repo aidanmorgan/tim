@@ -3249,7 +3249,7 @@ So that the 150 campaign levels can be authored without engine code.
 
 ### Stories 9A.27–9A.43: one element per story onto the generic declared instance
 
-Each story converts one element from its engine record type to `WorkshopGenericInstance`, which carries an id, part id, pose, locked flag and typed parameters validated against the element's declared parameter schema. Pipe, both bends, Funnel and Powered Gate already use it (`engine/gpu/WorkshopInstances.cs:27`). The worker never resolves an element: the main thread resolves the bundle declaration, and the instance carries the declared capability payloads.
+Each story converts one element from its engine record type to `WorkshopGenericInstance`, which carries an id, part id, pose, locked flag and typed parameters validated against the element's declared parameter schema. Both bends, Funnel and Powered Gate already use it. Pipe still uses `WorkshopPipe`/`PipeLength`; its remaining generic-instance conversion is explicitly owned by final Story9A.45. The worker never resolves an element: the main thread resolves the bundle declaration, and the instance carries the declared capability payloads.
 
 Each story deletes, for its element:
 - the record type and its element-named settings records;
@@ -3625,6 +3625,7 @@ So that sizes, masses, timings and animations behave identically everywhere.
 *Deletes:*
 - *every element-named `PartId` constant (`engine/PartId.cs:20-44`);*
 - *the wholesale `Compile Include="../engine/gpu/*.cs"` and the `engine/PartId.cs` link in `CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj:28` and `CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj:28`;*
+- *remaining `WorkshopPipe`/`PipeLength`, its factory, codec/CaptureInstance/whitelist arms and obsolete callers/fixtures: convert Pipe to declared generic parameters while preserving geometry, joins, controls and lifecycle; no compatibility path;*
 - *any element-specific production code still found by the scan below.*
 
 As the owner,  
