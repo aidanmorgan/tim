@@ -9,5 +9,6 @@
     <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
     <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
     <ProjectReference Include="../../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+    <ProjectReference Include="../../CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
   </ItemGroup>
 </Project>

@@ -246,13 +246,13 @@ development_status:
 
   # ===== After 9-5: deletion lane and element lane alternate one for one =====
   # 20 (deletion): before 9-5b
-  9a-c-switch-impact-switch-conversion: review
+  9a-c-switch-impact-switch-conversion: done
   # merged into 9a-c-switch (21 Oct 2026)
-  9a-35-generic-instance-impact-switch: review
+  9a-35-generic-instance-impact-switch: done
   # merged into 9a-c-switch (21 Oct 2026) as its suite-first guard; threshold editor via the generic editor
-  9r-15-cat-063-impact-switch-suite: review
+  9r-15-cat-063-impact-switch-suite: done # native scoped Pass; Chrome qualification post-catalogue
   # 21 (element). Owner decision 18 Oct 2026 (open scheduling item b): Switch electrical mode before the Both gate.
-  9-5b-impact-switch-electrical-mode: backlog
+  9-5b-impact-switch-electrical-mode: review
   # 22 (deletion)
   9a-26-lessons-as-content-data: backlog
   # 23 (element)

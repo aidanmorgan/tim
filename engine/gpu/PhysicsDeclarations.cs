@@ -169,9 +169,7 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors => _contactLoadSensors;
     private readonly PrismaticConstraintDeclaration[] _prismatics;
     public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
-    private readonly SupplyRoute[] _supplyRoutes;
-    /// <summary>Compiled once: each supply route as indices into the sorted prismatic and electrical-source tables.</summary>
-    public ReadOnlySpan<SupplyRoute> SupplyRoutes => _supplyRoutes;
+    public CompiledSupplyGraph SupplyGraph { get; }
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
@@ -202,7 +200,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default,
         ReadOnlySpan<ElectricalSourceDeclaration> electricalSources = default, ReadOnlySpan<ElectricalStorageBinding> electricalBindings = default,
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics = default,
-        ReadOnlySpan<SupplyRouteDeclaration> supplyRoutes = default,
+        ReadOnlySpan<SupplyNodeDeclaration> supplyNodes = default,
+        ReadOnlySpan<SupplyEdge> supplyEdges = default,
         ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
@@ -312,26 +311,7 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
-        var routed = new HashSet<int>();
-        // Per kind: a direct route names no switch; a switched route names a static switch. Still one route per prismatic.
-        bool SwitchAdmitted(SupplyRouteDeclaration route) => route.Kind switch
-        {
-            SupplyRouteKind.Direct => route.Switch == default,
-            SupplyRouteKind.Switched => bodyMap.TryGetValue(route.Switch, out var body) && body.Motion == RigidMotionKind.Static,
-            _ => false,
-        };
-        _supplyRoutes = new SupplyRoute[supplyRoutes.Length];
-        for (var i = 0; i < supplyRoutes.Length; i++)
-        {
-            var route = supplyRoutes[i];
-            var prismatic = Array.FindIndex(_prismatics, joint => joint.Id == route.Prismatic);
-            var source = -1;
-            for (var s = 0; s < Electrical.Sources.Length; s++) if (Electrical.Sources[s].Id == route.Source) source = s;
-            if (prismatic < 0 || source < 0 || !routed.Add(prismatic) || !SwitchAdmitted(route))
-                throw new ArgumentException("A supply route requires an admitted prismatic and source, a defined kind, no switch when " +
-                    "direct and a static switch when switched, once per prismatic.");
-            _supplyRoutes[i] = new(prismatic, source, route.Kind, route.Switch);
-        }
+        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, bodies);
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();

@@ -284,10 +284,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             Assert.Equal((Up, 1f - 1e-6f, .0001f), (row.LocalNormal, row.MinimumAlignment, row.MaximumGap));
             Assert.Equal(instance.MinimumMass, row.MinimumMass);
         }
-        var route = Assert.Single(scene.SupplyRoutes.ToArray());
-        Assert.Equal((SupplyRouteKind.Switched, plate.Id), (route.Kind, route.Switch));
-        Assert.Equal(battery.Id, scene.Electrical.Sources[route.Source].Owner);
-        Assert.Equal(gate.Id, scene.Prismatics[route.Prismatic].BodyA);
+        Assert.Contains(scene.SupplyGraph.Nodes.ToArray(),node=>node.Owner==plate.Id && node.Kind==SupplyNodeKind.Contact);
+        Assert.Equal(battery.Id,scene.Electrical.Sources[0].Owner);
+        Assert.Equal(gate.Id,scene.Prismatics[0].BodyA);
         // The deleted drag encoding: the blade declares no drag whatever feeds it.
         Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
     }
@@ -573,12 +572,12 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         Assert.Equal(ActivationNodeKind.ContactLoadSource, Assert.Single(network.Nodes.ToArray(), node => node.Owner == plate.Id).Kind);
         var row = Assert.Single(scene.ContactLoadSensors.ToArray());
-        var route = Assert.Single(scene.SupplyRoutes.ToArray());
+        var prismatic=Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate.Id);
         var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         ActivationCheckpoint Step(ulong tick, ContactLoadPhase phase, float mass) => network.Consume(state.Activations, state.Timers, [],
             new(tick), [], memory: state.Memory, contactLoads: [new(row.Id, row.Frame, row.Face, mass, phase)]);
-        bool Next(ActivationCheckpoint committed) => PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length,
-            new([ElectricalEnable.Enabled]), owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[route.Prismatic];
+        bool Next(ActivationCheckpoint committed) => PhysicsTickInputs.Compose(scene.SupplyGraph, scene.Prismatics.Length,
+            new([ElectricalEnable.Enabled]), owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[prismatic];
         ActivationLatch Level(ActivationCheckpoint committed)
         {
             for (var i = 0; i < committed.Activations.Count; i++) if (committed.Activations[i].Owner == plate.Id) return committed.Activations[i];
@@ -819,7 +818,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var network = WorkshopActivationCompiler.Compile(construction);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var row = Assert.Single(scene.ContactLoadSensors.ToArray());
-        var route = Assert.Single(scene.SupplyRoutes.ToArray());
+        var prismatic=Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate.Id);
         var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         var trace = new List<(bool, bool, bool)>();
         for (var i = 0; i < loaded.Length; i++)
@@ -827,8 +826,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             state = network.Consume(state.Activations, state.Timers, [], new((ulong)i + 1), [], memory: state.Memory,
                 contactLoads: [new(row.Id, row.Frame, row.Face, loaded[i] ? 1f : 0f, loaded[i] ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
             var committed = state;
-            var next = PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length, new([ElectricalEnable.Enabled]),
-                owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[route.Prismatic];
+            var next = PhysicsTickInputs.Compose(scene.SupplyGraph, scene.Prismatics.Length, new([ElectricalEnable.Enabled]),
+                owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[prismatic];
             trace.Add((network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id), Latched(state.Activations, lamp.Id), next));
         }
         return trace;

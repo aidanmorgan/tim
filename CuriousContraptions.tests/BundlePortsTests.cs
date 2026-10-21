@@ -107,7 +107,9 @@ public sealed class BundlePortsTests
             Electrical(WorkshopSocket.Supply, Out, 1.18f, -.08f, 0f)], new(1, 0, 0)),
         ["ramp"] = ([], new(1, 0, 0)),
         ["spring"] = ([], new(2, 1, 1)),
-        ["switch"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, .45f, 0f, .4f)], new(1, 0, 0)),
+        ["switch"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, .45f, 0f, .4f),
+            Electrical(WorkshopSocket.PowerIn, In, -.58f, 0f, 0f),
+            Electrical(WorkshopSocket.Supply, Out, .58f, 0f, 0f)], new(1, 0, 0)),
         ["wall"] = ([], new(1, 0, 0)),
     };
 

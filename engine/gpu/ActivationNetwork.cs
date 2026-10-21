@@ -95,6 +95,7 @@ public sealed class ActivationNetwork
 {
     private readonly ActivationNodeDeclaration[] _nodes;
     private readonly ActivationEdge[] _edges;
+    private readonly System.Collections.Generic.HashSet<GpuBodyId> _contacts;
     private readonly ActivationTimerDeclaration[] _timers;
     private readonly PassageSensorDeclaration[] _passageSensors;
     private readonly uint _substeps;
@@ -114,11 +115,15 @@ public sealed class ActivationNetwork
     public ReadOnlySpan<PassageSensorDeclaration> PassageSensors => _passageSensors;
 
     public ActivationNetwork(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
-        uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default)
+        uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default,
+        ReadOnlySpan<GpuBodyId> contacts = default)
     {
         _ = ActivationTime.Boundary(new(0), substeps); _substeps = substeps;
         // Owner decision, 20 Oct 2026: no activation-slot limit, and (Story 9R.5b) no instance or connection bound.
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
+        _contacts = new(contacts.ToArray());
+        if (_contacts.Count != contacts.Length || _contacts.Any(owner => !_nodes.Any(node => node.Owner == owner)))
+            throw new ArgumentException("Declared contact must own an admitted activation state.");
         _passageSensors = passageSensors.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
         _memorySlots = new int[_nodes.Length];
@@ -238,11 +243,12 @@ public sealed class ActivationNetwork
     public bool ContactClosed(PhysicsActivationRead values, PhysicsTimerRead timers, GpuBodyId owner)
     {
         ValidatePopulation(values, timers);
+        if (!_contacts.Contains(owner)) throw new ArgumentException("Owner has no declared supplied contact.");
         for (var i = 0; i < _timers.Length; i++)
             if (_nodes[Slot(_timers[i].Node)].Owner == owner && _timers[i].Completion == TimerCompletionPolicy.Rearm)
                 return timers[i].Phase == ActivationTimerPhase.Counting;
         for (var i = 0; i < _nodes.Length; i++)
-            if (_nodes[i].Owner == owner && _nodes[i].Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.Counter or ActivationNodeKind.ContactLoadSource)
+            if (_nodes[i].Owner == owner)
                 return values[i].Phase == ActivationPhase.Latched;
         throw new ArgumentException("Switched contact not found for owner.");
     }
@@ -857,35 +863,10 @@ public static class WorkshopActivationCompiler
                     ReleaseHoldTicks: WorkshopPressurePlate.ReleaseHoldTicks(construction.Settings.Simulation)));
             else if (instance is WorkshopClock clock)
             {
-                GpuBodyId powerSource = default;
-                foreach (var link in construction.Connections)
-                {
-                    if (link.Domain == WorkshopConnectionDomain.Electrical && link.Target == clock.Id && link.Input == WorkshopSocket.PowerIn)
-                    {
-                        if (construction.Instances.OfType<WorkshopBattery>().Any(b => b.Id == link.Source))
-                        {
-                            powerSource = link.Source;
-                            break;
-                        }
-                        var upstream = link.Source;
-                        while (upstream != default)
-                        {
-                            var battery = construction.Instances.OfType<WorkshopBattery>().FirstOrDefault(b => b.Id == upstream);
-                            if (battery.Id.Value != 0)
-                            {
-                                powerSource = battery.Id;
-                                break;
-                            }
-                            var nextUpstream = construction.Connections
-                                .Where(c => c.Domain == WorkshopConnectionDomain.Electrical && c.Target == upstream && c.Input == WorkshopSocket.PowerIn)
-                                .Select(c => c.Source)
-                                .FirstOrDefault();
-                            if (nextUpstream == default || nextUpstream == upstream) break;
-                            upstream = nextUpstream;
-                        }
-                        break;
-                    }
-                }
+                var sources=SupplyTopology.Create(construction, DeclaredPhysics.Of).UpstreamSources(clock.Id);
+                if(sources.Length>1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+                    "This source-accounted input requires one upstream source.");
+                var powerSource=sources.Length==1?sources[0]:default;
                 var first = WorkshopPhysicsCompiler.PartIdentities(clock.Id);
                 var colliderId = new GpuColliderId(first + 1);
                 var intervalTicks = (uint)clock.Ticks(construction.Settings.Simulation);
@@ -895,6 +876,8 @@ public static class WorkshopActivationCompiler
         foreach (var link in construction.Connections)
             if (link.Domain == WorkshopConnectionDomain.Activation) edges.Add(new(new(link.Source.Value), new(link.Target.Value), link.Input));
         return new(nodes.ToArray(), edges.ToArray(), new WorkshopGpuProfile(construction.Settings.Simulation,
-            construction.Settings.Physical, new(1)).Substeps, passageSensors.ToArray());
+            construction.Settings.Physical, new(1)).Substeps, passageSensors.ToArray(),
+            construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
+                CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance=>instance.Id).ToArray());
     }
 }

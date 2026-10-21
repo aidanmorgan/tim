@@ -3,12 +3,13 @@ using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Abstractions.Signal;
+using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Elements.ImpactSwitch;
 
 /// <summary>The Impact Switch (CAT-063): a static base and button; a qualifying impact presses the button and sends one activation.
-/// The trigger threshold is a typed parameter with the runtime's default and admitted range. Story 9.5b adds its electrical mode.</summary>
-public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContactTriggerElement, ISceneGeometryElement
+/// Its latched contact passes independently supplied electrical power; activation never creates supply.</summary>
+public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContactTriggerElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
@@ -22,7 +23,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
         Id: "switch",
         Category: ElementCategory.Power,
         DisplayName: "Impact switch",
-        Description: "A qualifying impact presses the button and sends one activation to connected signal parts.",
+        Description: "A qualifying impact sends one activation and closes the independently supplied electrical contact.",
         Color: new(0.94f, 0.43f, 0.33f, 1f),
         PaletteOrder: 3,
         IconPath: "res://elements/ImpactSwitch/icon.svg",
@@ -36,7 +37,9 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ)
+        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ),
+        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new(-.58f, 0f, 0f), -Vector3.UnitX),
+        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new(.58f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The base, then the button.</summary>
@@ -52,7 +55,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
         new(SimulationEventKind.TriggerActivated, "Speed:f32;Threshold:f32")
     ];
 
-    public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Signal;
+    public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Signal | SimulationDomain.Electrical;
 
     public KinematicMode KinematicMode => KinematicMode.Static;
 
@@ -64,6 +67,9 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
         Gravity: Vector3.Zero);
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
+
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
+    public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("switched_contact", ElectricalRole.Switch, 12f, .05f, 0f, 100f)];
 
     public SignalContactDescriptor Contact => new("trigger_threshold");
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
