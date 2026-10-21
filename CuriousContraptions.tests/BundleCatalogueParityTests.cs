@@ -53,9 +53,10 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         }
     }
 
-    /// <summary>PKG-2 (Stories 9A.8 to 9A.11) packaged funnel, pipe, pipe_bend_45 and pipe_bend_90; PKG-1 listed eight.</summary>
+    /// <summary>PKG-3 (Stories 9A.7 and 9A.13) packaged delay and switch; PKG-2 listed four. Tennis and Balloon are offered but not
+    /// constructible: Story 9A.14 deletes them from the catalogue and Story 12.1 delivers them as packages.</summary>
     [Fact]
-    public void TheCatalogueIdsWithoutAPackageAreExactlyTheFourListed()
+    public void TheCatalogueIdsWithoutAPackageAreExactlyTennisAndBalloon()
     {
         var catalogue = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var file in DirAccess.GetFilesAt("res://parts/catalog").Where(file => file.EndsWith(".tres", StringComparison.Ordinal)))
@@ -65,7 +66,7 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         }
         var packaged = Packages().Select(package => package.Declaration.Metadata.Id).ToHashSet(StringComparer.Ordinal);
         Assert.Subset(catalogue, packaged);
-        Assert.Equal(["balloon", "delay", "switch", "tennis"],
+        Assert.Equal(["balloon", "tennis"],
             catalogue.Where(id => !packaged.Contains(id)));
     }
 
@@ -404,6 +405,16 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
                 ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, PipeLength.Default.Metres,
                     Admits(value => new PipeLength(value).Validate()), [])
             ],
+            "delay" =>
+            [
+                ("duration_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Half, (float)DelayDuration.Default.Seconds.Value,
+                    Admits(value => WorkshopInput.Delay(Owner, 0, 3, 0, 0, 0, 0, 1, new DelayDuration(new((Half)value)))), [])
+            ],
+            "switch" =>
+            [
+                ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Half, (float)ContactTriggerSettings.Default.Threshold.Value,
+                    Admits(value => WorkshopInput.Switch(Owner, 0, 3, 0, 0, 0, 0, 1, new ContactTriggerSettings(new((Half)value)))), [])
+            ],
             _ => []
         };
     }
@@ -432,6 +443,8 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
         "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "switch" => WorkshopInput.Switch(Owner, 0, 3, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
+        "delay" => WorkshopInput.Delay(Owner, 0, 3, 0, 0, 0, 0, 1, DelayDuration.Default),
         _ => throw new ArgumentException($"No placement for packaged part '{id}'.")
     };
 

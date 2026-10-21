@@ -1,0 +1,30 @@
+== M1 9A.7 parameter: DelayBox duration_seconds Default 1f -> 1.01f
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [7 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 141 ms - CuriousContraptions.tests.dll (net10.0)
+== M2 9A.7 range: DelayBox duration_seconds Maximum 12f -> 12.5f (M1 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [7 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 136 ms - CuriousContraptions.tests.dll (net10.0)
+== M3 9A.7 colliders: DelayBox foot offset y -0.7f -> -0.75f (M2 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [12 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 133 ms - CuriousContraptions.tests.dll (net10.0)
+== M4 9A.7 ports: DelayBox ActivationIn x -.72f -> -.71f (M3 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimePortsInOrder [7 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 140 ms - CuriousContraptions.tests.dll (net10.0)
+== M5 scene move: DelayBox ScenePath back to res://parts/scenes/delay.tscn (M4 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [5 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 143 ms - CuriousContraptions.tests.dll (net10.0)
+== M6 9A.13 parameter: ImpactSwitch trigger_threshold Default 0.8f -> 0.85f (M5 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [7 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 136 ms - CuriousContraptions.tests.dll (net10.0)
+== M7 9A.13 colliders: ImpactSwitch button half-height 0.09f -> 0.1f (M6 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [18 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 138 ms - CuriousContraptions.tests.dll (net10.0)
+== M8 9A.13 metadata: ImpactSwitch Category Power -> Control (M7 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [4 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 154 ms - CuriousContraptions.tests.dll (net10.0)
+== M9 isolation: ImpactSwitch.csproj gains an Abstractions.Electrical reference it does not implement (M8 reverted)
+  Failed CuriousContraptions.BundleElements.Tests.PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(package: "ImpactSwitch") [2 ms]
+Failed!  - Failed:     1, Passed:    24, Skipped:     0, Total:    25, Duration: 53 ms - BundleElements.Tests.dll (net10.0)
+== M10 9A.13 body: ImpactSwitch KinematicMode Static -> Dynamic (M9 reverted)
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryMechanicalPackageDeclaresTheCompiledBodyMotionMassDragAndGravity [52 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 153 ms - CuriousContraptions.tests.dll (net10.0)

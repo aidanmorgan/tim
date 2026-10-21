@@ -36,6 +36,9 @@ public sealed class SelectionTests
     [InlineData("parts/catalog/ball.tres", "ball")]
     [InlineData("elements/SignalLamp/SignalLampElementDeclaration.cs", "lamp")]
     [InlineData("parts/catalog/basket.tres", "basket")]
+    // PKG-3: the moved scenes map to their parts by content; their primary suites are cat-022 (Story 9.5a) and cat-063 (C-Switch).
+    [InlineData("elements/DelayBox/delay.tscn", "delay")]
+    [InlineData("elements/ImpactSwitch/switch.tscn", "switch")]
     public void ElementWithoutAPrimarySuiteIsATypedError(string path, string part)
     {
         var refusal = Assert.Throws<RunnerException>(() => Select([path]));
@@ -102,7 +105,7 @@ public sealed class SelectionTests
         var selection = Select(["tools/workshop-console.mjs"]);
         Assert.Equal(["anim-1a", "capacity-9r", "capacity-9r5b", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
             "cat-048b", "cat-049", "cat-050", "cat-050-joined", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
-            "engine-core-2b4", "engine-core-2c", "pkg-1", "tube-snapping"], Names(selection));
+            "engine-core-2b4", "engine-core-2c", "pkg-1", "pkg-3", "tube-snapping"], Names(selection));
     }
 
     private static readonly Dictionary<string, FullReason> FullPaths = new(StringComparer.Ordinal)
@@ -144,8 +147,8 @@ public sealed class SelectionTests
     {
         var selection = Select(["ui/WorkshopBenchPlacement.cs", "engine/PartRegistry.cs"]);
         // Story 9R.6: tube-snapping also exercises bench placement (the typed mouth snap, engine/TubeMouthSnap.cs).
-        // PKG-1: pkg-1 places its three packaged parts from the palette onto the bench.
-        Assert.Equal(["engine-core-2a1", "engine-core-2b1", "palette-placement", "pkg-1", "tube-snapping"], Names(selection));
+        // PKG-1 and PKG-3: pkg-1 and pkg-3 place their packaged parts from the palette onto the bench.
+        Assert.Equal(["engine-core-2a1", "engine-core-2b1", "palette-placement", "pkg-1", "pkg-3", "tube-snapping"], Names(selection));
         Assert.Contains("palette-placement\tarea: Palette (engine/PartRegistry.cs); area: BenchPlacement (ui/WorkshopBenchPlacement.cs)",
             selection.Suites.Select(suite => suite.ReasonLine));
     }

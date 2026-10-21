@@ -1,0 +1,3 @@
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/ImpactSwitch/switch.tscn", part: "switch") [254 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/DelayBox/delay.tscn", part: "delay") [241 ms]
+Failed!  - Failed:     2, Passed:     8, Skipped:     0, Total:    10, Duration: 2 s - E2eRunner.Tests.dll (net10.0)

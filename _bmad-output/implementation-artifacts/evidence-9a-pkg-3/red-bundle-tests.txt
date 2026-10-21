@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.BundleElements.Tests.PackageReferenceTests.TheDelayBoxAndImpactSwitchPackagesExist [1 ms]
+Failed!  - Failed:     1, Passed:    22, Skipped:     0, Total:    23, Duration: 49 ms - BundleElements.Tests.dll (net10.0)

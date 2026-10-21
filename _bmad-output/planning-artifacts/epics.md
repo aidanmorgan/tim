@@ -2186,7 +2186,7 @@ These stories implement the [Delivery order](#delivery-order-coordinator-21-oct-
 - **And** the review appends the dated addenda that re-verify Stories 6.6, 6.7, 6.9, 6.10 and 6.11 (reopened-record closure).
 
 ### Story PKG-3: Delay Box and Impact Switch Element Packages (9A.7 + 9A.13)
-*Status: Backlog. Position 8.*
+*Status: Review (21 Oct 2026; [spec](../implementation-artifacts/spec-9a-pkg-3-delay-switch-packages.md)). Position 8.*
 
 *Depends on: Story 9A.4.*
 
@@ -2622,7 +2622,7 @@ So that its heavy-ball material lives with the element and not in an engine swit
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.7: Delay Box Element Package (CAT-022, id `delay`)
-*Status: Backlog. Merged into PKG-3 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-3. Merged into PKG-3 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2730,7 +2730,7 @@ So that its stiffness, damping and precompression are declared parameters.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.13: Impact Switch Element Package (CAT-063, id `switch`)
-*Status: Backlog. Merged into PKG-3 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-3. Merged into PKG-3 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 

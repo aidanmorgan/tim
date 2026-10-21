@@ -198,11 +198,11 @@ development_status:
   # merged into 9a-pkg-2 (21 Oct 2026)
   9a-11-pipe-bend-90-element-package: done
   # 8
-  9a-pkg-3-delay-switch-packages: backlog
+  9a-pkg-3-delay-switch-packages: review
   # merged into 9a-pkg-3 (21 Oct 2026)
-  9a-7-delay-box-element-package: backlog
+  9a-7-delay-box-element-package: review
   # merged into 9a-pkg-3 (21 Oct 2026)
-  9a-13-impact-switch-element-package: backlog
+  9a-13-impact-switch-element-package: review
   # 9
   9a-14-bundle-sole-catalogue-source: backlog
   # merged into 9a-14 (21 Oct 2026)

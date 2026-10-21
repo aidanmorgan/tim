@@ -1,0 +1,12 @@
+tools/e2e/pkg-3.test.ts
+tools/e2e/anim-1b.test.ts
+tools/e2e/anim-1c.test.ts
+tools/e2e/cat-015a-sidekick.test.ts
+tools/e2e/cat-015b.test.ts
+tools/e2e/cat-037.test.ts
+tools/e2e/cat-062.test.ts
+tools/e2e/cat-062b.test.ts
+tools/e2e/engine-core-2c.test.ts
+tools/e2e/cat-052-lamp.test.ts
+tools/e2e/capacity-9r5b.test.ts
+tools/e2e/palette-placement.test.ts
