@@ -61,3 +61,12 @@ CI39633245604 failed2013/2014 because the historical catch ratchet rejected the 
 Requested negative control changed the verifier catch outside DecodeParameters from OverflowException to ArgumentException. The source-inspecting ratchet failed1/1 as intended in42ms (422573,73759) using matching binaries without rebuild. Owner restored exact runtime source; reviewer confirmed no unstaged runtime difference and unchanged staged tree. No repeated positive run is needed because relevant inputs are restored exactly.
 
 Normal protected forward publication is approved. Terminal delivery remains publication-pending until the corrected remote identity, CI and deployment/artifact checks succeed; browser qualification remains deferred.
+
+
+## Terminal publication review — 22 October 2026
+
+**Scoped terminal Pass.** Origin/main is `e923349524ae38295054e08fcc2c23175719d388`, tree `27495495d4fd82b3a797136bc31496b667eef95c`. Independent published-input comparison (3bb623) confirms the approved correction differs only by its authorized review receipt; production runtime inputs remain identical to `beacc787f6b73572dddb5eae66c23dfd5b63667a`.
+
+Reviewer independently queried [CI39635003385](https://github.com/aidanmorgan/tim/actions/runs/39635003385), its original test log, artifact, deployment and origin/main (415d6c). The workflow completed successfully for the exact commit. C# game tests passed **2014/2014, zero failed, zero skipped**, in1m29s. Pages artifact `12362090915` is unexpired,77,557,554bytes, digest `sha256:b6b8f05903a1fdfa1d556e5d3c160e526c27f37a89a2ca4a3142680259ee58d9`, attached to that exact run/SHA. Deployment `7231650718` names the same SHA and succeeded at2026-10-21T16:41:06Z at https://aidanmorgan.github.io/tim/.
+
+All enumerated publication-dependent checks are satisfied. The scoped Wall implementation/publication is complete; common collider ABI9A.44 and post-catalogue browser qualification remain explicitly pending as stated above. No Chrome or local test campaign was repeated for publication. Retain this terminal receipt for the next normal game publication, without a separate administrative commit/CI run.
