@@ -146,3 +146,35 @@ During initial cumulative E2E execution, `cat-002.test.ts` failed when selecting
 Story 6.10 has been rigorously reviewed under adversarial principles. The 90° hollow torus geometry of CAT-050 operates smoothly without bespoke solver hacks, level `quarter_bend` completes with exact physical determinism, all legacy remnants are purged, static analysis is clean, and 100% test pass rates are verified across both the unit test suite and real Chrome Playwright suites.
 
 **Final Scoped Verdict: PASS**
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Murdoch-19, PKG-2 closing review)
+
+*Added under the reopened-record closure (epics.md, Delivery order; Story 9R.18's evidence ACs). The text above is unchanged.*
+
+**Independence.** Murdoch-19 is not the implementer or the original reviewer of Story 6.10. Murdoch-19 also did not implement Stories 9R.1, 9R.6 and 9R.7 (the repairs) or PKG-2 (Amelia-18).
+
+**Fresh evidence.** All paths are relative to `_bmad-output/implementation-artifacts/`.
+- Commit `d4195fb0`, a clean detached copy with an empty `git status`.
+- Bundle identity `c389a3b7c9660e7199ddd8cd938d52b0457baa37f2ac1d28a33ff598c3a03e14`, the same at start and end.
+- Chrome 155.0.8059.86. Run `20261021T020207Z-92416`, from 2026-10-21T02:02:07Z to 02:18:35Z.
+- Logs: `evidence-9a-pkg-2-review/e2e-tier2-d4195fb0/summary.txt`, `cat-050.tap`, `cat-050-joined.tap` and `tube-snapping.tap`.
+- Tier 1: `evidence-9a-pkg-2-review/tier1/test.log`, 2229/2229. The commit and timestamps are in `evidence-9a-pkg-2-review/tier1/identity.txt` (`d4195fb0`, 2026-10-21T01:49:15Z to 01:52:00Z).
+
+**Claims from the retro-verification (§D and the 6.10 table), with corrections.**
+
+| Original claim / AC | Retro class | Fresh result | Class now |
+| --- | --- | --- | --- |
+| `quarter_bend` solved through real UI controls | W | `cat-050.tap`: "ok 3 - 3. Solved run: pipe_bend_90 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED" | P |
+| `joined_pipe` solved | C (no level, no test) | Story 9R.7. `cat-050-joined.tap`: "ok 2 - 2. Solve: a 2 m pipe tilted downhill and snapped to the bend delivers the ball; exactly one solve" | P |
+| Straight/bend joins succeed | C (no snapping) | Story 9R.6. `tube-snapping.tap`: "ok 12 - 12. A ball crosses a snapped straight→90° joint continuously" | P |
+| Missing-connection control delivers nothing | P | `cat-050.tap` "ok 2 - 2. Negative control: without placing pipe_bend_90, ball falls straight to floor, missing receiver (goal not solved)"; `cat-050-joined.tap` "ok 4 - 4. Unsnapped at Precise: released 0.72 m off the joint, the ball leaves the route and the goal stays unsolved" and "ok 5 - 5. Default length at Precise: a 3.6 m pipe snapped to the bend misses the drop line" | P |
+| Rotated, oversize and rim controls deliver nothing | U | **Still untested as delivery controls.** tube-snapping test 3 proves only that a rotated pipe does not snap. No catalogue ball exceeds the bore. | U |
+| Depth-error result (Forgiving/Balanced succeed where Precise fails) via nudging | D | Owned by **Story 15.0** (owner, 18 Oct 2026); CAT-050 stays open until then | D → 15.0 |
+| Common bore and typed mouth geometry, with matching collars, rails and icon | U | The bore and mouths are proven by the 90° joint crossing and by the bundle parity (the canonical rows equal the declaration bit for bit; review-9a-pkg-2). The collars, rails and icon are not asserted (art repairs 9R.19–9R.22). | W |
+| "Reset restoration restores exact starting poses" (line 111; §D: no assertion) | W | "ok 4 - 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again"; Save/Load "ok 5"; joined: "ok 3 - 3. Run/Reset and Save/Load: Reset is exact, a second Run solves; Load restores pose, length and joint" | P |
+| "anvil 0 warnings" (§D X1) | no C# signal | The C# static gate passes 123/123 | P |
+| `cat-050.test.ts` passes 100% in Chrome | unverifiable | 5/5, and cat-050-joined 6/6, both observation Clean | P |
+
+**Fresh verdict: Incomplete.** Still unproven: the rotated, oversize and rim delivery controls, and the collar, rail and icon art. None has an owning story yet (review-9a-pkg-2, F15-8). The depth-error clause stays owned by Story 15.0. Story 6.10 stays `in-progress`.

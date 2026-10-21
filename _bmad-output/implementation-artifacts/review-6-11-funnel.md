@@ -132,3 +132,34 @@ Executed against active preview server `http://127.0.0.1:8060/`:
 Story 6.11 has been rigorously reviewed under adversarial principles. The hollow tapered frustum geometry of CAT-030 operates smoothly without bespoke solver hacks, wide inlet gathering and joined pipe transitions complete with physical determinism, all legacy remnants are purged, static analysis is clean, and 100% test pass rates are verified across both the unit test suite and real Chrome Playwright suites.
 
 **Final Scoped Verdict: PASS**
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Murdoch-19, PKG-2 closing review)
+
+*Added under the reopened-record closure (epics.md, Delivery order; Story 9R.18's evidence ACs). The text above is unchanged.*
+
+**Independence.** Murdoch-19 is not the implementer or the original reviewer of Story 6.11. Murdoch-19 also did not implement Stories 9R.1 and 9R.6 (the repairs) or PKG-2 (Amelia-18).
+
+**Fresh evidence.** All paths are relative to `_bmad-output/implementation-artifacts/`.
+- Commit `d4195fb0`, a clean detached copy with an empty `git status`.
+- Bundle identity `c389a3b7c9660e7199ddd8cd938d52b0457baa37f2ac1d28a33ff598c3a03e14`, the same at start and end.
+- Chrome 155.0.8059.86. Run `20261021T020207Z-92416`, from 2026-10-21T02:02:07Z to 02:18:35Z.
+- Logs: `evidence-9a-pkg-2-review/e2e-tier2-d4195fb0/summary.txt`, `cat-030.tap` and `tube-snapping.tap`.
+- Tier 1: `evidence-9a-pkg-2-review/tier1/test.log`, 2229/2229. The commit and timestamps are in `evidence-9a-pkg-2-review/tier1/identity.txt` (`d4195fb0`, 2026-10-21T01:49:15Z to 01:52:00Z).
+
+**Claims from the retro-verification (§D and the 6.11 table), with corrections.**
+
+| Original claim / AC | Retro class | Fresh result | Class now |
+| --- | --- | --- | --- |
+| Narrow outlet snapped to a straight pipe or bend ("Funnel outlet positioned above straight pipe", test 5) | C (no snapping; hand-stacked) | Story 9R.6. `cat-030.tap`: "ok 5 - 5. Joined pipe route: a straight pipe snapped to the Funnel outlet carries the ball smoothly from funnel into tube" (it asserts the joint, and that the radial position stays inside each bore); `tube-snapping.tap`: "ok 13 - 13. A ball crosses a snapped Funnel outlet→pipe joint continuously" and "ok 5 - 5. Wrong bore: the Funnel wide inlet (bore 1.3) keeps the grid pose; its outlet snaps". A funnel-to-bend join is not exercised. | P (pipe); U (bend) |
+| Gathers loosely aimed balls, including off-centre, fast and rotated entries | W (0.70 m where the spec says 0.75; no fast or rotated case) | Centred "ok 3" and off-centre "ok 4 - 4. Off-center drop: Ball dropped at +0.70 m off-axis gathers into funnel without snagging and exits outlet". **Still no fast or rotated entry, and still 0.70 m.** | W |
+| No attraction or scripted transport | W (inspection) | The funnel is now a declaration-only package (static body, no events, no parameters), and the worker builds it from `WorkshopCanonicalColliders.For("funnel")`. No element code path exists (review-9a-pkg-2). Still inspection-grade. | W |
+| An outside drop is blocked by the solid shell | W (`px > 3.0` only) | "ok 2 - 2. Negative control: Ball dropped on outer shell deflects/bounces without entering bore", with the same assertion | W |
+| Inlet, wall, outlet and rim contacts and oversize payloads qualified; mesh and contact geometry match | U | **Still unqualified.** The physics uses the canonical frustum, which is geometrically correct. The scene's `col_*` proxies are transposed, so they do not match it (review-9a-pkg-2, F15-7; owned by Story 9A.16). | U |
+| Air blocked (Story 12.2) and light transmitted (Story 13.1) | D | Owned by **Stories 12.2 and 13.1**, as 6.11's own AC says; CAT-030 stays open until then | D → 12.2, 13.1 |
+| Exact Reset and Save/Load ("second Run replays bit-for-bit") | W (run-to-run at 0.01 m) | "ok 6 - 6. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run settles again and Reset restores it again"; "ok 7 - 7. Save / Load persistence roundtrip: Save, reload, Load restores construction, re-run reproduces traversal" | P |
+| "anvil 0 warnings" (§D X1) | no C# signal | The C# static gate passes 123/123 | P |
+| `cat-030.test.ts` passes 100% in Chrome | unverifiable | 7/7, observation Clean | P |
+
+**Fresh verdict: Incomplete.** The snapping contradiction is resolved. Still unproven: fast and rotated entries; the 0.75 m off-centre case; the contact, oversize and mesh qualification; the funnel-to-bend join. None has an owning story yet (review-9a-pkg-2, F15-8). The air and light integrations stay owned by Stories 12.2 and 13.1. Story 6.11 does not return to `done`.

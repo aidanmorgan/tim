@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: Story 9R.7: joined_pipe lesson (Meet in the middle)
+    # Subtest: 1. The level: fixtures, knots and inventory equal the content; a second pipe issues no command
+    ok 1 - 1. The level: fixtures, knots and inventory equal the content; a second pipe issues no command
+      ---
+      duration_ms: 4801.662542
+      type: 'test'
+      ...
+    # Subtest: 2. Solve: a 2 m pipe tilted downhill and snapped to the bend delivers the ball; exactly one solve
+    ok 2 - 2. Solve: a 2 m pipe tilted downhill and snapped to the bend delivers the ball; exactly one solve
+      ---
+      duration_ms: 13015.470375
+      type: 'test'
+      ...
+    # Subtest: 3. Run/Reset and Save/Load: Reset is exact, a second Run solves; Load restores pose, length and joint
+    ok 3 - 3. Run/Reset and Save/Load: Reset is exact, a second Run solves; Load restores pose, length and joint
+      ---
+      duration_ms: 27852.560833
+      type: 'test'
+      ...
+    # Subtest: 4. Unsnapped at Precise: released 0.72 m off the joint, the ball leaves the route and the goal stays unsolved
+    ok 4 - 4. Unsnapped at Precise: released 0.72 m off the joint, the ball leaves the route and the goal stays unsolved
+      ---
+      duration_ms: 19017.2035
+      type: 'test'
+      ...
+    # Subtest: 5. Default length at Precise: a 3.6 m pipe snapped to the bend misses the drop line
+    ok 5 - 5. Default length at Precise: a 3.6 m pipe snapped to the bend misses the drop line
+      ---
+      duration_ms: 18546.485292
+      type: 'test'
+      ...
+    # Subtest: 6. Boundaries: the handle commits exactly 1 m and 8 m; one Undo restores the length; Escape cancels
+    ok 6 - 6. Boundaries: the handle commits exactly 1 m and 8 m; one Undo restores the length; Escape cancels
+      ---
+      duration_ms: 7798.259709
+      type: 'test'
+      ...
+    1..6
+ok 1 - Story 9R.7: joined_pipe lesson (Meet in the middle)
+  ---
+  duration_ms: 95199.467625
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 95459.158042

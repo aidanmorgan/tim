@@ -1,0 +1,166 @@
+✖ a served Animation probe reaches the host (control) (0.842375ms)
+✖ a disposed Animation worker holds no clock ring and refuses to probe it (0.366458ms)
+✖ a clock reply landing after the Animation worker was disposed never reaches the host (0.286541ms)
+file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-output.test.mjs:28
+const ring = new vm.SyntheticModule(['attachClockRing', 'requestReply', 'ClockRole'], function () {
+             ^
+
+TypeError: vm.SyntheticModule is not a constructor
+    at file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-output.test.mjs:28:14
+
+Node.js v26.12.0
+✖ tools/workshop-animation-output.test.mjs (53.167542ms)
+✔ normal publication activates exactly one service and retains startup qualification (3.154416ms)
+✔ a master peer whose leading padding holds the retired clock wire version 4 is refused (0.609125ms)
+✔ a master peer whose leading padding holds a non-zero high padding byte is refused (0.404333ms)
+✔ delayed managed publication has no callback until explicit activation (0.46125ms)
+✔ default and missing IDs reject without scheduling or changing the ready owner (0.434333ms)
+✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.39975ms)
+✔ duplicate activation preserves the one original timer and owner state (0.397708ms)
+✔ startup timeout before worker readiness rejects creation and activation (0.369959ms)
+✔ startup timeout after JS return remains anchored to both runtime readiness (0.3985ms)
+✔ worker failure rejects activation without invoking managed service (0.4195ms)
+✔ disposal before managed publication prevents later activation (0.366375ms)
+✔ disposal after activation makes a captured late callback inert (0.340209ms)
+✔ failure after activation makes a captured late callback inert (0.321458ms)
+✔ a failed client detaches its clock ring (0.308208ms)
+✔ a clock reply landing after the client failed is never delivered (45.481917ms)
+✔ a clock reply landing after disposal is never delivered (22.840209ms)
+✔ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.663459ms)
+✔ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (2.465584ms)
+✔ a Browser that was itself blocked never mistakes the Simulation for hung (0.994833ms)
+✔ both runtimes must be ready before the one qualification deadline (0,1) (0.395ms)
+✔ both runtimes must be ready before the one qualification deadline (1,0) (0.299417ms)
+✔ duplicate runtime readiness rejects worker 0 (0.297583ms)
+✔ early ready rejects worker 0 (0.278375ms)
+✔ duplicate runtime readiness rejects worker 1 (0.264667ms)
+✔ early ready rejects worker 1 (0.274292ms)
+✔ early Animation qualification rejects before bootstrap (0.255625ms)
+✔ duplicate authoritative Animation peer rejects without a second transfer (0.291834ms)
+✔ disposal during asset loading prevents late readiness from rearming (0.299667ms)
+✔ Animation constructor failure closes the already owned Simulation worker (0.282583ms)
+✔ premature Animation output fails without delivering to the managed consumer (0.261917ms)
+✔ delayed valid ACK clears current stall only after managed validation completion (0.487709ms)
+✔ completing an older ACK cannot clear another aged request or exceed two leases (0.385709ms)
+✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.3865ms)
+✔ unmatched or duplicate ACK faults without clearing stall (false) (0.332667ms)
+✔ unmatched or duplicate ACK faults without clearing stall (true) (0.322333ms)
+✔ two animation owners send sequential controls only after managed ACK delivery returns (0.380667ms)
+✔ nanoseconds is the exact round-half-even port of WorkshopNativeClock.FromMilliseconds (0.609ms)
+✔ a valid probe is answered with itself followed by the two master stamps and their derivation epoch (0.378125ms)
+✔ the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeReply rejects (0.183083ms)
+✔ a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly (9.931875ms)
+✔ a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch (9.744958ms)
+✔ a slew installs the new correction under the same epoch, so requester mappings keep their calibration (7.395125ms)
+✔ the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused (0.181666ms)
+✔ a newer probe of the same requester supersedes an unconsumed answer, which resolves to null (0.333333ms)
+✔ a probe the master has not served is never overwritten: the next probe resolves null and the session continues (0.218042ms)
+✔ an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed (14.715375ms)
+✔ a reply wait ends after the probe lifetime when the master never answers (252.020042ms)
+✔ startup qualification waits out a stalled master instead of burning its attempt budget (49.035708ms)
+✔ a close finding fails a test that otherwise passed (112.585375ms)
+✔ a close finding never replaces the test's own failure, and is still reported (109.529ms)
+✔ several findings of one test are aggregated, not dropped (107.9595ms)
+✔ a recorded finding with no test to fail still fails the file (catch-all) (107.509542ms)
+✔ a finding raised in a suite's after hook is reported against that suite (107.095458ms)
+✔ closeAfterSuite with no findings passes (control) (106.61925ms)
+✔ no Chrome suite closes its driver with close() in a suite after hook (2.025542ms)
+✔ a clean close passes (control), and a finding is raised once, not again for later tests (236.641875ms)
+✔ a declared session fault that occurred is not a finding (0.162ms)
+✔ a declared session fault that did not occur is a finding (0.14675ms)
+✔ a different fault than the declared one is a finding, and the declared one is still required (0.0995ms)
+✔ a declared fault does not excuse another fault that also occurred (0.052958ms)
+✔ an undeclared debt fault is a finding (0.058292ms)
+✔ unknown session faults are rejected (0.161ms)
+✔ encoded trace bytes containing NaN are not diagnostic text (0.434792ms)
+✔ a typed base64 envelope never fails on a NaN substring of its payload (Murdoch-2 F1) (0.19125ms)
+✔ no Chrome suite checks a raw NaN substring of console text; each goes through reportsNaN (whole class of F1) (6.251458ms)
+✔ actual errors survive encoded-looking messages and ordinary diagnostics (0.155791ms)
+✔ established isolation permits delayed runtime loading and records actual usable time (2.358458ms)
+✔ incomplete isolation handshake still fails at the existing deadline (0.533958ms)
+✔ controller replacement retires booting ownership (0.410792ms)
+✔ controller replacement retires qualified ownership (0.3275ms)
+✔ at most one isolation reload remains permitted (1.146083ms)
+✔ manual navigation after slow runtime loading starts a fresh isolation attempt (0.881791ms)
+✔ another deploy's changed isolation worker waiting behind the controller is refused (0.346083ms)
+✔ a controller answering the handshake in another shape (the retired numbered reply) is refused (0.30525ms)
+✔ the isolation worker answers only the structural policy request from an eligible client (0.956542ms)
+file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-observation.test.mjs:92
+    const dotnet = new vm.SyntheticModule(['dotnet'], function () {
+                   ^
+
+TypeError: vm.SyntheticModule is not a constructor
+    at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-observation.test.mjs:92:20)
+    at file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-observation.test.mjs:132:28
+
+Node.js v26.12.0
+✖ tools/workshop-observation.test.mjs (61.373958ms)
+file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-pose-ring.test.mjs:9
+const module = new vm.SourceTextModule(source + '\nexport { clients, attachPoseRing };', { context });
+               ^
+
+TypeError: vm.SourceTextModule is not a constructor
+    at file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-pose-ring.test.mjs:9:16
+
+Node.js v26.12.0
+✖ tools/workshop-pose-ring.test.mjs (69.052416ms)
+✔ request success cannot complete Save; transaction abort preserves prior exact bytes (4.077667ms)
+✔ completed Save owns input bytes and Load returns an exact independent roundtrip (0.614583ms)
+✔ missing save is empty and incompatible width rejects without replacement (0.610667ms)
+ℹ tests 84
+ℹ suites 0
+ℹ pass 78
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 970.181125
+
+✖ failing tests:
+
+test at tools/workshop-animation-clock.test.mjs:58:1
+✖ a served Animation probe reaches the host (control) (0.842375ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-clock.test.mjs:39:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-clock.test.mjs:59:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at tools/workshop-animation-clock.test.mjs:66:1
+✖ a disposed Animation worker holds no clock ring and refuses to probe it (0.366458ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-clock.test.mjs:39:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-clock.test.mjs:67:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+
+test at tools/workshop-animation-clock.test.mjs:73:1
+✖ a clock reply landing after the Animation worker was disposed never reaches the host (0.286541ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-clock.test.mjs:39:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-pkg2/tools/workshop-animation-clock.test.mjs:74:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-output.test.mjs:1:1
+✖ tools/workshop-animation-output.test.mjs (53.167542ms)
+  'test failed'
+
+test at tools/workshop-observation.test.mjs:1:1
+✖ tools/workshop-observation.test.mjs (61.373958ms)
+  'test failed'
+
+test at tools/workshop-pose-ring.test.mjs:1:1
+✖ tools/workshop-pose-ring.test.mjs (69.052416ms)
+  'test failed'
+node exit=1

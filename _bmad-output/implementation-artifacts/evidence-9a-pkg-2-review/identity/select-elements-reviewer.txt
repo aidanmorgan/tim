@@ -1,0 +1,25 @@
+Mode: Selected
+Tier 3 required: no
+path	elements/Funnel/FunnelElementDeclaration.cs	Element	elements/<package>/**: funnel
+path	elements/Funnel/funnel.tscn	Element	elements/<package>/**: funnel
+path	elements/Pipe/PipeElementDeclaration.cs	Element	elements/<package>/**: pipe
+path	elements/Pipe/pipe.tscn	Element	elements/<package>/**: pipe
+path	elements/PipeBend45/PipeBend45ElementDeclaration.cs	Element	elements/<package>/**: pipe_bend_45
+path	elements/PipeBend45/pipe_bend_45.tscn	Element	elements/<package>/**: pipe_bend_45
+path	elements/PipeBend90/PipeBend90ElementDeclaration.cs	Element	elements/<package>/**: pipe_bend_90
+path	elements/PipeBend90/pipe_bend_90.tscn	Element	elements/<package>/**: pipe_bend_90
+path	parts/catalog/funnel.tres	Element	parts/catalog/*.tres: funnel
+path	parts/catalog/pipe.tres	Element	parts/catalog/*.tres: pipe
+path	parts/catalog/pipe_bend_45.tres	Element	parts/catalog/*.tres: pipe_bend_45
+path	parts/catalog/pipe_bend_90.tres	Element	parts/catalog/*.tres: pipe_bend_90
+capacity-9r	integration: places pipe_bend_90
+tube-snapping	integration: places funnel; integration: places pipe; integration: places pipe_bend_45; integration: places pipe_bend_90
+cat-050-joined	integration: places pipe; integration: level joined_pipe places pipe_bend_90
+cat-030	own: elements/Funnel/FunnelElementDeclaration.cs changes funnel; integration: places funnel; own: elements/Funnel/funnel.tscn changes funnel; integration: places pipe; own: parts/catalog/funnel.tres changes funnel
+cat-048a	own: elements/Pipe/PipeElementDeclaration.cs changes pipe; integration: places pipe; own: elements/Pipe/pipe.tscn changes pipe; own: parts/catalog/pipe.tres changes pipe
+cat-048b	own: elements/Pipe/PipeElementDeclaration.cs changes pipe; integration: places pipe; own: elements/Pipe/pipe.tscn changes pipe; own: parts/catalog/pipe.tres changes pipe
+cat-049	own: elements/PipeBend45/PipeBend45ElementDeclaration.cs changes pipe_bend_45; integration: places pipe_bend_45; own: elements/PipeBend45/pipe_bend_45.tscn changes pipe_bend_45; own: parts/catalog/pipe_bend_45.tres changes pipe_bend_45
+cat-050	own: elements/PipeBend90/PipeBend90ElementDeclaration.cs changes pipe_bend_90; integration: places pipe_bend_90; own: elements/PipeBend90/pipe_bend_90.tscn changes pipe_bend_90; own: parts/catalog/pipe_bend_90.tres changes pipe_bend_90
+engine-core-2a1	smoke pair
+engine-core-2b1	smoke pair
+palette-placement	integration: places every palette part (funnel); integration: places every palette part (pipe); integration: places every palette part (pipe_bend_45); integration: places every palette part (pipe_bend_90)

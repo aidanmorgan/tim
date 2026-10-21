@@ -257,3 +257,33 @@ $ SPRING_PREVIEW_URL=http://127.0.0.1:8060/ npx tsx --test tools/e2e/engine-core
 Story 6.7 satisfies every acceptance criterion, delivers level `clear_pipe` ("Through the looking tube") with verified high-speed ball entry and receiver capture, maintains strict visual/collider separation, introduces zero legacy shims or annular kernel branches, ensures clean static analysis, and achieves a 100% pass rate across 839 automated unit tests and 31 real Chrome Playwright E2E tests.
 
 Terminal Scoped Verdict: **PASS**.
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Murdoch-19, PKG-2 closing review)
+
+*Added under the reopened-record closure (epics.md, Delivery order; Story 9R.18's evidence ACs). The text above is unchanged.*
+
+**Independence.** Murdoch-19 is not the implementer or the original reviewer of Story 6.7. Murdoch-19 also did not implement Story 9R.1 (the repair) or PKG-2 (Amelia-18).
+
+**Fresh evidence.** All paths are relative to `_bmad-output/implementation-artifacts/`.
+- Commit `d4195fb0`, a clean detached copy with an empty `git status`.
+- Bundle identity `c389a3b7c9660e7199ddd8cd938d52b0457baa37f2ac1d28a33ff598c3a03e14`, the same at start and end.
+- Chrome 155.0.8059.86. Run `20261021T020207Z-92416`, from 2026-10-21T02:02:07Z to 02:18:35Z.
+- Logs: `evidence-9a-pkg-2-review/e2e-tier2-d4195fb0/summary.txt` and `cat-048b.tap`.
+- Legacy check: `evidence-9a-pkg-2-review/identity/legacy-6-7.txt`.
+- Tier 1: `evidence-9a-pkg-2-review/tier1/test.log`, 2229/2229. The commit and timestamps are in `evidence-9a-pkg-2-review/tier1/identity.txt` (`d4195fb0`, 2026-10-21T01:49:15Z to 01:52:00Z).
+
+**Claims from the retro-verification (§D and the 6.7 table), with corrections.** The source precedence is epics, then the element spec, then the story spec.
+
+| Original claim | Retro class | Fresh result | Class now |
+| --- | --- | --- | --- |
+| `clear_pipe` solved in Chrome: the ball enters at high speed and edge angles and reaches the receiver (epics AC1) | W (one angle, no speed variants) | `cat-048b.tap`: "ok 3 - 3. Solved run: pipe placed at (0, 3, 0) tilted -45 deg, ball traverses bore into receiver, achieving CCGOAL_SOLVED", placed through the UI. The level fixes the ball at y = 6 m, so it always meets the mouth after a free fall at the rim; that is the scenario the epics AC describes. Only the one authored pipe pose is exercised, and neither the entry speed nor any other entry angle is asserted. No repair story touched this clause (9R.1 repaired only the lifecycle). | W |
+| "within 1200 ticks", no bounce (spec-6-7 AC-2) | U | Story-spec detail, below the epics AC in precedence. `waitForGoalSolved(8000)` bounds the wall time, not the ticks. Filed as a breadth gap (review-9a-pkg-2, F15-8), not required by the epics AC. | U (spec only) |
+| Reset and Save/Load "exact" | W (ranges; earlier test state) | Since 9R.1, each test builds its own bench and checks `expectResetMatches` and `assertLoadRestores`. "ok 4 - 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again"; "ok 5 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again" | P |
+| Legacy annular code, `AnnularFeature` and `reference/pipe/` deleted (epics AC2) | discharged by 7.1/7.4 | `rg -i 'AnnularFeature\|annular'` over the code returns nothing; `reference/pipe` does not exist; `git ls-files reference` is empty | P |
+| cat-062 output identical to the nanosecond across reviews (§D) | invalid evidence | Not re-quoted. cat-062 is not an AC-named suite of 6.7. | n/a |
+| "anvil 0 warnings" (§D X1) | no C# signal | The C# static gate passes 123/123 (`tier1/pre-commit-hook-d4195fb0.log`) | P |
+| `cat-048b.test.ts` passes 100% in Chrome | unverifiable | 5/5, observation Clean | P |
+
+**Fresh verdict: Incomplete.** The level is solved in Chrome, and the lifecycle and legacy clauses are proven. But the epics AC's "high speed and edge angles" has no assertion: no entry speed is checked, and only one pipe pose is tested. This is the same rule that holds 6.9's "without added speed" open. No story owns it yet (review-9a-pkg-2, F15-8). No clause is owned by a later story. Story 6.7 does not return to `done` on this addendum.

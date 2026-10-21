@@ -1,0 +1,18 @@
+D1-funnel exit=1
+D2-funnel exit=1
+D1-pipe exit=1
+D2-pipe exit=1
+D1-pipe_bend_45 exit=1
+D2-pipe_bend_45 exit=1
+D1-pipe_bend_90 exit=1
+D2-pipe_bend_90 exit=1
+A1-pipe-min exit=1
+A2-pipe-kind exit=1
+A3-funnel-sign exit=1
+A4-bend90-ulp exit=1
+A5-bend45-friction exit=1
+A6-bend45-drop exit=1
+A8-funnel-collar exit=1
+A7-bend45-engine-ref exit=1
+D3-stray-scenes-full-test exit=0
+MUTANTS-DONE

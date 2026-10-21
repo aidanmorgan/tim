@@ -1,0 +1,7 @@
+Usage: run needs Out.
+Usage: dotnet run --project tools/E2eRunner -- <verb> [options]
+  full --out D [--workers k] [--durations S]      publish, then every tools/e2e suite: SerialAlone suites alone, Parallel ones on N workers
+  select (--diff B | --changed F)                 print the Tier 2 selection with one reason per suite
+  run (--diff B | --changed F) --out D            publish, then run the Tier 2 selection (the full run when Mode: Full)
+  calibrate --out D                               publish, then measure N and print the MeasuredWorkers.cs value
+exit=2

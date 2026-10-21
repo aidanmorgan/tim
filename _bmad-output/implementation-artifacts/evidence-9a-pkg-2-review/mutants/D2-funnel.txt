@@ -1,0 +1,106 @@
+# mutant D2-funnel at d4195fb066b7cc185721c2e2912e48fb7b8bd34f, 2026-10-21T02:19:05Z
+ M parts/catalog/funnel.tres
+?? parts/scenes/funnel.tscn
+diff --git a/parts/catalog/funnel.tres b/parts/catalog/funnel.tres
+index 1b5d9652..f76ff175 100644
+--- a/parts/catalog/funnel.tres
++++ b/parts/catalog/funnel.tres
+@@ -1,7 +1,7 @@
+ [gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+ 
+ [ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+-[ext_resource type="PackedScene" path="res://elements/Funnel/funnel.tscn" id="2"]
++[ext_resource type="PackedScene" path="res://parts/scenes/funnel.tscn" id="2"]
+ 
+ [resource]
+ script = ExtResource("1")
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (20 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/parts/elements.bundle.json (20 elements)
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (19 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | arrow-down.svg[39m[0m
+  [   5% ] [90m[1m_update_scan_actions[22m | arrow-up.svg[39m[0m
+  [  10% ] [90m[1m_update_scan_actions[22m | folder-open.svg[39m[0m
+  [  15% ] [90m[1m_update_scan_actions[22m | lightbulb.svg[39m[0m
+  [  20% ] [90m[1m_update_scan_actions[22m | link.svg[39m[0m
+  [  25% ] [90m[1m_update_scan_actions[22m | minus.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | move-vertical.svg[39m[0m
+  [  35% ] [90m[1m_update_scan_actions[22m | play.svg[39m[0m
+  [  40% ] [90m[1m_update_scan_actions[22m | plus.svg[39m[0m
+  [  45% ] [90m[1m_update_scan_actions[22m | rotate-ccw.svg[39m[0m
+  [  50% ] [90m[1m_update_scan_actions[22m | rotate-cw.svg[39m[0m
+  [  55% ] [90m[1m_update_scan_actions[22m | save.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | sliders-horizontal.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | square.svg[39m[0m
+  [  70% ] [90m[1m_update_scan_actions[22m | trash.svg[39m[0m
+  [  75% ] [90m[1m_update_scan_actions[22m | undo-2.svg[39m[0m
+  [  80% ] [90m[1m_update_scan_actions[22m | x.svg[39m[0m
+  [  85% ] [90m[1m_update_scan_actions[22m | zoom-in.svg[39m[0m
+  [  90% ] [90m[1m_update_scan_actions[22m | zoom-out.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.31]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [FAIL]
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                 ↓ (pos 6)
+Expected: "res://parts/scenes/funnel.tscn"
+Actual:   "res://elements/Funnel/funnel.tscn"
+                 ↑ (pos 6)
+  Stack Trace:
+     at CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageMatchesItsCatalogueMetadataAndCategory() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.tests/BundleCatalogueParityTests.cs:line 51
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 147 ms - CuriousContraptions.tests.dll (net10.0)
+# dotnet test exit=1 (KILLED)

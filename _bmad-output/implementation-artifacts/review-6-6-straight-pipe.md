@@ -253,3 +253,33 @@ $ SPRING_PREVIEW_URL=http://127.0.0.1:8060/ npx tsx --test tools/e2e/engine-core
 Story 6.6 satisfies every acceptance criterion, implements the Straight Pipe compound cylindrical hollow collider with strict visual/collider entity separation, introduces zero legacy classes or shims, ensures clean static analysis, and achieves a 100% pass rate across 833 automated unit tests and 28 real Chrome Playwright E2E tests.
 
 Terminal Scoped Verdict: **PASS**.
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Murdoch-19, PKG-2 closing review)
+
+*Added under the reopened-record closure (epics.md, Delivery order; Story 9R.18's evidence ACs). The text above is unchanged.*
+
+**Independence.** Murdoch-19 is not the implementer or the original reviewer of Story 6.6. Murdoch-19 also did not implement Story 9R.1 (the repair) or PKG-2 (Amelia-18).
+
+**Fresh evidence.** All paths are relative to `_bmad-output/implementation-artifacts/`.
+- Commit `d4195fb0`, a clean detached copy with an empty `git status` (digest `e3b0c442…`).
+- Bundle identity `c389a3b7c9660e7199ddd8cd938d52b0457baa37f2ac1d28a33ff598c3a03e14`, the same at start and end.
+- Chrome 155.0.8059.86. Run `20261021T020207Z-92416`, from 2026-10-21T02:02:07Z to 02:18:35Z.
+- Logs: `evidence-9a-pkg-2-review/e2e-tier2-d4195fb0/summary.txt` and `cat-048a.tap`.
+- Tier 1: `evidence-9a-pkg-2-review/tier1/build.log` and `test.log`, 2229/2229. The commit and timestamps are in `evidence-9a-pkg-2-review/tier1/identity.txt` (`d4195fb0`, 2026-10-21T01:49:15Z to 01:52:00Z).
+
+**Claims from the retro-verification (§D and the 6.6 table), with corrections.**
+
+| Original claim | Retro class | Fresh result | Class now |
+| --- | --- | --- | --- |
+| "Reset restores initial poses bit-for-bit" (AC-5 row), and "exact Build Mode Reset restoration… confirmed" | W (no pre-Run snapshot) | Since Story 9R.1, each test compares Reset with the pre-Run snapshot (`expectResetMatches`). `cat-048a.tap`: "ok 2 - 2. Reset restores the exact pre-Run snapshot; a second Run replays the traversal and its Reset restores it again" | P |
+| Save/Load roundtrip restores the construction | W (range only) | `assertLoadRestores` compares the loaded snapshot with the saved one. `cat-048a.tap`: "ok 3 - 3. Save / reload / Load roundtrip via IndexedDB restores the pipe and ball; subsequent Run reproduces the traversal" | P |
+| Ball travels through without snagging or falling through | W (final range only) | Test 1 samples every pose publication. It asserts lateral drift < 0.2 m inside the bore, no drop below the bench, progress down the pipe and an exit past x = 1.8 m with vx > 1.5 m/s. "ok 1 - 1. Straight pipe placed in Workshop, ball enters elevated mouth, traverses through hollow bore, and exits safely" | P |
+| "8 rim colliders block oversized balls" (checklist row 3) | U | **Still unproven.** Test 4 drops a basketball outside the mouth; it is not oversized. No catalogue ball is larger than the 0.65 m bore. `PipeBend90Tests`' "oversize" case only compares two constants. | U |
+| Visual/collider separation | U | `StraightPipeTests.PipeScene_ExtractsExact24CollidersAndTwoMouthPortLocators` (native; it now loads `res://elements/Pipe/pipe.tscn`) extracts exactly 24 `col_*` boxes, so the visual meshes are not extracted. The worker uses the canonical table, not the scene proxies. The scene proxies are mis-authored, with a transposed basis (review-9a-pkg-2, F15-7). This is not player-visible. | W |
+| cat-062 output identical to the nanosecond across reviews (§D) | invalid evidence | Not re-quoted. cat-062 is not an AC-named suite of 6.6. | n/a |
+| "anvil 0 warnings" (§D X1) | no C# signal | The C# static gate (pre-commit hook) passes 123/123: `evidence-9a-pkg-2-review/tier1/pre-commit-hook-d4195fb0.log` | P |
+| `cat-048a.test.ts` passes 100% in Chrome | unverifiable | 4/4, observation Clean (`summary.txt`) | P |
+
+**Fresh verdict: Incomplete.** One epics AC, "an oversized ball stops at the pipe entrance without clipping", has no test. No story owns it yet (review-9a-pkg-2, F15-8). Every other AC is proven on fresh evidence. Under the closure rule, Story 6.6 does not return to `done` on this addendum.
