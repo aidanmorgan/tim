@@ -1,0 +1,27 @@
+# mutant R5-readd-worker-extractReadIdentity  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:43:23Z
+ CuriousContraptions.Simulation/wwwroot/worker.js | 1 +
+ 1 file changed, 1 insertion(+)
+diff --git a/CuriousContraptions.Simulation/wwwroot/worker.js b/CuriousContraptions.Simulation/wwwroot/worker.js
+index a2949fa2..1b044f02 100644
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -41,6 +41,7 @@ function growPoseRing(bodyCount) {
+ 
+ // Copies one C#-composed slot (its 16-byte header, then one record per committed body) into the next ring slot under the
+ // sequence lock: odd while writing, even when complete. The records past the read are cleared, so no stale body survives.
++function extractReadIdentity(bytes) { return bytes.slice(0, 24); }
+ function writePoseRing(slot) {
+     if (!poseRing || !poseSeqView) return;
+     const bodyCount = (slot.length - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
+ M CuriousContraptions.Simulation/wwwroot/worker.js
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WireFaultTests.NoSecondCodecOrScriptParserIsReAdded [3 ms]
+Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)
+## node harnesses
+ℹ pass 88
+ℹ fail 0
+# end 2026-10-21T07:44:07Z

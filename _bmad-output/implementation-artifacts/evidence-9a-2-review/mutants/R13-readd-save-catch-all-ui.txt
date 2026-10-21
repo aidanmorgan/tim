@@ -1,0 +1,27 @@
+# mutant R13-readd-save-catch-all-ui  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:49:24Z
+ ui/Workshop.cs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+diff --git a/ui/Workshop.cs b/ui/Workshop.cs
+index 8b789ceb..e201132b 100644
+--- a/ui/Workshop.cs
++++ b/ui/Workshop.cs
+@@ -894,7 +894,9 @@ public partial class Workshop : Node3D
+             if (_workshopUiRemoved) return;
+             if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
+             // Browser storage is untrusted input: anything but an admissible save is the save codec's typed refusal.
+-            var saved = WorkshopSaveCodec.DecodeStored(encoded);
++            WorkshopSavedConstruction saved;
++            try { saved = WorkshopSaveCodec.DecodeStored(encoded); }
++            catch (ArgumentException defect) { throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange, "This save cannot be loaded: " + defect.Message, defect); }
+             if (saved.Construction.Settings != World.Construction.Settings)
+                 throw new WorkshopEditRejectedException(WorkshopEditRejection.SaveSettingsMismatch, "This save uses different simulation settings.");
+             // SubmitConstruction owns the existing GPU admission and installation barrier.
+ M ui/Workshop.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WorkshopUiFailureTests.EveryUiCatchReportsThroughTheClassificationOrIsAFaultOrRethrows [24 ms]
+Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:50:11Z

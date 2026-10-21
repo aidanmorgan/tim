@@ -1,0 +1,25 @@
+# mutant R11-readd-session-default  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:47:46Z
+ engine/gpu/WorkshopWireFlatBuffers.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 892ecbc0..f72edcc5 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -50,7 +50,7 @@ public static class WorkshopWireFlatBuffers
+ 
+     private static RuntimeSessionId RequiredSession(byte[]? bytes) => bytes is { Length: RuntimeSessionId.ByteLength }
+         ? RuntimeSessionId.Read(bytes)
+-        : throw new WireFaultException(WireFaultReason.MissingField, "A Workshop message requires its 16-byte runtime session.");
++        : default;
+ 
+     private static VectorOffset Session(FlatBufferBuilder builder, RuntimeSessionId session)
+     {
+ M engine/gpu/WorkshopWireFlatBuffers.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WireFaultTests.MessageWithoutSessionIsAMissingField [< 1 ms]
+Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 35 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:48:36Z

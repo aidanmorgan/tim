@@ -1,0 +1,34 @@
+# mutant M2-drop-trailing-check  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:50:58Z
+ engine/gpu/WorkshopWireFlatBuffers.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 892ecbc0..021e78b2 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -25,7 +25,7 @@ public static class WorkshopWireFlatBuffers
+         var declared = (long)BinaryPrimitives.ReadUInt32LittleEndian(bytes) + FlatBufferConstants.SizePrefixLength;
+         if (declared > bytes.Length)
+             throw new WireFaultException(WireFaultReason.Truncated, $"A {identifier} buffer holds {bytes.Length} of its {declared} bytes.");
+-        if (declared < bytes.Length)
++        if (declared < 0)
+             throw new WireFaultException(WireFaultReason.TrailingBytes, $"A {identifier} buffer has {bytes.Length - declared} bytes after its {declared}.");
+         if (bytes.Length < FrameHeaderBytes || !IsIdentifier(bytes[IdentifierOffset..FrameHeaderBytes], identifier))
+             throw new WireFaultException(WireFaultReason.UnknownIdentifier, $"The buffer is not a {identifier} root.");
+ M engine/gpu/WorkshopWireFlatBuffers.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_InvalidInputs_Throw [1 ms]
+  Failed CuriousContraptions.Tests.WorkshopWireTests.MalformedAndOutOfOrderInputsDoNotConsumeNextReliableIdentity [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Command, damage: TrailingByte) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Acknowledgement, damage: TrailingByte) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Save, damage: TrailingByte) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: PhysicalRead, damage: TrailingByte) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.RejectedInputIsNeverRetried [< 1 ms]
+  Failed CuriousContraptions.Tests.DelayedSignalTests.PreviousSchemaAndForeignGoalDataReject [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveTests.AConstructCommandWithTrailingBytesRejectsBeforeAdmission [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveTests.TruncatedTrailingAndInvalidAllocatorReject [< 1 ms]
+Failed!  - Failed:    10, Passed:  1882, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:51:44Z

@@ -1,0 +1,166 @@
+# head 0519cedb3c103fa7ed4eb504e3106c2451042984 2026-10-21T07:37:37Z; excluding _bmad-output and the frozen docs/coverage, docs/work-orders snapshots
+$ rg -n -e 'WorkshopActivationWire|WorkshopTimerWire|WorkshopContactWorkWire|WorkshopResponseCodec'
+docs/planning/elements/CAT-022-delay.md:38:| TimedCommand, SignalPropagation | `engine/gpu/ActivationTimers.cs`, `engine/gpu/ActivationNetwork.cs`, `engine/gpu/WorkshopTimerWire.cs` |
+docs/planning/elements/CAT-063-switch.md:38:| SignalPropagation (activation network) | `engine/gpu/ActivationNetwork.cs`, `engine/gpu/WorkshopActivationWire.cs` |
+exit/hits: 3 files
+$ rg -n -e 'ResponseAbi|CommandAbi|responseAbi'
+exit/hits: 1 files
+$ rg -n -e 'extractReadIdentity|getUint16\(vtablePos|vtable'
+CuriousContraptions.tests/WorkshopSaveRejectionTests.cs:16:    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field).</summary>
+CuriousContraptions.FlatBuffers/Table.cs:40:        // Look up a field in the vtable, return an offset into the object, or 0 if the field is not
+CuriousContraptions.FlatBuffers/Table.cs:42:        public int __offset(int vtableOffset)
+CuriousContraptions.FlatBuffers/Table.cs:44:            int vtable = bb_pos - bb.GetInt(bb_pos);
+CuriousContraptions.FlatBuffers/Table.cs:45:            return vtableOffset < bb.GetShort(vtable) ? (int)bb.GetShort(vtable + vtableOffset) : 0;
+CuriousContraptions.FlatBuffers/Table.cs:48:        public static int __offset(int vtableOffset, int offset, ByteBuffer bb)
+CuriousContraptions.FlatBuffers/Table.cs:50:            int vtable = bb.Length - offset;
+CuriousContraptions.FlatBuffers/Table.cs:51:            return (int)bb.GetShort(vtable + vtableOffset - bb.GetInt(vtable)) + vtable;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:38:        // The vtable for the current table (if _vtableSize >= 0)
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:39:        private int[] _vtable = new int[16];
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:40:        // The size of the vtable. -1 indicates no vtable
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:41:        private int _vtableSize = -1;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:44:        // List of offsets of all vtables.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:45:        private int[] _vtables = new int[16];
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:46:        // Number of entries in `vtables` in use.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:88:            while (_vtableSize > 0) _vtable[--_vtableSize] = 0;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:89:            _vtableSize = -1;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:492:            if (_vtableSize >= 0)
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:504:            if (_vtable.Length < numfields)
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:505:                _vtable = new int[numfields];
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:507:            _vtableSize = numfields;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:512:        // Set the current vtable at `voffset` to the current location in the
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:516:            if (voffset >= _vtableSize)
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:519:            _vtable[voffset] = Offset;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:523:        /// Adds a Boolean to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:525:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:532:        /// Adds a Boolean to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:534:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:541:        /// Adds a SByte to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:543:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:550:        /// Adds a SByte to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:552:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:558:        /// Adds a Byte to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:560:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:567:        /// Adds a Byte to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:569:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:575:        /// Adds a Int16 to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:577:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:584:        /// Adds a Int16 to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:586:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:592:        /// Adds a UInt16 to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:594:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:601:        /// Adds a Uint16 to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:603:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:609:        /// Adds an Int32 to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:611:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:618:        /// Adds a Int32 to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:620:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:626:        /// Adds a UInt32 to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:628:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:635:        /// Adds a UInt32 to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:637:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:643:        /// Adds an Int64 to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:645:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:652:        /// Adds a Int64 to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:654:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:660:        /// Adds a UInt64 to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:662:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:669:        /// Adds a UInt64 to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:671:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:677:        /// Adds a Single to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:679:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:686:        /// Adds a Single to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:688:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:694:        /// Adds a Double to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:696:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:703:        /// Adds a Double to the Table at index `o` in its vtable using the nullable value `x`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:705:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:711:        /// Adds a buffer offset to the Table at index `o` in its vtable using the value `x` and default `d`
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:713:        /// <param name="o">The index into the vtable</param>
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:807:            if (_vtableSize < 0)
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:812:            var vtableloc = Offset;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:813:            // Write out the current vtable.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:814:            int i = _vtableSize - 1;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:816:            for (; i >= 0 && _vtable[i] == 0; i--) {}
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:820:                short off = (short)(_vtable[i] != 0
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:821:                                        ? vtableloc - _vtable[i]
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:826:                _vtable[i] = 0;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:830:            AddShort((short)(vtableloc - _objectStart));
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:834:            // Search for an existing vtable that matches the current one.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:837:                int vt1 = _bb.Length - _vtables[i];
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:846:                    existingVtable = _vtables[i];
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:855:                // Remove the current vtable.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:856:                _space = _bb.Length - vtableloc;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:857:                // Point table to existing vtable.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:858:                _bb.PutInt(_space, existingVtable - vtableloc);
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:861:                // Add the location of the current vtable to the list of
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:862:                // vtables.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:863:                if (_numVtables == _vtables.Length)
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:865:                    // Arrays.CopyOf(vtables num_vtables * 2);
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:866:                    var newvtables = new int[ _numVtables * 2];
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:867:                    Array.Copy(_vtables, newvtables, _vtables.Length);
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:869:                    _vtables = newvtables;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:871:                _vtables[_numVtables++] = Offset;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:872:                // Point table to current vtable.
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:873:                _bb.PutInt(_bb.Length - vtableloc, Offset - vtableloc);
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:876:            _vtableSize = -1;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:877:            return vtableloc;
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:885:          int vtable_start = table_start - _bb.GetInt(table_start);
+CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs:886:          bool ok = _bb.GetShort(vtable_start + field) != 0;
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:231:    /// <summary> Get table data area relative offset from vtable. Result is relative to table start
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:232:    ///           Fields which are deprecated are ignored by checking against the vtable's length. </summary>
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:234:    /// <param name="vtableOffset"> offset of value in the Table</param>
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:236:    private short GetVRelOffset(int pos, short vtableOffset)
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:242:        // First, get vtable offset
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:243:        short vtable = Convert.ToInt16(pos - ReadSOffsetT(verifier_buffer, pos));
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:244:        // Check that offset points to vtable area (is smaller than vtable size)
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:245:        if (vtableOffset < ReadVOffsetT(verifier_buffer, vtable))
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:248:          VOffset = ReadVOffsetT(verifier_buffer, vtable + vtableOffset);
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:263:    /// <summary> Get table data area absolute offset from vtable. Result is the absolute buffer offset.
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:267:    /// <param name="vtableOffset"> offset value in the Table</param>
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:269:    private uint GetVOffset(uint tablePos, short vtableOffset)
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:272:      // First, get vtable relative offset
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:273:      short relPos = GetVRelOffset(Convert.ToInt32(tablePos), vtableOffset);
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:472:      uint vtable = (uint)(tablePos - ReadSOffsetT(verifier_buffer, Convert.ToInt32(tablePos)));
+CuriousContraptions.FlatBuffers/FlatBufferVerify.cs:473:      return ((CheckComplexity()) && (CheckScalar(vtable, SIZE_V_OFFSET)) && (CheckAlignment(Convert.ToUInt32(ReadVOffsetT(verifier_buffer, Convert.ToInt32(vtable))), SIZE_V_OFFSET)) && (CheckElement(vtable, Convert.ToUInt64(ReadVOffsetT(verifier_buffer, Convert.ToInt32(vtable))))));
+tools/e2e/run-reset-snapshot.ts:126:/** The vtable slot of a table's field at `index` (FlatBuffers: 4 + 2 * field id). */
+tools/e2e/unit/run-reset-snapshot.test.ts:115:// Offsets the generated TypeScript accessors read: struct fields at `this.bb_pos + N`, table fields at vtable slot N.
+tools/e2e/unit/run-reset-snapshot.test.ts:172:    test('table fields use the generated vtable slots', () => {
+exit/hits: 7 files
+$ rg -n -e 'READ_BODIES_OFFSET|BODY_WIRE_'
+exit/hits: 1 files
+$ rg -n -e 'SAVE_MAGIC|0x53574343|AddMagic|\.Magic|magic\(\)'
+CuriousContraptions.tests/WorkshopFormatTests.cs:165:        builder.AddUint(0, 0x53574343u, 0); // the retired "CCWS" magic word
+exit/hits: 1 files
+$ rg -n -e 'WholeCount'
+exit/hits: 0 files
+$ rg -n -e 'DefaultTargetCount'
+exit/hits: 0 files
+$ rg -n -e 'Threshold == 0 \?'
+exit/hits: 0 files
+$ rg -n -e 'IsInvalidStoredValue|IsMalformedRecord'
+exit/hits: 0 files
+$ rg -n -e 'isFlatBuffer'
+exit/hits: 0 files
+$ rg -n -e 'ReadOutput'
+exit/hits: 0 files
+$ rg -n -e 'PrepareBytes'
+CuriousContraptions.Simulation/Program.Schedule.cs:115:        var payload = WorkshopScheduleWire.PrepareBytes(endpoint.Length);
+engine/gpu/WorkshopSchedule.cs:107:    public static int PrepareBytes(int endpointBytes) => endpointBytes > 0
+engine/gpu/WorkshopSchedule.cs:116:        ScheduleControlKind.Prepare => throw new ArgumentException("A Prepare's width is its endpoint's (PrepareBytes)."),
+exit/hits: 2 files
+$ rg -n -e 'ConstructionBytes'
+exit/hits: 0 files
+$ rg -n -e 'ByteLength = 24'
+exit/hits: 0 files
+$ rg -n -e 'Length: 16 \} \?'
+exit/hits: 0 files
+$ rg -n -e 'CreateConstructionVector|GetConstructionArray|ConstructionLength'
+exit/hits: 0 files
+$ rg -n -e 'WriteSession|ReadSession'
+exit/hits: 0 files
+$ git ls-files engine/gpu/WorkshopWire.cs engine/gpu/WorkshopActivationWire.cs engine/gpu/WorkshopTimerWire.cs engine/gpu/WorkshopContactWorkWire.cs
+$ rg -n "construction:|magic|target_count|file_identifier|motion" schemas/workshop_wire.fbs
+260:    target_count: uint32;
+287:    construction: ConstructionRecord;
+314:    motion: [uint8];
+333:// (acknowledgements, physical reads and schedule endpoints) and "CCWS" SavedConstruction. A schema declares one file_identifier,

@@ -1,0 +1,44 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Murdoch-22 probes for Story 9A.2 (review-only; copied into the disposable copy as Murdoch22Probes.cs and compiled
+/// with a Compile Include). Each probe prints what the one codec actually raises; assertions only pin the observed facts.</summary>
+public sealed class Murdoch22Probes(ITestOutputHelper output)
+{
+    private static readonly byte[] SessionBytes = Session();
+
+    private static byte[] Session()
+    {
+        var bytes = new byte[RuntimeSessionId.ByteLength];
+        WireFaultTests.Session.WriteTo(bytes);
+        return bytes;
+    }
+
+    private void Report(string name, Exception? error) =>
+        output.WriteLine($"PROBE {name}: {(error is null ? "decoded" : $"{error.GetType().Name}{(error is WireFaultException w ? $"({w.Reason})" : "")}: {error.Message}")}");
+
+    /// <summary>P1: an unknown tag (an undefined command kind) in an otherwise valid, framed, verified command.</summary>
+    [Fact]
+    public void P1UnknownCommandKind()
+    {
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(128);
+        var session = CuriousContraptions.Wire.WorkshopCommand.CreateSessionVectorBlock(builder, SessionBytes);
+        CuriousContraptions.Wire.WorkshopCommand.StartWorkshopCommand(builder);
+        CuriousContraptions.Wire.WorkshopCommand.AddSequence(builder, 1);
+        CuriousContraptions.Wire.WorkshopCommand.AddKind(builder, (CuriousContraptions.Wire.CommandKind)99);
+        CuriousContraptions.Wire.WorkshopCommand.AddRevisionKind(builder, (uint)ExpectedRevisionKind.Any);
+        CuriousContraptions.Wire.WorkshopCommand.AddEpoch(builder, 10);
+        CuriousContraptions.Wire.WorkshopCommand.AddCadence(builder, 2);
+        CuriousContraptions.Wire.WorkshopCommand.AddProjection(builder, 3);
+        CuriousContraptions.Wire.WorkshopCommand.AddSession(builder, session);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
+        var bytes = builder.SizedByteArray();
+        var error = Record.Exception(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
+        Report("P1 undefined command kind 99", error);
+        Assert.NotNull(error);
+        // Control: the same builder with Run decodes.
+        var control = WorkshopWireFlatBuffers.EncodeCommand(WireFaultTests.RunCommand());
+        Report("P1 control Run", Record.Exception(() => WorkshopWireFlatBuffers.DecodeCommand(control)));
+    }
+}

@@ -1,0 +1,25 @@
+# mutant R14-readd-animation-endpoint-swallow  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:55:01Z
+ CuriousContraptions.Animation.Worker/Program.cs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+diff --git a/CuriousContraptions.Animation.Worker/Program.cs b/CuriousContraptions.Animation.Worker/Program.cs
+index 2966330f..3180218f 100644
+--- a/CuriousContraptions.Animation.Worker/Program.cs
++++ b/CuriousContraptions.Animation.Worker/Program.cs
+@@ -108,7 +108,9 @@ public static partial class Program
+                     expectedRevision != (_schedule?.Revision ?? default) || expectedProjection != (_schedule?.World.Epoch ?? default) ||
+                     header.Revision.Value < expectedRevision.Value || header.Projection.Value <= expectedProjection.Value)
+                     throw new ArgumentException("Stale Animation installation.");
+-                var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
++                WorkshopResponse endpoint;
++                try { endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]); }
++                catch (WireFaultException) { return; }
+                 if (endpoint.Session != Peer.Session || endpoint.MasterGeneration != Peer.Generation ||
+                     endpoint.Cadence != header.Revision || endpoint.Projection != header.Projection ||
+                     endpoint.Read.Epoch.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[56..]) ||
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 38 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:55:46Z

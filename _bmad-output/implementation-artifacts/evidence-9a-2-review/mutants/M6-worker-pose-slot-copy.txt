@@ -1,0 +1,27 @@
+# mutant M6-worker-pose-slot-copy  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:54:07Z
+ CuriousContraptions.Simulation/wwwroot/worker.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/CuriousContraptions.Simulation/wwwroot/worker.js b/CuriousContraptions.Simulation/wwwroot/worker.js
+index a2949fa2..9a56d931 100644
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -54,7 +54,7 @@ function writePoseRing(slot) {
+     posePublicationSequence = nextSeq;
+     Atomics.store(poseSeqView, seqIndex, nextSeq - 1n);
+     const target = new Uint8Array(poseRing, slotByteOffset, slotBytes);
+-    target.set(slot.subarray(8), 8);
++    target.set(slot.subarray(8, 16), 8);
+     target.fill(0, slot.length);
+     Atomics.store(poseSeqView, seqIndex, nextSeq);
+ }
+ M CuriousContraptions.Simulation/wwwroot/worker.js
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)
+## node harnesses
+ℹ pass 87
+ℹ fail 1
+# end 2026-10-21T07:54:58Z

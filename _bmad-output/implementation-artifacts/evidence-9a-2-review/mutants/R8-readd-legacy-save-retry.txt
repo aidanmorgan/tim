@@ -1,0 +1,39 @@
+# mutant R8-readd-legacy-save-retry  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:45:23Z
+ engine/gpu/WorkshopSaveCodec.cs | 7 +++++++
+ 1 file changed, 7 insertions(+)
+diff --git a/engine/gpu/WorkshopSaveCodec.cs b/engine/gpu/WorkshopSaveCodec.cs
+index 4ec99c92..1f42c09c 100644
+--- a/engine/gpu/WorkshopSaveCodec.cs
++++ b/engine/gpu/WorkshopSaveCodec.cs
+@@ -52,6 +52,13 @@ public static class WorkshopSaveCodec
+     internal static SavedConstruction Open(ReadOnlySpan<byte> bytes)
+     {
+         try { return SavedConstruction.GetRootAsSavedConstruction(WorkshopWireFlatBuffers.OpenFrame(bytes, Identifier, SavedConstructionVerify.Verify)); }
++        catch (WireFaultException first) when (first.Reason is WireFaultReason.TrailingBytes or WireFaultReason.UnknownIdentifier && bytes.Length > 8)
++        {
++            var framed = new byte[bytes.Length + 4];
++            System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(framed, (uint)bytes.Length);
++            bytes.CopyTo(framed.AsSpan(4));
++            return SavedConstruction.GetRootAsSavedConstruction(WorkshopWireFlatBuffers.OpenFrame(framed, Identifier, SavedConstructionVerify.Verify));
++        }
+         catch (WireFaultException fault)
+         {
+             var reason = fault.Reason switch
+ M engine/gpu/WorkshopSaveCodec.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WorkshopSaveTests.UnknownHeaderCannotBeLoaded(identifier: "XXXX", nextBodyId: 7, includeConstruction: True, reason: UnknownIdentifier) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveTests.EveryMalformedSaveIsTheTypedRefusal [50 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveTests.TruncatedTrailingAndInvalidAllocatorReject [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveRejectionTests.FuzzedSavesAreRefusedOrDecodedAndNothingElse [2 s]
+  Failed CuriousContraptions.Tests.WorkshopFormatTests.ForeignFlatBuffersAreTheTypedSaveRefusal [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Save, damage: TrailingByte) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Save, damage: WrongIdentifier) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.AnotherRootIsAnUnknownIdentifier(decoder: Save, other: PhysicalRead) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.AnotherRootIsAnUnknownIdentifier(decoder: Save, other: Command) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.FormerBinaryResponseAndSaveAreRejected [< 1 ms]
+Failed!  - Failed:    10, Passed:  1882, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:46:09Z

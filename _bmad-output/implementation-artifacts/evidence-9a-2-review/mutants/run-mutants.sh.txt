@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+# Murdoch-22 mutants for Story 9A.2 (review-only evidence). Runs in the disposable copy .claude/worktrees/murdoch22-mut,
+# detached at 0519cedb. Each mutant edits one file, builds the solution (Debug), runs the whole CuriousContraptions.tests
+# project (and the node harnesses for script mutants), records the counts, then restores with git reset --hard + git clean.
+# Usage: bash run-mutants.sh.txt <out-dir>
+set -u
+WT=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-mut
+OUT=$1
+cd "$WT" || exit 2
+[ "$(git rev-parse HEAD)" = "0519cedb3c103fa7ed4eb504e3106c2451042984" ] || { echo "wrong head"; exit 2; }
+
+restore() { git reset --hard -q HEAD; git clean -fdq; }
+
+# sub FILE FROM TO: literal replacement of the first occurrence; fails if FROM is absent.
+sub() {
+  FROM="$2" TO="$3" perl -0pi -e 'BEGIN{$n=0} $n += s/\Q$ENV{FROM}\E/$ENV{TO}/' "$1"
+  git diff --quiet -- "$1" && { echo "ANCHOR NOT FOUND in $1"; return 1; }
+  return 0
+}
+
+run() { # run NAME NODE(0|1)
+  local name=$1 node=$2 log="$OUT/$1.txt"
+  {
+    echo "# mutant $name  head=$(git rev-parse HEAD)  $(date -u +%FT%TZ)"
+    git diff --stat; git diff | head -60
+    git status --porcelain
+    echo "## build"
+    dotnet build CuriousContraptions.slnx -nologo -v q 2>&1 | grep -E "error|Warning\(s\)|Error\(s\)" | head -20
+    echo "build_exit=${PIPESTATUS[0]}"
+    echo "## dotnet test CuriousContraptions.tests"
+    dotnet test CuriousContraptions.tests --no-build -nologo 2>&1 | grep -E "^\s+Failed |^(Passed|Failed)!|error" | head -40
+    if [ "$node" = 1 ]; then
+      echo "## node harnesses"
+      node --experimental-vm-modules --test tools/*.test.mjs 2>&1 | grep -E "^not ok|^# (pass|fail)|ℹ (pass|fail)" | head -20
+    fi
+    echo "# end $(date -u +%FT%TZ)"
+  } > "$log" 2>&1
+  restore
+  echo "$name done: $(grep -E '^(Passed|Failed)!' "$log" | tr '\n' ' ') build=$(grep build_exit "$log")" | tee -a "$OUT/summary.txt"
+}
+
+restore
+
+# R1 re-add the second codec type and file (WorkshopWire.cs).
+printf 'namespace CuriousContraptions.Gpu;\n\npublic static class WorkshopWire\n{\n    public static int ResponseBytes => 144;\n}\n' > engine/gpu/WorkshopWire.cs
+run R1-readd-WorkshopWire-class 0
+
+# R2 re-add the router's catch-and-retry, as the old ArgumentException form.
+sub engine/gpu/WorkshopCommandRouter.cs '        var command = WorkshopWireFlatBuffers.DecodeCommand(bytes);' '        WorkshopCommand command;
+        try { command = WorkshopWireFlatBuffers.DecodeCommand(bytes); }
+        catch (ArgumentException) { command = WorkshopWireFlatBuffers.DecodeCommand(bytes.AsSpan(0, Math.Min(bytes.Length, 4 + (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(bytes))).ToArray()); }' && run R2-readd-router-catch-ArgumentException 0
+
+# R3 re-add the router's retry, catching the new typed fault and repairing the frame (trailing bytes trimmed).
+sub engine/gpu/WorkshopCommandRouter.cs '        var command = WorkshopWireFlatBuffers.DecodeCommand(bytes);' '        WorkshopCommand command;
+        try { command = WorkshopWireFlatBuffers.DecodeCommand(bytes); }
+        catch (WireFaultException) { command = WorkshopWireFlatBuffers.DecodeCommand(bytes.AsSpan(0, Math.Min(bytes.Length, 4 + (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(bytes))).ToArray()); }' && run R3-readd-router-retry-WireFault 0
+
+# R4 re-add a swallowing catch on the client's read decode (a refused read silently dropped).
+sub engine/gpu/BrowserWorkshopClient.cs '        var response = WorkshopWireFlatBuffers.DecodeResponse(bytes);' '        WorkshopResponse response;
+        try { response = WorkshopWireFlatBuffers.DecodeResponse(bytes); }
+        catch (WireFaultException) { return; }' && run R4-readd-client-read-swallow 0
+
+# R5 re-add extractReadIdentity in worker.js.
+sub CuriousContraptions.Simulation/wwwroot/worker.js 'function writePoseRing(slot) {' 'function extractReadIdentity(bytes) { return bytes.slice(0, 24); }
+function writePoseRing(slot) {' && run R5-readd-worker-extractReadIdentity 1
+
+# R6 re-add the vtable parse in workshop-client.js sequence().
+sub CuriousContraptions.web/wwwroot/workshop-client.js 'function sequence(bytes) {' 'function readField(view, tablePos, slot) { const vtablePos = tablePos - view.getInt32(tablePos, true); return view.getUint16(vtablePos + slot, true); }
+function sequence(bytes) {' && run R6-readd-client-vtable-parse 1
+
+# R7 re-add the responseAbi plumbing as a C# JSExport (the ABI the scripts were handed).
+sub CuriousContraptions.Simulation/Program.cs 'public static partial class Program
+{' 'public static partial class Program
+{
+    [System.Runtime.InteropServices.JavaScript.JSExport]
+    public static int[] ResponseAbi() => [144, 72, 104];' && run R7-readd-ResponseAbi-export 0
+
+# R8 re-add a legacy-save acceptance (an unframed former save is re-framed and retried: the migration the magic/version enabled).
+sub engine/gpu/WorkshopSaveCodec.cs '        catch (WireFaultException fault)
+        {' '        catch (WireFaultException first) when (first.Reason is WireFaultReason.TrailingBytes or WireFaultReason.UnknownIdentifier && bytes.Length > 8)
+        {
+            var framed = new byte[bytes.Length + 4];
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(framed, (uint)bytes.Length);
+            bytes.CopyTo(framed.AsSpan(4));
+            return SavedConstruction.GetRootAsSavedConstruction(WorkshopWireFlatBuffers.OpenFrame(framed, Identifier, SavedConstructionVerify.Verify));
+        }
+        catch (WireFaultException fault)
+        {' && run R8-readd-legacy-save-retry 0
+
+# R9 re-add the Counter's silent default (missing target -> 3).
+sub engine/gpu/WorkshopWireFlatBuffers.cs '0 => throw new WireFaultException(WireFaultReason.MissingField, $"Counter {inst.Id} has no target count."),' '0 => WorkshopCounter.PlacedTargetCount,' && run R9-readd-counter-silent-default 0
+
+# R10 re-add the float->int coercion from the f32 threshold when the whole field is absent.
+sub engine/gpu/WorkshopWireFlatBuffers.cs '0 => throw new WireFaultException(WireFaultReason.MissingField, $"Counter {inst.Id} has no target count."),' '0 => inst.Threshold > 0 ? (int)Math.Round(inst.Threshold) : throw new WireFaultException(WireFaultReason.MissingField, $"Counter {inst.Id} has no target count."),' && run R10-readd-counter-threshold-coercion 0
+
+# R11 re-add the session : default decode fallback.
+sub engine/gpu/WorkshopWireFlatBuffers.cs '        : throw new WireFaultException(WireFaultReason.MissingField, "A Workshop message requires its 16-byte runtime session.");' '        : default;' && run R11-readd-session-default 0
+
+# R12 re-add the save codec catch-all (a domain ArgumentException after pre-validation shown as the refusal).
+sub engine/gpu/WorkshopSaveCodec.cs '        return Construct(saved);' '        try { return Construct(saved); }
+        catch (ArgumentException defect) { throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange, "This save cannot be loaded: " + defect.Message, defect); }' && run R12-readd-save-catch-all-codec 0
+
+# R13 the same catch-all re-added at the UI Load boundary instead.
+sub ui/Workshop.cs '            var saved = WorkshopSaveCodec.DecodeStored(encoded);' '            WorkshopSavedConstruction saved;
+            try { saved = WorkshopSaveCodec.DecodeStored(encoded); }
+            catch (ArgumentException defect) { throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange, "This save cannot be loaded: " + defect.Message, defect); }' && run R13-readd-save-catch-all-ui 0
+
+# M1 skip the verifier (spec mutation plan).
+sub engine/gpu/WorkshopWireFlatBuffers.cs 'try { verified = new Verifier(buffer).VerifyBuffer(identifier, true, verify); }' 'try { verified = verify is not null || new Verifier(buffer).VerifyBuffer(identifier, true, verify); }' && run M1-skip-verifier 0
+
+# M2 drop the trailing-bytes size-prefix check (spec mutation plan).
+sub engine/gpu/WorkshopWireFlatBuffers.cs '        if (declared < bytes.Length)' '        if (declared < 0)' && run M2-drop-trailing-check 0
+
+# M3 skip motion encode (spec mutation plan).
+sub engine/gpu/WorkshopWireFlatBuffers.cs 'VectorOffset? motion = read.Motion is { } committed ? Wire.WorkshopResponse.CreateMotionVectorBlock(builder, committed.Bytes.ToArray()) : null;' 'VectorOffset? motion = read.Motion is { } committed && read.Tick.Value == ulong.MaxValue ? Wire.WorkshopResponse.CreateMotionVectorBlock(builder, committed.Bytes.ToArray()) : null;' && run M3-skip-motion-encode 0
+
+# M4 the save refusal is no longer a player rejection (would show as an Unexpected fault).
+sub ui/WorkshopUiFailure.cs ' or WorkshopTransportException or WorkshopSaveRejectedException;' ' or WorkshopTransportException;' && run M4-refusal-not-rejection 0
+
+# M5 pre-validation admits a counter target of 10 (the domain then faults).
+sub engine/gpu/WorkshopSavePrevalidation.cs 'if (r.TargetCount > WorkshopCounter.MaximumTargetCount)' 'if (r.TargetCount > WorkshopCounter.MaximumTargetCount + 1)' && run M5-prevalidation-counter-range 0
+
+# M6 the worker no longer copies the composed pose slot body records.
+sub CuriousContraptions.Simulation/wwwroot/worker.js '    target.set(slot.subarray(8), 8);' '    target.set(slot.subarray(8, 16), 8);' && run M6-worker-pose-slot-copy 1
+
+restore
+echo "final status lines: $(git status --porcelain | wc -l | tr -d ' ')" | tee -a "$OUT/summary.txt"

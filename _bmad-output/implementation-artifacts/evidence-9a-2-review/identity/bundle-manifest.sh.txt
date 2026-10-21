@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Murdoch-22: prints the E2eRunner bundle manifest (sorted `relative-path<TAB>sha256` lines, BundleIdentity.cs) of a bundle dir.
+# Usage: bash bundle-manifest.sh.txt <bundle-dir>
+set -eu
+cd "$1"
+find . -type f | sed 's|^\./||' | LC_ALL=C sort | while IFS= read -r p; do printf '%s\t%s\n' "$p" "$(shasum -a 256 "$p" | cut -d' ' -f1)"; done

@@ -1613,6 +1613,15 @@ So that two plates switch two gates independently.
 - F17-2: the workbench guide rule (`WorkbenchFullException`) and an authored lesson's settings rules (`PuzzleSettings`) refuse a stored save as `WorkshopSaveRejectedException` reasons; today they stay the domain's own typed refusals. Story 9A.26 deletes the lessons; fold the remainder there.
 - F17-3: the per-publish allocation of the FlatBuffers read (one array per committed read, the motion copy included) is measured and recorded against P0-034's budget. Story 9A.2 reuses one builder but did not measure.
 - F17-4: Story 9A.15 removes `PartId.ToNumericId`/`FromNumericId`: no wire or save reads them since Story 9A.2, and `tools/Coverage` must take its declared-identity list from the bundle instead.
+- F17-5: re-add mutants survive for a swallowing catch on the client read decode, a swallowing catch on the Animation endpoint decode, a retry on the client endpoint decode, and a C# `ResponseAbi` export. None of them is at head. Add a guard that kills each one.
+- F17-6: an undefined command kind, and a counter target of 10 on the command path, are refused as a `WireFault` that names the reason, not as a plain `ArgumentException`.
+- F17-7: the literal AC5 `rg` has 3 path-string hits left. Clear them or justify each one correctly.
+- F17-8: `docs/engine-contracts.md:203` names the deleted `UnsupportedSave`, and two element docs name deleted files. Correct all three.
+- F17-9: a Chrome test proves that content refusals keep the bench; today Chrome covers only frame damage.
+- F17-10: the response fuzz fixture covers the contact-work and electrical sections again.
+- F17-11: two publishes of one commit produce identical bundle identities, or the cause of the difference is found and recorded.
+- F17-12: save pre-validation takes its list of the 22 decodable elements from the decoder or the bundle, not from a hand-written list.
+- F17-13: `anvil check` reports 0 warnings (today GS-001 at `tools/e2e/workshop-driver.ts:985`), and Tier 1 evidence includes the anvil log.
 
 ### Story F.16: Catalogue Follow-ups
 *Status: Backlog. Filed from the 9A.14+18 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-14-bundle-sole-catalogue.md)).*
@@ -2503,7 +2512,11 @@ So that agents cannot copy or revive a dead pattern.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview (the Story 9.4b baseline).
 
 ### Story 9A.2: Single FlatBuffers Codec
-*Status: Backlog*
+*Status: Done (21 Oct 2026). Murdoch-22 gave a scoped Pass in round 1 on `0519cedb`, merged as `379f84ba` ([review](../implementation-artifacts/review-9a-2-single-flatbuffers-codec.md)).*
+- *One framed FlatBuffers codec now carries every Workshop message. The legacy binary codec, the fallbacks that swallowed decode errors, and the ABIs are deleted.*
+- *Stored saves are pre-validated, and a bad save is refused with a typed reason.*
+- *AC6: the one Full run passed 43 of 44. The single failure, CAT-020, was a test bug, and its suite-only fix passed a targeted rerun.*
+- *The Story 9.2 closure addendum is appended. Findings F17-5 to F17-13 are filed to Story F.17.*
 
 *Depends on: Story 9A.1. Position 10, after 9A.14, so that Story 9A.15 edits one codec. Audit: B1, plus the legacy decode arms in A3.*
 

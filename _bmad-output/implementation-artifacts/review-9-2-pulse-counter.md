@@ -133,3 +133,33 @@ Executed sequentially with zero concurrency to prevent WebGPU/SharedArrayBuffer 
 ## 6. Terminal Verdict
 
 **Pass** — Story 9.2 (Pulse Counter Event Accumulator, CAT-020) satisfies all acceptance criteria, architectural invariants, static analysis rules, unit tests, and real browser E2E regression suites.
+
+---
+
+## Addendum 21 Oct 2026+, retro-verification (Story 9A.2 closing review, Murdoch-22)
+
+**Scope.** This addendum covers only the clause that the reopened-record closure table ([epics.md](../planning-artifacts/epics.md), "Reopened-record closure") assigns to Story 9A.2: retro-verification #13, the Counter decode's silent default and float-to-int coercion. The original text above is unchanged; this section is an addition.
+
+**Reviewer.** Murdoch-22 is neither this story's implementer nor its original reviewer, and neither implemented nor reviewed Story 9A.2 before this review.
+
+**The false or unsupported claim.** Section 5.4 above says "Save/Load roundtrip preserves target count". At story time this held only through a silent default and a coercion. The retro-verification (`../planning-artifacts/retro-verification-2026-10-18.md`, Story 9.2, item C) quotes the decode as `inst.Threshold == 0 ? DefaultTargetCount : (int)Math.Round(inst.Threshold)` (`WorkshopWireFlatBuffers.cs:896`): a missing target became 3, and an f32 threshold was rounded to a count.
+
+**Corrected result (fresh evidence, Story 9A.2 candidate `0519cedb`; code `052d1134`).**
+- The target is now the whole field `target_count: uint32` (`schemas/workshop_wire.fbs:260`). `WholeCount`, `DefaultTargetCount` and the threshold expression return 0 hits at HEAD (`evidence-9a-2-review/identity/deletions-rg.txt`).
+- On the command and construction path, a missing (0) target is `WireFaultException(MissingField)` and one beyond Int32 is `OutOfRange`. On the save path, 0 is `WorkshopSaveRejection.MissingField` and 10 or more is `OutOfRange`. 1 to 9 decode exactly. Covered by `ConstructionDecodeBoundaryTests.CounterTargetIsAWholeFieldAcceptedExactlyInItsRange` (0, 1, 9, 10, Int32.Max, Int32.Max + 1, UInt32.Max) and `ACounterThresholdIsNotItsTarget`, where a threshold of 3 with no target is `MissingField` on both paths.
+- Re-add mutants, run on a disposable copy of `0519cedb` with all of `CuriousContraptions.tests`:
+  - R9 restores the silent default (`0 => WorkshopCounter.PlacedTargetCount`). It is killed with 3 red tests (`evidence-9a-2-review/mutants/R9-readd-counter-silent-default.txt`).
+  - R10 restores the threshold coercion. It is killed by `ACounterThresholdIsNotItsTarget` (`…/R10-readd-counter-threshold-coercion.txt`).
+- Chrome, CAT-020:
+  - Run `20261021T072341Z-44668`, 07:23:41Z to 07:26:52Z on 21 Oct 2026. Commit `49a88043`, clean status; suite digest `3205c172…`, reproduced from a clean copy; bundle `287dced1…`.
+  - CAT-020 passed 5/5, observation Clean, including test 1 (`counterInst.targetCount()` is 3) and test 5 (Save / reload / Load preserves the counter).
+  - This Chrome run is the implementer's (Amelia-21), not mine. I reused it under the coordinator's ruling after its source, status and suite digests reproduced from clean copies (`evidence-9a-2-review/identity/source-digests.txt`). I re-ran only the native tests (`evidence-9a-2-review/tier1/test.log`, 2244/2244, 07:33:12Z to 07:34:16Z on 21 Oct 2026, head `0519cedb`) and the mutants.
+  - Its raw logs are copied byte for byte into `evidence-9a-2-review/reused/e2e-cat020-49a88043/` (`summary.txt`, `summary.json`, `cat-020.tap`; checked by `reused/SHA256SUMS.txt`).
+  - The preceding Full run on `052d1134` failed CAT-020 tests 1 and 5 with `expected: 3, actual: 0`, because the suite still read the deleted threshold field. This shows the coercion no longer feeds the threshold.
+
+**New verdict for clause #13 (Counter decode default and coercion):** Pass. The clause closes at Story 9A.2's terminal Pass ([review-9a-2-single-flatbuffers-codec.md](review-9a-2-single-flatbuffers-codec.md)).
+
+**Still open, with owners.**
+- The editor half of #13: the Counter's `target_count` has no UI editor, and targets 1 and 9 are unproven in Chrome. It is owned by Stories 9A.40 and 9A.41, and 9A.41 ships inside C-Memory.
+- Story 9.2's other reopened clauses close with C-Memory, the last closing story in the table.
+- Story 9.2 therefore stays `in-progress` in `sprint-status.yaml`.

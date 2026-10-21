@@ -1,0 +1,24 @@
+# mutant R7-readd-ResponseAbi-export  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:44:45Z
+ CuriousContraptions.Simulation/Program.cs | 2 ++
+ 1 file changed, 2 insertions(+)
+diff --git a/CuriousContraptions.Simulation/Program.cs b/CuriousContraptions.Simulation/Program.cs
+index 4ac3855a..76cc34ce 100644
+--- a/CuriousContraptions.Simulation/Program.cs
++++ b/CuriousContraptions.Simulation/Program.cs
+@@ -10,6 +10,8 @@ namespace CuriousContraptions.Simulation;
+ 
+ public static partial class Program
+ {
++    [System.Runtime.InteropServices.JavaScript.JSExport]
++    public static int[] ResponseAbi() => [144, 72, 104];
+     private static WorkshopGpuDevice? _device;
+     private static WorkshopGpuDevice Device => _device ?? throw new InvalidOperationException("Worker document has not bootstrapped.");
+     private static WorkshopSimulation? _simulation;
+ M CuriousContraptions.Simulation/Program.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:45:23Z

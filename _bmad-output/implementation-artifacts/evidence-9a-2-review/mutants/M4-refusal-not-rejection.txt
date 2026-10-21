@@ -1,0 +1,25 @@
+# mutant M4-refusal-not-rejection  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:52:31Z
+ ui/WorkshopUiFailure.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/ui/WorkshopUiFailure.cs b/ui/WorkshopUiFailure.cs
+index 9ee3ab49..7d544114 100644
+--- a/ui/WorkshopUiFailure.cs
++++ b/ui/WorkshopUiFailure.cs
+@@ -20,7 +20,7 @@ public static class WorkshopUiFailure
+     public static bool IsRejection(Exception error)
+     {
+         ArgumentNullException.ThrowIfNull(error);
+-        return error is WorkshopEditRejectedException or WorkbenchFullException or WorkshopTransportException or WorkshopSaveRejectedException;
++        return error is WorkshopEditRejectedException or WorkbenchFullException or WorkshopTransportException;
+     }
+ 
+     /// <summary>Records the failure on its channel and returns the status-line text to show the player.</summary>
+ M ui/WorkshopUiFailure.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WorkshopSaveRejectionTests.TheRefusalIsAPlayerRejectionNotAFault [< 1 ms]
+Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:53:18Z

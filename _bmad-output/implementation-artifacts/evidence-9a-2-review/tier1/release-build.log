@@ -1,0 +1,202 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.2dog/CuriousContraptions.2dog.csproj (in 95 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.csproj (in 118 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.tests/CuriousContraptions.tests.csproj (in 99 ms).
+  45 of 48 projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/LifecycleContract/bin/Release/net10.0/LifecycleContract.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/TraceAllocations/bin/Release/net10.0/TraceAllocations.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/Preview/bin/Release/net10.0/Preview.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/Ownership/bin/Release/net10.0/Ownership.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/WireContract/bin/Release/net10.0/WireContract.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/Coverage/bin/Release/net10.0/Coverage.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/DelayBox/bin/Release/net10.0/DelayBox.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/PipeBend45/bin/Release/net10.0/PipeBend45.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/BowlingBall/bin/Release/net10.0/BowlingBall.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Battery/bin/Release/net10.0/Battery.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/PipeBend90/bin/Release/net10.0/PipeBend90.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Pipe/bin/Release/net10.0/Pipe.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Ramp/bin/Release/net10.0/Ramp.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Bumper/bin/Release/net10.0/Bumper.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Springboard/bin/Release/net10.0/Springboard.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/SystemClock/bin/Release/net10.0/SystemClock.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/SignalLamp/bin/Release/net10.0/SignalLamp.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/PoweredGate/bin/Release/net10.0/PoweredGate.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Wall/bin/Release/net10.0/Wall.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/PressurePlate/bin/Release/net10.0/PressurePlate.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/WorkerAotGuard.Tests/bin/Release/net10.0/WorkerAotGuard.Tests.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/StateLatch/bin/Release/net10.0/StateLatch.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Domino/bin/Release/net10.0/Domino.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Funnel/bin/Release/net10.0/Funnel.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/ImpactSwitch/bin/Release/net10.0/ImpactSwitch.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Ball/bin/Release/net10.0/Ball.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Counter/bin/Release/net10.0/Counter.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/Coverage.Tests/bin/Release/net10.0/Coverage.Tests.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/E2eRunner/bin/Release/net10.0/E2eRunner.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/BallDetector/bin/Release/net10.0/BallDetector.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/Receiver/bin/Release/net10.0/Receiver.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Bundle/bin/Release/net10.0/CuriousContraptions.Bundle.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/E2eRunner.Tests/bin/Release/net10.0/E2eRunner.Tests.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.2dog/bin/Release/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/BundleElements/bin/Release/net10.0/BundleElements.dll
+  
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/BundleElements/bin/Release/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/elements/elements.bundle.json (22 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/tools/BundleElements.Tests/bin/Release/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (54 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-9a2
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:13.22

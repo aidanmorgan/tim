@@ -1,0 +1,28 @@
+# mutant R3-readd-router-retry-WireFault  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:41:34Z
+ engine/gpu/WorkshopCommandRouter.cs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+diff --git a/engine/gpu/WorkshopCommandRouter.cs b/engine/gpu/WorkshopCommandRouter.cs
+index 3e8c5756..b71624f7 100644
+--- a/engine/gpu/WorkshopCommandRouter.cs
++++ b/engine/gpu/WorkshopCommandRouter.cs
+@@ -18,7 +18,9 @@ public sealed class WorkshopCommandRouter(Func<WorkshopCommand, Task<byte[]>> ex
+     public WorkshopRoutedCommand Dispatch(byte[] bytes)
+     {
+         ArgumentNullException.ThrowIfNull(bytes);
+-        var command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
++        WorkshopCommand command;
++        try { command = WorkshopWireFlatBuffers.DecodeCommand(bytes); }
++        catch (WireFaultException) { command = WorkshopWireFlatBuffers.DecodeCommand(bytes.AsSpan(0, Math.Min(bytes.Length, 4 + (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(bytes))).ToArray()); }
+         if (_retained.TryGetValue(command.Sequence.Value, out var existing))
+         {
+             if (!bytes.AsSpan().SequenceEqual(existing.Request))
+ M engine/gpu/WorkshopCommandRouter.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WorkshopWireTests.MalformedAndOutOfOrderInputsDoNotConsumeNextReliableIdentity [3 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.RejectedInputIsNeverRetried [< 1 ms]
+Failed!  - Failed:     2, Passed:  1890, Skipped:     0, Total:  1892, Duration: 37 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:42:29Z

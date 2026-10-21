@@ -1,0 +1,3 @@
+# head 0519cedb3c103fa7ed4eb504e3106c2451042984 + probe file and its Compile Include; 2026-10-21T07:49:02Z
+ PROBE P1 undefined command kind 99: ArgumentException: Unsupported Workshop command shape.
+ PROBE P1 control Run: decoded

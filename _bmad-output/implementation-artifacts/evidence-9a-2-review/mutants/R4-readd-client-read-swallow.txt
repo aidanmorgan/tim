@@ -1,0 +1,26 @@
+# mutant R4-readd-client-read-swallow  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:42:29Z
+ engine/gpu/BrowserWorkshopClient.cs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+diff --git a/engine/gpu/BrowserWorkshopClient.cs b/engine/gpu/BrowserWorkshopClient.cs
+index 307930ea..7591fd50 100644
+--- a/engine/gpu/BrowserWorkshopClient.cs
++++ b/engine/gpu/BrowserWorkshopClient.cs
+@@ -268,7 +268,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         var bytes = EventBytes(_id.Value);
+         var milliseconds = EventMilliseconds(_id.Value);
+         // One decode: a refused read is its WireFaultException, a transport fault, never retried through another codec.
+-        var response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
++        WorkshopResponse response;
++        try { response = WorkshopWireFlatBuffers.DecodeResponse(bytes); }
++        catch (WireFaultException) { return; }
+         if (_schedule is not { } active || response.Cadence.Value < active.Revision.Value ||
+             response.Projection.Value < active.World.Epoch.Value) return;
+         if (response.Cadence != active.Revision || response.Projection != active.World.Epoch)
+ M engine/gpu/BrowserWorkshopClient.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 36 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:43:23Z

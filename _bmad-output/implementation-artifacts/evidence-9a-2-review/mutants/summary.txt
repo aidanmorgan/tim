@@ -1,0 +1,23 @@
+R1-readd-WorkshopWire-class done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R2-readd-router-catch-ArgumentException done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R3-readd-router-retry-WireFault done: Failed!  - Failed:     2, Passed:  1890, Skipped:     0, Total:  1892, Duration: 37 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R4-readd-client-read-swallow done: Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 36 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R5-readd-worker-extractReadIdentity done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R6-readd-client-vtable-parse done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R7-readd-ResponseAbi-export done: Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R8-readd-legacy-save-retry done: Failed!  - Failed:    10, Passed:  1882, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R9-readd-counter-silent-default done: Failed!  - Failed:     3, Passed:  1889, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R10-readd-counter-threshold-coercion done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 36 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R11-readd-session-default done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 35 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R12-readd-save-catch-all-codec done: Failed!  - Failed:     3, Passed:  1889, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R13-readd-save-catch-all-ui done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+M1-skip-verifier done: Failed!  - Failed:    13, Passed:  1879, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+M2-drop-trailing-check done: Failed!  - Failed:    10, Passed:  1882, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+M3-skip-motion-encode done: Failed!  - Failed:    30, Passed:  1862, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+M4-refusal-not-rejection done: Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+M5-prevalidation-counter-range done: Failed!  - Failed:     3, Passed:  1889, Skipped:     0, Total:  1892, Duration: 35 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+M6-worker-pose-slot-copy done: Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+final status lines: 0
+R14-readd-animation-endpoint-swallow done: Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 38 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+R15-readd-client-endpoint-retry done: Passed!  - Failed:     0, Passed:  1892, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)  build=build_exit=0
+batch 2 final status lines: 0

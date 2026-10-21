@@ -1,0 +1,54 @@
+# mutant M3-skip-motion-encode  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:51:44Z
+ engine/gpu/WorkshopWireFlatBuffers.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 892ecbc0..68f0cb27 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -187,7 +187,7 @@ public static class WorkshopWireFlatBuffers
+         builder.Clear();
+         var read = response.Read;
+         var session = Session(builder, response.Session);
+-        VectorOffset? motion = read.Motion is { } committed ? Wire.WorkshopResponse.CreateMotionVectorBlock(builder, committed.Bytes.ToArray()) : null;
++        VectorOffset? motion = read.Motion is { } committed && read.Tick.Value == ulong.MaxValue ? Wire.WorkshopResponse.CreateMotionVectorBlock(builder, committed.Bytes.ToArray()) : null;
+ 
+         VectorOffset? electricalOffset = null;
+         if (read.Electrical.Count > 0)
+ M engine/gpu/WorkshopWireFlatBuffers.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.WorkshopReadTests.IndependentlyDecodedReadsDeduplicateByExactContent(bodyPresent: True, captured: True) [1 ms]
+  Failed CuriousContraptions.Tests.WorkshopReadTests.IndependentlyDecodedReadsDeduplicateByExactContent(bodyPresent: False, captured: False) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopReadTests.IndependentlyDecodedReadsDeduplicateByExactContent(bodyPresent: True, captured: False) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopReadTests.MotionAndOccurrenceChangesAreNotDuplicateAcknowledgements [1 ms]
+  Failed CuriousContraptions.Tests.WorkshopReadTests.CurrentWireContactOccurrenceMustOwnColliderAndInclusiveThreshold(effect: Paid) [3 ms]
+  Failed CuriousContraptions.Tests.WorkshopReadTests.CurrentWireContactOccurrenceMustOwnColliderAndInclusiveThreshold(effect: Passive) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopReadTests.DecodedMotionOwnsValidatedBytesAndPreservesWireContent [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: PhysicalRead, damage: WrongIdentifier) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: PhysicalRead, damage: Truncated) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: PhysicalRead, damage: CorruptRoot) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: PhysicalRead, damage: TrailingByte) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.MotionRoundTripsBitExactly(tick: 37) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.MotionRoundTripsBitExactly(tick: 0) [< 1 ms]
+  Failed CuriousContraptions.Tests.WireFaultTests.MotionRoundTripsBitExactly(tick: 1) [< 1 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "contact-load-32") [26 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "prismatics-16") [35 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "activation-timers-32") [9 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "triggers-8") [3 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "connections-8") [5 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "instances-32") [3 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "orientation-16") [56 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "sensors-guides-16") [10 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "bodies-33") [160 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "electrical-8") [52 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "dynamic-16") [6 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.OnePastEachRetiredCeilingCompilesStepsAndCrossesBothResponseCodecs(table: "contact-work-8") [35 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.TheFortySwitchBenchResetsExactlyAndSurvivesSaveAndLoad [78 ms]
+  Failed CuriousContraptions.Tests.NoFixedCapacityTests.AMachinePastEveryRetiredCeilingRunsResetsExactlyAndSurvivesSaveAndLoad [412 ms]
+  Failed CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Response_PhysicalRead_RoundTrips [< 1 ms]
+  Failed CuriousContraptions.Tests.ActivationTimerTests.CompleteWorkerResponseRoundTripsCountingAndFinishedTimerSections [1 ms]
+Failed!  - Failed:    30, Passed:  1862, Skipped:     0, Total:  1892, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:52:31Z

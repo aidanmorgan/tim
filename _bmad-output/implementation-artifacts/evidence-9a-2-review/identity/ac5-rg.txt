@@ -1,0 +1,10 @@
+# head 0519cedb3c103fa7ed4eb504e3106c2451042984 2026-10-21T07:37:01Z
+$ rg -n "WorkshopWire\." (whole tree)
+docs/work-orders/P0-004/ownership/part-023.json:107:        "Value": "engine/gpu/WorkshopWire.cs"
+CuriousContraptions.tests/WireFaultTests.cs:284:        foreach (var file in new[] { "engine/gpu/WorkshopWire.cs", "engine/gpu/WorkshopActivationWire.cs", "engine/gpu/WorkshopTimerWire.cs",
+docs/coverage/engine/capabilities-01.json:9893:          "Path": "engine/gpu/WorkshopWire.cs",
+--- non-_bmad hit count: 3
+$ rg -l "WorkshopWire\." | grep -v _bmad-output
+CuriousContraptions.tests/WireFaultTests.cs
+docs/work-orders/P0-004/ownership/part-023.json
+docs/coverage/engine/capabilities-01.json

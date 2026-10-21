@@ -1,0 +1,7 @@
+publish start 2026-10-21T07:41:28Z head=052d11345c5d04de38b8d6ea48cdfea7262d0575 status_lines=0
+publish exit=0 end 2026-10-21T07:43:37Z
+head=052d11345c5d04de38b8d6ea48cdfea7262d0575
+statusDigest=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+suiteSourceDigest=2ba66e4070d974ff400355958e949849d3e70597676977608fbd32ecb83723f9
+runnerSourceDigest=ee0dbe7370af06d480bcc1005515c2b44b9b69f4d4e5a85f24de4e8d7d5be9e0
+bundleIdentity(/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch22-id/CuriousContraptions.web/AppBundle)=3d7bdd990ebd5c5721de0eeba59abb0977648339ce65d91d636387f00a29896f files=306

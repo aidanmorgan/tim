@@ -1,0 +1,25 @@
+# mutant R10-readd-counter-threshold-coercion  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:46:55Z
+ engine/gpu/WorkshopWireFlatBuffers.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 892ecbc0..04020413 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -701,7 +701,7 @@ public static class WorkshopWireFlatBuffers
+     /// its admitted range is the Counter's own rule.</summary>
+     private static int TargetCount(InstanceRecord inst) => inst.TargetCount switch
+     {
+-        0 => throw new WireFaultException(WireFaultReason.MissingField, $"Counter {inst.Id} has no target count."),
++        0 => inst.Threshold > 0 ? (int)Math.Round(inst.Threshold) : throw new WireFaultException(WireFaultReason.MissingField, $"Counter {inst.Id} has no target count."),
+         > int.MaxValue => throw new WireFaultException(WireFaultReason.OutOfRange, $"Counter {inst.Id} target count {inst.TargetCount} is not an Int32."),
+         var count => (int)count,
+     };
+ M engine/gpu/WorkshopWireFlatBuffers.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.ACounterThresholdIsNotItsTarget [< 1 ms]
+Failed!  - Failed:     1, Passed:  1891, Skipped:     0, Total:  1892, Duration: 36 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:47:46Z

@@ -1,0 +1,27 @@
+# mutant M5-prevalidation-counter-range  head=0519cedb3c103fa7ed4eb504e3106c2451042984  2026-10-21T07:53:18Z
+ engine/gpu/WorkshopSavePrevalidation.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/engine/gpu/WorkshopSavePrevalidation.cs b/engine/gpu/WorkshopSavePrevalidation.cs
+index fdf77526..b1a7f4b3 100644
+--- a/engine/gpu/WorkshopSavePrevalidation.cs
++++ b/engine/gpu/WorkshopSavePrevalidation.cs
+@@ -194,7 +194,7 @@ internal static class WorkshopSavePrevalidation
+                 break;
+             case "counter":
+                 if (r.TargetCount == 0) throw Refuse(WorkshopSaveRejection.MissingField, $"Counter {id} has no target count.");
+-                if (r.TargetCount > WorkshopCounter.MaximumTargetCount)
++                if (r.TargetCount > WorkshopCounter.MaximumTargetCount + 1)
+                     throw Refuse(WorkshopSaveRejection.OutOfRange, $"Counter {id} target count {r.TargetCount} is outside [{WorkshopCounter.MinimumTargetCount}, {WorkshopCounter.MaximumTargetCount}].");
+                 break;
+             case "clock":
+ M engine/gpu/WorkshopSavePrevalidation.cs
+## build
+    0 Warning(s)
+    0 Error(s)
+build_exit=0
+## dotnet test CuriousContraptions.tests
+  Failed CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.CounterTargetIsAWholeFieldAcceptedExactlyInItsRange(count: 10) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "counter target ten", reason: OutOfRange) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveRejectionTests.IntegerLanesMatchTheDomain(part: "counter") [< 1 ms]
+Failed!  - Failed:     3, Passed:  1889, Skipped:     0, Total:  1892, Duration: 35 s - CuriousContraptions.tests.dll (net10.0)
+# end 2026-10-21T07:54:07Z
