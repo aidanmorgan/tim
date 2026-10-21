@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.TheCatalogueIdsWithoutAPackageAreExactlyTheFourListed [4 ms]
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 141 ms - CuriousContraptions.tests.dll (net10.0)

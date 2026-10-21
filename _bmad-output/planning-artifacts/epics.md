@@ -2155,7 +2155,7 @@ These stories implement the [Delivery order](#delivery-order-coordinator-21-oct-
 - **And** the union of the three stories' named suites passes once on the merged candidate.
 
 ### Story PKG-2: Funnel, Clear Pipe and Pipe Bend Element Packages (9A.8 + 9A.9 + 9A.10 + 9A.11)
-*Status: Backlog. Position 7.*
+*Status: Review (21 Oct 2026; [spec](../implementation-artifacts/spec-9a-pkg-2-funnel-pipe-bend-packages.md)). Position 7.*
 
 *Depends on: Story 9A.4.*
 
@@ -2628,7 +2628,7 @@ So that its duration parameter and activation ports come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.8: Funnel Element Package (CAT-030, id `funnel`)
-*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-2. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2644,7 +2644,7 @@ So that its hollow-frustum colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.9: Clear Pipe Element Package (CAT-048, id `pipe`)
-*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-2. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2660,7 +2660,7 @@ So that its compound-cylinder and torus-rim colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.10: 45° Pipe Bend Element Package (CAT-049, id `pipe_bend_45`)
-*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-2. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2676,7 +2676,7 @@ So that its torus-segment colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.11: 90° Pipe Bend Element Package (CAT-050, id `pipe_bend_90`)
-*Status: Backlog. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-2. Merged into PKG-2 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2822,6 +2822,7 @@ So that a part never behaves differently because a fallback table was used.
 - **And** `rg -w "WorkshopCanonicalColliders|LatchColliders|CreateLatchColliders"` returns 0 hits, and no runtime caller of `GltfPhysicsBodyExtractor` remains.
 - **And** the powered gate's moving blade, a second body on a prismatic slider, is declared in its package: its collider ((0.06, 0.72, 0.72) half-extents), its material (restitution 0.1, friction 0.3, threshold 0.1), its mass and its slider. Story 9A.4 declares only the frame and a footprint of 2 bodies, because the Abstractions cannot express a second body. *Filed by Story 9A.4, 21 Oct 2026.*
 - **And** the ball detector's scene-extracted ring, which `CaptureInstance` prefers over the canonical table, is reconciled with its package before the canonical table is deleted (the gate's scene colliders were not compared): today at least its second collider's rotation differs, (-0.19509006, 0, 0, 0.9807853) in the scene and (0.19509034, 0, 0, 0.9807853) in the canonical table and the package. *Filed by Story 9A.4, 21 Oct 2026.*
+- **And** the same reconciliation covers the funnel, the clear pipe and both bends. Their packages declare the canonical tables, which the worker's wire decode and every load compile. Their scene-extracted colliders differ: 64 of 72 funnel, 15 of 24 pipe, 36 of 40 bend-45 and 64 of 72 bend-90 rows differ in rotation bits, and the funnel and pipe ring rotations have the opposite sign about X ([probe](../implementation-artifacts/evidence-9a-pkg-2/scene-vs-canonical-probe.txt)). Main-thread placement of the funnel and bends prefers the scene set; the pipe always uses its canonical table. *Filed by PKG-2, 21 Oct 2026.*
 - **And** `cat-048a`, `cat-048b`, `cat-049`, `cat-050`, `cat-030` and `cat-037` pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 

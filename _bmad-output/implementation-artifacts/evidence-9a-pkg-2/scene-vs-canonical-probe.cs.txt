@@ -1,0 +1,45 @@
+using System;
+using System.IO;
+using System.Linq;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>PKG-2 throwaway probe: do the scene-extracted colliders (what CaptureInstance prefers) equal the canonical table bit for bit?</summary>
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class Pkg2ColliderProbe(NativeSceneFixture godot)
+{
+    [Fact]
+    public void Probe()
+    {
+        _ = godot;
+        var registry = new PartRegistry();
+        registry.Discover();
+        var lines = new System.Collections.Generic.List<string>();
+        foreach (var id in new[] { PartId.Funnel, PartId.PipeBend45, PartId.PipeBend90, PartId.Pipe })
+        {
+            var scene = registry.Definitions[id].Colliders;
+            var canonical = id == PartId.Pipe ? WorkshopCanonicalColliders.Pipe(PipeLength.Default) : WorkshopCanonicalColliders.For(id);
+            var diffs = 0;
+            for (var i = 0; i < Math.Max(scene.Count, canonical.Count); i++)
+            {
+                if (i >= scene.Count || i >= canonical.Count) { diffs++; continue; }
+                var (a, b) = (scene[i], canonical[i]);
+                var same = a.ShapeKind == b.ShapeKind && a.Radius.Equals(b.Radius) && a.HalfExtents == b.HalfExtents &&
+                    a.LocalPose.Translation == b.LocalPose.Translation &&
+                    BitConverter.SingleToInt32Bits(a.LocalPose.Rotation.X) == BitConverter.SingleToInt32Bits(b.LocalPose.Rotation.X) &&
+                    BitConverter.SingleToInt32Bits(a.LocalPose.Rotation.Y) == BitConverter.SingleToInt32Bits(b.LocalPose.Rotation.Y) &&
+                    BitConverter.SingleToInt32Bits(a.LocalPose.Rotation.Z) == BitConverter.SingleToInt32Bits(b.LocalPose.Rotation.Z) &&
+                    BitConverter.SingleToInt32Bits(a.LocalPose.Rotation.W) == BitConverter.SingleToInt32Bits(b.LocalPose.Rotation.W);
+                if (!same)
+                {
+                    diffs++;
+                    if (diffs <= 6) lines.Add($"  {id}[{i}] scene {a} | canonical {b}");
+                }
+            }
+            lines.Insert(lines.Count - Math.Min(diffs, 6), $"{id}: scene {scene.Count}, canonical {canonical.Count}, differing {diffs}");
+        }
+        File.WriteAllLines(Environment.GetEnvironmentVariable("PKG2_PROBE_OUT") ?? "/tmp/pkg2-probe.txt", lines);
+    }
+}

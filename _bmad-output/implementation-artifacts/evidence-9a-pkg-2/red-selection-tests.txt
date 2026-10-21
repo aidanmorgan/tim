@@ -1,0 +1,5 @@
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/Pipe/pipe.tscn", part: "pipe") [221 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/PipeBend45/pipe_bend_45.tscn", part: "pipe_bend_45") [230 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/PipeBend90/pipe_bend_90.tscn", part: "pipe_bend_90") [236 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/Funnel/funnel.tscn", part: "funnel") [200 ms]
+Failed!  - Failed:     4, Passed:     4, Skipped:     0, Total:     8, Duration: 1 s - E2eRunner.Tests.dll (net10.0)

@@ -16,6 +16,7 @@ internal static class ImpactRules
     {
         ["Ball"] = PartId.Basketball, ["BallDetector"] = PartId.BallDetector, ["Battery"] = PartId.Battery,
         ["BowlingBall"] = PartId.BowlingBall, ["Bumper"] = PartId.PinballBumper, ["Counter"] = PartId.Counter, ["Domino"] = PartId.Domino,
+        ["Funnel"] = PartId.Funnel, ["Pipe"] = PartId.Pipe, ["PipeBend45"] = PartId.PipeBend45, ["PipeBend90"] = PartId.PipeBend90,
         ["PoweredGate"] = PartId.PoweredGate, ["PressurePlate"] = PartId.PressurePlate, ["Ramp"] = PartId.Ramp,
         ["Receiver"] = PartId.Receiver, ["SignalLamp"] = PartId.SignalLamp, ["Springboard"] = PartId.Springboard,
         ["StateLatch"] = PartId.Latch, ["SystemClock"] = PartId.Clock, ["Wall"] = PartId.Wall,

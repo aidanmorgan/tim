@@ -49,4 +49,10 @@ public sealed class PackageReferenceTests
     public void TheReceiverBowlingBallAndSpringboardPackagesExist() =>
         Assert.Superset(new HashSet<string>(["BowlingBall", "Receiver", "Springboard"], StringComparer.Ordinal),
             PackageDiscovery.PackageNames(TestRepository.Root).ToHashSet(StringComparer.Ordinal));
+
+    /// <summary>PKG-2 (Stories 9A.8 to 9A.11).</summary>
+    [Fact]
+    public void TheFunnelPipeAndPipeBendPackagesExist() =>
+        Assert.Superset(new HashSet<string>(["Funnel", "Pipe", "PipeBend45", "PipeBend90"], StringComparer.Ordinal),
+            PackageDiscovery.PackageNames(TestRepository.Root).ToHashSet(StringComparer.Ordinal));
 }

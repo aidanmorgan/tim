@@ -1,0 +1,2 @@
+  Failed CuriousContraptions.BundleElements.Tests.PackageReferenceTests.TheFunnelPipeAndPipeBendPackagesExist [1 ms]
+Failed!  - Failed:     1, Passed:    17, Skipped:     0, Total:    18, Duration: 43 ms - BundleElements.Tests.dll (net10.0)
