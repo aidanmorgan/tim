@@ -147,4 +147,9 @@ Supporting changes:
 Results:
 - Pass, 3/3, with the smoke pair 6/6 ([summary](evidence-9a-pkg-1/e2e-pkg-1-try1/summary.txt)).
 - Mutant: pointing `basket.tres` back at the deleted `parts/scenes/basket.tscn` fails the run ([summary](evidence-9a-pkg-1/e2e-pkg-1-mutant-stale-scene/summary.txt)). The catalogue cannot load the missing scene, so even the smoke pair cancels. This is the player-visible failure the move must avoid.
-- The rerun on the committed head is recorded below.
+- Rerun on the committed head `ba4678d9`: Pass, pkg-1 3/3, smoke pair 6/6 ([summary](evidence-9a-pkg-1/e2e-pkg-1-ba4678d9/summary.txt)).
+- Tier 1 on `ba4678d9`: build 0 warnings; `dotnet test CuriousContraptions.slnx` 2210/2210 ([log](evidence-9a-pkg-1/tier1-build-ba4678d9.txt)).
+
+**Reuse of the 20-suite run.** The diff from `ce460ddc` to `ba4678d9` touches only test, runner and docs files: `tools/e2e/pkg-1.test.ts`, `tools/e2e/README.md`, `tools/E2eRunner/SuiteCatalogue.cs`, `tools/E2eRunner.Tests/SelectionTests.cs` and the `_bmad-output` records. No runtime or bundle input changed, so the 20-suite run on `ce460ddc` still applies.
+
+The runner's bundleIdentity differed across the three publishes of unchanged runtime sources (`ceb64963…`, `589fffef…`, `3839c6e4…`), so the publish is not byte-reproducible. That is noted for the reviewer, and it is not a PKG-1 change.
