@@ -10,7 +10,7 @@ public enum PresentationAxes : byte { None = 0, X = 1, Y = 2, Z = 4, XZ = X | Z,
 public enum PresentationProperty : byte
 {
     LocalX, LocalY, LocalZ, LocalRotationZ, UniformScale, ScaleX, ScaleY, ScaleZ,
-    AlbedoRed, AlbedoGreen, AlbedoBlue, EmissionRed, EmissionGreen, EmissionBlue
+    AlbedoRed, AlbedoGreen, AlbedoBlue, EmissionRed, EmissionGreen, EmissionBlue, Visible
 }
 
 public enum PresentationDriver : byte
@@ -18,7 +18,7 @@ public enum PresentationDriver : byte
     ActivationPulse, ContactImpulse, CapturePulse,
     CommittedActivation, CommittedCount, CommittedOscillatorPhase, CommittedOscillatorPulse,
     CommittedTimerProgress, CommittedTimerPhase, CommittedSupply, CommittedCharge, CommittedActuatorDrive,
-    CommittedContactLoadPhase, CommittedActuatorState
+    CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive
 }
 
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }

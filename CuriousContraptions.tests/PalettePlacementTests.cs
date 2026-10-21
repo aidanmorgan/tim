@@ -12,10 +12,13 @@ namespace CuriousContraptions.Tests;
 public sealed class PalettePlacementTests(NativeSceneFixture godot)
 {
 
-    [Fact]
-    public void GenericTimerEditorUsesSecondsAndCommitsOnlyValidStoppedValues()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void GenericTimerEditorUsesSecondsAndCommitsOnlyValidStoppedValues(bool rearming)
     {
-        var (scene, client) = BenchScene(PartId.Delay, PlacementAnswer.Applied);
+        var parameter = new ParameterId(rearming ? "hold_seconds" : "delay_seconds");
+        var (scene, client) = BenchScene(rearming ? new PartId("hold_timer") : PartId.Delay, PlacementAnswer.Applied);
         try
         {
             Assert.Empty(ClickBench(scene));
@@ -25,8 +28,8 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
             Press("Configure");
             var input = Assert.Single(Nodes<LineEdit>(choices));
-            Assert.Equal("delay_seconds", input.Name.ToString());
-            Assert.Contains(Nodes<Label>(choices), label => label.Text == "delay_seconds (0.1–12 s)");
+            Assert.Equal(parameter.Value, input.Name.ToString());
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == parameter.Value + " (0.1–12 s)");
             var before = scene.World.Construction;
             var commands = client.Commands.Count;
             var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
@@ -45,11 +48,11 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             input.Text = "0.1234567";
             Press("Apply parameters");
             var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
-            Assert.True(F32Bits.Equal(.1234567f, current.Parameters[new("delay_seconds")]));
+            Assert.True(F32Bits.Equal(.1234567f, current.Parameters[parameter]));
             Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
             var accepted = scene.World.Construction;
             commands = client.Commands.Count;
-            var proposed = new InstanceParameterCollection([new(new ParameterId("delay_seconds"), 12f)]);
+            var proposed = new InstanceParameterCollection([new(parameter, 12f)]);
             foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
             {
                 typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);

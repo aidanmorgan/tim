@@ -94,6 +94,7 @@ public sealed class BundlePortsTests
             new(1, 0, 0)),
         ["domino"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, .55f, 0f)], new(1, 1, 0)),
         ["funnel"] = ([], new(1, 0, 0)),
+        ["hold_timer"] = ([Activation(WorkshopSocket.ActivationIn, In, Pulse, 0f, .65f, .2f), Electrical(WorkshopSocket.PowerIn, In, -.78f, 0f, 0f), Electrical(WorkshopSocket.Supply, Out, .78f, 0f, 0f)], new(1, 0, 0)),
         ["lamp"] = ([Activation(WorkshopSocket.ActivationIn, In, Level, 0f, 0f, 0f)], new(1, 0, 0)),
         ["latch"] = ([Activation(WorkshopSocket.SetIn, In, Pulse, -.45f, .72f, 0f), Activation(WorkshopSocket.ResetIn, In, Pulse, .45f, .72f, 0f),
             Electrical(WorkshopSocket.PowerIn, In, -.93f, 0f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Level, 0f, -.56f, .38f),

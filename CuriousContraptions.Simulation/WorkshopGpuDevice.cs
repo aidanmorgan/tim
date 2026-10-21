@@ -98,14 +98,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         var supply = _committedSupply ?? throw new InvalidOperationException("No committed supply-route table.");
         controls.Validate(supply.Sources);
         // One-way: committed discrete switch state and the player's source enables decide this step's supply routes.
-        var activations = _committedActivations;
-        var inputs = PhysicsTickInputs.Compose(supply.Routes, supply.Prismatics, controls, owner => network.ContactClosed(activations, owner));
-        return Stage([], WorkshopGpuOperation.Advance, _committedProfile, new(checked(committed.Tick.Value + 1)), sequence,
-            network, supply, inputs);
+        var targetTick = new SimulationTick(checked(committed.Tick.Value + 1));
+        return Stage([], WorkshopGpuOperation.Advance, _committedProfile, targetTick, sequence,
+            network, supply, PhysicsTickInputs.Admission, controls: controls);
     }
 
     private async ValueTask<WorkshopGpuCandidate> Stage(byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network,
-        CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[]? colliders = null)
+        CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[]? colliders = null, WorkshopTickControls? controls = null)
     {
         profile.Validate();
         await _gate.WaitAsync();
@@ -114,6 +113,15 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             ObjectDisposedException.ThrowIf(_disposed, this);
             if (_active.Value != 0 || sequence.Value == 0) throw new InvalidOperationException("Invalid GPU candidate ownership.");
             _active = sequence;
+            ActivationSchedule? scheduled = null;
+            if (operation == WorkshopGpuOperation.Advance)
+            {
+                if (controls is null) throw new ArgumentException("Advance requires tick controls.");
+                scheduled = network.AdvanceScheduled(new(_committedActivations, _committedTimers, _committedMemory), expectedTick);
+                var checkpoint = scheduled.State;
+                inputs = PhysicsTickInputs.Compose(supply.Routes, supply.Prismatics, controls,
+                    owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner));
+            }
             await EnsureInitialized();
             await transport.Stage(input, operation, inputs);
             ObjectDisposedException.ThrowIf(_disposed, this);
@@ -172,8 +180,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             Span<ContactLoadSensorRead> loads = Scratch(ref _loadScratch, loadCount);
             for (var i = 0; i < loadCount; i++) loads[i] = PhysicsGpuAbi.ReadContactLoadSensor(bytes, i);
             var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory()) :
-                network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical,
-                    memory: _committedMemory, contactLoads: loads[..loadCount]);
+                network.ConsumeScheduled(scheduled ?? throw new InvalidOperationException("Scheduled checkpoint missing."),
+                    triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical, loads[..loadCount]);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers; _candidateMemory = logical.Memory;            _candidateNetwork = network; _candidateSupply = supply;
             var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),

@@ -1,5 +1,6 @@
 using System.Numerics;
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.BundleElements.Tests;
 
@@ -19,12 +20,28 @@ public sealed class BundleValidatorTests
         }) with
         {
             Domains = [SimulationDomain.Signal], Mechanical = null,
-            Signal = new([], Abstractions.Signal.SignalLatchMode.None, null, new("seconds"))
+            Signal = new([], Abstractions.Signal.SignalLatchMode.None, null, new("seconds", TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation))
         };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry entry) =>
             Bundle.BundleValidator.Validate([new("Fixture", entry)]);
         Assert.Empty(Check(timer));
-        Assert.NotEmpty(Check(timer with { Signal = timer.Signal! with { Timer = new("missing") } }));
+        foreach (var policy in new[]
+        {
+            new SignalTimerDescriptor("seconds", (TimerCompletionPolicy)255, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation),
+            new SignalTimerDescriptor("seconds", TimerCompletionPolicy.Latch, (TimerBoundary)255, TimerElapsedSignal.Activation),
+            new SignalTimerDescriptor("seconds", TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, (TimerElapsedSignal)255),
+            new SignalTimerDescriptor("seconds", TimerCompletionPolicy.Rearm, TimerBoundary.BeforePhysics, TimerElapsedSignal.None),
+            new SignalTimerDescriptor("seconds", TimerCompletionPolicy.Rearm, TimerBoundary.BeforeNetworks, TimerElapsedSignal.Activation)
+        })
+            Assert.NotEmpty(Check(timer with { Signal = timer.Signal! with { Timer = policy } }));
+        var silent = timer with
+        {
+            Ports = timer.Ports.Where(port => port.Socket != PortSocket.ActivationOut).ToArray(),
+            Signal = timer.Signal! with { Timer = new("seconds", TimerCompletionPolicy.Rearm, TimerBoundary.BeforeNetworks, TimerElapsedSignal.None) }
+        };
+        Assert.Empty(Check(silent));
+        Assert.NotEmpty(Check(silent with { Ports = [] }));
+        Assert.NotEmpty(Check(timer with { Signal = timer.Signal! with { Timer = timer.Signal.Timer!.Value with { DurationParameter = "missing" } } }));
         Assert.NotEmpty(Check(timer with { Ports = [] }));
         Assert.NotEmpty(Check(timer with { Metadata = timer.Metadata with
             { Parameters = [new("seconds", ParameterUnit.Metre, ParameterKind.Real, .1f, 12f, 1f, [])] } }));

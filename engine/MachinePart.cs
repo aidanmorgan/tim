@@ -235,7 +235,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
             var declaration = presentation.Bindings[i];
             var target = GetNodeOrNull<Node3D>(declaration.Node) ?? throw new ArgumentException("Declared visual target is absent.");
             var property = VisualProperty(declaration.Property);
-            if (property is >= WorkshopVisualProperty.AlbedoRed && ownedMaterials.Add(target))
+            if (property is >= WorkshopVisualProperty.AlbedoRed and <= WorkshopVisualProperty.EmissionBlue && ownedMaterials.Add(target))
             {
                 if (target is not MeshInstance3D mesh || mesh.GetActiveMaterial(0) is not StandardMaterial3D ownedMaterial)
                     throw new ArgumentException("Declared colour target lacks its material.");
@@ -276,6 +276,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
 
     private static WorkshopVisualProperty VisualProperty(PresentationProperty property) => property switch
     {
+        PresentationProperty.Visible => WorkshopVisualProperty.Visible,
         PresentationProperty.LocalX => WorkshopVisualProperty.LocalX,
         PresentationProperty.LocalY => WorkshopVisualProperty.LocalY,
         PresentationProperty.LocalZ => WorkshopVisualProperty.LocalZ,

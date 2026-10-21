@@ -634,7 +634,7 @@ public sealed class CSharpStaticGateTests
         "elements/Ball/Ball.csproj", "elements/BallDetector/BallDetector.csproj", "elements/Battery/Battery.csproj",
         "elements/BowlingBall/BowlingBall.csproj", "elements/Bumper/Bumper.csproj", "elements/Counter/Counter.csproj",
         "elements/DelayBox/DelayBox.csproj", "elements/Domino/Domino.csproj", "elements/Funnel/Funnel.csproj",
-        "elements/ImpactSwitch/ImpactSwitch.csproj", "elements/Pipe/Pipe.csproj",
+        "elements/HoldTimer/HoldTimer.csproj", "elements/ImpactSwitch/ImpactSwitch.csproj", "elements/Pipe/Pipe.csproj",
         "elements/PipeBend45/PipeBend45.csproj", "elements/PipeBend90/PipeBend90.csproj",
         "elements/PoweredGate/PoweredGate.csproj", "elements/PressurePlate/PressurePlate.csproj",
         "elements/Ramp/Ramp.csproj", "elements/Receiver/Receiver.csproj", "elements/SignalLamp/SignalLamp.csproj",

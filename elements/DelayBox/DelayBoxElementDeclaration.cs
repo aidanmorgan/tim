@@ -65,7 +65,7 @@ public sealed class DelayBoxElementDeclaration : ITimerElement, ISceneGeometryEl
         new("activation", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
     ];
 
-    public SignalTimerDescriptor Timer => new("delay_seconds");
+    public SignalTimerDescriptor Timer => new("delay_seconds", TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation);
 
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 
