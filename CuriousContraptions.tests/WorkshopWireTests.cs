@@ -970,9 +970,9 @@ public sealed class WorkshopWireTests
         Assert.Equal(new MetreVector((Half)1.1, (Half)1.5, (Half)1.1), guide.Maximum);
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
-        // Story 9A.1 (F.10): the header's leading word is zero padding; the retired state version 13 (or any other value) rejects.
-        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
-        var versioned = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(versioned, 13);
+        // Only the current layout tag is admitted; a retired state version remains unsupported.
+        Assert.Equal(PhysicsGpuAbi.CurrentLayoutTag, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset)));
+        var versioned = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(versioned.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset), 13);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(versioned, versioned, new(0)));
         Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(96)));
         var layout = PhysicsGpuAbi.Layout(bytes);
@@ -1029,7 +1029,7 @@ public sealed class WorkshopWireTests
     }
 
     [Theory]
-    [InlineData(0, 13u)] // the retired physics state version, where zero padding now stands
+    [InlineData(0, 13u)] // retired physics state version is not the current layout tag
     [InlineData(0, 2u)]
     [InlineData(4, 1u)]
     [InlineData(8, uint.MaxValue)]
