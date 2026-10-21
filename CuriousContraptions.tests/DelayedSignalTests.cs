@@ -64,7 +64,7 @@ public sealed class DelayedSignalTests
         Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Receiver(new(5),0,1,0,0,0,0,1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked=false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDelay=new((Half).5) } } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDuration=new((Half).5) } } }).Validate());
     }
 
     [Theory]

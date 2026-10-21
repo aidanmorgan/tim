@@ -44,7 +44,7 @@ public static class WorkshopGoalEvaluator
                 if (value.Node == goal.TargetNode && value.Owner.Value == goal.TargetNode.Value) target = value;
             }
             if (source is { } start && target is { } finish &&
-                ElapsedAtLeast(start.Occurrence.Time, finish.Occurrence.Time, goal.MinimumDelay))
+                ElapsedAtLeast(start.Occurrence.Time, finish.Occurrence.Time, goal.MinimumDuration))
                 return finish.Occurrence.Time;
         }
         return null;

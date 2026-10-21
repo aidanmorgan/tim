@@ -68,7 +68,7 @@ public sealed class DominoEffectTests
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(WorkshopInput.Domino(new(2), .5, .09, 0, 0, 0, 0, 1) with { Locked = true }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDelay = new((Half).5) } } }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDuration = new((Half).5) } } }).Validate());
         Assert.Equal(new PuzzleId("delayed_signal"), PuzzleCatalogue.WithPrecision(PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0)), new((Half).5)).Puzzle.Id);
         Assert.Equal((Half).5, PuzzleCatalogue.WithPrecision(lesson, new((Half).5)).Puzzle.Precision.Value);
         // A Domino offers no activation input: wiring into one is rejected before any admission.

@@ -607,7 +607,7 @@ public static class WorkshopWireFlatBuffers
             PuzzleRecord.AddGoalBody(builder, goalBody);
             PuzzleRecord.AddGoalTarget(builder, goalTarget);
             PuzzleRecord.AddGoalEventSource(builder, puzzle.Goal.EventSource.Value);
-            PuzzleRecord.AddGoalDelay(builder, (float)puzzle.Goal.MinimumDelay.Value);
+            PuzzleRecord.AddGoalDelay(builder, (float)puzzle.Goal.MinimumDuration.Value);
             PuzzleRecord.AddRawAssistance(builder, assistVec);
             puzzleOffset = PuzzleRecord.EndPuzzleRecord(builder);
         }
@@ -752,7 +752,7 @@ public static class WorkshopWireFlatBuffers
             var sensor = new GpuSensorId(p.GoalEventSource);
             var goal = kind == WorkshopGoalKind.ActivatedAfter
                 ? new WorkshopGoal(kind, default, default, sensor, new(p.GoalBody), new(p.GoalTarget), new((Half)p.GoalDelay))
-                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), sensor, MinimumDelay: new((Half)p.GoalDelay));
+                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), sensor, MinimumDuration: new((Half)p.GoalDelay));
             var assistance = p.GetRawAssistanceArray();
             if (assistance is not { Length: WorkshopPuzzleWire.AssistanceBytes })
                 throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its three assistance profiles.");

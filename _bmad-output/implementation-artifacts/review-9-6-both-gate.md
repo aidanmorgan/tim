@@ -23,3 +23,11 @@ This is And-only implementation approval, not completion of future operation law
 ## Publication-dependent checks
 
 Normal protected commit/push is authorized for this exact snapshot plus receipt. Terminal scoped Pass requires independently verified source/main tree equivalence and remote identity, successful normal hooks, exact-SHA CI native/build success, associated Pages artifact and successful deployment. Preserve any failed attempt and return concrete failures to the same owner. No redundant local campaign or routine Chrome solely for publication. Carry terminal receipt into the next normal publication.
+
+## Affected SnapshotApproval — CI correction
+
+Initial published mainb3efe1415bd51428c71251fca482230fbfa588e9 matched the approved snapshot plus receipt (independent9939ef). CI39688908644 failed2/2123 with2121 passing, deployment skipped (073010): stale catalogue count23 and two isolation entries still owned by completed Lessons. Independent4d5a64 confirmed MinimumDelay denotes generic goal duration, not Delay-element behavior.
+
+Approved correction tree `4c2cfc1c94a9a72776ed7fce8423a16920be5a44`, binary diff SHA256 `68aca5a1ad91304b5b74be90f467bc7a8ed364f0cdf52a68759ab8c4e638aae1`, baseb3efe141. Independent30f647 verifies eight files, clean whitespace/no unstaged changes: domain property MinimumDuration and current callers, exact2Known/3obsoleteGeneric deletions, count24. Duration type, numeric law and external wire field remain unchanged. Immutable lesson fixture bytes remain unchanged; explicit test-only projection preserves its historical property name, without production alias.
+
+Matching build1abaca passed clean13.31s; focused8b0109 passed119/119 in1s across catalogue decode, isolation, save/36-case golden, Delay/Domino and goal controls. Unchanged gate behavior proof and2121 CI passes remain applicable; no broad rerun required. Normal protected forward publication authorized with this addendum. Terminal Pass still requires corrective remote/tree equivalence, exact-SHA CI/native success and artifact/deployment verification. Initial failure remains recorded, not relabeled success.
