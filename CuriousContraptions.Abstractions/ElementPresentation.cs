@@ -18,7 +18,7 @@ public enum PresentationDriver : byte
     ActivationPulse, ContactImpulse, CapturePulse,
     CommittedActivation, CommittedCount, CommittedOscillatorPhase, CommittedOscillatorPulse,
     CommittedTimerProgress, CommittedTimerPhase, CommittedSupply, CommittedCharge, CommittedActuatorDrive,
-    CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive
+    CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive, CommittedElectricalSocket
 }
 
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
@@ -31,7 +31,7 @@ public enum PresentationBody : byte { Primary, Secondary }
 public readonly record struct PresentationBinding(
     string Node, PresentationProperty Property, PresentationDriver Driver,
     float From, float To, PresentationCurve Curve, float Duration,
-    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null);
+    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortSocket? Socket = null);
 
 public readonly record struct PresentationBodyBinding(string Node, PresentationBody Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(

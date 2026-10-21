@@ -105,6 +105,51 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally {Release(scene);}
     }
 
+    [Fact]
+    public async Task BothGateChooserRequiresAnExplicitSocketAndCancelDoesNotEdit()
+    {
+        var (scene,client)=BenchScene(BothGateTests.Kind,PlacementAnswer.Applied);
+        try
+        {
+            var construction=BothGateTests.Machine() with {Connections=WorkshopConnections.Empty};
+            await scene.World.ReplaceConstruction(construction);
+            var source=scene.World.Parts.Single(part=>part.AuthoredId.Value==1);
+            var gate=scene.World.Parts.Single(part=>part.AuthoredId.Value==4);
+            var choices=Field<VBoxContainer>(scene,"_connectionChoices");
+            IEnumerable<Button> Buttons()=>choices.GetChildren().OfType<Button>();
+            void Choose()
+            {
+                Assert.Empty(InvokeHandler(scene,"Select",source));
+                Assert.Single(Buttons(),button=>button.Text=="Connect Supply").EmitSignal(Button.SignalName.Pressed);
+                Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",gate));
+            }
+            var undos=Field<List<WorkshopConstruction>>(scene,"_undo").Count;
+            var commands=client.Commands.Count;
+            Choose();
+            Assert.Equal(3,Buttons().Count());
+            Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
+            Assert.Empty(scene.World.Construction.Connections);
+            Assert.Empty(InvokeHandler(scene,"CancelTool"));
+            Assert.Equal(commands,client.Commands.Count);
+            Assert.Equal(undos,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
+            foreach(var socket in new[]{WorkshopSocket.FirstIn,WorkshopSocket.SecondIn,WorkshopSocket.PowerIn})
+            {
+                Choose();
+                Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==socket).EmitSignal(Button.SignalName.Pressed);
+                var link=Assert.Single(scene.World.Construction.Connections);
+                Assert.Equal(socket,link.Input);
+                Assert.Equal(WorkshopConnectionDomain.Electrical,link.Domain);
+                Assert.Equal(undos+1,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
+                var saved=new WorkshopSavedConstruction(scene.World.Construction,new(6));
+                Assert.Equal(saved,WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
+                Assert.Empty(InvokeHandler(scene,"Undo"));
+                Assert.Empty(scene.World.Construction.Connections);
+            }
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally {Release(scene);}
+    }
+
     private static readonly Vector3 BenchPoint = new(0, 1, 0);
 
     private static MachineWorld DiscoveredWorld()

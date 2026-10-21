@@ -22,6 +22,8 @@ public partial class Workshop
         WorkshopSocket.ActivationOut => "ActivationOut",
         WorkshopSocket.ActivationIn => "ActivationIn",
         WorkshopSocket.PowerIn => "PowerIn",
+        WorkshopSocket.FirstIn => "FirstIn (one mark)",
+        WorkshopSocket.SecondIn => "SecondIn (two marks)",
         WorkshopSocket.Supply => "Supply",
         _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Unknown socket.")
     };
@@ -30,6 +32,9 @@ public partial class Workshop
     {
         WorkshopSocket.SetIn => "socket_set",
         WorkshopSocket.ResetIn => "socket_reset",
+        WorkshopSocket.FirstIn => "first_input",
+        WorkshopSocket.SecondIn => "second_input",
+        WorkshopSocket.PowerIn => "socket_power",
         _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Socket has no icon-only choice.")
     };
     private static WorkshopButton SocketIconButton(WorkshopSocket socket, Action action)
@@ -84,7 +89,9 @@ public partial class Workshop
         {
             if (port.Direction != WorkshopPortDirection.Input || port.Domain != source.Port.Domain) continue;
             var link = new WorkshopConnection(source.Owner, source.Port.Socket, target.AuthoredId, port.Socket, port.Domain);
-            var button = port.Socket is WorkshopSocket.SetIn or WorkshopSocket.ResetIn
+            var numbered = World.Registry.Ports.Has(target.PartId,WorkshopSocket.FirstIn,WorkshopConnectionDomain.Electrical,WorkshopPortDirection.Input);
+            var button = port.Socket is WorkshopSocket.SetIn or WorkshopSocket.ResetIn or WorkshopSocket.FirstIn or WorkshopSocket.SecondIn ||
+                (numbered && port.Socket==WorkshopSocket.PowerIn)
                 ? SocketIconButton(port.Socket, () => ChangeConnection(link, true))
                 // The UI font has no arrow glyph; "to" reads the same and always renders.
                 : SignalButton(SocketLabel(source.Port.Socket) + " to " + SocketLabel(port.Socket), () => ChangeConnection(link, true));

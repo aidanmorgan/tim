@@ -712,6 +712,49 @@ static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, k
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class ElectricalLogicRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ElectricalLogicRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+owner():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+inputs():number {
+  return this.bb!.readUint8(this.bb_pos + 8);
+}
+
+supplied():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 9);
+}
+
+active():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 10);
+}
+
+static sizeOf():number {
+  return 16;
+}
+
+static createElectricalLogicRecord(builder:flatbuffers.Builder, owner: bigint, inputs: number, supplied: boolean, active: boolean):flatbuffers.Offset {
+  builder.prep(8, 16);
+  builder.pad(5);
+  builder.writeInt8(Number(Boolean(active)));
+  builder.writeInt8(Number(Boolean(supplied)));
+  builder.writeInt8(inputs);
+  builder.writeInt64(BigInt(owner ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class ActuatorDriveRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -2080,13 +2123,23 @@ contactLoadsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-construction(obj?:ConstructionRecord):ConstructionRecord|null {
+electricalLogic(index: number, obj?:ElectricalLogicRecord):ElectricalLogicRecord|null {
   const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? (obj || new ElectricalLogicRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 16, this.bb!) : null;
+}
+
+electricalLogicLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 56);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+construction(obj?:ConstructionRecord):ConstructionRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 58);
   return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(27);
+  builder.startObject(28);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -2257,8 +2310,16 @@ static startContactLoadsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(32, numElems, 8);
 }
 
+static addElectricalLogic(builder:flatbuffers.Builder, electricalLogicOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(26, electricalLogicOffset, 0);
+}
+
+static startElectricalLogicVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(16, numElems, 8);
+}
+
 static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(26, constructionOffset, 0);
+  builder.addFieldOffset(27, constructionOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {

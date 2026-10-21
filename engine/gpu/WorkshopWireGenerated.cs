@@ -7,7 +7,6 @@ namespace CuriousContraptions.Wire
 using global::System;
 using global::System.Collections.Generic;
 using global::Google.FlatBuffers;
-
 public struct ActivationMemoryRecord : IFlatbufferObject
 {
   private Struct __p;
@@ -458,6 +457,29 @@ public enum ElectricalEnable : byte
   Disabled = 0,
   Enabled = 1,
 };
+
+public struct ElectricalLogicRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public ElectricalLogicRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public ulong Owner { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
+  public byte Inputs { get { return __p.bb.Get(__p.bb_pos + 8); } }
+  public bool Supplied { get { return 0!=__p.bb.Get(__p.bb_pos + 9); } }
+  public bool Active { get { return 0!=__p.bb.Get(__p.bb_pos + 10); } }
+
+  public static Offset<CuriousContraptions.Wire.ElectricalLogicRecord> CreateElectricalLogicRecord(FlatBufferBuilder builder, ulong Owner, byte Inputs, bool Supplied, bool Active) {
+    builder.Prep(8, 16);
+    builder.Pad(5);
+    builder.PutBool(Active);
+    builder.PutBool(Supplied);
+    builder.PutByte(Inputs);
+    builder.PutUlong(Owner);
+    return new Offset<CuriousContraptions.Wire.ElectricalLogicRecord>(builder.Offset);
+  }
+}
 
 public struct ElectricalSourceRecord : IFlatbufferObject
 {
@@ -1142,9 +1164,11 @@ public struct WorkshopResponse : IFlatbufferObject
   public int ActuatorDrivesLength { get { int o = __p.__offset(52); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.ContactLoadRecord? ContactLoads(int j) { int o = __p.__offset(54); return o != 0 ? (CuriousContraptions.Wire.ContactLoadRecord?)(new CuriousContraptions.Wire.ContactLoadRecord()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
   public int ContactLoadsLength { get { int o = __p.__offset(54); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public CuriousContraptions.Wire.ConstructionRecord? Construction { get { int o = __p.__offset(56); return o != 0 ? (CuriousContraptions.Wire.ConstructionRecord?)(new CuriousContraptions.Wire.ConstructionRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.ElectricalLogicRecord? ElectricalLogic(int j) { int o = __p.__offset(56); return o != 0 ? (CuriousContraptions.Wire.ElectricalLogicRecord?)(new CuriousContraptions.Wire.ElectricalLogicRecord()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
+  public int ElectricalLogicLength { get { int o = __p.__offset(56); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.ConstructionRecord? Construction { get { int o = __p.__offset(58); return o != 0 ? (CuriousContraptions.Wire.ConstructionRecord?)(new CuriousContraptions.Wire.ConstructionRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(27); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(28); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -1191,7 +1215,9 @@ public struct WorkshopResponse : IFlatbufferObject
   public static void StartActuatorDrivesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(40, numElems, 8); }
   public static void AddContactLoads(FlatBufferBuilder builder, VectorOffset contactLoadsOffset) { builder.AddOffset(25, contactLoadsOffset.Value, 0); }
   public static void StartContactLoadsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
-  public static void AddConstruction(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ConstructionRecord> constructionOffset) { builder.AddOffset(26, constructionOffset.Value, 0); }
+  public static void AddElectricalLogic(FlatBufferBuilder builder, VectorOffset electricalLogicOffset) { builder.AddOffset(26, electricalLogicOffset.Value, 0); }
+  public static void StartElectricalLogicVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 8); }
+  public static void AddConstruction(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ConstructionRecord> constructionOffset) { builder.AddOffset(27, constructionOffset.Value, 0); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -1232,7 +1258,8 @@ static public class WorkshopResponseVerify
       && verifier.VerifyField(tablePos, 50 /*Memory*/, 56 /*CuriousContraptions.Wire.MemoryObservationRecord*/, 8, false)
       && verifier.VerifyVectorOfData(tablePos, 52 /*ActuatorDrives*/, 40 /*CuriousContraptions.Wire.ActuatorDriveRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 54 /*ContactLoads*/, 32 /*CuriousContraptions.Wire.ContactLoadRecord*/, false)
-      && verifier.VerifyTable(tablePos, 56 /*Construction*/, CuriousContraptions.Wire.ConstructionRecordVerify.Verify, false)
+      && verifier.VerifyVectorOfData(tablePos, 56 /*ElectricalLogic*/, 16 /*CuriousContraptions.Wire.ElectricalLogicRecord*/, false)
+      && verifier.VerifyTable(tablePos, 58 /*Construction*/, CuriousContraptions.Wire.ConstructionRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

@@ -166,6 +166,13 @@ struct ActivationMemoryRecord {
     due_tick: uint64;
 }
 
+struct ElectricalLogicRecord {
+    owner: uint64;
+    inputs: uint8;
+    supplied: bool;
+    active: bool;
+}
+
 struct ActuatorDriveRecord {
     joint: uint64;
     owner: uint64;
@@ -353,6 +360,7 @@ table WorkshopResponse {
     memory: MemoryObservationRecord;
     actuator_drives: [ActuatorDriveRecord];
     contact_loads: [ContactLoadRecord];
+    electrical_logic: [ElectricalLogicRecord];
     // Present on an installation endpoint: Animation admits the same declared construction.
     construction: ConstructionRecord;
 }

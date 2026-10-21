@@ -105,9 +105,10 @@ Authority: [CAT-013](../requirements.md#current-cat-013), [todo-362](../requirem
 - **Run/Reset; Save/Load.** Reset returns lamps to slate and state to `Neither`; the three wires and their exact socket names round-trip.
 - **Integrations.** Chained gates; supply-loss control via the Latch (CAT-037) supply fixture.
 
-## 6. Open questions
+## 6. Current delivery decisions (22 October 2026)
 
-1. **Observable consumer.** Story 9.6 AC drives "an output lamp", but the Signal lamp is activation-only (CAT-035: "not a fabricated electrical PowerIn"). Candidate supplied consumers are Motor (CAT-042, Story 11.1) and Powered gate (CAT-051, Story 8.2, the legacy tests' load); the Powered gate precedes Epic 9 and the Motor follows it. Which supplied consumer proves Story 9.6: unspecified — owner decision.
-2. **Condition sources.** "Two separate Battery circuits" can feed the conditions directly; switched conditions need the CAT-063 Switch supply mode, not yet scheduled before Epic 9. Whether 9.6 uses batteries only: unspecified — owner decision.
-3. **binary16 activation and cosmetic lanes.** The current activation timers, activation times and cosmetic durations are binary16 (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether the gate slice migrates the cosmetic lanes it extends to f32 first, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision.
-4. **"Disconnecting either battery" during Run.** The Story 9.6 AC says "disconnecting either battery extinguishes the lamp" (and Story 8.1 says "disconnecting the cable stops the motor immediately"). The legacy never edited wires during Run; supply loss was an activation command through the latch fixture, never a live topology edit ([CAT-005 N19](CAT-005-battery.md#4-legacy-harvest)), and the network compiles once per Run (N8). No legacy source covers mid-Run disconnection. Whether wire edits during Run are allowed, or the AC means supply loss through a contact or an edit between Runs: unspecified — owner decision.
+1. Powered Gate is the actual supplied consumer for Story9.6; Signal lamp remains activation-only. Named Motor integration remains pending at Motor delivery.
+2. Separate batteries drive FirstIn/SecondIn; current declared Switch/Latch/Hold contacts may control power. Native proof includes Latch Set/Reset and source restoration plus Hold opening a mutual Both Gate loop.
+3. Current shared presentation uses f32 and the existing 0.1s SmoothStep law. Common physical numeric migration remains9A.44; this slice does not claim it complete.
+4. Topology compiles once per Run. Disconnection means current source/contact loss or editing between Runs, not mid-Run cable mutation. Duplicate identical edges reject; distinct source fan-in on typed gate inputs remains legal for seeded cycles.
+5. And is the admitted operation in this slice; later operations/feedback laws remain9.7/9.8. G11 retains committed active state without resurrecting legacy per-part event delivery. Production C# unit proof is primary; actual Chrome visual/construction qualification remains queued until catalogue completion.

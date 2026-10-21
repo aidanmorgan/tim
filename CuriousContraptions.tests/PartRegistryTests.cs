@@ -19,7 +19,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper,
         PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector,
         PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
-        PartId.Latch, new("hold_timer")
+        PartId.Latch, new("hold_timer"), new("both_gate")
     ];
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
@@ -36,7 +36,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     {
         _ = godot;
         var registry = Loaded();
-        Assert.Equal(23, registry.Definitions.Count);
+        Assert.Equal(24, registry.Definitions.Count);
         Assert.Equal(PaletteRows, registry.Free.Keys);
         Assert.All(registry.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         var entries = PartRegistry.Read(Bundle()).ToDictionary(entry => new PartId(entry.Metadata.Id));
@@ -127,7 +127,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.Contains(expected, error.Message, StringComparison.Ordinal);
         // Nothing is kept from a refused load: the registry still holds the last good bundle.
         Assert.Equal(PaletteRows, registry.Free.Keys);
-        Assert.Equal(23, registry.Definitions.Count);
+        Assert.Equal(24, registry.Definitions.Count);
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
 
     /// <summary>The UI-control and socket-choice pictograms Story 9A.18 keeps, in ordinal order.</summary>
     private static readonly string[] UiPictograms = ["cube", "extend_input", "extended_output", "first_input", "front", "move", "reset_input",
-        "resize", "retract_input", "retracted_output", "second_input", "set_input", "socket_reset", "socket_set"];
+        "resize", "retract_input", "retracted_output", "second_input", "set_input", "socket_power", "socket_reset", "socket_set"];
 
     private static string[] GameSources() =>
         GameSourceDirectories.SelectMany(directory => Directory.GetFiles(Path.Combine(Root, directory), "*.cs", SearchOption.AllDirectories)).ToArray();
@@ -258,7 +258,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
         var ids = PartRegistry.Read(Bundle()).Select(entry => entry.Metadata.Id)
             .Concat(UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value)).ToArray();
-        Assert.Equal(25, ids.Length);
+        Assert.Equal(26, ids.Length);
         foreach (var id in ids)
         {
             Assert.DoesNotContain($"\"{id}\"", source, StringComparison.Ordinal);

@@ -3,6 +3,25 @@ using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
+[Flags]
+public enum ElectricalInputState : byte { Neither=0, FirstOnly=1, SecondOnly=2, Both=3 }
+public readonly record struct ElectricalLogicRead(GpuBodyId Owner, ElectricalInputState Inputs, bool Supplied, bool Active)
+{
+    public void Validate()
+    {
+        if (Owner.Value==0 || !Enum.IsDefined(Inputs) || (Active && !Supplied))
+            throw new ArgumentException("Invalid committed electrical logic observation.");
+    }
+    public bool At(WorkshopSocket socket) => socket switch
+    {
+        WorkshopSocket.FirstIn => (Inputs & ElectricalInputState.FirstOnly)!=0,
+        WorkshopSocket.SecondIn => (Inputs & ElectricalInputState.SecondOnly)!=0,
+        WorkshopSocket.PowerIn => Supplied,
+        WorkshopSocket.Supply => Active,
+        _ => throw new ArgumentOutOfRangeException(nameof(socket))
+    };
+}
+
 /// <summary>The exact drive input consumed by one committed physics tick, with its resulting axial motion.</summary>
 public readonly record struct ActuatorDriveRead(
     PrismaticConstraintId Joint, GpuBodyId Owner, bool SupplyClosed, float Coordinate, float Speed, float Lower, float Upper)
@@ -21,9 +40,11 @@ public readonly struct PhysicsPresentationRead
 {
     private readonly ActuatorDriveRead[]? _actuators;
     private readonly ContactLoadSensorRead[]? _loads;
+    private readonly ElectricalLogicRead[]? _logic;
+    public ReadOnlySpan<ElectricalLogicRead> Logic => _logic;
     public ReadOnlySpan<ActuatorDriveRead> Actuators => _actuators;
     public ReadOnlySpan<ContactLoadSensorRead> Loads => _loads;
-    public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads)
+    public PhysicsPresentationRead(ReadOnlySpan<ActuatorDriveRead> actuators, ReadOnlySpan<ContactLoadSensorRead> loads, ReadOnlySpan<ElectricalLogicRead> logic = default)
     {
         for (var i = 0; i < actuators.Length; i++)
         {
@@ -39,10 +60,16 @@ public readonly struct PhysicsPresentationRead
                 (i > 0 && loads[i - 1].Sensor.Value >= load.Sensor.Value))
                 throw new ArgumentException("Invalid committed contact-load observation.");
         }
-        _actuators = actuators.ToArray(); _loads = loads.ToArray();
+        for(var i=0;i<logic.Length;i++)
+        {
+            logic[i].Validate();
+            if(i>0 && logic[i-1].Owner.Value>=logic[i].Owner.Value)
+                throw new ArgumentException("Electrical logic observations require ordered unique owners.");
+        }
+        _actuators = actuators.ToArray(); _loads = loads.ToArray(); _logic=logic.ToArray();
     }
     public bool HasSameBits(PhysicsPresentationRead other) =>
-        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads);
+        Actuators.SequenceEqual(other.Actuators) && Loads.SequenceEqual(other.Loads) && Logic.SequenceEqual(other.Logic);
 }
 
 public static partial class PhysicsGpuAbi
@@ -71,7 +98,7 @@ public static partial class PhysicsGpuAbi
         }
         var loads = new ContactLoadSensorRead[ReadContactLoadCount(bytes)];
         for (var i = 0; i < loads.Length; i++) loads[i] = ReadContactLoadSensor(bytes, i);
-        return new(actuators, loads);
+        return new(actuators, loads, inputs.Logic);
     }
     private static Vector3 PresentationVector(ReadOnlySpan<byte> body, int offset) =>
         new(RF(body, offset), RF(body, offset + 4), RF(body, offset + 8));

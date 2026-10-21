@@ -55,6 +55,28 @@ public static class WorkshopMessages
             if (!HasOwner(actuator.Owner)) throw new ArgumentException("Actuator observation names a foreign owner.");
         foreach (var load in read.Presentation.Loads)
             if (!HasOwner(load.Frame)) throw new ArgumentException("Contact-load observation names a foreign owner.");
+        var expectedLogic=0;
+        foreach(var instance in construction.Instances)
+        {
+            var supply=DeclaredPhysics.Of(instance.PartId).Electrical?.Supply;
+            if(supply?.Kind!=CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.LogicGate) continue;
+            expectedLogic++;
+            var found=false;
+            foreach(var logic in read.Presentation.Logic)
+                if(logic.Owner==instance.Id)
+                {
+                    found=true;
+                    var expected=logic.Supplied && CompiledSupplyGraph.Evaluate(supply.Value.Operation!.Value,
+                        logic.At(WorkshopSocket.FirstIn),logic.At(WorkshopSocket.SecondIn));
+                    if(logic.Active!=expected || (read.Tick.Value==0 &&
+                        (logic.Inputs!=ElectricalInputState.Neither || logic.Supplied || logic.Active)))
+                        throw new ArgumentException("Electrical logic observation contradicts its declared operation or admission state.");
+                }
+            if(read.Epoch.Value!=0 && !found)
+                throw new ArgumentException("Electrical logic observation omits a declared owner.");
+        }
+        if(read.Presentation.Logic.Length!=(read.Epoch.Value==0 ? 0 : expectedLogic))
+            throw new ArgumentException("Electrical logic observation population differs from its installed owners.");
         bool HasOwner(GpuBodyId owner)
         {
             foreach (var instance in construction.Instances) if (instance.Id == owner) return true;
@@ -82,7 +104,7 @@ public static class WorkshopMessages
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0 || read.Presentation.Actuators.Length != 0 || read.Presentation.Loads.Length != 0 || read.Presentation.Logic.Length != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 }

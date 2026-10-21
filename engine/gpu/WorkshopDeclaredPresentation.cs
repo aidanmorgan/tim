@@ -260,6 +260,10 @@ public sealed class WorkshopDeclaredPresentation
                     };
                 }
                 break;
+            case PresentationDriver.CommittedElectricalSocket:
+                foreach (var logic in read.Presentation.Logic)
+                    if (logic.Owner == track.Owner) return logic.At((WorkshopSocket)d.Socket!.Value) ? 1 : 0;
+                break;
             case PresentationDriver.CommittedSupply:
             case PresentationDriver.CommittedCharge:
                 for (var i = 0; i < read.Electrical.Count; i++)

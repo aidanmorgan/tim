@@ -25,6 +25,8 @@ public enum PortSocket : uint
     SetIn = 2,
     ResetIn = 3,
     ActivationIn = 4,
+    FirstIn = 5,
+    SecondIn = 6,
     Supply = 7,
     PowerIn = 8
 }

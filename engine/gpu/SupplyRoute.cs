@@ -1,12 +1,14 @@
 using System;
 using System.Linq;
+using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Gpu;
 
-public enum SupplyNodeKind { Source, Contact, Consumer }
+public enum SupplyNodeKind { Source, Contact, Consumer, LogicGate }
 public readonly record struct SupplyNodeDeclaration(GpuBodyId Owner, SupplyNodeKind Kind,
-    ElectricalSourceId Source = default, PrismaticConstraintId Consumer = default);
-public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target);
+    ElectricalSourceId Source = default, PrismaticConstraintId Consumer = default, LogicGateOperation? Operation = null);
+public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target, WorkshopSocket Input);
+public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogicRead[] Logic);
 
 /// <summary>Declared topology shared by physical supply projection and source provenance queries.</summary>
 public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] Edges)
@@ -23,6 +25,8 @@ public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] 
                 nodes.Add(new(instance.Id,SupplyNodeKind.Source,WorkshopPhysicsCompiler.ElectricalSource(instance.Id)));
             else if(kind==CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact)
                 nodes.Add(new(instance.Id,SupplyNodeKind.Contact));
+            else if(kind==SupplyCapabilityKind.LogicGate)
+                nodes.Add(new(instance.Id,SupplyNodeKind.LogicGate, Operation: entry.Electrical!.Supply!.Value.Operation));
             else if(entry.Ports.Any(port=>port.Socket==CuriousContraptions.Abstractions.PortSocket.PowerIn))
                 nodes.Add(new(instance.Id,SupplyNodeKind.Consumer));
         }
@@ -30,7 +34,7 @@ public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] 
         var edges=construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical &&
             byOwner.TryGetValue(link.Source,out var from) && from.Kind!=SupplyNodeKind.Consumer &&
             byOwner.TryGetValue(link.Target,out var to) && to.Kind!=SupplyNodeKind.Source)
-            .Select(link=>new SupplyEdge(link.Source,link.Target)).ToArray();
+            .Select(link=>new SupplyEdge(link.Source,link.Target,link.Input)).ToArray();
         return new(nodes.ToArray(),edges);
     }
     public GpuBodyId[] UpstreamSources(GpuBodyId target)
@@ -38,7 +42,7 @@ public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] 
         var seen=new System.Collections.Generic.HashSet<GpuBodyId>();
         var pending=new System.Collections.Generic.Queue<GpuBodyId>(); pending.Enqueue(target);
         while(pending.TryDequeue(out var current))
-            if(seen.Add(current)) foreach(var edge in Edges) if(edge.Target==current) pending.Enqueue(edge.Source);
+            if(seen.Add(current)) foreach(var edge in Edges) if(edge.Target==current && edge.Input==WorkshopSocket.PowerIn) pending.Enqueue(edge.Source);
         return Nodes.Where(node=>node.Kind==SupplyNodeKind.Source && seen.Contains(node.Owner))
             .Select(node=>node.Owner).OrderBy(owner=>owner.Value).ToArray();
     }
@@ -50,7 +54,7 @@ public sealed class CompiledSupplyGraph
     private readonly SupplyNodeDeclaration[] _nodes;
     private readonly int[] _sources;
     private readonly int[] _consumers;
-    private readonly int[][] _outputs;
+    private readonly (int Source, WorkshopSocket Input)[][] _inputs;
     public ReadOnlySpan<SupplyNodeDeclaration> Nodes => _nodes;
     public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> consumers,
@@ -60,20 +64,23 @@ public sealed class CompiledSupplyGraph
         _sources = new int[nodes.Length]; _consumers = new int[nodes.Length];
         Array.Fill(_sources, -1); Array.Fill(_consumers, -1);
         var slots = new System.Collections.Generic.Dictionary<GpuBodyId,int>();
-        var outputs = new System.Collections.Generic.List<int>[nodes.Length];
+        var inputs = new System.Collections.Generic.List<(int Source, WorkshopSocket Input)>[nodes.Length];
         var seenConsumers = new System.Collections.Generic.HashSet<PrismaticConstraintId>();
         for (var i=0;i<nodes.Length;i++)
         {
-            var node=nodes[i]; outputs[i]=[];
+            var node=nodes[i]; inputs[i]=[];
             if (!Enum.IsDefined(node.Kind) || !slots.TryAdd(node.Owner,i) ||
                 !bodies.ToArray().Any(body=>body.Id==node.Owner))
                 throw new ArgumentException("Electrical graph node requires a unique admitted owner and defined kind.");
+            if ((node.Kind==SupplyNodeKind.LogicGate) != node.Operation.HasValue ||
+                (node.Operation is { } operation && !Enum.IsDefined(operation)))
+                throw new ArgumentException("Electrical logic operation is not admitted.");
             if (node.Kind==SupplyNodeKind.Source)
             {
                 for(var s=0;s<sources.Length;s++) if(sources[s].Id==node.Source && sources[s].Owner==node.Owner) _sources[i]=s;
                 if(_sources[i]<0 || node.Consumer!=default) throw new ArgumentException("Electrical source node is not admitted.");
             }
-            else if(node.Kind==SupplyNodeKind.Contact)
+            else if(node.Kind is SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)
             {
                 if(node.Source!=default || node.Consumer!=default || !bodies.ToArray().Any(body=>body.Id==node.Owner && body.Motion==RigidMotionKind.Static))
                     throw new ArgumentException("Electrical contact requires one static owner.");
@@ -89,29 +96,67 @@ public sealed class CompiledSupplyGraph
         foreach(var edge in edges)
         {
             if(!slots.TryGetValue(edge.Source,out var from) || !slots.TryGetValue(edge.Target,out var to) || from==to ||
-                !seenEdges.Add(edge) || nodes[from].Kind==SupplyNodeKind.Consumer || nodes[to].Kind==SupplyNodeKind.Source)
+                !seenEdges.Add(edge) || nodes[from].Kind==SupplyNodeKind.Consumer || nodes[to].Kind==SupplyNodeKind.Source ||
+                (edge.Input != WorkshopSocket.PowerIn &&
+                    (nodes[to].Kind != SupplyNodeKind.LogicGate || edge.Input is not (WorkshopSocket.FirstIn or WorkshopSocket.SecondIn))))
                 throw new ArgumentException("Electrical graph edge is unsupported or duplicated.");
-            outputs[from].Add(to);
+            inputs[to].Add((from,edge.Input));
         }
-        _outputs=outputs.Select(list=>list.ToArray()).ToArray();
+        _inputs=inputs.Select(list=>list.ToArray()).ToArray();
     }
-    public bool[] Resolve(int consumers, WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed)
+    public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
+        .OrderBy(node=>node.Owner.Value).Select(node=>new ElectricalLogicRead(node.Owner,ElectricalInputState.Neither,false,false)).ToArray();
+    public SupplyResolution Resolve(int consumers, WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed)
     {
         ArgumentNullException.ThrowIfNull(contactClosed);
-        var reached=new bool[_nodes.Length]; var pending=new int[_nodes.Length]; var head=0; var tail=0;
-        var closed=new bool[consumers];
-        for(var i=0;i<_nodes.Length;i++)
-            if(_sources[i]>=0 && controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled)
-            { reached[i]=true; pending[tail++]=i; }
-        while(head<tail)
+        var powered = new bool[_nodes.Length];
+        var contacts = new bool[_nodes.Length];
+        for (var i=0;i<_nodes.Length;i++)
         {
-            var slot=pending[head++];
-            if(_nodes[slot].Kind==SupplyNodeKind.Contact && !contactClosed(_nodes[slot].Owner)) continue;
-            if(_consumers[slot]>=0) closed[_consumers[slot]]=true;
-            foreach(var next in _outputs[slot]) if(!reached[next]) {reached[next]=true;pending[tail++]=next;}
+            if (_sources[i]>=0) powered[i]=controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled;
+            if (_nodes[i].Kind==SupplyNodeKind.Contact) contacts[i]=contactClosed(_nodes[i].Owner);
         }
-        return closed;
+        // Monotone declared rules converge from the unpowered least fixed point. Each node can
+        // become powered only once; no previous tick feeds this candidate's solution.
+        var changed = true;
+        while (changed)
+        {
+            changed=false;
+            for (var i=0;i<_nodes.Length;i++)
+            {
+                if (powered[i] || _nodes[i].Kind==SupplyNodeKind.Source) continue;
+                var supplied = Input(i,WorkshopSocket.PowerIn);
+                var active = _nodes[i].Kind switch
+                {
+                    SupplyNodeKind.Contact => supplied && contacts[i],
+                    SupplyNodeKind.Consumer => supplied,
+                    SupplyNodeKind.LogicGate => supplied && Evaluate(_nodes[i].Operation!.Value,
+                        Input(i,WorkshopSocket.FirstIn),Input(i,WorkshopSocket.SecondIn)),
+                    _ => throw new ArgumentException("Unsupported electrical node.")
+                };
+                if (active) { powered[i]=true; changed=true; }
+            }
+        }
+        var closed=new bool[consumers];
+        var logic=new System.Collections.Generic.List<ElectricalLogicRead>();
+        for(var i=0;i<_nodes.Length;i++)
+        {
+            if(_consumers[i]>=0) closed[_consumers[i]]=powered[i];
+            if(_nodes[i].Kind==SupplyNodeKind.LogicGate)
+                logic.Add(new(_nodes[i].Owner,
+                    (Input(i,WorkshopSocket.FirstIn) ? ElectricalInputState.FirstOnly : ElectricalInputState.Neither) |
+                    (Input(i,WorkshopSocket.SecondIn) ? ElectricalInputState.SecondOnly : ElectricalInputState.Neither),
+                    Input(i,WorkshopSocket.PowerIn),powered[i]));
+        }
+        return new(closed,logic.OrderBy(row=>row.Owner.Value).ToArray());
+        bool Input(int node, WorkshopSocket socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
     }
+    public static bool Evaluate(LogicGateOperation operation, bool first, bool second) => operation switch
+    {
+        LogicGateOperation.And => first && second,
+        _ => throw new ArgumentOutOfRangeException(nameof(operation))
+    };
+
 }
 
 /// <summary>Player controls the discrete owner hands to one physics step: the enable state of every admitted source, in source order.</summary>
@@ -133,11 +178,15 @@ public sealed record WorkshopTickControls(ElectricalEnable[] SourceEnable)
 
 /// <summary>Everything one physics step reads besides the committed world: per-source enables and, per prismatic record,
 /// whether its compiled supply route is closed this tick. Data flows one way: committed discrete state → next physics step.</summary>
-public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed)
+public sealed record PhysicsTickInputs(ElectricalEnable[] SourceEnable, bool[] SupplyClosed, ElectricalLogicRead[]? Logic = null)
 {
     public static PhysicsTickInputs Admission { get; } = new([], []);
     public static PhysicsTickInputs Compose(CompiledSupplyGraph graph, int prismatics, WorkshopTickControls controls,
-        Func<GpuBodyId, bool> contactClosed) => new(controls.SourceEnable, graph.Resolve(prismatics, controls, contactClosed));
+        Func<GpuBodyId, bool> contactClosed)
+    {
+        var resolved=graph.Resolve(prismatics,controls,contactClosed);
+        return new(controls.SourceEnable,resolved.Consumers,resolved.Logic);
+    }
     public void Validate(int sources, int prismatics)
     {
         if (SourceEnable is null || SupplyClosed is null || SourceEnable.Length != sources ||

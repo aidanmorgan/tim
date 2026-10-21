@@ -444,6 +444,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     private static void ValidateInitialRead(WorkshopRead read, WorkshopConstruction construction, SimulationEpoch epoch)
     {
+        WorkshopMessages.ValidatePresentationOwners(read,construction);
         var physics = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
         if (read.ContactWorks.Count != physics.ContactWorks.Length) throw new ArgumentException("Admission work population changed.");
         for (var i = 0; i < read.ContactWorks.Count; i++)
@@ -484,6 +485,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     private void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
     {
+        WorkshopMessages.ValidatePresentationOwners(read,Construction);
         if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
             read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
             throw new ArgumentException("GPU tick read does not match the active transaction.");
