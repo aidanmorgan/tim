@@ -55,3 +55,18 @@ No unresolved unintended defect within this bounded scope. Previous source findi
 
 SnapshotApproval permits normal protected commit and main publication of this exact candidate. Publication-dependent checks: verify committed/remote main includes the approved active diff without relevant-input drift; verify normal hooks and required CI succeed; confirm runtime inputs remain unchanged. No new production-origin Chrome is required for this tooling-only shipment. Terminal scoped Pass awaits those publication receipts; T.1 as a whole remains incomplete.
 
+## Publication failure and bounded forward-fix approval
+
+Published d563d6eb5d20b2e4ec7df7e3d70ae2ab789fd659, tree d02629c9cd7d9a737ce1005f53f8a9ea73394022, independently matched origin/main and all 21 approved active file bytes (tool chunks f374df/53b11d). CI39608863281 failed: 1959/1960 game tests passed; the compiler-input guard rejected 30 NuGet reference-pack analyzer paths at version10.0.13. This is a known publication failure, not terminal Pass. Original failed log is preserved under evidence-t-1/publication-fix/.
+
+SnapshotApproval granted for the separate seven-file correction against d563d6e: .anvil/fast-unit-cadence-ci-pins-d563d6e.diff SHA256 a4cf1bdaa3340312d257ebcff7fd5fcb1aab2d26563fa3474f25c127443bdd4d, independently recomputed.
+
+| Changed criterion | Independent result |
+| --- | --- |
+| Reference-pack admission | Added exact10.0.13 paths and hashes only; existing three-project restriction retained. Reviewer independently fetched official NuGet bytes in memory: package SHA256328d34a9376870ce0cb6215e14d2a01a2ce42be6e5603b0ebad901128f903eec; all six analyzer entries match. Unknown version, tampered hash and unrelated project controls remain rejecting. |
+| Focused proof | Original focused-build.log: Debug/net10.0 build 0 warnings/errors,11.19s. focused-test.log: matching --no-build --no-restore control1/1 passed77ms. No duplicate tests run by reviewer. |
+| CI build reuse | Latest actual workflow builds playtest first and default second; tests reuse Debug/net10.0 default output. This preserves original test intent including WorkshopTraceTests conditional PLAYTEST branches. Subsequent web/tool builds do not build the game test project. Both original static-gate configurations and logs remain. Earlier proposal using playtest test output is superseded. |
+| Owner cadence correction | AGENTS, delivery workflow, guide, epics and TODO consistently distinguish implementation Pass from pending browser qualification. Fast affected native checks reuse matching outputs; relevant-input/config changes rebuild. Routine Chrome is accumulated after five fully implemented named elements; infrastructure cases accumulate without incrementing count, and partial final batches remain at release. No blanket per-slice Chrome/Full requirement overrides the latest owner direction. Requirement IDs, behavior, queued cases, independence and normal protections retained. |
+
+No unresolved defect within this correction. Approval permits normal protected commit/publication. Terminal T.1 AC1–AC2 implementation Pass still requires exact published correction identity and successful required CI; AC3–AC4 stay deferred/incomplete. No new Chrome or broad local testing is required. Review-only receipt is not an additional deliverable dependency. Original read-only evidence:421526,252cd8,f04f04,f29391,da5e2e,0109cf,9fb5bd.
+

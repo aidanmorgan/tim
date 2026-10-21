@@ -515,9 +515,9 @@ public sealed class CSharpStaticGateTests
         ("xunit.analyzers", "xunit.analyzers.fixes.dll", XunitProjects),
     ];
 
-    /// <summary>SDK 10.0.402 (coordinator decision, 20 Oct 2026): the SDK bundles the 10.0.13 targeting pack, but the browser-wasm
-    /// compiles take the wasm-tools workload's 10.0.12 targeting pack, restored from NuGet, so its six source generators load
-    /// from the NuGet root. Each is pinned by its exact path under the NuGet root and its SHA-256, and only in those compiles.</summary>
+    /// <summary>The observed local wasm-tools workload resolves reference pack 10.0.12; CI resolves 10.0.13.
+    /// Pin each external toolchain's six generators by exact NuGet path and SHA-256, only in the three browser compiles.
+    /// No unknown version, altered bytes or unrelated project is admitted.</summary>
     private static readonly (string Path, string Sha256)[] RefPackAnalyzers =
     [
         ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll", "e8fc0b901cf3b754f348cdd0585dc3e661c964b1c1d340c88a7cb06121ff007b"),
@@ -526,6 +526,12 @@ public sealed class CSharpStaticGateTests
         ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll", "448cddcdccd7db7ba1e5de80234c137a6d1fcf0ed90687245109a6dc09dfe82b"),
         ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll", "bdef5ce75fa321acf8d2c2a5b2a9f9eb2a30ef4a28b1694fbca978176c8dd6c9"),
         ("microsoft.netcore.app.ref/10.0.12/analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll", "54d379bd109821792120cedd832495d38bc0048f4dd5366fba860d5ecb3a21dd"),
+        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll", "5faa5fddcb1287bddac5271e4ceaf3545063956893c01f7a51d7fe831c0d1e25"),
+        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll", "503ba2e22f97c77be9b0091cbbf7e068dcaff68e4916146d81adc398712fdd90"),
+        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll", "b02424a730eaea2e1fd7556d193749e07d0085f25ded0e25bf10d27cfb354393"),
+        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll", "2418e5705646f1580dd2fe23d42b7560f82e3df72d53b346bbadf0b1f19459fe"),
+        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll", "ff23bc71c4143eddc782400a68789885a424ffb0bdcbcd7ccd8264cee730d3d1"),
+        ("microsoft.netcore.app.ref/10.0.13/analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll", "a65fc1b5eff815d2ba7e5541bcf64b15dd2199767335338523f17f9f8115087a"),
     ];
     private static readonly string[] RefPackCompiles =
     [
@@ -534,9 +540,26 @@ public sealed class CSharpStaticGateTests
         WebProject,
     ];
     private static bool IsPinnedRefPackAnalyzer(string analyzer, string project) =>
+        File.Exists(analyzer) && IsPinnedRefPackIdentity(Path.GetRelativePath(NuGetRoot, analyzer).Replace('\\', '/'),
+            project, Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(analyzer))));
+
+    private static bool IsPinnedRefPackIdentity(string path, string project, string sha256) =>
         RefPackCompiles.Contains(project, StringComparer.Ordinal) &&
-        RefPackAnalyzers.Any(entry => entry.Path == Path.GetRelativePath(NuGetRoot, analyzer).Replace('\\', '/') &&
-            File.Exists(analyzer) && entry.Sha256 == Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(analyzer))));
+        RefPackAnalyzers.Any(entry => entry.Path == path && entry.Sha256 == sha256);
+
+    [Fact]
+    public void ReferencePackPinsRejectUnknownVersionsTamperingAndUnrelatedProjects()
+    {
+        foreach (var entry in RefPackAnalyzers)
+        {
+            Assert.True(IsPinnedRefPackIdentity(entry.Path, RefPackCompiles[0], entry.Sha256));
+            Assert.False(IsPinnedRefPackIdentity(entry.Path, RefPackCompiles[0], new string('0', 64)));
+            Assert.False(IsPinnedRefPackIdentity(entry.Path, "CuriousContraptions.csproj", entry.Sha256));
+            var unknown = entry.Path.Replace("/10.0.12/", "/10.0.99/", StringComparison.Ordinal)
+                .Replace("/10.0.13/", "/10.0.99/", StringComparison.Ordinal);
+            Assert.False(IsPinnedRefPackIdentity(unknown, RefPackCompiles[0], entry.Sha256));
+        }
+    }
 
     /// <summary>The compiles the trim analyzer runs in from its NuGet package: the trimmable projects, the web host and
     /// the file-based apps.</summary>

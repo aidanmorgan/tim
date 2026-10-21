@@ -1,0 +1,10 @@
+Source: https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.ref/10.0.13/microsoft.netcore.app.ref.10.0.13.nupkg
+Package SHA256: 328d34a9376870ce0cb6215e14d2a01a2ce42be6e5603b0ebad901128f903eec
+analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll 5faa5fddcb1287bddac5271e4ceaf3545063956893c01f7a51d7fe831c0d1e25
+analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll 503ba2e22f97c77be9b0091cbbf7e068dcaff68e4916146d81adc398712fdd90
+analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll b02424a730eaea2e1fd7556d193749e07d0085f25ded0e25bf10d27cfb354393
+analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll 2418e5705646f1580dd2fe23d42b7560f82e3df72d53b346bbadf0b1f19459fe
+analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll ff23bc71c4143eddc782400a68789885a424ffb0bdcbcd7ccd8264cee730d3d1
+analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll a65fc1b5eff815d2ba7e5541bcf64b15dd2199767335338523f17f9f8115087a
+
+Retrieved official NuGet package in memory; SHA256 computed over package and direct analyzer DLL entry bytes. No binaries written.

@@ -30,8 +30,8 @@ jobs:
           GATE_LOGS: ${{ runner.temp }}/csharp-gate-binlogs
         run: |
           dotnet restore CuriousContraptions.slnx --nologo --disable-parallel $GATE
-          dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental $GATE -bl:$GATE_LOGS/solution.binlog
           dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental -p:PlaytestDiagnostics=true $GATE -bl:$GATE_LOGS/playtest.binlog
+          dotnet build CuriousContraptions.slnx --nologo --no-restore --no-incremental $GATE -bl:$GATE_LOGS/solution.binlog
           dotnet restore CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --disable-parallel $GATE
           dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false $GATE -bl:$GATE_LOGS/web.binlog
           dotnet build tools/anvil/CheckStagedTests.cs --nologo -bl:$GATE_LOGS/check-staged-tests.binlog
@@ -40,7 +40,7 @@ jobs:
       - name: Test C# game
         env:
           CSHARP_STATIC_GATE_BINLOGS: ${{ runner.temp }}/csharp-gate-binlogs
-        run: dotnet test CuriousContraptions.tests --nologo -noAutoResponse
+        run: dotnet test CuriousContraptions.tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
       - name: Publish production browser bundle
         run: dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
       - name: Check static deployment

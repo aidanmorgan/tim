@@ -46,9 +46,9 @@ flowchart LR
   - Authors reusable, pure TypeScript Playwright E2E tests in `tools/e2e/<suite>.test.ts`.
   - Runs pre-commit checks:
     1. `dotnet build CuriousContraptions.slnx` $\implies$ **0 warnings, 0 errors**. This is the C# static gate (Story 9R.0): `Directory.Build.props` builds every C# project with the .NET analyzers (`AnalysisLevel` latest-recommended plus the `.editorconfig` correctness rules) and warnings as errors. The repository pre-commit hook builds a from-scratch snapshot of the staged index: the solution (default and `-p:PlaytestDiagnostics=true`), the web host's own sources and both `tools/anvil` apps. It then runs `CSharpStaticGateTests`, which rejects suppressions, widened exemptions and swallowed exceptions the analyzers skip. CI (`pages.yml`) runs the same builds. `anvil check --changed` covers non-C# files only; anvil does not analyse C#, so it is never evidence for C# code.
-    2. `dotnet test CuriousContraptions.slnx` $\implies$ must pass **100%** (557+ tests).
-    3. Browser-based E2E verification in Chrome at the tier the story requires (see [Verification tiers](#verification-tiers)), with a **100% pass rate**.
-  - **Runtime/UI stories require their affected Chrome proof, Tier 1 and impact-selected suites. Tool/docs-only slices use affected native/type-check evidence and unchanged browser proof after independent applicability review; they do not need a new Chrome test solely to ship tooling. Story Full follows [Verification tiers](#verification-tiers).**
+    2. Build the affected closure once, then run affected tests with `--no-build --no-restore` using that configuration/framework; all selected checks pass.
+    3. Queue browser cases for the five-element checkpoint; that batch and named release E2E must pass (see [Verification tiers](#verification-tiers)).
+  - **Per change: fast affected native/unit checks and independent review. Routine Chrome is enforced after every fifth fully implemented named puzzle element; infrastructure cases join that batch without advancing its counter. Browser qualification remains pending until then.**
   - Hands off completed snapshot to the independent reviewer.
 
 ### Role 4: BMAD Adversarial QA / Reviewer (Murdoch)
@@ -56,26 +56,28 @@ flowchart LR
 - **Rules of Engagement:**
   - Independently inspects the git diff against all Acceptance Criteria in `_bmad-output/planning-artifacts/epics.md`.
   - Proves zero legacy remnants via codebase grep: confirms complete deletion of procedural mesh routines (`PartArt.cs`), hardcoded collider tables, closed part enums (`WorkshopPartKind`), bespoke per-part scripts, and backwards-compatibility shims.
-  - Independently executes `dotnet build CuriousContraptions.slnx` (the C# static gate: analyzers and warnings as errors, 0 warnings) and `dotnet test CuriousContraptions.slnx`, plus `anvil check --changed` for non-C# files only (anvil does not analyse C#).
+  - Independently verifies the matching build and relevant-input applicability, then runs affected checks using `--no-build --no-restore`; do not duplicate an unchanged build or whole test suite. Use affected non-C# Anvil checks where applicable.
   - Reuses the implementer's Chrome runs after independently verifying they ran on the exact source and bundle identity under review, with per-file results. Independently runs only the probes and mutants for the changed behaviour; never repeats a full run (see [Verification tiers](#verification-tiers)).
-  - Tests exact authoring Reset restoration and Save/Load persistence in Chrome.
+  - Queues and reviews exact authoring Reset and Save/Load browser proof at the five-element batch; native lifecycle controls run during implementation.
   - **Enforces a 100% pass rate on every required tier before granting Pass. Any browser failure, timeout or regression blocks completion.**
   - Issues terminal scoped verdict:
     - **Fail:** Known regression, test failure, browser crash, or broken invariant $\to$ returns findings to Amelia.
     - **Incomplete:** Stale, missing, or unverified proof $\to$ requests required evidence.
-    - **Pass:** 100% verified with zero unresolved regressions across unit tests, the C# static gate, non-C# Anvil checks, slice E2E test, and the Chrome suites its verification tiers require, run by `tools/E2eRunner` (the Tier 2 selection, plus the Story Full run when required) $\to$ updates `sprint-status.yaml` and signs off.
+    - **Implementation Pass:** all required-now affected checks pass with zero unresolved regressions; matching build and independent review are verified. Record pending batch browser qualification separately. Browser/release Pass requires the applicable batch/named gate, not a native proxy.
 
 ---
 
 ## Mandatory Definition of Done (DoD) & Story Completion Criteria
 
+**Latest owner cadence, 21 Oct:** these criteria retain their behavior, but fast affected native/unit proof and independent review establish implementation completion. Routine browser criteria are explicitly pending until the fifth fully implemented named puzzle element; full browser/release qualification is not claimed earlier. This overrides older per-story enforcement wording. See [Verification tiers](#verification-tiers).
+
 No story can be marked complete (`done`) in `_bmad-output/implementation-artifacts/sprint-status.yaml` without satisfying all eight mandatory completion criteria:
 
-1. **C# Unit Tests Pass 100%:** `dotnet test CuriousContraptions.slnx` passes 100% with 0 failures (557+ tests).
+1. **Affected C# Unit Tests Pass:** fast positive/control/boundary tests pass against matching built outputs; broader coverage follows actual impact and named gates.
 2. **C# Static Gate Clean:** `dotnet build CuriousContraptions.slnx` reports **0 warnings and 0 errors** with the .NET analyzers and warnings as errors (`Directory.Build.props`, Story 9R.0), in the default configuration and with `-p:PlaytestDiagnostics=true`, and the web host's own sources compile clean. `CSharpStaticGateTests` passes (no suppression, no widened exemption, no swallowed exception). The repository pre-commit hook checks all of this on a from-scratch snapshot of the staged index and refuses a commit that fails; CI repeats the builds. Until the Story 9.4b rebase, the one expected warning is IL2125. Anvil does not analyse C#: `anvil check --changed` with 0 warnings applies to non-C# files only and is never evidence for C# code.
-3. **Browser-Based Playwright E2E Suite Passes 100%:** The story's dedicated browser-based E2E test (`tools/e2e/<suite>.test.ts`) is authored and executed in actual Chrome via the Playwright browser connector with a **100% pass rate**.
-4. **Required E2E Tiers Pass 100%:** Tier 1 (including the native replay once Story T.2 lands) and the Tier 2 impact-selected suites pass 100%. The Story Full run passes 100% when [Verification tiers](#verification-tiers) requires it. Any browser failure or regression blocks completion.
-5. **Exact Reset and Save/Load Persistence Roundtrip:** Exact initial state restoration before Run and after Reset, as well as JSON Save/Load roundtrip, is verified in Chrome.
+3. **Browser-Based Playwright E2E:** preserve each element's cases and execute the accumulated affected/integration/regression scope in actual Chrome after every fifth fully implemented named puzzle element and at named release gates; all required cases pass.
+4. **Required Checks Pass:** implementation requires affected native/unit proof. Browser qualification stays pending until the batch; a failed batch blocks its browser qualification and has a named fix owner. No per-slice Chrome or engine-filename Full gate.
+5. **Exact Reset and Save/Load:** native controls run during implementation; actual UI restoration and persistence remain required browser cases at the batch.
 6. **Declarative Asset & Extensible Identity Verification:** Each element is authored as its own Godot `.tscn` scene, with visual nodes, `col_*` collision proxies and `Loc_Port_<Id>` locators (owner decision, 18 Oct 2026: the `.tscn` scene, not `.glb`, is the authored asset format; `epics.md` Open scheduling item i). It is declared in its catalogue resource keyed by `PartId`; once Epic 9A Story 9A.14 lands, the only declaration is its `elements/<Name>` package in the generated bundle. Zero procedural mesh generation in C# and zero closed part enums.
 7. **Zero Legacy Remnants & Zero Compatibility Shims:** Active tree grep confirms complete deletion of superseded classes, compute shaders, procedural geometry tables, or compatibility bridges.
 8. **Terminal Scoped Pass from Independent Reviewer (Murdoch):** Independent adversarial review subagent verifies all criteria and issues an unambiguous scoped `Pass`. Self-review never qualifies.
@@ -84,7 +86,7 @@ No story can be marked complete (`done`) in `_bmad-output/implementation-artifac
 
 ## Verification tiers
 
-**This section is the single current rule set (consolidated 21 Oct 2026).** Its sources:
+**This section is the single current verification rule set (latest owner correction, 21 Oct 2026).** The owner explicitly directs: quick unit tests, no rebuild between tests, and routine E2E only after every fifth fully implemented puzzle element. [Standing cadence and precedence](../../docs/delivery-workflow.md#fast-test-cadence). Earlier cadence sources:
 - the owner, 19 Oct 2026: the tiers, parallel Chrome, and at most 2 review rounds;
 - the owner, 20 Oct 2026: "be more aggressive about making forward progress and less cautious";
 - the owner, 21 Oct 2026: "we need to find high-confidence alternatives to running the e2e suite constantly as it is too slow ... implement the changes", and "integrate all of the new test guidance so we can move faster".
@@ -102,36 +104,22 @@ The speed principle: prove behaviour with the fastest test that runs the product
 
 | Gate | When | What |
 |---|---|---|
-| **Tier 1** (minutes, no browser) | Every candidate, implementer and reviewer | See the list below. |
-| **Tier 2** (Chrome, usually 2–10 min) | Runtime/UI impact, once, by the implementer; tool/docs-only slices reuse unchanged proof after independent applicability review | `dotnet run --project tools/E2eRunner -- run --diff <base> --out <D>`: the story's own suite, the suites of connected elements and integrations, suites using changed shared code, and the smoke pair `engine-core-2b1` + `engine-core-2a1`. If the runner refuses (`NoPrimarySuite`), run the affected suites plus the smoke pair by name and record why. |
-| **Story Full** (Chrome) | Only when demonstrated cross-family or unknown impact cannot be resolved by bounded checks. The independent reviewer records the impact/coverage matrix and remaining uncertainty; touching an engine filename or lacking T.2 is not by itself a Full requirement. Once, by the implementer when justified. | `dotnet run --project tools/E2eRunner -- full --out <D>`. |
-| **Checkpoint Full** (Chrome, in the background) | On committed main after every 5 newly verified named puzzle elements (owner decision, 21 Oct). Infrastructure and documentation stories do not advance this counter; epic end alone does not add a repeat. | The full run. A failure stops new work; the coordinator bisects commits since the previous checkpoint and files the fix at the front of the queue. |
+| **Affected native/unit checks** | Each changed candidate | Build its relevant production/test dependency closure once; run fast positive, negative/control and boundary tests against matching outputs. |
+| **Routine E2E batch** | After every fifth fully implemented named puzzle element | Accumulated affected element, infrastructure, integration and regression cases since the previous checkpoint, including applicable timing and smoke coverage. Use actual Chrome; broaden the batch when impact remains unknown. |
+| **Targeted browser diagnostic** | A concrete gameplay bug needs browser evidence | The smallest discriminating case. This is not an automatic per-slice gate. |
+| **Named release E2E** | The existing release gate | Its complete required scope, including any pending partial batch. |
 
-**Timing cadence:** ordinary UI construction, configuration, connections, intended behaviour/control, Run/Reset and Save/Load remain per slice. Run targeted timing checks when clocks, workers, transport, pose delivery or timing-test code actually change; shared or unknown impact requires broader checks until covered, and the Story Full above when bounded checks cannot resolve it. SerialAlone is a scheduling constraint, never a selection filter: mixed suites keep their functional proof. Broad timing qualification follows the five-element checkpoint or its named release gate. Named release qualification remains required. T.1 AC3–AC4 calibration and before/after measurement are deferred acceleration work; preserve the frozen baseline and do not claim those ACs complete. T.2 replay is optional acceleration work, not a prerequisite for following gameplay slices.
+**Build once, test many:** build the affected test project/closure with the required configuration and target framework, then use `dotnet test <test-project> --no-build --no-restore -c <built-configuration> -f <built-framework> --filter <affected-tests>`. Reuse those matching outputs across test classes/projects. Rebuild only the affected closure when source (including tests), generated inputs, dependencies or configuration changes invalidate it. Never use stale binaries or automatically rebuild the whole codebase per test class/project. Normal commit protections and required CI still run at publication; do not bypass hooks.
 
-**Tier 1 contents:**
-- `dotnet build CuriousContraptions.slnx`, 0 warnings, with the C# static gate;
-- `dotnet test CuriousContraptions.slnx` at 100%. Once Story T.2 lands, this includes the native fixture replay of the UI-built benches;
-- the `tools/*.test.mjs` Node harnesses, run with `--experimental-vm-modules`;
-- the Lifecycle and Wire contracts, and `Ownership --oracles <root>`;
-- `anvil check --changed` at 0 warnings, with its log saved;
-- T.1 AC1–AC2 shipment adds `tsc --noEmit` over `tools/e2e`: `dotnet test tools/E2eRunner.Tests/E2eRunner.Tests.csproj --filter FullyQualifiedName~TypeCheckTests` resolves the pinned local compiler and runs strict checking plus the Counter accessor negative control; these tests also run in the ordinary solution test command.
+**Completion and queue:** a named puzzle element counts when its functional implementation, cleanup and affected unit/native checks pass independent review. Record **implementation complete; browser qualification pending**. Infrastructure and documentation do not increment the counter, but their affected browser cases accumulate in the same batch. Keep the count, named elements, pending cases, owner and next batch/release gate in existing TODO/slice records; no new framework. Preserve earlier element proof and failed attempts without claiming old proof covers changed inputs.
 
-**Tool/docs-only shipment:** affected native/type-check checks and independently applicable unchanged browser evidence satisfy the browser clauses above when executable product behavior is unchanged. Do not author or rerun a Chrome suite merely for tooling publication. Actual runtime/UI changes retain required Chrome proof. This is the owner-authorized scope for T.1 AC1–AC2, not completion of its deferred AC3–AC4.
+**Scope and confidence:** the reviewer derives direct/transitive impact, controls and coverage from the actual diff. Unknown scope broadens native checks now and the queued browser batch; it does not create an automatic per-slice Chrome/Full or engine-filename trigger. Keep UI construction, placed configuration, typed connections, intended behavior/control, integration, exact Run/Reset and supported Save/Load as actual browser assertions at the batch. Native/fake-page proof never claims browser qualification. Named release/device/performance gates remain unchanged.
 
-**Impact decisions:** for a known bounded closure, run selected functional suites with meaningful controls and retain per-part UI/lifecycle proof. The reviewer verifies callers, consumers, serialization, shared state and workers against the changed behavior. The selector is an input to that decision, not proof of complete coverage. Its conservative engine Full result can be narrowed with an explicit justified matrix; unresolved cross-family or unknown impact broadens checks as above. Do not repeat unchanged independently applicable proof. Named release gates remain unchanged.
+**Other affected checks:** use relevant Node harnesses (`--experimental-vm-modules`), Lifecycle/Wire/Ownership contracts, strict E2E TypeScript checking and non-C# Anvil checks when their inputs change. The TypeCheckTests run in the built runner test assembly with the same `--no-build --no-restore` discipline. Documentation-only changes need consistency/link/preservation review, no build.
 
-**Avoiding needless Chrome time:**
-- **Non-engine Full escalation:** when the runner selects Full only because a shared non-engine file changed (driver helpers, UI wiring, docs, catalogue rows, an element `.csproj` or the `.slnx`), the implementer runs Tier 2 for the story's areas instead and records why.
-- **Contended verdicts:** a Full or Tier 2 run whose only non-Clean verdicts are `Contended` is completed by rerunning just those suites alone with the smoke pair. Never rerun the whole Full.
-- **Suite-only failures:** when a failure is a test bug (the suite reads a deleted field or uses a stale literal), fix the suite and rerun only the affected suites plus the smoke pair. The Full run stands, because the product code under it is unchanged.
-- **The reviewer never runs a Full run** and never repeats Tier 2. He reuses the implementer's runs after checking their identity (source, suite and bundle digests, or the tree hash when commits were squashed). He runs only his own probes and mutants. After a merge with main he runs only the suites the runner selects for the merge diff.
-- **The Chrome line:** one Chrome or E2eRunner run at a time across all worktrees. Check that `pgrep -fl "E2eRunner|playwright"` is empty before starting one. Tier 1 and code work continue meanwhile.
-- **Parallelism:** timing-sensitive suites run serially and alone: clock-master, cat-017, cat-023a/b, cat-037, cat-014, anim-1a/b/c, and any stall or load proof. Every calibrated suite runs on parallel workers. T.1 AC3 retains that calibration as deferred optional acceleration work. Until measured, existing timing declarations remain unchanged.
-- **Repeats:** 5 runs in a row only for a suite that failed randomly or whose timing code changed. Never retry into green, and never inflate a timeout.
-- **No in-app acceleration** (`requirements.md:93`). Faster-than-real-time stepping lives only in test hosts (`StepClock`, `RunPhases`).
+**Browser execution:** select the union of affected suites since the previous checkpoint, including older counterparts and infrastructure integrations. The selector informs the reviewer’s matrix; it does not prove coverage. At that batch use Full if the justified scope requires it. SerialAlone remains a scheduling constraint, never a filter; genuine timing/load suites stay alone, and calibrated suites may run parallel. Keep one Chrome/E2eRunner operation across worktrees. Reuse independently applicable evidence and rerun only failed/contended affected cases, not the whole batch without cause. No in-app acceleration.
 
-**What stays in Chrome per part (AGENTS.md):** UI construction, verified configuration and typed connections, the intended behaviour, a meaningful negative/control, exact Run/Reset restoration, and Save/Load. Story T.3 deletes only Chrome variants that a native replay demonstrably covers, through a per-test mapping.
+**Deferred acceleration:** T.1 AC3–AC4 calibration/measurement and T.2 replay remain optional, incomplete acceleration work, not prerequisites for gameplay. Preserve the frozen baseline and code/evidence; no speedup or completed-AC claim. T.3 may remove duplicate browser assertions only with its demonstrated native mapping.
 
 ### Review and pace
 - **Rounds:** one round by default, at most two. Only a breach of the story's own ACs, or a player-visible regression it introduces, blocks (High or Medium). A Low is fixed in the same round if trivial; otherwise it is filed.
@@ -142,7 +130,7 @@ The speed principle: prove behaviour with the fastest test that runs the product
   - A design-review agent runs before implementation only for core engine stories (solver, clock, wire). Otherwise the implementer reviews the spec, decides small gaps and records them.
 - **Mutation proof:** required for new decision logic, and for each deletion as a re-add mutant. Not required for declaration data or bindings.
 - **Pipelining:**
-  - The reviewer starts static review while the implementer's Chrome runs.
+  - The reviewer starts static review while affected native checks run; browser execution waits for the batch.
   - The next story's implementer may start while the current story is in review.
   - Order follows the epics.md [Delivery order](epics.md#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).
 
@@ -169,16 +157,16 @@ sequenceDiagram
     Dev->>Dev: Green (Implement WASM SIMD / C# changes)
     Dev->>Dev: Refactor (Delete legacy classes / shims)
     Dev->>Dev: Pre-commit: Anvil 0 warnings & dotnet test 100%
-    Dev->>Dev: Run the Tier 2 selection (and the Story Full run when required) with tools/E2eRunner in Chrome (100% pass)
+    Dev->>Dev: Build affected closure once; run native checks without rebuild; queue E2E
     Dev-->>Coord: Handoff diff & local test evidence
     deactivate Dev
     Coord->>QA: Invoke Independent Review Subagent with diff
     activate QA
     QA->>QA: Grep for zero legacy remnants
-    QA->>QA: Run dotnet build CuriousContraptions.slnx (C# gate) and anvil check --changed (non-C# only)
-    QA->>QA: Run dotnet test CuriousContraptions.slnx
-    QA->>QA: Reuse the identity-verified tools/E2eRunner runs; run the changed-behaviour probes in Chrome (100% pass)
-    QA->>QA: Validate exact Reset & Save/Load in Chrome
+    QA->>QA: Verify matching build applicability and affected static checks
+    QA->>QA: Run affected tests with --no-build --no-restore
+    QA->>QA: Review accumulated browser cases; execute after fifth named element
+    QA->>QA: Keep browser Reset and Save/Load qualification pending until batch
     alt Findings or Regression
         QA-->>Coord: Return Defect Matrix (Status: Fail)
         Coord->>Dev: Re-dispatch Dev Subagent with fixes
@@ -186,7 +174,7 @@ sequenceDiagram
         QA-->>Coord: Terminal Scoped Pass (Status: Pass)
     end
     deactivate QA
-    Coord->>PO: Mark story 'done' in sprint-status.yaml
+    Coord->>PO: Record implementation status separately from pending browser qualification
     Coord->>Coord: Advance to next slice or report completion
 ```
 
@@ -205,38 +193,24 @@ sequenceDiagram
 3. Verify that zero backwards compatibility bridges or fallback paths are introduced.
 
 ### Phase 3: Test-First Implementation (Amelia)
-1. Write/update unit tests in `CuriousContraptions.tests` and author the corresponding browser-based Playwright E2E test in `tools/e2e/<suite>.test.ts`.
-2. Implement the forward functionality in C# / WASM SIMD / TypeScript.
-3. Delete the superseded legacy code completely.
-4. Execute `dotnet build CuriousContraptions.slnx` (the C# static gate: analyzers and warnings as errors) and `anvil check --changed` (non-C# files only; anvil does not analyse C#). Fix every warning at its source until **0 warnings** remain.
-5. Execute `dotnet test CuriousContraptions.slnx`. Ensure all tests pass **100%** (557+ tests).
-6. While iterating, run the story's own suite in actual Chrome via the Playwright connector: `node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`. Prefer native tests (`RunPhases`/`StepClock`) for behaviour, and keep Chrome for the UI and the per-part proof.
-7. Once, on the committed candidate: run the Tier 2 impact-selected suites, plus the Story Full run only when [Verification tiers](#verification-tiers) requires it.
-8. **Enforce DoD requirement:** a story cannot be handed to review until every required tier passes 100%.
-9. Commit changes to git with a clear, concise commit message.
+1. Write affected unit/native tests and preserve required browser cases for the next batch.
+2. Implement the forward functionality and delete superseded paths.
+3. Build the affected closure once, run quick selected tests with `--no-build --no-restore`, and rebuild only invalidated outputs. Fix relevant warnings/failures.
+4. Record pending E2E cases, including integrations and infrastructure effects, without routine Chrome execution.
+5. Obtain independent approval and publish the individual implementation with normal protections.
 
 ### Phase 4: Independent Adversarial Review (Murdoch)
-1. The coordinator invokes a separate, independent subagent conversation for Murdoch.
-2. Murdoch reads the git diff and the specific story acceptance criteria from `epics.md`.
-3. Murdoch runs automated static checks:
-   - `dotnet build CuriousContraptions.slnx` (the C# static gate: analyzers and warnings as errors; 0 warnings required)
-   - `anvil check --changed` (non-C# files only, 0 warnings required; anvil does not analyse C#)
-   - `dotnet test CuriousContraptions.slnx` (100% pass required)
-4. Murdoch runs active grep searches to ensure zero legacy references remain.
-5. Murdoch verifies the browser-based E2E evidence in actual Chrome via the Playwright browser connector:
-   - Verifies that the implementer's Tier 2 and any Full runs ran on the exact identity under review, and reuses them. He never runs a Full run himself ([Verification tiers](#verification-tiers)).
-   - Runs his own probes and mutants for the changed behaviour.
-   - Verifies visual behavior, dynamic stability, anti-tunneling, and negative controls.
-   - Verifies that pressing Reset restores the original configuration bit-for-bit, and Save/Load roundtrip preserves state.
-   - **Enforces DoD requirement:** any failure on a required tier triggers a `Fail` verdict.
-6. Murdoch renders the final verdict: `Pass`, `Fail`, or `Incomplete`.
+1. Inspect the exact diff and acceptance behavior, derive affected controls and verify build/input applicability.
+2. Run independent affected checks without duplicating unchanged builds; inspect zero-legacy and dependency boundaries.
+3. Record implementation Pass/Fail/Incomplete separately from browser qualification. No native result claims actual browser proof.
+4. At the fifth named element, review the accumulated cases, run/reuse the required actual Chrome batch, and record its qualification. A concrete gameplay bug can justify a targeted diagnostic earlier.
 
 ### Phase 5: Sprint Sync & Completion
-1. **Enforce DoD check:** a story cannot be marked complete until every required verification tier passes 100% and Murdoch has issued a terminal scoped `Pass`.
+1. **Enforce current cadence:** mark functional implementation complete only after required-now native/unit proof and independent implementation Pass; keep browser qualification pending explicitly until the batch. Do not mark full qualification complete prematurely.
 2. Upon receiving `Pass`, update `_bmad-output/implementation-artifacts/sprint-status.yaml`:
    - Set the completed story to `done`.
    - Set the next story in the epic to `ready-for-dev`.
-   - If all stories in the epic are `done`, set the epic to `done`.
+   - Do not mark an epic or release fully qualified while its browser batch or named release criteria remain pending.
 3. Update `TODO.md` with delivered results, test command evidence, and next slice.
 4. Proceed to the next slice in the rolling roadmap.
 
@@ -248,7 +222,7 @@ sequenceDiagram
 | :--- | :--- | :--- | :--- |
 | **C# Static Gate** | `dotnet build CuriousContraptions.slnx` (.NET analyzers, warnings as errors; run by the pre-commit hook) | **0 warnings, 0 errors** | Any C# warning fails the build and refuses the commit |
 | **Non-C# Static Quality** | `anvil check --changed` (anvil does not analyse C#) | **0 warnings** | Any warning blocks review |
-| **Unit & Regression** | `dotnet test CuriousContraptions.slnx` | **100% Pass** (0 failed, 557+ passed) | Any test failure blocks review |
-| **Browser-Based E2E Gate** | `dotnet run --project tools/E2eRunner -- run --diff <base> --out <D>` (Tier 2), and `dotnet run --project tools/E2eRunner -- full --out <D>` (a Story Full run when [Verification tiers](#verification-tiers) requires it, and every checkpoint) | **100% Pass across every selected file in Chrome** (timing-sensitive suites alone, the rest on N measured workers) | Any browser failure or regression strictly blocks completion |
+| **Unit & Regression** | Affected tests with `--no-build --no-restore` and matching configuration/framework | 100% of selected checks pass | A relevant failure or stale build blocks implementation Pass |
+| **Browser-Based E2E Gate** | Accumulated affected/integration/regression Chrome cases after every fifth fully implemented named element; named release scope | 100% of required cases pass | Browser qualification remains pending or failed until the batch passes |
 | **Zero Legacy Verification**| `git grep "<superseded_symbol>"` | **0 matches** in active code | Any active reference blocks review |
-| **Exact State Reset** | Browser E2E Playwright assertion in Chrome | Bitwise / coordinate match before Run and after Reset | Pose drift or dirty state blocks review |
+| **Exact State Reset** | Browser E2E Playwright assertion in Chrome | Bitwise / coordinate match before Run and after Reset | Pose drift or dirty state fails browser qualification at the batch |
