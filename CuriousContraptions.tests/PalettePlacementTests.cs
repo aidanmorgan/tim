@@ -16,7 +16,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     private static MachineWorld DiscoveredWorld()
     {
         var world = new MachineWorld();
-        world.Registry.Discover();
+        world.Registry.Load();
         return world;
     }
 
@@ -28,7 +28,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             // The list comes from the palette the player sees, never from a hand-written copy.
-            var palette = WorkshopInventoryPolicy.Free.Keys.ToArray();
+            var palette = world.Registry.Free.Keys.ToArray();
             Assert.Equal(world.Registry.Definitions.Keys.OrderBy(id => id), palette.OrderBy(id => id));
             var body = 1u;
             foreach (var id in palette)
@@ -56,7 +56,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void UndeliveredPartsShipResourcesButHaveNoInstancePathAndNeverReachTheRegistryOrPalette()
+    public void UndeliveredPartsHaveNoPackageNoInstancePathAndNeverReachTheRegistryOrPalette()
     {
         Assert.Equal([UndeliveredPart.Tennis, UndeliveredPart.Balloon], UndeliveredParts.All);
         var world = DiscoveredWorld();
@@ -66,11 +66,13 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             {
                 var id = UndeliveredParts.Id(part);
                 Assert.True(UndeliveredParts.Contains(id));
-                // Control: the resource still ships (Story 9A.14 deletes it), so the exclusion is admission, not absence.
-                Assert.True(ResourceLoader.Exists($"res://parts/catalog/{id.Value}.tres"), $"{id} resource ships until Story 9A.14.");
+                // Story 9A.14 deleted the catalogue resource; Story 12.1 ships the package. Admission alone keeps it out meanwhile
+                // (PartRegistryTests proves a bundle entry for it is still refused).
+                Assert.DoesNotContain(PartRegistry.Read(Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath)),
+                    entry => entry.Metadata.Id == id.Value);
                 EditRefusal.Is(WorkshopEditRejection.UnsupportedPart, () => world.CaptureInstance(id, new(1), BenchPoint, Quaternion.Identity));
                 Assert.False(world.Registry.Definitions.ContainsKey(id), $"{id} must not be registered.");
-                Assert.False(WorkshopInventoryPolicy.Free.ContainsKey(id), $"{id} must not be offered by the Free palette.");
+                Assert.False(world.Registry.Free.ContainsKey(id), $"{id} must not be offered by the Free palette.");
             }
             Assert.False(UndeliveredParts.Contains(PartId.Basketball));
             Assert.Throws<ArgumentOutOfRangeException>(() => UndeliveredParts.Id((UndeliveredPart)99));
@@ -167,24 +169,6 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { world.Free(); }
     }
 
-    [Fact]
-    public void ThePaletteIsTheCanonicalOrderFilteredOnlyByTheUndeliveredSetBeforeAndAfterDiscover()
-    {
-        var canonical = WorkshopInventoryPolicy.CanonicalOrder;
-        // Story 12.1 delivers a part by removing it from the set alone: it then appears in its canonical row.
-        var withoutTennis = UndeliveredParts.Ids.Where(id => id != PartId.Tennis).ToHashSet();
-        var delivered = WorkshopInventoryPolicy.FreeRows(canonical, withoutTennis).Keys.ToList();
-        Assert.Equal(delivered.IndexOf(PartId.Springboard) + 1, delivered.IndexOf(PartId.Tennis));
-        Assert.DoesNotContain(PartId.Balloon, delivered);
-        Assert.Equal(canonical.Where(id => !UndeliveredParts.Contains(id)),
-            WorkshopInventoryPolicy.FreeRows(canonical, UndeliveredParts.Ids).Keys);
-        // The shared Free inventory never offers an undelivered part, before any Discover (static reset) or after one.
-        typeof(WorkshopInventoryPolicy).GetField("_free", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-            .SetValue(null, null);
-        Assert.DoesNotContain(WorkshopInventoryPolicy.Free.Keys, UndeliveredParts.Contains);
-        new PartRegistry().Discover();
-        Assert.DoesNotContain(WorkshopInventoryPolicy.Free.Keys, UndeliveredParts.Contains);
-    }
 
     // The actual Workshop scene and its private bench Click (native-only reflection boundary, as in WorkshopHintTests): the defect's
     // precondition is restored by putting the part in the inventory and choosing it, then the bench is clicked at a point on the
@@ -249,7 +233,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void ClickingTheBenchWithAnUncapturablePartIsOneTypedRejectionWithAVisibleMessageAndNoUndo()
     {
-        var (scene, client) = BenchScene(PartId.Balloon);
+        var (scene, client) = BenchScene(UndeliveredParts.Id(UndeliveredPart.Balloon));
         try
         {
             var before = scene.World.Construction;

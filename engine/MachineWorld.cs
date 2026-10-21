@@ -20,7 +20,6 @@ public partial class MachineWorld : Node3D
         Parts = _parts.AsReadOnly();
         Bodies = _bodies.AsReadOnly();
     }
-    public override void _Ready() => Registry.Discover();
     public override void _Process(double delta) => PresentWorkshopRead();
     public override async void _ExitTree() => await DisposeWorkshop();
 }

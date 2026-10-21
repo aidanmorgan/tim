@@ -1,0 +1,28 @@
+// Scratch probe (not a suite): captures the Free palette at the top and scrolled to its end, plus full-viewport references.
+import { writeFileSync } from 'node:fs';
+import { test } from 'node:test';
+import { WorkshopDriver } from '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1a1514d517207e6f/tools/e2e/workshop-driver.ts';
+
+const OUT = process.env.PALETTE_OUT!;
+const settle = async (driver: WorkshopDriver) => {
+    await driver.page.evaluate(async () => {
+        for (let i = 0; i < 12; i++) await new Promise(resolve => requestAnimationFrame(resolve));
+    });
+};
+
+test('capture palette', { timeout: 180000 }, async () => {
+    const driver = await WorkshopDriver.launch();
+    try {
+        await driver.reload();
+        await driver.page.mouse.move(720, 485);
+        await settle(driver);
+        writeFileSync(`${OUT}/full-top.png`, await driver.page.screenshot());
+        writeFileSync(`${OUT}/palette-top.png`, await driver.page.screenshot({ clip: { x: 24, y: 94, width: 220, height: 782 } }));
+        await driver.page.mouse.move(100, 500);
+        for (let i = 0; i < 4; i++) { await driver.page.mouse.wheel(0, 2000); await settle(driver); }
+        await driver.page.mouse.move(720, 485);
+        await settle(driver);
+        writeFileSync(`${OUT}/full-end.png`, await driver.page.screenshot());
+        writeFileSync(`${OUT}/palette-end.png`, await driver.page.screenshot({ clip: { x: 24, y: 94, width: 220, height: 782 } }));
+    } finally { await driver.closeAfterSuite(); }
+});

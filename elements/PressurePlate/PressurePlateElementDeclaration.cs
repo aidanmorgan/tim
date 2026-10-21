@@ -14,9 +14,12 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElect
     public ElementMetadata Metadata => new(
         Id: "pressure_plate",
         Category: ElementCategory.Control,
-        DisplayNameKey: "part_pressure_plate",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/pressure_plate.tscn",
+        DisplayName: "Pressure plate",
+        Description: "Senses resting mass on its top plate. Closes an internal electrical circuit while its threshold mass is met.",
+        Color: new(0.91f, 0.72f, 0.39f, 1f),
+        PaletteOrder: 21,
+        IconPath: "res://elements/PressurePlate/icon.svg",
+        ScenePath: "res://elements/PressurePlate/pressure_plate.tscn",
         Parameters:
         [
             new("minimum_mass", ParameterUnit.Kilogram, ParameterKind.Real, Minimum: 0.1f, Maximum: 16f, Default: 0.5f, Options: [])

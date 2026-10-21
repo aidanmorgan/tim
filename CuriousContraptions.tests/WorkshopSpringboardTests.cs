@@ -123,19 +123,15 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     }
 
 
-    [Theory]
-    [InlineData("strength", 8.5f)]
-    [InlineData("initial_compression", .2f)]
-    public void ObsoleteResourceParametersAndUnsupportedWireTailRejectBeforeMutation(string externalKey, float value)
+    // Story 9A.14: the catalogue resource and its untyped Parameters are gone; a definition carries only its bundle declaration.
+    [Fact]
+    public void UnsupportedWireTailRejectsBeforeMutation()
     {
-        using var definition = new PartDefinition { Id = "spring" };
-        definition.Parameters[externalKey] = value; // Deliberately invalid legacy resource boundary, not a domain key.
+        var definition = new PartDefinition(PartId.Springboard, "Springboard", "A springboard.", CuriousContraptions.Abstractions.ElementCategory.Motion,
+            Colors.White, "res://elements/Springboard/icon.svg", null, null);
         var part = new MachinePart();
         try
         {
-            Assert.Throws<ArgumentException>(() => part.Configure(definition));
-            Assert.Null(part.Definition);
-            definition.Parameters.Clear();
             part.Configure(definition);
             Assert.Same(definition, part.Definition);
             var saved = new WorkshopSavedConstruction(Construction(), new(3));
@@ -316,7 +312,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     [Fact]
     public void PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets()
     {
-        var registry = new PartRegistry(); registry.Discover();
+        var registry = new PartRegistry(); registry.Load();
         var part = Assert.IsType<MachinePart>(registry.Create(PartId.Springboard));
         try
         {
@@ -358,6 +354,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         try
         {
             godot.Tree.Root.AddChild(world);
+            world.Registry.Load(); // the Workshop loads the bundle at start-up (Story 9A.14)
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
             var parts = (List<MachinePart>)typeof(MachineWorld).GetField("_parts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(world)!;
             var ball = world.Registry.Create(PartId.Basketball); ball.AuthoredId = new(1); world.AddChild(ball); ball.EnsureConstructed(); parts.Add(ball);

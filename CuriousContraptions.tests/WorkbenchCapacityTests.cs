@@ -99,7 +99,11 @@ public sealed class WorkbenchCapacityTests
     // its tube's lowest wall is a valley.
     private const double CradleZ = -0.9238795, CradleW = 0.3826834;
 
-    public static TheoryData<string> FreeKinds => new(WorkshopInventoryPolicy.Free.Keys.Select(kind => kind.Value));
+    /// <summary>The Free palette the generated bundle declares (Story 9A.14), read as the registry reads it.</summary>
+    internal static IReadOnlyDictionary<PartId, PartAllowance> FreePalette =>WorkshopInventoryPolicy.Free(PartRegistry.Read(
+        File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "elements", "elements.bundle.json"))).Select(entry => new PartId(entry.Metadata.Id)));
+
+    public static TheoryData<string> FreeKinds => new(FreePalette.Keys.Select(kind => kind.Value));
 
     private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
     {
@@ -154,9 +158,9 @@ public sealed class WorkbenchCapacityTests
     public void TheUndeliveredPartsStayOffTheFreePalette()
     {
         // Spec D2 (9R.2): Tennis and Balloon throw in CaptureInstance and Story 9R.0c removed them from the palette.
-        foreach (var undelivered in new[] { PartId.Tennis, PartId.Balloon })
+        foreach (var undelivered in UndeliveredParts.Ids)
         {
-            Assert.False(WorkshopInventoryPolicy.Free.ContainsKey(undelivered));
+            Assert.False(FreePalette.ContainsKey(undelivered));
             Assert.Throws<ArgumentException>(() => Place(undelivered, new(1), 0, 0));
         }
     }
@@ -254,16 +258,16 @@ public sealed class WorkbenchCapacityTests
     {
         PartId[] rows = [PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp,
             PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch];
-        Assert.Equal(rows, WorkshopInventoryPolicy.Free.Keys.ToArray());
-        Assert.All(WorkshopInventoryPolicy.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
-        Assert.Equal(rows.Length, WorkshopInventoryPolicy.Free.Count);
+        Assert.Equal(rows, FreePalette.Keys.ToArray());
+        Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
+        Assert.Equal(rows.Length, FreePalette.Count);
         Assert.False(PartAllowance.Unlimited.Less(1000).Exhausted);
         Assert.Equal(PartAllowance.Unlimited, PartAllowance.Unlimited.Less(1000));
         Assert.False(PartAllowance.Counted(2).Less(1).Exhausted);
         Assert.True(PartAllowance.Counted(2).Less(2).Exhausted);
         Assert.Equal(PartAllowance.None, PartAllowance.Counted(2).Less(3)); // over-placed parts clamp at zero, never "× -1"
-        Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.Ramp]);
-        Assert.False(WorkshopInventoryPolicy.Free.ContainsKey(new PartId("unsupported")));
+        Assert.Equal(PartAllowance.Unlimited, FreePalette[PartId.Ramp]);
+        Assert.False(FreePalette.ContainsKey(new PartId("unsupported")));
         Assert.Throws<ArgumentException>(() => new PartInventoryDictionary((PartId.Wall, PartAllowance.Unlimited), (PartId.Wall, PartAllowance.None)));
         Assert.True(PartAllowance.None.Exhausted);
     }

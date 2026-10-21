@@ -1,0 +1,43 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
+using CuriousContraptions.Abstractions;
+
+namespace CuriousContraptions.BundleElements.Tests;
+
+/// <summary>Story 9A.14 cutover proof (F15-10), run once against the deleted catalogue exported from 8b646ffe into CATALOGUE_ORACLE:
+/// every package declares its catalogue resource's title, description, colour and category exactly. Deleted with the catalogue.</summary>
+public sealed partial class CatalogueOracleParityTests
+{
+    [GeneratedRegex("^(Id|Title|Category|Description) = \"(.*)\"\\r?$", RegexOptions.Multiline)]
+    private static partial Regex Field();
+    [GeneratedRegex(@"^Color = Color\(([^,]+), ([^,]+), ([^,]+), ([^)]+)\)\r?$", RegexOptions.Multiline)]
+    private static partial Regex Colour();
+
+    [Fact]
+    public void EveryPackageDeclaresItsCatalogueTitleDescriptionColourAndCategory()
+    {
+        var oracle = Environment.GetEnvironmentVariable("CATALOGUE_ORACLE") ?? throw new InvalidOperationException("CATALOGUE_ORACLE is not set.");
+        var resources = Directory.EnumerateFiles(oracle, "*.tres").Select(File.ReadAllText).Select(text =>
+        {
+            var fields = Field().Matches(text).ToDictionary(match => match.Groups[1].Value, match => match.Groups[2].Value);
+            var colour = Colour().Match(text);
+            Assert.True(colour.Success);
+            float Channel(int group) => float.Parse(colour.Groups[group].Value, CultureInfo.InvariantCulture);
+            return (Fields: fields, Colour: new ElementColor(Channel(1), Channel(2), Channel(3), Channel(4)));
+        }).ToDictionary(resource => resource.Fields["Id"], StringComparer.Ordinal);
+        var discovered = PackageDiscovery.Discover(TestRepository.Root);
+        Assert.Empty(discovered.Errors);
+        Assert.Equal(22, discovered.Packages.Count);
+        foreach (var package in discovered.Packages)
+        {
+            var metadata = package.Declaration.Metadata;
+            var (fields, colour) = resources[metadata.Id];
+            Assert.Equal(fields["Title"], metadata.DisplayName);
+            Assert.Equal(fields["Description"], metadata.Description);
+            Assert.Equal(Enum.Parse<ElementCategory>(fields["Category"]), metadata.Category);
+            Assert.True(colour == metadata.Color, $"{package.Package}: colour {metadata.Color} declared, {colour} in the catalogue.");
+        }
+        Assert.Equal(["balloon", "tennis"], resources.Keys.Except(discovered.Packages.Select(package => package.Declaration.Metadata.Id))
+            .Order(StringComparer.Ordinal));
+    }
+}

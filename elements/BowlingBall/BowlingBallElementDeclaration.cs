@@ -13,8 +13,11 @@ public sealed class BowlingBallElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "bowling",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_bowling",
-        IconPath: null,
+        DisplayName: "Bowling ball",
+        Description: "A heavy, low-bounce ball: four times the Basketball's mass and smaller.",
+        Color: new(0.27f, 0.39f, 0.61f, 1f),
+        PaletteOrder: 10,
+        IconPath: "res://elements/BowlingBall/icon.svg",
         ScenePath: "res://elements/BowlingBall/bowling.tscn",
         Parameters: []);
 

@@ -13,9 +13,12 @@ public sealed class StateLatchElementDeclaration : ISignalElement, IElectricalEl
     public ElementMetadata Metadata => new(
         Id: "latch",
         Category: ElementCategory.Control,
-        DisplayNameKey: "part_latch",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/latch.tscn",
+        DisplayName: "Set/Reset latch",
+        Description: "Set closes the electrical contact; Reset opens it. Reset wins simultaneous triggers. Remembers its state without power, but needs a connected supply to power another device.",
+        Color: new(0.4f, 0.72f, 0.79f, 1f),
+        PaletteOrder: 24,
+        IconPath: "res://elements/StateLatch/icon.svg",
+        ScenePath: "res://elements/StateLatch/latch.tscn",
         Parameters: []);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);

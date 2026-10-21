@@ -1,0 +1,27 @@
+Story 9A.14 + 9A.18 deletion proof, captured on the staged candidate (21 Oct 2026, before the commit).
+
+## git ls-files 'parts/*'
+0
+
+## rg -n "res://parts/catalog|BundleCatalogueParityTests" --glob '!_bmad-output/**' (history only, CL7)
+docs/architecture/element-package-isolation.md:164 (closed-findings row for Story 9A.4)
+docs/planning/invest/decisions.md:165 (Story 6.5b card)
+docs/planning/invest/engine.md:210 (Story 6.5b card)
+docs/planning/invest/vertical-delivery.md:141 (Story 6.5b row)
+
+## rg "\.tres\b|DirAccess|Discover\(\)|BallMaterialResource|_canonicalOrder|CanonicalOrder|GenerateFree|PartId\.Tennis|PartId\.Balloon|DisplayNameKey" engine ui CuriousContraptions.Bundle elements tools/BundleElements (bin/obj/json excluded) | wc -l
+0
+
+## rg -c "\"<id>\"" ui/WorkshopIcons.cs, every element id (delivered, undelivered and future)
+ball=0 bowling=0 tennis=0 balloon=0 basket=0 ramp=0 wall=0 switch=0 lamp=0 delay=0 bumper=0 domino=0 battery=0 spring=0 pipe=0 ball_detector=0 pipe_bend_45=0 pipe_bend_90=0 funnel=0 powered_gate=0 pressure_plate=0 counter=0 clock=0 latch=0 motor=0 fan=0 bellows=0 windmill=0 wind_chimes=0 bell=0 sound_meter=0 speaker=0 clutch=0 hold_timer=0 laser=0 conveyor=0 both_gate=0
+
+## rg "13 =>|14 =>|\"tennis\"|\"balloon\"" engine/PartId.cs engine/gpu/WorkshopConnections.cs | wc -l
+0
+
+## Re-add mutants (mutant-deletion-readds.txt): each killed
+- static Free palette list re-added to WorkshopInventoryPolicy -> PartRegistryTests.NoStaticFreePaletteListRemains fails
+- DirAccess.GetFilesAt("res://parts/catalog") re-added to PartRegistry -> PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains fails
+- "ball" pictogram arm re-added to WorkshopIcons -> PartRegistryTests.WorkshopIconsKeepsNoElementArm fails
+
+## anvil_check on the 18 changed non-C# source files (csproj, slnx, cfg, md, yaml, svg, import, ts)
+warnings 0, errors 0, hasBlockingWarnings false

@@ -10,17 +10,18 @@ public sealed record PlannedFixture(WorkOrderId Id, RequirementId Instance, Sour
     bool Locked, WorkOrderId ProofCriterion);
 public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixture[] Fixtures)
 {
-    /// <summary>Each admitted part identity and the catalogue resource that declares it (keyed by the resource's own Id).</summary>
+    /// <summary>Each admitted part identity and the element package declaration that declares it (keyed by the declaration's own
+    /// Id).</summary>
     public IReadOnlyDictionary<RequirementId, SourcePath> Admitted { get; init; } = new Dictionary<RequirementId, SourcePath>();
     public SourceArtifact[] AvailableResources { get; init; } = [];
     public static readonly SourcePath ConsumersPath = new("docs/planning/invest/current-consumers.md");
     public static readonly SourcePath PartIdentityPath = new("engine/PartId.cs");
     private const string DeclarationDirectory = "docs/planning/elements";
-    private const string ResourceDirectory = "parts/catalog";
-    // Every *.tres resource in parts/catalog declares one part identity, and PartId's numeric wire table declares the closed
-    // set of identities those resources must cover exactly. PartRegistry.Discover registers all of them except the typed
-    // UndeliveredParts set (Story 9R.0c), whose resources still ship until Story 9A.14 deletes them.
-    private const string ResourceSearchPattern = "*.tres";
+    private const string ResourceDirectory = "elements";
+    // Every elements/<Package>/*ElementDeclaration.cs declares one part identity (Story 9A.14: the packages, through the generated
+    // bundle, are the only catalogue), and PartId's numeric wire table declares the closed set of identities those declarations
+    // must cover exactly.
+    private const string ResourceSearchPattern = "*ElementDeclaration.cs";
 
     public static CurrentCatalogue Read(DirectoryInfo root)
     {
@@ -38,8 +39,9 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         result = result.BindAcceptance(requirements);
         result.ValidateFixtures(File.ReadAllText(Path.Combine(root.FullName, "content/puzzles.json")));
         var declared = DeclaredPartIdentities(File.ReadAllText(Path.Combine(root.FullName, PartIdentityPath.Value)));
-        var resources = Directory.GetFiles(Path.Combine(root.FullName, ResourceDirectory), ResourceSearchPattern)
-            .Select(path => new SourcePath(ResourceDirectory + "/" + Path.GetFileName(path)))
+        var resources = Directory.GetDirectories(Path.Combine(root.FullName, ResourceDirectory))
+            .SelectMany(package => Directory.GetFiles(package, ResourceSearchPattern, SearchOption.TopDirectoryOnly))
+            .Select(path => new SourcePath(Path.GetRelativePath(root.FullName, path).Replace('\\', '/')))
             .OrderBy(path => path.Value, StringComparer.Ordinal).ToArray();
         var (artifacts, admitted) = result.ValidateResources(declared, resources, path =>
         {
@@ -196,10 +198,10 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
     }
 
     /// <summary>
-    /// Binds every catalogue resource to the part identity its own <c>Id</c> declares. The resources must cover the
-    /// declared identities exactly: an unreadable resource, a resource without exactly one Id, an Id outside the
-    /// declared set or the current catalogue, an Id claimed by two resources and a declared identity without a
-    /// resource each reject, naming the resource and identity.
+    /// Binds every element package declaration to the part identity its own <c>Id:</c> argument declares. The declarations must
+    /// cover the declared identities exactly: an unreadable declaration, a declaration without exactly one Id, an Id outside the
+    /// declared set or the current catalogue, an Id claimed by two declarations and a declared identity without a declaration
+    /// each reject, naming the declaration and identity.
     /// </summary>
     public (SourceArtifact[] Artifacts, IReadOnlyDictionary<RequirementId, SourcePath> Admitted) ValidateResources(
         IReadOnlyCollection<RequirementId> declared, IReadOnlyCollection<SourcePath> resources, Func<SourcePath, string?> read)
@@ -211,22 +213,22 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
         var artifacts = new List<SourceArtifact>();
         foreach (var path in resources)
         {
-            var content = read(path) ?? throw new InvalidDataException($"Catalogue resource '{path.Value}' is missing.");
-            var ids = Regex.Matches(content, "^Id = \"([^\"]+)\"\r?$", RegexOptions.Multiline);
+            var content = read(path) ?? throw new InvalidDataException($"Element declaration '{path.Value}' is missing.");
+            var ids = Regex.Matches(content, "\\bId: \"([^\"]+)\"");
             if (ids.Count != 1)
-                throw new InvalidDataException($"Catalogue resource '{path.Value}' declares {ids.Count} Ids; exactly one is required.");
+                throw new InvalidDataException($"Element declaration '{path.Value}' declares {ids.Count} Ids; exactly one is required.");
             var key = new RequirementId(ids[0].Groups[1].Value);
             if (!declared.Contains(key))
-                throw new InvalidDataException($"Catalogue resource '{path.Value}' Id '{key.Value}' is not a declared part identity.");
+                throw new InvalidDataException($"Element declaration '{path.Value}' Id '{key.Value}' is not a declared part identity.");
             if (!known.Contains(key))
-                throw new InvalidDataException($"Catalogue resource '{path.Value}' Id '{key.Value}' has no current catalogue declaration.");
+                throw new InvalidDataException($"Element declaration '{path.Value}' Id '{key.Value}' has no current catalogue declaration.");
             if (!admitted.TryAdd(key, path))
                 throw new InvalidDataException($"Part identity '{key.Value}' is declared by both '{admitted[key].Value}' and '{path.Value}'.");
             artifacts.Add(new(path, RequirementDiscovery.Hash(content)));
         }
         var absent = declared.Where(key => !admitted.ContainsKey(key)).Select(key => key.Value).ToArray();
         if (absent.Length != 0)
-            throw new InvalidDataException($"Declared part identities have no catalogue resource: {string.Join(", ", absent)}.");
+            throw new InvalidDataException($"Declared part identities have no element declaration: {string.Join(", ", absent)}.");
         return (artifacts.ToArray(), admitted);
     }
 }

@@ -121,7 +121,7 @@ public sealed class WorkshopDominoTests
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(WorkshopInput.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
-        Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.Domino]);
+        Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.Domino]);
     }
 
     [Fact]

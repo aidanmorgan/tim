@@ -13,17 +13,16 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversPipeDefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.Pipe));
         var def = registry.Definitions[PartId.Pipe];
         Assert.Equal(PartId.Pipe, def.PartId);
         Assert.Equal("pipe", def.Id);
         Assert.Equal("Clear pipe", def.Title);
-        Assert.Equal("Motion", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("A hollow tube. Gravity carries balls through the open bore; tilt it downhill to guide them. The clear shell transmits light; cream collars are opaque.", def.Description);
         Assert.NotNull(def.Scene);
-        Assert.Empty(def.Parameters);
 
         var part = registry.Create(PartId.Pipe);
         try

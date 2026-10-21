@@ -19,17 +19,16 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversPipeBend45DefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.PipeBend45));
         var def = registry.Definitions[PartId.PipeBend45];
         Assert.Equal(PartId.PipeBend45, def.PartId);
         Assert.Equal("pipe_bend_45", def.Id);
         Assert.Equal("45° pipe bend", def.Title);
-        Assert.Equal("Motion", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("A 45-degree hollow curve. Turns falling balls smoothly through a gentle angle under gravity.", def.Description);
         Assert.NotNull(def.Scene);
-        Assert.Empty(def.Parameters);
 
         var part = registry.Create(PartId.PipeBend45);
         try

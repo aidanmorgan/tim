@@ -10,9 +10,12 @@ public sealed class WallElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "wall",
         Category: ElementCategory.Structure,
-        DisplayNameKey: "part_wall",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/wall.tscn",
+        DisplayName: "Wall",
+        Description: "A solid panel. Move, rotate or stretch its three local dimensions to guide and contain balls.",
+        Color: new(0.76f, 0.56f, 0.32f, 1f),
+        PaletteOrder: 5,
+        IconPath: "res://elements/Wall/icon.svg",
+        ScenePath: "res://elements/Wall/wall.tscn",
         Parameters:
         [
             new("width", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0.4f, Maximum: 8f, Default: 3f, Options: []),

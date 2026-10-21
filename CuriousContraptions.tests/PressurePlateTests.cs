@@ -17,16 +17,15 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversPressurePlateDefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.PressurePlate));
         var def = registry.Definitions[PartId.PressurePlate];
         Assert.Equal(PartId.PressurePlate, def.PartId);
         Assert.Equal("pressure_plate", def.Id);
         Assert.Equal("Pressure plate", def.Title);
-        Assert.Equal("Control", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
         Assert.NotNull(def.Scene);
-        Assert.Empty(def.Parameters);
 
         var part = registry.Create(PartId.PressurePlate);
         try
@@ -55,7 +54,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void PressurePlateScene_ExtractsExactTwoCollidersAndThreePortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://parts/scenes/pressure_plate.tscn");
+        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PressurePlate/pressure_plate.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

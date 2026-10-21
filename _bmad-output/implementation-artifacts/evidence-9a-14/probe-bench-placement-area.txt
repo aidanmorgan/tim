@@ -1,0 +1,40 @@
+360,420 ok
+470,420 ok
+580,420 ok
+690,420 ok
+800,420 ok
+910,420 ok
+1020,420 FAIL Error: placeOnCanvas(1020, 420): no Workshop command acknowledgement (CCGPU) wit
+1130,420 FAIL Error: placeOnCanvas(1130, 420): no Workshop command acknowledgement (CCGPU) wit
+360,490 ok
+470,490 ok
+580,490 ok
+690,490 ok
+800,490 ok
+910,490 ok
+1020,490 ok
+1130,490 ok
+360,560 FAIL Error: placeOnCanvas(360, 560): no Workshop command acknowledgement (CCGPU) with
+470,560 FAIL Error: placeOnCanvas(470, 560): no Workshop command acknowledgement (CCGPU) with
+580,560 ok
+690,560 ok
+800,560 ok
+910,560 ok
+1020,560 ok
+1130,560 ok
+360,630 FAIL Error: placeOnCanvas(360, 630): no Workshop command acknowledgement (CCGPU) with
+470,630 FAIL Error: placeOnCanvas(470, 630): no Workshop command acknowledgement (CCGPU) with
+580,630 FAIL Error: placeOnCanvas(580, 630): no Workshop command acknowledgement (CCGPU) with
+690,630 FAIL Error: placeOnCanvas(690, 630): no Workshop command acknowledgement (CCGPU) with
+800,630 ok
+910,630 ok
+1020,630 ok
+1130,630 FAIL Error: placeOnCanvas(1130, 630): no Workshop command acknowledgement (CCGPU) wit
+360,700 FAIL Error: placeOnCanvas(360, 700): no Workshop command acknowledgement (CCGPU) with
+470,700 FAIL Error: placeOnCanvas(470, 700): no Workshop command acknowledgement (CCGPU) with
+580,700 FAIL Error: placeOnCanvas(580, 700): no Workshop command acknowledgement (CCGPU) with
+690,700 FAIL Error: placeOnCanvas(690, 700): no Workshop command acknowledgement (CCGPU) with
+800,700 FAIL Error: placeOnCanvas(800, 700): no Workshop command acknowledgement (CCGPU) with
+910,700 FAIL Error: placeOnCanvas(910, 700): no Workshop command acknowledgement (CCGPU) with
+1020,700 FAIL Error: placeOnCanvas(1020, 700): no Workshop command acknowledgement (CCGPU) wit
+1130,700 FAIL Error: placeOnCanvas(1130, 700): no Workshop command acknowledgement (CCGPU) wit

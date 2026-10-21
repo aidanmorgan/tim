@@ -10,9 +10,12 @@ public sealed class BallElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "ball",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_ball",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/ball.tscn",
+        DisplayName: "Basketball",
+        Description: "A lively, medium-weight ball. Rolls, falls, and transfers momentum.",
+        Color: new(0.96f, 0.49f, 0.22f, 1f),
+        PaletteOrder: 1,
+        IconPath: "res://elements/Ball/icon.svg",
+        ScenePath: "res://elements/Ball/ball.tscn",
         Parameters: []);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 1, PrismaticConstraints: 0);

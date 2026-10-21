@@ -14,7 +14,7 @@
         <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
         <!-- Keep nested host projects out of the default compile/content globs (their .gdignore hides them
              from the Godot editor) -->
-        <DefaultItemExcludes>$(DefaultItemExcludes);CuriousContraptions.2dog/**;CuriousContraptions.web/**;CuriousContraptions.Simulation/**;CuriousContraptions.Animation/**;CuriousContraptions.Animation.Worker/**;CuriousContraptions.FlatBuffers/**;CuriousContraptions.tests/**</DefaultItemExcludes>
+        <DefaultItemExcludes>$(DefaultItemExcludes);CuriousContraptions.2dog/**;CuriousContraptions.web/**;CuriousContraptions.Simulation/**;CuriousContraptions.Animation/**;CuriousContraptions.Animation.Worker/**;CuriousContraptions.FlatBuffers/**;CuriousContraptions.Bundle/**;CuriousContraptions.tests/**</DefaultItemExcludes>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="2dog.godotsharp" Version="$(TwoDogVersion)" />
@@ -24,6 +24,8 @@
         <ProjectReference Include="CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
         <ProjectReference Include="CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
         <ProjectReference Include="CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+        <!-- Story 9A.14: the element bundle schema; the registry loads only the generated bundle. -->
+        <ProjectReference Include="CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj" />
     </ItemGroup>
     <!-- Explicit current admitted game sources; diagnostic host additions are selected by their host project. -->
     <ItemGroup>
@@ -35,7 +37,6 @@
         <Compile Include="engine/CosmeticBindingSet.cs" />
         <Compile Include="engine/WorkshopUiBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
-        <Compile Include="engine/BallMaterialResource.cs" />
         <Compile Include="engine/PartRegistry.cs" />
         <Compile Include="engine/PartId.cs" />
         <Compile Include="engine/TubeMouthSnap.cs" />

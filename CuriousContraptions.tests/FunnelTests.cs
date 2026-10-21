@@ -15,17 +15,16 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversFunnelDefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.Funnel));
         var def = registry.Definitions[PartId.Funnel];
         Assert.Equal(PartId.Funnel, def.PartId);
         Assert.Equal("funnel", def.Id);
         Assert.Equal("Funnel", def.Title);
-        Assert.Equal("Motion", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("A wide hollow funnel. Gathers falling balls from a wide 2.6-unit mouth into the standard 1.3-unit tube bore by gravity and contact alone.", def.Description);
         Assert.NotNull(def.Scene);
-        Assert.Empty(def.Parameters);
 
         var part = registry.Create(PartId.Funnel);
         try

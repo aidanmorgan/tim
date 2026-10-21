@@ -1,0 +1,7 @@
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageIconRendersTheCurrentPictogram [8 ms]
+   Wall: icon pixels differ from the pictogram.
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageCarriesItsCatalogueTitleAndPaletteRow [2 ms]
+   Assert.Equal() Failure: Strings differ
+Expected: "Clear pipe"
+Actual:   "Pipe"
+Failed!  - Failed:     2, Passed:     8, Skipped:     0, Total:    10, Duration: 157 ms - CuriousContraptions.tests.dll (net10.0)

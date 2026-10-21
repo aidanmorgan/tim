@@ -1,79 +1,117 @@
 using Godot;
+using CuriousContraptions.Abstractions;
+using CuriousContraptions.Abstractions.Mechanical;
+using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 
 namespace CuriousContraptions;
 
-/// <summary>What admission decided for one catalogue resource.</summary>
-public enum PartAdmission { Registered, Undelivered }
-
+/// <summary>
+/// The catalogue the game offers, loaded only from the generated element bundle (Story 9A.14). Every definition is a plain runtime
+/// record built from one bundle entry; its scene and icon are the package's own files. A missing or structurally invalid bundle, or
+/// an entry whose scene or icon does not load, refuses the whole load with a message naming the problem; nothing is loaded from
+/// anywhere else and nothing is kept from a refused load. The typed <see cref="UndeliveredParts"/> set keeps an element out of the
+/// registry and the palette even when the bundle declares it.
+/// </summary>
 public sealed class PartRegistry
 {
+    /// <summary>The generated bundle (tools/BundleElements writes it on every build and before every export).</summary>
+    public const string BundlePath = "res://elements/elements.bundle.json";
+
     private readonly Dictionary<PartId, PartDefinition> _definitions = new();
+    private IReadOnlyDictionary<PartId, PartAllowance>? _free;
     public IReadOnlyDictionary<PartId, PartDefinition> Definitions => _definitions;
 
-    public void Discover()
-    {
-        _definitions.Clear();
-        var files = DirAccess.GetFilesAt("res://parts/catalog");
-        Array.Sort(files, StringComparer.Ordinal);
-        var seen = new HashSet<PartId>();
+    /// <summary>The Free palette: every registered element, unlimited, in ascending declared palette order.</summary>
+    public IReadOnlyDictionary<PartId, PartAllowance> Free => _free ?? throw new InvalidOperationException("The element bundle is not loaded.");
 
-        foreach (var file in files)
+    /// <summary>Loads <see cref="BundlePath"/>.</summary>
+    public void Load() => LoadFile(BundlePath);
+
+    /// <summary>Loads the bundle file at <paramref name="path"/>; a missing file refuses the load.</summary>
+    internal void LoadFile(string path)
+    {
+        if (!Godot.FileAccess.FileExists(path))
+            throw new InvalidDataException($"The element bundle '{path}' is missing; build tools/BundleElements to generate it.");
+        Load(Godot.FileAccess.GetFileAsString(path));
+    }
+
+    /// <summary>Loads the bundle these bytes hold, or refuses them whole.</summary>
+    public void Load(string json)
+    {
+        var definitions = new List<PartDefinition>();
+        foreach (var entry in Read(json))
         {
-            var fileName = file;
-            if (fileName.EndsWith(".remap", StringComparison.OrdinalIgnoreCase))
-                fileName = fileName[..^6];
-            if (!fileName.EndsWith(".tres", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            var path = "res://parts/catalog/" + fileName;
-
-            var definition = ResourceLoader.Load<PartDefinition>(path)
-                ?? throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
-            if (Admit(definition, path, seen) == PartAdmission.Undelivered)
-            {
-                // The registry owns the resource it refuses and releases it here, on the main thread; a dropped wrapper's
-                // finalizer would otherwise release it on the GC thread while a later Load reuses the cached resource.
-                definition.Dispose();
-                continue;
-            }
-
-            var id = definition.PartId;
-            if (definition.Ball is not null && (id == PartId.Basketball || id == PartId.BowlingBall))
-                definition.Ball.Capture(id);
-
-            _definitions.Add(id, definition);
+            var id = new PartId(entry.Metadata.Id);
+            if (UndeliveredParts.Contains(id)) continue;
+            definitions.Add(Definition(id, entry));
         }
-
-        if (_definitions.Count == 0)
-            throw new ArgumentException("No valid catalogue parts were discovered.");
-
-        WorkshopInventoryPolicy.GenerateFree(_definitions.Keys);
+        if (definitions.Count == 0) throw Invalid("it declares no deliverable element");
+        var free = WorkshopInventoryPolicy.Free(definitions.Select(definition => definition.PartId));
+        _definitions.Clear();
+        foreach (var definition in definitions) _definitions.Add(definition.PartId, definition);
+        _free = free;
     }
 
-    /// <summary>
-    /// Admission is the checked-in typed <see cref="UndeliveredParts"/> set, never the resource's contents (Story 9R.0c). Identity
-    /// comes first, so a second resource claiming any identity, delivered or not, is a duplicate; an undelivered part is refused
-    /// before its content is checked; a delivered part must have a scene and no untyped Parameters (the Clock alone declares its
-    /// interval there).
-    /// </summary>
-    internal static PartAdmission Admit(PartDefinition definition, string path, ISet<PartId> seen)
+    /// <summary>The bundle's entries in ascending palette order, after the same structural validation the generator runs.</summary>
+    public static IReadOnlyList<BundleEntry> Read(string json)
     {
-        if (string.IsNullOrWhiteSpace(definition.Id))
-            throw new ArgumentException($"Canonical resource '{path}' has missing or empty Id.");
-        var id = definition.PartId;
-        if (!seen.Add(id))
-            throw new ArgumentException($"Duplicate part identity '{id}' encountered in '{path}'.");
-        if (UndeliveredParts.Contains(id))
-            return PartAdmission.Undelivered;
-        if (definition.Scene is null)
-            throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
-        if (definition.Parameters.Count != 0 && id != PartId.Clock)
-            throw new ArgumentException($"Canonical resource '{path}' declares untyped Parameters.");
-        return PartAdmission.Registered;
+        ArgumentNullException.ThrowIfNull(json);
+        BundleDocument document;
+        try
+        {
+            document = BundleSchema.Read(json);
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException($"The element bundle '{BundlePath}' is malformed: {error.Message}", error);
+        }
+        var errors = BundleValidator.Validate(document.Elements.Select(entry => new NamedEntry(entry.Metadata.Id, entry)).ToArray());
+        if (errors.Count > 0) throw Invalid(string.Join("; ", errors));
+        return document.Elements.OrderBy(entry => entry.Metadata.PaletteOrder).ToArray();
     }
+
+    private static PartDefinition Definition(PartId id, BundleEntry entry)
+    {
+        var metadata = entry.Metadata;
+        if (!ResourceLoader.Exists(metadata.ScenePath)) throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' does not exist");
+        if (!Godot.FileAccess.FileExists(metadata.IconPath)) throw Invalid($"{id}.Metadata.IconPath: '{metadata.IconPath}' does not exist");
+        var scene = ResourceLoader.Load<PackedScene>(metadata.ScenePath)
+            ?? throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' is not a scene");
+        var color = metadata.Color;
+        return new PartDefinition(id, metadata.DisplayName, metadata.Description, metadata.Category, new(color.R, color.G, color.B, color.A),
+            metadata.IconPath, scene, Ball(id, entry));
+    }
+
+    /// <summary>A dynamic body with one sphere collider is a ball: its declared material, at the runtime's binary16 lanes, must be the
+    /// kind's declared material.</summary>
+    private static BallMaterial? Ball(PartId id, BundleEntry entry)
+    {
+        if (entry.Mechanical is not { KinematicMode: KinematicMode.Dynamic } mechanical || entry.Colliders.Count != 1 ||
+            entry.Colliders[0].ShapeKind != Abstractions.ColliderShapeKind.Sphere)
+            return null;
+        var collider = entry.Colliders[0];
+        var material = new BallMaterial(new((Half)collider.HalfExtents.X), new((Half)mechanical.MassProperties.Mass),
+            new((Half)collider.Material.Restitution), new((Half)mechanical.MassProperties.LinearDrag),
+            new((Half)(entry.Fluid?.Properties.BuoyancyCoefficient ?? 0f)), new((Half)collider.Material.Friction),
+            new((Half)collider.Material.BounceThreshold), new((Half)collider.Material.RollingResistance));
+        try
+        {
+            material.Validate(id);
+        }
+        catch (ArgumentException error)
+        {
+            throw Invalid($"{id}: {error.Message}");
+        }
+        return material;
+    }
+
+    private static InvalidDataException Invalid(string detail) => new($"The element bundle '{BundlePath}' is invalid: {detail}.");
 
     public MachinePart Create(PartId id)
     {

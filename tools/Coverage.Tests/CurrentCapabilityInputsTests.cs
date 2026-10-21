@@ -5,7 +5,7 @@ namespace CuriousContraptions.CoverageTests;
 
 public class CurrentCapabilityInputsTests
 {
-    private static readonly SourcePath BallResource = new("parts/catalog/ball.tres");
+    private static readonly SourcePath BallResource = new("elements/Ball/BallElementDeclaration.cs");
     private static DirectoryInfo Root()
     {
         var root = new DirectoryInfo(AppContext.BaseDirectory);
@@ -84,23 +84,23 @@ public class CurrentCapabilityInputsTests
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
                 File.Copy(Path.Combine(original.FullName, path), destination);
             }
-            Assert.False(File.Exists(Path.Combine(target.FullName, "parts/catalog/electrical_nand.tres")));
+            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalNand")));
             var sources = RequirementDiscovery.Discover(target);
             var prepared = CapabilityInputs.Prepare(target, sources);
             Assert.Equal(1471, sources.Count);
             Assert.Equal(104, prepared.Expectations.Modes.Count);
             Assert.Equal(72, prepared.Expectations.RequiredCapabilities.Keys.Count(key => key.Origin == RequirementOrigin.Catalogue));
-            var springboard = Path.Combine(target.FullName, "parts/catalog/springboard.tres");
+            var springboard = Path.Combine(target.FullName, "elements/Springboard/SpringboardElementDeclaration.cs");
             var springboardText = File.ReadAllText(springboard);
-            File.WriteAllText(springboard, springboardText.Replace("Id = \"spring\"", "Id = \"ball\""));
+            File.WriteAllText(springboard, springboardText.Replace("Id: \"spring\"", "Id: \"ball\""));
             Assert.Contains("'ball' is declared by both", Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
-            File.WriteAllText(springboard, springboardText.Replace("Id = \"spring\"", "Id = \"springboard\""));
+            File.WriteAllText(springboard, springboardText.Replace("Id: \"spring\"", "Id: \"springboard\""));
             Assert.Contains("'springboard' is not a declared part identity",
                 Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
             File.WriteAllText(springboard, springboardText);
-            Assert.Equal(new SourcePath("parts/catalog/springboard.tres"), CurrentCatalogue.Read(target).Admitted[new("spring")]);
-            File.Delete(Path.Combine(target.FullName, "parts/catalog/ball.tres"));
-            Assert.Contains("have no catalogue resource: ball.", Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
+            Assert.Equal(new SourcePath("elements/Springboard/SpringboardElementDeclaration.cs"), CurrentCatalogue.Read(target).Admitted[new("spring")]);
+            File.Delete(Path.Combine(target.FullName, "elements/Ball/BallElementDeclaration.cs"));
+            Assert.Contains("have no element declaration: ball.", Assert.Throws<InvalidDataException>(() => CurrentCatalogue.Read(target)).Message);
         }
         finally { if (target.Exists) target.Delete(true); }
     }
@@ -133,30 +133,30 @@ public class CurrentCapabilityInputsTests
     public void AdmittedResourceClosureRejectsMissingDuplicateAndEscapingLinksAndBindsBytes()
     {
         var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(Path.Combine(directory, "parts/catalog"));
-        Directory.CreateDirectory(Path.Combine(directory, "parts/scenes"));
+        Directory.CreateDirectory(Path.Combine(directory, "elements/Ball"));
+        Directory.CreateDirectory(Path.Combine(directory, "engine"));
         var root = new DirectoryInfo(directory);
-        var resource = Path.Combine(directory, "parts/catalog/ball.tres");
-        var scene = Path.Combine(directory, "parts/scenes/ball.tscn");
-        var script = Path.Combine(directory, "parts/BallPart.cs");
-        const string resourceText = "[ext_resource type=\"PackedScene\" path=\"res://parts/scenes/ball.tscn\" id=\"1\"]\n[resource]\nScene = ExtResource(\"1\")";
-        const string sceneText = "[ext_resource type=\"Script\" path=\"res://parts/BallPart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]\nscript = ExtResource(\"1\")";
+        var resource = Path.Combine(directory, BallResource.Value);
+        var scene = Path.Combine(directory, "elements/Ball/ball.tscn");
+        var script = Path.Combine(directory, "engine/MachinePart.cs");
+        const string resourceText = "Id: \"ball\",\nScenePath: \"res://elements/Ball/ball.tscn\",";
+        const string sceneText = "[ext_resource type=\"Script\" path=\"res://engine/MachinePart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]\nscript = ExtResource(\"1\")";
         try
         {
             File.WriteAllText(resource, resourceText);
             File.WriteAllText(scene, sceneText);
-            File.WriteAllText(script, "public class BallPart {}");
+            File.WriteAllText(script, "public class MachinePart {}");
             var first = CapabilityInputs.ReadResourceClosure(root, BallResource);
             Assert.Equal(2, first.Artifacts.Length);
             Assert.Single(first.Symbols);
-            File.WriteAllText(script, "public class BallPart { public float Mass; }");
+            File.WriteAllText(script, "public class MachinePart { public float Mass; }");
             Assert.NotEqual(first.Symbols[0].FileHash, CapabilityInputs.ReadResourceClosure(root, BallResource).Symbols[0].FileHash);
             File.WriteAllText(scene, sceneText + "\n# authored change");
             Assert.NotEqual(first.Artifacts[1].Hash, CapabilityInputs.ReadResourceClosure(root, BallResource).Artifacts[1].Hash);
             File.WriteAllText(resource, resourceText + "\n" + resourceText);
             Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(root, BallResource));
-            File.WriteAllText(resource, resourceText.Replace("parts/scenes/ball.tscn", "../outside.tscn"));
-            Assert.Throws<ArgumentException>(() => CapabilityInputs.ReadResourceClosure(root, BallResource));
+            File.WriteAllText(resource, resourceText.Replace("elements/Ball/ball.tscn", "../outside.tscn"));
+            Assert.Throws<ArgumentException>(() => CapabilityInputs.ReadResourceClosure(root, BallResource)); // SourcePath refuses it
             File.WriteAllText(resource, resourceText);
             File.Delete(scene);
             Assert.Throws<FileNotFoundException>(() => CapabilityInputs.ReadResourceClosure(root, BallResource));
@@ -166,9 +166,8 @@ public class CurrentCapabilityInputsTests
 
     [Theory]
     [InlineData(false, "")]
-    [InlineData(false, "Scene = ExtResource(\"unknown\")")]
-    [InlineData(false, "Scene = ExtResource(\"1\")\nScene = ExtResource(\"1\")")]
-    [InlineData(false, "Scene = SubResource(\"1\")")]
+    [InlineData(false, "ScenePath: \"res://elements/Ball/ball.tscn\",\nScenePath: \"res://elements/Ball/ball.tscn\",")]
+    [InlineData(false, "ScenePath: \"res://elements/Ball/ball.svg\",")]
     [InlineData(true, "")]
     [InlineData(true, "script = ExtResource(\"unknown\")")]
     [InlineData(true, "script = ExtResource(\"1\")\nscript = ExtResource(\"1\")")]
@@ -176,17 +175,16 @@ public class CurrentCapabilityInputsTests
     public void ActualResourcePropertyBindingMustResolve(bool sceneBinding, string binding)
     {
         var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(Path.Combine(directory, "parts/catalog"));
-        Directory.CreateDirectory(Path.Combine(directory, "parts/scenes"));
+        Directory.CreateDirectory(Path.Combine(directory, "elements/Ball"));
+        Directory.CreateDirectory(Path.Combine(directory, "engine"));
         try
         {
-            File.WriteAllText(Path.Combine(directory, "parts/catalog/ball.tres"),
-                "[ext_resource type=\"PackedScene\" path=\"res://parts/scenes/ball.tscn\" id=\"1\"]\n[resource]\n" +
-                (sceneBinding ? "Scene = ExtResource(\"1\")" : binding));
-            File.WriteAllText(Path.Combine(directory, "parts/scenes/ball.tscn"),
-                "[ext_resource type=\"Script\" path=\"res://parts/BallPart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]\n" +
+            File.WriteAllText(Path.Combine(directory, BallResource.Value),
+                "Id: \"ball\",\n" + (sceneBinding ? "ScenePath: \"res://elements/Ball/ball.tscn\"," : binding));
+            File.WriteAllText(Path.Combine(directory, "elements/Ball/ball.tscn"),
+                "[ext_resource type=\"Script\" path=\"res://engine/MachinePart.cs\" id=\"1\"]\n[node name=\"ball\" type=\"Node3D\"]\n" +
                 (sceneBinding ? binding : "script = ExtResource(\"1\")"));
-            File.WriteAllText(Path.Combine(directory, "parts/BallPart.cs"), "public class BallPart {}");
+            File.WriteAllText(Path.Combine(directory, "engine/MachinePart.cs"), "public class MachinePart {}");
             Assert.Throws<InvalidDataException>(() => CapabilityInputs.ReadResourceClosure(new(directory), BallResource));
         }
         finally { Directory.Delete(directory, true); }

@@ -17,8 +17,11 @@ public sealed class PipeElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "pipe",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_pipe",
-        IconPath: null,
+        DisplayName: "Clear pipe",
+        Description: "A hollow tube. Gravity carries balls through the open bore; tilt it downhill to guide them. The clear shell transmits light; cream collars are opaque.",
+        Color: new(0.4f, 0.72f, 0.79f, 1f),
+        PaletteOrder: 15,
+        IconPath: "res://elements/Pipe/icon.svg",
         ScenePath: "res://elements/Pipe/pipe.tscn",
         Parameters:
         [

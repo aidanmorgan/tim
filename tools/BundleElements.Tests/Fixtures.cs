@@ -26,7 +26,13 @@ public sealed class Fixture : ISliderElement
     public string Id { get; init; } = "fixture";
     public ElementCategory Category { get; init; } = ElementCategory.Structure;
     public IReadOnlyList<ParameterDescriptor> Parameters { get; init; } = [];
-    public ElementMetadata Metadata => new(Id, Category, "part_fixture", null, "res://elements/Fixture/fixture.tscn", Parameters);
+    public string DisplayName { get; init; } = "Fixture";
+    public string Description { get; init; } = "A fixture.";
+    public ElementColor Color { get; init; } = new(.5f, .5f, .5f, 1f);
+    public int PaletteOrder { get; init; } = 1;
+    public string IconPath { get; init; } = "res://elements/Fixture/icon.svg";
+    public string ScenePath { get; init; } = "res://elements/Fixture/fixture.tscn";
+    public ElementMetadata Metadata => new(Id, Category, DisplayName, Description, Color, PaletteOrder, IconPath, ScenePath, Parameters);
     public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports { get; init; } = [];
     public IReadOnlyList<ColliderDescriptor> Colliders { get; init; } = [Box(new(.5f, .5f, .5f))];
@@ -41,7 +47,7 @@ public sealed class Fixture : ISliderElement
 /// <summary>A second public declaration in this assembly, so the assembly as a package declares two (BUNDLE005).</summary>
 public sealed class SecondFixture : IPuzzleElementDeclaration
 {
-    public ElementMetadata Metadata => new("second", ElementCategory.Goals, "part_second", null, "res://second.tscn", []);
+    public ElementMetadata Metadata => new("second", ElementCategory.Goals, "Second", "A second fixture.", new(.5f, .5f, .5f, 1f), 2, "res://elements/Second/icon.svg", "res://elements/Second/second.tscn", []);
     public ElementFootprint Footprint => new(0, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports => [];
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
@@ -53,7 +59,8 @@ public sealed class SecondFixture : IPuzzleElementDeclaration
 /// mechanical payload. Internal, so the assembly-as-package discovery count above stays two.</summary>
 internal sealed class SignalFixture : ISignalElement
 {
-    public ElementMetadata Metadata => new("signal_fixture", ElementCategory.Goals, "part_signal_fixture", null, "res://signal.tscn", []);
+    public ElementMetadata Metadata => new("signal_fixture", ElementCategory.Goals, "Signal fixture", "A signal fixture.", new(.5f, .5f, .5f, 1f), 3, "res://elements/SignalFixture/icon.svg",
+        "res://elements/SignalFixture/signal.tscn", []);
     public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports => [];
     public IReadOnlyList<ColliderDescriptor> Colliders { get; init; } = [Fixture.Box(new(.4f, .1f, .4f))];

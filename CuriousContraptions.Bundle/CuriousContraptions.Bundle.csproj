@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Story 9A.14: the one element bundle schema, its reader and its structural validator, shared by the build-time generator
+       (tools/BundleElements) and the game, which loads only the bundle. Trimmable: the game assembly is trimmed. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
+  </ItemGroup>
+</Project>

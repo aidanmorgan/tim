@@ -13,9 +13,12 @@ public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalE
     public ElementMetadata Metadata => new(
         Id: "clock",
         Category: ElementCategory.Control,
-        DisplayNameKey: "part_clock",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/clock.tscn",
+        DisplayName: "Repeating clock",
+        Description: "Connect electricity to start the pendulum. Sends one trigger each second, starting after a full interval. Losing power resets its timing; reconnecting begins a fresh interval.",
+        Color: new(0.91f, 0.72f, 0.39f, 1f),
+        PaletteOrder: 23,
+        IconPath: "res://elements/SystemClock/icon.svg",
+        ScenePath: "res://elements/SystemClock/clock.tscn",
         Parameters:
         [
             new("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])

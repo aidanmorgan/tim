@@ -30,7 +30,7 @@ public sealed class JoinedPipeTests
     private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
         return registry.Definitions;
     }
 

@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: Stories 9A.14 and 9A.18: the bundle is the sole catalogue and icons ship in their packages
+    # Subtest: the palette titles and package icons are pixel-identical to the pre-cutover palette
+    not ok 1 - the palette titles and package icons are pixel-identical to the pre-cutover palette
+      ---
+      duration_ms: 2590.279458
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1a1514d517207e6f/tools/e2e/arch-9a-catalogue.test.ts:2:5338'
+      failureType: 'testCodeFailure'
+      error: 'the unscrolled palette differs from its baseline (30603 vs 30600 bytes)'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1a1514d517207e6f/tools/e2e/arch-9a-catalogue.test.ts:127:16)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Promise.all (index 1)
+        async Suite.run (node:internal/test_runner/test:1905:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+      ...
+    # Subtest: palette row 7 places the bundle's element domino
+    ok 2 - palette row 7 places the bundle's element domino
+      ---
+      duration_ms: 3092.446375
+      type: 'test'
+      ...
+    # Subtest: palette row 8 places the bundle's element ramp
+    ok 3 - palette row 8 places the bundle's element ramp
+      ---
+      duration_ms: 3066.959458
+      type: 'test'
+      ...
+    1..3
+not ok 1 - Stories 9A.14 and 9A.18: the bundle is the sole catalogue and icons ship in their packages
+  ---
+  duration_ms: 13067.936667
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1a1514d517207e6f/tools/e2e/arch-9a-catalogue.test.ts:2:2989'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 3
+# suites 1
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13315.329208

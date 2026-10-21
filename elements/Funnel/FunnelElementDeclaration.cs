@@ -15,8 +15,11 @@ public sealed class FunnelElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "funnel",
         Category: ElementCategory.Motion,
-        DisplayNameKey: "part_funnel",
-        IconPath: null,
+        DisplayName: "Funnel",
+        Description: "A wide hollow funnel. Gathers falling balls from a wide 2.6-unit mouth into the standard 1.3-unit tube bore by gravity and contact alone.",
+        Color: new(0.4f, 0.72f, 0.79f, 1f),
+        PaletteOrder: 19,
+        IconPath: "res://elements/Funnel/icon.svg",
         ScenePath: "res://elements/Funnel/funnel.tscn",
         Parameters: []);
 

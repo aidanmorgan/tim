@@ -14,8 +14,11 @@ public sealed class DelayBoxElementDeclaration : ISignalElement
     public ElementMetadata Metadata => new(
         Id: "delay",
         Category: ElementCategory.Control,
-        DisplayNameKey: "part_delay",
-        IconPath: null,
+        DisplayName: "Delay",
+        Description: "Wait after an activation, then activate the output once. Select to set the duration. Reset rearms the timer.",
+        Color: new(0.84f, 0.61f, 0.28f, 1f),
+        PaletteOrder: 6,
+        IconPath: "res://elements/DelayBox/icon.svg",
         ScenePath: "res://elements/DelayBox/delay.tscn",
         Parameters:
         [

@@ -15,8 +15,11 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
     public ElementMetadata Metadata => new(
         Id: "switch",
         Category: ElementCategory.Power,
-        DisplayNameKey: "part_switch",
-        IconPath: null,
+        DisplayName: "Impact switch",
+        Description: "A qualifying impact presses the button and sends one activation to connected signal parts.",
+        Color: new(0.94f, 0.43f, 0.33f, 1f),
+        PaletteOrder: 3,
+        IconPath: "res://elements/ImpactSwitch/icon.svg",
         ScenePath: "res://elements/ImpactSwitch/switch.tscn",
         Parameters:
         [

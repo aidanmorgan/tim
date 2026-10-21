@@ -10,9 +10,12 @@ public sealed class RampElementDeclaration : IMechanicalElement
     public ElementMetadata Metadata => new(
         Id: "ramp",
         Category: ElementCategory.Structure,
-        DisplayNameKey: "part_ramp",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/ramp.tscn",
+        DisplayName: "Ramp",
+        Description: "Rotate a ramp to guide a falling ball. Its width extends into depth.",
+        Color: new(0.76f, 0.56f, 0.32f, 1f),
+        PaletteOrder: 8,
+        IconPath: "res://elements/Ramp/icon.svg",
+        ScenePath: "res://elements/Ramp/ramp.tscn",
         Parameters:
         [
             new("length", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0.125f, Maximum: 4f, Default: 3f, Options: []),

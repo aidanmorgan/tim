@@ -129,7 +129,7 @@ public partial class Workshop
         var joined = World.Construction.Puzzle.Id == WorkshopPuzzleId.JoinedPipe;
         var authored = first || delayed || dominoes || sidekick || depth || wall || spring || ready || pipe || gentle || quarter || joined;
         _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : dominoes ? DominoEffectIndex : sidekick ? BumperSidekickIndex : depth ? BumperDepthIndex : wall ? WallAndBumperIndex : spring ? SpringForwardIndex : ready ? ReadyToReboundIndex : pipe ? ClearPipeIndex : gentle ? GentleBendIndex : quarter ? QuarterBendIndex : joined ? JoinedPipeIndex : FreeWorkshopIndex);
-        _inventory = authored ? WorkshopInventoryPolicy.Authored(World.Construction.Puzzle) : WorkshopInventoryPolicy.Free;
+        _inventory = authored ? WorkshopInventoryPolicy.Authored(World.Construction.Puzzle) : World.Registry.Free;
         _title.Text = first ? "First principles" : delayed ? "Wait for it" : dominoes ? "The domino effect" : sidekick ? "A little sidekick" : depth ? "Bounce into depth" : wall ? "Build the rebound" : spring ? "Spring forward" : ready ? "Ready to rebound" : pipe ? "Through the looking tube" : gentle ? "A gentle turn" : quarter ? "Around the corner" : joined ? "Meet in the middle" : "Free workshop";
         _task.Text = joined ? "Join a short straight tube to the fixed bend so the falling ball reaches the receiver."
             : quarter ? "Use a 90-degree bend to turn a vertical fall into a sideways delivery."

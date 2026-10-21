@@ -15,17 +15,16 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversBallDetectorDefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.BallDetector));
         var def = registry.Definitions[PartId.BallDetector];
         Assert.Equal(PartId.BallDetector, def.PartId);
         Assert.Equal("ball_detector", def.Id);
         Assert.Equal("Ball detector", def.Title);
-        Assert.Equal("Control", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Control, def.Category);
         Assert.Equal("An open collar sends one trigger when a ball passes in the arrow direction. It must clear the upstream side before triggering again. Snaps to matching tube mouths; does not supply electricity.", def.Description);
         Assert.NotNull(def.Scene);
-        Assert.Empty(def.Parameters);
 
         var part = registry.Create(PartId.BallDetector);
         try
@@ -45,7 +44,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Fact]
     public void BallDetectorScene_ExtractsExact17CollidersAndThreePortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://parts/scenes/ball_detector.tscn");
+        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/BallDetector/ball_detector.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

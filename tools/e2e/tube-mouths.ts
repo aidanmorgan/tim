@@ -9,7 +9,7 @@ export type Quat = readonly [number, number, number, number];
 export type TubePart = 'pipe' | 'pipe_bend_45' | 'pipe_bend_90' | 'funnel';
 export type MouthEnd = 'start' | 'end';
 
-/** parts/scenes/<part>.tscn mouth locators: part-local position and outward axis. */
+/** elements/<Package>/<part>.tscn mouth locators: part-local position and outward axis. */
 export const MOUTHS: Readonly<Record<TubePart, Readonly<Record<MouthEnd, { at: Vec3; out: Vec3 }>>>> = {
     pipe: { start: { at: [-1.89, 0, 0], out: [-1, 0, 0] }, end: { at: [1.89, 0, 0], out: [1, 0, 0] } },
     pipe_bend_45: {

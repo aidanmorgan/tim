@@ -1,0 +1,1 @@
+Passed!  - Failed:     0, Passed:    95, Skipped:     0, Total:    95, Duration: 191 ms - BundleElements.Tests.dll (net10.0)

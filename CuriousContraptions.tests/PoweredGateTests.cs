@@ -12,17 +12,16 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void PartRegistry_DiscoversPoweredGateDefinitionAndConfiguresInstance()
     {
         var registry = new PartRegistry();
-        registry.Discover();
+        registry.Load();
 
         Assert.True(registry.Definitions.ContainsKey(PartId.PoweredGate));
         var def = registry.Definitions[PartId.PoweredGate];
         Assert.Equal(PartId.PoweredGate, def.PartId);
         Assert.Equal("powered_gate", def.Id);
         Assert.Equal("Powered gate", def.Title);
-        Assert.Equal("Motion", def.Category);
+        Assert.Equal(CuriousContraptions.Abstractions.ElementCategory.Motion, def.Category);
         Assert.Equal("Electricity retracts the gold shutter. Without power it returns closed, stopping if a ball blocks its path. Its mouths snap to tubes.", def.Description);
         Assert.NotNull(def.Scene);
-        Assert.Empty(def.Parameters);
 
         var part = registry.Create(PartId.PoweredGate);
         try
@@ -56,7 +55,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void PoweredGateScene_ExtractsExact19CollidersAndThreePortLocators()
     {
-        var packedScene = ResourceLoader.Load<PackedScene>("res://parts/scenes/powered_gate.tscn");
+        var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PoweredGate/powered_gate.tscn");
         Assert.NotNull(packedScene);
         var instance = packedScene.Instantiate<Node3D>();
         try

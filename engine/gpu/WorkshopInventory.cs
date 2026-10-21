@@ -43,55 +43,18 @@ public sealed class PartInventoryDictionary : IReadOnlyDictionary<PartId, PartAl
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Palette inventory per mode, in palette row order. The canonical order names every catalogue part; Free play lists
-/// each available part in that order without a count, filtered only by <see cref="UndeliveredParts"/>, so delivering a part
-/// (Story 12.1) is removing it from that set.</summary>
+/// <summary>Palette inventory per mode, in palette row order. Free play lists each available part in the palette order the element
+/// bundle declares (Story 9A.14), without a count, filtered only by <see cref="UndeliveredParts"/>, so delivering a part (Story 12.1)
+/// is shipping its package and removing it from that set.</summary>
 public static class WorkshopInventoryPolicy
-{
-    private static readonly PartId[] _canonicalOrder =
-    [
-        PartId.Basketball,
-        PartId.Receiver,
-        PartId.ImpactSwitch,
-        PartId.SignalLamp,
-        PartId.Wall,
-        PartId.Delay,
-        PartId.PinballBumper,
-        PartId.Ramp,
-        PartId.Domino,
-        PartId.BowlingBall,
-        PartId.Battery,
-        PartId.Springboard,
-        PartId.Tennis,
-        PartId.Balloon,
-        PartId.Pipe,
-        PartId.BallDetector,
-        PartId.PipeBend45,
-        PartId.PipeBend90,
-        PartId.Funnel,
-        PartId.PoweredGate,
-        PartId.PressurePlate,
-        PartId.Counter,
-        PartId.Clock,
-        PartId.Latch
-    ];
+{    /// <summary>The Free inventory of these parts, in the given palette order, minus the undelivered set.</summary>
+    public static IReadOnlyDictionary<PartId, PartAllowance> Free(IEnumerable<PartId> paletteOrder) =>
+        FreeRows(paletteOrder, UndeliveredParts.Ids);
 
-    internal static IReadOnlyList<PartId> CanonicalOrder => _canonicalOrder;
-
-    private static IReadOnlyDictionary<PartId, PartAllowance>? _free;
-    public static IReadOnlyDictionary<PartId, PartAllowance> Free => _free ??= GenerateFree(_canonicalOrder);
-
-    public static IReadOnlyDictionary<PartId, PartAllowance> GenerateFree(IEnumerable<PartId> definitions)
+    internal static PartInventoryDictionary FreeRows(IEnumerable<PartId> paletteOrder, IReadOnlySet<PartId> undelivered)
     {
-        _free = FreeRows(definitions, UndeliveredParts.Ids);
-        return _free;
-    }
-
-    internal static PartInventoryDictionary FreeRows(IEnumerable<PartId> available, IReadOnlySet<PartId> undelivered)
-    {
-        var set = available.ToHashSet();
-        var ordered = _canonicalOrder.Where(id => set.Contains(id) && !undelivered.Contains(id));
-        var list = ordered.Select(id => (id, PartAllowance.Unlimited)).ToArray();
+        ArgumentNullException.ThrowIfNull(paletteOrder);
+        var list = paletteOrder.Where(id => !undelivered.Contains(id)).Select(id => (id, PartAllowance.Unlimited)).ToArray();
         if (list.Length == 0) throw new ArgumentException("Empty registry cannot populate Free inventory.");
         return new PartInventoryDictionary(list);
     }

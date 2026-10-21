@@ -14,9 +14,12 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
     public ElementMetadata Metadata => new(
         Id: "ball_detector",
         Category: ElementCategory.Control,
-        DisplayNameKey: "part_ball_detector",
-        IconPath: null,
-        ScenePath: "res://parts/scenes/ball_detector.tscn",
+        DisplayName: "Ball detector",
+        Description: "An open collar sends one trigger when a ball passes in the arrow direction. It must clear the upstream side before triggering again. Snaps to matching tube mouths; does not supply electricity.",
+        Color: new(0.4f, 0.72f, 0.79f, 1f),
+        PaletteOrder: 16,
+        IconPath: "res://elements/BallDetector/icon.svg",
+        ScenePath: "res://elements/BallDetector/ball_detector.tscn",
         Parameters: []);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
