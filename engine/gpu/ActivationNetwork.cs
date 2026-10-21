@@ -322,7 +322,7 @@ public sealed class ActivationNetwork
         // Every orientation source must be read each tick: a missing read would silently leave its Domino unlatched.
         for (var i = 0; i < _nodes.Length; i++)
         {
-            if (_nodes[i].Kind != ActivationNodeKind.OrientationSource) continue;
+            if (stage != EvaluationStage.Physical || _nodes[i].Kind != ActivationNodeKind.OrientationSource) continue;
             var found = false;
             for (var j = 0; j < orientations.Length; j++) if (orientations[j].Id == _nodes[i].Sensor) found = true;
             if (!found) throw new ArgumentException("Orientation sensor read is missing.");

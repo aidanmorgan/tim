@@ -266,15 +266,15 @@ internal static class WorkshopSavePrevalidation
         if (p.RawAssistanceLength != WorkshopPuzzleWire.AssistanceBytes)
             throw Refuse(WorkshopSaveRejection.MissingField, "The saved puzzle lacks its three assistance profiles.");
         var precision = (Half)p.Precision;
-        var delay = (Half)p.GoalDelay;
-        if (!Half.IsFinite(precision) || precision < (Half)0 || precision > (Half)1 || !Half.IsFinite(delay) || delay < (Half)0 || delay > (Half)120)
+        var minimumGoalSeconds = (Half)p.GoalDelay;
+        if (!Half.IsFinite(precision) || precision < (Half)0 || precision > (Half)1 || !Half.IsFinite(minimumGoalSeconds) || minimumGoalSeconds < (Half)0 || minimumGoalSeconds > (Half)120)
             throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved puzzle precision or goal delay is outside its range.");
         if (p.InventoryPart is { } inventory) Element(inventory, elements, "The saved puzzle's inventory");
         // The named-goal rule (WorkshopGoal), over the fields the decoder maps into each goal kind.
         var admitted = (WorkshopGoalKind)p.GoalKind switch
         {
-            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalEventSource == 0 && delay == (Half)0,
-            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalEventSource != 0 && delay == (Half)0,
+            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalEventSource == 0 && minimumGoalSeconds == (Half)0,
+            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalEventSource != 0 && minimumGoalSeconds == (Half)0,
             _ => p.GoalEventSource == 0 && p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget,
         };
         // A Captured goal may name a part the bench no longer holds: a lesson saved after its receiver was deleted keeps its goal

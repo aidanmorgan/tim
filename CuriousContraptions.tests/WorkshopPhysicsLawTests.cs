@@ -556,10 +556,8 @@ public sealed class WorkshopPhysicsLawTests
     {
         var root = twodog.Engine.ResolveProjectDir();
         var catalogue = UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value);
-        var packages = Directory.GetFiles(Path.Combine(root, "elements"), "*ElementDeclaration.cs", SearchOption.AllDirectories)
-            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
-                !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
-            .SelectMany(path => Regex.Matches(File.ReadAllText(path), @"\bId: ""([^""]+)""").Select(match => match.Groups[1].Value));
+        var packages = PartRegistry.Read(File.ReadAllText(Path.Combine(root, "elements", "elements.bundle.json")))
+            .Select(entry => entry.Metadata.Id);
         return catalogue.Concat(packages)
             .SelectMany(name => Regex.Matches(name, "[A-Za-z]{3,}").Select(word => word.Value.ToLowerInvariant()))
             .Distinct().Order(StringComparer.Ordinal).ToArray();
@@ -590,7 +588,7 @@ public sealed class WorkshopPhysicsLawTests
         var tokens = Regex.Replace(source, GenericQualifiedNames, name => new string(' ', name.Length));
         foreach (Match token in Regex.Matches(tokens, @"\b[A-Za-z_][A-Za-z0-9_]*\b"))
             if (!GenericIdentifiers.Contains(token.Value) &&
-                ElementNames.Any(name => token.Value.Contains(name, StringComparison.OrdinalIgnoreCase)))
+                Regex.Matches(token.Value, @"[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|[A-Z]?[a-z]+|[A-Z]+").Any(word => ElementNames.Contains(word.Value.ToLowerInvariant(), StringComparer.Ordinal)))
                 hits.Add((token.Index, token.Index + token.Length, token.Value));
         foreach (var pattern in new[] { Literals, Recognition })
             foreach (Match match in Regex.Matches(source, pattern)) hits.Add((match.Index, match.Index + match.Length, match.Value));
@@ -659,6 +657,8 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("PrismaticRowKind.Spring", false)] // the reviewed generic soft row, qualified
     [InlineData("Spring", true)]                  // a bare Spring token is still the spring family
     [InlineData("softRowError", false)]
+    [InlineData("holdWindow", true)]
+    [InlineData("threshold", false)]
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
 
