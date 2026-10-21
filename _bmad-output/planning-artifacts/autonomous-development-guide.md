@@ -113,7 +113,13 @@ Owner decision, 19 Oct 2026. This section replaces the earlier rule that every s
   - **Coordinator, 21 Oct 2026, from the owner's push for speed: there is one full run per story, and the implementer does it.**
     - The reviewer never repeats a full run. If the reviewed code differs from the implementer's run only by a merge with main, the reviewer runs only the suites the runner selects for that merge diff.
     - When the runner selects Full only because a shared but non-engine file changed (driver test helpers, UI wiring, docs, catalogue rows), the implementer may run the Tier 2 selection for the story's own areas instead, and must record the justification.
-    - A full run stays mandatory for changes to the solver, clock, workers, wire or compiler.
+    - A full run stays mandatory for changes to the solver, clock, workers, wire or compiler, until Story T.2 lands (next item).
+  - **Owner, 21 Oct 2026: fast alternatives to constant e2e.** "we need to find high-confidence alternatives to running the e2e suite constantly as it is too slow ... based on the rank plan when it comes back implement the changes". Stories T.1 to T.6 (epics.md, fast-test lane) implement the ranked plan. When Story T.2 (native fixture replay) has landed for a family, that family's stories use these gates:
+    - **Per story:** Tier 1, including the `tools/e2e` type-check from T.1 and the T.2 native fixture replay, plus Tier 2 Chrome on the affected element suites and the smoke pair.
+    - **Engine changes (solver, clock, workers, wire, compiler):** these no longer need their own Full run once their affected families are covered by T.2. The Full run moves to the next checkpoint.
+    - **Checkpoint:** a background Chrome Full run on the committed main after every 5 merged stories, and at each epic end. A checkpoint failure stops new work, and the coordinator bisects across at most 5 merges. "Before merge to main" is not a gate, because every story merges to main locally.
+    - **Uncovered families:** a change to a family that T.2 does not yet cover keeps the earlier rule.
+    - **Chrome per part:** each part keeps its full AGENTS.md Chrome proof (UI construction, configuration and typed connections, behaviour, negative/control, Run/Reset, Save/Load). Story T.3 removes only duplicate variants.
   - **Everything else is filed as a new story at the back of the queue**, after the last queued story, and doesn't block. This covers:
     - defect-class expansion beyond the story's ACs;
     - Lows carried over from earlier stories;

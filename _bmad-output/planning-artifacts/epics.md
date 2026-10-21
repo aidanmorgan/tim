@@ -157,12 +157,21 @@ The coordinator adopted the re-examination and decided the items below. This ord
 | 11 | 9A.15 Bundle element id in saves and messages | |
 | 12 | 9A.17 Bundle ports and footprints | |
 | 13 | 9A.3 Typed transport commands | owner amendment |
+| 13a | T.1 Fast-test quick wins | owner, 21 Oct: fast alternatives to constant e2e |
 | 14 | 9A.16 Bundle-only colliders | owner amendment |
+| 14a | T.2 Native fixture replay | owner, 21 Oct; switches the gate, see [Verification tiers](autonomous-development-guide.md#verification-tiers) |
 | 15 | 9A.25a Committed-state bindings | 9A.25 committed-state part + 9R.20 |
 | 16 | 9A.27 Generic instance and editor (Wall) | + 9R.14, one-line `BumperAdvanced` edit |
 | 17 | 9A.45a Early isolation ratchet | |
 | 18 | 9.5a Declared timer and switched contact | 9A.38 + 9R.17; timer lane f32 |
 | 19 | **9.5 Hold Timer** | first new element |
+| 19a | T.3 Trim duplicated Chrome variants | owner, 21 Oct; after T.2 |
+
+*Fast-test lane (owner, 21 Oct 2026: "we need to find high-confidence alternatives to running the e2e suite constantly as it is too slow ... based on the rank plan when it comes back implement the changes, we want to make progress to get more game elements live").* The ranked plan comes from a read-only investigation of the 9A.15 and 9A.17 Full runs.
+- **Where the time goes:** a Full run now takes 52–54 minutes. About 78% of it is the serial phase, and about 1,290 s of that is suites that run alone only by policy, because they are uncalibrated. Fixed launch and boot overhead is about 6%. The rest is real-time Run windows, benches built through the UI, and tick-stepping through the menu, which is about 60× slower than native.
+- **What can leave the browser:** about 60–65% of assertions are simulation behaviour or save/load, so they can run outside Chrome.
+- **What Chrome caught:** two of the recent Chrome-only catches were stale test code that a TypeScript type-check would have caught.
+- **Order:** T.1 and T.2 sit on the critical path because they shorten every later story; T.3 follows 9.5. T.4 (headless real-wasm harness, spike first), T.5 (coverage-based selection) and T.6 (persistent browser sessions) go at the back of the queue.
 
 *After Story 9.5, one deletion-lane story alternates with one element-lane story:*
 
@@ -1622,6 +1631,77 @@ So that two plates switch two gates independently.
 - F17-11: two publishes of one commit produce identical bundle identities, or the cause of the difference is found and recorded.
 - F17-12: save pre-validation takes its list of the 22 decodable elements from the decoder or the bundle, not from a hand-written list.
 - F17-13: `anvil check` reports 0 warnings (today GS-001 at `tools/e2e/workshop-driver.ts:985`), and Tier 1 evidence includes the anvil log.
+
+### Story T.1: Fast-Test Quick Wins
+*Status: Backlog. Owner, 21 Oct 2026 (fast-test lane in the Delivery order). Position 13a.*
+
+As a developer, I want stale test code caught in Tier 1, accurate suite selection, and calibrated suites running in parallel, so that a story's Chrome time shrinks without losing any proof.
+
+**Acceptance Criteria:**
+- **AC1, type-check:** a `tools/e2e/tsconfig.json` and a `tsc --noEmit` step are part of Tier 1 (pre-commit or the documented Tier 1 command). A suite that reads a deleted accessor fails Tier 1, proven red with the 9A.2 `threshold()` case re-introduced.
+- **AC2, selection:** `ImpactRules` stops escalating to Full for these classes of path:
+  - an element package `.csproj` or the `.slnx` resolves to Element or Suite impact for the packages it touches;
+  - catalogue rows resolve to Suite;
+  - an element with no Primary suite gets one, or resolves to its declared suites instead of refusing with `NoPrimarySuite` (closes F19-4).
+
+  Engine paths keep their Full rule. A table-driven test pins every rule, each with a mutant.
+- **AC3, calibration:** the F.1 calibration runs, so every suite that is serial only by policy, not because it measures wall time, is either qualified Parallel (pinned to its suite digest) or recorded with the reason it stays serial. True timing suites stay serial and alone: clock-master, cat-017, cat-023a/b, cat-037, cat-014 and anim-1a/b/c.
+- **AC4, measured result:** one Full run before and one after (the after run may double as the calibration run). Record the wall time of each, and the escalation rate of `run --diff` over the last 10 merged stories, replayed through the new rules.
+- **Deletes:** the policy-serial entries that calibration replaces, and the `NoPrimarySuite` refusal path for elements that declare suites.
+
+### Story T.2: Native Fixture Replay
+*Status: Backlog. Owner, 21 Oct 2026. Position 14a. When it lands, the [Verification tiers](autonomous-development-guide.md#verification-tiers) gate switch takes effect for the families it covers.*
+
+As a developer, I want each element suite's UI-built benches replayed natively through the real save codec and the production simulation, so that behaviour and save/load are proven in seconds on every change.
+
+**Acceptance Criteria:**
+- **AC1, fixtures from the actual UI:** each element and integration suite exports its UI-built save slot as a committed test input under `CuriousContraptions.tests/fixtures/`.
+  - The fixtures are produced by the Chrome suite itself, through the actual UI controls, never hand-written.
+  - They are plain test inputs: no golden-trace store, generator platform, cache or schema (AGENTS.md).
+- **AC2, native replay:** a dotnet test decodes each fixture with `WorkshopSaveCodec`, compiles it with the production compiler, and runs it through `RunPhases`/`StepClock` (`WorkshopPhysicsEngineTests.cs:554-622`). It then asserts the suite's own behaviour and save/load outcomes, as meaning-level assertions with game-grade tolerances, not bit digests (JIT and wasm may differ).
+- **AC3, no in-app acceleration:** stepping lives in the test host only (`requirements.md:93`), and no product mode is added.
+- **AC4, mutant parity:** for each family covered, at least one behaviour mutant that its Chrome suite kills is also killed by the native replay.
+- **AC5, refresh:** a stale fixture is detected: a fixture whose bundle element ids or schema no longer decode fails Tier 1 with a message naming the fixture and the suite that regenerates it.
+- **AC6, coverage list:** the review records which suites and families are covered. The gate switch applies only to those.
+
+### Story T.3: Trim Duplicated Chrome Variants
+*Status: Backlog. Owner, 21 Oct 2026. Position 19a, after Story 9.5 and requiring T.2.*
+
+As a developer, I want Chrome to keep each part's required UI proof and drop variants that T.2's native replay now proves, so that a Chrome Full run takes about 15–20 minutes.
+
+**Acceptance Criteria:**
+- **AC1, the per-part proof stays in Chrome:** every part and fixture keeps the full AGENTS.md set:
+  - UI construction;
+  - verified placed configuration and typed connections;
+  - intended behaviour;
+  - a meaningful negative/control;
+  - exact Run/Reset restoration;
+  - Save/Load.
+
+  Rendering, lifecycle and timing proofs also stay in Chrome.
+- **AC2, what may be deleted:** only Chrome tests or tick-stepping whose assertions a T.2 native replay demonstrably covers. A per-test mapping records each one, and requirement and test IDs are preserved in the mapping. An example is the tick-stepped cat-052-lamp tests 2 and 4.
+- **AC3, measured result:** a Full run before and after, with the wall time recorded.
+- **Deletes:** the mapped duplicate Chrome tests and the menu tick-stepping loops they used.
+
+### Story T.4: Headless Real-Wasm Harness (back of queue)
+*Status: Backlog. Owner, 21 Oct 2026.*
+
+**Acceptance Criteria:**
+- **AC1, spike:** the published `simulation/_framework` boots in Node, with a host-supplied clock through the `Bootstrap`/`Dispatch`/`ResumeTurn` exports and the `now`/`scheduleTurn`/`publish`/`acknowledge` imports. Record the blockers: the `native-clock.js` isolation check, the nested clock-master worker, the clock-derivation qualification and asset loading.
+- **AC2, harness:** if the spike succeeds, the T.2 fixtures replay on the same wasm bytes Chrome runs, and a same-build trace digest is compared. There is an explicit re-bless step for the digests.
+
+### Story T.5: Coverage-Based Suite Selection (back of queue)
+*Status: Backlog. Owner, 21 Oct 2026.*
+
+**Acceptance Criteria:**
+- **AC1:** coverlet coverage over the T.2 native replays maps each `engine/gpu` file to the suites that exercise it.
+- **AC2:** `E2eRunner` uses that map to narrow its Full escalation to native code paths.
+
+### Story T.6: Persistent Browser Sessions (back of queue)
+*Status: Backlog. Owner, 21 Oct 2026.*
+
+**Acceptance Criteria:**
+- **AC1:** suites reset state between tests instead of reloading the page, where the Reset proof allows it. The expected saving is at most about 3 minutes.
 
 ### Story F.19: Bundle Ports Follow-ups
 *Status: Backlog. Filed from the Story 9A.17 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-17-bundle-ports-and-footprint.md)).*

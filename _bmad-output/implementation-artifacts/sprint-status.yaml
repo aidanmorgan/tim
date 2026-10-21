@@ -215,8 +215,12 @@ development_status:
   9a-17-bundle-ports-and-footprint: done
   # 13: owner amendment 21 Oct 2026, right after 9a-17
   9a-3-typed-transport-control-commands: in-progress
+  # 13a: owner 21 Oct 2026, fast alternatives to constant e2e
+  t-1-fast-test-quick-wins: backlog
   # 14: owner amendment 21 Oct 2026, right after 9a-17
   9a-16-bundle-sole-collider-source: backlog
+  # 14a: owner 21 Oct 2026; switches the verification gate for covered families
+  t-2-native-fixture-replay: backlog
   # 15: committed-state bindings (9a-25 part) + 9r-20
   9a-25a-committed-state-bindings-live-cues: backlog
   # split into 9a-25a (committed-state, position 15) and 9a-25b (one-shot, with 9a-23 at position 48)
@@ -237,6 +241,8 @@ development_status:
   9r-17-cat-022-delay-box-suite: backlog
   # 19: first new element after the critical path
   9-5-hold-timer-pulse-stretcher: backlog
+  # 19a: owner 21 Oct 2026; requires t-2
+  t-3-trim-duplicated-chrome-variants: backlog
 
   # ===== After 9-5: deletion lane and element lane alternate one for one =====
   # 20 (deletion): before 9-5b
@@ -467,5 +473,9 @@ development_status:
   f-17-single-codec-follow-ups: backlog
   f-18-bundle-element-id-follow-ups: backlog
   f-19-bundle-ports-follow-ups: backlog
+  # fast-test lane, back of queue (owner 21 Oct 2026)
+  t-4-headless-real-wasm-harness: backlog
+  t-5-coverage-based-suite-selection: backlog
+  t-6-persistent-browser-sessions: backlog
 
 action_items: []
