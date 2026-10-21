@@ -618,7 +618,7 @@ public sealed class WorkshopSimulationTests
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
-            WorkshopInput.Switch(new(2),0,1,0,0,0,0,1,ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Delay, new(3), -3, 1, 0, 0, 0, 0, 1)),
             Connections:new(new WorkshopConnection(new(2),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)));
         var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
@@ -628,7 +628,7 @@ public sealed class WorkshopSimulationTests
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         var trigger = scene.Triggers[0];
         var collider = scene.Colliders.ToArray().First(value=>value.Body==trigger.Owner).Id;
-        var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,(Half)0,new((Half)1));
+        var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,(Half)0,new((float)1));
         WorkshopRead Counting(WorkshopRead read)
         {
             var checkpoint = network.Consume(read.Activations,read.Timers,new[] {occurrence},read.Tick,[]);

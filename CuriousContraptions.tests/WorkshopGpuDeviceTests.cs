@@ -262,7 +262,7 @@ public sealed class WorkshopGpuDeviceTests
         var device = new WorkshopGpuDevice(transport, Document);
         var construction = new WorkshopConstruction(new(1), Settings, new(
             WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Switch(new(2), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Delay, new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
                 new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));

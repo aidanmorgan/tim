@@ -69,7 +69,7 @@ public sealed class PrismaticConstraintTests
             [..basis.Colliders, new(new(5), new(1), new(3), ColliderShapeKind.Box,
                 RigidLocalPose.Identity, new((Half)0), new((Half).5, (Half).5, (Half).5))],
             basis.Materials, [], [],
-            [new(new(101), new(1), new(BodyTargetKind.NamedBody, new(2)), new((Half).8))],
+            [new(new(101), new(1), new(BodyTargetKind.NamedBody, new(2)), new((float).8))],
             prismatics: basis.Prismatics);
         var source = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         var candidate = Advance(source);

@@ -21,7 +21,7 @@
 | Sockets and ports | Current: ActivationOut (Activation, Output) at local (0.45, 0, 0.4) `engine/gpu/WorkshopConnections.cs@a6c914e:L32-L35`, `engine/gpu/WorkshopConnections.cs@a6c914e:L47-L55`. Required but missing: PowerIn (Electrical, Input) and Supply (Electrical, Output); sockets exist in the closed enum `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11` and connections reject the Electrical domain today `engine/gpu/WorkshopConnections.cs@a6c914e:L89-L92`. |
 | Sensors and activation | One `ContactTriggerDeclaration` on the owner body, qualified by pre-response normal approach speed ≥ threshold `engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`; targets all dynamic bodies in Free workshop, the named ball in a puzzle `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L144-L146`. Latches once per Run. |
 | Work and energy stores | none. |
-| Parameters | trigger threshold, linear speed 0–64 m/s, default 0.8 m/s from `PartDifficulty.TriggerThreshold` `engine/gpu/WorkshopActivationParts.cs@a6c914e:L5-L22`. Authored knots 0.2 / 0.47 / 0.8 at precision 0 / 0.45 / 1 `engine/gpu/WorkshopPuzzle.cs@a6c914e:L102-L105`. |
+| Parameters | Current `trigger_threshold` is declared f32, 0–64 m/s, default 0.8 in `elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs`; generic authoring/save/compiler use that parameter. Finite interactive editor values clamp; invalid external vectors reject atomically. Historical authored knots 0.2 / 0.47 / 0.8 at precision 0 / 0.45 / 1 `engine/gpu/WorkshopPuzzle.cs@a6c914e:L102-L105`. |
 | Cosmetic curves and UI bindings | Activation source, smoothstep, 0.16 s `engine/gpu/WorkshopCosmetic.cs@a6c914e:L53-L53`; button local Y 0.06 → −0.02, albedo part colour → `#bff5b0` `parts/SwitchPart.cs@a6c914e:L17-L22`. Design rule `DESIGN.md@a6c914e:L276-L276`. |
 | Art | `parts/SwitchPart.cs@a6c914e:L9-L23`: navy `#2c3a4c` base 1.1 × 0.25 × 1 at y −0.15, two `#293954` end studs r 0.08 at x ±0.58, button cylinder r 0.38 h 0.18 at y 0.06, gold `#ffd899` socket sphere r 0.09 at (0.45, 0, 0.4); pick radius 0.65. Scene `parts/scenes/switch.tscn`. Palette Switch `#f06e54` `DESIGN.md@a6c914e:L173-L173`. Icon `ui/WorkshopIcons.cs@a6c914e:L52-L52`. |
 | Catalogue and inventory | `parts/catalog/switch.tres@a6c914e:L6-L14`: id `switch`, title Impact switch, category Power. |
@@ -40,7 +40,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Missing | Story that builds it |
 | --- | --- |
 | ElectricalPower: PowerIn → Supply contact closed by the latch, network cycles, supply loss | Story 8.1 (Battery DC source and network graph) |
-| f32 declarations: `ContactTriggerSettings` threshold (`LinearSpeed`), the two boxes, pose and the trigger-threshold knots are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| Remaining numeric lanes: compiled box/pose/material and physical event phase; lesson assistance knots | Story9A.44. C-Switch moves declared threshold and contact/cause/report speed to f32; no end-to-end f32 qualification claim. |
 
 Dependencies: a dynamic body to strike it; Battery (CAT-005) for the electrical contract; Signal lamp (CAT-035), Delay (CAT-022) and others as activation targets.
 
@@ -77,6 +77,7 @@ Acceptance: [CAT-063](../requirements.md#current-cat-063) and [retained behaviou
 - **Integrations.** Activation, signal and timed-logic connection audit [sequence-task-279](../requirements.md#sequence-task-279) (switch) and electrical routing [sequence-task-278](../requirements.md#sequence-task-278) (the switched pass-through, distinct from a source); [IX-01 contact impulse](../requirements.md#interaction-01), [IX-07 signal propagation](../requirements.md#interaction-07) and [IX-06 electrical power transfer](../requirements.md#interaction-06); campaign first use 11–20 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (battery, wire, switch row). Partners: Signal lamp (CAT-035), Delay (CAT-022), Battery (CAT-005, Story 8.1), Motor (CAT-042).
 - **Remaining (unmet now).** The whole electrical contract (facts 1–5) and power_trip / switched_motor levels.
 
-## 6. Open questions
+## 6. Current decisions
 
-- Whether a base-box-only contact (fact 8, x = 0.85) should trigger: the current compiler attaches the trigger to the owner body, so both boxes qualify; the legacy fixture lists it without an expected outcome at `a6c914e`: unspecified — owner decision.
+- C-Switch preserves owner-body qualification: either base or button contact at or above threshold qualifies. Native production-engine controls prove base-only contact and adjacent f32 threshold outcomes.
+- Activation conversion uses generic declared instances; electrical facts1–5 remain Story9.5b. Native functional acceptance does not close post-catalogue Chrome qualification.

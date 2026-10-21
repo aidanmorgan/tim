@@ -47,7 +47,7 @@ public sealed class NoFixedCapacityTests
                 parts.Add(WorkshopInput.Receiver(Next(), 0, 1, 4, 0, 0, 0, 1));
                 return (Bench(parts), scene => { Assert.Equal(17, scene.Sensors.Length); Assert.Equal(17, scene.Guides.Length); });
             case "triggers-8":
-                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Switch(Next(), X(i), 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default));
+                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(i), 1, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(9, scene.Triggers.Length));
             case "contact-work-8":
                 // Nine bumpers under seventeen balls: 9 x 17 = 153 occurrence rows, past the retired 128.
@@ -86,7 +86,7 @@ public sealed class NoFixedCapacityTests
             case "connections-8":
                 for (var i = 0; i < 9; i++)
                 {
-                    var hit = WorkshopInput.Switch(Next(), X(2 * i), 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
+                    var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(2 * i), 1, 0, 0, 0, 0, 1);
                     var lamp = WorkshopInput.Lamp(Next(), X(2 * i) + 1.6, 1, 0, 0, 0, 0, 1);
                     parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
                 }
@@ -139,10 +139,10 @@ public sealed class NoFixedCapacityTests
     private const double SwitchY = 1, DropY = 3;
 
     /// <summary>Forty switches in an eight-by-five grid, a lamp wired to the last one, and a ball dropped on <paramref name="struck"/>.</summary>
-    private static (WorkshopConstruction Bench, WorkshopLamp Lamp, WorkshopSwitch[] Switches) SwitchBench(int struck)
+    private static (WorkshopConstruction Bench, WorkshopLamp Lamp, WorkshopGenericInstance[] Switches) SwitchBench(int struck)
     {
-        var switches = Enumerable.Range(0, Switches).Select(i => WorkshopInput.Switch(new((ulong)i + 1), -6 + i % 8 * 1.6, SwitchY,
-            -5 + i / 8 * 2.5, 0, 0, 0, 1, ContactTriggerSettings.Default)).ToArray();
+        var switches = Enumerable.Range(0, Switches).Select(i => WorkshopInput.Generic(PartId.ImpactSwitch, new((ulong)i + 1), -6 + i % 8 * 1.6, SwitchY,
+            -5 + i / 8 * 2.5, 0, 0, 0, 1)).ToArray();
         var lamp = WorkshopInput.Lamp(new(Switches + 1), 8, SwitchY, 0, 0, 0, 0, 1);
         var target = switches[struck];
         var ball = WorkshopInput.Basketball(new(Switches + 2), (target.Cell.X + (double)target.Local.X) / 16, DropY,
@@ -207,7 +207,7 @@ public sealed class NoFixedCapacityTests
         parts.Add(WorkshopInput.Receiver(Next(), 0, 1, -24, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
-            var hit = WorkshopInput.Switch(Next(), X(2 * i), 1, -16, 0, 0, 0, 1, ContactTriggerSettings.Default);
+            var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(2 * i), 1, -16, 0, 0, 0, 1);
             var lamp = WorkshopInput.Lamp(Next(), X(2 * i) + 1.6, 1, -16, 0, 0, 0, 1);
             parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
         }

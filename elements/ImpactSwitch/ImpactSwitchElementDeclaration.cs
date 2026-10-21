@@ -8,7 +8,7 @@ namespace CuriousContraptions.Elements.ImpactSwitch;
 
 /// <summary>The Impact Switch (CAT-063): a static base and button; a qualifying impact presses the button and sends one activation.
 /// The trigger threshold is a typed parameter with the runtime's default and admitted range. Story 9.5b adds its electrical mode.</summary>
-public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
+public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContactTriggerElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
@@ -29,7 +29,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
         ScenePath: "res://elements/ImpactSwitch/switch.tscn",
         Parameters:
         [
-            new("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 64f, Default: 0.8f, Options: [])
+            new("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 64f, Default: 0.8f, Options: [], EditorPolicy: ParameterEditorPolicy.Clamp)
         ]);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
@@ -65,10 +65,8 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("impact", SignalTriggerMode.Edge, Threshold: 0.8f, PulseDurationSeconds: 0.1f)
-    ];
+    public SignalContactDescriptor Contact => new("trigger_threshold");
+    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 

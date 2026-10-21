@@ -47,6 +47,9 @@ public partial class Workshop
                 {
                     if (!float.TryParse(field.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
                     { _status.Text = "Enter valid parameter values."; return; }
+                    var descriptor = part.Definition.Parameters.Single(parameter => new ParameterId(parameter.Key) == key);
+                    if (float.IsFinite(value) && descriptor.EditorPolicy == CuriousContraptions.Abstractions.ParameterEditorPolicy.Clamp)
+                        value = Math.Clamp(value, descriptor.Minimum, descriptor.Maximum);
                     values.Add(new(key, value));
                 }
                 ApplyDeclaredParameters(instance.Id, new(values));

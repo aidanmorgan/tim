@@ -1,10 +1,12 @@
 using System;
+using System.Linq;
 
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Exact authored delayed_signal fixtures and inventory; all execution uses shared declarations.</summary>
 public static class DelayedSignal
 {
+    private static readonly Lazy<AuthoredParameterFixture> SourceFixture = new(() => AuthoredParameterFixture.Load("content.fixtures.delayed_signal_source.json"));
     // These three locked fixtures have the same source assistance knots.
     public static AssistanceProfile FixedAssistance => FirstPrinciples.BallAssistance;
     public static AssistanceProfile DelayAssistance => FixedAssistance with
@@ -13,9 +15,9 @@ public static class DelayedSignal
         Balanced = FixedAssistance.Balanced with { MaximumPositionCorrection = new((Half).1), MaximumRotationCorrectionDegrees = (Half)2 }
     };
     public static WorkshopBall Ball(GpuBodyId id) => WorkshopInput.Basketball(id, -3, 4, 0, 0, 0, 0, 1) with { Locked = true };
-    public static WorkshopSwitch Switch(GpuBodyId id, PuzzlePrecision precision) =>
-        WorkshopInput.Switch(id, -3, 1, 0, 0, 0, 0, 1, new(new(FixedAssistance.Evaluate(precision).TriggerThreshold))) with
-        { Locked = true, Trigger = new(new(FixedAssistance.Evaluate(precision).TriggerThreshold)) };
+    public static WorkshopGenericInstance Switch(GpuBodyId id, PuzzlePrecision precision) =>
+        WorkshopInput.Generic(SourceFixture.Value.Part, id, -3, 1, 0, 0, 0, 0, 1,
+            new([new(SourceFixture.Value.Parameter, (float)FixedAssistance.Evaluate(precision).TriggerThreshold)])) with { Locked = true };
     public static WorkshopLamp Lamp(GpuBodyId id) => WorkshopInput.Lamp(id, 3, 1, 0, 0, 0, 0, 1) with { Locked = true };
 
     public static WorkshopConstruction Create(ConstructionRevision revision, WorkshopCadenceSettings settings,
@@ -43,7 +45,8 @@ public static class DelayedSignal
             puzzle.Goal.Kind != WorkshopGoalKind.ActivatedAfter || puzzle.Goal.MinimumDelay != new DurationSeconds((Half)1) ||
             puzzle.BallAssistance != default || puzzle.ReceiverAssistance != default || puzzle.RampAssistance != default ||
             construction.Ball is not { } ball || ball != Ball(ball.Id) ||
-            construction.Instances.Find<WorkshopSwitch>() != Switch(new(puzzle.Goal.SourceNode.Value), puzzle.Precision) ||
+            !Equals(construction.Instances.FirstOrDefault(instance => instance.Id.Value == puzzle.Goal.SourceNode.Value),
+                Switch(new(puzzle.Goal.SourceNode.Value), puzzle.Precision)) ||
             construction.Instances.Find<WorkshopLamp>() != Lamp(new(puzzle.Goal.TargetNode.Value)))
             throw new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Changed delayed signal fixture or goal.");
         var delays = 0;
@@ -51,7 +54,7 @@ public static class DelayedSignal
         {
             if (instance is WorkshopGenericInstance { Locked: false } && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is not null) { delays++; continue; }
             if (instance is WorkshopBall || instance is WorkshopLamp lamp && lamp.Id.Value == puzzle.Goal.TargetNode.Value ||
-                instance is WorkshopSwitch trigger && trigger.Id.Value == puzzle.Goal.SourceNode.Value) continue;
+                instance is WorkshopGenericInstance trigger && trigger.Id.Value == puzzle.Goal.SourceNode.Value) continue;
             throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported delayed signal inventory.");
         }
         if (delays > puzzle.InventoryCount)

@@ -26,6 +26,8 @@ public enum ParameterUnit : byte
 
 /// <summary>One typed authored parameter of an element: its key, unit and kind, with f32 bounds and default. A Choice parameter
 /// lists its options by name; its minimum is 0, its maximum is the last option's index and its default is an index.</summary>
+public enum ParameterEditorPolicy : byte { Reject, Clamp }
+
 public readonly record struct ParameterDescriptor(
     string Key,
     ParameterUnit Unit,
@@ -33,4 +35,5 @@ public readonly record struct ParameterDescriptor(
     float Minimum,
     float Maximum,
     float Default,
-    IReadOnlyList<string> Options);
+    IReadOnlyList<string> Options,
+    ParameterEditorPolicy EditorPolicy = ParameterEditorPolicy.Reject);

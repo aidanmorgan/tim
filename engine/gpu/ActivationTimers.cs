@@ -44,7 +44,7 @@ public readonly record struct GpuEventSourceId(ulong Value);
 
 /// <summary>Physical provenance survives routing and delay without impersonating the delayed occurrence.</summary>
 public readonly record struct ActivationCause(GpuEventSourceId Source, GpuBodyId Body,
-    GpuColliderId Collider, ActivationTime Time, LinearSpeed ApproachSpeed)
+    GpuColliderId Collider, ActivationTime Time, ContactSpeed ApproachSpeed)
 {
     public void Validate()
     {

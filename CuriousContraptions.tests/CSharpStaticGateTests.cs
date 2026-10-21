@@ -587,9 +587,10 @@ public sealed class CSharpStaticGateTests
             "FileBasedProgram",
         ],
         ["langversion"] = ["14.0"],
-        // Story 9A.17: the one embedded resource is the generated element bundle the Simulation worker reads its ports from.
-        // It changes no diagnostic; its value is pinned so that no other resource can be embedded unnoticed.
-        ["resource"] = ["../elements/elements.bundle.json,elements.bundle.json"],
+        // Exact generated bundle and authored fixture resources; no other resource is admitted implicitly.
+        ["resource"] = ["../elements/elements.bundle.json,elements.bundle.json",
+            "content/fixtures/delayed_signal_source.json,content.fixtures.delayed_signal_source.json",
+            "../content/fixtures/delayed_signal_source.json,content.fixtures.delayed_signal_source.json"],
     };
 
     /// <summary>The build properties the generated MSBuild editorconfig may carry (analyzers read them). Those that switch

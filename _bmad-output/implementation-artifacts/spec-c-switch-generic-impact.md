@@ -1,0 +1,51 @@
+---
+title: 'C-Switch: generic Impact Switch and threshold editor'
+status: in-review
+baseline_commit: 6d48bd868ff28287cc1cb6b7a3e0784ad7794ea0
+context:
+  - AGENTS.md
+  - docs/planning/elements/CAT-063-switch.md
+  - docs/architecture/element-package-isolation.md
+---
+## Outcome and authority
+One qualifying impact at or above the declared trigger_threshold latches the Impact Switch once and lights its connected lamp; a missed or slower impact does neither. Generic authoring/editor/save values remain exact f32, range0–64m/s, default0.8. Preserve both current collision boxes and their material rows. Owner transport_implementer; retained reviewer transport_reviewer. Exact source: epics C-Switch,9A.35 and9R.15; requirements current-cat-063 and activation portion of todo-147; CAT-063 facts7–10. Hold predecessor has terminal scoped Pass: exact6d48,CI39656597358 with2066/2066,artifact12372229181,deployment7234801638.
+
+Latest owner instruction makes C# UNIT tests PRIMARY and integration supplemental. Browser suite-first and blanket full-suite wording are deferred qualification, not a reason to stop this conversion. Preserve cat-063,cat-037,anim-1b,anim-1c,engine-core-2c and actual UI construction/boundary/reset/save recipes for post-catalogue Chrome gap-finding. No new framework, calibration or solver.
+
+## Finite design decisions
+- The package declares a contact-trigger capability bound to trigger_threshold, consumed by the generic physics/activation compilers; no PartId/record recognition. One declared value controls compilation, not the old hardcoded0.8 descriptor. Runtime parameter maps retain ParameterId; strings occur only at resource/schema/UI boundaries.
+- Reuse existing f32 ContactSpeed for threshold and reported contact/activation-cause speed. This necessary closure prevents a qualifying impact from failing validation after Half report rounding. Keep64-byte trigger rows: threshold16f32, threshold padding20–23; phase44Half with padding46–47; approach48f32, touching body52, padding56–63. Replace the old required-zero leading header word with one current nonzero layout tag; reject zero/unknown tags before worker decode, no versionswitch or migration. Existing float wire fields preserve f32 instead of narrowing. Collider/pose/bounce/physical phase and unrelated shared ABI stay9A.44.
+- Interactive generic editor clamp is a declared policy for this parameter; other parameter editors retain their current rejection policy. Unknown/missing/duplicate/nonfinite/external out-of-range vectors reject atomically. Clamp only finite interactive values. Running/Paused/locked guards, Cancel and one Undo remain.
+- Contact is owner-body scoped: both button and base boxes qualify, closing the stale CAT question without a new geometry restriction. Threshold comparison is inclusive >=; update the current requirement's ambiguous 'above' wording to 'at or above'.
+- Electrical PowerIn→Supply/cycles/source-loss/direct-bypass lessons remain9.5b. This conversion does not add electrical sockets or claim todo-147's electrical contract complete.
+
+## Ordered tasks
+- [x] Capture old-path native evidence by relevant inputs: published2066/2066 includes ContactActivationTests and actual Switch→Delay→Hold→gate scenarios; immutable9A.16 switch golden supplies default geometry/material rows. Reuse only with reviewer applicability; add any missing baseline control through existing production C# harness before cutover.
+- [x] Implement declared contact capability/parameter binding in package, Signal contracts/bundle validation, WorkshopPhysicsCompiler and ActivationNetwork. Validate missing/malformed capability and preserve target ownership.
+- [x] Migrate necessary threshold/report ABI and codecs to existing ContactSpeed; assert non-Half bit preservation, inclusive boundary decisions and unsupported old ABI/padding refusal.
+- [x] Convert generic authoring/editor and all necessary current content/lesson/test/serialization callers. Delete WorkshopSwitch, ContactTriggerSettings element usage, WorkshopInput.Switch, compiler/network/whitelist/codec arms, CaptureInstance switch arm and DelayedSignal record construction; remove owned Known violations with no reassignment/fallback/alias.
+- [x] Align latest package-isolation/f32 design: one declaration authority, one general worker engine and committed presentation; delete superseded paths and obsolete fixtures. No all-family conversion; remaining named owners persist.
+- [x] PRIMARY C# UNIT proof executes production simulation: real ball drop/lamp and missed/below controls, fixed f32 below/equal/above threshold cases, owner-body base-box contact, one-shot repeat refusal, both target modes, exact Run/Reset/save/load and button binding. Preserve compiled default rows except explicitly restored threshold precision.
+- [x] Test actual generic drawer units/clamp/guards/atomic refusal/Cancel/Undo; codec unsupported scalar field/current generic vector negatives and boundary values.
+- [x] Build affected closure once per relevant input/config and reuse --no-build --no-restore; affected native contact/network/timer/editor/codec/lesson/package/isolation checks, strict generated schema parity and worker production build. No automatic full or browser campaign.
+- [ ] Freeze coherent candidate, retained independent SnapshotApproval, protected commit/main merge/push, exact-SHA CI/artifact/deployment verification and terminal scoped Pass. Append native9R.15/6.5e addendum without claiming browser qualification.
+
+## Verification and current state
+Implementation and scoped checks are complete; exact independent SnapshotApproval/publication remain pending. No new Known entries: fixed source identity/parameter moved into `content/fixtures/delayed_signal_source.json`, loaded by the small generic `AuthoredParameterFixture` reader through embedded resources in both main and worker. Unknown/missing/duplicate/malformed data rejects before mutation. Lesson pose, locked state, assistance, inventory and goal remain unchanged; broader lessons-as-data belongs9A.26. All Switch-owned ratchet rows and old production type/factory/header-padding names are gone (536d6f); diff whitespace check clean.
+
+Original tool outputs are the raw evidence; no copied manifests. All test commands use `dotnet test <project> -c Debug --no-build --no-restore --filter <named classes>` against matching builds. Builds use `dotnet build <project> -c <configuration>`; no browser run.
+
+| Criterion / affected inputs | Native proof and original result |
+| --- | --- |
+| Threshold authority, fixed compiled geometry/material, target ownership; package/save/wire | Initial focused seven-class run5d3e7b130/146, then correctionc3d2b3145/146. Passing package parity includes original9A.16 geometry golden, unchanged. Original published baseline6d48 CI2066 is reference evidence; reviewer decides applicability. |
+| Real base-box pre-response contact, fixed non-Half below/equal/above, exact report, single latch, old/foreign layout and padding rejection before worker mutation | ContactActivationTests plus original multi-ball bypass a21f5f10/10,196ms. |
+| Changed per-tick trigger clear, subsequent ticks, multi-body capacity, Delay/Hold chains, orientation/latch consumers and activation animation | ca9cde128/128,2s: NoFixedCapacityTests,HoldTimerTests,WorkshopDelayTests,DelayedSignalTests,ActivationTimerTests,ContactActivationTests,OrientationSensorTests,StateLatchTests,WorkshopActivationAnimationTests. |
+| Generic Impact editor units/finite clamp/NaN atomic refusal/Cancel/oneUndo/Running/Paused/locked, unchanged Wall/Delay policy; external missing/duplicate/unknown/out-of-range/nonfinite and obsolete scalar rejection | 2ff51914/17 passed; three new lifecycle fixtures alone had stale revision1. Editor and external rejection controls passed. Corrected revision2 lifecycle proof a859fd3/3,137ms. |
+| Actual hit versus missed/disconnected lamp, one-shot retained latch, save/load and exact Reset | ContactActivationTests.RealImpactAndMissDisconnectedControlsRestoreExactly, a859fd3/3. |
+| Contact declaration, units/range/port/ownership and closed editor-policy enum admission | BundleValidatorTests1a91a234/34,56ms, matching bundle buildfd62de0warnings4.82s. BundleRoundTripTestse7e0f735/35,286ms on the same output. |
+| Genuine authored source identity, generic reader invalid-data/refusal, source ordering; exact f32 activation and timer cause response roundtrip; strict isolation/solver/ABI source guards | a2fb3a119/120 passed; malformed parser assertion expected exact JsonException but receives derived JsonReaderException. Corrected to ThrowsAny<JsonException>; c1dcee5/5,134ms covers that case plus retained package one-shot presentation bindings. No production fix for this test assertion. |
+| Production worker and embedded fixture closure | Release simulation build8245a4:0warnings/errors13.32s. Latest matching Debug test build1340d6:0warnings/errors6.50s. |
+
+Causal failures retained: initial build7129cc6diagnostics/5production sites (Half zeros and HalfBits speed comparison), f8248d25old-type test diagnostics,26ad09one metadata lookup; fixed without broad ABI migration. First native16failures exposed warmup's incomplete manually authored header, missing generic params in forged connection fixtures, and save prevalidation lacking new scalar refusal. Warmup now authors current named header identity; prevalidation preserves typed refusal. One remaining real multi-ball fault was stale body52: old clear36+16 omitted moved body; named collider-to-padding clear fixed it, original bypass assertion unchanged. Initial ratchet09cbfc failed only stale deleted rows/generic classification/new lesson identity; content boundary preserves strict no-new-Known history rather than relocating executable knowledge or widening ownership.
+
+No schema field was changed: shared threshold scalar remains required by PressurePlate/Clock, and approach speed wire fields were alreadyfloat. No TS/generated-wire input changed; current codec rejects old generic scalar use. Common physical phase/material/geometry/assistance Half lanes remain9A.44. Native acceptance does not qualify Chrome; all listed browser scenarios remain post-catalogue.

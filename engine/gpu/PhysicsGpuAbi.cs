@@ -80,6 +80,7 @@ public static partial class PhysicsGpuAbi
         ArgumentNullException.ThrowIfNull(scene); profile.Validate();
         if (epoch.Value == 0) throw new ArgumentException("A world epoch is required.");
         var bytes = new byte[scene.World.ByteLength]; var data = bytes.AsSpan();
+        U32(data, HeaderLayoutTagOffset, CurrentLayoutTag);
         scene.World.WriteCounts(data);
         U64(data, HeaderEpochOffset, epoch.Value); U32(data, HeaderCadenceOffset, (uint)profile.Cadence);
         U32(data, HeaderPhysicalProfileOffset, (uint)profile.Physical); U64(data, HeaderRevisionOffset, profile.Revision.Value);
@@ -148,7 +149,7 @@ public static partial class PhysicsGpuAbi
         {
             var trigger = scene.Triggers[i]; var record = data.Slice(scene.Layout.GetTriggerOffset(trigger.Id), TriggerBytes);
             U64(record, 0, trigger.Id.Value); U32(record, TriggerOwnerOffset, BodySlot(scene, trigger.Owner));
-            U32(record, TriggerTargetKindOffset, (uint)trigger.Targets.Kind); H(record, TriggerThresholdOffset, trigger.Threshold.Value);
+            U32(record, TriggerTargetKindOffset, (uint)trigger.Targets.Kind); BinaryPrimitives.WriteSingleLittleEndian(record[TriggerThresholdOffset..], trigger.Threshold.Value);
             U32(record, TriggerNamedTargetOffset, trigger.Targets.Kind == BodyTargetKind.NamedBody ? BodySlot(scene, trigger.Targets.Body) : NoBody);
         }
         AdmitContactWorks(data, scene);
@@ -246,13 +247,14 @@ public static partial class PhysicsGpuAbi
         var named = R32(record, TriggerNamedTargetOffset); var target = R32(record, TriggerBodyOffset); var count = R32(record, TriggerCountOffset);
         var bodyCount = R32(data, HeaderBodyCountOffset);
 
-        var threshold = RH(record, TriggerThresholdOffset);
+        var threshold = RF(record, TriggerThresholdOffset);
         if (R64(record, 0) == 0 || owner >= bodyCount ||
             R32(record, TriggerTargetKindOffset) is < (uint)BodyTargetKind.NamedBody or > (uint)BodyTargetKind.AllDynamic || !Enum.IsDefined(kind) ||
             (kind == BodyTargetKind.NamedBody ? (named >= bodyCount || BodyMotion(data, named) != RigidMotionKind.Dynamic) || named == owner : named != NoBody) ||
             BodyMotion(data, owner) != RigidMotionKind.Static ||
-            !Half.IsFinite(threshold) || threshold < (Half)0 || threshold > (Half)64 ||
+            !float.IsFinite(threshold) || threshold < 0f || threshold > 64f ||
             !AllZero(record[TriggerThresholdPaddingOffset..TriggerNamedTargetOffset]) || !AllZero(record[TriggerNamedPaddingOffset..TriggerCountOffset]) ||
+            !AllZero(record[TriggerPhasePaddingOffset..TriggerApproachOffset]) ||
             !AllZero(record[TriggerPaddingOffset..]) || count > 1)
             throw new ArgumentException("Invalid contact trigger declaration or padding.");
         var collider = default(GpuColliderId); var targetId = default(GpuBodyId);
@@ -267,13 +269,13 @@ public static partial class PhysicsGpuAbi
                 colliderSlot >= R32(data, HeaderColliderCountOffset) ||
                 R32(data, layout.ColliderOffset(checked((int)colliderSlot)) + ColliderBodyOffset) != owner ||
                 !AdmittedTime(R32(record, TriggerOrdinalOffset), RH(record, TriggerPhaseOffset), R32(data, HeaderSourceOrdinalOffset)) ||
-                !Half.IsFinite(RH(record, TriggerApproachOffset)) || RH(record, TriggerApproachOffset) < threshold || RH(record, TriggerApproachOffset) > (Half)4096)
+                !float.IsFinite(RF(record, TriggerApproachOffset)) || RF(record, TriggerApproachOffset) < threshold || RF(record, TriggerApproachOffset) > 4096f)
                 throw new ArgumentException("Invalid qualifying impact identity, time or normal speed.");
             collider = new(R64(data, layout.ColliderOffset(checked((int)colliderSlot))));
             targetId = new(R64(data, layout.BodyOffset(checked((int)target))));
         }
         return new(new(R64(record, 0)), new(R64(data, layout.BodyOffset(checked((int)owner)))),
-            targetId, count, collider, R32(record, TriggerOrdinalOffset), RH(record, TriggerPhaseOffset), new(RH(record, TriggerApproachOffset)));
+            targetId, count, collider, R32(record, TriggerOrdinalOffset), RH(record, TriggerPhaseOffset), new(RF(record, TriggerApproachOffset)));
     }
 
     public static OrientationSensorRead ReadOrientationSensor(ReadOnlySpan<byte> data, int slot)
@@ -472,7 +474,7 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
     private static void Header(ReadOnlySpan<byte> data)
     {
         if (data.Length < HeaderBytes || data.Length != ByteLength(data) ||
-            R32(data, HeaderLeadingPaddingOffset) != 0 ||
+            R32(data, HeaderLayoutTagOffset) != CurrentLayoutTag ||
             (R64(data, HeaderDocumentLowOffset) == 0 && R64(data, HeaderDocumentHighOffset) == 0) || R64(data, HeaderNextIdentityOffset) == 0 ||
             // No capacity bounds a population (Story 9R.5b); only the populations' own relations do.
             R32(data, HeaderDynamicCountOffset) > R32(data, HeaderBodyCountOffset) ||

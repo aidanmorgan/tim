@@ -125,8 +125,6 @@ public partial class MachineWorld
             "basket" => CaptureReceiver(bodyId, position, q),
             "ramp" => WorkshopInput.Ramp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 dimensions is { } rampSize ? new(new((Half)rampSize.X), new((Half)rampSize.Z)) : RampDimensions.Default),
-            "switch" => WorkshopInput.Switch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
             "spring" => WorkshopInput.Springboard(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSpringboard spring ? spring.Settings :
                     SpringboardSettings.Default),

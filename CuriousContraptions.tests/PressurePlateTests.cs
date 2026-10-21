@@ -122,7 +122,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
         var battery = WorkshopInput.Battery(new(2), 2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var switchPart = WorkshopInput.Switch(new(3), -2, 0, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var switchPart = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), -2, 0, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(plate, battery, switchPart);
 
@@ -747,7 +747,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var counter = WorkshopInput.Counter(new(3), 0, GateHeight, -3, 0, 0, 0, 1, 3);
         var delay = WorkshopInput.Generic(PartId.Delay, new(4), 0, GateHeight, 3, 0, 0, 0, 1);
         var latch = WorkshopInput.Latch(new(5), 3, GateHeight, -3, 0, 0, 0, 1);
-        var hit = WorkshopInput.Switch(new(6), 3, GateHeight, 3, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 3, GateHeight, 3, 0, 0, 0, 1);
         var instances = new WorkshopInstances(plate, lamp, counter, delay, latch, hit);
         new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);
         foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (delay.Id, WorkshopSocket.ActivationIn),
@@ -782,7 +782,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold()
     {
         var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2); var sticky = LampAt(3, 3);
-        var hit = WorkshopInput.Switch(new(4), 3, GateHeight, 3, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 3, GateHeight, 3, 0, 0, 0, 1);
         var nodes = WorkshopActivationCompiler.Compile(Bench([plate, lamp, sticky, hit], Signal(plate.Id, lamp.Id), Signal(hit.Id, sticky.Id)))
             .Nodes.ToArray();
         Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);

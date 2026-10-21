@@ -43,7 +43,7 @@ public readonly partial record struct WorkshopRead
         {
             var left = first.Activations[i]; var right = second.Activations[i];
             if (left != right || !F32Bits.Equal(left.EventPhase, right.EventPhase) ||
-                !HalfBits.Equal(left.ApproachSpeed.Value, right.ApproachSpeed.Value)) return false;
+                !F32Bits.Equal(left.ApproachSpeed.Value, right.ApproachSpeed.Value)) return false;
         }
         for (var i = 0; i < first.Timers.Count; i++) if (first.Timers[i] != second.Timers[i]) return false;
         return true;

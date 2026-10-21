@@ -28,7 +28,7 @@ public sealed class WorkshopDelayTests
     [Fact]
     public void DurationPoseAndConnectionsRoundTripAndCompileOnlySourceBaseBox()
     {
-        var trigger = WorkshopInput.Switch(new(1), -2, 2, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), -2, 2, 0, 0, 0, 0, 1);
         var lamp = WorkshopInput.Lamp(new(2), 3, 2, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(trigger, lamp, Delay((float)8.9375)), Connections: new(
@@ -72,15 +72,15 @@ public sealed class WorkshopDelayTests
             WorkshopInput.Receiver(new(2),4,1,0,0,0,0,1),
             WorkshopInput.Ramp(new(3),-4,2,0,0,0,0,1,RampDimensions.Default),
             WorkshopInput.Ramp(new(4),-2,2,0,0,0,0,1,RampDimensions.Default),
-            WorkshopInput.Switch(new(5),0,1,0,0,0,0,1,ContactTriggerSettings.Default),
-            WorkshopInput.Switch(new(6),2,1,0,0,0,0,1,ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(5),0,1,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(6),2,1,0,0,0,0,1),
             WorkshopInput.Lamp(new(7),5,2,0,0,0,0,1), Delay((float)1) with {Id=new(8)});
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         Assert.Equal(9,scene.Bodies.Length);
         // Free play has no per-kind count: a third switch is admitted within the compiled tables.
         new WorkshopInstances(instances[4],instances[5],
-            WorkshopInput.Switch(new(9),3,1,0,0,0,0,1,ContactTriggerSettings.Default)).Validate();
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(9),3,1,0,0,0,0,1)).Validate();
         foreach (var edge in new[] {
             new WorkshopConnection(new(8),WorkshopSocket.ActivationIn,new(7),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
             new WorkshopConnection(new(5),WorkshopSocket.ActivationOut,new(8),WorkshopSocket.ActivationOut,WorkshopConnectionDomain.Activation),
@@ -113,7 +113,7 @@ public sealed class WorkshopDelayTests
             new InstanceParameterCollection([new(new ParameterId("delay_seconds"), .2f)]));
         IWorkshopInstance[] parts = [
             WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Switch(new(2), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
             first, WorkshopInput.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1), second];
         if (reverse) Array.Reverse(parts);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts),
@@ -138,7 +138,7 @@ public sealed class WorkshopDelayTests
         Assert.NotEqual(seconds, (float)(Half)seconds);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
-                WorkshopInput.Switch(new(2), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
+                WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
                 Delay(seconds), WorkshopInput.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1)),
             Connections: new(Signal(2, 3), Signal(3, 4)));
         var saved = new WorkshopSavedConstruction(construction, new(5));

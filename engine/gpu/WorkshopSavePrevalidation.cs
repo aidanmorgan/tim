@@ -156,9 +156,6 @@ internal static class WorkshopSavePrevalidation
             case "ramp":
                 Within(id, "length", r.Length, (Half).125, (Half)4); Within(id, "width", r.Width, (Half).125, (Half)4);
                 break;
-            case "switch":
-                Within(id, "trigger threshold", r.Threshold, (Half)0, (Half)64);
-                break;
             case "spring":
                 Within(id, "stiffness", r.Stiffness, 120f, 1200f); Within(id, "damping", r.Damping, 0f, 8f);
                 Within(id, "initial compression", r.InitialCompression, 0f, .2f);
@@ -199,6 +196,8 @@ internal static class WorkshopSavePrevalidation
                 break;
             default:
                 genericParameters = true;
+                if (r.Threshold != 0f)
+                    throw Refuse(WorkshopSaveRejection.OutOfRange, "Generic instance cannot carry a typed threshold scalar.");
                 for (var i = 0; i < r.ParametersLength; i++)
                     if (r.Parameters(i) is { } parameter) Finite(id, parameter.Key, parameter.Value);
                 try { _ = WorkshopWireFlatBuffers.DecodeParameters(r, part); }

@@ -47,6 +47,7 @@
     <ProjectReference Include="../CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj" />
     <ProjectReference Include="../tools/BundleElements/BundleElements.csproj" ReferenceOutputAssembly="false"
                       SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained" />
+    <EmbeddedResource Include="../content/fixtures/delayed_signal_source.json" LogicalName="content.fixtures.delayed_signal_source.json" />
     <EmbeddedResource Include="../elements/elements.bundle.json" LogicalName="elements.bundle.json" />
   </ItemGroup>
   <Import Project="../CuriousContraptions.web/WorkerAot.targets" />

@@ -197,7 +197,7 @@ public sealed class OrientationSensorTests
         Assert.Equal(ActivationPhase.Latched, domino.Phase); Assert.Equal(ActivationPhase.Latched, lamp.Phase);
         Assert.Equal(ActivationOccurrenceKind.Orientation, domino.Kind);
         Assert.Equal(sensor.Id.Value, domino.Source.Value); Assert.Equal(new GpuBodyId(2), domino.Body); Assert.Equal(collider, domino.Collider);
-        Assert.Equal(3u, domino.EventOrdinal); Assert.Equal((Half)0, domino.ApproachSpeed.Value); Assert.Equal(new ActivationNodeId(2), domino.Emitter);
+        Assert.Equal(3u, domino.EventOrdinal); Assert.Equal(0f, domino.ApproachSpeed.Value); Assert.Equal(new ActivationNodeId(2), domino.Emitter);
         Assert.Equal(domino.Occurrence, lamp.Occurrence);
         // The committed stream repeats the sticky read; the latch does not change, and it never regresses.
         var replay = network.Consume(active, network.ClearTimers(), [], new(2), [fired]).Activations;
@@ -217,7 +217,7 @@ public sealed class OrientationSensorTests
         foreach (var changed in new[]
         {
             domino with { Kind = ActivationOccurrenceKind.Contact }, domino with { Source = new(99) }, domino with { Body = new(1) },
-            domino with { Collider = new(99) }, domino with { ApproachSpeed = new((Half)1) }, domino with { EventOrdinal = 2, CauseOrdinal = 2 }
+            domino with { Collider = new(99) }, domino with { ApproachSpeed = new((float)1) }, domino with { EventOrdinal = 2, CauseOrdinal = 2 }
         }) Assert.Throws<ArgumentException>(() => network.ValidateRead(new([changed, lamp]), network.ClearTimers(), new(1), 4, scene));
         Assert.Throws<ArgumentException>(() => network.ValidateRead(new([domino, clear[1]]), network.ClearTimers(), new(1), 4, scene));
         Assert.Equal(ActivationPhase.Clear, network.Clear()[0].Phase);

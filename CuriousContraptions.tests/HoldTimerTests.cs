@@ -27,7 +27,7 @@ public sealed class HoldTimerTests
         IWorkshopInstance[] parts =
         [
             WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
-            WorkshopInput.Switch(new(2),0,1,0,0,0,0,1,ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
             Part(seconds),
             WorkshopInput.Battery(new(4),6,3,0,0,0,0,1,ElectricalSourceSettings.Default),
             WorkshopInput.Generic(PartId.PoweredGate,new(5),9,3,0,0,0,0,1),
@@ -108,7 +108,7 @@ public sealed class HoldTimerTests
     {
         var declaration=new ActivationTimerDeclaration(new(1),12,TimerCompletionPolicy.Rearm,TimerBoundary.BeforeNetworks,TimerElapsedSignal.None);
         var first=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(2),new(0,0),
-            new(new(2),new(3),new(4),new(0,0),new((Half)1)));
+            new(new(2),new(3),new(4),new(0,0),new((float)1)));
         var counting=ActivationTimerState.Ready(new(1)).Trigger(declaration,first,4);
         var busy=first with {Time=new(4,0),Cause=first.Cause with {Time=new(4,0)}};
         Assert.Equal(counting,counting.Trigger(declaration,busy,4));
@@ -142,14 +142,14 @@ public sealed class HoldTimerTests
             new(new(2),new(6),WorkshopSocket.ResetIn),new(new(5),new(4),WorkshopSocket.ActivationIn),
             new(new(5),new(6),WorkshopSocket.SetIn)
         ]);
-        var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,(Half)0,new((Half)1));
+        var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,(Half)0,new((float)1));
         var initial = network.Consume(network.Clear(),network.ClearTimers(),[first],new(0),[],memory:network.ClearMemory());
         var scheduled = network.AdvanceScheduled(initial,new(12));
         Assert.Equal(24UL,scheduled.State.Timers[1].DueTick);
         Assert.Equal(ActivationPhase.Clear,scheduled.State.Activations[3].Phase);
         Assert.True(network.ContactClosed(scheduled.State.Activations,scheduled.State.Timers,new(3)));
         Assert.Equal(12UL,initial.Timers[1].DueTick); // candidate did not mutate its source
-        var physical = new ContactTriggerRead(new(10),new(5),new(99),1,new(100),47,(Half)0,new((Half)1));
+        var physical = new ContactTriggerRead(new(10),new(5),new(99),1,new(100),47,(Half)0,new((float)1));
         var final = network.ConsumeScheduled(scheduled,[physical],new(12),[],[],default,[]);
         Assert.Equal(new ActivationNodeId(5),final.Activations[3].Emitter); // earlier physical bypass wins
         Assert.Equal(ActivationPhase.Clear,final.Activations[5].Phase); // scheduled Reset dominates physical Set
@@ -238,7 +238,7 @@ public sealed class HoldTimerTests
         var parts=original.Instances.ToArray().Concat(new IWorkshopInstance[]
         {
             WorkshopInput.Basketball(new(7),12,5.96f,0,0,0,0,1),
-            WorkshopInput.Switch(new(8),12,1,0,0,0,0,1,ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(8),12,1,0,0,0,0,1),
             WorkshopInput.Lamp(new(9),15,2,0,0,0,0,1)
         }).ToArray();
         var baseline=original with {Instances=new(parts),Connections=original.Connections.With(Signal(6,9)).With(Signal(8,9))};
