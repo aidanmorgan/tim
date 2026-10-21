@@ -37,7 +37,7 @@ Amelia-19, 21 Oct 2026. Base: main `dc1f59a1` fast-forwarded, merged with PKG-2 
 - **The isolation authority.** The A15 row says every delivered element has a package once PKG-3 passes; it closes at the terminal Pass.
 
 **Test-first and mutants:**
-- Red: [red-parity-tests.txt](evidence-9a-pkg-3/red-parity-tests.txt), [red-bundle-tests.txt](evidence-9a-pkg-3/red-bundle-tests.txt), [red-selection-tests.txt](evidence-9a-pkg-3/red-selection-tests.txt) (4 failing before the packages existed).
+- Red: [red-parity-tests.txt](evidence-9a-pkg-3/red-parity-tests.txt), [red-bundle-tests.txt](evidence-9a-pkg-3/red-bundle-tests.txt), [red-selection-tests.txt](evidence-9a-pkg-3/red-selection-tests.txt) (4 failing before the packages existed). The selection red was captured with the two moved-scene rows under `CatalogueAndScenesMapByContent`; once the scenes existed, the runner's `NoPrimarySuite` refusal moved them to `ElementWithoutAPrimarySuiteIsATypedError` (CL4), which passes on the candidate.
 - Mutants, each killed by the named test ([mutants.txt](evidence-9a-pkg-3/mutants.txt)):
 
 | AC | Mutant | Killed by |
