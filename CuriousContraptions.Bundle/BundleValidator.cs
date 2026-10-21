@@ -89,7 +89,7 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
-            Presentation(entry.Presentation, entry.Metadata.Parameters);
+            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports);
@@ -97,7 +97,7 @@ public static class BundleValidator
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
         {
             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
                 OutOfRange("Presentation.PickRadius");
@@ -149,7 +149,7 @@ public static class BundleValidator
                 var supported = binding.Driver switch
                 {
                     PresentationDriver.ActivationPulse or PresentationDriver.CapturePulse or PresentationDriver.CommittedActivation or
-                        PresentationDriver.CommittedCount => binding.Curve == PresentationCurve.SmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
+                        PresentationDriver.CommittedCount or PresentationDriver.CommittedElectricalSocket => binding.Curve == PresentationCurve.SmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
                     PresentationDriver.ContactImpulse => binding.Curve == PresentationCurve.SineSquaredPulse && binding.Duration > 0 && binding.Overlap == PresentationOverlap.SaturatingSum,
                     PresentationDriver.CommittedOscillatorPhase => binding.Curve == PresentationCurve.ExponentialFollow && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
                     PresentationDriver.CommittedOscillatorPulse => binding.Curve == PresentationCurve.LinearDecay && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Maximum,
@@ -161,6 +161,12 @@ public static class BundleValidator
                             binding.Curve == PresentationCurve.Linear && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
                     _ => false
                 };
+                if ((binding.Driver == PresentationDriver.CommittedElectricalSocket) != binding.Socket.HasValue ||
+                    (binding.Socket is { } socket &&
+                        (electrical?.Supply?.Kind != SupplyCapabilityKind.LogicGate ||
+                         !ports.Any(port => port.Socket == socket && port.Domain == SimulationDomain.Electrical))))
+                    OutOfRange("Presentation.Socket");
+                if (binding.Socket is { } boundSocket) Defined("Presentation.Socket", boundSocket);
                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
@@ -387,7 +393,20 @@ public static class BundleValidator
                 Defined("Supply.Kind", supply.Kind);
                 Defined("Supply.Output", supply.Output);
                 if (supply.Input is { } input) Defined("Supply.Input", input);
-                if (!electrical.Nodes.Any(node => node.Role == (supply.Kind == SupplyCapabilityKind.Source ? ElectricalRole.Source : ElectricalRole.Switch)) ||
+                var role = supply.Kind switch
+                {
+                    SupplyCapabilityKind.Source => ElectricalRole.Source,
+                    SupplyCapabilityKind.SwitchedContact => ElectricalRole.Switch,
+                    SupplyCapabilityKind.LogicGate => ElectricalRole.LogicGate,
+                    _ => (ElectricalRole)byte.MaxValue
+                };
+                if (supply.Operation is { } operation) Defined("Supply.Operation", operation);
+                if ((supply.Kind == SupplyCapabilityKind.LogicGate) != supply.Operation.HasValue ||
+                    (supply.Kind == SupplyCapabilityKind.LogicGate &&
+                        (!ports.Any(port => port.Socket == PortSocket.FirstIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
+                         !ports.Any(port => port.Socket == PortSocket.SecondIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input))))
+                    OutOfRange("Supply.Operation");
+                if (!electrical.Nodes.Any(node => node.Role == role) ||
                     supply.Output != PortSocket.Supply ||
                     (supply.Kind == SupplyCapabilityKind.Source ? supply.Input is not null : supply.Input != PortSocket.PowerIn) ||
                     !ports.Any(port => port.Socket == supply.Output && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Output) ||

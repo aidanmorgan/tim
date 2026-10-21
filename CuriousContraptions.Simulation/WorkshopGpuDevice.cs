@@ -122,6 +122,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 inputs = PhysicsTickInputs.Compose(supply.Graph, supply.Prismatics, controls,
                     owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner));
             }
+            if(operation==WorkshopGpuOperation.Admit)
+                inputs=new([],[],supply.Graph.NeutralReads());
             await EnsureInitialized();
             await transport.Stage(input, operation, inputs);
             ObjectDisposedException.ThrowIf(_disposed, this);

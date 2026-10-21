@@ -80,6 +80,7 @@ public sealed class BundlePortsTests
     /// copied from the deleted engine port switch tables and the packages.</summary>
     private static readonly Dictionary<string, (WorkshopPort[] Ports, ElementFootprint Footprint)> Golden = new(StringComparer.Ordinal)
     {
+        ["both_gate"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
         ["ball"] = ([], new(1, 1, 0)),
         ["ball_detector"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0)),
         ["basket"] = ([], new(1, 0, 0)),
@@ -170,7 +171,7 @@ public sealed class BundlePortsTests
         { "undefined direction", Port(PortSocket.ActivationOut, SimulationDomain.Signal, (PortDirection)7, PortSignalKind.Pulse), ElementPortRejection.UnsupportedDirection },
         { "audio domain", Port(PortSocket.PowerIn, SimulationDomain.Audio, PortDirection.Input, null), ElementPortRejection.UnsupportedDomain },
         { "combined domain", Port(PortSocket.PowerIn, SimulationDomain.Electrical | SimulationDomain.Signal, PortDirection.Input, null), ElementPortRejection.UnsupportedDomain },
-        { "undefined socket", Port((PortSocket)5, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse), ElementPortRejection.UndefinedSocket },
+        { "undefined socket", Port((PortSocket)255, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse), ElementPortRejection.UndefinedSocket },
         { "activation socket on the electrical domain", Port(PortSocket.ActivationOut, SimulationDomain.Electrical, PortDirection.Output, null), ElementPortRejection.SocketDisagrees },
         { "input socket declared as an output", Port(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Output, null), ElementPortRejection.SocketDisagrees },
         { "signal kind on an electrical port", Port(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, PortSignalKind.Level), ElementPortRejection.SignalKindDisagrees },

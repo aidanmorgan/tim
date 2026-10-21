@@ -124,7 +124,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         WorkshopSocket.ActivationOut => (WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output),
         WorkshopSocket.SetIn or WorkshopSocket.ResetIn or WorkshopSocket.ActivationIn => (WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input),
         WorkshopSocket.Supply => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output),
-        WorkshopSocket.PowerIn => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input),
+        WorkshopSocket.PowerIn or WorkshopSocket.FirstIn or WorkshopSocket.SecondIn => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input),
         _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.")
     };
 

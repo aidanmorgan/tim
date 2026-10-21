@@ -75,6 +75,21 @@ public sealed class BundleValidatorTests
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
                 new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply))
         };
+        var logic=supply with
+        {
+            Ports=[
+                new(PortSocket.FirstIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
+                new(PortSocket.SecondIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
+                new(PortSocket.PowerIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
+                new(PortSocket.Supply,SimulationDomain.Electrical,PortDirection.Output,null,Vector3.Zero,Vector3.UnitX)],
+            Electrical=new([new("logic",Abstractions.Electrical.ElectricalRole.LogicGate,12f,.1f,0f,100f)],
+                new(Abstractions.Electrical.SupplyCapabilityKind.LogicGate,PortSocket.PowerIn,PortSocket.Supply,Abstractions.Electrical.LogicGateOperation.And))
+        };
+        Assert.Empty(Check(logic));
+        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=null}}}));
+        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)255}}}));
+        Assert.NotEmpty(Check(logic with {Ports=logic.Ports.Where(port=>port.Socket!=PortSocket.SecondIn).ToArray()}));
+        Assert.NotEmpty(Check(supply with {Electrical=supply.Electrical! with {Supply=supply.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.And}}}));
         Assert.Empty(Check(supply));
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with
             { Supply = new((Abstractions.Electrical.SupplyCapabilityKind)255, null, PortSocket.Supply) } }));

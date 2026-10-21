@@ -245,6 +245,17 @@ public static class WorkshopWireFlatBuffers
         var read = response.Read;
         Offset<ConstructionRecord>? constructionOffset = response.Construction is { } construction
             ? EncodeConstructionRecord(builder, construction) : null;
+        VectorOffset? logicOffset = null;
+        if (!read.Presentation.Logic.IsEmpty)
+        {
+            Wire.WorkshopResponse.StartElectricalLogicVector(builder, read.Presentation.Logic.Length);
+            for(var i=read.Presentation.Logic.Length-1;i>=0;i--)
+            {
+                var logic=read.Presentation.Logic[i];
+                ElectricalLogicRecord.CreateElectricalLogicRecord(builder,logic.Owner.Value,(byte)logic.Inputs,logic.Supplied,logic.Active);
+            }
+            logicOffset=builder.EndVector();
+        }
         VectorOffset? actuatorOffset = null;
         if (!read.Presentation.Actuators.IsEmpty)
         {
@@ -382,6 +393,7 @@ public static class WorkshopWireFlatBuffers
         }
 
         Wire.WorkshopResponse.StartWorkshopResponse(builder);
+        if (logicOffset.HasValue) Wire.WorkshopResponse.AddElectricalLogic(builder,logicOffset.Value);
         if (actuatorOffset.HasValue) Wire.WorkshopResponse.AddActuatorDrives(builder, actuatorOffset.Value);
         if (loadOffset.HasValue) Wire.WorkshopResponse.AddContactLoads(builder, loadOffset.Value);
         if (constructionOffset.HasValue) Wire.WorkshopResponse.AddConstruction(builder, constructionOffset.Value);
@@ -506,6 +518,12 @@ public static class WorkshopWireFlatBuffers
             sources[i] = new ElectricalSourceRead(new ElectricalSourceId(e.Id), new GpuBodyId(e.Owner), new Joules(e.Remaining), new Joules(e.Debit), (ElectricalEnable)e.Enabled);
         }
 
+        var logicValues=new ElectricalLogicRead[fb.ElectricalLogicLength];
+        for(var i=0;i<logicValues.Length;i++)
+        {
+            var logic=fb.ElectricalLogic(i)!.Value;
+            logicValues[i]=new(new(logic.Owner),(ElectricalInputState)logic.Inputs,logic.Supplied,logic.Active);
+        }
         var actuatorValues = new ActuatorDriveRead[fb.ActuatorDrivesLength];
         for (var i = 0; i < actuatorValues.Length; i++)
         {
@@ -534,7 +552,7 @@ public static class WorkshopWireFlatBuffers
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
             new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores, occurrences),
-            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues));
+            new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);
 

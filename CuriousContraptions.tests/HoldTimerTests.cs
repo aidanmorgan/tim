@@ -292,7 +292,7 @@ public sealed class HoldTimerTests
         }
     }
 
-    private sealed class GatedRealTransport : IWorkshopGpuTransport
+    internal sealed class GatedRealTransport : IWorkshopGpuTransport
     {
         private readonly CuriousContraptions.Simulation.BrowserGpuTransport _real=new();
         public TaskCompletionSource? Entered, Release;

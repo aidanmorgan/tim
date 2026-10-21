@@ -254,9 +254,9 @@ development_status:
   # 21 (element). Owner decision 18 Oct 2026 (open scheduling item b): Switch electrical mode before the Both gate.
   9-5b-impact-switch-electrical-mode: done
   # 22 (deletion)
-  9a-26-lessons-as-content-data: review
+  9a-26-lessons-as-content-data: done # scoped native/publication Pass11593e; browser pending
   # 23 (element)
-  9-6-dual-supply-both-gate: backlog
+  9-6-dual-supply-both-gate: review # native proof complete; exact SnapshotApproval/publication pending
   # 24 (deletion)
   9a-c-ramp-receiver-conversion: backlog
   # merged into 9a-c-ramp-receiver (21 Oct 2026)

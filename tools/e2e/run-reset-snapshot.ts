@@ -38,6 +38,7 @@ export const SNAPSHOT_SCHEMA = {
             ['cause_collider', 'uint64'], ['cause_ordinal', 'uint32'], ['cause_phase', 'float']] },
         ActivationMemoryRecord: { kind: 'struct', fields: [['node', 'uint64'], ['kind', 'uint32'], ['count', 'uint32'],
             ['last_ordinal', 'uint32'], ['last_phase', 'float'], ['phase', 'uint32'], ['due_tick', 'uint64']] },
+        ElectricalLogicRecord: { kind: 'struct', fields: [['owner', 'uint64'], ['inputs', 'uint8'], ['supplied', 'bool'], ['active', 'bool']] },
         ActuatorDriveRecord: { kind: 'struct', fields: [['joint', 'uint64'], ['owner', 'uint64'], ['supply_closed', 'bool'],
             ['coordinate', 'float'], ['speed', 'float'], ['lower', 'float'], ['upper', 'float']] },
         ContactLoadRecord: { kind: 'struct', fields: [['sensor', 'uint64'], ['frame', 'uint64'], ['face', 'uint64'],
@@ -74,7 +75,7 @@ export const SNAPSHOT_SCHEMA = {
             ['captures', '[CaptureLatchRead]'], ['activations', '[ActivationRecord]'], ['timers', '[TimerRecord]'],
             ['contact_works', '[ContactWorkStoreRecord]'], ['occurrences', '[ContactWorkOccurrenceRecord]'],
             ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]'],
-            ['memory', 'MemoryObservationRecord'], ['actuator_drives', '[ActuatorDriveRecord]'], ['contact_loads', '[ContactLoadRecord]'],
+            ['memory', 'MemoryObservationRecord'], ['actuator_drives', '[ActuatorDriveRecord]'], ['contact_loads', '[ContactLoadRecord]'], ['electrical_logic', '[ElectricalLogicRecord]'],
             ['construction', 'ConstructionRecord']] },
     } as Readonly<Record<string, TypeListing>>,
 } as const;

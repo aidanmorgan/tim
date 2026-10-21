@@ -45,6 +45,7 @@ public static class WorkshopIcons
             "retracted_output" => "<path d='M2 7h7v10H2zM9 12h3M12 7v10M21 3h-7m3-2-3 2 3 2'/>",
             "resize" => "<path d='M4 9V4h5M15 20h5v-5M4 4l6 6m4 4 6 6'/><rect x='9' y='9' width='6' height='6'/>",
             // The Set and Reset socket choices mirror the on-part tactile marks: a raised bar for Set, a hollow ring for Reset.
+            "socket_power" => "<path d='M12 3v8m-5-5a8 8 0 1 0 10 0' stroke-width='2.5'/>",
             "socket_set" => "<rect x='9.5' y='3' width='5' height='18' rx='1.5' fill='#293954'/>",
             "socket_reset" => "<circle cx='12' cy='12' r='7.5' stroke-width='3'/>",
             "set_input" => "<circle cx='12' cy='12' r='9'/><path d='M12 7v10'/>",

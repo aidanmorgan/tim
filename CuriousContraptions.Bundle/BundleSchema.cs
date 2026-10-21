@@ -110,7 +110,7 @@ public static class BundleSchema
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>),
-        typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>), typeof(ExactEnumConverter<SignalLatchMode>), typeof(ExactEnumConverter<TimerCompletionPolicy>),
+        typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>), typeof(ExactEnumConverter<SignalLatchMode>), typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>),
         typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),

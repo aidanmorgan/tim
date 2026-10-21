@@ -263,15 +263,15 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
             scene.Electrical.Sources,scene.Prismatics,scene.Bodies);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
         var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumer:scene.Prismatics[0].Id);
-        Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id)).Nodes.Length);
+        Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn)).Nodes.Length);
         Assert.Throws<ArgumentException>(()=>Admit([source with {Kind=(SupplyNodeKind)99}]));
         Assert.Throws<ArgumentException>(()=>Admit([source with {Source=default}]));
         Assert.Throws<ArgumentException>(()=>Admit([source,source]));
         Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumer=new(999)}]));
         Assert.Throws<ArgumentException>(()=>Admit([new(WorkshopPhysicsCompiler.GateBlade(gate.Id),SupplyNodeKind.Contact)]));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id)));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id),new(battery.Id,gate.Id)));
-        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999))));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,WorkshopSocket.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn),new(battery.Id,gate.Id,WorkshopSocket.PowerIn)));
+        Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),WorkshopSocket.PowerIn)));
     }
 
     [Fact]
