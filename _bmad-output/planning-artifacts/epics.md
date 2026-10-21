@@ -1605,6 +1605,15 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.15: Reproducible Publish Bundle Identity
+*Status: Backlog. Filed by PKG-1 on 21 Oct 2026 ([spec](../implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md#e2e-chrome)).*
+
+**Acceptance Criteria:**
+- Two `dotnet publish` runs of one source give one runner `bundleIdentity`, or the varying files are named and the identity is defined over the reproducible ones. Today it differs:
+  - `c948fec6` published as `30ae989e…` and `c194034b…` (evidence-9a-4);
+  - PKG-1's three publishes of unchanged runtime sources gave `ceb64963…`, `589fffef…` and `3839c6e4…`.
+- Reviewers can then match a reused Chrome run to a candidate by bundle identity alone.
+
 ### Story F.14: E2E Runner Selection and Bundle Gate Follow-ups
 *Status: Backlog. Filed by Story 9A.4 on 21 Oct 2026 ([evidence](../implementation-artifacts/evidence-9a-4/runner-select-diff-844981c9.txt)).*
 - *It also covers the 9A.4 review findings:*
@@ -1613,6 +1622,7 @@ So that two plates switch two gates independently.
   - *rejecting an empty element id (F14-4);*
   - *a Release generator build (F14-6);*
   - *a randomised-order test run (F14-8).*
+- *PKG-1 (21 Oct 2026) added owner-body motion, mass, drag and gravity parity for every mechanical package (`EveryMechanicalPackageDeclaresTheCompiledBodyMotionMassDragAndGravity`). Inertia is still not compared (F14-3).*
 
 **Acceptance Criteria:**
 - `select --diff` and `run --diff` let a path that forces Full win over a `NoPrimarySuite` refusal raised by another path. Today `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball`, although the same diff touches the Abstractions, `tools/BundleElements` and `tools/E2eRunner`, each of which selects Full.
@@ -2131,7 +2141,7 @@ These stories implement the [Delivery order](#delivery-order-coordinator-21-oct-
 - The positions are those of the Delivery order.
 
 ### Story PKG-1: Receiver, Bowling Ball and Springboard Element Packages (9A.5 + 9A.6 + 9A.12)
-*Status: Backlog. Position 6.*
+*Status: Review (21 Oct 2026, candidate `ce460ddc`; [spec](../implementation-artifacts/spec-9a-pkg-1-receiver-bowling-springboard-packages.md)). Position 6.*
 
 *Depends on: Story 9A.4.*
 
@@ -2550,7 +2560,7 @@ So that the bundle can become the only declaration the game loads.
 Each of these nine stories adds one `elements/<Name>/` project. It does not change runtime behaviour; it makes the atomic catalogue cutover in Story 9A.14 possible without dropping an element.
 
 ### Story 9A.5: Receiver Element Package (CAT-004, id `basket`)
-*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-1. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2574,7 +2584,7 @@ So that the bundle can carry it when the `.tres` catalogue is deleted.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.6: Bowling Ball Element Package (CAT-014, id `bowling`)
-*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-1. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 
@@ -2682,7 +2692,7 @@ So that its torus-segment colliders come from the bundle.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.12: Springboard Element Package (CAT-062, id `spring`)
-*Status: Backlog. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
+*Status: Review, with PKG-1. Merged into PKG-1 (21 Oct 2026). These ACs stay here and apply there.*
 
 *Depends on: Story 9A.4. Audit: A15.*
 

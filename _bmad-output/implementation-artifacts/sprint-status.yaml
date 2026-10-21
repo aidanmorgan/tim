@@ -180,13 +180,13 @@ development_status:
   # 5
   9a-4-lossless-bundle-build-gate: done
   # 6
-  9a-pkg-1-receiver-bowling-springboard-packages: backlog
+  9a-pkg-1-receiver-bowling-springboard-packages: review
   # merged into 9a-pkg-1 (21 Oct 2026)
-  9a-5-receiver-element-package: backlog
+  9a-5-receiver-element-package: review
   # merged into 9a-pkg-1 (21 Oct 2026)
-  9a-6-bowling-ball-element-package: backlog
+  9a-6-bowling-ball-element-package: review
   # merged into 9a-pkg-1 (21 Oct 2026)
-  9a-12-springboard-element-package: backlog
+  9a-12-springboard-element-package: review
   # 7
   9a-pkg-2-funnel-pipe-bend-packages: backlog
   # merged into 9a-pkg-2 (21 Oct 2026)
@@ -458,5 +458,7 @@ development_status:
   f-13-legacy-purge-follow-ups: backlog
   # filed by 9a-4 (21 Oct 2026): Full precedence over NoPrimarySuite; ball has no Primary suite
   f-14-e2e-runner-selection-follow-ups: backlog
+  # filed by 9a-pkg-1 (21 Oct 2026): one source publishes with different runner bundleIdentity values
+  f-15-reproducible-publish-bundle-identity: backlog
 
 action_items: []

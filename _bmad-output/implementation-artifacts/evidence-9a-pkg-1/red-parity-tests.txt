@@ -1,0 +1,5 @@
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.TheCatalogueIdsWithoutAPackageAreExactlyTheEightListed [8 ms]
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryBallPackageDeclaresItsCatalogueBallMaterial [15 ms]
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody [2 ms]
+Failed!  - Failed:     3, Passed:     5, Skipped:     0, Total:     8, Duration: 143 ms - CuriousContraptions.tests.dll (net10.0)
+193cdf37836a307a2f39c492975e2b0d88cc0dce

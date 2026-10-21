@@ -1,0 +1,17 @@
+Mode: Selected
+Tier 3 required: no
+path	parts/catalog/bowling.tres	Element	parts/catalog/*.tres: bowling
+path	parts/catalog/springboard.tres	Element	parts/catalog/*.tres: spring
+clock-master	integration: level domino_effect places bowling
+cat-023b	integration: level domino_effect places bowling
+cat-014	own: parts/catalog/bowling.tres changes bowling; integration: places bowling
+cat-062	own: parts/catalog/springboard.tres changes spring; integration: places spring
+cat-052-two-plates	integration: places bowling
+cat-052-lamp	integration: places bowling
+cat-005	integration: places bowling
+cat-015a	integration: places bowling
+cat-052	integration: places bowling
+cat-062b	own: parts/catalog/springboard.tres changes spring; integration: places spring; integration: level ready_to_rebound places spring
+engine-core-2a1	smoke pair
+engine-core-2b1	smoke pair
+palette-placement	integration: places every palette part (bowling); integration: places every palette part (spring)

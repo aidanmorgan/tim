@@ -102,7 +102,7 @@ public sealed class SelectionTests
         var selection = Select(["tools/workshop-console.mjs"]);
         Assert.Equal(["anim-1a", "capacity-9r", "capacity-9r5b", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
             "cat-048b", "cat-049", "cat-050", "cat-050-joined", "cat-051", "cat-051-own-supply", "cat-052", "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
-            "engine-core-2b4", "engine-core-2c", "tube-snapping"], Names(selection));
+            "engine-core-2b4", "engine-core-2c", "pkg-1", "tube-snapping"], Names(selection));
     }
 
     private static readonly Dictionary<string, FullReason> FullPaths = new(StringComparer.Ordinal)
@@ -144,7 +144,8 @@ public sealed class SelectionTests
     {
         var selection = Select(["ui/WorkshopBenchPlacement.cs", "engine/PartRegistry.cs"]);
         // Story 9R.6: tube-snapping also exercises bench placement (the typed mouth snap, engine/TubeMouthSnap.cs).
-        Assert.Equal(["engine-core-2a1", "engine-core-2b1", "palette-placement", "tube-snapping"], Names(selection));
+        // PKG-1: pkg-1 places its three packaged parts from the palette onto the bench.
+        Assert.Equal(["engine-core-2a1", "engine-core-2b1", "palette-placement", "pkg-1", "tube-snapping"], Names(selection));
         Assert.Contains("palette-placement\tarea: Palette (engine/PartRegistry.cs); area: BenchPlacement (ui/WorkshopBenchPlacement.cs)",
             selection.Suites.Select(suite => suite.ReasonLine));
     }
@@ -180,7 +181,8 @@ public sealed class SelectionTests
     [Theory]
     [InlineData("parts/catalog/springboard.tres", "spring")]
     [InlineData("parts/catalog/counter.tres", "counter")]
-    [InlineData("parts/scenes/springboard.tscn", "spring")]
+    [InlineData("parts/scenes/clock.tscn", "clock")]
+    [InlineData("elements/Springboard/springboard.tscn", "spring")]
     public void CatalogueAndScenesMapByContent(string path, string part) =>
         Assert.Equal(part, Assert.Single(Select([path]).Paths).Detail);
 

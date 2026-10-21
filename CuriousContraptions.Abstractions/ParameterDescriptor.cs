@@ -18,7 +18,10 @@ public enum ParameterUnit : byte
     Metre = 2,
     Kilogram = 3,
     Second = 4,
-    MetrePerSecond = 5
+    MetrePerSecond = 5,
+    MetrePerSecondSquared = 6,
+    NewtonPerMetre = 7,
+    NewtonSecondPerMetre = 8
 }
 
 /// <summary>One typed authored parameter of an element: its key, unit and kind, with f32 bounds and default. A Choice parameter
