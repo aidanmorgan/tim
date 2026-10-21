@@ -243,3 +243,46 @@ $ npx tsx --test tools/e2e/engine-core-2c.test.ts
 ## 6. Conclusion
 
 Story 6.5e meets every acceptance criterion, permanently deletes all 11 legacy per-part scripts and resources with zero backwards compatibility shims, enforces strict entity separation across all interactive mechanism scenes, and achieves 100% automated test pass rates across all 826 unit tests and all 24 browser E2E test cases. Terminal Scoped Verdict: **PASS**.
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Story 9A.17)
+
+Closing record under the epics rule "Reopened-record closure" (Story 6.5e's closing stories are C-Bumper+Spring, C-Switch,
+C-Lamp+Detector, 9.5a, 9A.16 and 9A.17). Only the port-locator naming and port switch-table clauses are in scope here. The original
+text above is unchanged.
+
+**Reviewer:** Murdoch-24, terminal reviewer of Story 9A.17. I am not its implementer (Amelia-23), and I did not write the
+original review above (dated 2026-10-14).
+
+**Identity.**
+- Reviewed tree: `46e734289726c169d2d4a395a54db29ebb57d0f7`, commit `2bdd7e27`.
+- Final commit: `24179187`, tree `0b9a8182`; only `docs/architecture/element-package-isolation.md` and `_bmad-output/` differ from the reviewed tree.
+- Main: merged as `6ca5591e`, same tree.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`):
+- `review-9a-17-bundle-ports-and-footprint.md`, with `evidence-9a-17-review/` (mutants `R1.txt` to `R6.txt` and the Tier 1 logs).
+- **Full run:** `evidence-9a-17/e2e-full-2bdd7e27/summary.txt`.
+  - Run `20261021T092247Z-74820`, `sourceHead 2bdd7e27`, `bundleIdentity 570e3d4cb8b8…`.
+  - 2026-10-21T09:22:47Z to 10:16:41Z, 284/284.
+  - Includes cat-005 7/7, cat-014 4/4, cat-015a 2/2, cat-015b 4/4, cat-023a 4/4, cat-023b 4/4, cat-062 7/7 and engine-core-2a1 5/5.
+- **Clean rerun:** `evidence-9a-17/e2e-contended-rerun-2bdd7e27/summary.txt`.
+  - Run `20261021T101828Z-84313`, `bundleIdentity fdf5b9e38fed…`.
+  - 10:18:28Z to 10:21:06Z, Pass, all Clean.
+- **Red build:** `evidence-9a-17/red-locators-before-rename.txt` lists the 22 misnamed locators (`Loc_Port_in`, `Loc_Port_out`, `Loc_Port_power_in`, …) that the new bundle check refused before the renames.
+
+| Original clause | Retro-verification finding (18 Oct) | Verdict at `24179187` |
+| --- | --- | --- |
+| Checklist #4 / AC-3: "`Loc_Port_in` and `Loc_Port_out` empty locator nodes detected and resolved via `GltfPhysicsBodyExtractor` and `MachinePart.GetPortTransform`" | C: "Locators are partial and misnamed; only `delay` has both" | **Closed, Pass**, against the clause as amended by Story 9A.17 (one source in the bundle). Every declared socket of the converted mechanisms has exactly one locator named by its typed socket: bumper `Loc_Port_PowerIn`, domino and switch `Loc_Port_ActivationOut`, lamp `Loc_Port_ActivationIn`, delay `Loc_Port_ActivationIn`/`Loc_Port_ActivationOut`, battery `Loc_Port_Supply`. Each sits at its declared anchor, which the bundle build (BUNDLE011–013) and `BundlePortLocatorTests` enforce. The springboard declares no port, so it needs no locator. `MachinePart.GetPortTransform` is deleted, and the runtime reads the declared ports |
+| Checklist #2: "No backward compatibility adapters, bridge classes, or fallback wrappers … scene-declared colliders/locators" (the port part) | C (X4, colliders), plus retro #12, the socket string alias chain | **Port part closed, Pass.** The alias chain (`"PowerIn"`→`"power_in"`→`"in"`, `"Supply"`→`"out"`) and the `FindChild("Loc_Port_…")` fallback are deleted, and `NoHandWrittenPortTableFootprintTableOrLocatorAliasIsReAdded` guards them (her M2 is killed). That guard matches names only (F19-1, Low). **Collider part (X4) stays open:** owner 9A.16 |
+| The per-element port switch tables behind these mechanisms (`WorkshopPorts.For`, 12 arms; `LocalPosition`, 23 arms; retro A3) | C | **Closed, Pass.** Deleted. The golden test `EveryElementsBundlePortsAndFootprintEqualTheGoldenTable` proves the declared ports equal the deleted tables in socket, order, domain, direction, signal kind and anchor bits (mutants R2 and R3 are killed). The wiring suites cat-005, cat-020, cat-037, cat-051 and cat-052 pass |
+
+**Stays open in this record:**
+- Zero shims (X4, collider fallbacks). Owner: 9A.16.
+- "`.tres` plus generic `MachinePart`" (`BuildDeclarative` per-element arms, A4). Owner: 9A.25a, then 9A.25b.
+- Moving sub-assemblies whose bodies the compiler makes. Owner: 9A.16 and the family conversions.
+- `spring_forward` in Chrome. Owner: C-Bumper+Spring (9R.8).
+- The non-existent suites cat-063, cat-035 and cat-022. Owners: C-Switch, C-Lamp+Detector and 9.5a, per the closure table.
+- The copied cat-062 output (§D) is not re-verified by this addendum. cat-062 passes 7/7 in the run cited above.
+
+`sprint-status.yaml` should not mark 6.5e `done` until its last closing addendum records a terminal Pass.
