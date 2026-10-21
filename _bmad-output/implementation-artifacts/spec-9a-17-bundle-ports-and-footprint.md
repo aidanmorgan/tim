@@ -75,11 +75,16 @@ Implementer: Amelia-23, 21 Oct 2026. Base: main `0a45e3b7` alone. The Story 9A.1
    - What is not checked: its rotation against the declared normal. Every socket locator has an identity basis, and no runtime reader
      uses a port normal (the bundle validator holds it to unit length).
    - The start-mouth locators already face outward, as the funnel's does (basis −X, from Story 9R.6). That disagreement was already
-     resolved.
+     resolved, and it is pinned by
+     `TubeMouthSnapTests.EveryTubePartDeclaresAStartAndEndMouthWithABoreFacingOutward`: each mouth's local +X points away from the
+     other mouth.
 6. **D6, footprint.** "Its bench footprint only from its declaration": no engine or UI table restates a footprint. The compiler still
    emits each instance's rows through its record arm, which leaves with that record's family conversion (finding A5). Until then,
    `PackageRuntimeParityTests` checks the declared footprint against every compiled instance. No new footprint consumer was built,
    because colliders and bodies from the bundle are Story 9A.16.
+   - The isolation doc therefore splits the A3 row. Ports close at 9A.17. "The runtime reads the declared footprint" stays open, owned
+     by 9A.16 and then each family conversion.
+   - **The coordinator decides** whether to accept this or reassign it.
 7. **D7, anchor tolerance.** The tolerance is 1e-5 m: the scenes' decimal text and the f32 declarations agree to f32 rounding. Every
    current locator agrees exactly.
 8. **D8, the AC3 literal `rg`.** It now has 0 hits in code and in the current documents. The remaining hits are dated history that is
