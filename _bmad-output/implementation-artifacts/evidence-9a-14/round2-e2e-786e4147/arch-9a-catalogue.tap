@@ -1,0 +1,167 @@
+TAP version 13
+# Subtest: Stories 9A.14 and 9A.18: the bundle is the sole catalogue and icons ship in their packages
+    # Subtest: the bundle declares exactly 22 deliverable elements and neither undelivered part
+    ok 1 - the bundle declares exactly 22 deliverable elements and neither undelivered part
+      ---
+      duration_ms: 0.59325
+      type: 'test'
+      ...
+    # Subtest: the palette titles and package icons are pixel-identical to the pre-cutover palette
+    ok 2 - the palette titles and package icons are pixel-identical to the pre-cutover palette
+      ---
+      duration_ms: 2538.725541
+      type: 'test'
+      ...
+    # Subtest: palette row 0 places the bundle's element ball
+    ok 3 - palette row 0 places the bundle's element ball
+      ---
+      duration_ms: 3093.513084
+      type: 'test'
+      ...
+    # Subtest: palette row 1 places the bundle's element basket
+    ok 4 - palette row 1 places the bundle's element basket
+      ---
+      duration_ms: 3083.488334
+      type: 'test'
+      ...
+    # Subtest: palette row 2 places the bundle's element switch
+    ok 5 - palette row 2 places the bundle's element switch
+      ---
+      duration_ms: 2999.515459
+      type: 'test'
+      ...
+    # Subtest: palette row 3 places the bundle's element lamp
+    ok 6 - palette row 3 places the bundle's element lamp
+      ---
+      duration_ms: 3083.518125
+      type: 'test'
+      ...
+    # Subtest: palette row 4 places the bundle's element wall
+    ok 7 - palette row 4 places the bundle's element wall
+      ---
+      duration_ms: 3149.461209
+      type: 'test'
+      ...
+    # Subtest: palette row 5 places the bundle's element delay
+    ok 8 - palette row 5 places the bundle's element delay
+      ---
+      duration_ms: 3050.450208
+      type: 'test'
+      ...
+    # Subtest: palette row 6 places the bundle's element bumper
+    ok 9 - palette row 6 places the bundle's element bumper
+      ---
+      duration_ms: 3016.448584
+      type: 'test'
+      ...
+    # Subtest: palette row 7 places the bundle's element ramp
+    ok 10 - palette row 7 places the bundle's element ramp
+      ---
+      duration_ms: 3049.848583
+      type: 'test'
+      ...
+    # Subtest: palette row 8 places the bundle's element domino
+    ok 11 - palette row 8 places the bundle's element domino
+      ---
+      duration_ms: 3034.271584
+      type: 'test'
+      ...
+    # Subtest: palette row 9 places the bundle's element bowling
+    ok 12 - palette row 9 places the bundle's element bowling
+      ---
+      duration_ms: 2999.880125
+      type: 'test'
+      ...
+    # Subtest: palette row 10 places the bundle's element battery
+    ok 13 - palette row 10 places the bundle's element battery
+      ---
+      duration_ms: 3032.760916
+      type: 'test'
+      ...
+    # Subtest: palette row 11 places the bundle's element spring
+    ok 14 - palette row 11 places the bundle's element spring
+      ---
+      duration_ms: 3016.943292
+      type: 'test'
+      ...
+    # Subtest: palette row 12 places the bundle's element pipe
+    ok 15 - palette row 12 places the bundle's element pipe
+      ---
+      duration_ms: 3117.589708
+      type: 'test'
+      ...
+    # Subtest: palette row 13 places the bundle's element ball_detector
+    ok 16 - palette row 13 places the bundle's element ball_detector
+      ---
+      duration_ms: 2998.749916
+      type: 'test'
+      ...
+    # Subtest: palette row 14 places the bundle's element pipe_bend_45
+    ok 17 - palette row 14 places the bundle's element pipe_bend_45
+      ---
+      duration_ms: 3116.869083
+      type: 'test'
+      ...
+    # Subtest: palette row 15 places the bundle's element pipe_bend_90
+    ok 18 - palette row 15 places the bundle's element pipe_bend_90
+      ---
+      duration_ms: 3064.916125
+      type: 'test'
+      ...
+    # Subtest: palette row 16 places the bundle's element funnel
+    ok 19 - palette row 16 places the bundle's element funnel
+      ---
+      duration_ms: 3082.210375
+      type: 'test'
+      ...
+    # Subtest: palette row 17 places the bundle's element powered_gate
+    ok 20 - palette row 17 places the bundle's element powered_gate
+      ---
+      duration_ms: 3051.918417
+      type: 'test'
+      ...
+    # Subtest: palette row 18 places the bundle's element pressure_plate
+    ok 21 - palette row 18 places the bundle's element pressure_plate
+      ---
+      duration_ms: 3016.10925
+      type: 'test'
+      ...
+    # Subtest: palette row 19 places the bundle's element counter
+    ok 22 - palette row 19 places the bundle's element counter
+      ---
+      duration_ms: 3017.358833
+      type: 'test'
+      ...
+    # Subtest: palette row 20 places the bundle's element clock
+    ok 23 - palette row 20 places the bundle's element clock
+      ---
+      duration_ms: 3033.932458
+      type: 'test'
+      ...
+    # Subtest: palette row 21 places the bundle's element latch
+    ok 24 - palette row 21 places the bundle's element latch
+      ---
+      duration_ms: 2998.590541
+      type: 'test'
+      ...
+    # Subtest: one bench with every bundle element runs, resets exactly, and saves and loads bit for bit
+    ok 25 - one bench with every bundle element runs, resets exactly, and saves and loads bit for bit
+      ---
+      duration_ms: 45615.551083
+      type: 'test'
+      ...
+    1..25
+ok 1 - Stories 9A.14 and 9A.18: the bundle is the sole catalogue and icons ship in their packages
+  ---
+  duration_ms: 119591.479208
+  type: 'suite'
+  ...
+1..1
+# tests 25
+# suites 1
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 119849.3135

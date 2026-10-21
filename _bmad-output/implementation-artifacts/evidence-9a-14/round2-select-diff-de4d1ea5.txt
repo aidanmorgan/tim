@@ -1,0 +1,58 @@
+Mode: Full
+Tier 3 required: yes
+path	CuriousContraptions.Bundle/BundleSchema.cs	Full(SharedRuntime)	workers, client, contracts and schemas
+path	CuriousContraptions.tests/PartRegistryTests.cs	NoBrowserImpact	CuriousContraptions.tests/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/green-round2-registry.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/mutant-f16-2-readds.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/red-b1-null-element.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/round2-lifecycle-contract.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/round2-ownership-oracles.log	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/round2-release-build.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/round2-select-diff-de4d1ea5.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/round2-tier1-node.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/round2-tier1-test.txt	NoBrowserImpact	_bmad-output/**
+path	_bmad-output/implementation-artifacts/evidence-9a-14/round2-wire-contract.json	NoBrowserImpact	_bmad-output/**
+clock-master	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-017	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-023b	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-037	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-014	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1a	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1b	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+anim-1c	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-023a	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-020	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+capacity-9r	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-062	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-051-own-supply	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-052-two-plates	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-052-lamp	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+capacity-9r5b	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+tube-snapping	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-050-joined	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+pkg-1	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+pkg-3	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+arch-9a-catalogue	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-002	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-005	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015a	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015a-sidekick	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-015b	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-030	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-048a	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-048b	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-049	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-050	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-051	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-052	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+cat-062b	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a1	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a2	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a3	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2a4	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b1	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b2	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b3	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2b4	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+engine-core-2c	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)
+palette-placement	full: CuriousContraptions.Bundle/BundleSchema.cs (SharedRuntime, workers, client, contracts and schemas)

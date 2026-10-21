@@ -1,0 +1,37 @@
+run 20261021T052943Z-64074 verb=Run verdict=Pass
+started=2026-10-21T05:29:43.7515460+00:00 finished=2026-10-21T05:32:53.5374440+00:00 wallSeconds=189.8
+runnerSourceDigest: ee0dbe7370af06d480bcc1005515c2b44b9b69f4d4e5a85f24de4e8d7d5be9e0
+sourceHead: 786e414715d575c530c9f36b64be21faa11f3504
+sourceStatusDigest: fc2450a4637ceceeaa8a62e08b911a35e1146252bf755a2bfa48b0311daddf13
+publish: dotnet publish CuriousContraptions.web: exit 0 in 79.1 s (publish.log)
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.86
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: N=2 (2026-10-19, _bmad-output/implementation-artifacts/evidence-9r-0a/calibration)
+workersUsed: 2
+runId: 20261021T052943Z-64074
+workers: 2
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1a1514d517207e6f/.anvil/e2e-runs/20261021T052943Z-64074
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: 7.23
+suiteSourceDigest.start: 09468cd023a98e809ccaa402ceed017a7fbe6d6ae0ba26a95f2bdf3b31a3db85
+bundleIdentity.start: a8e2a98163c76b726328980686c2e70c0312992f71e4765fdf0fcca480b9a7b8
+bundleFiles: 306 (3 NotServed dot-files)
+preview: http://127.0.0.1:51447/
+servedCheck.start: pass (303 files)
+bundleIdentity.end: a8e2a98163c76b726328980686c2e70c0312992f71e4765fdf0fcca480b9a7b8
+servedCheck.end: pass
+suiteSourceDigest.end: 09468cd023a98e809ccaa402ceed017a7fbe6d6ae0ba26a95f2bdf3b31a3db85
+peakRssBytes: 6185091072
+selection: Mode: Selected
+selection: Tier 3 required: no
+selection: path	tools/e2e/arch-9a-catalogue.test.ts	Suite	tools/e2e/<suite>.test.ts: arch-9a-catalogue
+selection: path	tools/e2e/palette-placement.test.ts	Suite	tools/e2e/<suite>.test.ts: palette-placement
+selection: arch-9a-catalogue	suite: tools/e2e/arch-9a-catalogue.test.ts changed
+selection: engine-core-2a1	smoke pair
+selection: engine-core-2b1	smoke pair
+selection: palette-placement	suite: tools/e2e/palette-placement.test.ts changed
+arch-9a-catalogue outcome=Pass exit=0 tests=25 pass=25 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=119937 phase=SerialAlone slot=- start=2026-10-21T05:29:45.5144360+00:00 end=2026-10-21T05:31:45.4509410+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=19217 phase=Parallel slot=0 start=2026-10-21T05:31:45.5574980+00:00 end=2026-10-21T05:32:04.7748310+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=9138 phase=Parallel slot=1 start=2026-10-21T05:31:45.6072710+00:00 end=2026-10-21T05:31:54.7449860+00:00 observation=Clean
+palette-placement outcome=Pass exit=0 tests=25 pass=25 fail=0 cancelled=0 skipped=0 todo=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=58446 phase=Parallel slot=1 start=2026-10-21T05:31:54.8381400+00:00 end=2026-10-21T05:32:53.2840610+00:00 observation=Clean
+run totals: files=4 pass=4 nonzeroExit=0 tests=56 testsPassed=56 fail=0 notok=0 closeFindings=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0

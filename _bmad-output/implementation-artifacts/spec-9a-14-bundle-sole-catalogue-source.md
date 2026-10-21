@@ -78,6 +78,12 @@ Amelia-20, under the owner's delegation to decide small gaps; no AC is weakened.
 
 **Runner.** `select --diff 8b646ffe` refuses with `NoPrimarySuite` for `ball` (runner-select-diff-8b646ffe.txt), as PKG-3 CL4 recorded, so the one full run used the `full` verb on the committed merge `57826e42`: verdict Pass, 44 files, 240/240 tests, every observation Clean, no rerun (e2e-full-57826e42/summary.txt). The follow-up edits are `CuriousContraptions.tests/**` and `docs/**`, both NoBrowserImpact.
 
+**Round 2 (Murdoch-21), fix commit `786e4147`.**
+- **B1.** A `null` entry in `Elements` (or a null parameter option) threw `NullReferenceException` in `PartRegistry.Read`. `BundleSchema.Read` now refuses it with a `JsonException` naming the path (`Elements[0] is null.`), which the registry reports as `The element bundle '…' is malformed: …`. Red before the fix: red-b1-null-element.txt (two new `AnInvalidBundleRefusesTheWholeLoadNamingTheProblem` cases); green: green-round2-registry.txt.
+- **F16-2.** New ratchets: `WorkshopIconsKeepsNoElementArm` pins the pictogram arms to the 14 UI names; `TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity`; `NoCatalogueResourceOrResourceLoaderRemains` now also refuses `BallMaterialResource` (file, compile item, type, source). Re-adding a `"motor"` arm, `PartId.Tennis` or `engine/BallMaterialResource.cs` each fails (mutant-f16-2-readds.txt).
+- **Tier 1:** Debug and Release 0 warnings; 2,262/2,262 tests; Ownership exit 0; WireContract, LifecycleContract and Node 88/88 (round2-*).
+- **Chrome:** `select --diff de4d1ea5` is Full only because `CuriousContraptions.Bundle/BundleSchema.cs` matches the shared-runtime rule (round2-select-diff-de4d1ea5.txt); the change is a reader-side null refusal with byte-identical bundle output, so the story's own suites ran instead (no Full, per the coordinator): `run --changed` arch-9a-catalogue 25/25, palette-placement 25/25 and the smoke pair, Pass on `786e4147` (round2-e2e-786e4147/summary.txt).
+
 **Filed (non-blocking residuals).**
 - The start-up refusal is proven at the registry; no Workshop-level native test drives `ReadyAsync` with a refused bundle.
 - The palette baselines are byte-pinned to this Chrome build (155.0.8059.86); a browser update needs a recapture.
