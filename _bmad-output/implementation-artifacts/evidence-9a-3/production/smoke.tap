@@ -1,0 +1,20 @@
+▶ ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright E2E
+  ✔ 1. Clean boot: cross-origin isolation and WorkshopPoseRing initialized (2.96575ms)
+  ✔ 2. Empty-construction control: Run advances sequence with 0 bodies, Reset restores Build Mode (1162.659042ms)
+  ✔ 3. Single-ball control: Place 1 Basketball via UI, Run observes gravitational motion, Reset restores elevation (3515.978042ms)
+  ✔ 4. Dual-sphere multi-body simulation: Place 2 Basketballs, Run observes independent trajectories (4166.586041ms)
+  ✔ 5. Save & Load persistence roundtrip: Save via driver, reload page, Load restores both balls (6433.579375ms)
+✔ ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright E2E (19653.861042ms)
+▶ ENGINE-CORE-2b1: Host Validation & Error Lane Removal (Direct SAB Pose Publishing)
+  ✔ 1. Real-time ball drop and Workbench interaction without host validation overhead or errors (4302.767083ms)
+  ✔ 2. A save that fails structural pre-validation is refused and the bench is kept (5261.822292ms)
+  ✔ 3. A save naming an element the loaded bundle does not declare is refused naming it, and the bench is kept (2367.364458ms)
+✔ ENGINE-CORE-2b1: Host Validation & Error Lane Removal (Direct SAB Pose Publishing) (16279.688166ms)
+ℹ tests 8
+ℹ suites 2
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36403.901417

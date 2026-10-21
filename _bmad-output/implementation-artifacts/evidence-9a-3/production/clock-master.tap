@@ -1,0 +1,16 @@
+✔ Reliable reads coalesce for 400 ms and Reset preserves its in-flight receipt (6342.128625ms)
+E2E_OBSERVED DebtFault CCGPU_DEBT_FAULT: committedTick=65 reason=ReliableStalled oldestUnreceipted=5 ageMs=500
+{"reliableReadStall":"CCGPU_DEBT_FAULT: committedTick=65 reason=ReliableStalled oldestUnreceipted=5 ageMs=500"}
+✔ A missing reliable-read receipt stops the real worker with ReliableStalled (6290.100125ms)
+{"observeMemoryPhase":2,"outcome":0,"memory":true}
+✔ The real worker answers ObserveMemory while Building (5644.222625ms)
+{"observeMemoryPhase":5,"outcome":1,"memory":false}
+✔ The real worker answers ObserveMemory while Running (8125.196166ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26676.541833

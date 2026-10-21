@@ -131,6 +131,25 @@ Publication-dependent checks required before terminal scoped Pass:
 - On production origin, run affected actual worker memory-query/stall/Reset behavior and ordinary Run/Reset smoke; inspect player-visible stall state and unexpected console/resource/lifecycle failures. Reuse unchanged already-proven element behavior; do not repeat Full.
 - Record deployment URL, exact served identity, original raw commands/results and final independent verdict. No completion/dependent-slice terminal claim until those checks pass.
 
+## Terminal publication review — scoped Pass, 21 October 2026
+
+**Terminal verdict: PASS for Story 9A.3, including required publication.** No unresolved unintended regression remains within the justified transport/query and integrated dependency scope. This does not claim global performance, supported-device or later resource/fault qualification.
+
+Independent publication verification:
+- Remote origin/main is `28e2bb9c77dd16026d460a4c23f1f915dd59792c`; approved candidate `52f855738f4d5109d8c0ce3754c0cf98109979a7` and published merge have identical tree `d5dcb82147ad96fe92d9120c3e56f6ca6a51c158`. Direct git diff exits0.
+- [CI39595227818](https://github.com/aidanmorgan/tim/actions/runs/39595227818) completed build and deployment successfully. GitHub deployment7225578315 names the exact merge SHA, production environment and success at12:06:35UTC.
+- CI artifact12343584517 is the published github-pages artifact. Independently downloaded and computed manifest identity `17dc85677719e924cbdd515c2e9e11031243d2507d616d6af5f90e3649dfeb31`:337files. All333served files fetched from [production](https://aidanmorgan.github.io/tim/) match artifact bytes;four dotfiles correctly NotServed. CI-specific bundle differs from local build as expected; provenance links it to the identical reviewed tree and production tests verify it directly.
+- Chrome through available Playwright connector was checked directly, then unchanged connector-backed suites ran serially against the explicit production URL. No stale/local preview was used.
+- Actual production worker controls pass4/4:400mscoalescing control,exact in-flight receipt across Reset,650msreceipt interruption producing ReliableStalled,Building memory capture and Running WrongPhase/no capture (memory cases are separate tests). Zero failures/skips.
+- Reviewer inspected production screenshot: stopped basketball at0.54s and footer “The GPU simulation stopped. Reset to retry.” Production debt log names ReliableStalled.
+- Both production smoke suites pass8/8:cross-origin isolation,pose ring,empty/single/dual-body UI construction,ordinary Run/Reset,Save/Load and invalid-save/unknown-element negative controls,with clean shutdown checks.
+
+Original evidence: [production commands and results](evidence-9a-3/production/commands.log), [clock probes](evidence-9a-3/production/clock-master.tap), [smoke](evidence-9a-3/production/smoke.tap), [served identities](evidence-9a-3/production/deployed-identity.json), [player-visible stall](evidence-9a-3/production/clock-master.reliable-stall.png).
+Runtime browser time:26.677s transport probes plus36.404s smoke. Unknown wider delivery/blocked-time measurements remain unknown.
+
+The coordinator may mark this story done and continue the next authorized backlog outcome. F.20/F.21/F.22 remain named later qualification work, not unresolved current acceptance. Review-only evidence publication does not require recursive approval or another browser run when relevant runtime inputs remain unchanged.
+
+
 
 
 

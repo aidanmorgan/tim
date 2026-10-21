@@ -2,7 +2,7 @@
 title: 'Story 9A.3: Transport Controls as Typed Commands and Queries'
 type: 'refactor'
 created: '2026-10-18'
-status: 'in-review'
+status: 'done'
 baseline_commit: '379cc24a7fe17e666b234f8c0e7ed0b0c88d4292'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -100,7 +100,7 @@ context:
 
 **Execution.** Depends on 9A.2. [R:9.4b] means that file is rewritten by the clock master; [R:9R.0] means `exports.CuriousContraptions.Simulation.Program`.
 
-1. [ ] **Tests first (red):**
+1. [x] **Tests first (red):**
    - `CuriousContraptions.tests/ReliableReadLedgerTests.cs` (new; add a `Compile Include` and link `../CuriousContraptions.Simulation/ReliableReadLedger.cs`). It covers:
      - age > 500 stalls, and = 500 does not;
      - a receipt clears;
@@ -111,11 +111,11 @@ context:
      In `workshop-observation.test.mjs`, add a slow-receipt case: reads coalesce for 400 ms, and then one receipt arrives with no stall.
    - `ObserveMemoryQueryTests` (in the same file or `WorkshopWireTests`): the query round-trips through the router with a sequence and a receipt; Running gives `WrongPhase`.
    - `tools/workshop-observation.test.mjs`: (a) the host clock advances 501 ms with no receipt, so the stop read carries `ReliableStalled`; (b) a typed `ObserveMemory` gives an acknowledgement with memory; (c) `{reliableStalled:true}` and `{memoryRequest}` each give a named failure.
-2. [ ] `CuriousContraptions.Simulation/ReliableReadLedger.cs` (new) and `Program.cs`. [R:9.4b] [R:9R.0]
-3. [ ] Schema, `WorkshopWireFlatBuffers.cs` and `WorkshopMemoryWire.cs`: `ObserveMemory` and `MemoryObservationRecord`. Regenerate `WorkshopWireGenerated.cs` and `tools/e2e/workshop-wire.ts`.
-4. [ ] `engine/gpu/BrowserWorkshopClient.cs`: `ObserveMemory()` over `Execute`, and delete the callback chain.
-5. [ ] `CuriousContraptions.Simulation/wwwroot/worker.js` and `CuriousContraptions.web/wwwroot/workshop-client.js`. [R:9.4b]
-6. [ ] `tools/workshop-client-lifecycle.test.mjs`: assert that no `reliableStalled` message is ever posted, and keep the Backpressure/TimedOut state assertions. Migrate the `WorkshopWireTests` memory facts to the typed record.
+2. [x] `CuriousContraptions.Simulation/ReliableReadLedger.cs` (new) and `Program.cs`. [R:9.4b] [R:9R.0]
+3. [x] Schema, `WorkshopWireFlatBuffers.cs` and `WorkshopMemoryWire.cs`: `ObserveMemory` and `MemoryObservationRecord`. Regenerate `WorkshopWireGenerated.cs` and `tools/e2e/workshop-wire.ts`.
+4. [x] `engine/gpu/BrowserWorkshopClient.cs`: `ObserveMemory()` over `Execute`, and delete the callback chain.
+5. [x] `CuriousContraptions.Simulation/wwwroot/worker.js` and `CuriousContraptions.web/wwwroot/workshop-client.js`. [R:9.4b]
+6. [x] `tools/workshop-client-lifecycle.test.mjs`: assert that no `reliableStalled` message is ever posted, and keep the Backpressure/TimedOut state assertions. Migrate the `WorkshopWireTests` memory facts to the typed record.
 
 **Acceptance Criteria (1:1 with epics 9A.3):**
 - **AC1.** Given a reliable-read stall, when it is detected in the worker's own reliable-read accounting, then the run stops with `ReliableStalled` and the player sees the existing stall state.
@@ -229,7 +229,7 @@ schema, the codec or the transport, so this story does not depend on it.
 
 Recovered on 21 Oct 2026 by transport_implementer, independently reviewed by transport_reviewer. Candidate `54502ddd` was
 merged with main `c4f322bb` without committing; original evidence remains unchanged. The current verification-tier policy
-supersedes the old serial-all-suites wording. Refreshed scoped proof is complete; independent SnapshotApproval and publication verification remain pending.
+supersedes the old serial-all-suites wording. Refreshed scoped proof and independent publication verification are complete; terminal scoped Pass is recorded in the review.
 
 | Finding | Disposition |
 |---|---|
@@ -252,6 +252,10 @@ supersedes the old serial-all-suites wording. Refreshed scoped proof is complete
 
 Recovery fixes delete the permissive gap-receipt and mixed-envelope paths; memory observation now has one owner through browser
 capture. These changes add no compatibility path. Earlier Full evidence is reused only after the reviewer's applicability check.
+
+## Acceptance
+
+Story 9A.3 has independent terminal scoped Pass, including publication on `28e2bb9c77dd16026d460a4c23f1f915dd59792c`. [Review and exact deployed identities](review-9a-3-typed-transport-control-commands.md#terminal-publication-review--scoped-pass-21-october-2026) records production 4/4 transport and 8/8 smoke tests, all 333 served file hashes, and the visible stall state. F.20–F.22 remain later qualification work. This status update changes no runtime input.
 
 ## Recovery Verification (21 Oct 2026)
 

@@ -1,0 +1,38 @@
+Story 9A.3 reviewer production proof, 21 October 2026, UTC 12:07–12:09.
+Origin: https://aidanmorgan.github.io/tim/
+Commit: 28e2bb9c77dd16026d460a4c23f1f915dd59792c
+Approved implementation commit: 52f855738f4d5109d8c0ce3754c0cf98109979a7
+Both trees: d5dcb82147ad96fe92d9120c3e56f6ca6a51c158
+CI run39595227818 build/deploy success. Deployment7225578315 success at2026-10-21T12:06:35Z.
+CI artifact12343584517 github-pages. Artifact extracted locally under .anvil/9a3-production-artifact (not publication content).
+SHA256 sorted path<TAB>fileSHA256<newline> manifest:17dc85677719e924cbdd515c2e9e11031243d2507d616d6af5f90e3649dfeb31.
+337files,333served URLs fetched independently and exact SHA256 matched;4dotfiles NotServed. Full receipt deployed-identity.json.
+
+Playwright connector directly navigated production page, title Curious Contraptions; then parked at about:blank before timing proofs.
+Unchanged production suites import Playwright from /opt/homebrew/lib/node_modules/@playwright/mcp/package.json and launch channel chrome.
+CI publishes PlaytestDiagnostics=false. These probes use unconditional shipped ACK/debt/pose observations.
+
+Environment:
+E2E_PREVIEW_URL=https://aidanmorgan.github.io/tim/
+CLOCK_EVIDENCE_SCREENSHOT=<this-directory>/clock-master.png
+CLOCK_DERIVATION_LOG=<this-directory>/clock-master.derivations.jsonl
+Nodev26.12.0; tsx4.23.15; Chrome155.0.8059.86.
+
+Command:
+node --import /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs --test --test-concurrency=1 --test-timeout=150000 '--test-name-pattern=^(Reliable reads|A missing reliable|The real worker answers ObserveMemory)' tools/e2e/clock-master.test.ts
+Result exit0;4tests4pass0fail0skipped;26676.541833ms. Original output clock-master.tap. Four selected tests only; no Full/old clock repetition.
+Actual stall reason ReliableStalled,committedTick65,oldestUnreceipted5,ageMs500(integer-truncated display;strict greater-than500ms native boundary independently tested).
+Actual Building memory applied with measurement;Running rejected WrongPhase without memory.
+Reset exact receipt boundary and400mscontrol pass.
+Reviewer viewed clock-master.reliable-stall.png:0.54s stopped ball,footer “The GPU simulation stopped. Reset to retry.”
+
+Command:
+node --import /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs --test --test-concurrency=1 --test-timeout=150000 tools/e2e/engine-core-2a1.test.ts tools/e2e/engine-core-2b1.test.ts
+Result exit0;8tests8pass0fail0skipped;36403.901417ms. Original output smoke.tap.
+Covers production isolation/pose initialization,empty/single/dualball actual UI controls,Run/Reset,Save/Load,malformed save and unknown-element negative controls,session shutdown findings.
+
+Final remote query:
+git ls-remote origin refs/heads/main =>28e2bb9c77dd16026d460a4c23f1f915dd59792c
+git diff --exit-code 52f85573 28e2bb9c -- . =>exit0.
+Terminal scoped Pass recorded in independent review. No global/device/performance qualification claimed.
+

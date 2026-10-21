@@ -214,7 +214,7 @@ development_status:
   # 12
   9a-17-bundle-ports-and-footprint: done
   # 13: owner amendment 21 Oct 2026, right after 9a-17
-  9a-3-typed-transport-control-commands: in-progress
+  9a-3-typed-transport-control-commands: done
   # 13a: owner 21 Oct 2026, fast alternatives to constant e2e
   t-1-fast-test-quick-wins: backlog
   # 14: owner amendment 21 Oct 2026, right after 9a-17
