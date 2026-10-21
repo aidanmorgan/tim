@@ -6,8 +6,9 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public static partial class PhysicsGpuAbi
 {
-    /// <summary>Bytes 0..3 are zero padding (one bundle, one schema); a non-zero word rejects the record.</summary>
-    public const int HeaderLeadingPaddingOffset = 0;
+    /// <summary>One current layout identity; every other value is unsupported.</summary>
+    public const int HeaderLayoutTagOffset = 0;
+    public const uint CurrentLayoutTag = 0x43544632;
     public const int HeaderStatusOffset = 4;
     public const int HeaderFailureOffset = 8;
     /// <summary>Header word holding the admitted body count.</summary>
@@ -61,18 +62,19 @@ public static partial class PhysicsGpuAbi
     public const int ColliderBodyOffset = 8;
 
     // Trigger record (TriggerBytes): owner body slot, target kind, binary16 threshold, named target slot, then the last
-    // qualified contact: count, collider, physical-step ordinal, binary16 phase and approach, and the touching body slot.
+    // qualified contact: count, collider, physical-step ordinal, binary16 phase and f32 approach, and the touching body slot.
     public const int TriggerOwnerOffset = 8;
     public const int TriggerTargetKindOffset = 12;
     public const int TriggerThresholdOffset = 16;
-    public const int TriggerThresholdPaddingOffset = 18;
+    public const int TriggerThresholdPaddingOffset = 20;
     public const int TriggerNamedTargetOffset = 24;
     public const int TriggerNamedPaddingOffset = 28;
     public const int TriggerCountOffset = 32;
     public const int TriggerColliderOffset = 36;
     public const int TriggerOrdinalOffset = 40;
     public const int TriggerPhaseOffset = 44;
-    public const int TriggerApproachOffset = 46;
-    public const int TriggerBodyOffset = 48;
-    public const int TriggerPaddingOffset = 52;
+    public const int TriggerPhasePaddingOffset = 46;
+    public const int TriggerApproachOffset = 48;
+    public const int TriggerBodyOffset = 52;
+    public const int TriggerPaddingOffset = 56;
 }

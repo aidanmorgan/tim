@@ -8,6 +8,29 @@ public sealed class DelayedSignalTests
 {
 
     [Fact]
+    public void AuthoredSourceIdentityRejectsMalformedUnknownMissingAndDuplicateFieldsAtomically()
+    {
+        var before = Lesson((Half).45);
+        var fixture = AuthoredParameterFixture.Load("content.fixtures.delayed_signal_source.json");
+        Assert.Equal(PartId.ImpactSwitch, fixture.Part);
+        Assert.Equal(new ParameterId("trigger_threshold"), fixture.Parameter);
+        foreach (var json in new[]
+        {
+            "{}", "[]", "{\"part\":\"switch\"}",
+            "{\"part\":\"unknown\",\"parameter\":\"trigger_threshold\"}",
+            "{\"part\":\"switch\",\"parameter\":\"unknown\"}",
+            "{\"part\":\"switch\",\"part\":\"switch\",\"parameter\":\"trigger_threshold\"}",
+            "{\"part\":\"switch\",\"parameter\":\"trigger_threshold\",\"extra\":\"x\"}",
+            "{\"part\":1,\"parameter\":\"trigger_threshold\"}"
+        }) Assert.Throws<ArgumentException>(() => AuthoredParameterFixture.Parse(json));
+        Assert.ThrowsAny<JsonException>(() => AuthoredParameterFixture.Parse("{"));
+        Assert.Throws<System.IO.InvalidDataException>(() => AuthoredParameterFixture.Load("missing.fixture"));
+        Assert.Equal(before, Lesson((Half).45));
+        var reversed = before with { Instances = new(before.Instances.Reverse().ToArray()) };
+        reversed.Validate(); // source lookup uses identity, not first generic-instance position.
+    }
+
+    [Fact]
     public void F32PhaseAtFarOriginKeepsTinyOffsetsAndOrdinalBorrow()
     {
         var start = new ActivationTime(uint.MaxValue - 480, 0f);
@@ -35,12 +58,12 @@ public sealed class DelayedSignalTests
         Assert.Equal(1u, construction.Puzzle.InventoryCount);
         Assert.All(construction.Instances, value => Assert.True(value.Locked));
         Assert.Equal(new CellOrigin(-48,64,0), construction.Ball!.Value.Cell);
-        Assert.Equal(new CellOrigin(-48,16,0), construction.Instances.Find<WorkshopSwitch>()!.Value.Cell);
+        Assert.Equal(new CellOrigin(-48,16,0), construction.Instances.Find<WorkshopGenericInstance>()!.Value.Cell);
         Assert.Equal(new CellOrigin(48,16,0), construction.Instances.Find<WorkshopLamp>()!.Value.Cell);
-        Assert.Equal((Half)threshold, construction.Instances.Find<WorkshopSwitch>()!.Value.Trigger.Threshold.Value);
+        Assert.Equal((float)(Half)threshold, construction.Instances.Find<WorkshopGenericInstance>()!.Value.Parameters[new ParameterId("trigger_threshold")]);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         Assert.Equal(1,scene.Triggers.Length);
-        Assert.Equal((Half)threshold, scene.Triggers[0].Threshold.Value);
+        Assert.Equal((float)(Half)threshold, scene.Triggers[0].Threshold.Value);
         var save = new WorkshopSavedConstruction(construction, new(4));
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(save)));
         var changed = construction.WithInstance(WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1));
@@ -84,7 +107,7 @@ public sealed class DelayedSignalTests
     {
         var goal = Lesson((Half)1).Puzzle.Goal;
         var source = new ActivationTime(100,(float)12);
-        var cause = new ActivationCause(new(7),new(1),new(9),source,new((Half)2));
+        var cause = new ActivationCause(new(7),new(1),new(9),source,new((float)2));
         var sourceNode = new ActivationNodeDeclaration(new(2),new(2),ActivationNodeKind.ContactSource,new(7));
         var targetNode = new ActivationNodeDeclaration(new(3),new(3),ActivationNodeKind.StickyFirstInput,default);
         var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,new(2),source,cause));

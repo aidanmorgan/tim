@@ -29,7 +29,7 @@ public readonly record struct ActivationEdge(ActivationNodeId Source, Activation
 
 public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,
     GpuEventSourceId Source, GpuBodyId Body, GpuColliderId Collider, uint EventOrdinal,
-    float EventPhase, LinearSpeed ApproachSpeed, ActivationOccurrenceKind Kind = default,
+    float EventPhase, ContactSpeed ApproachSpeed, ActivationOccurrenceKind Kind = default,
     ActivationNodeId Emitter = default, uint CauseOrdinal = 0, float CausePhase = default)
 {
     public ActivationOccurrence Occurrence => new(Kind, Emitter, new(EventOrdinal, EventPhase),
@@ -39,18 +39,18 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
             occurrence.Cause.Collider, occurrence.Time.Ordinal, occurrence.Time.Phase, occurrence.Cause.ApproachSpeed,
             occurrence.Kind, occurrence.Emitter, occurrence.Cause.Time.Ordinal, occurrence.Cause.Time.Phase);
     public static ActivationLatch Clear(ActivationNodeDeclaration node) => new(node.Id, node.Owner,
-        ActivationPhase.Clear, default, default, default, 0, 0f, new((Half)0));
+        ActivationPhase.Clear, default, default, default, 0, 0f, new(0f));
     public void Validate()
     {
         if (Node.Value == 0 || Owner.Value == 0 || !Enum.IsDefined(Phase) ||
             !float.IsFinite(EventPhase) || EventPhase < -2048f || EventPhase >= 2048f ||
             (EventOrdinal == 0 && EventPhase < 0f) ||
-            !Half.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < (Half)0 || ApproachSpeed.Value > (Half)4096)
+            !float.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < 0f || ApproachSpeed.Value > 4096f)
             throw new ArgumentException("Invalid activation latch.");
         if (Phase == ActivationPhase.Clear)
         {
             if (Source.Value != 0 || Body.Value != 0 || Collider.Value != 0 || EventOrdinal != 0 ||
-                EventPhase != 0f || !PhysicsDeclarationBounds.Zero(ApproachSpeed.Value) ||
+                EventPhase != 0f || ApproachSpeed.Value != 0f ||
                 Kind != 0 || Emitter.Value != 0 || CauseOrdinal != 0 || CausePhase != 0f)
                 throw new ArgumentException("Clear activation retained an event.");
         }
@@ -344,7 +344,7 @@ public sealed class ActivationNetwork
             }
             var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, _nodes[slot].Id, time,
-                new(new(item.Id.Value), item.Body, item.Collider, time, new((Half)0)));
+                new(new(item.Id.Value), item.Body, item.Collider, time, new(0f)));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future orientation occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -366,7 +366,7 @@ public sealed class ActivationNetwork
             if (item.Phase != PassageSensorPhase.Fired) continue;
             var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
-                new(new(item.Id.Value), item.Body, item.Collider, time, item.Speed));
+                new(new(item.Id.Value), item.Body, item.Collider, time, new((float)item.Speed.Value)));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future passage occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -421,7 +421,7 @@ public sealed class ActivationNetwork
                 var time = ActivationTime.Boundary(boundary, _substeps);
                 var colliderId = node.Collider.Value != 0 ? node.Collider : new(node.Id.Value);
                 var sourceId = new GpuEventSourceId(colliderId.Value);
-                var cause = new ActivationCause(sourceId, node.Owner, colliderId, time, new((Half)0));
+                var cause = new ActivationCause(sourceId, node.Owner, colliderId, time, new(0f));
                 var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.OscillatorTick, node.Id, time, cause);
                 occurrence.Validate();
                 Push(ref count, occurrence);
@@ -585,7 +585,7 @@ public sealed class ActivationNetwork
             rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };
             if (values[slot].Phase == ActivationPhase.Latched) continue;
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.ContactLoad, _nodes[slot].Id, end,
-                new(new(item.Sensor.Value), item.Frame, item.Face, end, new((Half)0)));
+                new(new(item.Sensor.Value), item.Frame, item.Face, end, new(0f)));
             occurrence.Validate();
             values[slot] = ActivationLatch.From(_nodes[slot], occurrence);
         }
@@ -749,7 +749,7 @@ public sealed class ActivationNetwork
         else if (sensor is { } turned)
         {
             if (occurrence.Kind == ActivationOccurrenceKind.Contact || occurrence.Kind == ActivationOccurrenceKind.Passage || turned.Body != occurrence.Cause.Body ||
-                !PhysicsDeclarationBounds.Zero(occurrence.Cause.ApproachSpeed.Value) ||
+                occurrence.Cause.ApproachSpeed.Value != 0f ||
                 (occurrence.Kind == ActivationOccurrenceKind.Orientation && turned.Body != _nodes[emitter].Owner))
                 throw new ArgumentException("Activation cause differs from the declared orientation sensor.");
             colliderOwner = turned.Body;
@@ -824,8 +824,8 @@ public static class WorkshopActivationCompiler
         var passageSensors = new List<PassageSensorDeclaration>();
         foreach (var instance in construction.Instances)
         {
-            if (instance is WorkshopSwitch trigger)
-                nodes.Add(new(new(trigger.Id.Value), trigger.Id, ActivationNodeKind.ContactSource, WorkshopPhysicsCompiler.ContactTrigger(trigger.Id)));
+            if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Contact is not null)
+                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactSource, WorkshopPhysicsCompiler.ContactTrigger(instance.Id)));
             // A lamp fed by a declared level output follows that level; otherwise it holds its first pulse.
             else if (instance is WorkshopLamp lamp)
                 nodes.Add(new(new(lamp.Id.Value), lamp.Id, construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&

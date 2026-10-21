@@ -10,7 +10,7 @@ public sealed class WorkshopActivationAnimationTests
 {
     private static readonly RuntimeSessionId Session = new(11, 22);
     private static readonly ActivationLatch Latch = new(new(2), new(2), ActivationPhase.Latched,
-        new(55), new(1), new(44), 10, 0f, new((Half).8), ActivationOccurrenceKind.Contact, new(2), 10, 0f);
+        new(55), new(1), new(44), 10, 0f, new((float).8), ActivationOccurrenceKind.Contact, new(2), 10, 0f);
     private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
         true, (float)1, (float)1, (float)1, AnimationCurve.Linear, 10, (float)0, AnimationProperty.ColourBlend);
 

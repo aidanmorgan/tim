@@ -166,7 +166,7 @@ public sealed class WorkshopWallTests
             WorkshopInput.Receiver(new(2), 3, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Ramp(new(3), -3, 3, 0, 0, 0, 0, 1, RampDimensions.Default),
             WorkshopInput.Ramp(new(4), -1, 2, 0, 0, 0, 0, 1, RampDimensions.Default),
-            WorkshopInput.Switch(new(5), 0, 1, 2, 0, 0, 0, 1, ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(5), 0, 1, 2, 0, 0, 0, 1),
             WorkshopInput.Lamp(new(6), 3, 1, 2, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Wall, new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
         var scene = WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));

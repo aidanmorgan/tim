@@ -45,3 +45,11 @@ public interface ITimerElement : ISignalElement
 {
     SignalTimerDescriptor Timer { get; }
 }
+
+/// <summary>A one-shot owner-body contact qualified by a declared f32 speed parameter.</summary>
+public readonly record struct SignalContactDescriptor(string ThresholdParameter);
+
+public interface IContactTriggerElement : ISignalElement
+{
+    SignalContactDescriptor Contact { get; }
+}

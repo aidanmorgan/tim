@@ -9,6 +9,29 @@ public sealed class BundleValidatorTests
 {
 
     [Fact]
+    public void ContactCapabilityRequiresOneTypedParameterAndPulseOutput()
+    {
+        var entry = Bundle.BundleSchema.Entry(new Fixture
+        {
+            Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)],
+            Ports = [new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
+        }) with { Domains = [SimulationDomain.Signal], Mechanical = null,
+            Signal = new([], SignalLatchMode.None, null, null, new("speed")) };
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
+        Assert.Empty(Check(entry));
+        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("unknown") } }));
+        Assert.NotEmpty(Check(entry with { Ports = [] }));
+        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { LatchMode = SignalLatchMode.SetReset } }));
+        foreach (var parameter in new[]
+        {
+            entry.Metadata.Parameters[0] with { Unit = ParameterUnit.Second },
+            entry.Metadata.Parameters[0] with { Minimum = -1f },
+            entry.Metadata.Parameters[0] with { Maximum = 65f },
+            entry.Metadata.Parameters[0] with { EditorPolicy = (ParameterEditorPolicy)255 }
+        }) Assert.NotEmpty(Check(entry with { Metadata = entry.Metadata with { Parameters = [parameter] } }));
+    }
+
+    [Fact]
     public void TimerAndSupplyCapabilitiesRejectUnresolvedOrWrongTypedDeclarations()
     {
         var timer = Bundle.BundleSchema.Entry(new Fixture

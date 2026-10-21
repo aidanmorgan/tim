@@ -829,7 +829,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-063"></a>
 
-- [ ] **CAT-063 · switch.** Physical contact above authored trigger threshold latches activation once; ActivationOut and separately supplied PowerIn→Supply remain distinct contracts. Qualify missed/gentle/duplicate impacts, lost/missing supply, coherent network cycles and direct-wire-bypass lesson. Button/collider/colour and event publication derive from committed state; Reset restores unpressed state and both domains.
+- [ ] **CAT-063 · switch.** Physical contact at or above authored trigger threshold latches activation once; ActivationOut and separately supplied PowerIn→Supply remain distinct contracts. Qualify missed/gentle/duplicate impacts, lost/missing supply, coherent network cycles and direct-wire-bypass lesson. Button/collider/colour and event publication derive from committed state; Reset restores unpressed state and both domains.
 
   **Configuration / modes:** declared geometry, typed ports and any source-owned settings; no parameter absence inferred. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [retained behavior](#todo-147) and this complete entry. **Owner / collaborators:** [CAT-063 D/I/V and fixtures](invest/current-consumers.md#cat-063-i), signal capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 

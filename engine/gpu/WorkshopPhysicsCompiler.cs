@@ -111,9 +111,11 @@ public static class WorkshopPhysicsCompiler
         foreach (var battery in construction.Instances.OfType<WorkshopBattery>())
             electricalSources.Add(new(ElectricalSource(battery.Id), battery.Id, battery.Settings.Capacity,
                 battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
-        foreach (var trigger in construction.Instances.OfType<WorkshopSwitch>())
-            if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
-                triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, Targets(construction), trigger.Trigger.Threshold));
+        foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact &&
+                (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue))
+                triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, Targets(construction),
+                    new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
         foreach (var bumper in construction.Instances.OfType<WorkshopBumper>())
             if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
                 contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, Targets(construction), bumper.Work.Strength,

@@ -9,16 +9,16 @@ public sealed class ActivationTimerTests
     {
         var instances = new WorkshopInstances(
             WorkshopInput.Basketball(new(1),0,4,0,0,0,0,1),
-            WorkshopInput.Switch(new(2),0,2,0,0,0,0,1,ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,2,0,0,0,0,1),
             WorkshopInput.Lamp(new(3),3,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Delay, new(4), 2, 2, 0, 0, 0, 0, 1),
-            WorkshopInput.Switch(new(5),0,1,0,0,0,0,1,ContactTriggerSettings.Default));
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(5),0,1,0,0,0,0,1));
         var links = new WorkshopConnections(Link(2,4),Link(5,4),Link(4,3));
         if (bypass) links = links.With(Link(5,3));
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances,Connections:links);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         ContactTriggerRead Event(ulong owner,uint ordinal) => new(WorkshopPhysicsCompiler.ContactTrigger(new(owner)),
-            new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,(Half)0,new((Half)1));
+            new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,(Half)0,new((float)1));
         return (WorkshopActivationCompiler.Compile(construction),scene,Event(2,10),Event(5,20));
     }
     private static WorkshopConnection Link(ulong a,ulong b) => new(new(a),WorkshopSocket.ActivationOut,new(b),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation);
@@ -94,7 +94,7 @@ public sealed class ActivationTimerTests
         Assert.Throws<ArgumentException>(()=>new ActivationTime(0,(float)(-1)).CeilingTick(4));
         foreach (var invalid in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity, 2048f, MathF.BitDecrement(-2048f) })
             Assert.Throws<ArgumentException>(() => new ActivationTime(1, invalid).Validate());
-        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new((Half)1));
+        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new((float)1));
         var input=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(1),cause.Time,cause);
         Assert.Throws<OverflowException>(()=>ActivationTimerState.Ready(new(2)).Trigger(new(new(2),1440),input,4));
         Assert.Throws<ArgumentException>(() => (input with {Kind=ActivationOccurrenceKind.TimerElapsed,Time=new(uint.MaxValue,.25f)}).Validate());

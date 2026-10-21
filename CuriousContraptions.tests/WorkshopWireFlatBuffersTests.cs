@@ -122,7 +122,7 @@ public sealed class WorkshopWireFlatBuffersTests
             { Capture = new(new((Half).05), new((Half)2.25), new((Half).24), SensorParticipation.Enabled) },
         WorkshopInput.Ramp(new(1), 1, 2, 0, 0, 0, .258819, .9659258, new(new((Half)4), new((Half)1.5))),
         WorkshopInput.Generic(PartId.Wall, new(1), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f)),
-        WorkshopInput.Switch(new(1), 0, 1, 0, 0, 0, 0, 1, new(new((Half)1.25))),
+        WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), 1.25f)])),
         WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)2.5)])),
         WorkshopInput.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, new SpringboardSettings(400f, .2f, .2f)),
         WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, new(new(60f), new(30f), .5f, ElectricalEnable.Disabled)),
@@ -327,10 +327,15 @@ public sealed class WorkshopWireFlatBuffersTests
 
         var elec = new ElectricalSourceRead(new(50), new(1), new Joules(100f), new Joules(5f), ElectricalEnable.Enabled);
         var electrical = new PhysicsElectricalRead(new[] { elec });
+        var cause = new ActivationCause(new(2), new(1), new(3), new(1, .1234567f), new(1.234567f));
+        var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, new(2), cause.Time, cause);
+        var activation = ActivationLatch.From(new(new(2), new(2), ActivationNodeKind.ContactSource, new(2)), occurrence);
+        var timer = ActivationTimerState.Ready(new(4)).Trigger(new(new(4), 12), occurrence, 4);
 
         var read = new WorkshopRead(new(1), new(1), bodies, new(1), stamp, captures,
             PhysicsMotionRead.Decode(WireFaultTests.MotionBytes(canonical), bodies, new(1)),
-            ContactWorks: contactWorks, Electrical: electrical);
+            ContactWorks: contactWorks, Electrical: electrical,
+            Activations: new([activation]), Timers: new([timer]));
 
         var response = new WorkshopResponse(default, WorkshopResponseKind.Read,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
@@ -357,6 +362,10 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal(response.Projection, decoded.Projection);
 
         var decodedRead = decoded.Read;
+        Assert.Equal(activation, decodedRead.Activations[0]);
+        Assert.Equal(timer, decodedRead.Timers[0]);
+        Assert.Equal(1.234567f, decodedRead.Activations[0].ApproachSpeed.Value);
+        Assert.Equal(1.234567f, decodedRead.Timers[0].Input.Cause.ApproachSpeed.Value);
         Assert.Equal(read.Epoch, decodedRead.Epoch);
         Assert.Equal(read.Tick, decodedRead.Tick);
         Assert.Equal(read.Revision, decodedRead.Revision);

@@ -452,6 +452,63 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     }
 
     [Fact]
+    public void GenericImpactEditorClampsOnlyDeclaredFiniteInputAndPreservesEditGuards()
+    {
+        var (scene, client) = BenchScene(PartId.ImpactSwitch, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            var key = new ParameterId("trigger_threshold");
+            var initial = scene.World.Construction;
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Press("Configure");
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == "trigger_threshold (0–64 m/s)");
+            var field = Assert.Single(Nodes<LineEdit>(choices));
+            Assert.Equal(key, new ParameterId(field.Name.ToString()));
+            field.Text = "1.234567";
+            Press("Cancel");
+            Assert.Equal(initial, scene.World.Construction);
+            foreach (var (text, expected) in new[] { ("-1", 0f), ("65", 64f), ("1.234567", 1.234567f) })
+            {
+                Press("Configure");
+                Assert.Single(Nodes<LineEdit>(choices)).Text = text;
+                Press("Apply parameters");
+                Assert.Equal(expected, Current().Parameters[key]);
+                Assert.Equal(++undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            var accepted = scene.World.Construction;
+            var commands = client.Commands.Count;
+            Press("Configure");
+            Assert.Single(Nodes<LineEdit>(choices)).Text = "NaN";
+            Press("Apply parameters");
+            Assert.Equal(accepted, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Equal(undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Press("Cancel");
+            var values = new InstanceParameterCollection([new(key, 2f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+                Assert.Equal(accepted, scene.World.Construction);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(Current() with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    [Fact]
     public void GenericWallResizeUsesLocalAxesClampsCancelsAndRecordsOneUndoPerGesture()
     {
         var (scene, _) = BenchScene(PartId.Wall, PlacementAnswer.Applied);

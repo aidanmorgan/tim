@@ -232,6 +232,9 @@ internal sealed class WorkshopPhysicsEngine
         var mockCandidate = new byte[mockLayout.ByteLength];
         var mSpan = mockSource.AsSpan();
         mockLayout.WriteCounts(mSpan);
+        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderLayoutTagOffset, 4), PhysicsGpuAbi.CurrentLayoutTag);
+        BinaryPrimitives.WriteUInt64LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderDocumentLowOffset, 8), 1);
+        BinaryPrimitives.WriteUInt64LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderNextIdentityOffset, 8), 3);
         BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderCadenceOffset, 4), 2);
         WarmupStore(mockSource);
 
@@ -318,7 +321,7 @@ internal sealed class WorkshopPhysicsEngine
             var kind = (BodyTargetKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerTargetKindOffset, 4));
             var named = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerNamedTargetOffset, 4));
             if (kind == BodyTargetKind.NamedBody && named != bDyn.BodySlot) continue;
-            var threshold = ReadF16(span, tOffset + PhysicsGpuAbi.TriggerThresholdOffset);
+            var threshold = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerThresholdOffset, 4));
             if (approach >= threshold)
             {
                 var curCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerCountOffset, 4));
@@ -328,7 +331,7 @@ internal sealed class WorkshopPhysicsEngine
                     BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerColliderOffset, 4), (uint)colStatic.Index);
                     BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerOrdinalOffset, 4), sourceOrdinal + (uint)substep + 1);
                     WriteF16(span, tOffset + PhysicsGpuAbi.TriggerPhaseOffset, 0f);
-                    WriteF16(span, tOffset + PhysicsGpuAbi.TriggerApproachOffset, approach);
+                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerApproachOffset, 4), approach);
                     BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerBodyOffset, 4), (uint)bDyn.BodySlot);
                 }
             }
@@ -427,6 +430,7 @@ internal sealed class WorkshopPhysicsEngine
     public void Advance(byte[] source, byte[] candidate, PhysicsTickInputs inputs)
     {
         ArgumentNullException.ThrowIfNull(inputs);
+        _ = PhysicsGpuAbi.ReadFailure(source);
         if (source.Length != PhysicsGpuAbi.ByteLength(source) || candidate.Length != source.Length)
             throw new ArgumentException("The candidate world must have its committed world's exact length.");
         Array.Copy(source, candidate, source.Length);
@@ -468,8 +472,8 @@ internal sealed class WorkshopPhysicsEngine
         for (var t = 0; t < triggerCount; t++)
         {
             var tOffset = layout.TriggerOffset(t);
-            BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + 32, 4), 0);
-            span.Slice(tOffset + 36, 16).Clear();
+            BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerCountOffset, 4), 0);
+            span.Slice(tOffset + PhysicsGpuAbi.TriggerColliderOffset, PhysicsGpuAbi.TriggerPaddingOffset - PhysicsGpuAbi.TriggerColliderOffset).Clear();
         }
 
         _staticBodies.Clear();

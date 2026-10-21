@@ -379,7 +379,7 @@ public sealed class WorkshopSaveTests
 
     private static WorkshopSavedConstruction ActivationSaved()
     {
-        var trigger = new WorkshopSwitch(new(2), new(0, 16, 0), default, CanonicalRotation.Identity, ContactTriggerSettings.Default);
+        var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1);
         var lamp = new WorkshopLamp(new(3), new(48, 16, 0), default, CanonicalRotation.Identity);
         var link = new WorkshopConnection(trigger.Id, WorkshopSocket.ActivationOut, lamp.Id,
             WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
@@ -394,10 +394,10 @@ public sealed class WorkshopSaveTests
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
-        Assert.Equal((Half).8, ((WorkshopSwitch)decoded.Construction.Instances[0]).Trigger.Threshold.Value);
+        Assert.Equal(.8f, ((WorkshopGenericInstance)decoded.Construction.Instances[0]).Parameters[new ParameterId("trigger_threshold")]);
         // Authored values are canonical data, never replaced by the Free Workshop default.
         var changed = save with { Construction = save.Construction.WithInstance(
-            ((WorkshopSwitch)save.Construction.Instances[0]) with { Trigger = new(new((Half).47)) }) };
+            ((WorkshopGenericInstance)save.Construction.Instances[0]) with { Parameters = new([new(new ParameterId("trigger_threshold"), .47f)]) }) };
         Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(changed)));
         Assert.Single(decoded.Construction.Connections);
     }
@@ -461,7 +461,12 @@ public sealed class WorkshopSaveTests
         {
             var inst = save.Construction.Instances[i];
             var partIdOffset = builder.CreateString(inst.PartId.Value);
+            Google.FlatBuffers.VectorOffset? parameters = inst is WorkshopGenericInstance generic
+                ? CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder, generic.Parameters.Select(pair =>
+                    CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString(pair.Key.Value), pair.Value)).ToArray())
+                : null;
             CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+            if (parameters is { } vector) CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, vector);
             CuriousContraptions.Wire.InstanceRecord.AddId(builder, inst.Id.Value);
             CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, partIdOffset);
             CuriousContraptions.Wire.InstanceRecord.AddLocked(builder, inst.Locked);

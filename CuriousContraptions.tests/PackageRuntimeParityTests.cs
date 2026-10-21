@@ -35,13 +35,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var packages = Packages().ToDictionary(package => package.Declaration.Metadata.Id, package => package.Declaration, StringComparer.Ordinal);
-        var impact = (Abstractions.Signal.ISignalElement)packages["switch"];
+        var impact = (Abstractions.Signal.IContactTriggerElement)packages["switch"];
         // A contact trigger compiles for the balls that can strike it.
         var struck = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(Placed(PartId.ImpactSwitch), WorkshopInput.Basketball(new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
         var trigger = Assert.Single(struck.Triggers.ToArray());
-        Assert.True(Same(Assert.Single(impact.Triggers).Threshold, trigger.Threshold.Value),
-            $"switch: trigger threshold {impact.Triggers[0].Threshold} declared, {trigger.Threshold.Value} compiled.");
+        Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.Contact.ThresholdParameter).Default, trigger.Threshold.Value);
         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
         // The compiler declares this threshold on a wired tile's orientation sensor.
         var compiledDegrees = 2 * Math.Acos((double)WorkshopDomino.ActivationThreshold.CosineHalfAngle) * 180 / Math.PI;
@@ -393,8 +392,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "switch" =>
             [
-                ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Half, (float)ContactTriggerSettings.Default.Threshold.Value,
-                    Admits(value => WorkshopInput.Switch(Owner, 0, 3, 0, 0, 0, 0, 1, new ContactTriggerSettings(new((Half)value)))), [])
+                ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, .8f,
+                    Admits(value => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), (float)value)]))), [])
             ],
             _ => []
         };
@@ -424,7 +423,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
         "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "switch" => WorkshopInput.Switch(Owner, 0, 3, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
+        "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1),
         "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),
         _ => throw new ArgumentException($"No placement for packaged part '{id}'.")
     };

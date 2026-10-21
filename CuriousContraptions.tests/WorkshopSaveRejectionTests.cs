@@ -158,7 +158,7 @@ public sealed class WorkshopSaveRejectionTests
         WorkshopInput.Receiver(new(3), 4, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Ramp(new(4), -2, 1, 0, 0, 0, 0, 1, RampDimensions.Default),
         WorkshopInput.Generic(PartId.Wall, new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
-        WorkshopInput.Switch(new(6), 2, 0, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
+        WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 2, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Delay, new(7), 3, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Springboard(new(8), 5, 0, 0, 0, 0, 0, 1, SpringboardSettings.Default),
         WorkshopInput.Battery(new(9), 6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
@@ -203,6 +203,35 @@ public sealed class WorkshopSaveRejectionTests
             Assert.Throws<WireFaultException>(() =>
                 WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
         }
+    }
+
+    [Fact]
+    public void GenericImpactParametersRejectExternalInvalidVectorsAndObsoleteScalar()
+    {
+        var part = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 2, 0, 0, 0, 0, 1,
+            new([new(new ParameterId("trigger_threshold"), 1.234567f)]));
+        var record = FromProduction(part);
+        var validBytes = Bytes(One(record));
+        var restored = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, validBytes).Construction.Instances));
+        Assert.Equal(part.Parameters, restored.Parameters);
+        foreach (var invalid in new KeyValuePair<string, float>[][]
+        {
+            [], [new("unknown", 1f)], [new("trigger_threshold", 1f), new("trigger_threshold", 2f)],
+            [new("trigger_threshold", -1f)], [new("trigger_threshold", 65f)],
+            [new("trigger_threshold", float.NaN)], [new("trigger_threshold", float.PositiveInfinity)]
+        })
+        {
+            var bytes = Bytes(One(record.With(Field.Parameters, invalid)));
+            Assert.Contains(Rejection(bytes), new[] { WorkshopSaveRejection.OutOfRange, WorkshopSaveRejection.NonFinite });
+            Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+        }
+        foreach (var scalar in new[] { .8f, float.NaN })
+        {
+            var bytes = Bytes(One(record.With(Field.Threshold, scalar)));
+            Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
+            Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+        }
+        Assert.Equal(1.234567f, part.Parameters[new ParameterId("trigger_threshold")]);
     }
 
     private static Save One(Instance instance) => new([instance], []);

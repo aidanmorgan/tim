@@ -276,6 +276,7 @@ public static class BundleValidator
         {
             Defined(path + ".Unit", parameter.Unit);
             Defined(path + ".Kind", parameter.Kind);
+            Defined(path + ".EditorPolicy", parameter.EditorPolicy);
             var finite = Finite(path + ".Minimum", parameter.Minimum) & Finite(path + ".Maximum", parameter.Maximum) &
                 Finite(path + ".Default", parameter.Default);
             if (!finite) return;
@@ -415,6 +416,16 @@ public static class BundleValidator
                 Finite($"Triggers[{i}].PulseDurationSeconds", trigger.PulseDurationSeconds);
             }
             Defined("LatchMode", signal.LatchMode);
+            if (signal.Contact is { } contact)
+            {
+                Real("Contact.ThresholdParameter", contact.ThresholdParameter, parameters);
+                if (!parameters.Any(parameter => parameter.Key == contact.ThresholdParameter && parameter.Unit == ParameterUnit.MetrePerSecond && parameter.Minimum >= 0f && parameter.Maximum <= 64f))
+                    OutOfRange("Contact.ThresholdParameter");
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    OutOfRange("Contact.Ports");
+                if (signal.Triggers.Count != 0 || signal.Timer is not null || signal.Counter is not null || signal.LatchMode != SignalLatchMode.None)
+                    OutOfRange("Contact.Ownership");
+            }
             if (signal.Timer is { } timer)
             {
                 Real("Timer.DurationParameter", timer.DurationParameter, parameters);

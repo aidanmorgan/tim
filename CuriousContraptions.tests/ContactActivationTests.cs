@@ -7,7 +7,7 @@ public sealed class ContactActivationTests
 {
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
-            new WorkshopSwitch(new(2), new(0, 16, 0), default, CanonicalRotation.Identity, ContactTriggerSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
             new WorkshopLamp(new(3), new(48, 16, 0), default, CanonicalRotation.Identity)));
 
     private static PhysicsActivationRead Consume(ActivationNetwork network, PhysicsActivationRead prior, ContactTriggerRead[] events)
@@ -38,7 +38,7 @@ public sealed class ContactActivationTests
         Assert.Equal(new GpuBodyId(2), trigger.Owner);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllDynamic, default), trigger.Targets);
         Assert.True(trigger.Targets.Contains(new(1)));
-        Assert.Equal(new LinearSpeed((Half).8), trigger.Threshold);
+        Assert.Equal(new ContactSpeed(.8f), trigger.Threshold);
         Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(3));
     }
 
@@ -70,7 +70,7 @@ public sealed class ContactActivationTests
         {
             trigger with { Owner = new(1), Targets = new(BodyTargetKind.NamedBody, trigger.Owner) },
             trigger with { Owner = new(99) }, trigger with { Targets = new(BodyTargetKind.NamedBody, trigger.Owner) },
-            trigger with { Threshold = new(Half.NaN) }, trigger with { Threshold = new((Half)(-1)) }
+            trigger with { Threshold = new(float.NaN) }, trigger with { Threshold = new((float)(-1)) }
         })
             Assert.Throws<ArgumentException>(() => new PhysicsSceneDeclaration(scene.Document, scene.NextIdentity,
                 scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, scene.Guides, new[] { invalid }));
@@ -86,7 +86,7 @@ public sealed class ContactActivationTests
         var source = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var collider = source.Colliders.ToArray().First(c => c.Body == new GpuBodyId(2));
         return (WorkshopActivationCompiler.Compile(construction), new(source.Triggers[0].Id, new(2), new(1),
-            1, collider.Id, 10, (Half)0, new((Half).8)));
+            1, collider.Id, 10, (Half)0, new((float).8)));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public sealed class ContactActivationTests
         Assert.Equal(impact.Id.Value, candidate[1].Source.Value);
         var replay = Consume(network, candidate, new[] { impact });
         Assert.Equal(candidate[0], replay[0]); Assert.Equal(candidate[1], replay[1]);
-        var bounced = Consume(network, candidate, new[] { impact with { EventOrdinal = 20, ApproachSpeed = new((Half)2) } });
+        var bounced = Consume(network, candidate, new[] { impact with { EventOrdinal = 20, ApproachSpeed = new((float)2) } });
         Assert.Equal(candidate[0], bounced[0]); Assert.Equal(candidate[1], bounced[1]);
         var reset = network.Clear();
         Assert.Equal(clear[0], reset[0]); Assert.Equal(clear[1], reset[1]);
@@ -113,7 +113,7 @@ public sealed class ContactActivationTests
     {
         var (network, impact) = Activation(false); var clear = network.Clear();
         var absent = impact with { OccurrenceCount = 0, Collider = default, EventOrdinal = 0,
-            EventPhase = (Half)0, ApproachSpeed = new((Half)0) };
+            EventPhase = (Half)0, ApproachSpeed = new((float)0) };
         Assert.Equal(ActivationPhase.Clear, Consume(network, clear, new[] { absent })[0].Phase);
         var candidate = Consume(network, clear, new[] { impact });
         Assert.Equal(ActivationPhase.Latched, candidate[0].Phase);
@@ -150,11 +150,95 @@ public sealed class ContactActivationTests
         {
             active[0] with { Node = new(1) }, active[0] with { Owner = new(99) },
             active[0] with { Collider = new(99) }, active[0] with { Source = new(99) },
-            active[0] with { Body = new(99) }, active[0] with { ApproachSpeed = new((Half).5) }
+            active[0] with { Body = new(99) }, active[0] with { ApproachSpeed = new((float).5) }
         }) Assert.Throws<ArgumentException>(() => ValidateRead(network, new(new[] { changed, active[1] }), new(3), 4, scene));
         var disconnected = Activation(false).Network;
         Assert.Throws<ArgumentException>(() => ValidateRead(disconnected, active, new(3), 4, scene));
         Assert.Throws<ArgumentException>(() => ValidateRead(network, new(new[] { active[0], network.Clear()[1] }), new(3), 4, scene));
     }
 
+
+    [Theory]
+    [InlineData(true, false, true)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, false)]
+    public async Task RealImpactAndMissDisconnectedControlsRestoreExactly(bool connected, bool miss, bool lampOn)
+    {
+        var construction = Construction() with { Revision = new(2), Instances = new(
+            WorkshopInput.Basketball(new(1), miss ? 2 : 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1,
+                new([new(new ParameterId("trigger_threshold"), 1.234567f)])),
+            WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
+        if (connected) construction = construction with { Connections = new(new WorkshopConnection(new(2),
+            WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
+        var saved = new WorkshopSavedConstruction(construction, new(4));
+        var bytes = WorkshopSaveCodec.Encode(saved);
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        Assert.Equal(saved, loaded);
+        Assert.Equal(bytes, WorkshopSaveCodec.Encode(loaded));
+        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 120);
+        Assert.Equal(lampOn, reads.Any(read => read.Activations[1].Phase == ActivationPhase.Latched));
+        Assert.Equal(!miss, reads.Any(read => read.Activations[0].Phase == ActivationPhase.Latched));
+        var latched = reads.Where(read => read.Activations[0].Phase == ActivationPhase.Latched).ToArray();
+        if (latched.Length > 0) Assert.All(latched, read => Assert.Equal(latched[0].Activations[0], read.Activations[0]));
+        Assert.Equal(built.Activations[0], reset.Activations[0]);
+        Assert.Equal(built.Activations[1], reset.Activations[1]);
+    }
+
+    [Fact]
+    public void CurrentLayoutIdentityRejectsOldOrForeignStatesBeforeWorkerMutation()
+    {
+        var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
+        var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        foreach (var tag in new[] { 0u, PhysicsGpuAbi.CurrentLayoutTag ^ 1u })
+        {
+            var old = (byte[])bytes.Clone();
+            BinaryPrimitives.WriteUInt32LittleEndian(old.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset), tag);
+            var candidate = Enumerable.Repeat((byte)123, old.Length).ToArray();
+            var untouched = (byte[])candidate.Clone();
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadTrigger(old, 0));
+            Assert.Throws<ArgumentException>(() => new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(old, candidate, new([], [])));
+            Assert.Equal(untouched, candidate);
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(old, bytes, new(0)));
+        }
+        foreach (var padding in new[] { PhysicsGpuAbi.TriggerThresholdPaddingOffset, PhysicsGpuAbi.TriggerPhasePaddingOffset, PhysicsGpuAbi.TriggerPaddingOffset })
+        {
+            var invalid = (byte[])bytes.Clone(); invalid[scene.World.TriggerOffset(0) + padding] = 1;
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadTrigger(invalid, 0));
+        }
+    }
+
+    [Fact]
+    public void ActualBaseBoxContactUsesInclusiveNonHalfThresholdAndExactReportedSpeed()
+    {
+        const float threshold = 1.234567f;
+        Assert.NotEqual(threshold, (float)(Half)threshold);
+        foreach (var speed in new[] { MathF.BitDecrement(threshold), threshold, MathF.BitIncrement(threshold) })
+        {
+            var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1,
+                new([new(new ParameterId("trigger_threshold"), threshold)]));
+            var construction = Construction() with { Instances = new(
+                WorkshopInput.Basketball(new(1), -.88, .85, 0, 0, 0, 0, 1), trigger,
+                WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
+                Connections = new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
+            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            Assert.Equal(threshold, Assert.Single(scene.Triggers.ToArray()).Threshold.Value);
+            var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+            var body = scene.World.BodyOffset(scene.Layout.GetBodySlot(new(1)));
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(body + PhysicsGpuAbi.BodyVelocityOffset), speed);
+            bytes.AsSpan(body + PhysicsGpuAbi.BodyGravityOffset, 6).Clear();
+            bytes.AsSpan(body + PhysicsGpuAbi.BodyDragOffset, 2).Clear();
+            ContactTriggerRead observed = default;
+            WorkshopPhysicsEngineTests.StepWorld(bytes, 1, (_, world) => observed = PhysicsGpuAbi.ReadTrigger(world, 0));
+            Assert.Equal(speed >= threshold ? 1u : 0u, observed.OccurrenceCount);
+            if (observed.OccurrenceCount == 0) continue;
+            Assert.Equal(speed, observed.ApproachSpeed.Value);
+            Assert.Equal(scene.Colliders.ToArray().First(row => row.Body == new GpuBodyId(2)).Id, observed.Collider);
+            var network = WorkshopActivationCompiler.Compile(construction);
+            var active = Consume(network, network.Clear(), [observed]);
+            Assert.Equal(ActivationPhase.Latched, active[1].Phase);
+            Assert.Equal(speed, active[1].ApproachSpeed.Value);
+            ValidateRead(network, active, new(1), 4, scene);
+        }
+    }
 }

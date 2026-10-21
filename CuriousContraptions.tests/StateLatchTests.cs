@@ -147,7 +147,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var latch = WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var lamp = WorkshopInput.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
-        var hit = WorkshopInput.Switch(new(4), 0, 3, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 0, 3, 0, 0, 0, 0, 1);
         var other = WorkshopInput.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other);
         var output = Signal(latch.Id, lamp.Id, WorkshopSocket.ActivationIn);
@@ -354,7 +354,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     private static ActivationNodeDeclaration Memory(ulong id) => new(new(id), new(id), ActivationNodeKind.StateLatch, default);
     // One impact inside tick `tick` (4 substeps per tick): ordinal (tick − 1) · 4 + substep.
     private static ContactTriggerRead Hit(ActivationNodeDeclaration source, ulong tick, uint substep = 2) =>
-        new(source.Trigger, source.Owner, new(99), 1, new(7), (uint)((tick - 1) * 4 + substep), (Half)0, new((Half)2));
+        new(source.Trigger, source.Owner, new(99), 1, new(7), (uint)((tick - 1) * 4 + substep), (Half)0, new((float)2));
     private static void Step(ActivationNetwork network, ref PhysicsActivationRead activations, ref PhysicsTimerRead timers, ulong tick,
         params ContactTriggerRead[] hits)
     {
@@ -511,8 +511,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Persistence_BinaryFlatBuffersAndSaveCodecPreserveDistinctSockets()
     {
-        var setSwitch = WorkshopInput.Switch(new(1), -3, 0, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
-        var resetSwitch = WorkshopInput.Switch(new(2), -3, 2, 0, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        var setSwitch = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), -3, 0, 0, 0, 0, 0, 1);
+        var resetSwitch = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), -3, 2, 0, 0, 0, 0, 1);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = WorkshopInput.Battery(new(4), -5, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 4, 0, 0, 0, 0, 0, 1);

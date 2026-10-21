@@ -415,7 +415,7 @@ public static class WorkshopWireFlatBuffers
             var a = fb.Activations(i)!.Value;
             actValues[i] = new ActivationLatch(new ActivationNodeId(a.Node), new GpuBodyId(a.Owner), (ActivationPhase)a.Phase,
                 new GpuEventSourceId(a.Source), new GpuBodyId(a.Body), new GpuColliderId(a.Collider), a.EventOrdinal, a.EventPhase,
-                new LinearSpeed((Half)a.ApproachSpeed), (ActivationOccurrenceKind)a.Kind, new ActivationNodeId(a.Emitter),
+                new ContactSpeed(a.ApproachSpeed), (ActivationOccurrenceKind)a.Kind, new ActivationNodeId(a.Emitter),
                 a.CauseOrdinal, a.CausePhase);
         }
 
@@ -429,7 +429,7 @@ public static class WorkshopWireFlatBuffers
                 input = new ActivationOccurrence((ActivationOccurrenceKind)t.InputKind, new ActivationNodeId(t.InputEmitter),
                     new ActivationTime(t.InputOrdinal, t.InputPhase),
                     new ActivationCause(new GpuEventSourceId(t.CauseSource), new GpuBodyId(t.CauseBody), new GpuColliderId(t.CauseCollider),
-                        new ActivationTime(t.CauseOrdinal, t.CausePhase), new LinearSpeed((Half)t.InputApproachSpeed)));
+                        new ActivationTime(t.CauseOrdinal, t.CausePhase), new ContactSpeed(t.InputApproachSpeed)));
             timerValues[i] = new ActivationTimerState(new ActivationNodeId(t.Node), timerPhase, t.StartedTick, t.DueTick, input);
         }
 
@@ -588,9 +588,6 @@ public static class WorkshopWireFlatBuffers
                     InstanceRecord.AddLength(builder, (float)ramp.Dimensions.Length.Value);
                     InstanceRecord.AddWidth(builder, (float)ramp.Dimensions.Width.Value);
                     break;
-                case WorkshopSwitch trigger:
-                    InstanceRecord.AddThreshold(builder, (float)trigger.Trigger.Threshold.Value);
-                    break;
                 case WorkshopSpringboard spring:
                     InstanceRecord.AddStiffness(builder, spring.Settings.Stiffness);
                     InstanceRecord.AddDamping(builder, spring.Settings.Damping);
@@ -736,7 +733,6 @@ public static class WorkshopWireFlatBuffers
                 }, locked),
             "basket" => MapReceiver(inst, id, cell, local, rotation, locked),
             "ramp" => new WorkshopRamp(id, cell, local, rotation, new(new((Half)inst.Length), new((Half)inst.Width)), locked),
-            "switch" => new WorkshopSwitch(id, cell, local, rotation, new ContactTriggerSettings(new LinearSpeed((Half)inst.Threshold)), locked),
             "spring" => new WorkshopSpringboard(id, cell, local, rotation, new SpringboardSettings(inst.Stiffness, inst.Damping, inst.InitialCompression), locked),
             "battery" => new WorkshopBattery(id, cell, local, rotation,
                 new ElectricalSourceSettings(new Joules(inst.Capacity), new Watts(inst.MaximumPower), inst.InitialFraction, (ElectricalEnable)inst.Enabled), locked),
@@ -758,6 +754,8 @@ public static class WorkshopWireFlatBuffers
                 ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, partId) }
                 : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
         };
+        if (result is WorkshopGenericInstance && inst.Threshold != 0f)
+            throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed threshold scalar.");
         if (result is not WorkshopGenericInstance && inst.ParametersLength != 0)
             throw new WireFaultException(WireFaultReason.OutOfRange, "Typed instance cannot carry generic parameters.");
         return result;

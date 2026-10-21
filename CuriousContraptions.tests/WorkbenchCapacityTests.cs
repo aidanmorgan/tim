@@ -16,7 +16,7 @@ public sealed class WorkbenchCapacityTests
         if (kind == PartId.Receiver) return WorkshopInput.Receiver(Id(), X(i), 1, 2, 0, 0, 0, 1);
         if (kind == PartId.Ramp) return WorkshopInput.Ramp(Id(), X(i), 2, -2, 0, 0, 0, 1, RampDimensions.Default);
         if (kind == PartId.Wall) return WorkshopInput.Generic(PartId.Wall, Id(), X(i), 2, 4, 0, 0, 0, 1, WallFixture.Default);
-        if (kind == PartId.ImpactSwitch) return WorkshopInput.Switch(Id(), X(i), 1, -4, 0, 0, 0, 1, ContactTriggerSettings.Default);
+        if (kind == PartId.ImpactSwitch) return WorkshopInput.Generic(PartId.ImpactSwitch, Id(), X(i), 1, -4, 0, 0, 0, 1);
         if (kind == PartId.SignalLamp) return WorkshopInput.Lamp(Id(), X(i), 1, 6, 0, 0, 0, 1);
         if (kind == PartId.Delay) return WorkshopInput.Generic(PartId.Delay, Id(), X(i), 1, -6, 0, 0, 0, 1);
         if (kind == PartId.Pipe) return WorkshopInput.Pipe(Id(), X(i), 3, 0, 0, 0, 0, 1);
@@ -112,7 +112,7 @@ public sealed class WorkbenchCapacityTests
         "basket" => WorkshopInput.Receiver(id, x, 1, z, 0, 0, 0, 1),
         "ramp" => WorkshopInput.Ramp(id, x, 2, z, 0, 0, 0, 1, RampDimensions.Default),
         "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),
-        "switch" => WorkshopInput.Switch(id, x, 1, z, 0, 0, 0, 1, ContactTriggerSettings.Default),
+        "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, x, 1, z, 0, 0, 0, 1),
         "lamp" => WorkshopInput.Lamp(id, x, 1, z, 0, 0, 0, 1),
         "delay" or "hold_timer" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
         "bumper" => WorkshopInput.Bumper(id, x, 1, z, 0, 0, 0, 1, BumperWork.Default),
