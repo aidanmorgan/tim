@@ -76,11 +76,11 @@ public sealed class PrismaticConstraintTests
         if (ordinal != 0)
         {
             var record = candidate.AsSpan(PhysicsGpuAbi.Layout(candidate).TriggerOffset(0), PhysicsGpuAbi.TriggerBytes);
-            BinaryPrimitives.WriteUInt32LittleEndian(record[32..], 1);
-            BinaryPrimitives.WriteUInt32LittleEndian(record[36..], 1);
-            BinaryPrimitives.WriteUInt32LittleEndian(record[40..], ordinal);
-            BinaryPrimitives.WriteUInt16LittleEndian(record[46..], BitConverter.HalfToUInt16Bits((Half)1));
-            BinaryPrimitives.WriteUInt32LittleEndian(record[48..], 1);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.TriggerCountOffset..], 1);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.TriggerColliderOffset..], 1);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.TriggerOrdinalOffset..], ordinal);
+            BinaryPrimitives.WriteSingleLittleEndian(record[PhysicsGpuAbi.TriggerApproachOffset..], 1f);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.TriggerBodyOffset..], 1);
         }
         PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
         PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1)); // Repeated observation is equally valid.
