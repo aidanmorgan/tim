@@ -85,7 +85,8 @@ function assertCounterWiring(bytes: Buffer, gateSlot: number, ballSlot: number, 
     assert(hasEdge(detId, counterId, ConnectionDomain.Activation, Socket.ActivationOut, Socket.ActivationIn), 'Missing Detector -> Counter activation link');
     const counterInst = construction.instances(counterSlot)!;
     assert.equal(counterInst.partId(), 'counter');
-    assert.equal(counterInst.threshold(), 3);
+    // Story 9A.2: the Counter target is its whole target_count field (the f32 threshold was the deleted coercion).
+    assert.equal(counterInst.targetCount(), 3);
 }
 
 function counterRow(snapshot: RunResetSnapshot): ActivationMemoryRow {
