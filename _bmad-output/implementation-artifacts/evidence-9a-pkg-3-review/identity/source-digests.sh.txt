@@ -1,0 +1,17 @@
+#!/bin/sh
+# Recompute the E2eRunner suiteSourceDigest and runnerSourceDigest (tools/E2eRunner/SourceIdentity.cs) for a clean tree.
+W=$1
+cd "$W" || exit 1
+files=$(git ls-files -z --cached --others --exclude-standard -- tools | tr '\0' '\n' | sort -u)
+manifest() {
+  while IFS= read -r p; do
+    [ -z "$p" ] && continue
+    if [ -f "$p" ]; then h=$(shasum -a 256 "$p" | cut -c1-64); else h=missing; fi
+    printf '%s\t%s\n' "$p" "$h"
+  done
+}
+suite=$(printf '%s\n' "$files" | LC_ALL=C grep -E '^tools/e2e/|^tools/E2eRunner/|^tools/[^/]*\.mjs$' | LC_ALL=C sort | manifest | shasum -a 256 | cut -c1-64)
+runner=$(printf '%s\n' "$files" | LC_ALL=C grep -E '^tools/E2eRunner/' | LC_ALL=C sort | manifest | shasum -a 256 | cut -c1-64)
+echo "head=$(git rev-parse HEAD)"
+echo "suiteSourceDigest=$suite"
+echo "runnerSourceDigest=$runner"

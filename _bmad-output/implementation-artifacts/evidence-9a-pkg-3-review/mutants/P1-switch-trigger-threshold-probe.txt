@@ -1,0 +1,28 @@
+# mutant P1-switch-trigger-threshold-probe at 2026-10-21T02:56:10Z on 8b646ffe
+## git status
+ M elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+## diff
+diff --git a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+index 887edd66..221267b4 100644
+--- a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
++++ b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+@@ -58,7 +58,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
+ 
+     public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
+     [
+-        new("impact", SignalTriggerMode.Edge, Threshold: 0.8f, PulseDurationSeconds: 0.1f)
++        new("impact", SignalTriggerMode.Edge, Threshold: 0.5f, PulseDurationSeconds: 0.1f)
+     ];
+ 
+     public SignalLatchMode LatchMode => SignalLatchMode.None;
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## dotnet test (full)
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 46 ms - WorkerAotGuard.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    80, Skipped:     0, Total:    80, Duration: 192 ms - BundleElements.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 712 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 24 s - E2eRunner.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1897, Skipped:     0, Total:  1897, Duration: 27 s - CuriousContraptions.tests.dll (net10.0)
+restored: status lines 0

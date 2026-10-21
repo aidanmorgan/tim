@@ -1,0 +1,29 @@
+# mutant A11-switch-button-dropped at 2026-10-21T02:55:54Z on 8b646ffe
+## git status
+ M elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+## diff
+diff --git a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+index 887edd66..8ee7f1dc 100644
+--- a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
++++ b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+@@ -33,8 +33,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
+     /// <summary>The base, then the button.</summary>
+     public IReadOnlyList<ColliderDescriptor> Colliders =>
+     [
+-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.55f, 0.125f, 0.5f), Offset: new Vector3(0, -0.15f, 0), Rotation: Quaternion.Identity, Material: Surface),
+-        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.4f, 0.09f, 0.375f), Offset: new Vector3(0, 0.05f, 0), Rotation: Quaternion.Identity, Material: Surface)
++        new(ColliderShapeKind.Box, HalfExtents: new Vector3(0.55f, 0.125f, 0.5f), Offset: new Vector3(0, -0.15f, 0), Rotation: Quaternion.Identity, Material: Surface)
+     ];
+ 
+     /// <summary>One activation per qualifying impact.</summary>
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## parity + package tests
+[xUnit.net 00:00:01.52]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [FAIL]
+   ImpactSwitch: 1 colliders declared, 2 at runtime.
+     at CuriousContraptions.Tests.BundleCatalogueParityTests.AssertColliders(String package, IReadOnlyList`1 declared, ValueTuple`4[] runtime) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch20-mut/CuriousContraptions.tests/BundleCatalogueParityTests.cs:line 462
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 137 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 39 ms - BundleElements.Tests.dll (net10.0)
+restored: status lines 0

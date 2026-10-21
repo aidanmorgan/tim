@@ -1,0 +1,29 @@
+# mutant A6-delay-unit-none at 2026-10-21T02:54:31Z on 8b646ffe
+## git status
+ M elements/DelayBox/DelayBoxElementDeclaration.cs
+## diff
+diff --git a/elements/DelayBox/DelayBoxElementDeclaration.cs b/elements/DelayBox/DelayBoxElementDeclaration.cs
+index 1f7db17f..c279a018 100644
+--- a/elements/DelayBox/DelayBoxElementDeclaration.cs
++++ b/elements/DelayBox/DelayBoxElementDeclaration.cs
+@@ -19,7 +19,7 @@ public sealed class DelayBoxElementDeclaration : ISignalElement
+         ScenePath: "res://elements/DelayBox/delay.tscn",
+         Parameters:
+         [
+-            new("duration_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])
++            new("duration_seconds", ParameterUnit.None, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])
+         ]);
+ 
+     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## parity + package tests
+[xUnit.net 00:00:01.06]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [FAIL]
+   Assert.Equal() Failure: Values differ
+Expected: Second
+Actual:   None
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 156 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 40 ms - BundleElements.Tests.dll (net10.0)
+restored: status lines 0

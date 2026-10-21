@@ -1606,6 +1606,7 @@ So that two plates switch two gates independently.
 - *Findings are filed to Story F.7.*
 
 ### Story F.15: Package Follow-ups (incl. Reproducible Publish Bundle Identity)
+*PKG-3 review findings: F15-10 (titles, descriptions and colours) and F15-11 (Signal declaration parity) were moved into Story 9A.14 on 21 Oct 2026. F15-12, the cat-052-lamp spec wording, stays here.*
 *Also covers the PKG-1 review findings F15-1 to F15-5:*
 - *a test for the BUNDLE007 Real-parameter check;*
 - *a test for the slider upper-limit check;*

@@ -1,0 +1,12 @@
+# 2026-10-21T02:56:59Z head=8b646ffee9c038eefadf9f890dd11d905e0bb41e
+$ rg -l "elements\.bundle|ElementBundle|BundleSchema" engine ui scenes CuriousContraptions.web CuriousContraptions.Simulation CuriousContraptions.Animation CuriousContraptions.Animation.Worker
+CuriousContraptions.web/CuriousContraptions.web.csproj
+(rg exit 0; 1 = no hits)
+$ rg -n -i "normal|outward" engine/gpu/WorkshopPorts.cs
+rg: engine/gpu/WorkshopPorts.cs: IO error for operation on engine/gpu/WorkshopPorts.cs: No such file or directory (os error 2)
+(rg exit 2)
+$ grep -n -i bundle CuriousContraptions.web/CuriousContraptions.web.csproj (the only hit above: build-time generation, no runtime read)
+61:    <!-- Story 9A.4: the element bundle is generated (and every package validated) before the Godot export and before the
+64:    <Target Name="GenerateElementBundle"
+$ rg -c -i "normal|outward" engine/gpu/WorkshopConnections.cs (WorkshopPorts lives here)
+(rg exit 1; 1 = no runtime port normal)

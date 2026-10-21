@@ -1,0 +1,18 @@
+# mutant D5-stray-scene-copies-full-test at 2026-10-21T02:52:28Z on 8b646ffe
+## git status
+?? parts/scenes/delay.tscn
+?? parts/scenes/switch.tscn
+## diff
++++ untracked parts/scenes/delay.tscn
++++ untracked parts/scenes/switch.tscn
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## dotnet test (full)
+Passed!  - Failed:     0, Passed:    80, Skipped:     0, Total:    80, Duration: 175 ms - BundleElements.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 46 ms - WorkerAotGuard.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 665 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 23 s - E2eRunner.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1897, Skipped:     0, Total:  1897, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+restored: status lines 0

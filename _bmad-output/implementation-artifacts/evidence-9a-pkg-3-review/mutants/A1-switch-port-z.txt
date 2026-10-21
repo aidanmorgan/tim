@@ -1,0 +1,27 @@
+# mutant A1-switch-port-z at 2026-10-21T02:53:09Z on 8b646ffe
+## git status
+ M elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+## diff
+diff --git a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+index 887edd66..0358bd51 100644
+--- a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
++++ b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+@@ -27,7 +27,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
+ 
+     public IReadOnlyList<PortDescriptor> Ports =>
+     [
+-        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ)
++        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.45f, 0f, .41f), Vector3.UnitZ)
+     ];
+ 
+     /// <summary>The base, then the button.</summary>
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## parity + package tests
+[xUnit.net 00:00:00.94]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimePortsInOrder [FAIL]
+   ImpactSwitch.Ports[0]: position <0.45, 0, 0.41> declared, <0.45, 0, 0.4> at runtime.
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 140 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 39 ms - BundleElements.Tests.dll (net10.0)
+restored: status lines 0

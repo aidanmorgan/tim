@@ -1,0 +1,5 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch20-pkg3/CuriousContraptions.csproj (in 96 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch20-pkg3/CuriousContraptions.web/CuriousContraptions.web.csproj (in 96 ms).
+  3 of 5 projects are up-to-date for restore.
+restore exit=0

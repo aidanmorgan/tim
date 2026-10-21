@@ -1,0 +1,29 @@
+# mutant A3-delay-out-direction at 2026-10-21T02:53:45Z on 8b646ffe
+## git status
+ M elements/DelayBox/DelayBoxElementDeclaration.cs
+## diff
+diff --git a/elements/DelayBox/DelayBoxElementDeclaration.cs b/elements/DelayBox/DelayBoxElementDeclaration.cs
+index 1f7db17f..c65e37b5 100644
+--- a/elements/DelayBox/DelayBoxElementDeclaration.cs
++++ b/elements/DelayBox/DelayBoxElementDeclaration.cs
+@@ -27,7 +27,7 @@ public sealed class DelayBoxElementDeclaration : ISignalElement
+     public IReadOnlyList<PortDescriptor> Ports =>
+     [
+         new("ActivationIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(-.72f, 0f, 0f), -Vector3.UnitX),
+-        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.72f, 0f, 0f), Vector3.UnitX)
++        new("ActivationOut", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(.72f, 0f, 0f), Vector3.UnitX)
+     ];
+ 
+     /// <summary>The foot of the housing.</summary>
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## parity + package tests
+[xUnit.net 00:00:00.93]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimePortsInOrder [FAIL]
+   Assert.Equal() Failure: Values differ
+Expected: Output
+Actual:   Input
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 142 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 38 ms - BundleElements.Tests.dll (net10.0)
+restored: status lines 0

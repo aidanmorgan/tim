@@ -1,0 +1,38 @@
+#!/bin/sh
+# Brute force the dirty set behind her run's sourceStatusDigest at d925637c.
+# Fixed: evidence files committed later whose mtime precedes the run (10:21 local). Varied: the uncertain paths.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch20-id
+TARGET=$1
+cd "$W" || exit 1
+D=_bmad-output/implementation-artifacts/evidence-9a-pkg-3
+FIXED="$D/anvil-check.txt $D/deletion-rg-proof.txt $D/lifecycle-contract.log $D/mutants.txt $D/ownership-oracles.log
+$D/red-bundle-tests.txt $D/red-parity-tests.txt $D/red-selection-tests.txt $D/runner-select-diff-d4195fb0.txt $D/tier1-node.txt
+$D/tier1-test-d925637c.txt $D/tier1-test.txt $D/tier2-suites.txt $D/wire-contract.json"
+set -- "U:$D/e2e-run-diff/publish.log" "U:$D/runner-run-diff-d4195fb0.txt" "U:$D/e2e-tier2-d925637c.log" "U:$D/e2e-tier2-d925637c/publish.log" \
+  "U:$D/e2e-tier2-d925637c/preview.log" "U:_bmad-output/implementation-artifacts/spec-9a-pkg-3-delay-switch-packages.md" \
+  "M:_bmad-output/planning-artifacts/epics.md" "M:_bmad-output/implementation-artifacts/sprint-status.yaml" \
+  "U:$D/e2e-run-diff/preview.log" "U:$D/e2e-run-diff/summary.txt"
+n=$#
+total=$((1 << n))
+for mode in fixed none; do
+  i=0
+  while [ $i -lt $total ]; do
+    git checkout -q -- . ; git clean -fdq -- _bmad-output
+    if [ $mode = fixed ]; then for p in $FIXED; do mkdir -p "$(dirname "$p")"; touch "$p"; done; fi
+    j=0; label=""
+    for item in "$@"; do
+      if [ $(( (i >> j) & 1 )) = 1 ]; then
+        kind=${item%%:*}; path=${item#*:}
+        mkdir -p "$(dirname "$path")"
+        if [ "$kind" = U ]; then touch "$path"; else printf x >> "$path"; fi
+        label="$label $path"
+      fi
+      j=$((j + 1))
+    done
+    h=$(git status --porcelain=v1 -z --untracked-files=all | shasum -a 256 | cut -c1-64)
+    [ "$h" = "$TARGET" ] && echo "MATCH($mode):$label"
+    i=$((i + 1))
+  done
+done
+git checkout -q -- . ; git clean -fdq -- _bmad-output
+echo "searched $((total * 2)) at $(date -u +%FT%TZ)"
