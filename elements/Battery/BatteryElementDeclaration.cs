@@ -25,7 +25,7 @@ public sealed class BatteryElementDeclaration : IElectricalElement
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("Supply", SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
+        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders =>

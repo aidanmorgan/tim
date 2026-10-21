@@ -28,7 +28,7 @@ public sealed class PoweredGateElementDeclaration : IMechanicalElement, IElectri
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
+        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
     ];
 
     /// <summary>The 16-box ring around the 0.65 m bore (each box turned about +X to its angle), the motor housing above it and the

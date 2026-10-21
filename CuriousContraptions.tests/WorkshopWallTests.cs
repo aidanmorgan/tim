@@ -99,8 +99,8 @@ public sealed class WorkshopWallTests
     public void WallPopulationPuzzleAndForeignPortsReject()
     {
         var wall = Wall(WallDimensions.Default);
-        Assert.Empty(WorkshopPorts.For(PartId.Wall).ToArray());
-        Assert.False(WorkshopPorts.Has(PartId.Wall, WorkshopSocket.ActivationIn,
+        Assert.Empty(DeclaredPorts.Current.Of(PartId.Wall).ToArray());
+        Assert.False(DeclaredPorts.Current.Has(PartId.Wall, WorkshopSocket.ActivationIn,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         // Free play has no per-kind wall count; only the compiled table capacities limit the population.
         new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();

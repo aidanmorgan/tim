@@ -59,8 +59,6 @@ public sealed class PartDefinition
         }
     }
 
-    public IReadOnlyDictionary<string, ExtractedPortLocator> Ports => PortLocators;
-
     public void ExtractFromScene() => EnsureExtracted();
 
     public void SetExtractedData(IReadOnlyList<ExtractedCollider> colliders, IReadOnlyDictionary<string, ExtractedPortLocator> portLocators)

@@ -1,0 +1,5 @@
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 103 ms - WorkerAotGuard.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 1 s - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   110, Skipped:     0, Total:   110, Duration: 204 ms - BundleElements.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   166, Skipped:     0, Total:   166, Duration: 23 s - E2eRunner.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1930, Skipped:     0, Total:  1930, Duration: 32 s - CuriousContraptions.tests.dll (net10.0)

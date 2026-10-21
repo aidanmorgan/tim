@@ -86,16 +86,18 @@ public sealed class SelectionTests
         var bundle = ImpactContext.BundleElements(TestRepository.Read(ImpactContext.BundlePath));
         Assert.NotNull(bundle);
         var counter = bundle.Single(element => element.Part == PartId.Counter);
-        Assert.Equal([new("ActivationIn", SimulationDomain.Signal, PortDirection.Input), new("ActivationOut", SimulationDomain.Signal, PortDirection.Output),
-            new("PowerIn", SimulationDomain.Electrical, PortDirection.Input), new ImpactContext.BundlePort("Supply", SimulationDomain.Electrical, PortDirection.Output)],
+        Assert.Equal([new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input), new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output),
+            new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input), new ImpactContext.BundlePort(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output)],
             counter.Ports);
         Assert.Equal("res://elements/Counter/counter.tscn", counter.ScenePath);
     }
 
     [Theory]
     [InlineData("{")]
-    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"PortId\": \"PowerIn\", \"Domain\": 2, \"Direction\": \"Input\"}]}]}")]
-    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"PortId\": \"PowerIn\", \"Domain\": \"Voltage\", \"Direction\": \"Input\"}]}]}")]
+    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"Socket\": \"PowerIn\", \"Domain\": 2, \"Direction\": \"Input\"}]}]}")]
+    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"Socket\": \"PowerIn\", \"Domain\": \"Voltage\", \"Direction\": \"Input\"}]}]}")]
+    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"Socket\": \"power_in\", \"Domain\": \"Electrical\", \"Direction\": \"Input\"}]}]}")]
+    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"PortId\": \"PowerIn\", \"Domain\": \"Electrical\", \"Direction\": \"Input\"}]}]}")]
     public void AnElementChangeWithAnUnreadableBundleIsFull(string bundle)
     {
         var selection = Select(["elements/Counter/CounterElementDeclaration.cs"], headOverride: path => path == ImpactContext.BundlePath ? bundle : null);

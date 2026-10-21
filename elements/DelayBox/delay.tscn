@@ -101,8 +101,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
 visible = false
 shape = SubResource("Shape_Base")
 
-[node name="Loc_Port_in" type="Node3D" parent="."]
+[node name="Loc_Port_ActivationIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72, 0, 0)
 
-[node name="Loc_Port_out" type="Node3D" parent="."]
+[node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, 0, 0)

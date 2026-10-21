@@ -408,44 +408,34 @@ public sealed class GltfColliderExtractionTests
         var def = Fixture("test_fixture");
         Assert.Empty(def.Colliders);
         Assert.Empty(def.PortLocators);
-        Assert.Empty(def.Ports);
 
         var collider = new ExtractedCollider(ColliderShapeKind.Box, RigidLocalPose.Identity, (Half)0, new MetreVector((Half)1, (Half)1, (Half)1));
-        var port = new ExtractedPortLocator("in", new Vector3(1, 2, 3), Quaternion.Identity);
-        def.SetExtractedData(new[] { collider }, new Dictionary<string, ExtractedPortLocator> { ["in"] = port });
+        var port = new ExtractedPortLocator("mouth_start", new Vector3(1, 2, 3), Quaternion.Identity);
+        def.SetExtractedData(new[] { collider }, new Dictionary<string, ExtractedPortLocator> { ["mouth_start"] = port });
 
         Assert.Single(def.Colliders);
         Assert.Equal(ColliderShapeKind.Box, def.Colliders[0].ShapeKind);
-        Assert.True(def.PortLocators.ContainsKey("in"));
-        Assert.True(def.Ports.ContainsKey("in"));
+        Assert.True(def.PortLocators.ContainsKey("mouth_start"));
     }
 
+    /// <summary>Story 9A.17: locator names are matched exactly, so a differently cased name finds no locator.</summary>
     [Fact]
-    public void MachinePartQueriesPortTransform()
+    public void PortLocatorNamesAreMatchedExactly()
     {
-        var def = Fixture("test_part");
-        var port = new ExtractedPortLocator("socket_a", new Vector3(0.5f, 1.2f, -0.3f), Quaternion.Identity);
-        def.SetExtractedData(Array.Empty<ExtractedCollider>(), new Dictionary<string, ExtractedPortLocator> { ["socket_a"] = port });
-
-        var part = new MachinePart();
+        var root = new Node3D { Name = "Root" };
         try
         {
-            part.Configure(def);
-
-            Assert.True(part.TryGetPortTransform("socket_a", out var pos, out var rot));
-            Assert.Equal(new Vector3(0.5f, 1.2f, -0.3f), pos);
-            Assert.Equal(Quaternion.Identity, rot);
-
-            var (getPos, getRot) = part.GetPortTransform("socket_a");
-            Assert.Equal(pos, getPos);
-            Assert.Equal(rot, getRot);
-
-            Assert.False(part.TryGetPortTransform("nonexistent", out _, out _));
-            Assert.Throws<KeyNotFoundException>(() => part.GetPortTransform("nonexistent"));
+            root.AddChild(new Node3D { Name = "Loc_Port_PowerIn", Position = new Vector3(-0.93f, 0f, 0f) });
+            root.AddChild(new Node3D { Name = "loc_port_Supply" });
+            var (_, ports) = GltfPhysicsBodyExtractor.Extract(root);
+            Assert.True(ports.ContainsKey("PowerIn"));
+            Assert.False(ports.ContainsKey("powerin"));
+            Assert.False(ports.ContainsKey("POWERIN"));
+            Assert.Single(ports);
         }
         finally
         {
-            part.Free();
+            root.Free();
         }
     }
 

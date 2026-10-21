@@ -93,11 +93,11 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
             Assert.Equal((Half)0.82f, railEnd.LocalPose.Translation.Z);
 
             Assert.Equal(3, ports.Count);
-            Assert.True(ports.ContainsKey("power_in"));
+            Assert.True(ports.ContainsKey("PowerIn"));
             Assert.True(ports.ContainsKey("mouth_start"));
             Assert.True(ports.ContainsKey("mouth_end"));
 
-            Assert.Equal(new Vector3(0, 1.65f, 0.92f), ports["power_in"].Position);
+            Assert.Equal(new Vector3(0, 1.65f, 0.92f), ports["PowerIn"].Position);
             Assert.Equal(new Vector3(-0.49f, 0, 0), ports["mouth_start"].Position);
             Assert.Equal(new Vector3(0.49f, 0, 0), ports["mouth_end"].Position);
         }
@@ -118,14 +118,14 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     [Fact]
     public void Ports_DeclareSinglePowerInInput()
     {
-        var ports = WorkshopPorts.For(PartId.PoweredGate);
+        var ports = DeclaredPorts.Current.Of(PartId.PoweredGate);
         Assert.Equal(1, ports.Length);
         var port = ports[0];
         Assert.Equal(WorkshopSocket.PowerIn, port.Socket);
         Assert.Equal(WorkshopConnectionDomain.Electrical, port.Domain);
         Assert.Equal(WorkshopPortDirection.Input, port.Direction);
 
-        var localPos = WorkshopPorts.LocalPosition(PartId.PoweredGate, WorkshopSocket.PowerIn);
+        var localPos = DeclaredPorts.Current.LocalPosition(PartId.PoweredGate, WorkshopSocket.PowerIn);
         Assert.Equal(new System.Numerics.Vector3(0f, 1.65f, 0.92f), localPos);
     }
 

@@ -122,14 +122,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.72, 0)
 visible = false
 shape = SubResource("Shape_Foot")
 
-[node name="Loc_Port_activation_in" type="Node3D" parent="."]
+[node name="Loc_Port_ActivationIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 0.1)
 
-[node name="Loc_Port_activation_out" type="Node3D" parent="."]
+[node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.72, 0.1)
 
-[node name="Loc_Port_power_in" type="Node3D" parent="."]
+[node name="Loc_Port_PowerIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.93, 0, 0)
 
-[node name="Loc_Port_supply" type="Node3D" parent="."]
+[node name="Loc_Port_Supply" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.93, 0, 0)

@@ -70,12 +70,10 @@ Every contraption element in the game is defined purely through the declaration 
 
 ### Locator-Anchored Port Pattern (`Loc_Port_<Id>`)
 
-Connection sockets and wiring pins are decoupled from hardcoded C# coordinate lookup tables through the **Locator-Anchored Port Pattern**:
-- **Artist-Authored Locators:** Each element's Godot `.tscn` scene contains empty locator nodes named with the strict canonical convention `Loc_Port_<Id>` (for example, `Loc_Port_power_in`, `Loc_Port_terminal_pos`, `Loc_Port_activation_out`) placed exactly at the connection socket vertices.
-- **Dynamic Runtime Resolution:** At initialization, `MachinePart` queries its instantiated visual hierarchy:
-  $$\mathbf{T}_{\text{socket\_local}} = \text{Visual}.\text{FindChild}(\text{port}.\text{TargetNode}).\text{Transform}$$
-  Wiring endpoints, snap highlights, and connection meshes bind directly to this resolved transform.
-- **Secondary Body Transform Tracking:** For composite or articulated parts (e.g. a motor with a spinning shaft or a lever with a pivoting arm), locators placed under secondary dynamic body nodes in the visual scene automatically inherit the secondary node's local transform during runtime simulation. Wires and belts connected to articulated sockets track the secondary body without bespoke update loops.
+Connection sockets and wiring pins have one source, the element's declared ports (Story 9A.17):
+- **Declared ports:** each package declares its `PortDescriptor` list: the typed socket (`PortSocket`), domain, direction, signal kind and f32 anchor position in the element's local frame. The bundle carries the list, and `ElementPortCatalogue` admits it at load (the Workshop after `PartRegistry.Load`, the Simulation worker at bootstrap from the bundle it is built with). It refuses an unknown socket name, an unsupported domain or direction, a socket declared with another socket's domain or direction, a misplaced signal kind or a non-finite anchor, each with a typed `ElementPortRejection`. Connection validation, the activation compiler, the connection drawer (in declaration order) and the wire artwork's endpoints read only these ports; no engine or UI table restates them.
+- **Artist-authored locators:** an element's `.tscn` scene may keep an empty `Loc_Port_<PortSocket>` node at each socket, named by the typed socket exactly (`Loc_Port_PowerIn`, `Loc_Port_ActivationOut`), as a child of the scene root. The bundle build fails when a locator names no declared socket, when a declared port has no locator, or when a locator is not at its declared anchor (`BUNDLE011`–`BUNDLE013`). The only other locators are the tube mouths (`Loc_Port_mouth_start`, `Loc_Port_mouth_end`, Story 9R.6). Nothing at runtime looks a socket up in the scene.
+- **Articulated sockets:** a socket that moves with a secondary body (a spinning shaft, a pivoting arm) is not declared yet; the first element story that needs one declares it relative to its moving body.
 
 <a id="event-to-action-behavior-pipeline"></a>
 

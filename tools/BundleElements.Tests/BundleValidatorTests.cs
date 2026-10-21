@@ -56,7 +56,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void APortNormalMustBeAUnitDirection()
     {
-        PortDescriptor Port(Vector3 normal) => new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse,
+        PortDescriptor Port(Vector3 normal) => new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse,
             Vector3.Zero, normal);
         Assert.Empty(Errors(("Fixture", new Fixture { Ports = [Port(-Vector3.UnitY)] })));
         Assert.Equal(["BUNDLE006 FixtureNormal.Ports[0].Normal: outside its declared range"],

@@ -7,114 +7,21 @@ using System.Numerics;
 namespace CuriousContraptions.Gpu;
 
 public enum WorkshopConnectionDomain : uint { Activation = 1, Electrical = 2 }
+/// <summary>The engine's sockets. Each value equals the bundle's <c>PortSocket</c> of the same name, and is the wire and save
+/// value.</summary>
 public enum WorkshopSocket : uint { ActivationOut = 1, SetIn = 2, ResetIn = 3, ActivationIn = 4, Supply = 7, PowerIn = 8 }
 public enum WorkshopPortDirection : uint { Input = 1, Output = 2 }
 /// <summary>What an activation port carries (Story 9R.5): an output declares what it emits, an input the strongest signal it admits.
 /// A Pulse is one occurrence; a Level is a committed high/low value (the latch's memory, the plate's held load). An input that
 /// admits a Level also admits a Pulse.</summary>
 public enum WorkshopSignalKind : uint { Pulse = 1, Level = 2 }
-/// <summary>One declared socket. Signal is declared on every activation port and absent (null) on every electrical port.</summary>
+/// <summary>One declared socket, admitted from the element bundle (<see cref="ElementPortCatalogue"/>). Signal is declared on every
+/// activation port and absent (null) on every electrical port; LocalPosition is the declared f32 anchor in the part's local frame
+/// (metres), the wire artwork's endpoint.</summary>
 public readonly record struct WorkshopPort(WorkshopSocket Socket, WorkshopConnectionDomain Domain, WorkshopPortDirection Direction,
-    WorkshopSignalKind? Signal);
+    WorkshopSignalKind? Signal, Vector3 LocalPosition);
 public readonly record struct WorkshopConnection(GpuBodyId Source, WorkshopSocket Output, GpuBodyId Target,
     WorkshopSocket Input, WorkshopConnectionDomain Domain);
-
-/// <summary>Catalogue ports declare capability; unsupported electrical routes are never admitted.</summary>
-public static class WorkshopPorts
-{
-    public static ReadOnlySpan<WorkshopPort> For(PartId id) => id.Value switch
-    {
-        "switch" => SwitchPorts,
-        "lamp" => LampPorts,
-        "delay" => DelayPorts,
-        "domino" => DominoPorts,
-        "battery" => BatteryPorts,
-        "bumper" => StoragePorts,
-        "ball_detector" => BallDetectorPorts,
-        "powered_gate" => GatePorts,
-        "pressure_plate" => PressurePlatePorts,
-        "counter" => CounterPorts,
-        "clock" => ClockPorts,
-        "latch" => LatchPorts,
-        "ball" or "bowling" or "basket" or "ramp" or "wall" or "spring" or "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" => [],
-        _ => throw new ArgumentException("Unsupported port owner.")
-    };
-    private static WorkshopPort PowerIn => new(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null);
-    private static WorkshopPort Supply => new(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null);
-    private static WorkshopPort ActivationOut(WorkshopSignalKind signal) =>
-        new(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, signal);
-    private static WorkshopPort ActivationIn(WorkshopSocket socket, WorkshopSignalKind admits) =>
-        new(socket, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, admits);
-
-    private static readonly WorkshopPort[] LatchPorts =
-    [
-        ActivationIn(WorkshopSocket.SetIn, WorkshopSignalKind.Pulse),
-        ActivationIn(WorkshopSocket.ResetIn, WorkshopSignalKind.Pulse),
-        PowerIn,
-        // Level output: high while memory is On (owner decision 18 Oct 2026). Listed before Supply so the drawer keeps Supply's row.
-        ActivationOut(WorkshopSignalKind.Level),
-        Supply
-    ];
-    private static readonly WorkshopPort[] ClockPorts = [PowerIn, ActivationOut(WorkshopSignalKind.Pulse)];
-    private static readonly WorkshopPort[] BatteryPorts = [Supply];
-    private static readonly WorkshopPort[] StoragePorts = [PowerIn];
-    private static readonly WorkshopPort[] GatePorts = [PowerIn];
-    // Story 9R.5 D4: the level output (high while Loaded, held 0.1 s after the last contact) precedes Supply, as on the latch.
-    private static readonly WorkshopPort[] PressurePlatePorts = [PowerIn, ActivationOut(WorkshopSignalKind.Level), Supply];
-    private static readonly WorkshopPort[] CounterPorts =
-        [ActivationIn(WorkshopSocket.ActivationIn, WorkshopSignalKind.Pulse), ActivationOut(WorkshopSignalKind.Pulse), PowerIn, Supply];
-    // A Domino signals only; it declares no activation input, so wiring into one is rejected at the port check.
-    private static readonly WorkshopPort[] DominoPorts = [ActivationOut(WorkshopSignalKind.Pulse)];
-    private static readonly WorkshopPort[] SwitchPorts = [ActivationOut(WorkshopSignalKind.Pulse)];
-    private static readonly WorkshopPort[] BallDetectorPorts = [ActivationOut(WorkshopSignalKind.Pulse)];
-    // The Signal lamp is the only input that admits a level: it then follows that one level output alone.
-    private static readonly WorkshopPort[] LampPorts = [ActivationIn(WorkshopSocket.ActivationIn, WorkshopSignalKind.Level)];
-    private static readonly WorkshopPort[] DelayPorts =
-        [ActivationIn(WorkshopSocket.ActivationIn, WorkshopSignalKind.Pulse), ActivationOut(WorkshopSignalKind.Pulse)];
-
-    /// <summary>Declared f32 socket anchor in the part's local frame (metres); presentation-only wire artwork endpoint.</summary>
-    public static Vector3 LocalPosition(PartId id, WorkshopSocket socket) => (id.Value, socket) switch
-    {
-        ("switch", WorkshopSocket.ActivationOut) => new(.45f, 0f, .4f),
-        ("lamp", WorkshopSocket.ActivationIn) => Vector3.Zero,
-        ("battery", WorkshopSocket.Supply) => new(0f, .62f, 0f),
-        ("bumper", WorkshopSocket.PowerIn) => new(0f, 0f, .65f),
-        ("delay", WorkshopSocket.ActivationIn) => new(-.72f, 0f, 0f),
-        ("delay", WorkshopSocket.ActivationOut) => new(.72f, 0f, 0f),
-        ("domino", WorkshopSocket.ActivationOut) => new(0f, .55f, 0f),
-        ("ball_detector", WorkshopSocket.ActivationOut) => new(0f, 1.12f, 0f),
-        ("powered_gate", WorkshopSocket.PowerIn) => new(0f, 1.65f, .92f),
-        ("pressure_plate", WorkshopSocket.PowerIn) => new(-1.18f, -.08f, 0f),
-        ("pressure_plate", WorkshopSocket.Supply) => new(1.18f, -.08f, 0f),
-        ("pressure_plate", WorkshopSocket.ActivationOut) => new(0f, -.08f, 1.18f),
-        ("counter", WorkshopSocket.ActivationIn) => new(0f, .72f, .1f),
-        ("counter", WorkshopSocket.ActivationOut) => new(0f, -.72f, .1f),
-        ("counter", WorkshopSocket.PowerIn) => new(-.93f, 0f, 0f),
-        ("counter", WorkshopSocket.Supply) => new(.93f, 0f, 0f),
-        ("clock", WorkshopSocket.PowerIn) => new(-.78f, 0f, 0f),
-        ("clock", WorkshopSocket.ActivationOut) => new(.78f, 0f, 0f),
-        ("latch", WorkshopSocket.SetIn) => new(-.45f, .72f, 0f),
-        ("latch", WorkshopSocket.ResetIn) => new(.45f, .72f, 0f),
-        ("latch", WorkshopSocket.PowerIn) => new(-.93f, 0f, 0f),
-        ("latch", WorkshopSocket.Supply) => new(.93f, 0f, 0f),
-        ("latch", WorkshopSocket.ActivationOut) => new(0f, -.56f, .38f),
-        _ => throw new ArgumentException("This socket is not admitted for placement.")
-    };
-    public static bool Has(PartId id, WorkshopSocket socket, WorkshopConnectionDomain domain, WorkshopPortDirection direction)
-    {
-        foreach (var port in For(id))
-            if (port.Socket == socket && port.Domain == domain && port.Direction == direction) return true;
-        return false;
-    }
-    /// <summary>The declared signal kind of one activation port: what an output emits, or the strongest an input admits.</summary>
-    public static WorkshopSignalKind Signal(PartId id, WorkshopSocket socket, WorkshopPortDirection direction)
-    {
-        foreach (var port in For(id))
-            if (port.Socket == socket && port.Domain == WorkshopConnectionDomain.Activation && port.Direction == direction)
-                return port.Signal ?? throw new InvalidOperationException("An activation port must declare its signal kind.");
-        throw new ArgumentException("No such declared activation port.");
-    }
-}
 
 /// <summary>Immutable authored edges; neither storage nor connection validation executes activation. There is no connection limit
 /// (Story 9R.5b).</summary>
@@ -142,10 +49,13 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     }
 
     /// <summary>The connection rules over the parts the construction names: a typed refusal for every inadmissible connection.
-    /// A stored save's pre-validation applies them to its saved part identities before any instance is constructed.</summary>
+    /// The ports are the loaded bundle's declared ports (Story 9A.17). A stored save's pre-validation applies them to its saved
+    /// part identities before any instance is constructed.</summary>
     internal void Validate(Func<GpuBodyId, PartId?> partOf)
     {
         ArgumentNullException.ThrowIfNull(partOf);
+        if (_items.Length == 0) return;
+        var ports = DeclaredPorts.Current;
         var seen = new HashSet<WorkshopConnection>();
         foreach (var link in _items)
         {
@@ -156,8 +66,8 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
             var source = partOf(link.Source);
             var target = partOf(link.Target);
             if (source is null || target is null ||
-                !WorkshopPorts.Has(source.Value, link.Output, link.Domain, WorkshopPortDirection.Output) ||
-                !WorkshopPorts.Has(target.Value, link.Input, link.Domain, WorkshopPortDirection.Input))
+                !ports.Has(source.Value, link.Output, link.Domain, WorkshopPortDirection.Output) ||
+                !ports.Has(target.Value, link.Input, link.Domain, WorkshopPortDirection.Input))
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Connection does not own matching declared ports.");
             if (link.Domain == WorkshopConnectionDomain.Activation)
             {
@@ -167,13 +77,13 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation input.");
                 // A level output (latch, plate) drives only an input that admits a level (the Signal lamp), and such an input then
                 // follows that one level alone. The rule reads the declared port kinds, never the part identity.
-                if (WorkshopPorts.Signal(source.Value, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level &&
-                    WorkshopPorts.Signal(target.Value, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)
+                if (ports.Signal(source.Value, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level &&
+                    ports.Signal(target.Value, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLampOnly, "A level output can only light a Signal lamp.");
                 var feeds = _items.Where(other => other.Domain == WorkshopConnectionDomain.Activation && other.Target == link.Target && other.Input == link.Input).ToArray();
                 if (feeds.Length > 1 && feeds.Any(other => partOf(other.Source) is { } feeder &&
-                        WorkshopPorts.Has(feeder, other.Output, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output) &&
-                        WorkshopPorts.Signal(feeder, other.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+                        ports.Has(feeder, other.Output, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output) &&
+                        ports.Signal(feeder, other.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.LampFollowsOneLevel, "A lamp that follows a level output takes no other signal.");
             }
             else

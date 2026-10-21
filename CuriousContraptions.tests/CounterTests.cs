@@ -97,15 +97,15 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Assert.Equal((Half)(-0.72f), foot.LocalPose.Translation.Y);
             Assert.Equal((Half)0, foot.LocalPose.Translation.Z);
 
-            Assert.True(ports.ContainsKey("activation_in"));
-            Assert.True(ports.ContainsKey("activation_out"));
-            Assert.True(ports.ContainsKey("power_in"));
-            Assert.True(ports.ContainsKey("supply"));
+            Assert.True(ports.ContainsKey("ActivationIn"));
+            Assert.True(ports.ContainsKey("ActivationOut"));
+            Assert.True(ports.ContainsKey("PowerIn"));
+            Assert.True(ports.ContainsKey("Supply"));
 
-            Assert.Equal(new Godot.Vector3(0, 0.72f, 0.1f), ports["activation_in"].Position);
-            Assert.Equal(new Godot.Vector3(0, -0.72f, 0.1f), ports["activation_out"].Position);
-            Assert.Equal(new Godot.Vector3(-0.93f, 0, 0), ports["power_in"].Position);
-            Assert.Equal(new Godot.Vector3(0.93f, 0, 0), ports["supply"].Position);
+            Assert.Equal(new Godot.Vector3(0, 0.72f, 0.1f), ports["ActivationIn"].Position);
+            Assert.Equal(new Godot.Vector3(0, -0.72f, 0.1f), ports["ActivationOut"].Position);
+            Assert.Equal(new Godot.Vector3(-0.93f, 0, 0), ports["PowerIn"].Position);
+            Assert.Equal(new Godot.Vector3(0.93f, 0, 0), ports["Supply"].Position);
         }
         finally
         {
@@ -124,7 +124,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void Ports_DeclareExactSocketsAndDirections()
     {
-        var ports = WorkshopPorts.For(PartId.Counter).ToArray();
+        var ports = DeclaredPorts.Current.Of(PartId.Counter).ToArray();
         Assert.Equal(4, ports.Length);
 
         var actIn = ports.First(p => p.Socket == WorkshopSocket.ActivationIn);
@@ -143,10 +143,10 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(WorkshopConnectionDomain.Electrical, supply.Domain);
         Assert.Equal(WorkshopPortDirection.Output, supply.Direction);
 
-        Assert.Equal(new System.Numerics.Vector3(0f, 0.72f, 0.1f), WorkshopPorts.LocalPosition(PartId.Counter, WorkshopSocket.ActivationIn));
-        Assert.Equal(new System.Numerics.Vector3(0f, -0.72f, 0.1f), WorkshopPorts.LocalPosition(PartId.Counter, WorkshopSocket.ActivationOut));
-        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), WorkshopPorts.LocalPosition(PartId.Counter, WorkshopSocket.PowerIn));
-        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), WorkshopPorts.LocalPosition(PartId.Counter, WorkshopSocket.Supply));
+        Assert.Equal(new System.Numerics.Vector3(0f, 0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.ActivationIn));
+        Assert.Equal(new System.Numerics.Vector3(0f, -0.72f, 0.1f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.ActivationOut));
+        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.PowerIn));
+        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Counter, WorkshopSocket.Supply));
     }
 
     [Fact]
