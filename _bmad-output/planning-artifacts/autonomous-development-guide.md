@@ -193,7 +193,7 @@ sequenceDiagram
 
 ### Phase 3: Test-First Implementation (Amelia)
 
-**Acceptance checklist inside each existing slice:** name and remove dead code, obsolete callers/fixtures and superseded paths; align the replacement with the latest f32 shared-engine and element-package-isolation design with no legacy bridge; prove the new behavior through real C# simulation interactions, negative/boundary cases, tick progression and supported Reset/save/load. Keep these tasks in the existing roadmap stories, not new administrative stories. Unit/integration execution is the primary proof during catalogue implementation.
+**Acceptance checklist inside each existing slice:** name and remove dead code, obsolete callers/fixtures and superseded paths; align the replacement with the latest f32 shared-engine and element-package-isolation design with no legacy bridge; prove the new behavior through real C# simulation interactions, negative/boundary cases, tick progression and supported Reset/save/load. Keep these tasks in the existing roadmap stories, not new administrative stories. C# unit tests executing the production simulation are the primary proof; integration checks are supplemental during catalogue implementation.
 1. Write affected unit/native tests and preserve required browser cases for post-catalogue E2E.
 2. Implement the forward functionality and delete superseded paths.
 3. Build the affected closure once, run quick selected tests with `--no-build --no-restore`, and rebuild only invalidated outputs. Fix relevant warnings/failures.

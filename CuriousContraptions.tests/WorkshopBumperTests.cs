@@ -34,7 +34,7 @@ public sealed class WorkshopBumperTests
         Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PinballBumper]);
         var bumper = WorkshopInput.Bumper(new(3), 0, 1.5, 0, 0, 0, 0, 1, BumperWork.Default);
         var placed = construction.WithInstance(bumper);
-        var wall = WorkshopInput.Wall(new(4), -1, 4, 0, 0, 0, 0, 1, WallDimensions.FromInput(.4f, 6, 1.5f));
+        var wall = WorkshopInput.Generic(PartId.Wall, new(4), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f));
         if (lesson == WorkshopPuzzleId.WallAndBumper)
         {
             Assert.Equal(2, inventory.Count);

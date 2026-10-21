@@ -1083,7 +1083,7 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ByteLength(new byte[PhysicsGpuAbi.HeaderBytes - 1]));
         // A candidate world one collider longer than its source never validates against it.
         var longer = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction.WithoutInstance(OnlyBall(Construction).Id)
-            .WithInstance(OnlyBall(Construction) with { Id = new(1) }).WithInstance(WorkshopInput.Wall(new(2), 4, 2, 0, 0, 0, 0, 1, WallDimensions.Default)),
+            .WithInstance(OnlyBall(Construction) with { Id = new(1) }).WithInstance(WorkshopInput.Generic(PartId.Wall, new(2), 4, 2, 0, 0, 0, 0, 1, WallFixture.Default)),
             new(101, 206)), new(2), Profile);
         // Story 9R.5b: the Wall also adds a body and a material row, so the exact length follows the longer world's own layout.
         Assert.Equal(colliders + 1, PhysicsGpuAbi.Layout(longer).Colliders);

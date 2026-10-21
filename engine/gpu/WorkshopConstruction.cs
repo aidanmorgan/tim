@@ -182,15 +182,6 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
 
-    public static WorkshopWall Wall(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, WallDimensions dimensions)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopWall(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
-        result.Validate(); return result;
-    }
-
     public static WorkshopSwitch Switch(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, ContactTriggerSettings trigger)
     {
@@ -289,11 +280,12 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     public static WorkshopGenericInstance Generic(PartId partId, GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw)
+        double qx, double qy, double qz, double qw, InstanceParameterCollection? parameters = null)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopGenericInstance(partId, id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)))
+            { Parameters = parameters ?? InstanceParameterCollection.Defaults(partId) };
         result.Validate(); return result;
     }
     /// <summary>A straight pipe of the CAT-048 default length (3.6 m), the length a newly placed pipe starts from.</summary>

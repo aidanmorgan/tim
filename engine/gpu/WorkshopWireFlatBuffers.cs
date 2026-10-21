@@ -1,5 +1,7 @@
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.Linq;
 using Google.FlatBuffers;
 using CuriousContraptions.Wire;
 
@@ -545,8 +547,16 @@ public static class WorkshopWireFlatBuffers
         {
             var instance = construction.Instances[i];
             var partIdOffset = builder.CreateString(instance.PartId.Value);
+            VectorOffset? parameterVector = null;
+            if (instance is WorkshopGenericInstance generic)
+            {
+                var parameters = generic.Parameters.Select(pair =>
+                    ParameterRecord.CreateParameterRecord(builder, builder.CreateString(pair.Key.Value), pair.Value)).ToArray();
+                parameterVector = InstanceRecord.CreateParametersVector(builder, parameters);
+            }
 
             InstanceRecord.StartInstanceRecord(builder);
+            if (parameterVector.HasValue) InstanceRecord.AddParameters(builder, parameterVector.Value);
             InstanceRecord.AddId(builder, instance.Id.Value);
             InstanceRecord.AddPartId(builder, partIdOffset);
             InstanceRecord.AddLocked(builder, instance.Locked);
@@ -577,11 +587,6 @@ public static class WorkshopWireFlatBuffers
                 case WorkshopRamp ramp:
                     InstanceRecord.AddLength(builder, (float)ramp.Dimensions.Length.Value);
                     InstanceRecord.AddWidth(builder, (float)ramp.Dimensions.Width.Value);
-                    break;
-                case WorkshopWall wall:
-                    InstanceRecord.AddWidth(builder, (float)wall.Dimensions.Width.Value);
-                    InstanceRecord.AddHeight(builder, (float)wall.Dimensions.Height.Value);
-                    InstanceRecord.AddThickness(builder, (float)wall.Dimensions.Thickness.Value);
                     break;
                 case WorkshopSwitch trigger:
                     InstanceRecord.AddThreshold(builder, (float)trigger.Trigger.Threshold.Value);
@@ -724,7 +729,7 @@ public static class WorkshopWireFlatBuffers
         var local = new LocalPosition(l.X, l.Y, l.Z);
         var rotation = new CanonicalRotation(r.X, r.Y, r.Z, r.W);
 
-        return partId.Value switch
+        IWorkshopInstance result = partId.Value switch
         {
             "ball" or "bowling" => new WorkshopBall(id, partId, cell, local, rotation,
                 BallMaterial.For(partId) with
@@ -734,7 +739,6 @@ public static class WorkshopWireFlatBuffers
                 }, locked),
             "basket" => MapReceiver(inst, id, cell, local, rotation, locked),
             "ramp" => new WorkshopRamp(id, cell, local, rotation, new(new((Half)inst.Length), new((Half)inst.Width)), locked),
-            "wall" => new WorkshopWall(id, cell, local, rotation, new(new((Half)inst.Width), new((Half)inst.Height), new((Half)inst.Thickness)), locked),
             "switch" => new WorkshopSwitch(id, cell, local, rotation, new ContactTriggerSettings(new LinearSpeed((Half)inst.Threshold)), locked),
             "delay" => new WorkshopDelay(id, cell, local, rotation, new DelayDuration(new DurationSeconds((Half)inst.Duration)), locked),
             "spring" => new WorkshopSpringboard(id, cell, local, rotation, new SpringboardSettings(inst.Stiffness, inst.Damping, inst.InitialCompression), locked),
@@ -755,9 +759,30 @@ public static class WorkshopWireFlatBuffers
             // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
             // a record nor colliders is no element this decoder knows, refused naming it.
             _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
-                ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked)
+                ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, partId) }
                 : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
         };
+        if (result is not WorkshopGenericInstance && inst.ParametersLength != 0)
+            throw new WireFaultException(WireFaultReason.OutOfRange, "Typed instance cannot carry generic parameters.");
+        return result;
+    }
+
+    internal static InstanceParameterCollection DecodeParameters(InstanceRecord record, PartId part)
+    {
+        try
+        {
+            var values = new List<KeyValuePair<ParameterId, float>>();
+            for (var i = 0; i < record.ParametersLength; i++)
+            {
+                var parameter = record.Parameters(i) ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing parameter.");
+                values.Add(new(new(parameter.Key), parameter.Value));
+            }
+            var result = new InstanceParameterCollection(values);
+            result.Validate(part);
+            return result;
+        }
+        catch (ArgumentException error)
+        { throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid declared parameters.", error); }
     }
 
     /// <summary>The Counter's whole target count: absent is a missing field and one beyond Int32 is out of range, never coerced;

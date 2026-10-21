@@ -33,22 +33,11 @@ public static class DeclaredPhysics
     {
         WorkshopPipe pipe => new Dictionary<string, float> { ["length"] = pipe.Length.Metres },
         WorkshopRamp ramp => new Dictionary<string, float> { ["length"] = (float)ramp.Dimensions.Length.Value, ["width"] = (float)ramp.Dimensions.Width.Value },
-        WorkshopWall wall => new Dictionary<string, float> { ["width"] = AuthoredHalfDimension(wall.PartId, "width", wall.Dimensions.Width.Value),
-            ["height"] = AuthoredHalfDimension(wall.PartId, "height", wall.Dimensions.Height.Value), ["thickness"] = AuthoredHalfDimension(wall.PartId, "thickness", wall.Dimensions.Thickness.Value) },
+        WorkshopGenericInstance generic => generic.Parameters.ToBundleValues(),
         WorkshopSpringboard spring => new Dictionary<string, float> { ["stiffness"] = spring.Settings.Stiffness,
             ["damping"] = spring.Settings.Damping, ["initial_compression"] = spring.Settings.InitialCompression },
         _ => BundleGeometry.Parameters(Of(instance.PartId))
     };
-
-    /// <summary>Wall authoring still stores admitted dimensions in binary16. Restore a rounded endpoint to its declared
-    /// f32 bound before evaluation; narrowing the resulting collider preserves the existing physical row exactly.</summary>
-    private static float AuthoredHalfDimension(PartId part, string key, Half value)
-    {
-        var parameter = Of(part).Metadata.Parameters.Single(p => p.Key == key);
-        if (!Half.IsFinite(value) || value < (Half)parameter.Minimum || value > (Half)parameter.Maximum)
-            throw new ArgumentException("Authored dimension is outside its declared bounds.");
-        return Math.Clamp((float)value, parameter.Minimum, parameter.Maximum);
-    }
 
     public static IReadOnlyList<ExtractedCollider> Colliders(PartId part, IReadOnlyDictionary<string, float>? parameters = null) =>
         BundleGeometry.Colliders(Of(part), parameters).Select(Admit).ToArray();

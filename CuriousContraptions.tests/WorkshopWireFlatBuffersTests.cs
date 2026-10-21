@@ -121,7 +121,7 @@ public sealed class WorkshopWireFlatBuffersTests
         WorkshopInput.Receiver(new(1), -.7, .55, 0, 0, 0, 0, 1) with
             { Capture = new(new((Half).05), new((Half)2.25), new((Half).24), SensorParticipation.Enabled) },
         WorkshopInput.Ramp(new(1), 1, 2, 0, 0, 0, .258819, .9659258, new(new((Half)4), new((Half)1.5))),
-        WorkshopInput.Wall(new(1), -1, 4, 0, 0, 0, 0, 1, new(new((Half).4), new((Half)6), new((Half)1.5))),
+        WorkshopInput.Generic(PartId.Wall, new(1), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f)),
         WorkshopInput.Switch(new(1), 0, 1, 0, 0, 0, 0, 1, new(new((Half)1.25))),
         WorkshopInput.Delay(new(1), 0, 1, 0, 0, 0, 0, 1, new(new((Half)2.5))),
         WorkshopInput.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, new SpringboardSettings(400f, .2f, .2f)),

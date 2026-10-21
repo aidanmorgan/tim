@@ -66,12 +66,13 @@ public static class BumperAdvanced
         var receivers = 0; var bumpers = 0; var walls = 0;
         foreach (var instance in construction.Instances)
         {
-            if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopBumper or WorkshopWall) ||
-                instance is WorkshopBumper { Locked: true } or WorkshopWall { Locked: true })
+            var wall = instance is WorkshopGenericInstance && instance.PartId == PartId.Wall;
+            if ((!wall && instance is not (WorkshopBall or WorkshopReceiver or WorkshopBumper)) ||
+                (instance.Locked && (wall || instance is WorkshopBumper)))
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported advanced Bumper inventory.");
             if (instance is WorkshopReceiver) receivers++;
             if (instance is WorkshopBumper) bumpers++;
-            if (instance is WorkshopWall) walls++;
+            if (wall) walls++;
         }
         if (receivers != 1 || bumpers > 1 || walls > (depth ? 0 : 1))
             throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryExceeded, "Advanced Bumper inventory exceeded.");

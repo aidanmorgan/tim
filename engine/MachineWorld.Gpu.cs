@@ -94,6 +94,28 @@ public partial class MachineWorld
         return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
     }
 
+    private InstanceParameterCollection CaptureParameters(PartId part, GpuBodyId owner, Vector3? dimensions)
+    {
+        if (!Registry.Definitions.ContainsKey(part))
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedPart, $"Unsupported instance part id '{part}'.");
+        var current = Construction.Instances.FirstOrDefault(instance => instance.Id == owner) is WorkshopGenericInstance generic
+            ? generic.Parameters : InstanceParameterCollection.Defaults(part);
+        if (dimensions is not { } size) return current;
+        var values = current.ToDictionary(pair => pair.Key, pair => pair.Value);
+        if (DeclaredPhysics.Of(part).Presentation.Sizing is { } sizing)
+            foreach (var binding in sizing.Parameters)
+                values[new(binding.Parameter)] = binding.Axis switch
+                {
+                    CuriousContraptions.Abstractions.PresentationAxes.X => size.X,
+                    CuriousContraptions.Abstractions.PresentationAxes.Y => size.Y,
+                    CuriousContraptions.Abstractions.PresentationAxes.Z => size.Z,
+                    _ => throw new ArgumentException("Invalid declared resize axis.")
+                };
+        var result = new InstanceParameterCollection(values);
+        result.Validate(part);
+        return result;
+    }
+
     public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, Vector3? dimensions = null)
     {
         var q = rotation.Normalized();
@@ -103,8 +125,6 @@ public partial class MachineWorld
             "basket" => CaptureReceiver(bodyId, position, q),
             "ramp" => WorkshopInput.Ramp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 dimensions is { } rampSize ? new(new((Half)rampSize.X), new((Half)rampSize.Z)) : RampDimensions.Default),
-            "wall" => WorkshopInput.Wall(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                dimensions is { } wallSize ? WallDimensions.FromInput(wallSize.X, wallSize.Y, wallSize.Z) : WallDimensions.Default),
             "switch" => WorkshopInput.Switch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
             "delay" => WorkshopInput.Delay(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
@@ -126,7 +146,6 @@ public partial class MachineWorld
             "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 dimensions is { } pipeSize ? new(pipeSize.X) : (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
                     PipeLength.Default)),
-            "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
             // placement value (Story 9.4b: no factory or decoder default substitutes for either).
             "pressure_plate" => WorkshopInput.PressurePlate(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
@@ -136,7 +155,8 @@ public partial class MachineWorld
             "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.PlacedIntervalSeconds),
             "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
-            _ => throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedPart, $"Unsupported instance part id '{id}'.")
+            _ => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                CaptureParameters(id, bodyId, dimensions))
         };
     }
 

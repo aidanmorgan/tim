@@ -135,6 +135,7 @@ internal static class WorkshopSavePrevalidation
     private static void CheckParameters(PartId part, InstanceRecord r)
     {
         var id = r.Id;
+        var genericParameters = false;
         switch (part.Value)
         {
             case "ball" or "bowling":
@@ -154,11 +155,6 @@ internal static class WorkshopSavePrevalidation
                 break;
             case "ramp":
                 Within(id, "length", r.Length, (Half).125, (Half)4); Within(id, "width", r.Width, (Half).125, (Half)4);
-                break;
-            case "wall":
-                Within(id, "width", r.Width, WallDimensions.Minimum.Width.Value, WallDimensions.Maximum.Width.Value);
-                Within(id, "height", r.Height, WallDimensions.Minimum.Height.Value, WallDimensions.Maximum.Height.Value);
-                Within(id, "thickness", r.Thickness, WallDimensions.Minimum.Thickness.Value, WallDimensions.Maximum.Thickness.Value);
                 break;
             case "switch":
                 Within(id, "trigger threshold", r.Threshold, (Half)0, (Half)64);
@@ -204,7 +200,14 @@ internal static class WorkshopSavePrevalidation
             case "clock":
                 Within(id, "interval", r.Threshold, WorkshopClock.MinIntervalSeconds, WorkshopClock.MaxIntervalSeconds);
                 break;
+            default:
+                genericParameters = true;
+                try { _ = WorkshopWireFlatBuffers.DecodeParameters(r, part); }
+                catch (WireFaultException error) { throw Refuse(WorkshopSaveRejection.OutOfRange, error.Message); }
+                break;
         }
+        if (!genericParameters && r.ParametersLength != 0)
+            throw Refuse(WorkshopSaveRejection.OutOfRange, "Typed instance cannot carry generic parameters.");
     }
 
     /// <summary>The receiver's planar guide (PlanarGuideDeclaration): bounds within 16 m that enclose a volume, a support height

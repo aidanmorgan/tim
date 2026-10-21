@@ -233,6 +233,11 @@ struct ConnectionRecord {
     to_socket: uint32;
 }
 
+table ParameterRecord {
+    key: string (required);
+    value: float;
+}
+
 table InstanceRecord {
     id: uint64;
     part_id: string;
@@ -259,11 +264,9 @@ table InstanceRecord {
     support_margin: float;
     max_acceleration: float;
 
-    // Ramp / Wall
+    // Ramp
     length: float;
     width: float;
-    height: float;
-    thickness: float;
 
     // Switch / Delay
     threshold: float;
@@ -291,6 +294,8 @@ table InstanceRecord {
 
     // Counter: the whole target count; absent (0) is a missing field, never a default
     target_count: uint32;
+
+    parameters: [ParameterRecord];
 }
 
 table PuzzleRecord {
