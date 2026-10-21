@@ -20,3 +20,11 @@ Same-owner findings resolved: top-level admission and field diagnostics; invento
 ## Publication-dependent checks
 
 SnapshotApproval permits normal protected commit/push of this exact candidate plus receipt. Before terminal Pass, independently verify normal hooks, source/main tree equivalence and remote SHA, exact-SHA CI native/build success, Pages artifact/run association and successful deployment. Preserve any failed attempt and investigate concrete new failures with the same owner. No routine Chrome or repeated local proof solely because commit identity changes. Terminal publication remains pending; carry eventual receipt in the next normal slice publication.
+
+## Affected SnapshotApproval — publication correction
+
+Initial publication main659c6199ecb9c9caa9e82ca1f71b78c750ccea4d matched the approved inputs plus receipt (independent5b6dbc). CI39678726018 failed1/2102, with2101 passing and deployment skipped (original0fde6b). The sole failing test expected InventoryUnsupported and the removed element-specific text when replacing a locked authored Basketball with Bowling at the same identity.
+
+Independent e761ee confirmed the existing typed contract classifies changed fixed declarations as FixedPart. Correction changes only that exact reason/message assertion; added Bowling inventory remains InventoryUnsupported, palette exclusion and Free mixed-kind positive remain. Matching build5ece79 passed with zero warnings/errors13.13s; WorkshopBowlingTests54e796 passed6/6 in155ms. Runtime inputs and the2101 CI passes remain applicable; no root-cause runtime fix is claimed or required.
+
+Approved corrective tree `9d19a98651000ac510014c2ccda6df2c71d60530`, binary diff SHA256 `5cac4d45a18462a2a65db0ad15fc453b37cdbf79f2b9374c932a8db4c6cc1619`, base659c6199. Independent832ab2 verifies exactly two assertion lines, clean staged whitespace and no unstaged changes. This addendum may accompany the correction. Normal protected forward publication is authorized; terminal Pass still requires exact corrective remote/tree, replacement CI/native success, associated artifact and deployment. No additional local campaign or Chrome is required.

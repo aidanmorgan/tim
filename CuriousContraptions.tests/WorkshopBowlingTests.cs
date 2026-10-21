@@ -212,8 +212,8 @@ public sealed class WorkshopBowlingTests
             Assert.Equal(PartId.Basketball, ball.PartId);
             // The same identity and pose as a Bowling ball is not the authored fixture.
             var replaced = level.WithInstance(ball with { PartId = PartId.BowlingBall, Material = BallMaterial.For(PartId.BowlingBall) });
-            var error = EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => replaced.Validate());
-            Assert.Equal("Authored puzzles admit only their named Basketball.", error.Message);
+            var error = EditRefusal.Is(WorkshopEditRejection.FixedPart, () => replaced.Validate());
+            Assert.Equal("Fixed authored declaration changed.", error.Message);
             // A second ball of the heavier kind is not an inventory item either.
             EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => level.WithInstance(Bowling(100009, 2, 5)).Validate());
             Assert.False(WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(PartId.BowlingBall));
