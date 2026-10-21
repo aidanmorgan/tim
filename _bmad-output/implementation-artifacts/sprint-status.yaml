@@ -222,13 +222,13 @@ development_status:
   # 14a: owner 21 Oct 2026; switches the verification gate for covered families
   t-2-native-fixture-replay: backlog
   # 15: committed-state bindings (9a-25 part) + 9r-20
-  9a-25a-committed-state-bindings-live-cues: review
+  9a-25a-committed-state-bindings-live-cues: done
   # split into 9a-25a (committed-state, position 15) and 9a-25b (one-shot, with 9a-23 at position 48)
   9a-25-package-presentation-bindings: backlog
   # merged into 9a-25a (21 Oct 2026)
   9r-20-live-state-cues-during-run: backlog
   # 16: generic instance and editor (Wall), with the one-line BumperAdvanced edit
-  9a-27-generic-instance-wall-parameter-editor: backlog
+  9a-27-generic-instance-wall-parameter-editor: review
   # merged into 9a-27 (21 Oct 2026) as its suite-first guard
   9r-14-cat-066-wall-suite: backlog
   # 17: early isolation ratchet (split from 9a-45)

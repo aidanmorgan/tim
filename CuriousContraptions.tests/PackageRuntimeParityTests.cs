@@ -296,11 +296,14 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     private static (string Key, ParameterUnit Unit, ParameterKind Kind, Lane Lane, float Default, Func<float, bool> Admits, string[] Options)[] Parameters(string id)
     {
         var ramp = RampDimensions.Default;
-        var wall = WallDimensions.Default;
         Func<float, bool> Ramp(Func<float, RampDimensions> dimensions) =>
             Admits(value => WorkshopInput.Ramp(Owner, 0, 3, 0, 0, 0, 0, 1, dimensions(value)));
-        Func<float, bool> Wall(Func<float, WallDimensions> dimensions) =>
-            Admits(value => WorkshopInput.Wall(Owner, 0, 3, 0, 0, 0, 0, 1, dimensions(value)));
+        Func<float, bool> Wall(string key) => Admits(value =>
+        {
+            var values = WallFixture.Default.ToDictionary(pair => pair.Key, pair => pair.Value);
+            values[new(key)] = value;
+            WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1, new(values));
+        });
         var enables = Enum.GetValues<ElectricalEnable>();
         var capture = ReceiverCaptureSettings.Free;
         var region = ReceiverForceRegion.Free;
@@ -317,9 +320,9 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "wall" =>
             [
-                ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)wall.Width.Value, Wall(value => wall with { Width = new((Half)value) }), []),
-                ("height", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)wall.Height.Value, Wall(value => wall with { Height = new((Half)value) }), []),
-                ("thickness", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)wall.Thickness.Value, Wall(value => wall with { Thickness = new((Half)value) }), [])
+                ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 3f, Wall("width"), []),
+                ("height", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 2f, Wall("height"), []),
+                ("thickness", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .25f, Wall("thickness"), [])
             ],
             "bumper" =>
             [
@@ -402,7 +405,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "basket" => WorkshopInput.Receiver(Owner, 0, 3, 0, 0, 0, 0, 1),
         "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default),
         "ramp" => WorkshopInput.Ramp(Owner, 0, 3, 0, 0, 0, 0, 1, RampDimensions.Default),
-        "wall" => WorkshopInput.Wall(Owner, 0, 3, 0, 0, 0, 0, 1, WallDimensions.Default),
+        "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
         "battery" => WorkshopInput.Battery(Owner, 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
         "bumper" => WorkshopInput.Bumper(Owner, 0, 3, 0, 0, 0, 0, 1, BumperWork.Default),
         "lamp" => WorkshopInput.Lamp(Owner, 0, 3, 0, 0, 0, 0, 1),

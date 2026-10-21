@@ -331,6 +331,112 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
+
+    [Fact]
+    public void GenericWallEditorUsesDeclaredFieldsAndRejectsInvalidOrDisallowedEditsAtomically()
+    {
+        var (scene, client) = BenchScene(PartId.Wall, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var part = Assert.Single(scene.World.Parts);
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            Press("Configure");
+            var fields = Nodes<LineEdit>(choices).ToDictionary(field => new ParameterId(field.Name.ToString()));
+            Assert.Equal(new[] { new ParameterId("height"), new("thickness"), new("width") }, fields.Keys.Order());
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == "width (0.4–8 m)");
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == "height (0.4–6 m)");
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == "thickness (0.12–2 m)");
+            var before = scene.World.Construction;
+            var commands = client.Commands.Count;
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            fields[new("width")].Text = "0";
+            Press("Apply parameters");
+            Assert.Equal(before, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Assert.Equal(new Vector3(3, 2, .25f), part.Dimensions);
+            fields[new("width")].Text = "NaN";
+            Press("Apply parameters");
+            Assert.Equal(before, scene.World.Construction);
+            Press("Cancel");
+            Assert.Equal(before, scene.World.Construction);
+            Press("Configure");
+            fields = Nodes<LineEdit>(choices).ToDictionary(field => new ParameterId(field.Name.ToString()));
+            fields[new("width")].Text = "3.1234567";
+            Press("Apply parameters");
+            var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(3.1234567f, current.Parameters[new("width")]);
+            Assert.Equal(3.1234567f, part.Dimensions.X);
+            Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            var accepted = scene.World.Construction;
+            commands = client.Commands.Count;
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", current.Id, WallFixture.Maximum));
+                Assert.Equal(accepted, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(current with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", current.Id, WallFixture.Maximum));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    [Fact]
+    public void GenericWallResizeUsesLocalAxesClampsCancelsAndRecordsOneUndoPerGesture()
+    {
+        var (scene, _) = BenchScene(PartId.Wall, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var part = Assert.Single(scene.World.Parts);
+            var original = scene.World.Construction;
+            var originalDimensions = part.Dimensions;
+            var camera = Field<Camera3D>(scene, "_camera");
+            var gizmo = Field<RotationGizmo>(scene, "_rotationGizmo");
+            gizmo.SetResizeMode();
+            gizmo.Follow(part, true, camera);
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            for (var axis = 0; axis < 3; axis++)
+            {
+                var handle = camera.UnprojectPosition(gizmo.HandlePosition(axis));
+                Assert.Empty(InvokeHandler(scene, "Click", handle));
+                Assert.True(gizmo.Dragging);
+                Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+                var direction = camera.UnprojectPosition(part.GlobalPosition + part.GlobalBasis[axis]) -
+                    camera.UnprojectPosition(part.GlobalPosition);
+                Assert.True(gizmo.Drag(camera, handle + direction * 100, true));
+                var maximum = new Vector3(8, 6, 2);
+                Assert.Equal(maximum[axis], part.Dimensions[axis]);
+                Assert.Empty(InvokeHandler(scene, "EndGizmo", true));
+                Assert.Equal(originalDimensions, part.Dimensions);
+                Assert.Equal(original, scene.World.Construction);
+                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            var at = camera.UnprojectPosition(gizmo.HandlePosition(0));
+            Assert.Empty(InvokeHandler(scene, "Click", at));
+            var projected = camera.UnprojectPosition(part.GlobalPosition + part.GlobalBasis.X) - camera.UnprojectPosition(part.GlobalPosition);
+            Assert.True(gizmo.Drag(camera, at + projected * .5f, true));
+            Assert.Empty(InvokeHandler(scene, "EndGizmo", false));
+            Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances)).Parameters[new("width")]);
+            Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Assert.Empty(InvokeHandler(scene, "Undo"));
+            Assert.Equal(original.Instances, scene.World.Construction.Instances);
+            Assert.Equal(originalDimensions, Assert.Single(scene.World.Parts).Dimensions);
+        }
+        finally { Release(scene); }
+    }
+
     private enum PlacementAnswer { Pending, Applied, Rejected }
 
     /// <summary>Records each command and answers it as configured: never (pending), Applied with an empty body read (a static

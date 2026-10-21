@@ -6,15 +6,15 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopWallTests
 {
-    private static WorkshopWall Wall(WallDimensions dimensions) =>
-        WorkshopInput.Wall(new(2), .125, 2, -.25, 0, 0, .382683432365, .923879532511, dimensions);
-    private static WorkshopSavedConstruction Saved(WallDimensions dimensions) =>
+    private static WorkshopGenericInstance Wall(InstanceParameterCollection dimensions) =>
+        WorkshopInput.Generic(PartId.Wall, new(2), .125, 2, -.25, 0, 0, .382683432365, .923879532511, dimensions);
+    private static WorkshopSavedConstruction Saved(InstanceParameterCollection dimensions) =>
         new(new(new(1), WorkshopCadenceSettings.Default(), new(Wall(dimensions))), new(3));
 
     [Fact]
     public void ThreeCanonicalDimensionsPoseAndIdentityRoundTripAtDefaultAndBothLimits()
     {
-        foreach (var dimensions in new[] { WallDimensions.Default, WallDimensions.Minimum, WallDimensions.Maximum })
+        foreach (var dimensions in new[] { WallFixture.Default, WallFixture.Minimum, WallFixture.Maximum })
         {
             var saved = Saved(dimensions);
             var bytes = WorkshopSaveCodec.Encode(saved);
@@ -27,8 +27,8 @@ public sealed class WorkshopWallTests
             var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
             Assert.Equal(ColliderShapeKind.Box, box.Shape);
             Assert.Equal(RigidLocalPose.Identity, box.Pose);
-            Assert.Equal(new MetreVector((Half)(dimensions.Width.Value * (Half).5),
-                (Half)(dimensions.Height.Value * (Half).5), (Half)(dimensions.Thickness.Value * (Half).5)), box.HalfExtents);
+            Assert.Equal(new MetreVector((Half)(dimensions[new("width")] * .5f),
+                (Half)(dimensions[new("height")] * .5f), (Half)(dimensions[new("thickness")] * .5f)), box.HalfExtents);
             var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == box.Material);
             Assert.Equal(new Restitution((Half)1), material.Restitution);
             Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
@@ -39,7 +39,7 @@ public sealed class WorkshopWallTests
     [Fact]
     public void GenericShapeEnvelopeAcceptsSixteenAndRejectsTheNextHalfValue()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Saved(WallDimensions.Maximum).Construction, new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(Saved(WallFixture.Maximum).Construction, new(1, 2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Shape == ColliderShapeKind.Box);
         box.Validate();
         (box with { HalfExtents = new((Half)16, (Half)16, (Half)16) }).Validate();
@@ -53,52 +53,95 @@ public sealed class WorkshopWallTests
     }
 
     [Fact]
-    public void FinitePointerInputClampsBeforeHalfConversionButNonfiniteRejects()
+    public void InvalidSubmittedParametersRejectAtomicallyWhileExactF32ValuesRoundTrip()
     {
-        Assert.Equal(WallDimensions.Maximum, WallDimensions.FromInput(float.MaxValue, float.MaxValue, float.MaxValue));
-        Assert.Equal(WallDimensions.Minimum, WallDimensions.FromInput(float.MinValue, -1, 0));
-        Assert.Equal(WallDimensions.Default, WallDimensions.FromInput(3, 2, .25f));
-        foreach (var invalid in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity })
+        var saved = Saved(WallFixture.Values(3.1234567f, 2.2345678f, .3456789f));
+        var bytes = WorkshopSaveCodec.Encode(saved);
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        var wall = Assert.IsType<WorkshopGenericInstance>(saved.Construction.Instances[0]);
+        var geometry = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(PartId.Wall), wall.Parameters.ToBundleValues());
+        Assert.Equal(3.1234567f * .5f, Assert.Single(geometry).HalfExtents.X);
+        foreach (var key in new[] { "width", "height", "thickness", "unknown" })
+        foreach (var value in new[] { -1f, 0f, 9f, float.NaN, float.PositiveInfinity })
         {
-            Assert.Throws<ArgumentException>(() => WallDimensions.FromInput(invalid, 2, .25f));
-            Assert.Throws<ArgumentException>(() => WallDimensions.FromInput(3, invalid, .25f));
-            Assert.Throws<ArgumentException>(() => WallDimensions.FromInput(3, 2, invalid));
+            var values = wall.Parameters.ToDictionary(pair => pair.Key, pair => pair.Value);
+            values[new(key)] = value;
+            var invalid = wall with { Parameters = new(values) };
+            Assert.Throws<ArgumentException>(() => invalid.Validate());
+            Assert.Throws<ArgumentException>(() => saved.Construction.WithInstance(invalid).Validate());
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder,
+                saved.Construction with { Instances = new(invalid) }, validate: false);
+            Assert.Throws<WorkshopSaveRejectedException>(() =>
+                WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Finish(builder, record, saved.NextBodyId.Value)));
+            Assert.Equal(bytes, WorkshopSaveCodec.Encode(saved));
         }
+        Assert.Throws<ArgumentException>(() => new InstanceParameterCollection([new(new("width"), 1f), new(new("width"), 2f)]));
+        Assert.Throws<ArgumentException>(() => (wall with { Parameters = InstanceParameterCollection.Empty }).Validate());
+    }
+
+
+    [Theory]
+    [InlineData(0f, 4f)]
+    [InlineData(.7853982f, 4f)]
+    [InlineData(1.5707964f, 4f)]
+    [InlineData(.7853982f, 64f)]
+    public void RealSimulationRotatedWallBlocksMovingBallWhileAbsentWallDoesNot(float yaw, float speed)
+    {
+        var normal = new System.Numerics.Vector3(MathF.Sin(yaw), 0, MathF.Cos(yaw));
+        var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 3, 0, 0, MathF.Sin(yaw / 2), 0, MathF.Cos(yaw / 2),
+            WallFixture.Values(3, 6, .25f));
+        var ball = WorkshopInput.Basketball(new(1), -2 * normal.X, 3, -2 * normal.Z, 0, 0, 0, 1);
+        float Probe(bool includeWall)
+        {
+            var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+                includeWall ? new(ball, wall) : new(ball));
+            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var bytes = PhysicsGpuAbi.Admission(scene, new(1),
+                new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+            var offset = scene.Layout.GetBodyOffset(ball.Id);
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset + PhysicsGpuAbi.BodyVelocityOffset), normal.X * speed);
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset + PhysicsGpuAbi.BodyVelocityOffset + 8), normal.Z * speed);
+            var furthest = -2f;
+            WorkshopPhysicsEngineTests.StepWorld(bytes, 90, (_, state) =>
+            {
+                var bodies = PhysicsGpuAbi.ReadDynamicBodies(state);
+                Assert.Equal(1, bodies.Count);
+                var body = bodies[0].Body;
+                var position = new System.Numerics.Vector3((body.Cell.X + body.Local.X) / 16f,
+                    (body.Cell.Y + body.Local.Y) / 16f, (body.Cell.Z + body.Local.Z) / 16f);
+                furthest = MathF.Max(furthest, System.Numerics.Vector3.Dot(position, normal));
+            });
+            return furthest;
+        }
+        Assert.True(Probe(true) < -.2f, "The ball never crosses the wall face.");
+        Assert.True(Probe(false) > .3f, "Without the wall the same ball crosses its plane.");
     }
 
     [Fact]
-    public void SerializedInvalidDimensionsAndPaddingRejectWithoutClamping()
+    public async Task RealSimulationResetAndSaveLoadRestoreGenericWallAndItsContact()
     {
-        var saved = Saved(WallDimensions.Default);
-        var valid = WorkshopSaveCodec.Encode(saved);
-        foreach (var value in new[] { (Half)0, (Half)(-1), (Half)9, Half.NaN, Half.PositiveInfinity })
-        {
-            foreach (var invalidDimensions in new[]
-            {
-                new WallDimensions(new(value), WallDimensions.Default.Height, WallDimensions.Default.Thickness),
-                new WallDimensions(WallDimensions.Default.Width, new(value), WallDimensions.Default.Thickness),
-                new WallDimensions(WallDimensions.Default.Width, WallDimensions.Default.Height, new(value))
-            })
-            {
-                var malformedConstruction = saved.Construction with {
-                    Instances = new WorkshopInstances(saved.Construction.Instances[0] switch {
-                        WorkshopWall w => w with { Dimensions = invalidDimensions },
-                        var other => other
-                    })
-                };
-                var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-                var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
-                var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
-                SaveFixture.Refused(Half.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
-            }
-        }
-        Assert.Equal(valid, WorkshopSaveCodec.Encode(Saved(WallDimensions.Default)));
+        var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 2, 0, 0, 0, 0, 1,
+            WallFixture.Values(3.1234567f, .4f, 2f));
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), wall));
+        var saved = new WorkshopSavedConstruction(construction, new(3));
+        var bytes = WorkshopSaveCodec.Encode(saved);
+        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 120);
+        NoFixedCapacityTests.AssertSameState(built, reset, "Wall Reset");
+        Assert.Equal(bytes, WorkshopSaveCodec.Encode(saved));
+        Assert.True(reads.All(read => (read.Bodies[0].Body.Cell.Y + read.Bodies[0].Body.Local.Y) / 16f > 2.2f));
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        Assert.Equal(saved, loaded);
+        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 120);
+        for (var tick = 0; tick < reads.Count; tick++)
+            NoFixedCapacityTests.AssertSameState(reads[tick], replay[tick], "Wall replay");
     }
 
     [Fact]
     public void WallPopulationPuzzleAndForeignPortsReject()
     {
-        var wall = Wall(WallDimensions.Default);
+        var wall = Wall(WallFixture.Default);
         Assert.Empty(DeclaredPorts.Current.Of(PartId.Wall).ToArray());
         Assert.False(DeclaredPorts.Current.Has(PartId.Wall, WorkshopSocket.ActivationIn,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
@@ -106,7 +149,7 @@ public sealed class WorkshopWallTests
         new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
         var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(4), new(5), new((Half)1));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(wall).Validate());
-        var construction = Saved(WallDimensions.Default).Construction.WithInstance(
+        var construction = Saved(WallFixture.Default).Construction.WithInstance(
             WorkshopInput.Lamp(new(3), 3, 2, 0, 0, 0, 0, 1)) with
         {
             Connections = new(new WorkshopConnection(wall.Id, WorkshopSocket.ActivationOut,
@@ -125,7 +168,7 @@ public sealed class WorkshopWallTests
             WorkshopInput.Ramp(new(4), -1, 2, 0, 0, 0, 0, 1, RampDimensions.Default),
             WorkshopInput.Switch(new(5), 0, 1, 2, 0, 0, 0, 1, ContactTriggerSettings.Default),
             WorkshopInput.Lamp(new(6), 3, 1, 2, 0, 0, 0, 1),
-            WorkshopInput.Wall(new(7), -4, 4, -2, 0, 0, 0, 1, WallDimensions.Maximum));
+            WorkshopInput.Generic(PartId.Wall, new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
         var scene = WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));
         Assert.Equal(8, scene.Bodies.Length);
         Assert.Equal(13, scene.Colliders.Length);
@@ -153,9 +196,9 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
             part.Position = new(1, 2, -1);
             part.Quaternion = Quaternion.FromEuler(new(.2f, .35f, -.4f));
             var position = part.Position; var rotation = part.Quaternion;
-            foreach (var dimensions in new[] { WallDimensions.Default, WallDimensions.Minimum, WallDimensions.Maximum })
+            foreach (var dimensions in new[] { WallFixture.Default, WallFixture.Minimum, WallFixture.Maximum })
             {
-                part.SetDimensions(new((float)dimensions.Width.Value, (float)dimensions.Height.Value, (float)dimensions.Thickness.Value));
+                part.SetDimensions(new((float)dimensions[new("width")], (float)dimensions[new("height")], (float)dimensions[new("thickness")]));
                 Assert.Equal(position, part.Position); Assert.Equal(rotation, part.Quaternion);
                 Assert.Equal(part.Dimensions, part.Visual.Scale);
                 Assert.Equal(part.Dimensions.Length() * .5f + .025f, ring.OuterRadius);
@@ -203,4 +246,14 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
         finally { ramp.GetParent()?.RemoveChild(ramp); ramp.Free(); }
     }
 
+}
+
+
+internal static class WallFixture
+{
+    public static InstanceParameterCollection Values(float width, float height, float thickness) =>
+        new([new(new("width"), width), new(new("height"), height), new(new("thickness"), thickness)]);
+    public static InstanceParameterCollection Default => Values(3f, 2f, .25f);
+    public static InstanceParameterCollection Minimum => Values(.4f, .4f, .12f);
+    public static InstanceParameterCollection Maximum => Values(8f, 6f, 2f);
 }

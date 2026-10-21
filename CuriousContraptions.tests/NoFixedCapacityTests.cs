@@ -32,7 +32,7 @@ public sealed class NoFixedCapacityTests
         switch (table)
         {
             case "instances-32":
-                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Wall(Next(), X(i), 2, 4, 0, 0, 0, 1, WallDimensions.Default));
+                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Generic(PartId.Wall, Next(), X(i), 2, 4, 0, 0, 0, 1, WallFixture.Default));
                 return (Bench(parts), scene => Assert.Equal(34, scene.Bodies.Length));
             case "bodies-33":
                 // Seventeen Powered Gates: 35 bodies from 17 parts, below the retired part table.

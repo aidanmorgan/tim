@@ -39,3 +39,14 @@ After normal protected commit/publication, reviewer must verify:
 3. Deployment/artifact identity corresponds to that commit. No Chrome run is required now under the current native-first policy.
 
 Until these checks complete, terminal verdict is **Incomplete: publication pending**.
+
+
+## Terminal publication verification — 21 October 2026
+
+**Scoped terminal Pass.** Published commit `83de446db17f08d8caa179468dec088a60f4252d`, tree `edbeeb081dd02329596370ada31a67130135a567`, is independently verified on origin/main. All 116 per-path approved patches are byte-identical to the committed changes excluding this authorized review receipt; only patch ordering differs (reviewer raw tool fd240f). Remote and workflow identity checks: 9ccb6b and a0768b.
+
+[CI 39627474029](https://github.com/aidanmorgan/tim/actions/runs/39627474029) completed successfully for that exact SHA. Static gate, production bundle publication and static deployment check passed; C# game tests passed **2007/2007, zero failed, zero skipped**. Reviewer independently read the original CI log, not only the owner report (7799a9).
+
+Pages artifact `12358726059` belongs to that run and SHA, is unexpired, and has digest `sha256:bc9d938da4afd7ccc701c624038908b7ca32351e900c4d2e9f40a79f0e686e04` (77,374,314 bytes). Deployment `7230415931` is for the same commit and reports success at 2026-10-21T15:48:59Z at https://aidanmorgan.github.io/tim/. Independent artifact/deployment receipts are in a0768b and 7799a9.
+
+Every enumerated publication-dependent check is satisfied. This closes implementation/publication for this scoped slice; the browser and later qualification limits above remain explicit. No Chrome or local test rerun was performed for publication. This terminal receipt is retained for the next normal game publication, without a separate administrative CI run.

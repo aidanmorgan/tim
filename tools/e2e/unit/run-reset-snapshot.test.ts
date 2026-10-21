@@ -106,7 +106,7 @@ function parseSchema(source: string): { types: Map<string, { kind: 'struct' | 't
     for (const match of stripped.matchAll(/\b(struct|table|enum)\s+(\w+)\s*(?::\s*(\w+))?\s*\{([^}]*)\}/g)) {
         const [, kind, name, underlying, body] = match;
         if (kind === 'enum') { enums.set(name, underlying); continue; }
-        const fields = [...body.matchAll(/(\w+)\s*:\s*([\w\[\]]+)\s*;/g)].map(field => [field[1], field[2]] as [string, string]);
+        const fields = [...body.matchAll(/(\w+)\s*:\s*([\w\[\]]+)\s*(?:\(required\)\s*)?;/g)].map(field => [field[1], field[2]] as [string, string]);
         types.set(name, { kind: kind as 'struct' | 'table', fields });
     }
     return { types, enums };

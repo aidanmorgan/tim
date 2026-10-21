@@ -17,9 +17,9 @@ public sealed class WorkshopSaveRejectionTests
     public enum Field
     {
         Id, PartId, Locked, Cell, Local, Rotation, Radius, Mass, Bounce, Drag, Buoyancy, Margin, SpeedLimit, Dwell, Participation,
-        ForceMin, ForceMax, SupportHeight, SupportMargin, MaxAcceleration, Length, Width, Height, Thickness, Threshold, Duration,
+        ForceMin, ForceMax, SupportHeight, SupportMargin, MaxAcceleration, Length, Width, Threshold, Duration,
         Stiffness, Damping, InitialCompression, Capacity, MaximumPower, InitialFraction, Enabled, Strength, ReferenceMass, Preload,
-        HalfExtents, Friction, TargetCount,
+        HalfExtents, Friction, TargetCount, Parameters,
     }
 
     internal sealed class Instance(string part, ulong id)
@@ -39,9 +39,18 @@ public sealed class WorkshopSaveRejectionTests
     private static Offset<InstanceRecord> Write(FlatBufferBuilder builder, Instance instance)
     {
         var part = builder.CreateString(instance.Part);
+        VectorOffset? parameters = null;
+        if (instance.Values.TryGetValue(Field.Parameters, out var values))
+        {
+            var offsets = ((KeyValuePair<string, float>[])values).Select(pair =>
+                ParameterRecord.CreateParameterRecord(builder, builder.CreateString(pair.Key), pair.Value)).ToArray();
+            parameters = InstanceRecord.CreateParametersVector(builder, offsets);
+        }
         builder.StartTable(Enum.GetValues<Field>().Length);
+        if (parameters.HasValue) InstanceRecord.AddParameters(builder, parameters.Value);
         foreach (var (field, value) in instance.Values)
         {
+            if (field == Field.Parameters) continue;
             var slot = (int)field;
             switch (value)
             {
@@ -108,8 +117,8 @@ public sealed class WorkshopSaveRejectionTests
                 Field.Radius => record.Radius, Field.Mass => record.Mass, Field.Bounce => record.Bounce, Field.Drag => record.Drag,
                 Field.Buoyancy => record.Buoyancy, Field.Margin => record.Margin, Field.SpeedLimit => record.SpeedLimit, Field.Dwell => record.Dwell,
                 Field.Participation => record.Participation, Field.SupportHeight => record.SupportHeight, Field.SupportMargin => record.SupportMargin,
-                Field.MaxAcceleration => record.MaxAcceleration, Field.Length => record.Length, Field.Width => record.Width, Field.Height => record.Height,
-                Field.Thickness => record.Thickness, Field.Threshold => record.Threshold, Field.Duration => record.Duration, Field.Stiffness => record.Stiffness,
+                Field.MaxAcceleration => record.MaxAcceleration, Field.Length => record.Length, Field.Width => record.Width,
+                Field.Threshold => record.Threshold, Field.Duration => record.Duration, Field.Stiffness => record.Stiffness,
                 Field.Damping => record.Damping, Field.InitialCompression => record.InitialCompression, Field.Capacity => record.Capacity,
                 Field.MaximumPower => record.MaximumPower, Field.InitialFraction => record.InitialFraction, Field.Enabled => record.Enabled,
                 Field.Strength => record.Strength, Field.ReferenceMass => record.ReferenceMass, Field.Preload => record.Preload,
@@ -119,6 +128,8 @@ public sealed class WorkshopSaveRejectionTests
             };
             result.Values[field] = value;
         }
+        if (instance is WorkshopGenericInstance generic)
+            result.Values[Field.Parameters] = generic.Parameters.Select(pair => KeyValuePair.Create(pair.Key.Value, pair.Value)).ToArray();
         return result;
         static (float, float, float) Vec(Vec3f v) => (v.X, v.Y, v.Z);
     }
@@ -129,7 +140,6 @@ public sealed class WorkshopSaveRejectionTests
         "ball" or "bowling" => [Field.Radius, Field.Mass, Field.Bounce, Field.Drag, Field.Buoyancy],
         "basket" => [Field.Margin, Field.SpeedLimit, Field.Dwell, Field.Participation, Field.ForceMin, Field.ForceMax, Field.SupportHeight, Field.SupportMargin, Field.MaxAcceleration],
         "ramp" => [Field.Length, Field.Width],
-        "wall" => [Field.Width, Field.Height, Field.Thickness],
         "switch" or "pressure_plate" or "clock" => [Field.Threshold],
         "delay" => [Field.Duration],
         "spring" => [Field.Stiffness, Field.Damping, Field.InitialCompression],
@@ -148,7 +158,7 @@ public sealed class WorkshopSaveRejectionTests
         WorkshopInput.Ball(PartId.BowlingBall, new(2), 1, 3, 0, 0, 0, 0, 1),
         WorkshopInput.Receiver(new(3), 4, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Ramp(new(4), -2, 1, 0, 0, 0, 0, 1, RampDimensions.Default),
-        WorkshopInput.Wall(new(5), -4, 1, 0, 0, 0, 0, 1, WallDimensions.Default),
+        WorkshopInput.Generic(PartId.Wall, new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
         WorkshopInput.Switch(new(6), 2, 0, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
         WorkshopInput.Delay(new(7), 3, 0, 0, 0, 0, 0, 1, DelayDuration.Default),
         WorkshopInput.Springboard(new(8), 5, 0, 0, 0, 0, 0, 1, SpringboardSettings.Default),
@@ -167,6 +177,34 @@ public sealed class WorkshopSaveRejectionTests
         WorkshopInput.Funnel(new(21), 18, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.PoweredGate, new(22), 19, 0, 0, 0, 0, 0, 1),
     ];
+
+
+    [Fact]
+    public void GenericVectorsRejectMissingDuplicateUnknownAndMixedRecordPayloads()
+    {
+        var wall = FromProduction(WorkshopInput.Generic(PartId.Wall, new(1), 0, 2, 0, 0, 0, 0, 1));
+        KeyValuePair<string, float>[] valid = [new("width", 3f), new("height", 2f), new("thickness", .25f)];
+        foreach (var malformed in new KeyValuePair<string, float>[][]
+        {
+            [], [new("width", 3f), new("height", 2f)],
+            [.. valid, new("width", 4f)], [.. valid, new("unknown", 1f)],
+            [new("", 3f), new("height", 2f), new("thickness", .25f)]
+        })
+        {
+            var bytes = Bytes(One(wall.With(Field.Parameters, malformed)));
+            Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
+            var construction = WorkshopSaveCodec.Open(bytes).Construction!.Value;
+            Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(construction));
+        }
+        foreach (var instance in EveryKind().Where(instance => instance is not WorkshopGenericInstance))
+        {
+            var forged = FromProduction(instance).With(Field.Parameters, valid);
+            var bytes = Bytes(One(forged));
+            Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
+            Assert.Throws<WireFaultException>(() =>
+                WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+        }
+    }
 
     private static Save One(Instance instance) => new([instance], []);
 

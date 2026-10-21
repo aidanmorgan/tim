@@ -107,7 +107,11 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
             if(route===Route.Paid){
                 for(let a=0;a<3;a++)assert.ok(Math.abs(position(initial,3,a)-[-1,4,0][a])<.001);
                 const wallInst=initial.construction()!.instances(3)!;
-                const dims=[wallInst.width(),wallInst.height(),wallInst.thickness()];
+                const parameters = new Map(Array.from({length: wallInst.parametersLength()}, (_, i) => {
+                    const parameter = wallInst.parameters(i)!;
+                    return [parameter.key(), parameter.value()] as const;
+                }));
+                const dims = ['width', 'height', 'thickness'].map(key => parameters.get(key)!);
                 for(let a=0;a<3;a++)assert.ok(Math.abs(dims[a]-[.4,6,1.5][a])<.001);
             }
         }

@@ -34,7 +34,8 @@ public readonly record struct WorkshopGenericInstance(
     GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, bool Locked = false) : IWorkshopDeclaredColliders
 {
-    public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
+    public InstanceParameterCollection Parameters { get; init; } = InstanceParameterCollection.Empty;
+    public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId, Parameters.ToBundleValues());
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
@@ -43,6 +44,7 @@ public readonly record struct WorkshopGenericInstance(
         if (PartId == PartId.Pipe) throw new ArgumentException("A pipe is a typed WorkshopPipe, never a generic instance.");
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
         Rotation.Validate();
+        Parameters.Validate(PartId);
         _ = DeclaredColliders;
     }
 }
@@ -100,7 +102,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
         var ids = new HashSet<GpuBodyId>();
         foreach (var item in _items)
         {
-            if (item is not (WorkshopBall or WorkshopReceiver or WorkshopRamp or WorkshopSwitch or WorkshopLamp or WorkshopWall or WorkshopDelay or WorkshopBumper or WorkshopDomino or WorkshopBattery or WorkshopSpringboard or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
+            if (item is not (WorkshopBall or WorkshopReceiver or WorkshopRamp or WorkshopSwitch or WorkshopLamp or WorkshopDelay or WorkshopBumper or WorkshopDomino or WorkshopBattery or WorkshopSpringboard or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
                 throw new ArgumentException("Unsupported authored instance declaration.");
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
