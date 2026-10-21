@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/BuildImpact.cs
++++ b/tools/E2eRunner/BuildImpact.cs
+@@
+-if (!KnownSharedReference(resolved)) return null;
++if (!KnownSharedReference(resolved)) continue;

@@ -1,0 +1,25 @@
+using Xunit;
+
+namespace CuriousContraptions.E2eRunner.Tests;
+
+public sealed class CalibrationInputsTests
+{
+    private static CalibrationInputs Original() => new("source", "bundle",
+        new Dictionary<SuiteId, string> { [SuiteId.Cat020] = "captured-closure" });
+
+    [Fact]
+    public void EveryRelevantTrialIdentityMustMatch()
+    {
+        var inputs = Original();
+        inputs.RequireSame(Original());
+        Assert.Equal(RunnerError.Uncalibrated,
+            Assert.Throws<RunnerException>(() => inputs.RequireSame(inputs with { SuiteSources = "new source" })).Error);
+        Assert.Throws<RunnerException>(() => inputs.RequireSame(inputs with { Bundle = "new bundle" }));
+        Assert.Throws<RunnerException>(() => inputs.RequireSame(inputs with
+        {
+            Closures = new Dictionary<SuiteId, string> { [SuiteId.Cat020] = "new closure" },
+        }));
+        Assert.Throws<RunnerException>(() => inputs.RequireSame(inputs with { Closures = new Dictionary<SuiteId, string>() }));
+        Assert.Equal("captured-closure", inputs.Closures[SuiteId.Cat020]);
+    }
+}

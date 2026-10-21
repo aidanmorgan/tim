@@ -15,7 +15,7 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeSavedConstruction } from './workshop-wire.ts';
+import { decodeSavedConstruction, type InstanceRecord } from './workshop-wire.ts';
 import { MemoryKind, activationMemoryRows, assertLoadRestores, snapshotEntries, snapshotValue, type ActivationMemoryRow } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;
@@ -83,7 +83,8 @@ function assertCounterWiring(bytes: Buffer, gateSlot: number, ballSlot: number, 
     assert(hasEdge(counterId, gateId, ConnectionDomain.Electrical, Socket.Supply, Socket.PowerIn), 'Missing Counter -> Gate electrical link');
     assert(hasEdge(battId, counterId, ConnectionDomain.Electrical, Socket.Supply, Socket.PowerIn), 'Missing Battery -> Counter electrical link');
     assert(hasEdge(detId, counterId, ConnectionDomain.Activation, Socket.ActivationOut, Socket.ActivationIn), 'Missing Detector -> Counter activation link');
-    const counterInst = construction.instances(counterSlot)!;
+    // Counter assertions expose only the Counter configuration; threshold belongs to other generic record uses.
+    const counterInst: Pick<InstanceRecord, 'partId' | 'targetCount'> = construction.instances(counterSlot)!;
     assert.equal(counterInst.partId(), 'counter');
     // Story 9A.2: the Counter target is its whole target_count field (the f32 threshold was the deleted coercion).
     assert.equal(counterInst.targetCount(), 3);

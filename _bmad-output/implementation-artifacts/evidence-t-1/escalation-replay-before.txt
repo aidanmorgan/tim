@@ -1,0 +1,40 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.10]   Discovering: E2eRunner.Tests
+[xUnit.net 00:00:00.26]   Discovered:  E2eRunner.Tests
+[xUnit.net 00:00:00.36]   Starting:    E2eRunner.Tests
+[xUnit.net 00:00:03.99]   Finished:    E2eRunner.Tests (ID = '902ac32a46fc45cd8acc9e22399222b5076ac35167ef4d1e5e00108c29d9f2db')
+  Passed CuriousContraptions.E2eRunner.Tests.EscalationReplayProbe.ReplayLastTenMerges [3 s]
+  Standard Output Messages:
+ 6ca5591e	230 paths	merge: Story 9A.17 the bundle is the sole source of element ports and the port tables are deleted
+ 	Refused NoPrimarySuite: NoPrimarySuite: elements/DelayBox/DelayBoxElementDeclaration.cs changes delay, which no suite declares as its Primary; add the element's suite (or its Primary) to SuiteCatalogue.
+ 379cc24a	153 paths	merge: Story 9A.15 saves and messages carry the bundle element id and the numeric part ids are deleted
+ 	Full; 8 trigger path(s); first: CuriousContraptions.tests/CuriousContraptions.tests.csproj (Build, build files) | engine/gpu/WireFaultException.cs (MaterialEngine, engine/gpu/**) | engine/gpu/WorkshopCanonicalColliders.cs (MaterialEngine, engine/gpu/**) | engine/gpu/WorkshopSaveCodec.cs (MaterialEngine, engine/gpu/**) | engine/gpu/WorkshopSavePrevalidation.cs (MaterialEngine, engine/gpu/**)
+ 379f84ba	202 paths	merge: Story 9A.2 one framed FlatBuffers codec for every Workshop message and typed save pre-validation
+ 	Full; 54 trigger path(s); first: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas) | CuriousContraptions.Simulation/Program.Schedule.cs (SharedRuntime, workers, client, contracts and schemas) | CuriousContraptions.Simulation/Program.cs (SharedRuntime, workers, client, contracts and schemas) | CuriousContraptions.Simulation/WorkshopTrace.cs (SharedRuntime, workers, client, contracts and schemas) | CuriousContraptions.Simulation/wwwroot/worker.js (SharedRuntime, workers, client, contracts and schemas)
+ c9b45da0	397 paths	merge: Stories 9A.14 and 9A.18 the bundle is the sole catalogue and icons ship in packages
+ 	Refused NoPrimarySuite: NoPrimarySuite: elements/Ball/BallElementDeclaration.cs changes ball, which no suite declares as its Primary; add the element's suite (or its Primary) to SuiteCatalogue.
+ dea66474	89 paths	merge: PKG-3 Delay Box and Impact Switch element packages (Stories 9A.7, 9A.13)
+ 	Refused NoPrimarySuite: NoPrimarySuite: elements/DelayBox/DelayBoxElementDeclaration.cs changes delay, which no suite declares as its Primary; add the element's suite (or its Primary) to SuiteCatalogue.
+ 6f14de9a	93 paths	merge: PKG-2 Funnel, Clear Pipe and Pipe Bend element packages (Stories 9A.8-9A.11)
+ 	Full; 16 trigger path(s); first: CuriousContraptions.slnx (Build, build files) | elements/Funnel/Funnel.csproj (Build, build files) | elements/Pipe/Pipe.csproj (Build, build files) | elements/PipeBend45/PipeBend45.csproj (Build, build files) | elements/PipeBend90/PipeBend90.csproj (Build, build files)
+ f3105a57	212 paths	merge: PKG-1 Receiver, Bowling Ball and Springboard element packages (Stories 9A.5, 9A.6, 9A.12)
+ 	Refused NoPrimarySuite: NoPrimarySuite: elements/Receiver/ReceiverElementDeclaration.cs changes basket, which no suite declares as its Primary; add the element's suite (or its Primary) to SuiteCatalogue.
+ 73be4b45	80 paths	merge: Story 9A.4 lossless bundle build gate
+ 	Refused NoPrimarySuite: NoPrimarySuite: elements/Ball/BallElementDeclaration.cs changes ball, which no suite declares as its Primary; add the element's suite (or its Primary) to SuiteCatalogue.
+ 2fa05e15	198 paths	merge: Story 9A.1 dead legacy purge with every remaining format version retired
+ 	Full; 24 trigger path(s); first: CuriousContraptions.Animation.Worker/Program.cs (SharedRuntime, workers, client, contracts and schemas) | CuriousContraptions.Simulation/WorkshopTrace.cs (SharedRuntime, workers, client, contracts and schemas) | CuriousContraptions.csproj (Build, build files) | CuriousContraptions.web/wwwroot/clock-ring.js (SharedRuntime, workers, client, contracts and schemas) | CuriousContraptions.web/wwwroot/workshop-client.js (SharedRuntime, workers, client, contracts and schemas)
+ f5815041	12 paths	merge: Story 9A.0 architecture authority records the sole design
+ 	Full; 1 trigger path(s); first: CuriousContraptions.tests/CuriousContraptions.tests.csproj (Build, build files)
+ escalated (Full or refused): 10/10 (Full 5, refused 5)
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 4.2190 Seconds

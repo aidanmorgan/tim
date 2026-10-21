@@ -188,7 +188,7 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
         const slot = await driver.readLatestPose();
         assert.ok(slot, 'the paused run publishes a pose');
         for (const id of ids) {
-            const domino = slot.bodies.find(b => b.id === id);
+            const domino: WorkshopBodyPose | undefined = slot.bodies.find(b => b.id === id);
             assert.ok(domino, `domino ${id} is in the pose ring`);
             assert.ok(Math.abs(domino.py - 3.63) < 0.03 && domino.px > 2.1 && domino.px < 3.9,
                 `domino ${id} stands on the plate face, got (${domino.px}, ${domino.py}, ${domino.pz})`);

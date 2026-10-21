@@ -1,7 +1,7 @@
 namespace CuriousContraptions.E2eRunner;
 
 /// <summary>What a changed path affects (spec ImpactRules task). Each path resolves to exactly one kind.</summary>
-internal enum ImpactKind { NoBrowserImpact = 1, Suite, SharedTestModule, Element, Level, WorkshopArea, Full }
+internal enum ImpactKind { NoBrowserImpact = 1, Suite, SharedTestModule, Element, Level, WorkshopArea, PackageBuild, Catalogue, Full }
 
 /// <summary>Why a path selects the full run (the guide's Tier 3 triggers, plus central interaction files and unknown paths).</summary>
 internal enum FullReason { MaterialEngine = 1, SharedRuntime, SharedDriverInfrastructure, AllInteraction, RunnerItself, Build, Unknown }
@@ -97,7 +97,9 @@ internal static class ImpactRules
         new("tools/e2e/*.ts (shared module)", ImpactKind.SharedTestModule,
             path => TopLevelIn(path, "tools/e2e", ".ts") && !SuiteCatalogue.IsSuitePath(path)),
         new("tools/*.mjs (shared module)", ImpactKind.SharedTestModule, path => TopLevelIn(path, "tools", ".mjs")),
-        new("elements/<package>/**", ImpactKind.Element, path => ElementDirectory(path) is { } directory && ElementPackages.ContainsKey(directory)),
+        new("elements/<package>/**", ImpactKind.Element, path => ElementDirectory(path) is { } directory && ElementPackages.ContainsKey(directory) && !path.EndsWith(".csproj", StringComparison.Ordinal)),
+        new("known package and solution build", ImpactKind.PackageBuild, path => path == BuildImpact.Solution || (PackagePart(path) is not null && path.EndsWith(".csproj", StringComparison.Ordinal))),
+        new("suite catalogue rows", ImpactKind.Catalogue, path => path == "tools/E2eRunner/SuiteCatalogue.cs"),
         new("content/puzzles.json", ImpactKind.Level, path => path == "content/puzzles.json"),
         new("engine/** (outside engine/gpu), ui/**, scenes/** (area table)", ImpactKind.WorkshopArea,
             path => (Under(path, "engine") && !Under(path, "engine/gpu")) || Under(path, "ui") || Under(path, "scenes")),
@@ -111,9 +113,9 @@ internal static class ImpactRules
         new("tools/{BundleElements,Preview}/**", ImpactKind.Full,
             path => Under(path, "tools/BundleElements") || Under(path, "tools/Preview"), FullReason.SharedDriverInfrastructure),
         new("tools/E2eRunner*/**", ImpactKind.Full,
-            path => Under(path, "tools/E2eRunner") || Under(path, "tools/E2eRunner.Tests"), FullReason.RunnerItself),
+            path => (Under(path, "tools/E2eRunner") && path != "tools/E2eRunner/SuiteCatalogue.cs") || Under(path, "tools/E2eRunner.Tests"), FullReason.RunnerItself),
         new("build files", ImpactKind.Full,
-            path => path.EndsWith(".csproj", StringComparison.Ordinal) || path.EndsWith(".slnx", StringComparison.Ordinal) ||
+            path => (path.EndsWith(".csproj", StringComparison.Ordinal) && PackagePart(path) is null) || (path.EndsWith(".slnx", StringComparison.Ordinal) && path != BuildImpact.Solution) ||
                 FileNameOf(path).StartsWith("Directory.Build.", StringComparison.Ordinal) ||
                 path is "global.json" or "project.godot" or "export_presets.cfg",
             FullReason.Build),

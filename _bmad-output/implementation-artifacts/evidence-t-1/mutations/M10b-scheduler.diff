@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Program.cs
++++ b/tools/E2eRunner/Program.cs
+@@
+-ParallelQualification.Resolve(root, declaration, measured, workers, chromeVersion, qualifications)
++(root is not null && measured is not null && workers > 0 && chromeVersion.Length > 0 && qualifications is not null ? declaration.Timing : declaration.Timing)

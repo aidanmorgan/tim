@@ -1,0 +1,38 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.37]   Discovering: E2eRunner.Tests
+[xUnit.net 00:00:00.49]   Discovered:  E2eRunner.Tests
+[xUnit.net 00:00:00.59]   Starting:    E2eRunner.Tests
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedEngineAndBuildRulesRemainFull(path: "engine/gpu/WorkshopPhysicsCompiler.cs") [21 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedEngineAndBuildRulesRemainFull(path: "CuriousContraptions.Simulation/Program.cs") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedEngineAndBuildRulesRemainFull(path: "Directory.Build.props") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [753 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SolutionMembershipUsesBothSidesAndRejectsUnknownProjects [958 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueAmbiguityAndPreprocessorChangesAreConservative [92 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueRowsNarrowButHelperLogicDoesNot [28 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck [474 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: False, cycle: True) [271 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: True, cycle: False) [269 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: True, cycle: True) [261 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: False, cycle: False) [271 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "$(InjectedProject)") [524 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../PoweredGate/missing.csproj") [547 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../../unknown/unknown.csproj") [520 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedBuildTargetsCannotNarrow [260 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.HistoricalMissingHeadIsNotResurrectedFromTheWorkingTree [256 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.MissingAndMalformedProjectsCannotNarrow [518 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.AddedAndRemovedPackageReferencesSelectBothEnds(removing: False) [269 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.AddedAndRemovedPackageReferencesSelectBothEnds(removing: True) [260 ms]
+[xUnit.net 00:00:07.48]   Finished:    E2eRunner.Tests (ID = '902ac32a46fc45cd8acc9e22399222b5076ac35167ef4d1e5e00108c29d9f2db')
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SelectorConsumesPackageSolutionAndCatalogueImpacts [1 s]
+
+Test Run Successful.
+Total tests: 21
+     Passed: 21
+ Total time: 7.6779 Seconds

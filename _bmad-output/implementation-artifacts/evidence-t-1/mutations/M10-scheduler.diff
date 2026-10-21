@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Program.cs
++++ b/tools/E2eRunner/Program.cs
+@@
+-ParallelQualification.Resolve(root, declaration, measured, workers, chromeVersion, qualifications)
++declaration.Timing

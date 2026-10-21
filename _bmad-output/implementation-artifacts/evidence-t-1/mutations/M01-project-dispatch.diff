@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Selection.cs
++++ b/tools/E2eRunner/Selection.cs
+@@
+-foreach (var part in buildParts) SelectElement(part, path, headBundle, context.LevelParts, add);
++foreach (var part in buildParts) _ = part;

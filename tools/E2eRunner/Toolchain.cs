@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace CuriousContraptions.E2eRunner;
 
 /// <summary>The resolved browser-test toolchain, recorded in every summary. Resolution never downloads anything.</summary>
-internal sealed record Toolchain(string TsxLoader, string TsxVersion, string PlaywrightVersion, string NodeVersion, string ChromeVersion)
+internal sealed partial record Toolchain(string TsxLoader, string TsxVersion, string PlaywrightVersion, string NodeVersion, string ChromeVersion)
 {
     public const string TsxVersionRequired = "4.23.15";
     public const string PlaywrightMcp = "/opt/homebrew/lib/node_modules/@playwright/mcp";

@@ -59,7 +59,7 @@ Every single story across all epics must formally satisfy the following mandator
 1. **C# Unit Tests Pass 100%:** `dotnet test CuriousContraptions.slnx` passes 100% with 0 failures (557+ tests).
 2. **C# Static Gate Clean:** `dotnet build CuriousContraptions.slnx` reports **0 warnings and 0 errors** with the .NET analyzers and warnings as errors (`Directory.Build.props`, Story 9R.0), in the default configuration and with `-p:PlaytestDiagnostics=true`, and the web host's own sources compile clean. `CSharpStaticGateTests` passes (no suppression, no widened exemption, no swallowed exception). The repository pre-commit hook checks all of this on a from-scratch snapshot of the staged index and refuses a commit that fails; CI repeats the builds. Until the Story 9.4b rebase, the one expected warning is IL2125. Anvil does not analyse C#: `anvil check --changed` with 0 warnings applies to non-C# files only and is never evidence for C# code.
 3. **Browser-Based Playwright E2E Suite Passes 100%:** The story's dedicated browser-based Playwright E2E test suite (`tools/e2e/<suite>.test.ts`) executed in actual Chrome via the Playwright browser connector passes 100%.
-4. **Required E2E Tiers Pass 100% in Chrome:** The story's Tier 2 impact selection (`dotnet run --project tools/E2eRunner -- run --diff <base> --out <D>`), and the Tier 3 full run by `tools/E2eRunner` when the story makes a material engine change, pass 100% in actual Chrome: timing-sensitive suites run alone, the rest on N measured parallel workers ([Verification tiers](autonomous-development-guide.md#verification-tiers)). A 100% pass rate across both the slice's E2E test and every required suite is mandatory before any story can be marked complete. Any browser failure or regression strictly blocks completion.
+4. **Required E2E Tiers Pass 100% in Chrome:** Impact-selected functional suites and controls pass in actual Chrome. Full is required only when demonstrated cross-family or unknown impact cannot be resolved by bounded checks, justified in the independent review matrix; an engine filename or absent T.2 coverage alone does not require it. Timing-sensitive suites run alone, others use measured parallel workers ([Verification tiers](autonomous-development-guide.md#verification-tiers)). Every required check must pass; a known regression blocks completion.
 5. **Exact Reset and Save/Load Persistence Roundtrip:** Exact state restoration before Run and after Reset, as well as JSON Save/Load persistence roundtrip, is verified in Chrome.
 6. **Zero Legacy Remnants or Compatibility Bridges:** Active tree grep confirms complete absence of backwards-compatibility shims, legacy flags, or deprecated code remnants.
 7. **Terminal Scoped Pass from Independent Adversarial Reviewer (Murdoch):** Independent adversarial review subagent verifies all criteria and issues an unambiguous terminal scoped `Pass`. Self-review never qualifies.
@@ -157,9 +157,9 @@ The coordinator adopted the re-examination and decided the items below. This ord
 | 11 | 9A.15 Bundle element id in saves and messages | |
 | 12 | 9A.17 Bundle ports and footprints | |
 | 13 | 9A.3 Typed transport commands | owner amendment |
-| 13a | T.1 Fast-test quick wins | owner, 21 Oct: fast alternatives to constant e2e |
+| 13a | T.1 Fast-test quick wins, AC1–AC2 shipment | owner, 21 Oct: ship type-check and selection; AC3–AC4 deferred |
 | 14 | 9A.16 Bundle-only colliders | owner amendment |
-| 14a | T.2 Native fixture replay | owner, 21 Oct; switches the gate, see [Verification tiers](autonomous-development-guide.md#verification-tiers) |
+| 14a (optional) | T.2 Native fixture replay | acceleration work, not a blocker for gameplay; covered assertions can use verified native proof |
 | 15 | 9A.25a Committed-state bindings | 9A.25 committed-state part + 9R.20 |
 | 16 | 9A.27 Generic instance and editor (Wall) | + 9R.14, one-line `BumperAdvanced` edit |
 | 17 | 9A.45a Early isolation ratchet | |
@@ -171,7 +171,7 @@ The coordinator adopted the re-examination and decided the items below. This ord
 - **Where the time goes:** a Full run now takes 52–54 minutes. About 78% of it is the serial phase, and about 1,290 s of that is suites that run alone only by policy, because they are uncalibrated. Fixed launch and boot overhead is about 6%. The rest is real-time Run windows, benches built through the UI, and tick-stepping through the menu, which is about 60× slower than native.
 - **What can leave the browser:** about 60–65% of assertions are simulation behaviour or save/load, so they can run outside Chrome.
 - **What Chrome caught:** two of the recent Chrome-only catches were stale test code that a TypeScript type-check would have caught.
-- **Order:** T.1 and T.2 sit on the critical path because they shorten every later story; T.3 follows 9.5. T.4 (headless real-wasm harness, spike first), T.5 (coverage-based selection) and T.6 (persistent browser sessions) go at the back of the queue.
+- **Order (owner course correction, 21 Oct):** ship the bounded T.1 AC1–AC2 changes, then proceed directly to 9A.16 and gameplay delivery. T.1 AC3–AC4 calibration/measurement and T.2 replay are optional acceleration work, not gameplay prerequisites. T.3 follows 9.5 and requires demonstrated native coverage before deleting duplicate assertions. T.4–T.6 stay at the back of the queue. Actual impact and the independent reviewer’s coverage matrix govern checks; see [Verification tiers](autonomous-development-guide.md#verification-tiers).
 
 *After Story 9.5, one deletion-lane story alternates with one element-lane story:*
 
@@ -278,10 +278,10 @@ Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each sto
 ### End-to-end scope rule (owner decision, 19 Oct 2026)
 
 This rule governs every acceptance criterion below that reads "every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview", and every spec that asks for cumulative runs:
-- A Tier 3 full run by `tools/E2eRunner`, at 100% and run once, is required only when a story makes a material engine change: the solver, the physics or animation workers, the clock, the pose ring, the wire/ABI, the compiler, or shared driver/test infrastructure.
+- Story Full follows [Verification tiers](autonomous-development-guide.md#verification-tiers): use selected functional suites and controls for a known bounded closure, including compiler/worker changes. The independent reviewer records actual impact and coverage; unresolved cross-family or unknown impact requires broader checks and Full when bounded checks cannot resolve it. Selector Full is conservative input, not proof that every suite is necessary. Targeted timing follows changed timing behavior; named release gates remain.
 - Any other story runs the e2e suites selected by its actual impact: its own element's suite, the suites of its direct consumers and integrations, and any suite that exercises changed shared code. The selection and its justification are recorded in the review.
 - The reviewer reuses the implementer's identity-verified runs and does not repeat a full run.
-- The full tier definitions are in the [autonomous development guide, Verification tiers](autonomous-development-guide.md#verification-tiers). They also cover the background checkpoint full run after every 5 element stories and at each epic end, parallel Chrome workers for non-timing suites, review lenses on the first candidate only, and Low findings not blocking.
+- The full tier definitions are in the [autonomous development guide, Verification tiers](autonomous-development-guide.md#verification-tiers). They also cover the background checkpoint Full after every 5 newly verified named puzzle elements (not infrastructure/documentation stories or automatic epic-end repeats), targeted timing checks for affected code, named release/calibration gates, parallel Chrome workers for non-timing suites, review lenses on the first candidate only, and Low findings not blocking.
 - Owner's words: "55 minutes is too long to wait - we want to be making progress adding more puzzle elements once we are sure the core engine changes have landed and the old code has been removed".
 
 ### Open scheduling items
@@ -1431,7 +1431,7 @@ So that the Workshop never crashes when I add a part.
 
 *Depends on: Story 9R.0. Owner decisions, 19 Oct 2026 ([Verification tiers](autonomous-development-guide.md#verification-tiers)):*
 - *a full run only for material engine changes, otherwise impact-selected suites;*
-- *a background checkpoint after every 5 element stories;*
+- *a background checkpoint after every 5 newly verified named puzzle elements; infrastructure/documentation stories do not advance that counter (owner amendment, 21 Oct);*
 - *parallel Chrome workers for suites that don't depend on timing.*
 
 *Deletes: the hand-rolled scratch gate scripts that serialise all suites, and every remaining "all suites serially" or "cumulative twice" wording in active docs. Tracked evidence scripts stay unchanged as historical evidence (AGENTS.md).*
@@ -1633,7 +1633,7 @@ So that two plates switch two gates independently.
 - F17-13: `anvil check` reports 0 warnings (today GS-001 at `tools/e2e/workshop-driver.ts:985`), and Tier 1 evidence includes the anvil log.
 
 ### Story T.1: Fast-Test Quick Wins
-*Status: Backlog. Owner, 21 Oct 2026 (fast-test lane in the Delivery order). Position 13a.*
+*Status: In progress, partial shipment under review. Owner course correction, 21 Oct 2026: ship AC1–AC2, then proceed directly to 9A.16. AC3–AC4 are deferred acceleration/measurement work, preserved below without a completion or speedup claim. They do not block gameplay slices. Position 13a.*
 
 As a developer, I want stale test code caught in Tier 1, accurate suite selection, and calibrated suites running in parallel, so that a story's Chrome time shrinks without losing any proof.
 
@@ -1650,7 +1650,7 @@ As a developer, I want stale test code caught in Tier 1, accurate suite selectio
 - **Deletes:** the policy-serial entries that calibration replaces, and the `NoPrimarySuite` refusal path for elements that declare suites.
 
 ### Story T.2: Native Fixture Replay
-*Status: Backlog. Owner, 21 Oct 2026. Position 14a. When it lands, the [Verification tiers](autonomous-development-guide.md#verification-tiers) gate switch takes effect for the families it covers.*
+*Status: Backlog, optional acceleration work after the owner’s playable-first course correction, 21 Oct 2026. Position 14a is not a gameplay prerequisite. Verified native coverage can replace covered assertions under [Verification tiers](autonomous-development-guide.md#verification-tiers). All ACs below remain.*
 
 As a developer, I want each element suite's UI-built benches replayed natively through the real save codec and the production simulation, so that behaviour and save/load are proven in seconds on every change.
 

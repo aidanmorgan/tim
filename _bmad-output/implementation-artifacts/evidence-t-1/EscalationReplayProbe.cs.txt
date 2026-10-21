@@ -1,0 +1,64 @@
+using Xunit;
+
+namespace CuriousContraptions.E2eRunner.Tests;
+
+/// <summary>Story T.1 AC4 probe (kept as .cs.txt evidence, never committed as a test): replays the diff of each of the last 10 merged
+/// stories (M^1..M) through the rules compiled into this build. Base reads git show M^1:path; head reads git show M:path, falling back
+/// to the working tree only for paths git does not hold at M (the gitignored generated bundle is the current build output).</summary>
+public sealed class EscalationReplayProbe(ITestOutputHelper output)
+{
+    private static readonly string[] Merges =
+        ["28e2bb9c77dd16026d460a4c23f1f915dd59792c", "6ca5591e2e75df9370f455d358eb35c95b69e984",
+         "379cc24a7fe17e666b234f8c0e7ed0b0c88d4292", "379f84ba13951c3258ee2c5c54d379f31213e9b8",
+         "c9b45da057a41796ed31f2969f468a6c88561af1", "dea664745c0f62bf28e07ffd171ac1174ea05e9b",
+         "6f14de9a39fb673c952841e0a37fdbdd2db56d27", "f3105a5726b1dde90daedf8155852fd45171a46f",
+         "73be4b452acf1539e684ec0e63e5577f629f6aa4", "2fa05e15ff18ec3184a1dc2d4fe006395a459f03"];
+
+    private static string? Show(string commit, string path)
+    {
+        var result = Processes.Run("git", ["-C", TestRepository.Root, "show", $"{commit}:{path}"]);
+        return result.ExitCode == 0 ? result.Output : null;
+    }
+
+    [Fact]
+    public void ReplayLastTenMerges()
+    {
+        output.WriteLine("Fixed post-9A.3 story-merge sample; documentation-only commits excluded. Generated bundle, suite catalogue and import closures are the pinned runner checkout inputs, not historical runtime reconstruction.");
+        var full = 0;
+        var refused = 0;
+        foreach (var merge in Merges)
+        {
+            var subject = Processes.Git(TestRepository.Root, "log", "-1", "--format=%s", merge).Trim();
+            var fields = Processes.Git(TestRepository.Root, "diff", "--name-status", "-M", "-z", merge + "^1", merge)
+                .Split('\0', StringSplitOptions.RemoveEmptyEntries);
+            var paths = new SortedSet<string>(StringComparer.Ordinal);
+            for (var index = 0; index < fields.Length;)
+            {
+                var count = fields[index++][0] is 'R' or 'C' ? 2 : 1;
+                for (var path = 0; path < count && index < fields.Length; path++) paths.Add(fields[index++]);
+            }
+            string verdict;
+            try
+            {
+                var context = new ImpactContext(TestRepository.Root, path => Show(merge + "^1", path),
+                    path => path == ImpactContext.BundlePath ? TestRepository.Read(path) : Show(merge, path));
+                var selection = Selector.Select([.. paths], context);
+                if (selection.Mode == SelectionMode.Full)
+                {
+                    full++;
+                    var triggers = selection.Paths.Where(path => path.Kind == ImpactKind.Full)
+                        .Select(path => $"{path.Path} ({path.Full}, {path.Rule})").ToArray();
+                    verdict = $"Full; {triggers.Length} trigger path(s); first: {string.Join(" | ", triggers.Take(5))}";
+                }
+                else verdict = $"Selected {selection.Suites.Count} suite(s): {string.Join(",", selection.Suites.Select(suite => SuiteCatalogue.FileName(suite.Suite)))}";
+            }
+            catch (RunnerException refusal)
+            {
+                refused++;
+                verdict = $"Refused {refusal.Error}: {refusal.Message}";
+            }
+            output.WriteLine($"{merge}\t{paths.Count} paths\t{subject}\n\t{verdict}");
+        }
+        output.WriteLine($"escalated (Full or refused): {full + refused}/{Merges.Length} (Full {full}, refused {refused})");
+    }
+}

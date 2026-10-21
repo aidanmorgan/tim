@@ -48,7 +48,7 @@ flowchart LR
     1. `dotnet build CuriousContraptions.slnx` $\implies$ **0 warnings, 0 errors**. This is the C# static gate (Story 9R.0): `Directory.Build.props` builds every C# project with the .NET analyzers (`AnalysisLevel` latest-recommended plus the `.editorconfig` correctness rules) and warnings as errors. The repository pre-commit hook builds a from-scratch snapshot of the staged index: the solution (default and `-p:PlaytestDiagnostics=true`), the web host's own sources and both `tools/anvil` apps. It then runs `CSharpStaticGateTests`, which rejects suppressions, widened exemptions and swallowed exceptions the analyzers skip. CI (`pages.yml`) runs the same builds. `anvil check --changed` covers non-C# files only; anvil does not analyse C#, so it is never evidence for C# code.
     2. `dotnet test CuriousContraptions.slnx` $\implies$ must pass **100%** (557+ tests).
     3. Browser-based E2E verification in Chrome at the tier the story requires (see [Verification tiers](#verification-tiers)), with a **100% pass rate**.
-  - **A story CANNOT be marked complete or handed off without authoring and running its own browser-based E2E test in Chrome (`tools/e2e/<suite>.test.ts`), Tier 1, and the Tier 2 impact-selected suites. The Story Full run is added only when [Verification tiers](#verification-tiers) requires it.**
+  - **Runtime/UI stories require their affected Chrome proof, Tier 1 and impact-selected suites. Tool/docs-only slices use affected native/type-check evidence and unchanged browser proof after independent applicability review; they do not need a new Chrome test solely to ship tooling. Story Full follows [Verification tiers](#verification-tiers).**
   - Hands off completed snapshot to the independent reviewer.
 
 ### Role 4: BMAD Adversarial QA / Reviewer (Murdoch)
@@ -94,7 +94,7 @@ It supersedes these older rules, which stay in git history:
 - the full run twice;
 - a design-review agent for every story;
 - the 19 Oct "keep current order" (replaced by the epics.md Delivery order);
-- the per-story Full run for engine changes, once Story T.2 covers the family.
+- the blanket per-story Full requirement for engine filenames or families lacking T.2 (owner playable-first correction, 21 Oct); actual impact and independently reviewed coverage now determine scope.
 
 The speed principle: prove behaviour with the fastest test that runs the production code. Chrome proves what only the browser can prove: the UI, rendering, real worker lifecycle and real-time clocks.
 
@@ -103,9 +103,11 @@ The speed principle: prove behaviour with the fastest test that runs the product
 | Gate | When | What |
 |---|---|---|
 | **Tier 1** (minutes, no browser) | Every candidate, implementer and reviewer | See the list below. |
-| **Tier 2** (Chrome, usually 2–10 min) | Every story, once, by the implementer | `dotnet run --project tools/E2eRunner -- run --diff <base> --out <D>`: the story's own suite, the suites of connected elements and integrations, suites using changed shared code, and the smoke pair `engine-core-2b1` + `engine-core-2a1`. If the runner refuses (`NoPrimarySuite`), run the affected suites plus the smoke pair by name and record why. |
-| **Story Full** (Chrome, ~50 min today) | Only for an engine change (solver, physics or animation worker, clock, pose ring, wire, compiler) in a family that Story T.2's native replay does not yet cover. Once, by the implementer. | `dotnet run --project tools/E2eRunner -- full --out <D>`. |
-| **Checkpoint Full** (Chrome, in the background) | On committed main after every 5 merged stories, and at each epic end. Run by the coordinator while work continues. | The full run. A failure stops new work; the coordinator bisects across at most 5 merges and files the fix at the front of the queue. |
+| **Tier 2** (Chrome, usually 2–10 min) | Runtime/UI impact, once, by the implementer; tool/docs-only slices reuse unchanged proof after independent applicability review | `dotnet run --project tools/E2eRunner -- run --diff <base> --out <D>`: the story's own suite, the suites of connected elements and integrations, suites using changed shared code, and the smoke pair `engine-core-2b1` + `engine-core-2a1`. If the runner refuses (`NoPrimarySuite`), run the affected suites plus the smoke pair by name and record why. |
+| **Story Full** (Chrome) | Only when demonstrated cross-family or unknown impact cannot be resolved by bounded checks. The independent reviewer records the impact/coverage matrix and remaining uncertainty; touching an engine filename or lacking T.2 is not by itself a Full requirement. Once, by the implementer when justified. | `dotnet run --project tools/E2eRunner -- full --out <D>`. |
+| **Checkpoint Full** (Chrome, in the background) | On committed main after every 5 newly verified named puzzle elements (owner decision, 21 Oct). Infrastructure and documentation stories do not advance this counter; epic end alone does not add a repeat. | The full run. A failure stops new work; the coordinator bisects commits since the previous checkpoint and files the fix at the front of the queue. |
+
+**Timing cadence:** ordinary UI construction, configuration, connections, intended behaviour/control, Run/Reset and Save/Load remain per slice. Run targeted timing checks when clocks, workers, transport, pose delivery or timing-test code actually change; shared or unknown impact requires broader checks until covered, and the Story Full above when bounded checks cannot resolve it. SerialAlone is a scheduling constraint, never a selection filter: mixed suites keep their functional proof. Broad timing qualification follows the five-element checkpoint or its named release gate. Named release qualification remains required. T.1 AC3–AC4 calibration and before/after measurement are deferred acceleration work; preserve the frozen baseline and do not claim those ACs complete. T.2 replay is optional acceleration work, not a prerequisite for following gameplay slices.
 
 **Tier 1 contents:**
 - `dotnet build CuriousContraptions.slnx`, 0 warnings, with the C# static gate;
@@ -113,7 +115,11 @@ The speed principle: prove behaviour with the fastest test that runs the product
 - the `tools/*.test.mjs` Node harnesses, run with `--experimental-vm-modules`;
 - the Lifecycle and Wire contracts, and `Ownership --oracles <root>`;
 - `anvil check --changed` at 0 warnings, with its log saved;
-- once Story T.1 lands, `tsc --noEmit` over `tools/e2e`.
+- T.1 AC1–AC2 shipment adds `tsc --noEmit` over `tools/e2e`: `dotnet test tools/E2eRunner.Tests/E2eRunner.Tests.csproj --filter FullyQualifiedName~TypeCheckTests` resolves the pinned local compiler and runs strict checking plus the Counter accessor negative control; these tests also run in the ordinary solution test command.
+
+**Tool/docs-only shipment:** affected native/type-check checks and independently applicable unchanged browser evidence satisfy the browser clauses above when executable product behavior is unchanged. Do not author or rerun a Chrome suite merely for tooling publication. Actual runtime/UI changes retain required Chrome proof. This is the owner-authorized scope for T.1 AC1–AC2, not completion of its deferred AC3–AC4.
+
+**Impact decisions:** for a known bounded closure, run selected functional suites with meaningful controls and retain per-part UI/lifecycle proof. The reviewer verifies callers, consumers, serialization, shared state and workers against the changed behavior. The selector is an input to that decision, not proof of complete coverage. Its conservative engine Full result can be narrowed with an explicit justified matrix; unresolved cross-family or unknown impact broadens checks as above. Do not repeat unchanged independently applicable proof. Named release gates remain unchanged.
 
 **Avoiding needless Chrome time:**
 - **Non-engine Full escalation:** when the runner selects Full only because a shared non-engine file changed (driver helpers, UI wiring, docs, catalogue rows, an element `.csproj` or the `.slnx`), the implementer runs Tier 2 for the story's areas instead and records why.
@@ -121,7 +127,7 @@ The speed principle: prove behaviour with the fastest test that runs the product
 - **Suite-only failures:** when a failure is a test bug (the suite reads a deleted field or uses a stale literal), fix the suite and rerun only the affected suites plus the smoke pair. The Full run stands, because the product code under it is unchanged.
 - **The reviewer never runs a Full run** and never repeats Tier 2. He reuses the implementer's runs after checking their identity (source, suite and bundle digests, or the tree hash when commits were squashed). He runs only his own probes and mutants. After a merge with main he runs only the suites the runner selects for the merge diff.
 - **The Chrome line:** one Chrome or E2eRunner run at a time across all worktrees. Check that `pgrep -fl "E2eRunner|playwright"` is empty before starting one. Tier 1 and code work continue meanwhile.
-- **Parallelism:** timing-sensitive suites run serially and alone: clock-master, cat-017, cat-023a/b, cat-037, cat-014, anim-1a/b/c, and any stall or load proof. Every calibrated suite runs on parallel workers. Story T.1 calibrates the suites that run alone only by policy.
+- **Parallelism:** timing-sensitive suites run serially and alone: clock-master, cat-017, cat-023a/b, cat-037, cat-014, anim-1a/b/c, and any stall or load proof. Every calibrated suite runs on parallel workers. T.1 AC3 retains that calibration as deferred optional acceleration work. Until measured, existing timing declarations remain unchanged.
 - **Repeats:** 5 runs in a row only for a suite that failed randomly or whose timing code changed. Never retry into green, and never inflate a timeout.
 - **No in-app acceleration** (`requirements.md:93`). Faster-than-real-time stepping lives only in test hosts (`StepClock`, `RunPhases`).
 

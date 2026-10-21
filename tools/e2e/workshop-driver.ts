@@ -568,7 +568,7 @@ export class WorkshopDriver {
         await this.frames(UI_SETTLE_FRAMES);
     }
 
-    private async pressKey(key: 'Escape' | 'Space'): Promise<void> {
+    async pressKey(key: 'Escape' | 'Space'): Promise<void> {
         await this.page.keyboard.press(key, { delay: KEY_HOLD_MS });
     }
 
@@ -661,7 +661,8 @@ export class WorkshopDriver {
             }
             this.paletteScrolled = false;
         }
-        let anchor: { x: number; y: number } = UI_ANCHORS.palette[kind];
+        const anchors: Partial<Record<typeof kind, { x: number; y: number }>> = UI_ANCHORS.palette;
+        let anchor: { x: number; y: number } | undefined = anchors[kind];
         if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || ((this.currentLevel === 'bumper_sidekick' || this.currentLevel === 'bumper_depth') && kind === 'bumper') || ((this.currentLevel === 'clear_pipe' || this.currentLevel === 'joined_pipe') && kind === 'pipe') || (this.currentLevel === 'gentle_bend' && kind === 'pipe_bend_45') || (this.currentLevel === 'quarter_bend' && kind === 'pipe_bend_90')) {
             anchor = { x: 130, y: 155 }; // the authored inventory's single palette row
         }

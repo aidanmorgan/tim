@@ -1,0 +1,189 @@
+Determining projects to restore; all projects up-to-date.
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.57]   Discovering: E2eRunner.Tests
+[xUnit.net 00:00:00.71]   Discovered:  E2eRunner.Tests
+[xUnit.net 00:00:00.82]   Starting:    E2eRunner.Tests
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedEngineAndBuildRulesRemainFull(path: "engine/gpu/WorkshopPhysicsCompiler.cs") [13 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.FileSlowerThanTwiceItsSerialDurationRejectsN [13 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationInputsTests.EveryRelevantTrialIdentityMustMatch [13 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TypeCheckBoundaryTests.MissingPinnedToolchainIsExplicit [13 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedEngineAndBuildRulesRemainFull(path: "CuriousContraptions.Simulation/Program.cs") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedEngineAndBuildRulesRemainFull(path: "Directory.Build.props") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TypeCheckBoundaryTests.CompilerAbsenceIsARefusalNotASkip [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TypeCheckBoundaryTests.ConfigUsesTheExistingPlaywrightExternalBoundaryAndStrictChecking [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.GainBelowTenPercentRejectsN [3 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.DebtFaultRejectsN [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.FailingSerialBaselineChoosesNothing [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.LargestNMeetingEveryRuleIsChosen [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.FailedFileRejectsN [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.MemoryAboveHalfRejectsN [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.UncalibratedOrDifferentMachineRefusesParallel [2 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.CalibrationTests.CandidatesAreCappedAtHalfTheLogicalCpus [7 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.ParallelQualificationTests.QualificationRequiresMatchingTransitiveContentAndEvidence [40 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.ParallelQualificationTests.TrueTimingCannotBePromotedByCatalogueMutation [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/PipeBend90/pipe_bend_90.tscn", part: "pipe_bend_90") [443 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/Counter/icon.svg", part: "counter") [393 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [849 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.ParallelQualificationTests.EligiblePolicyCandidatesJoinTrialsBeforeTheyAreQualified [837 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.AuditTableCoversEverySuite [928 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/cat-023b.test.ts") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/clock-master.test.ts") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/cat-017.test.ts") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.DeclaredLevelsExist [9 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.LiteralPlacementsAndLevelsAreDeclared [24 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ParallelSuitesHaveNoTimingDetectorHit [< 1 ms]
+[xUnit.net 00:00:02.20]     CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck [FAIL]
+[xUnit.net 00:00:02.20]       Assert.NotEqual() Failure: Values are equal
+[xUnit.net 00:00:02.20]       Expected: Not 0
+[xUnit.net 00:00:02.20]       Actual:       0
+[xUnit.net 00:00:02.20]       Stack Trace:
+[xUnit.net 00:00:02.20]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/TypeCheckTests.cs(42,0): at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck()
+[xUnit.net 00:00:02.20]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.20]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.25]       System.IO.FileNotFoundException : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=5.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'. The system cannot find the file specified.
+[xUnit.net 00:00:02.25]     CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueAmbiguityAndPreprocessorChangesAreConservative [FAIL]
+[xUnit.net 00:00:02.25]       
+[xUnit.net 00:00:02.25]       Stack Trace:
+[xUnit.net 00:00:02.25]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/CatalogueImpact.cs(11,0): at CuriousContraptions.E2eRunner.CatalogueImpact.Changed(String before, String after)
+[xUnit.net 00:00:02.25]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs(161,0): at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueAmbiguityAndPreprocessorChangesAreConservative()
+[xUnit.net 00:00:02.25]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.25]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ElementPackagesMatchDirectoriesAndBundle [5 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.NoSuiteUsesUnscannableCode [1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.CatalogueAndSuiteFilesAreABijection [16 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.EverySerialAloneSuiteIsJustified [7 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/SystemClock/clock.tscn", part: "clock") [320 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck [488 ms]
+  Error Message:
+   Assert.NotEqual() Failure: Values are equal
+Expected: Not 0
+Actual:       0
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/TypeCheckTests.cs:line 42
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SolutionMembershipUsesBothSidesAndRejectsUnknownProjects [1 s]
+  Failed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueAmbiguityAndPreprocessorChangesAreConservative [< 1 ms]
+  Error Message:
+   System.IO.FileNotFoundException : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=5.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'. The system cannot find the file specified.
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.CatalogueImpact.Changed(String before, String after) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/CatalogueImpact.cs:line 11
+   at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueAmbiguityAndPreprocessorChangesAreConservative() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs:line 161
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.26]       System.IO.FileNotFoundException : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=5.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'. The system cannot find the file specified.
+[xUnit.net 00:00:02.26]       
+[xUnit.net 00:00:02.26]       Stack Trace:
+[xUnit.net 00:00:02.26]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/CatalogueImpact.cs(11,0): at CuriousContraptions.E2eRunner.CatalogueImpact.Changed(String before, String after)
+[xUnit.net 00:00:02.26]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs(79,0): at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueRowsNarrowButHelperLogicDoesNot()
+[xUnit.net 00:00:02.26]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.26]     CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueRowsNarrowButHelperLogicDoesNot [FAIL]
+[xUnit.net 00:00:02.26]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueRowsNarrowButHelperLogicDoesNot [< 1 ms]
+  Error Message:
+   System.IO.FileNotFoundException : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=5.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'. The system cannot find the file specified.
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.CatalogueImpact.Changed(String before, String after) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/CatalogueImpact.cs:line 11
+   at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.CatalogueRowsNarrowButHelperLogicDoesNot() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs:line 79
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/Springboard/springboard.tscn", part: "spring") [269 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: False, cycle: True) [263 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/Pipe/pipe.tscn", part: "pipe") [279 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: True, cycle: False) [259 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/Funnel/funnel.tscn", part: "funnel") [266 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: True, cycle: True) [264 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CatalogueAndScenesMapByContent(path: "elements/PipeBend45/pipe_bend_45.tscn", part: "pipe_bend_45") [260 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.ReverseTransitiveConsumersIncludeRemovedEdgesAndTerminateCycles(removing: False, cycle: False) [281 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.PartPreplacedByADeclaredLevelSelectsThatLevelsSuites [260 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.AnElementChangeWithAnUnreadableBundleIsFull(bundle: "{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\"···) [252 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "$(InjectedProject)") [523 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.AnElementChangeWithAnUnreadableBundleIsFull(bundle: "{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\"···) [257 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.AnElementChangeWithAnUnreadableBundleIsFull(bundle: "{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\"···) [253 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.AnElementChangeWithAnUnreadableBundleIsFull(bundle: "{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\"···) [253 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../PoweredGate/missing.csproj") [523 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.AnElementChangeWithAnUnreadableBundleIsFull(bundle: "{") [258 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.TheGeneratedBundleIsReadWithNamedDomainsAndDirections [1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteUsesDeclaredCoverage(path: "elements/DelayBox/delay.tscn", part: "delay") [257 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../../unknown/unknown.csproj") [525 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteUsesDeclaredCoverage(path: "elements/SignalLamp/SignalLampElementDeclaration.c"···, part: "lamp") [260 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SharedBuildTargetsCannotNarrow [258 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.HistoricalMissingHeadIsNotResurrectedFromTheWorkingTree [241 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteUsesDeclaredCoverage(path: "elements/Ball/ball.tscn", part: "ball") [257 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteUsesDeclaredCoverage(path: "elements/Receiver/ReceiverElementDeclaration.cs", part: "basket") [255 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.MissingAndMalformedProjectsCannotNarrow [506 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteUsesDeclaredCoverage(path: "elements/Ball/icon.svg", part: "ball") [253 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ElementWithoutAPrimarySuiteUsesDeclaredCoverage(path: "elements/ImpactSwitch/switch.tscn", part: "switch") [246 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.AddedAndRemovedPackageReferencesSelectBothEnds(removing: False) [259 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.AddedAndRemovedPackageReferencesSelectBothEnds(removing: True) [249 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.DocsOnlySelectsTheSmokePair [264 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "engine/gpu/NewSolverStage.cs") [263 ms]
+[xUnit.net 00:00:07.21]     CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SelectorConsumesPackageSolutionAndCatalogueImpacts [FAIL]
+[xUnit.net 00:00:07.21]       System.IO.FileNotFoundException : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=5.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'. The system cannot find the file specified.
+[xUnit.net 00:00:07.21]       
+[xUnit.net 00:00:07.21]       Stack Trace:
+[xUnit.net 00:00:07.21]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/CatalogueImpact.cs(11,0): at CuriousContraptions.E2eRunner.CatalogueImpact.Changed(String before, String after)
+[xUnit.net 00:00:07.21]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/Selection.cs(171,0): at CuriousContraptions.E2eRunner.Selector.Classify(String path, ImpactContext context, IReadOnlyList`1 headBundle, Action`2 add)
+[xUnit.net 00:00:07.21]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/Selection.cs(149,0): at CuriousContraptions.E2eRunner.Selector.Select(IReadOnlyList`1 changedPaths, ImpactContext context)
+[xUnit.net 00:00:07.21]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs(143,0): at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SelectorConsumesPackageSolutionAndCatalogueImpacts()
+[xUnit.net 00:00:07.21]            at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+[xUnit.net 00:00:07.21]            at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+[xUnit.net 00:00:07.21]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:07.21]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "CuriousContraptions.Simulation/Program.cs") [263 ms]
+  Failed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SelectorConsumesPackageSolutionAndCatalogueImpacts [786 ms]
+  Error Message:
+   System.IO.FileNotFoundException : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=5.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'. The system cannot find the file specified.
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.CatalogueImpact.Changed(String before, String after) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/CatalogueImpact.cs:line 11
+   at CuriousContraptions.E2eRunner.Selector.Classify(String path, ImpactContext context, IReadOnlyList`1 headBundle, Action`2 add) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/Selection.cs:line 171
+   at CuriousContraptions.E2eRunner.Selector.Select(IReadOnlyList`1 changedPaths, ImpactContext context) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/Selection.cs:line 149
+   at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.SelectorConsumesPackageSolutionAndCatalogueImpacts() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs:line 143
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "engine/gpu/WorkshopSimulation.cs") [246 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/cat-099.test.ts") [219 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "CuriousContraptions.web/wwwroot/workshop-client.js") [221 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "notes.txt") [220 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/WorkshopNewPanel.cs") [217 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/E2eRunner/Scheduler.cs") [220 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/Preview/Program.cs") [214 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/workshop-driver.ts") [222 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/workshop-close-findings.mjs") [219 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "tools/e2e/workshop-wire.ts") [214 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/Workshop.cs") [220 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedOrUnknownChangeSelectsTheFullRun(path: "ui/Workshop.cs.uid") [218 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.APathUnderTheDeletedPartsTreeIsUnknown(path: "parts/catalog/ball.tres") [222 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.APathUnderTheDeletedPartsTreeIsUnknown(path: "parts/scenes/ball.tscn") [218 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.WorkshopAreaFileSelectsTheAreaSuitesAndSmoke [217 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.OneChangedLevelSelectsTheSuitesDeclaringIt [218 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedListRejectsNonRepositoryOrNonCanonicalPaths(path: "tools/e2e/CAT-049.test.ts") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedListRejectsNonRepositoryOrNonCanonicalPaths(path: "Tools/e2e/cat-049.test.ts") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedListRejectsNonRepositoryOrNonCanonicalPaths(path: "docs/../README.md") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedListRejectsNonRepositoryOrNonCanonicalPaths(path: "/Users/x/repo/README.md") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedListRejectsNonRepositoryOrNonCanonicalPaths(path: "docs\\x.md") [< 1 ms]
+[xUnit.net 00:00:11.71]   Finished:    E2eRunner.Tests (ID = '902ac32a46fc45cd8acc9e22399222b5076ac35167ef4d1e5e00108c29d9f2db')
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedListRejectsNonRepositoryOrNonCanonicalPaths(path: "docs//x.md") [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.RuleTableResolvesEveryTrackedPathWithoutOverlap [109 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.CounterDeclarationSelectsOwnIntegrationConnectedAndSmoke [217 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedListAcceptsCanonicalAndDeletedPaths [< 1 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.RenameOutOfElementsIsFull [215 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.ChangedSuiteSelectsItself [219 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.AreaTableMatchesEngineUiAndScenes [15 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.EmptySetSelectsTheSmokePair [213 ms]
+  Passed CuriousContraptions.E2eRunner.Tests.SelectionTests.SharedConsoleModuleSelectsItsImporters [213 ms]
+
+Total tests: 101
+Test Run Failed.
+     Passed: 97
+     Failed: 4
+ Total time: 11.9215 Seconds

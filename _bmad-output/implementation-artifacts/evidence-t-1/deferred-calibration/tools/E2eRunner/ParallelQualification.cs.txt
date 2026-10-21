@@ -1,0 +1,52 @@
+namespace CuriousContraptions.E2eRunner;
+
+/// <summary>One measured policy candidate. The digest covers its suite and every local import; evidence names the successful trial.</summary>
+internal sealed record SuiteQualification(SuiteId Suite, string ClosureDigest, string Evidence, MeasuredWorkers Measurement);
+
+internal static class ParallelQualification
+{
+    public static readonly IReadOnlySet<SuiteId> PolicyCandidates = new HashSet<SuiteId>
+    {
+        SuiteId.Cat020, SuiteId.Cat062, SuiteId.Cat051OwnSupply, SuiteId.Cat052TwoPlates,
+        SuiteId.Cat052Lamp, SuiteId.TubeSnapping, SuiteId.Cat050Joined, SuiteId.Pkg1, SuiteId.Pkg3, SuiteId.Arch9aCatalogue,
+    };
+
+    public static readonly IReadOnlySet<SuiteId> MandatorySerial = new HashSet<SuiteId>
+    {
+        SuiteId.ClockMaster, SuiteId.Cat017, SuiteId.Cat023a, SuiteId.Cat023b, SuiteId.Cat037,
+        SuiteId.Cat014, SuiteId.Anim1a, SuiteId.Anim1b, SuiteId.Anim1c, SuiteId.Capacity9r, SuiteId.Capacity9r5b,
+    };
+
+    // Filled only from successful measured calibration evidence.
+    public static readonly IReadOnlyList<SuiteQualification> Current = [];
+
+    public static string Digest(string root, SuiteId suite) =>
+        SourceIdentity.Digest(root, TimingDetector.ImportClosure(root, SuiteCatalogue.RelativePath(suite)));
+
+    public static bool Eligible(string root, SuiteDeclaration suite) =>
+        !MandatorySerial.Contains(suite.Id) && PolicyCandidates.Contains(suite.Id) &&
+        suite.Reasons.All(reason => reason.Reason == TimingReason.OwnerNamed) &&
+        TimingDetector.ScanSuite(root, SuiteCatalogue.RelativePath(suite.Id))
+            .All(hit => hit.Rule != TimingRule.UnscannableCode && TimingDetector.ReasonFor(hit.Rule) is null);
+
+    public static SuiteTiming Resolve(string root, SuiteDeclaration suite, MeasuredWorkers? measured, int workers, string chromeVersion,
+        IReadOnlyList<SuiteQualification>? qualifications = null)
+    {
+        if (MandatorySerial.Contains(suite.Id) || suite.Reasons.Any(reason => reason.Reason != TimingReason.OwnerNamed)) return SuiteTiming.SerialAlone;
+        if (!PolicyCandidates.Contains(suite.Id)) return suite.Timing;
+        if (!Eligible(root, suite)) return SuiteTiming.SerialAlone;
+        var qualification = (qualifications ?? Current).SingleOrDefault(candidate => candidate.Suite == suite.Id);
+        return qualification is not null && measured is not null && qualification.Measurement == measured &&
+            workers > 0 && workers <= qualification.Measurement.Workers && chromeVersion == qualification.Measurement.ChromeVersion &&
+            qualification.ClosureDigest == Digest(root, suite.Id) && qualification.Evidence.Length > 0
+            ? SuiteTiming.Parallel : SuiteTiming.SerialAlone;
+    }
+
+    public static IReadOnlyList<SuiteDeclaration> TrialSuites(string root) =>
+        [.. SuiteCatalogue.All.Where(suite => !MandatorySerial.Contains(suite.Id) && (suite.Timing == SuiteTiming.Parallel || Eligible(root, suite)))
+            .Select(suite => suite with { Timing = SuiteTiming.Parallel })];
+
+    public static IReadOnlyList<SuiteDeclaration> SerialSuites(string root) =>
+        [.. SuiteCatalogue.All.Where(suite => MandatorySerial.Contains(suite.Id) || (suite.Timing != SuiteTiming.Parallel && !Eligible(root, suite)))
+            .Select(suite => suite with { Timing = SuiteTiming.SerialAlone })];
+}

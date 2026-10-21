@@ -216,7 +216,7 @@ development_status:
   # 13: owner amendment 21 Oct 2026, right after 9a-17
   9a-3-typed-transport-control-commands: done
   # 13a: owner 21 Oct 2026, fast alternatives to constant e2e
-  t-1-fast-test-quick-wins: backlog
+  t-1-fast-test-quick-wins: in-progress
   # 14: owner amendment 21 Oct 2026, right after 9a-17
   9a-16-bundle-sole-collider-source: backlog
   # 14a: owner 21 Oct 2026; switches the verification gate for covered families

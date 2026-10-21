@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/ImpactRules.cs
++++ b/tools/E2eRunner/ImpactRules.cs
+@@
+-new("engine/gpu/**", ImpactKind.Full,
++new("engine/gpu/**", ImpactKind.NoBrowserImpact,

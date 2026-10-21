@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Selection.cs
++++ b/tools/E2eRunner/Selection.cs
+@@
+-if (_headOverride is not null) return _headOverride(path);
++if (_headOverride?.Invoke(path) is { } value) return value;

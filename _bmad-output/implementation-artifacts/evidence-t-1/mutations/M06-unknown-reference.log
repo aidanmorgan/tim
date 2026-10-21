@@ -1,0 +1,29 @@
+dotnet test tools/E2eRunner.Tests/E2eRunner.Tests.csproj --no-restore --filter 'FullyQualifiedName~FastSelectionTests.UnsupportedReferenceCannotNarrow' --logger 'console;verbosity=minimal'
+exit=1 assertionKill=true
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.12]     CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../PoweredGate/missing.csproj") [FAIL]
+[xUnit.net 00:00:01.34]     CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../../unknown/unknown.csproj") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../PoweredGate/missing.csproj") [227 ms]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   [counter]
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(String reference) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs:line 43
+   at InvokeStub_FastSelectionTests.UnsupportedReferenceCannotNarrow(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(reference: "../../unknown/unknown.csproj") [219 ms]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   [counter]
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.UnsupportedReferenceCannotNarrow(String reference) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs:line 43
+   at InvokeStub_FastSelectionTests.UnsupportedReferenceCannotNarrow(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:     1, Skipped:     0, Total:     3, Duration: 965 ms - E2eRunner.Tests.dll (net10.0)

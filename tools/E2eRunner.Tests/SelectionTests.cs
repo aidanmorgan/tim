@@ -9,7 +9,7 @@ public sealed class SelectionTests
     private static string? Head(string path) { var full = Path.Combine(TestRepository.Root, path); return File.Exists(full) ? File.ReadAllText(full) : null; }
 
     private static Selection Select(string[] paths, Func<string, string?>? baseReader = null, Func<string, string?>? headOverride = null) =>
-        Selector.Select(paths, new ImpactContext(TestRepository.Root, baseReader ?? Head, headOverride));
+        Selector.Select(paths, new ImpactContext(TestRepository.Root, baseReader ?? Head, headOverride is null ? null : path => headOverride(path) ?? Head(path)));
 
     private static string[] Names(Selection selection) => [.. selection.Suites.Select(suite => SuiteCatalogue.FileName(suite.Suite)).Order(StringComparer.Ordinal)];
     private static readonly string[] Smoke = ["engine-core-2a1", "engine-core-2b1"];
@@ -19,15 +19,18 @@ public sealed class SelectionTests
     {
         var selection = Select(["elements/Counter/CounterElementDeclaration.cs"]);
         Assert.Equal(SelectionMode.Selected, selection.Mode);
-        Assert.Equal(["arch-9a-catalogue", "cat-002", "cat-005", "cat-015a", "cat-017", "cat-020", "cat-023b", "cat-037", "cat-051", "cat-052",
-            "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "palette-placement"], Names(selection));
-        Assert.Contains("cat-052-lamp\tintegration: places counter", selection.Suites.Select(suite => suite.ReasonLine));
-        var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
-        Assert.Contains("cat-020\town: elements/Counter/CounterElementDeclaration.cs changes counter; integration: places counter", lines);
-        Assert.Contains("cat-052\tconnected: counter.ActivationIn Signal pressure_plate.ActivationOut", lines);
-        Assert.Contains("cat-005\tconnected: counter.PowerIn Electrical battery.Supply", lines);
-        Assert.Contains("palette-placement\tintegration: places every palette part (counter)", lines);
-        Assert.Contains("engine-core-2b1\tsmoke pair", lines);
+        var required = new[] { "arch-9a-catalogue", "cat-002", "cat-005", "cat-015a", "cat-017", "cat-020", "cat-023b", "cat-037", "cat-051", "cat-052",
+            "cat-052-lamp", "cat-052-two-plates", "engine-core-2a1", "engine-core-2b1", "palette-placement", "pkg-3", "anim-1b" };
+        Assert.All(required, name => Assert.Contains(name, Names(selection)));
+        Assert.DoesNotContain("cat-049", Names(selection)); // unrelated bend-only proof must not turn this into Full
+        IReadOnlyList<string> Reasons(SuiteId id) => selection.Suites.Single(suite => suite.Suite == id).Reasons;
+        Assert.Contains("integration: places counter", Reasons(SuiteId.Cat052Lamp));
+        Assert.Contains("own: elements/Counter/CounterElementDeclaration.cs changes counter", Reasons(SuiteId.Cat020));
+        Assert.Contains("integration: places counter", Reasons(SuiteId.Cat020));
+        Assert.Contains("connected: counter.ActivationIn Signal pressure_plate.ActivationOut", Reasons(SuiteId.Cat052));
+        Assert.Contains("connected: counter.PowerIn Electrical battery.Supply", Reasons(SuiteId.Cat005));
+        Assert.Contains("integration: places every palette part (counter)", Reasons(SuiteId.PalettePlacement));
+        Assert.Contains("smoke pair", Reasons(SuiteId.EngineCore2b1));
         Assert.False(selection.Tier3Required);
     }
 
@@ -39,11 +42,12 @@ public sealed class SelectionTests
     // PKG-3: the moved scenes map to their parts by content; their primary suites are cat-022 (Story 9.5a) and cat-063 (C-Switch).
     [InlineData("elements/DelayBox/delay.tscn", "delay")]
     [InlineData("elements/ImpactSwitch/switch.tscn", "switch")]
-    public void ElementWithoutAPrimarySuiteIsATypedError(string path, string part)
+    public void ElementWithoutAPrimarySuiteUsesDeclaredCoverage(string path, string part)
     {
-        var refusal = Assert.Throws<RunnerException>(() => Select([path]));
-        Assert.Equal(RunnerError.NoPrimarySuite, refusal.Error);
-        Assert.Contains($"changes {part}", refusal.Message, StringComparison.Ordinal);
+        var selection = Select([path]);
+        Assert.Equal(SelectionMode.Selected, selection.Mode);
+        Assert.Contains(selection.Suites, suite => suite.Reasons.Any(reason => reason.Contains($"places {part}", StringComparison.Ordinal)));
+        Assert.All(SuiteCatalogue.SmokePair, smoke => Assert.Contains(selection.Suites, suite => suite.Suite == smoke));
     }
 
     [Fact]
@@ -129,7 +133,6 @@ public sealed class SelectionTests
         ["notes.txt"] = FullReason.Unknown,
         ["tools/e2e/cat-099.test.ts"] = FullReason.Unknown,
         ["tools/E2eRunner/Scheduler.cs"] = FullReason.RunnerItself,
-        ["elements/Counter/Counter.csproj"] = FullReason.Build,
         ["tools/Preview/Program.cs"] = FullReason.SharedDriverInfrastructure,
     };
 

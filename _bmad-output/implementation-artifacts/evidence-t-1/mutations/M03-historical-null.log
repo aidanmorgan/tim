@@ -1,0 +1,19 @@
+dotnet test tools/E2eRunner.Tests/E2eRunner.Tests.csproj --no-restore --filter 'FullyQualifiedName~FastSelectionTests.HistoricalMissingHeadIsNotResurrectedFromTheWorkingTree' --logger 'console;verbosity=minimal'
+exit=1 assertionKill=true
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.65]     CuriousContraptions.E2eRunner.Tests.FastSelectionTests.HistoricalMissingHeadIsNotResurrectedFromTheWorkingTree [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.FastSelectionTests.HistoricalMissingHeadIsNotResurrectedFromTheWorkingTree [253 ms]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGr"···
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.FastSelectionTests.HistoricalMissingHeadIsNotResurrectedFromTheWorkingTree() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner.Tests/FastSelectionTests.cs:line 18
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 263 ms - E2eRunner.Tests.dll (net10.0)

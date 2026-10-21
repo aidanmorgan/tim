@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/BuildImpact.cs
++++ b/tools/E2eRunner/BuildImpact.cs
+@@
+-while (changed)
++if (changed)

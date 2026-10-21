@@ -1,0 +1,70 @@
+using Xunit;
+
+namespace CuriousContraptions.E2eRunner.Tests;
+
+public sealed class ParallelQualificationTests
+{
+    private static readonly MeasuredWorkers Measurement = new(2, 16, 68719476736, "Chrome measured", "2026-10-21", "measurement", 1);
+    [Fact]
+    public void TrueTimingCannotBePromotedByCatalogueMutation()
+    {
+        foreach (var id in ParallelQualification.MandatorySerial)
+        {
+            var declaration = SuiteCatalogue.Get(id) with { Timing = SuiteTiming.Parallel, Reasons = [] };
+            Assert.False(ParallelQualification.Eligible(TestRepository.Root, declaration));
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(TestRepository.Root, declaration, Measurement, 2, Measurement.ChromeVersion, []));
+        }
+    }
+
+    [Fact]
+    public void EligiblePolicyCandidatesJoinTrialsBeforeTheyAreQualified()
+    {
+        var trials = ParallelQualification.TrialSuites(TestRepository.Root);
+        foreach (var id in ParallelQualification.PolicyCandidates)
+        {
+            var declaration = SuiteCatalogue.Get(id);
+            Assert.Equal(ParallelQualification.Eligible(TestRepository.Root, declaration), trials.Any(suite => suite.Id == id));
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(TestRepository.Root, declaration, Measurement, 2, Measurement.ChromeVersion, []));
+        }
+        Assert.All(trials, suite => Assert.Equal(SuiteTiming.Parallel, suite.Timing));
+        Assert.Empty(trials.Select(suite => suite.Id).Intersect(ParallelQualification.MandatorySerial));
+        Assert.Equal(SuiteCatalogue.All.Select(suite => suite.Id).Order(),
+            trials.Concat(ParallelQualification.SerialSuites(TestRepository.Root)).Select(suite => suite.Id).Order());
+    }
+
+    [Fact]
+    public void QualificationRequiresMatchingTransitiveContentAndEvidence()
+    {
+        var original = SuiteCatalogue.Get(SuiteId.Cat020);
+        var scratch = Directory.CreateTempSubdirectory("qualification-").FullName;
+        var suitePath = SuiteCatalogue.RelativePath(original.Id);
+        var suiteFull = Path.Combine(scratch, suitePath);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(suiteFull)!);
+            File.WriteAllText(suiteFull, "import './helper.ts';");
+            var helper = Path.Combine(Path.GetDirectoryName(suiteFull)!, "helper.ts");
+            File.WriteAllText(helper, "import './leaf.ts';");
+            var leaf = Path.Combine(Path.GetDirectoryName(suiteFull)!, "leaf.ts");
+            File.WriteAllText(leaf, "export const value = 1;");
+            var qualification = new SuiteQualification(original.Id, ParallelQualification.Digest(scratch, original.Id), "measured/trial-2", Measurement);
+            Assert.Equal(SuiteTiming.Parallel, ParallelQualification.Resolve(scratch, original, Measurement, 2, Measurement.ChromeVersion, [qualification]));
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(scratch, original, Measurement, 4, Measurement.ChromeVersion, [qualification]));
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(scratch, original, Measurement, 2, "changed Chrome", [qualification]));
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(scratch, original, Measurement with { Evidence = "new calibration" }, 2, Measurement.ChromeVersion, [qualification]));
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(scratch, original, null, 2, Measurement.ChromeVersion, [qualification]));
+            Assert.Equal(SuiteTiming.Parallel, Assert.Single(Program.Files([original], scratch, Measurement, 2, Measurement.ChromeVersion, [qualification])).Timing);
+            Assert.Equal(SuiteTiming.SerialAlone, Assert.Single(Program.Files([original], scratch, Measurement, 2, Measurement.ChromeVersion, [])).Timing);
+            File.WriteAllText(Path.Combine(scratch, "unrelated.txt"), "different");
+            Assert.Equal(SuiteTiming.Parallel, ParallelQualification.Resolve(scratch, original, Measurement, 2, Measurement.ChromeVersion, [qualification]));
+            File.WriteAllText(leaf, "export const value = 2;");
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(scratch, original, Measurement, 2, Measurement.ChromeVersion, [qualification]));
+            File.WriteAllText(leaf, "export const value = 1;");
+            File.WriteAllText(suiteFull, "import './helper.ts'; export const changed = true;");
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(scratch, original, Measurement, 2, Measurement.ChromeVersion, [qualification]));
+            Assert.Equal(SuiteTiming.SerialAlone, ParallelQualification.Resolve(scratch, original, Measurement, 2, Measurement.ChromeVersion,
+                [qualification with { ClosureDigest = ParallelQualification.Digest(scratch, original.Id), Evidence = "" }]));
+        }
+        finally { Directory.Delete(scratch, true); }
+    }
+}

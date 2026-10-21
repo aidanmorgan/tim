@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Selection.cs
++++ b/tools/E2eRunner/Selection.cs
+@@
+-foreach (var changedSuite in changedSuites) add(changedSuite, $"catalogue declaration: {path}");
++foreach (var changedSuite in changedSuites) _ = changedSuite;

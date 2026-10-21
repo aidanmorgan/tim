@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/CatalogueImpact.cs
++++ b/tools/E2eRunner/CatalogueImpact.cs
+@@
+-if (!PreprocessorText(oldRoot).SequenceEqual(PreprocessorText(newRoot), StringComparer.Ordinal)) return null;
++_ = PreprocessorText(oldRoot).SequenceEqual(PreprocessorText(newRoot), StringComparer.Ordinal);

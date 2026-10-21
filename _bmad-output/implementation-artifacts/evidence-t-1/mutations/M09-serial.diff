@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/ParallelQualification.cs
++++ b/tools/E2eRunner/ParallelQualification.cs
+@@
+-if (MandatorySerial.Contains(suite.Id) || suite.Reasons.Any(reason => reason.Reason != TimingReason.OwnerNamed)) return SuiteTiming.SerialAlone;
++

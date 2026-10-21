@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/BuildImpact.cs
++++ b/tools/E2eRunner/BuildImpact.cs
+@@
+-new[] { context.ReadBase(project), context.ReadHead(project) }
++new[] { context.ReadHead(project) }

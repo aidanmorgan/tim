@@ -54,7 +54,7 @@ internal sealed partial class ImpactContext
 
     public string? ReadHead(string path)
     {
-        if (_headOverride?.Invoke(path) is { } overridden) return overridden;
+        if (_headOverride is not null) return _headOverride(path);
         var full = Path.Combine(_root, path);
         return File.Exists(full) ? File.ReadAllText(full) : null;
     }
@@ -167,6 +167,17 @@ internal static class Selector
         PathImpact Full(FullReason reason, string detail) => new(path, ImpactKind.Full, rule.Name, reason, detail);
         switch (rule.Kind)
         {
+            case ImpactKind.Catalogue:
+                var changedSuites = CatalogueImpact.Changed(context.ReadBase(path), context.ReadHead(path));
+                if (changedSuites is null) return Full(FullReason.RunnerItself, "catalogue change is not confined to understood declaration rows");
+                foreach (var changedSuite in changedSuites) add(changedSuite, $"catalogue declaration: {path}");
+                return new(path, ImpactKind.Suite, rule.Name, null, $"{changedSuites.Count} changed declarations");
+            case ImpactKind.PackageBuild:
+                var buildParts = BuildImpact.Parts(path, context);
+                if (buildParts is null) return Full(FullReason.Build, "unknown/shared build change");
+                if (headBundle is null) return Full(FullReason.Unknown, "generated bundle missing");
+                foreach (var part in buildParts) SelectElement(part, path, headBundle, context.LevelParts, add);
+                return new(path, ImpactKind.Element, rule.Name, null, string.Join(",", buildParts));
             case ImpactKind.NoBrowserImpact:
                 return new(path, rule.Kind, rule.Name, null, "");
             case ImpactKind.Full:
@@ -218,14 +229,18 @@ internal static class Selector
         return parts;
     }
 
+    private static bool Declares(SuiteDeclaration declaration, PartId part, Func<LevelId, IReadOnlySet<PartId>> levelParts) =>
+        declaration.Primary == part || declaration.Places.Contains(part) ||
+        declaration.Levels.Any(level => levelParts(level).Contains(part));
+
     // own, integration and connected suites of one changed part (spec D6).
     private static void SelectElement(PartId part, string path, IReadOnlyList<ImpactContext.BundleElement> bundle,
         Func<LevelId, IReadOnlySet<PartId>> levelParts, Action<SuiteId, string> add)
     {
         // A changed element must have its own suite: without one, Tier 2 cannot prove the change (coordinator, 19 Oct 2026).
-        if (!SuiteCatalogue.All.Any(declaration => declaration.Primary == part))
+        if (!SuiteCatalogue.All.Any(declaration => Declares(declaration, part, levelParts)))
             throw new RunnerException(RunnerError.NoPrimarySuite,
-                $"{path} changes {part}, which no suite declares as its Primary; add the element's suite (or its Primary) to SuiteCatalogue.");
+                $"{path} changes {part}, which has no declared suite coverage; add its coverage to SuiteCatalogue.");
         foreach (var declaration in SuiteCatalogue.All)
         {
             if (declaration.Primary == part) add(declaration.Id, $"own: {path} changes {part}");
@@ -241,8 +256,8 @@ internal static class Selector
             var pair = changed.Ports.SelectMany(port => partner.Ports.Where(other => other.Domain == port.Domain && other.Direction != port.Direction)
                 .Select(other => (port, other))).FirstOrDefault();
             if (pair == default) continue;
-            if (SuiteCatalogue.All.FirstOrDefault(declaration => declaration.Primary == partner.Part) is not { } primary) continue;
-            add(primary.Id, $"connected: {part}.{pair.port.Socket} {pair.port.Domain} {partner.Part}.{pair.other.Socket}");
+            foreach (var declaration in SuiteCatalogue.All.Where(declaration => Declares(declaration, partner.Part, levelParts)))
+                add(declaration.Id, $"connected: {part}.{pair.port.Socket} {pair.port.Domain} {partner.Part}.{pair.other.Socket}");
         }
     }
 }

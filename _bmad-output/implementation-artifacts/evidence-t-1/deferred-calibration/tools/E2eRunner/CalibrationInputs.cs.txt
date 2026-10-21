@@ -1,0 +1,17 @@
+namespace CuriousContraptions.E2eRunner;
+
+/// <summary>Immutable content identities captured at a calibration trial boundary, never reconstructed for its report.</summary>
+internal sealed record CalibrationInputs(string SuiteSources, string Bundle, IReadOnlyDictionary<SuiteId, string> Closures)
+{
+    public static CalibrationInputs Capture(string root, string bundleDirectory) => new(
+        SourceIdentity.SuiteSources(root), BundleManifest.Compute(bundleDirectory).Identity,
+        SuiteCatalogue.All.ToDictionary(suite => suite.Id, suite => ParallelQualification.Digest(root, suite.Id)));
+
+    public void RequireSame(CalibrationInputs other)
+    {
+        if (SuiteSources != other.SuiteSources || Bundle != other.Bundle || Closures.Count != other.Closures.Count ||
+            Closures.Any(entry => !other.Closures.TryGetValue(entry.Key, out var value) || value != entry.Value))
+            throw new RunnerException(RunnerError.Uncalibrated,
+                "Calibration inputs changed between trial boundaries; preserve existing evidence and restart calibration on a frozen candidate.");
+    }
+}

@@ -1,0 +1,4 @@
+dotnet test tools/E2eRunner.Tests/E2eRunner.Tests.csproj --no-restore --filter 'FullyQualifiedName~FastSelectionTests.CatalogueAmbiguityAndPreprocessorChangesAreConservative' --logger 'console;verbosity=minimal'
+exit=1 assertionKill=false
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/CatalogueImpact.cs(33,40): error IDE0051: Private member 'CatalogueImpact.PreprocessorText' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a268845b34c2e23da/tools/E2eRunner/E2eRunner.csproj]
