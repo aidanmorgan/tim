@@ -25,7 +25,8 @@ public static class WorkshopPhysicsCompiler
         var triggers = new List<ContactTriggerDeclaration>();
         var contactWorks = new List<ContactWorkDeclaration>();
         var prismatics = new List<PrismaticConstraintDeclaration>();
-        var supplyRoutes = new List<SupplyRouteDeclaration>();
+        var topology = SupplyTopology.Create(construction, DeclaredPhysics.Of);
+        var supplyNodes = topology.Nodes.ToArray();
         var electricalSources = new List<ElectricalSourceDeclaration>();
         var orientationSensors = new List<OrientationSensorDeclaration>();
         var contactLoads = new List<ContactLoadSensorDeclaration>();
@@ -84,9 +85,12 @@ public static class WorkshopPhysicsCompiler
                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
                     slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
             }
-            if (instance.PartId == PartId.PoweredGate && SupplyFeed(construction, instance.Id) is { } supplied)
-                supplyRoutes.Add(new(new(first + 5), ElectricalSource(supplied.SourceBody), supplied.Kind,
-                    supplied.Kind == SupplyRouteKind.Switched ? supplied.Via : default));
+            if (instance.PartId == PartId.PoweredGate)
+            {
+                var slot=Array.FindIndex(supplyNodes,node=>node.Owner==instance.Id);
+                if(slot<0) throw new ArgumentException("Powered actuator requires its declared electrical input.");
+                supplyNodes[slot]=supplyNodes[slot] with {Consumer=new(first+5)};
+            }
         }
         foreach (var domino in construction.Instances.OfType<WorkshopDomino>())
             if (construction.Connections.HasSource(domino.Id))
@@ -126,6 +130,14 @@ public static class WorkshopPhysicsCompiler
                 -.9f - WorkshopPressurePlate.FootprintDepthMargin, .9f + WorkshopPressurePlate.FootprintDepthMargin,
                 Vector3.UnitY, WorkshopPressurePlate.MinimumAlignment, WorkshopPressurePlate.ContactDistance, plate.MinimumMass));
         var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
+        foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
+        {
+            var sources=topology.UpstreamSources(link.Target);
+            if(sources.Length!=1 || sources[0]!=link.Source)
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+                    "Finite-work storage requires one direct declared source; switched storage routing is unsupported.");
+        }
+
 
         void AddGeometry(GpuBodyId owner, ulong materialIdentity, ulong colliderIdentity,
             IReadOnlyList<CuriousContraptions.Abstractions.ColliderDescriptor> shapes)
@@ -146,36 +158,7 @@ public static class WorkshopPhysicsCompiler
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray(), prismatics.ToArray(),
-            supplyRoutes.ToArray(), contactLoads.ToArray());
-    }
-    /// <summary>The one supply feeding a consumer's PowerIn (a PowerIn has at most one supplier):
-    /// <list type="bullet">
-    /// <item>a Battery → <see cref="SupplyRouteKind.Direct"/>, no intermediate;</item>
-    /// <item>a State Latch, Counter or Pressure Plate whose PowerIn ← a Battery → <see cref="SupplyRouteKind.Switched"/> via that
-    /// switch, closed by the switch's own committed contact.</item>
-    /// </list>Null when the consumer, or its intermediate, has no battery supply.</summary>
-    private static (SupplyRouteKind Kind, GpuBodyId SourceBody, GpuBodyId Via)? SupplyFeed(WorkshopConstruction construction, GpuBodyId consumer) =>
-        SupplyFeed(construction, consumer, DeclaredPhysics.Of);
-
-    internal static (SupplyRouteKind Kind, GpuBodyId SourceBody, GpuBodyId Via)? SupplyFeed(WorkshopConstruction construction,
-        GpuBodyId consumer, Func<PartId, BundleEntry> declaration)
-    {
-        GpuBodyId Source(GpuBodyId target, Func<IWorkshopInstance, bool> admitted)
-        {
-            foreach (var link in construction.Connections)
-                if (link.Domain == WorkshopConnectionDomain.Electrical && link.Target == target && link.Input == WorkshopSocket.PowerIn &&
-                    construction.Instances.FirstOrDefault(instance => instance.Id == link.Source) is { } source && admitted(source))
-                    return link.Source;
-            return default;
-        }
-        SupplyCapabilityKind? Capability(IWorkshopInstance instance) => declaration(instance.PartId).Electrical?.Supply?.Kind;
-        var supplier = Source(consumer, instance => Capability(instance) is SupplyCapabilityKind.Source or SupplyCapabilityKind.SwitchedContact);
-        if (supplier == default) return null;
-        if (construction.Instances.Any(instance => instance.Id == supplier && Capability(instance) == SupplyCapabilityKind.Source))
-            return (SupplyRouteKind.Direct, supplier, default);
-        var sourceBody = Source(supplier, instance => Capability(instance) == SupplyCapabilityKind.Source);
-        if (sourceBody == default) return null;
-        return (SupplyRouteKind.Switched, sourceBody, supplier);
+            supplyNodes, topology.Edges, contactLoads.ToArray());
     }
     public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
     {

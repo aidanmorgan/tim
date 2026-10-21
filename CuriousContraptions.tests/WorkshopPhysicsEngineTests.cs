@@ -368,7 +368,7 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.Equal(original.OrientationSensors.ToArray(), unshifted.OrientationSensors.ToArray());
         Assert.Equal(original.Electrical.Sources.ToArray(), unshifted.Electrical.Sources.ToArray());
         Assert.Equal(original.Electrical.Bindings.ToArray(), unshifted.Electrical.Bindings.ToArray());
-        Assert.Equal(original.SupplyRoutes.ToArray(), unshifted.SupplyRoutes.ToArray());
+        Assert.Equal(original.SupplyGraph.Nodes.ToArray(), unshifted.SupplyGraph.Nodes.ToArray());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => WorkshopPhysicsCompiler.Compile(construction.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2)));
         var scene = WorkshopPhysicsCompiler.Compile(freePlay.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2));
         var moved = scene.Bodies.ToArray().Single(b => b.Id == receiver.Id);

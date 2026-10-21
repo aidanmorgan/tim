@@ -63,7 +63,7 @@ public sealed class NoFixedCapacityTests
                         ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
                     parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
                 }
-                return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyRoutes.Length); });
+                return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Consumer && node.Consumer!=default)); });
             case "prismatics-16":
                 for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Springboard(Next(), X(i), 1, 0, 0, 0, 0, 1, SpringboardSettings.Default));
                 return (Bench(parts), scene => Assert.Equal(17, scene.Prismatics.Length));

@@ -1213,13 +1213,15 @@ So that timed doors and temporary circuits can stay open.
 - **And** `tools/e2e/cat-033.test.ts` passes 100% in Chrome serially.
 
 ### Story 9.5b: Impact Switch Electrical Mode (CAT-063 PowerIn → Supply)
-*Status: Backlog*
+*Status: Review — native scoped proof complete, exact publication review pending.*
 
 *Depends on: Stories 8.1 (supply and network graph), 8.2 (a supplied consumer), 9.5a (the declared switched-contact capability, which this story only declares on the switch) and C-Switch (generic switch instance). Position 21 (Delivery order, 21 Oct 2026). New story (owner decision, 18 Oct 2026; Open scheduling item b), placed before the Both Gate (9.6) so every electrical gate story can use real input switches. Source: [CAT-063](../../docs/planning/elements/CAT-063-switch.md) §4 facts 1–5 and §5.*
 
 As a player,  
 I want an Impact Switch to pass power from its PowerIn socket to its Supply socket once a qualifying impact latches it,  
 So that a physical event can switch an electrical circuit.
+
+**Current implementation closure (22 Oct 2026):** The earlier one-hop supply route could not represent the required seeded cycles.9.5b replaces it with one declared source/contact/consumer graph, preserving direct finite-work accounting and typed refusals. No element-id routing branch or physical ABI change. Native unit proof is primary under current owner cadence; the Chrome criterion below is retained for post-catalogue qualification. Motor/campaign-specific retained outcomes remain with those unavailable integrations.
 
 **Acceptance Criteria:**
 - **Given** a Battery wired to the Impact Switch `PowerIn` and the switch `Supply` wired to a Powered Gate, built through real UI controls,

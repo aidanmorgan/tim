@@ -48,10 +48,12 @@ script = ExtResource("1")
 [node name="Visual_Terminal1" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.58, 0, 0)
 mesh = SubResource("Mesh_Terminal")
+material_override = SubResource("Mat_Socket")
 
 [node name="Visual_Terminal2" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.58, 0, 0)
 mesh = SubResource("Mesh_Terminal")
+material_override = SubResource("Mat_Socket")
 
 [node name="Visual_Base" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
@@ -80,3 +82,9 @@ position = Vector3(0, 0.05, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("BakedShape_0_1")
+
+[node name="Loc_Port_PowerIn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.58, 0, 0)
+
+[node name="Loc_Port_Supply" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.58, 0, 0)

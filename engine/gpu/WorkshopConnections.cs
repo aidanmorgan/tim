@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Gpu;
 
@@ -92,7 +93,8 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported electrical socket.");
                 foreach (var previous in seen)
                     if (previous != link && previous.Target == link.Target && previous.Input == link.Input &&
-                        previous.Domain == WorkshopConnectionDomain.Electrical)
+                        previous.Domain == WorkshopConnectionDomain.Electrical &&
+                        DeclaredPhysics.Of(target.Value).Electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
                         throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
             }
         }

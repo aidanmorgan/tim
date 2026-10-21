@@ -70,6 +70,41 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         }
         finally { Release(scene); }
     }
+    [Fact]
+    public async Task ImpactContactConnectionChoicesPreserveDomainCancelAndOneUndo()
+    {
+        var (scene,client)=BenchScene(PartId.ImpactSwitch,PlacementAnswer.Applied);
+        try
+        {
+            var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(
+                WorkshopInput.Generic(PartId.ImpactSwitch,new(1),0,1,0,0,0,0,1),
+                WorkshopInput.Generic(PartId.PoweredGate,new(2),5,3,0,0,0,0,1),
+                WorkshopInput.Lamp(new(3),-3,2,0,0,0,0,1)));
+            await scene.World.ReplaceConstruction(construction);
+            var source=scene.World.Parts.Single(part=>part.AuthoredId.Value==1);
+            var gate=scene.World.Parts.Single(part=>part.AuthoredId.Value==2);
+            var lamp=scene.World.Parts.Single(part=>part.AuthoredId.Value==3);
+            var choices=Field<VBoxContainer>(scene,"_connectionChoices");
+            IEnumerable<Button> Buttons()=>choices.GetChildren().OfType<Button>();
+            void Press(string label)=>Assert.Single(Buttons(),button=>button.Text==label).EmitSignal(Button.SignalName.Pressed);
+            void SelectSource()=>Assert.Empty(InvokeHandler(scene,"Select",source));
+            SelectSource();Assert.Contains(Buttons(),button=>button.Text=="Connect ActivationOut");Assert.Contains(Buttons(),button=>button.Text=="Connect Supply");
+            var undos=Field<List<WorkshopConstruction>>(scene,"_undo").Count;var commands=client.Commands.Count;
+            Press("Connect Supply");Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",gate));
+            Assert.Single(Buttons());Assert.Empty(InvokeHandler(scene,"CancelTool"));
+            Assert.Equal(commands,client.Commands.Count);Assert.Equal(undos,Field<List<WorkshopConstruction>>(scene,"_undo").Count);Assert.Empty(scene.World.Construction.Connections);
+            SelectSource();Press("Connect ActivationOut");Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",gate));Assert.Empty(Buttons());
+            Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",lamp));Press("ActivationOut to ActivationIn");
+            Assert.Equal(WorkshopConnectionDomain.Activation,Assert.Single(scene.World.Construction.Connections).Domain);
+            Assert.Equal(undos+1,Field<List<WorkshopConstruction>>(scene,"_undo").Count);Assert.Empty(InvokeHandler(scene,"Undo"));Assert.Empty(scene.World.Construction.Connections);
+            SelectSource();Press("Connect Supply");Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",gate));Press("Supply to PowerIn");
+            var link=Assert.Single(scene.World.Construction.Connections);Assert.Equal(WorkshopConnectionDomain.Electrical,link.Domain);Assert.Equal(gate.AuthoredId,link.Target);
+            Assert.Equal(undos+1,Field<List<WorkshopConstruction>>(scene,"_undo").Count);Assert.Empty(InvokeHandler(scene,"Undo"));Assert.Empty(scene.World.Construction.Connections);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally {Release(scene);}
+    }
+
     private static readonly Vector3 BenchPoint = new(0, 1, 0);
 
     private static MachineWorld DiscoveredWorld()
@@ -581,8 +616,11 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var result = answer == PlacementAnswer.Applied
                 ? new WorkshopCommandResult(WorkshopCommandOutcome.Applied, WorkshopRejection.None)
                 : new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction);
+            var bodies=construction is { } authored ? PhysicsGpuAbi.ReadDynamicBodies(PhysicsGpuAbi.Admission(
+                WorkshopPhysicsCompiler.Compile(authored,new(1,1)),Epoch,
+                new(authored.Settings.Simulation,authored.Settings.Physical,new(1)))) : default;
             var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,
-                WorkshopSimulationPhase.Building, new WorkshopRead(Epoch, new(0), default, Revision,
+                WorkshopSimulationPhase.Building, new WorkshopRead(Epoch, new(0), bodies, Revision,
                     new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))),
                 Session: new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             return Task.FromResult(new WorkshopDelivery(response, true));

@@ -8,7 +8,7 @@
 | Requirement | [CAT-063](../requirements.md#current-cat-063) |
 | Mapped identities | EL-198 Switch |
 | Roadmap | [CAT-063-I and CAT-035-I](../invest/vertical-delivery.md#switch-lamp) (activation edge delivered); Story 4.2 (button cosmetic); electrical PowerIn → Supply pass-through needs Story 8.1 (Battery and network graph) |
-| Status | delivered for the ActivationOut contract; the separately supplied electrical contact (PowerIn → Supply) is not started |
+| Status | ActivationOut has terminal native scoped Pass; separately supplied PowerIn → Supply is implemented with native proof in Story9.5b, pending publication review. Chrome qualification remains post-catalogue. |
 | Levels | placed in 19 levels, inventory in 11; see [CAT-063-I consumers](../invest/current-consumers.md#cat-063-i) |
 
 ## 2. Declaration
@@ -18,7 +18,7 @@
 | Bodies and shapes | One static body, two static boxes: base centre (0, −0.15, 0) half (0.55, 0.125, 0.5); button centre (0, 0.05, 0) half (0.4, 0.09, 0.375) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L111-L118`. |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 (inherited static default) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none; the button does not move physically (its depression is cosmetic). |
-| Sockets and ports | Current: ActivationOut (Activation, Output) at local (0.45, 0, 0.4) `engine/gpu/WorkshopConnections.cs@a6c914e:L32-L35`, `engine/gpu/WorkshopConnections.cs@a6c914e:L47-L55`. Required but missing: PowerIn (Electrical, Input) and Supply (Electrical, Output); sockets exist in the closed enum `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11` and connections reject the Electrical domain today `engine/gpu/WorkshopConnections.cs@a6c914e:L89-L92`. |
+| Sockets and ports | Declared ActivationOut (Signal Output Pulse) at (.45,0,.4), PowerIn (Electrical Input) at (−.58,0,0), Supply (Electrical Output) at (.58,0,0). Gold terminals and scene locators match the package ports. Source: elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs and switch.tscn. |
 | Sensors and activation | One `ContactTriggerDeclaration` on the owner body, qualified by pre-response normal approach speed ≥ threshold `engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`; targets all dynamic bodies in Free workshop, the named ball in a puzzle `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L144-L146`. Latches once per Run. |
 | Work and energy stores | none. |
 | Parameters | Current `trigger_threshold` is declared f32, 0–64 m/s, default 0.8 in `elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs`; generic authoring/save/compiler use that parameter. Finite interactive editor values clamp; invalid external vectors reject atomically. Historical authored knots 0.2 / 0.47 / 0.8 at precision 0 / 0.45 / 1 `engine/gpu/WorkshopPuzzle.cs@a6c914e:L102-L105`. |
@@ -35,11 +35,12 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Exists now | Reference |
 | --- | --- |
 | ContactImpulse with approach-speed trigger | `engine/gpu/ContactTriggerDeclaration.cs`; `CuriousContraptions.Simulation/wwwroot/worker.js` |
+| ElectricalPower: declared supplied contact, coherent source-seeded chains/cycles, supply loss/restoration without erasing activation memory | engine/gpu/SupplyRoute.cs; Story9.5b native SwitchElectricalTests |
 | SignalPropagation (activation network) | `engine/gpu/ActivationNetwork.cs`, `engine/gpu/WorkshopActivationWire.cs` |
 
 | Missing | Story that builds it |
 | --- | --- |
-| ElectricalPower: PowerIn → Supply contact closed by the latch, network cycles, supply loss | Story 8.1 (Battery DC source and network graph) |
+| Motor/campaign electrical integration: shaft momentum on supply loss and switched_motor/gated_belt sequencing/direct-wire-bypass lesson | Named Motor/campaign integration; current9.5b native gate proof does not close these future-consumer outcomes |
 | Remaining numeric lanes: compiled box/pose/material and physical event phase; lesson assistance knots | Story9A.44. C-Switch moves declared threshold and contact/cause/report speed to f32; no end-to-end f32 qualification claim. |
 
 Dependencies: a dynamic body to strike it; Battery (CAT-005) for the electrical contract; Signal lamp (CAT-035), Delay (CAT-022) and others as activation targets.
@@ -75,9 +76,11 @@ Acceptance: [CAT-063](../requirements.md#current-cat-063) and [retained behaviou
 - **Boundaries.** Approach speed just below / equal / above the threshold; base-box-only contact.
 - **Run/Reset, Save/Load.** Reset restores the unpressed button, both domains and the activation cursor; connections persist through Save/Load.
 - **Integrations.** Activation, signal and timed-logic connection audit [sequence-task-279](../requirements.md#sequence-task-279) (switch) and electrical routing [sequence-task-278](../requirements.md#sequence-task-278) (the switched pass-through, distinct from a source); [IX-01 contact impulse](../requirements.md#interaction-01), [IX-07 signal propagation](../requirements.md#interaction-07) and [IX-06 electrical power transfer](../requirements.md#interaction-06); campaign first use 11–20 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (battery, wire, switch row). Partners: Signal lamp (CAT-035), Delay (CAT-022), Battery (CAT-005, Story 8.1), Motor (CAT-042).
-- **Remaining (unmet now).** The whole electrical contract (facts 1–5) and power_trip / switched_motor levels.
+- **Remaining qualification/integration.** Chrome construction and visual qualification, power_trip / switched_motor and gated Motor/fan campaign integration; Motor shaft momentum and direct-wire-bypass goal semantics remain at their named deliveries. Current native gate tests prove supplied contact, chains/cycles, both domains, source loss/restoration and Reset/save/load.
 
 ## 6. Current decisions
 
 - C-Switch preserves owner-body qualification: either base or button contact at or above threshold qualifies. Native production-engine controls prove base-only contact and adjacent f32 threshold outcomes.
-- Activation conversion uses generic declared instances; electrical facts1–5 remain Story9.5b. Native functional acceptance does not close post-catalogue Chrome qualification.
+- Activation and electrical modes use one generic declared instance. A qualifying impact latches once; missing/lost supply clears electrical power but not the activation/contact latch. Restoration powers a still-closed contact; Reset clears both.
+- Declared SwitchedContact PowerIn admits fan-in for sourced cycles. Duplicate/wrong-domain links still reject; other consumers retain one immediate supplier. Cycles never create power. Finite-work storage keeps one direct source and explicitly rejects unsupported indirect/nonunique accounting; no invented voltage or MNA model.
+- Native functional acceptance does not close post-catalogue Chrome qualification or unavailable Motor/campaign outcomes.

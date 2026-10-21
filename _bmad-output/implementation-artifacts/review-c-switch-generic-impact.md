@@ -39,3 +39,11 @@ Normal hook e8d596 stopped123/124 after three clean builds and Anvil0warnings. I
 CI39662986471 failed5/2074, deployment skipped (b0406d/b28e85); no terminal Pass issued. Independent a4dcba confirms the two-file correction only replaces obsolete zero-header expectations with the exact current tag and old literal trigger writes with named current offsets/f32 approach. Unsupported-tag rejection and candidate validation assertions remain intact; runtime inputs are unchanged.
 
 Approved tree `13076d994fb339bf84a93aee87182d10f51b16c6`, diff SHA256 `2417b17ad4583c68ddbec4cc0cfd436d0b214dc1f67d27c02c3be18494133403` against `a91d5032ce296c2283a50d444bc31426d2df3e32`. Matching build4a5e24 zero warnings12.82s; affected classes132/132 passed295ms (47efed). The2069 unchanged CI passes remain applicable to unchanged inputs; separate clock/schedule zero-header formats are untouched. No unresolved scoped source finding. Normal protected forward publication is approved including this addendum; replacement exact-SHA CI/artifact/deployment verification remains necessary.
+
+## Terminal publication verification — 22 October 2026
+
+Scoped Pass. Independent4ed8f0 verified remote main `9225e4923748e1489fbf8a472802b2dfeff77546`, tree `d8bfe7e381a29a0bc815fe24ed3038d0a319eda5`, equals source `182b4e990e294621853541bf2f0e7ed2d07a8a94`; approved corrected inputs differ only by the authorized review addendum.
+
+Independent cae641 confirms replacement CI39664614218 completed successfully on that exact SHA:2074/2074 game tests, zero failed/skipped,1m12s. Pages artifact12377158384 belongs to that run/SHA, size78629612, digest `sha256:abef55cbcc4e45ee8f49b06c0349c74aee8b28c87930d7bc35b7075685a3e88f`. Deployment7235903146 reports success at2026-10-21T19:57:50Z for the same SHA at https://aidanmorgan.github.io/tim/.
+
+All required-now publication checks are satisfied. Earlier failed CI remains recorded. Electrical mode remains9.5b, browser qualification stays post-catalogue, common numeric lanes remain9A.44. Carry this terminal receipt into the next normal publication, without a standalone administrative commit.

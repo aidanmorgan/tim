@@ -141,7 +141,7 @@ public sealed class HoldTimerTests
             new(new(2),new(3),WorkshopSocket.ActivationIn),new(new(2),new(4),WorkshopSocket.ActivationIn),
             new(new(2),new(6),WorkshopSocket.ResetIn),new(new(5),new(4),WorkshopSocket.ActivationIn),
             new(new(5),new(6),WorkshopSocket.SetIn)
-        ]);
+        ], contacts: [new(3)]);
         var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,(Half)0,new((float)1));
         var initial = network.Consume(network.Clear(),network.ClearTimers(),[first],new(0),[],memory:network.ClearMemory());
         var scheduled = network.AdvanceScheduled(initial,new(12));
