@@ -1,0 +1,25 @@
+PKG-3 deletion proof (21 Oct 2026), on the code candidate d925637c.
+
+$ git ls-files parts/scenes/delay.tscn parts/scenes/switch.tscn
+(no output; exit 0)  -> both scenes are gone from parts/scenes
+
+$ git diff -M --stat d4195fb0 d925637c -- elements/DelayBox/delay.tscn elements/ImpactSwitch/switch.tscn parts/scenes
+ {parts/scenes => elements/DelayBox}/delay.tscn      | 0
+ {parts/scenes => elements/ImpactSwitch}/switch.tscn | 0
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+-> 100% renames (git mv), not copies; scene bytes unchanged. parts/scenes now holds 13 scenes, the "remaining 13" Story 9A.14 moves.
+
+$ rg -n 'parts/scenes/(delay|switch)\.tscn' --glob '!docs/*-sources.json' --glob '!docs/s001-source-baseline.json' --glob '!_bmad-output/**' .
+./docs/coverage/engine/catalogue-01.json:983 / :2836                (frozen coverage capture)
+./docs/planning/elements/CAT-022-delay.md:26                        (readiness spec harvested at a6c914e)
+./docs/planning/elements/CAT-063-switch.md:26                       (readiness spec harvested at a6c914e)
+-> 0 production, test, tool or current-catalogue hits. The remaining hits are historical records pinned to baseline a6c914e or a frozen
+   capture, left unchanged as PKG-1 and PKG-2 left theirs (AGENTS.md: historical artifacts remain unchanged evidence). The 19 excluded
+   *-sources.json and s001-source-baseline.json hits are hashed historical manifests.
+   The production readers of the two scene paths were parts/catalog/delay.tres and switch.tres, whose ext_resource lines are now
+   res://elements/DelayBox/delay.tscn and res://elements/ImpactSwitch/switch.tscn. No test loaded either scene by path.
+
+$ rg -n 'Assert.Equal\(\["balloon"' CuriousContraptions.tests/BundleCatalogueParityTests.cs
+69:        Assert.Equal(["balloon", "tennis"],
+-> delay and switch are gone from the parity guard's unpackaged set, which is now exactly tennis and balloon
+   (TheCatalogueIdsWithoutAPackageAreExactlyTennisAndBalloon).
