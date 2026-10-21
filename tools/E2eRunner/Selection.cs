@@ -64,7 +64,7 @@ internal sealed partial class ImpactContext
     public const string BundlePath = "elements/elements.bundle.json";
     public const string LevelsPath = "content/puzzles.json";
 
-    internal sealed record BundlePort(string PortId, SimulationDomain Domain, PortDirection Direction);
+    internal sealed record BundlePort(PortSocket Socket, SimulationDomain Domain, PortDirection Direction);
     internal sealed record BundleElement(PartId Part, string? ScenePath, IReadOnlyList<BundlePort> Ports);
 
     /// <summary>The bundle's elements, or null when the JSON does not parse as a bundle. Enum fields are written by name; an
@@ -81,7 +81,7 @@ internal sealed partial class ImpactContext
             foreach (var element in document.RootElement.GetProperty("Elements").EnumerateArray())
             {
                 var metadata = element.GetProperty("Metadata");
-                var ports = element.GetProperty("Ports").EnumerateArray().Select(port => new BundlePort(port.GetProperty("PortId").GetString()!,
+                var ports = element.GetProperty("Ports").EnumerateArray().Select(port => new BundlePort(Named<PortSocket>(port.GetProperty("Socket")),
                     Named<SimulationDomain>(port.GetProperty("Domain")), Named<PortDirection>(port.GetProperty("Direction")))).ToArray();
                 elements.Add(new BundleElement(new PartId(metadata.GetProperty("Id").GetString()!), metadata.GetProperty("ScenePath").GetString(), ports));
             }
@@ -242,7 +242,7 @@ internal static class Selector
                 .Select(other => (port, other))).FirstOrDefault();
             if (pair == default) continue;
             if (SuiteCatalogue.All.FirstOrDefault(declaration => declaration.Primary == partner.Part) is not { } primary) continue;
-            add(primary.Id, $"connected: {part}.{pair.port.PortId} {pair.port.Domain} {partner.Part}.{pair.other.PortId}");
+            add(primary.Id, $"connected: {part}.{pair.port.Socket} {pair.port.Domain} {partner.Part}.{pair.other.Socket}");
         }
     }
 }

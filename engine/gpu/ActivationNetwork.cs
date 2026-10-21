@@ -763,7 +763,7 @@ public static class WorkshopActivationCompiler
             else if (instance is WorkshopLamp lamp)
                 nodes.Add(new(new(lamp.Id.Value), lamp.Id, construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
                     link.Target == lamp.Id && construction.Instances.Any(source => source.Id == link.Source &&
-                        WorkshopPorts.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+                        DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
                     ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput, default));
             else if (instance is WorkshopDelay delay)
                 nodes.Add(new(new(delay.Id.Value), delay.Id, ActivationNodeKind.Timer, default, delay.Duration.Ticks(construction.Settings.Simulation)));

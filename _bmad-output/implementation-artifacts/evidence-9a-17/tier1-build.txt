@@ -1,0 +1,10 @@
+HEAD 2bdd7e27a4415d48ecdd0a8b7dc8a6ccf5867064 (merged with main 379cc24a)
+== dotnet build CuriousContraptions.slnx
+    0 Warning(s)
+    0 Error(s)
+== dotnet build CuriousContraptions.slnx -p:PlaytestDiagnostics=true
+    0 Warning(s)
+    0 Error(s)
+== dotnet build CuriousContraptions.slnx -c Release
+    0 Warning(s)
+    0 Error(s)

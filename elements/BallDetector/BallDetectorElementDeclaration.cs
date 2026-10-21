@@ -26,7 +26,7 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, 1.12f, 0f), Vector3.UnitY)
+        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, 1.12f, 0f), Vector3.UnitY)
     ];
 
     /// <summary>The 16-box ring around the 0.65 m bore (each box turned about +X to its angle) and the sensor housing above it.</summary>

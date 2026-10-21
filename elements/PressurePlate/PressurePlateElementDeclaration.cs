@@ -30,9 +30,9 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElect
     /// <summary>Story 9R.5 D3/D4: the level ActivationOut on the +Z edge, level with the supply sockets, precedes Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-1.18f, -.08f, 0f), -Vector3.UnitX),
-        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Level, new Vector3(0f, -.08f, 1.18f), Vector3.UnitZ),
-        new("Supply", SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
+        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-1.18f, -.08f, 0f), -Vector3.UnitX),
+        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Level, new Vector3(0f, -.08f, 1.18f), Vector3.UnitZ),
+        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The base slab and the top face that carries the contact load.</summary>

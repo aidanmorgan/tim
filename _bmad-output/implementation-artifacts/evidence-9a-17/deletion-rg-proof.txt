@@ -1,0 +1,29 @@
+HEAD 2bdd7e27a4415d48ecdd0a8b7dc8a6ccf5867064
+$ rg "WorkshopPorts\.For|WorkbenchFootprint\.Of" (the AC3 literal, whole repo minus planning/evidence history)
+rg exit 1 (1 = no hits)
+$ rg -l "WorkshopPorts\.For|WorkbenchFootprint\.Of" . (whole repo: only dated history remains, never edited: planning baselines @a6c914e, reviews, specs, evidence and the story text itself)
+grep exit 1 (1 = no hits outside _bmad-output and docs/planning)
+$ rg -nw "WorkshopPorts|WorkbenchFootprint" <code roots>
+rg exit 1 (1 = no hits)
+$ rg -nw "TryGetPortTransform|GetPortTransform|GetRelativeTransform" <code roots>
+rg exit 1 (1 = no hits)
+$ rg -n "Loc_Port_\{" engine ui (no runtime scene lookup of a socket locator)
+rg exit 1 (1 = no hits)
+$ rg -n alias literals ("power_in", "in", "out", "supply", ...) engine ui CuriousContraptions.Simulation
+rg exit 1 (1 = no hits)
+$ rg -n "Ports => PortLocators" engine (the PartDefinition alias)
+rg exit 1 (1 = no hits)
+$ rg -n "PortId" <code roots> (PortDescriptor.PortId is now the typed Socket; ExtractedPortLocator and FluidPortDescriptor keep their own names)
+tools/E2eRunner.Tests/SelectionTests.cs:100:    [InlineData("{\"Elements\": [{\"Metadata\": {\"Id\": \"counter\", \"ScenePath\": \"res://x.tscn\"}, \"Ports\": [{\"PortId\": \"PowerIn\", \"Domain\": \"Electrical\", \"Direction\": \"Input\"}]}]}")]
+grep exit 0 (1 = no hits)
+$ rg -n "Loc_Port_" elements -g "*.tscn" (every locator is a typed socket or a tube mouth)
+   3 Loc_Port_ActivationIn
+   8 Loc_Port_ActivationOut
+   6 Loc_Port_mouth_end
+   6 Loc_Port_mouth_start
+   6 Loc_Port_PowerIn
+   1 Loc_Port_ResetIn
+   1 Loc_Port_SetIn
+   4 Loc_Port_Supply
+$ rg -n "OrdinalIgnoreCase" engine/gpu/GltfPhysicsBodyExtractor.cs | rg "Loc_Port|ExtractedPortLocator"
+rg exit 1 (1 = no hits)

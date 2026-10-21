@@ -17,10 +17,23 @@ public enum PortSignalKind : byte
     Level = 2
 }
 
-/// <summary>One declared socket. <see cref="PortId"/> is the socket's name; <see cref="Signal"/> is declared on every signal port
-/// and null on every other port.</summary>
+/// <summary>The closed set of sockets an element can declare (Story 9A.17). A scene's socket locator is named
+/// <c>Loc_Port_&lt;PortSocket&gt;</c> exactly. The numbers are the sockets' wire and save values.</summary>
+public enum PortSocket : uint
+{
+    ActivationOut = 1,
+    SetIn = 2,
+    ResetIn = 3,
+    ActivationIn = 4,
+    Supply = 7,
+    PowerIn = 8
+}
+
+/// <summary>One declared socket, and the only source of its domain, direction, signal kind and anchor position (Story 9A.17).
+/// <see cref="Signal"/> is declared on every signal port and null on every other port; <see cref="LocalPosition"/> is the anchor in
+/// the element's local frame (metres).</summary>
 public readonly record struct PortDescriptor(
-    string PortId,
+    PortSocket Socket,
     SimulationDomain Domain,
     PortDirection Direction,
     PortSignalKind? Signal,

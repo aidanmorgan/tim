@@ -84,7 +84,8 @@ public partial class Workshop : Node3D
         _picker.AddItem("Around the corner");
         _picker.AddItem("Meet in the middle");
         // Story 9A.14: the catalogue is the generated element bundle alone; a missing or invalid bundle stops start-up here.
-        try { World.Registry.Load(); }
+        // Story 9A.17: its declared ports are the only port source; construction validation reads them once installed.
+        try { World.Registry.Load(); DeclaredPorts.Install(World.Registry.Ports); }
         catch (System.IO.InvalidDataException error)
         {
             WorkshopDiagnostics.Fault(FaultSite.Startup, error);

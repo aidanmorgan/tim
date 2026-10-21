@@ -92,5 +92,5 @@ mesh = SubResource("Mesh_PlusV")
 visible = false
 shape = SubResource("Shape_Body")
 
-[node name="Loc_Port_out" type="Node3D" parent="."]
+[node name="Loc_Port_Supply" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62, 0)

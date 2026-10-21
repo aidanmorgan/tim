@@ -40,5 +40,5 @@ mesh = SubResource("Mesh_Pip")
 visible = false
 shape = SubResource("Shape_Tile")
 
-[node name="Loc_Port_out" type="Node3D" parent="."]
+[node name="Loc_Port_ActivationOut" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)

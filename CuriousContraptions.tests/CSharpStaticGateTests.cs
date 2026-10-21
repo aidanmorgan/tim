@@ -550,7 +550,7 @@ public sealed class CSharpStaticGateTests
         "noconfig", "unsafe", "checked", "nowarn", "fullpaths", "nostdlib", "errorreport", "warn", "define", "highentropyva",
         "nullable", "features", "debug", "filealign", "optimize", "out", "refout", "target", "warnaserror", "utf8output",
         "deterministic", "sourcelink", "langversion", "embed", "analyzerconfig", "analyzer", "reference", "platform",
-        "win32manifest",
+        "win32manifest", "resource",
     ];
 
     /// <summary>The exact values of the switches that change diagnostics (each other one is checked on its own below).</summary>
@@ -564,6 +564,9 @@ public sealed class CSharpStaticGateTests
             "FileBasedProgram",
         ],
         ["langversion"] = ["14.0"],
+        // Story 9A.17: the one embedded resource is the generated element bundle the Simulation worker reads its ports from.
+        // It changes no diagnostic; its value is pinned so that no other resource can be embedded unnoticed.
+        ["resource"] = ["../elements/elements.bundle.json,elements.bundle.json"],
     };
 
     /// <summary>The build properties the generated MSBuild editorconfig may carry (analyzers read them). Those that switch

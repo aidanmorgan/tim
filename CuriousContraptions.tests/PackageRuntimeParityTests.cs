@@ -11,13 +11,12 @@ using RuntimeShape = CuriousContraptions.Gpu.ColliderShapeKind;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Every package's declaration equals the runtime tables that still read their own copy of it: ports (WorkshopPorts.For,
-/// until Story 9A.17), colliders, footprint, body and material (the compiler and WorkshopCanonicalColliders.For, until Story 9A.16),
+/// <summary>Every package's declaration equals the runtime tables that still read their own copy of it: colliders, footprint, body and material (the compiler and WorkshopCanonicalColliders.For, until Story 9A.16),
 /// placement defaults and bounds (MachineWorld.CaptureInstance and the records, until each conversion), ball materials
 /// (BallMaterial.For, until C-Balls) and the signal declarations the runtime reads (F15-11). Story 9A.14 deleted the catalogue half of
 /// the former cutover guard with the catalogue; each remaining comparison leaves with the table it compares. Values are compared at
-/// the runtime lane's precision (spec 9A.4 D2): package f32 values narrowed to the runtime's binary16 lanes, and f32 rotations and
-/// port positions bit for bit. The runtime body, collider and material rows come from one compiled instance of each part built with
+/// the runtime lane's precision (spec 9A.4 D2): package f32 values narrowed to the runtime's binary16 lanes, and f32 rotations bit for
+/// bit. Ports have no runtime copy since Story 9A.17 (BundlePortsTests). The runtime body, collider and material rows come from one compiled instance of each part built with
 /// the canonical colliders. The detector's and gate's scene-extracted colliders, which MachineWorld.CaptureInstance prefers, are not
 /// compared: the detector's scene ring differs from the canonical table (filed to Story 9A.16).</summary>
 [Collection<NativeSceneCollectionDefinition>]
@@ -62,42 +61,6 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         // State Latch's memory change), so each package must declare the kind the runtime publishes for it.
         Assert.Contains(packages["clock"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.TriggerActivated);
         Assert.Contains(packages["latch"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.LatchSet);
-    }
-
-    [Fact]
-    public void EveryPackageDeclaresTheRuntimePortsInOrder()
-    {
-        foreach (var package in Packages())
-        {
-            var id = new PartId(package.Declaration.Metadata.Id);
-            var runtime = WorkshopPorts.For(id).ToArray();
-            var declared = package.Declaration.Ports;
-            Assert.True(runtime.Length == declared.Count, $"{package.Package}: {declared.Count} ports declared, {runtime.Length} at runtime.");
-            for (var i = 0; i < runtime.Length; i++)
-            {
-                var port = declared[i];
-                var where = $"{package.Package}.Ports[{i}]";
-                Assert.True(Enum.GetNames<WorkshopSocket>().Contains(port.PortId), $"{where}: '{port.PortId}' names no socket.");
-                Assert.Equal(runtime[i].Socket, Enum.Parse<WorkshopSocket>(port.PortId));
-                Assert.Equal(runtime[i].Domain switch
-                {
-                    WorkshopConnectionDomain.Activation => SimulationDomain.Signal,
-                    WorkshopConnectionDomain.Electrical => SimulationDomain.Electrical,
-                    _ => throw new ArgumentException("Undefined connection domain.")
-                }, port.Domain);
-                Assert.Equal(runtime[i].Direction == WorkshopPortDirection.Input ? PortDirection.Input : PortDirection.Output, port.Direction);
-                Assert.Equal(runtime[i].Signal switch
-                {
-                    WorkshopSignalKind.Pulse => PortSignalKind.Pulse,
-                    WorkshopSignalKind.Level => PortSignalKind.Level,
-                    null => (PortSignalKind?)null,
-                    _ => throw new ArgumentException("Undefined signal kind.")
-                }, port.Signal);
-                var position = WorkshopPorts.LocalPosition(id, runtime[i].Socket);
-                Assert.True(Bits(position.X) == Bits(port.LocalPosition.X) && Bits(position.Y) == Bits(port.LocalPosition.Y) &&
-                    Bits(position.Z) == Bits(port.LocalPosition.Z), $"{where}: position {port.LocalPosition} declared, {position} at runtime.");
-            }
-        }
     }
 
     [Fact]

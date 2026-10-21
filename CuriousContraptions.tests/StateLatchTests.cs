@@ -77,11 +77,11 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             Assert.Equal(new MetreVector((Half)0.9f, (Half)0.08f, (Half)0.425f), colliders[1].HalfExtents);
             Assert.Equal((Half)(-0.72f), colliders[1].LocalPose.Translation.Y);
             Assert.Equal(colliders.Select(c => c.HalfExtents), WorkshopCanonicalColliders.For(PartId.Latch).Select(c => c.HalfExtents));
-            Assert.Equal(new Godot.Vector3(-0.45f, 0.72f, 0), ports["set_in"].Position);
-            Assert.Equal(new Godot.Vector3(0.45f, 0.72f, 0), ports["reset_in"].Position);
-            Assert.Equal(new Godot.Vector3(-0.93f, 0, 0), ports["power_in"].Position);
-            Assert.Equal(new Godot.Vector3(0.93f, 0, 0), ports["supply"].Position);
-            Assert.Equal(new Godot.Vector3(0, -0.56f, 0.38f), ports["activation_out"].Position);
+            Assert.Equal(new Godot.Vector3(-0.45f, 0.72f, 0), ports["SetIn"].Position);
+            Assert.Equal(new Godot.Vector3(0.45f, 0.72f, 0), ports["ResetIn"].Position);
+            Assert.Equal(new Godot.Vector3(-0.93f, 0, 0), ports["PowerIn"].Position);
+            Assert.Equal(new Godot.Vector3(0.93f, 0, 0), ports["Supply"].Position);
+            Assert.Equal(new Godot.Vector3(0, -0.56f, 0.38f), ports["ActivationOut"].Position);
         }
         finally { instance.Free(); }
     }
@@ -89,21 +89,22 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Ports_DeclareDistinctSetAndResetInputsAndSwitchedSupply()
     {
-        var ports = WorkshopPorts.For(PartId.Latch).ToArray();
+        var ports = DeclaredPorts.Current.Of(PartId.Latch).ToArray();
         Assert.Equal(
-            [new WorkshopPort(WorkshopSocket.SetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse),
-             new WorkshopPort(WorkshopSocket.ResetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse),
-             new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null),
-             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level),
-             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null)], ports);
+            [new WorkshopPort(WorkshopSocket.SetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse, new(-.45f, .72f, 0f)),
+             new WorkshopPort(WorkshopSocket.ResetIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input, WorkshopSignalKind.Pulse, new(.45f, .72f, 0f)),
+             new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-.93f, 0f, 0f)),
+             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.56f, .38f)),
+             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(.93f, 0f, 0f))], ports);
         Assert.Equal(2u, (uint)WorkshopSocket.SetIn);
         Assert.Equal(3u, (uint)WorkshopSocket.ResetIn);
-        Assert.Equal(new System.Numerics.Vector3(-0.45f, 0.72f, 0f), WorkshopPorts.LocalPosition(PartId.Latch, WorkshopSocket.SetIn));
-        Assert.Equal(new System.Numerics.Vector3(0.45f, 0.72f, 0f), WorkshopPorts.LocalPosition(PartId.Latch, WorkshopSocket.ResetIn));
-        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), WorkshopPorts.LocalPosition(PartId.Latch, WorkshopSocket.PowerIn));
-        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), WorkshopPorts.LocalPosition(PartId.Latch, WorkshopSocket.Supply));
-        Assert.Equal(new System.Numerics.Vector3(0f, -0.56f, 0.38f), WorkshopPorts.LocalPosition(PartId.Latch, WorkshopSocket.ActivationOut));
-        Assert.Throws<ArgumentException>(() => WorkshopPorts.LocalPosition(PartId.Latch, WorkshopSocket.ActivationIn));
+        Assert.Equal(new System.Numerics.Vector3(-0.45f, 0.72f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Latch, WorkshopSocket.SetIn));
+        Assert.Equal(new System.Numerics.Vector3(0.45f, 0.72f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Latch, WorkshopSocket.ResetIn));
+        Assert.Equal(new System.Numerics.Vector3(-0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Latch, WorkshopSocket.PowerIn));
+        Assert.Equal(new System.Numerics.Vector3(0.93f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Latch, WorkshopSocket.Supply));
+        Assert.Equal(new System.Numerics.Vector3(0f, -0.56f, 0.38f), DeclaredPorts.Current.LocalPosition(PartId.Latch, WorkshopSocket.ActivationOut));
+        Assert.Equal(ElementPortRejection.UndeclaredSocket,
+            Assert.Throws<ElementPortRejectedException>(() => DeclaredPorts.Current.LocalPosition(PartId.Latch, WorkshopSocket.ActivationIn)).Reason);
     }
 
     [Fact]

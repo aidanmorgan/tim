@@ -302,7 +302,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         try
         {
             godot.Tree.Root.AddChild(part);
-            Assert.Empty(WorkshopPorts.For(PartId.Springboard).ToArray());
+            Assert.Empty(DeclaredPorts.Current.Of(PartId.Springboard).ToArray());
             part.EnsureConstructed(); // The real tool preview has no authored identity yet.
             Assert.Equal(0UL, part.AuthoredId.Value);
             Assert.Null(part.PhysicalVisual(default));

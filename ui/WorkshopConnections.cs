@@ -53,7 +53,7 @@ public partial class Workshop
         if (_connectionChoices is null || _selected is not { } part) return;
         AddConfigurationChoices(part);
         if (!CanEdit) return;
-        foreach (var port in WorkshopPorts.For(part.PartId))
+        foreach (var port in World.Registry.Ports.Of(part.PartId))
         {
             if (port.Direction != WorkshopPortDirection.Output) continue;
             var owner = part.AuthoredId;
@@ -80,7 +80,7 @@ public partial class Workshop
         if (target is null || target.AuthoredId == source.Owner)
         { _status.Text = "Choose another part with a matching input socket."; return; }
         var choices = 0;
-        foreach (var port in WorkshopPorts.For(target.PartId))
+        foreach (var port in World.Registry.Ports.Of(target.PartId))
         {
             if (port.Direction != WorkshopPortDirection.Input || port.Domain != source.Port.Domain) continue;
             var link = new WorkshopConnection(source.Owner, source.Port.Socket, target.AuthoredId, port.Socket, port.Domain);
@@ -122,8 +122,9 @@ public partial class Workshop
         {
             var source = World.Parts.Single(part => part.AuthoredId == link.Source);
             var target = World.Parts.Single(part => part.AuthoredId == link.Target);
-            var from = WorkshopPorts.LocalPosition(source.Definition.PartId, link.Output);
-            var to = WorkshopPorts.LocalPosition(target.Definition.PartId, link.Input);
+            // The declared anchors from the element bundle (Story 9A.17) are the wire artwork's endpoints.
+            var from = World.Registry.Ports.LocalPosition(source.Definition.PartId, link.Output);
+            var to = World.Registry.Ports.LocalPosition(target.Definition.PartId, link.Input);
             var start = source.ToGlobal(new(from.X, from.Y, from.Z));
             var end = target.ToGlobal(new(to.X, to.Y, to.Z));
             WorkshopArtwork.Line(_connectionArtwork, start, end,

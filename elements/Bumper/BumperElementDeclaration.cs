@@ -26,7 +26,7 @@ public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalEl
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 0f, .65f), Vector3.UnitZ)
+        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 0f, .65f), Vector3.UnitZ)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders =>

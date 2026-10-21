@@ -184,7 +184,7 @@ public sealed class WorkshopBowlingTests
         // The compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(Bowling(1, 0))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
-        Assert.Empty(WorkshopPorts.For(PartId.BowlingBall).ToArray());
+        Assert.Empty(DeclaredPorts.Current.Of(PartId.BowlingBall).ToArray());
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.BowlingBall]);
         Assert.Contains(PartId.BowlingBall, WorkbenchCapacityTests.FreePalette.Keys);
         Assert.Contains(PartId.Battery, WorkbenchCapacityTests.FreePalette.Keys);

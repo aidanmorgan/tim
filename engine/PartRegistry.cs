@@ -36,6 +36,11 @@ public sealed class PartRegistry
     /// <summary>The Free palette: every registered element, unlimited, in ascending declared palette order.</summary>
     public IReadOnlyDictionary<PartId, PartAllowance> Free => _free ?? throw new InvalidOperationException("The element bundle is not loaded.");
 
+    private ElementPortCatalogue? _ports;
+
+    /// <summary>Every registered element's declared ports, read only from the bundle (Story 9A.17).</summary>
+    public ElementPortCatalogue Ports => _ports ?? throw new InvalidOperationException("The element bundle is not loaded.");
+
     /// <summary>Loads <see cref="BundlePath"/>.</summary>
     public void Load() => LoadFile(BundlePath);
 
@@ -51,7 +56,8 @@ public sealed class PartRegistry
     public void Load(string json)
     {
         var definitions = new List<PartDefinition>();
-        foreach (var entry in Read(json))
+        var entries = Read(json);
+        foreach (var entry in entries)
         {
             var id = new PartId(entry.Metadata.Id);
             if (UndeliveredParts.Contains(id)) continue;
@@ -59,9 +65,14 @@ public sealed class PartRegistry
         }
         if (definitions.Count == 0) throw Invalid("it declares no deliverable element");
         var free = WorkshopInventoryPolicy.Free(definitions.Select(definition => definition.PartId));
+        // A refused port declaration refuses the whole load; its typed reason is the cause.
+        ElementPortCatalogue ports;
+        try { ports = ElementPortCatalogue.FromBundle(entries); }
+        catch (ElementPortRejectedException error) { throw new InvalidDataException($"The element bundle '{BundlePath}' is invalid: {error.Message}", error); }
         _definitions.Clear();
         foreach (var definition in definitions) _definitions.Add(definition.PartId, definition);
         _free = free;
+        _ports = ports;
         _elements = definitions.Select(definition => definition.PartId).ToFrozenSet();
     }
 

@@ -39,6 +39,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" />
+    <!-- The shared engine sources name the bundle entry type (ElementPortCatalogue.FromBundle); this worker loads no bundle. -->
+    <ProjectReference Include="../CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj" />
   </ItemGroup>
   <Import Project="../CuriousContraptions.web/WorkerAot.targets" />
   <!-- Return this project's actual trimmed publish bundle; the WebAssembly SDK writes it to $(OutputPath)AppBundle during Publish. -->

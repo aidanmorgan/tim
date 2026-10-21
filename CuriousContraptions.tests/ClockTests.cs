@@ -95,11 +95,11 @@ public sealed class ClockTests(NativeSceneFixture godot)
             Assert.Equal((Half)(-0.95f), foot.LocalPose.Translation.Y);
             Assert.Equal((Half)0, foot.LocalPose.Translation.Z);
 
-            Assert.True(ports.ContainsKey("power_in"));
-            Assert.True(ports.ContainsKey("activation_out"));
+            Assert.True(ports.ContainsKey("PowerIn"));
+            Assert.True(ports.ContainsKey("ActivationOut"));
 
-            Assert.Equal(new Godot.Vector3(-0.78f, 0, 0), ports["power_in"].Position);
-            Assert.Equal(new Godot.Vector3(0.78f, 0, 0), ports["activation_out"].Position);
+            Assert.Equal(new Godot.Vector3(-0.78f, 0, 0), ports["PowerIn"].Position);
+            Assert.Equal(new Godot.Vector3(0.78f, 0, 0), ports["ActivationOut"].Position);
         }
         finally
         {
@@ -118,7 +118,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void Ports_DeclareExactSocketsAndDirections()
     {
-        var ports = WorkshopPorts.For(PartId.Clock).ToArray();
+        var ports = DeclaredPorts.Current.Of(PartId.Clock).ToArray();
         Assert.Equal(2, ports.Length);
 
         var powerIn = ports.First(p => p.Socket == WorkshopSocket.PowerIn);
@@ -129,8 +129,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
         Assert.Equal(WorkshopConnectionDomain.Activation, actOut.Domain);
         Assert.Equal(WorkshopPortDirection.Output, actOut.Direction);
 
-        Assert.Equal(new System.Numerics.Vector3(-0.78f, 0f, 0f), WorkshopPorts.LocalPosition(PartId.Clock, WorkshopSocket.PowerIn));
-        Assert.Equal(new System.Numerics.Vector3(0.78f, 0f, 0f), WorkshopPorts.LocalPosition(PartId.Clock, WorkshopSocket.ActivationOut));
+        Assert.Equal(new System.Numerics.Vector3(-0.78f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Clock, WorkshopSocket.PowerIn));
+        Assert.Equal(new System.Numerics.Vector3(0.78f, 0f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Clock, WorkshopSocket.ActivationOut));
     }
 
     [Fact]
