@@ -87,6 +87,15 @@ public sealed class WorkshopReliableReadLedger
         if (publication.Value <= _retired.Value)
             throw new ReadReceiptRejectedException(ReadReceiptRejection.Retired,
                 $"Publication {publication.Value} is receipted, but publication {_retired.Value} is already retired.");
+        var published = false;
+        foreach (var entry in _unreceipted)
+        {
+            if (entry.Publication == publication) { published = true; break; }
+            if (entry.Publication.Value > publication.Value) break;
+        }
+        if (!published)
+            throw new ReadReceiptRejectedException(ReadReceiptRejection.Unpublished,
+                $"Publication {publication.Value} was never published.");
         while (_unreceipted.TryPeek(out var oldest) && oldest.Publication.Value <= publication.Value) _unreceipted.Dequeue();
         _retired = publication;
         return publication;

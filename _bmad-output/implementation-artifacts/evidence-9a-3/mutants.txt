@@ -1,0 +1,150 @@
+== M1 AC1: stall bound >= instead of >
+diff: -        _unreceipted.TryPeek(out var oldest) && now.Value - oldest.Published.Value > StallNanoseconds;
+diff: +        _unreceipted.TryPeek(out var oldest) && now.Value - oldest.Published.Value >= StallNanoseconds;
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AnUnreceiptedReadStallsOnlyPastTheBound
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.ThePartlyReceiptedLedgerAgesFromItsOldestUnreceiptedRead
+Failed!  - Failed:     2, Passed:    26, Skipped:     0, Total:    28, Duration: 209 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M2 AC1: exact-match retirement instead of cumulative
+diff: -        while (_unreceipted.TryPeek(out var oldest) && oldest.Publication.Value <= publication.Value) _unreceipted.Dequeue();
+diff: +        if (_unreceipted.TryPeek(out var oldest) && oldest.Publication.Value == publication.Value) _unreceipted.Dequeue();
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AReceiptForAReadPublishedBeforeLaterOnesStillRetires
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AReceiptRetiresEveryCoalescedEarlierPublication
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheLedgerHasNoFixedCapacity
+Failed!  - Failed:     3, Passed:    25, Skipped:     0, Total:    28, Duration: 201 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M3 AC1: a stalled run stops as Capacity, not ReliableStalled
+diff: -        Stalled(now) ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity;
+diff: +        WorkshopRejection.Capacity;
+build error: CuriousContraptions.csproj]
+
+== M3b AC1 (M3 was invalid: IDE0060 unused 'now' broke the build): a stalled run stops as Capacity
+diff: -        Stalled(now) ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity;
+diff: +        Stalled(now) && false ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity;
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AnUnreceiptedReadStallsOnlyPastTheBound
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheRunLoopStopsForAStalledLedger
+Failed!  - Failed:     2, Passed:    26, Skipped:     0, Total:    28, Duration: 196 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M4 AC1/AC3: a duplicate or retired receipt is silently accepted (the deleted silent return)
+diff: -        if (publication.Value <= _retired.Value)
+diff: -            throw new ReadReceiptRejectedException(ReadReceiptRejection.Retired,
+diff: -                $"Publication {publication.Value} is receipted, but publication {_retired.Value} is already retired.");
+diff: +        if (publication.Value <= _retired.Value) return publication;
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AMismatchedReceiptIsATypedRejectionThatRetiresNothing
+Failed!  - Failed:     1, Passed:    27, Skipped:     0, Total:    28, Duration: 206 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M5 AC2: the memory query is admitted while Running (WrongPhase guard removed)
+diff: -        !IsStopped(phase) ? new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase)
+diff: -        : gpuOperationPending || !readsReceipted ? new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy)
+diff: +        gpuOperationPending || !readsReceipted ? new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy)
+build error: CuriousContraptions.csproj]
+
+== M5b AC2 (M5 invalid: IDE0060 unused 'phase'): the memory query is admitted while Running
+diff: -        !IsStopped(phase) ? new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase)
+diff: +        !IsStopped(phase) && false ? new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase)
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AQueryOutsideAStoppedPhaseIsWrongPhase(phase: Paused)
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AQueryOutsideAStoppedPhaseIsWrongPhase(phase: Resetting)
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AQueryOutsideAStoppedPhaseIsWrongPhase(phase: Running)
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AQueryOutsideAStoppedPhaseIsWrongPhase(phase: Starting)
+Failed!  - Failed:     4, Passed:    24, Skipped:     0, Total:    28, Duration: 205 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M6 AC2: the codec admits a memory measurement on a read or a rejected acknowledgement
+diff: -        if (response.Kind != WorkshopResponseKind.Acknowledgement || response.Result.Outcome != WorkshopCommandOutcome.Applied)
+diff: -            throw new ArgumentException("Only an applied acknowledgement carries a memory measurement.");
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.OnlyAnAppliedAcknowledgementCarriesMemory
+Failed!  - Failed:     1, Passed:    27, Skipped:     0, Total:    28, Duration: 212 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M7 AC3: an unknown command kind is an untyped ArgumentException
+diff: -            throw new WireFaultException(WireFaultReason.UnknownCommand, $"The command names kind {(uint)fb.Kind}, which this game does not have.");
+diff: +            throw new ArgumentException($"The command names kind {(uint)fb.Kind}, which this game does not have.");
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.AnUnknownCommandKindIsATypedWireFault
+Failed!  - Failed:     1, Passed:    63, Skipped:     0, Total:    64, Duration: 390 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M8 re-add: the worker's raw reliableStalled branch
+diff: +    if (typeof event.data?.reliableStalled === 'boolean') { if (!disposed) host.SetReliableStall?.(event.data.reliableStalled); return; }
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 107 ms - CuriousContraptions.tests.dll (net10.0)
+node tools/workshop-observation.test.mjs exit=1 ℹ pass 0 ℹ fail 1 
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+    actual: undefined,
+
+== M9 AC3: a refused read receipt is silently dropped (the deleted silent return)
+diff: -    catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); return; }
+diff: +    catch { return; }
+build: succeeded
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 99 ms - CuriousContraptions.tests.dll (net10.0)
+node tools/workshop-observation.test.mjs exit=1 ℹ pass 0 ℹ fail 1 
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /ReadReceiptRejectedException: Publication 1 is receipted, but publication 1 is already retired/. Input:
+    actual: '',
+
+== M10 re-add: Program._reliableStalled and the SetReliableStall export
+diff: +    private static bool _reliableStalled;
+diff: +    [JSExport]
+diff: +    public static void SetReliableStall(bool stalled) => _reliableStalled = stalled;
+diff: +    internal static bool ReliableStalled => _reliableStalled;
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 109 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M11 re-add: the browser posts the raw reliableStalled flag again
+diff: +    const stalled = oldest > 500;
+diff: +    if (stalled !== client.stalled) { client.stalled = stalled; client.worker.postMessage({ reliableStalled: stalled }); }
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 111 ms - CuriousContraptions.tests.dll (net10.0)
+node tools/workshop-client-lifecycle.test.mjs exit=1 ℹ pass 32 ℹ fail 7 
+    AssertionError [ERR_ASSERTION]: the probe travels through the clock ring, never as a Simulation worker message
+      actual: 3,
+    AssertionError [ERR_ASSERTION]: no stall flag is ever posted
+      actual: 3,
+
+== M12 re-add: the browser's raw memoryRequest channel (sendMemoryRequest)
+diff: +export function sendMemoryRequest(id, bytes) {
+diff: +    const memoryRequest = new Uint8Array(bytes);
+diff: +    owner(id).worker.postMessage({ memoryRequest }, [memoryRequest.buffer]);
+diff: +}
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 101 ms - CuriousContraptions.tests.dll (net10.0)
+node tools/workshop-client-lifecycle.test.mjs exit=0 ℹ pass 39 ℹ fail 0 
+
+== M13 re-add: the browser's dead candidateTimedOut envelope branch
+diff: +                    } else if (typeof message.candidateTimedOut === 'boolean') {
+diff: +                        client.candidateTimedOut = message.candidateTimedOut;
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 102 ms - CuriousContraptions.tests.dll (net10.0)
+node tools/workshop-client-lifecycle.test.mjs exit=1 ℹ pass 38 ℹ fail 1 
+    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+      actual: 0,
+
+== M14 re-add: a fixed-width WorkshopMemoryWire codec
+diff: +public static class WorkshopMemoryWire
+diff: +{
+diff: +    public const int RequestBytes = 64, ResultBytes = 128;
+diff: +    public static byte[] Encode(WorkshopMemoryMeasurement measurement) { measurement.Validate(); return new byte[ResultBytes]; }
+diff: +}
+build: succeeded
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 100 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M15 re-add: the silent FlushObservation swallow
+diff: -    try { host.FlushObservation(); }
+diff: -    catch (error) { console.error('CCGPU_TRACE_FLUSH_EXCEPTION', String(error)); }
+diff: +    try { host.FlushObservation(); } catch {}
+build: succeeded
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 92 ms - CuriousContraptions.tests.dll (net10.0)
+node tools/workshop-observation.test.mjs exit=1 ℹ pass 0 ℹ fail 1 
+  AssertionError [ERR_ASSERTION]: and logged, never swallowed
+  + actual - expected
+    actual: [],
+

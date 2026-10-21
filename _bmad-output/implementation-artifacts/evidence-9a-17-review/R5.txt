@@ -1,0 +1,5 @@
+== R5 (rerun; first attempt failed to compile on IDE0060) ElementPortCatalogue.Has ignores the link's domain
+ engine/gpu/ElementPortCatalogue.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+    0 Error(s)
+Passed!  - Failed:     0, Passed:   131, Skipped:     0, Total:   131, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

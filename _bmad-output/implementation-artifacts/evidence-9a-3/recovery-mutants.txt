@@ -1,0 +1,218 @@
+9A.3 recovery corrected decision mutations — 21 October 2026
+Source restored after each mutation; no browser republish during mutations.
+B1 raw output remains tool chunk f3a192; its diagnostic excerpt is retained below.
+
+B1 gap receipt membership disabled
+engine/gpu/WorkshopReliableReadLedger.cs
+Mutation: if (!published) => if (!published && publication.Value > _published.Value)
+$ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'AReceiptForAnUnpublishedGapRetiresNothing' --logger 'console;verbosity=normal' -v:q
+Raw tool chunk f3a192: AReceiptForAnUnpublishedGapRetiresNothing FAIL. Assert.Throws() Failure: No exception was thrown. Expected ReadReceiptRejectedException. Total tests 1, Failed 1.
+Exit: 1
+
+B3 unknown companion keys admitted
+CuriousContraptions.Simulation/wwwroot/worker.js
+Mutation: if (unsupported.length) => if (unsupported.length && !keys.length)
+$ node --experimental-vm-modules --test tools/workshop-observation.test.mjs
+(node:39062) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+{"refusedReceiptIsAFailure":true}
+{"memoryQueryOnCommandTransport":true}
+{"startupControl":1,"passed":true}
+{"startupControl":2,"passed":true}
+{"commandsReachTheManagedDecoder":true,"dispatched":[0,7,72,70000],"rejected":["array"]}
+{"schedulerTurnFailureEnvelope":true}
+{"disposalCancelsSchedulerTurns":true}
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- true
+
+    at file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/workshop-observation.test.mjs:436:16 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.12.0
+✖ tools/workshop-observation.test.mjs (362.633541ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 365.766792
+
+✖ failing tests:
+
+test at tools/workshop-observation.test.mjs:1:1
+✖ tools/workshop-observation.test.mjs (362.633541ms)
+  'test failed'
+
+Exit: 1
+
+B4 memory owner admits Run
+engine/gpu/WorkshopMemoryObservation.cs
+Mutation: if (Active && kind != WorkshopCommandKind.Dispose) => if (Active && kind == WorkshopCommandKind.Dispose)
+$ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'MemoryQueryOwnsTheStoppedIntervalUntilCaptureCompletes' --logger 'console;verbosity=normal' -v:q
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.13]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.64]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.76]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:00.97]     CuriousContraptions.Tests.TypedTransportCommandTests.MemoryQueryOwnsTheStoppedIntervalUntilCaptureCompletes [FAIL]
+[xUnit.net 00:00:00.97]       Assert.Throws() Failure: No exception was thrown
+[xUnit.net 00:00:00.97]       Expected: typeof(System.InvalidOperationException)
+[xUnit.net 00:00:00.97]       Stack Trace:
+[xUnit.net 00:00:00.97]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs(299,0): at CuriousContraptions.Tests.TypedTransportCommandTests.MemoryQueryOwnsTheStoppedIntervalUntilCaptureCompletes()
+[xUnit.net 00:00:00.97]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:00.98]   Finished:    CuriousContraptions.tests (ID = 'f764d896c63cd5077cd32a28d2220650a82900fab82671e93db0aa66f6e93447')
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.MemoryQueryOwnsTheStoppedIntervalUntilCaptureCompletes [8 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.InvalidOperationException)
+  Stack Trace:
+     at CuriousContraptions.Tests.TypedTransportCommandTests.MemoryQueryOwnsTheStoppedIntervalUntilCaptureCompletes() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs:line 299
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 1.1939 Seconds
+
+Exit: 1
+
+B5 delivery applicability ignored
+engine/gpu/WorkshopMemoryObservation.cs
+Mutation: delivery.Applicable && current() => current()
+$ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'SupersededOrDisposedQueryReleasesOwnershipWithoutCapture' --logger 'console;verbosity=normal' -v:q
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.13]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.63]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.74]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:00.95]     CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(applicable: False, current: True) [FAIL]
+[xUnit.net 00:00:00.95]       System.InvalidOperationException : No stale capture.
+[xUnit.net 00:00:00.95]       Stack Trace:
+[xUnit.net 00:00:00.95]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs(319,0): at CuriousContraptions.Tests.TypedTransportCommandTests.<>c.<SupersededOrDisposedQueryReleasesOwnershipWithoutCapture>b__31_2()
+[xUnit.net 00:00:00.95]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs(86,0): at CuriousContraptions.Gpu.WorkshopMemoryQuery.Complete(WorkshopCommandKind kind, WorkshopResponse acknowledgement, Boolean applicable, Func`1 captureBrowser)
+[xUnit.net 00:00:00.95]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs(112,0): at CuriousContraptions.Gpu.WorkshopMemoryQueryOwner.Execute(Int32 pending, Func`1 query, Func`1 current, Func`1 captureBrowser)
+[xUnit.net 00:00:00.95]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs(318,0): at CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(Boolean applicable, Boolean current)
+[xUnit.net 00:00:00.95]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:00.96]   Finished:    CuriousContraptions.tests (ID = 'f764d896c63cd5077cd32a28d2220650a82900fab82671e93db0aa66f6e93447')
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(applicable: False, current: True) [8 ms]
+  Error Message:
+   System.InvalidOperationException : No stale capture.
+  Stack Trace:
+     at CuriousContraptions.Tests.TypedTransportCommandTests.<>c.<SupersededOrDisposedQueryReleasesOwnershipWithoutCapture>b__31_2() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs:line 319
+   at CuriousContraptions.Gpu.WorkshopMemoryQuery.Complete(WorkshopCommandKind kind, WorkshopResponse acknowledgement, Boolean applicable, Func`1 captureBrowser) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs:line 86
+   at CuriousContraptions.Gpu.WorkshopMemoryQueryOwner.Execute(Int32 pending, Func`1 query, Func`1 current, Func`1 captureBrowser) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs:line 112
+   at CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(Boolean applicable, Boolean current) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs:line 318
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(applicable: True, current: False) [3 ms]
+
+Test Run Failed.
+Total tests: 2
+     Passed: 1
+     Failed: 1
+ Total time: 1.1799 Seconds
+
+Exit: 1
+
+B5 current ownership ignored
+engine/gpu/WorkshopMemoryObservation.cs
+Mutation: delivery.Applicable && current() => delivery.Applicable
+$ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'SupersededOrDisposedQueryReleasesOwnershipWithoutCapture' --logger 'console;verbosity=normal' -v:q
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs(104,79): error IDE0060: Remove unused parameter 'current' if it is not part of a shipped public API (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0060) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.csproj]
+
+Exit: 1
+
+B5 current ownership ignored
+engine/gpu/WorkshopMemoryObservation.cs
+Mutation: delivery.Applicable && current() => delivery.Applicable && (current() || delivery.Applicable)
+$ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'SupersededOrDisposedQueryReleasesOwnershipWithoutCapture' --logger 'console;verbosity=normal' -v:q
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.13]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.65]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.76]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:00.98]     CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(applicable: True, current: False) [FAIL]
+[xUnit.net 00:00:00.98]       System.InvalidOperationException : No stale capture.
+[xUnit.net 00:00:00.98]       Stack Trace:
+[xUnit.net 00:00:00.98]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs(319,0): at CuriousContraptions.Tests.TypedTransportCommandTests.<>c.<SupersededOrDisposedQueryReleasesOwnershipWithoutCapture>b__31_2()
+[xUnit.net 00:00:00.98]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs(86,0): at CuriousContraptions.Gpu.WorkshopMemoryQuery.Complete(WorkshopCommandKind kind, WorkshopResponse acknowledgement, Boolean applicable, Func`1 captureBrowser)
+[xUnit.net 00:00:00.98]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs(112,0): at CuriousContraptions.Gpu.WorkshopMemoryQueryOwner.Execute(Int32 pending, Func`1 query, Func`1 current, Func`1 captureBrowser)
+[xUnit.net 00:00:00.98]         /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs(318,0): at CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(Boolean applicable, Boolean current)
+[xUnit.net 00:00:00.98]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:00.99]   Finished:    CuriousContraptions.tests (ID = 'f764d896c63cd5077cd32a28d2220650a82900fab82671e93db0aa66f6e93447')
+  Passed CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(applicable: False, current: True) [9 ms]
+  Failed CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(applicable: True, current: False) [< 1 ms]
+  Error Message:
+   System.InvalidOperationException : No stale capture.
+  Stack Trace:
+     at CuriousContraptions.Tests.TypedTransportCommandTests.<>c.<SupersededOrDisposedQueryReleasesOwnershipWithoutCapture>b__31_2() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs:line 319
+   at CuriousContraptions.Gpu.WorkshopMemoryQuery.Complete(WorkshopCommandKind kind, WorkshopResponse acknowledgement, Boolean applicable, Func`1 captureBrowser) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs:line 86
+   at CuriousContraptions.Gpu.WorkshopMemoryQueryOwner.Execute(Int32 pending, Func`1 query, Func`1 current, Func`1 captureBrowser) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/engine/gpu/WorkshopMemoryObservation.cs:line 112
+   at CuriousContraptions.Tests.TypedTransportCommandTests.SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(Boolean applicable, Boolean current) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/TypedTransportCommandTests.cs:line 318
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 2
+     Passed: 1
+     Failed: 1
+ Total time: 1.2038 Seconds
+
+Exit: 1
+
+RESTORED SHA256 (identical to pre-mutation)
+0dfee49c489bced6d31b2b39cb094de13d4b7979cc0e04b5f29519e47d20d910 engine/gpu/WorkshopReliableReadLedger.cs
+53985be3f3e012a561894f7ae632f462b05e1436821bae4789ef6a9aa45a3645 engine/gpu/WorkshopMemoryObservation.cs
+75f6af33b966bb5b151e7c2309a2c6fc1d9e9577f55e05f831a8322819e138f8 CuriousContraptions.Simulation/wwwroot/worker.js
+
+$ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-restore --filter 'FullyQualifiedName~TypedTransportCommandTests' -v:q
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    33, Skipped:     0, Total:    33, Duration: 203 ms - CuriousContraptions.tests.dll (net10.0)
+
+Exit: 0
+$ node --experimental-vm-modules --test tools/workshop-observation.test.mjs
+(node:43097) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+{"refusedReceiptIsAFailure":true}
+{"memoryQueryOnCommandTransport":true}
+{"startupControl":1,"passed":true}
+{"startupControl":2,"passed":true}
+{"commandsReachTheManagedDecoder":true,"dispatched":[0,7,72,70000],"rejected":["array"]}
+{"schedulerTurnFailureEnvelope":true}
+{"disposalCancelsSchedulerTurns":true}
+{"mixedEnvelopesRejectedAtomically":true}
+✔ tools/workshop-observation.test.mjs (402.992084ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 407.067292
+
+Exit: 0
+$ git diff --check
+Exit: 0

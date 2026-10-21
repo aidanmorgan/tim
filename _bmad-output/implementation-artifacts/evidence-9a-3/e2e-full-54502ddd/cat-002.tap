@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: CAT-002: Ball Detector Aperture Passage Sensor
+    # Subtest: 1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp
+    ok 1 - 1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp
+      ---
+      duration_ms: 11482.705375
+      type: 'test'
+      ...
+    # Subtest: 2. Negative control (reverse passage): Traversal in -X does NOT trigger sensor or lamp
+    ok 2 - 2. Negative control (reverse passage): Traversal in -X does NOT trigger sensor or lamp
+      ---
+      duration_ms: 12632.127167
+      type: 'test'
+      ...
+    # Subtest: 3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp
+    ok 3 - 3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp
+      ---
+      duration_ms: 12567.417
+      type: 'test'
+      ...
+    # Subtest: 4. Directional rearm and reset: Reset restores the exact pre-Run snapshot and a second Run triggers forward again
+    ok 4 - 4. Directional rearm and reset: Reset restores the exact pre-Run snapshot and a second Run triggers forward again
+      ---
+      duration_ms: 12831.33175
+      type: 'test'
+      ...
+    # Subtest: 5. Persistence: Save / reload / Load IndexedDB persistence roundtrip reproduces forward passage and lamp activation
+    ok 5 - 5. Persistence: Save / reload / Load IndexedDB persistence roundtrip reproduces forward passage and lamp activation
+      ---
+      duration_ms: 13283.63675
+      type: 'test'
+      ...
+    1..5
+ok 1 - CAT-002: Ball Detector Aperture Passage Sensor
+  ---
+  duration_ms: 67089.025083
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 67356.933167

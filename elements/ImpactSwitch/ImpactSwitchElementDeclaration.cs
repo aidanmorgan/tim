@@ -30,7 +30,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ)
+        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(.45f, 0f, .4f), Vector3.UnitZ)
     ];
 
     /// <summary>The base, then the button.</summary>

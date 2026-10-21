@@ -1,0 +1,22 @@
+Story 9A.3 Tier 1, committed candidate 54502ddd23b86912ac2a5befa07acda5f8777eaf, clean source tree (porcelain digest of everything
+outside _bmad-output: e3b0c44298fc, the empty digest). Script: tier1.sh; every step's full output: tier1/<step>.log.
+
+| Step | Result |
+| --- | --- |
+| dotnet build CuriousContraptions.slnx (Debug) | exit 0, 0 warnings, 0 errors |
+| ... -p:PlaytestDiagnostics=true | exit 0, 0 warnings, 0 errors |
+| ... -c Release | exit 0, 0 warnings, 0 errors |
+| CuriousContraptions.web (WasmBuildOnlyAfterPublish, TwoDogAutoImport=false) | exit 0, 0 warnings, 0 errors |
+| dotnet test CuriousContraptions.slnx | 2283/2283: CuriousContraptions.tests 1931 (main 1906, +28 TypedTransportCommandTests, -3 deleted fixed memory-wire tests), E2eRunner.Tests 164, BundleElements.Tests 94, Coverage.Tests 77, WorkerAotGuard.Tests 17 |
+| Node harnesses (tier1-node.sh: tools/*.test.mjs with --experimental-vm-modules, tools/e2e/unit under tsx 4.23.15) | every file exit 0: animation-clock 3, animation-output 1, client-lifecycle 39, clock-ring 12, close-findings 14, console 4, isolation 9, observation 1 (9 control blocks), pose-ring 5, save-storage 3, e2e unit run-reset-snapshot 24 |
+| LifecycleContract (Release) | exit 0, Count 510, Failures 0 |
+| WireContract (Release) | exit 0, Count 108, Failures 0 |
+| Ownership --oracles . (Release) | exit 0, Positive, 22/22 attacks rejected |
+| anvil check --since 379cc24a | exit 0, 7 changed checked files, no warnings |
+
+Note: the step "node: exit=1" in the raw run is the harness script's own exit status, not a harness failure: its last statement was
+`[ $code -ne 0 ] && ...`, which returns 1 when the file passed. tier1/node.log shows exit=0 for every file. tier1-node.sh now exits
+with the real aggregate (fixed after this run; no harness changed).
+
+The pre-commit hook (C# static gate: snapshot solution, PLAYTEST and web builds from scratch, CSharpStaticGateTests and
+WorkshopUiFailureTests 123/123, anvil hook) passed on the commit itself.

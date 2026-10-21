@@ -16,7 +16,17 @@ public enum BundleErrorCode
     UnresolvedReference = 7,
     DuplicatePaletteOrder = 8,
     MissingAsset = 9,
-    EmptyText = 10
+    EmptyText = 10,
+    /// <summary>A scene's <c>Loc_Port_</c> locator names neither a declared socket nor a tube mouth (Story 9A.17).</summary>
+    UndeclaredPortLocator = 11,
+    /// <summary>A declared port has no <c>Loc_Port_&lt;socket&gt;</c> locator in its element's scene.</summary>
+    MissingPortLocator = 12,
+    /// <summary>A port's locator is not at the declared anchor, is not a child of the scene root, or has no readable transform.</summary>
+    PortLocatorDisagrees = 13,
+    /// <summary>One element declares the same socket twice.</summary>
+    DuplicatePort = 14,
+    /// <summary>A Signal port without a signal kind, or a non-Signal port with one.</summary>
+    PortSignalKind = 15
 }
 
 /// <summary>One validation failure, naming the entry's source (its package, or its element id in a loaded bundle) and the field.</summary>
@@ -68,7 +78,13 @@ public static class BundleValidator
             // Any entry with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
             if ((footprint.Bodies > 0 || entry.Mechanical is not null) && entry.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Colliders: a body declares no collider"));
-            for (var i = 0; i < entry.Ports.Count; i++) Port($"Ports[{i}]", entry.Ports[i]);
+            var sockets = new HashSet<PortSocket>();
+            for (var i = 0; i < entry.Ports.Count; i++)
+            {
+                Port($"Ports[{i}]", entry.Ports[i]);
+                if (!sockets.Add(entry.Ports[i].Socket))
+                    errors.Add(new(BundleErrorCode.DuplicatePort, $"{source}.Ports[{i}].Socket: {entry.Ports[i].Socket} is declared more than once"));
+            }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
@@ -132,15 +148,17 @@ public static class BundleValidator
 
         private void Port(string path, PortDescriptor port)
         {
+            Defined(path + ".Socket", port.Socket);
             Defined(path + ".Domain", port.Domain);
             Defined(path + ".Direction", port.Direction);
             if (port.Signal is { } signal) Defined(path + ".Signal", signal);
+            if ((port.Domain == SimulationDomain.Signal) != port.Signal.HasValue)
+                errors.Add(new(BundleErrorCode.PortSignalKind, $"{source}.{path}.Signal: a Signal port declares its signal kind and no other port does"));
             Finite(path + ".LocalPosition", port.LocalPosition);
             Finite(path + ".Normal", port.Normal);
             // A port normal is a direction: unit length within f32 rounding.
             var length = port.Normal.LengthSquared();
             if (float.IsFinite(length) && MathF.Abs(length - 1f) > 1e-5f) OutOfRange(path + ".Normal");
-            Text(path + ".PortId", port.PortId);
         }
 
         private void Collider(string path, ColliderDescriptor collider)

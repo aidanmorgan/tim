@@ -79,10 +79,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             Assert.Equal((Half)0, topCol.LocalPose.Translation.Z);
 
             Assert.Equal(3, ports.Count);
-            Assert.Equal(new Godot.Vector3(-1.18f, -0.08f, 0), ports["power_in"].Position);
-            Assert.Equal(new Godot.Vector3(1.18f, -0.08f, 0), ports["supply"].Position);
+            Assert.Equal(new Godot.Vector3(-1.18f, -0.08f, 0), ports["PowerIn"].Position);
+            Assert.Equal(new Godot.Vector3(1.18f, -0.08f, 0), ports["Supply"].Position);
             // Story 9R.5 D3: the level ActivationOut sits on the +Z edge, level with the ±X supply sockets.
-            Assert.Equal(new Godot.Vector3(0, -0.08f, 1.18f), ports["activation_out"].Position);
+            Assert.Equal(new Godot.Vector3(0, -0.08f, 1.18f), ports["ActivationOut"].Position);
             var socket = (MeshInstance3D)instance.FindChild("Visual", recursive: false)!.FindChild("Visual_Socket_ActivationOut", recursive: false)!;
             Assert.Equal(new Godot.Vector3(0, -0.08f, 1.18f), socket.Position);
             var sphere = Assert.IsType<SphereMesh>(socket.Mesh);
@@ -108,13 +108,13 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         // Story 9R.5 D4: ActivationOut (a level) is listed before Supply, as on the latch, so the drawer keeps the Supply row.
         Assert.Equal(
-            [new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null),
-             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level),
-             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null)],
-            WorkshopPorts.For(PartId.PressurePlate).ToArray());
-        Assert.Equal(new Vector3(-1.18f, -0.08f, 0f), WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.PowerIn));
-        Assert.Equal(new Vector3(1.18f, -0.08f, 0f), WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.Supply));
-        Assert.Equal(new Vector3(0f, -0.08f, 1.18f), WorkshopPorts.LocalPosition(PartId.PressurePlate, WorkshopSocket.ActivationOut));
+            [new WorkshopPort(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input, null, new(-1.18f, -.08f, 0f)),
+             new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Level, new(0f, -.08f, 1.18f)),
+             new WorkshopPort(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output, null, new(1.18f, -.08f, 0f))],
+            DeclaredPorts.Current.Of(PartId.PressurePlate).ToArray());
+        Assert.Equal(new Vector3(-1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(PartId.PressurePlate, WorkshopSocket.PowerIn));
+        Assert.Equal(new Vector3(1.18f, -0.08f, 0f), DeclaredPorts.Current.LocalPosition(PartId.PressurePlate, WorkshopSocket.Supply));
+        Assert.Equal(new Vector3(0f, -0.08f, 1.18f), DeclaredPorts.Current.LocalPosition(PartId.PressurePlate, WorkshopSocket.ActivationOut));
     }
 
     [Fact]
@@ -770,7 +770,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var levelOutputs = new List<PartId>(); var levelInputs = new List<PartId>();
         foreach (var id in new[] { PartId.ImpactSwitch, PartId.SignalLamp, PartId.Delay, PartId.Domino, PartId.Battery, PartId.PinballBumper,
                      PartId.BallDetector, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch })
-            foreach (var port in WorkshopPorts.For(id))
+            foreach (var port in DeclaredPorts.Current.Of(id))
             {
                 Assert.Equal(port.Domain == WorkshopConnectionDomain.Activation, port.Signal is { } kind && Enum.IsDefined(kind));
                 if (port.Signal != WorkshopSignalKind.Level) continue;

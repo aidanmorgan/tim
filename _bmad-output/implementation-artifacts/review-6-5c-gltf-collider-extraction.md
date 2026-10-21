@@ -153,3 +153,44 @@ $ npx tsx --test tools/e2e/engine-core-2c.test.ts
 ## 6. Conclusion
 
 Story 6.5c meets every acceptance criterion, enforces strict visual/collider entity separation, and maintains 100% automated test pass rates without defects or regressions. Terminal Scoped Verdict: **PASS**.
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Story 9A.17)
+
+Closing record under the epics rule "Reopened-record closure" (Story 6.5c's closing stories are 9A.16 and 9A.17). Only the
+port-locator clauses are in scope here; the collider clauses belong to 9A.16. The original text above is unchanged.
+
+**Reviewer:** Murdoch-24, terminal reviewer of Story 9A.17. I am not its implementer (Amelia-23), and I did not write the
+original review above (dated 2026-10-13, baseline `9107148`).
+
+**Identity.**
+- Reviewed tree: `46e734289726c169d2d4a395a54db29ebb57d0f7`, commit `2bdd7e27`.
+- Final commit: `24179187`, tree `0b9a8182`. It differs from the reviewed tree only in `docs/architecture/element-package-isolation.md` and under `_bmad-output/`.
+- Main: merged as `6ca5591e` (2026-10-21T18:27:53+08:00), whose tree is the same `0b9a8182`.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`):
+- The review record: `review-9a-17-bundle-ports-and-footprint.md`, with its raw logs in `evidence-9a-17-review/`:
+  - mutants `R1.txt` to `R6.txt`;
+  - Tier 1 logs `tier1-build-debug.txt`, `tier1-build-release.txt`, `tier1-test.txt` and `tier1-node.txt`, taken on a clean copy at `2bdd7e27`. These logs carry no stamp of their own; their identity is recorded in the review record.
+- **Full Chrome run:** `evidence-9a-17/e2e-full-2bdd7e27/summary.txt` (SHA-256 `bf9b4529…`).
+  - Run `20261021T092247Z-74820`, `sourceHead 2bdd7e27`, `bundleIdentity 570e3d4cb8b8…`.
+  - Started 2026-10-21T09:22:47Z, finished 10:16:41Z.
+  - 48 files, 284/284 tests.
+- **Clean rerun** of the two Contended SerialAlone suites: `evidence-9a-17/e2e-contended-rerun-2bdd7e27/summary.txt` (SHA-256 `1889fde9…`).
+  - Run `20261021T101828Z-84313`, same `sourceHead`, `bundleIdentity fdf5b9e38fed…`.
+  - 10:18:28Z to 10:21:06Z, verdict Pass, all Clean.
+- **Red bundle build** before the scene renames: `evidence-9a-17/red-locators-before-rename.txt`.
+
+| Original clause | Retro-verification finding (18 Oct) | Verdict at `24179187` |
+| --- | --- | --- |
+| Checklist #3: "3D socket anchors resolved dynamically from named empty locator nodes (`Loc_Port_<Id>`) matching declared port IDs"; evidence "Exposed via `PartDefinition.PortLocators` and `MachinePart.GetPortTransform(portId)`" | C: the runtime ports came from `WorkshopPorts.For`/`LocalPosition`, the locators were presentation-only, and the names did not match | **Closed, Pass**, against the clause as amended by Story 9A.17 AC6 ("one source in the bundle"). **Single source:** each element's declared `PortDescriptor` list (typed `PortSocket`) is the only runtime port source, through `ElementPortCatalogue`, read on the main thread and in the Simulation worker. `WorkshopPorts`, `MachinePart.TryGetPortTransform`, `GetPortTransform` and its string alias chain are deleted, with 0 `rg` hits in code. **Locators:** every socket locator is named `Loc_Port_<PortSocket>` exactly (22 in 12 scenes). The bundle build fails on a misnamed or missing locator, or one away from its declared anchor (BUNDLE011–013; mutant R1 is killed by BUNDLE013). `BundlePortLocatorTests` compares all 22 ports with their instantiated-scene locators. The runtime no longer resolves a socket from the scene; it reads the declaration, which the locator must equal |
+| AC-2: "Locators extracted into dictionary keyed by PortId … Available on `PartDefinition` and `MachinePart`" | C (as above) | **Closed, Pass**, as amended. `GltfPhysicsBodyExtractor` matches `Loc_Port_` names ordinally (no case folding), and `PartDefinition.PortLocators` remains for the tube mouths (`mouth_start`, `mouth_end`; Story 9R.6). `MachinePart` has no port lookup any more, by design |
+| Locator orientation (implied by "normalized quaternions") | Not raised | **Open, Low.** A declared port normal is not compared with its locator's basis (filed F19-2 in the 9A.17 record; owner: coordinator to schedule) |
+
+**Stays open in this record:**
+- AC-1 and checklist #1/#5: collider extraction, the canonical collider tables and the compiler's per-type collider rows. Owner: Story 9A.16.
+- AC-3: articulated transforms. The finding (U) concerns colliders and bodies; owner 9A.16. A port that moves with a secondary body is not declared yet; the first element story that needs one owns it.
+- Retro rows "no element ids in dispatch" and "Reset, Save/Load in Chrome" for extraction-driven parts. Owner: 9A.16.
+
+`sprint-status.yaml` should not mark 6.5c `done` until 9A.16's addendum records its terminal Pass.

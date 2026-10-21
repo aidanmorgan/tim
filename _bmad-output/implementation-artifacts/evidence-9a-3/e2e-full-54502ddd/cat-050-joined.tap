@@ -1,0 +1,54 @@
+TAP version 13
+# Subtest: Story 9R.7: joined_pipe lesson (Meet in the middle)
+    # Subtest: 1. The level: fixtures, knots and inventory equal the content; a second pipe issues no command
+    ok 1 - 1. The level: fixtures, knots and inventory equal the content; a second pipe issues no command
+      ---
+      duration_ms: 5167.608834
+      type: 'test'
+      ...
+    # Subtest: 2. Solve: a 2 m pipe tilted downhill and snapped to the bend delivers the ball; exactly one solve
+    ok 2 - 2. Solve: a 2 m pipe tilted downhill and snapped to the bend delivers the ball; exactly one solve
+      ---
+      duration_ms: 13315.565958
+      type: 'test'
+      ...
+# E2E_OBSERVED ClockOffsetWide CCGPU_CLOCK_OFFSET_WIDE {"offset":-0.11016601324081421,"admittedLower":-0.12596601324081422,"admittedUpper":-0.0943660132408142,"admittedWidth":0.03160000000000002,"declaredUncertainty":0.1,"count":"1"}
+    # Subtest: 3. Run/Reset and Save/Load: Reset is exact, a second Run solves; Load restores pose, length and joint
+    ok 3 - 3. Run/Reset and Save/Load: Reset is exact, a second Run solves; Load restores pose, length and joint
+      ---
+      duration_ms: 28065.790625
+      type: 'test'
+      ...
+    # Subtest: 4. Unsnapped at Precise: released 0.72 m off the joint, the ball leaves the route and the goal stays unsolved
+    ok 4 - 4. Unsnapped at Precise: released 0.72 m off the joint, the ball leaves the route and the goal stays unsolved
+      ---
+      duration_ms: 19206.532917
+      type: 'test'
+      ...
+    # Subtest: 5. Default length at Precise: a 3.6 m pipe snapped to the bend misses the drop line
+    ok 5 - 5. Default length at Precise: a 3.6 m pipe snapped to the bend misses the drop line
+      ---
+      duration_ms: 18680.23175
+      type: 'test'
+      ...
+    # Subtest: 6. Boundaries: the handle commits exactly 1 m and 8 m; one Undo restores the length; Escape cancels
+    ok 6 - 6. Boundaries: the handle commits exactly 1 m and 8 m; one Undo restores the length; Escape cancels
+      ---
+      duration_ms: 7893.721625
+      type: 'test'
+      ...
+    1..6
+ok 1 - Story 9R.7: joined_pipe lesson (Meet in the middle)
+  ---
+  duration_ms: 96733.885167
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 97031.291792

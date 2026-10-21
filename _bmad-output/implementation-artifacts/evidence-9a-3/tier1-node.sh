@@ -5,8 +5,9 @@ echo "node $(node --version), HEAD $(git rev-parse --short HEAD), status digest 
 tsx=$(dirname $(grep -l '"version": "4.23.15"' ~/.npm/_npx/*/node_modules/tsx/package.json | head -1))/dist/loader.mjs
 report() {
   echo "$1 exit=$2 $(echo "$3" | grep -E '^ℹ (pass|fail) ' | tr '\n' ' ')"
-  [ $2 -ne 0 ] && echo "$3" | grep -E '^not ok|✖|Error' | head -20
+  if [ $2 -ne 0 ]; then echo "$3" | grep -E '^not ok|✖|Error' | head -20; failed=1; fi
 }
+failed=0
 for f in tools/*.test.mjs; do
   out=$(node --experimental-vm-modules --test "$f" 2>&1); report "$f" $? "$out"
 done
@@ -14,3 +15,4 @@ done
 for f in tools/e2e/unit/*.test.ts; do
   out=$(node --import "$tsx" --test "$f" 2>&1); report "$f" $? "$out"
 done
+exit $failed

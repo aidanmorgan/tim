@@ -1,0 +1,5 @@
+== R6 re-add a hand-written per-(element, socket) anchor switch under a new name (SocketAnchors.Of) in engine/gpu/WorkshopConnections.cs
+ engine/gpu/WorkshopConnections.cs | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+    0 Error(s)
+Passed!  - Failed:     0, Passed:   114, Skipped:     0, Total:   114, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

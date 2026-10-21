@@ -1,0 +1,722 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Release/net10.0/CuriousContraptions.Bundle.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/CuriousContraptions.web.dll
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.csproj (in 9 ms).
+  8 of 9 projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4
+  Optimizing assemblies for size. This process might take a while.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Domino/bin/Debug/net10.0/Domino.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Battery/bin/Debug/net10.0/Battery.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Wall/bin/Debug/net10.0/Wall.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/elements.bundle.json (22 elements)
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1msavepack[22m | Started Packing (102 steps)[39m[0m
+  [   1% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/arrow-down.svg-c05bab584750d7558e6068fdff46136a.ctex[39m[0m
+  [   1% ] [90m[1msavepack[22m | Storing File: res://assets/icons/arrow-down.svg.import[39m[0m
+  [   1% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/arrow-up.svg-b58179c0aa7701f18ec5049fc5f1cabf.ctex[39m[0m
+  [   1% ] [90m[1msavepack[22m | Storing File: res://assets/icons/arrow-up.svg.import[39m[0m
+  [   1% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/folder-open.svg-2fec95b9e3935e03a514233b7db273ec.ctex[39m[0m
+  [   1% ] [90m[1msavepack[22m | Storing File: res://assets/icons/folder-open.svg.import[39m[0m
+  [   2% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/lightbulb.svg-c3ce31e298346e15873588553ad8101d.ctex[39m[0m
+  [   2% ] [90m[1msavepack[22m | Storing File: res://assets/icons/lightbulb.svg.import[39m[0m
+  [   2% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/link.svg-f9bf693e1d2edc894ba2c5dd30f49784.ctex[39m[0m
+  [   2% ] [90m[1msavepack[22m | Storing File: res://assets/icons/link.svg.import[39m[0m
+  [   3% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/minus.svg-60d7ca62d05d261dd2c33f2d69b057a2.ctex[39m[0m
+  [   3% ] [90m[1msavepack[22m | Storing File: res://assets/icons/minus.svg.import[39m[0m
+  [   3% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/move-vertical.svg-ddb978417a7cf062e11656d0595d4c89.ctex[39m[0m
+  [   3% ] [90m[1msavepack[22m | Storing File: res://assets/icons/move-vertical.svg.import[39m[0m
+  [   3% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/play.svg-e9236ccb724ef92a26e89cd871a33e4f.ctex[39m[0m
+  [   3% ] [90m[1msavepack[22m | Storing File: res://assets/icons/play.svg.import[39m[0m
+  [   4% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/plus.svg-7395cd59506febf409a5c6656903f8e9.ctex[39m[0m
+  [   4% ] [90m[1msavepack[22m | Storing File: res://assets/icons/plus.svg.import[39m[0m
+  [   4% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/rotate-ccw.svg-81650ed3b7a1a89776d84f13a2b56bc9.ctex[39m[0m
+  [   4% ] [90m[1msavepack[22m | Storing File: res://assets/icons/rotate-ccw.svg.import[39m[0m
+  [   5% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/rotate-cw.svg-87bc9de6eb1bcc348990f7a8633f6713.ctex[39m[0m
+  [   5% ] [90m[1msavepack[22m | Storing File: res://assets/icons/rotate-cw.svg.import[39m[0m
+  [   5% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/save.svg-4436a386e8aa6786c3b87b76d11469d6.ctex[39m[0m
+  [   5% ] [90m[1msavepack[22m | Storing File: res://assets/icons/save.svg.import[39m[0m
+  [   6% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/sliders-horizontal.svg-19dd15ef2c0b3b7758dde4d42531b2e9.ctex[39m[0m
+  [   6% ] [90m[1msavepack[22m | Storing File: res://assets/icons/sliders-horizontal.svg.import[39m[0m
+  [   6% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/square.svg-d26425a344693024394447a10e6b49f3.ctex[39m[0m
+  [   6% ] [90m[1msavepack[22m | Storing File: res://assets/icons/square.svg.import[39m[0m
+  [   6% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/trash.svg-f38b5333a858794f2eaa17abdd7d010e.ctex[39m[0m
+  [   6% ] [90m[1msavepack[22m | Storing File: res://assets/icons/trash.svg.import[39m[0m
+  [   7% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/undo-2.svg-326c8d4e441b636631370306fa201def.ctex[39m[0m
+  [   7% ] [90m[1msavepack[22m | Storing File: res://assets/icons/undo-2.svg.import[39m[0m
+  [   7% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/x.svg-521876a1ce6500a0794bff7c22c09e07.ctex[39m[0m
+  [   7% ] [90m[1msavepack[22m | Storing File: res://assets/icons/x.svg.import[39m[0m
+  [   8% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/zoom-in.svg-96c81ead79038b49c8e7f7fb36d01d44.ctex[39m[0m
+  [   8% ] [90m[1msavepack[22m | Storing File: res://assets/icons/zoom-in.svg.import[39m[0m
+  [   8% ] [90m[1msavepack[22m | Storing File: res://.godot/imported/zoom-out.svg-fa969df5f772a3937c1ae70c0bc4956e.ctex[39m[0m
+  [   8% ] [90m[1msavepack[22m | Storing File: res://assets/icons/zoom-out.svg.import[39m[0m
+  [   9% ] [90m[1msavepack[22m | Storing File: res://engine/PartDefinition.cs[39m[0m
+  [   9% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkerEnvelopeRejection.cs[39m[0m
+  [   9% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopSavePrevalidation.cs[39m[0m
+  [  10% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopCanonicalColliders.cs[39m[0m
+  [  10% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopHint.cs[39m[0m
+  [  11% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BumperAdvanced.cs[39m[0m
+  [  11% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PassageSensorDeclaration.cs[39m[0m
+  [  12% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsGpuAbi.Constraints.cs[39m[0m
+  [  12% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/DelayedSignal.cs[39m[0m
+  [  12% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopClockWire.cs[39m[0m
+  [  13% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopDelay.cs[39m[0m
+  [  13% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopCosmetic.cs[39m[0m
+  [  14% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopSaveRejectedException.cs[39m[0m
+  [  14% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsBodyReadSet.cs[39m[0m
+  [  14% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.Electrical.cs[39m[0m
+  [  15% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PresentedBodySet.cs[39m[0m
+  [  15% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WireFaultException.cs[39m[0m
+  [  16% ] [90m[1msavepack[22m | Storing File: res://assets/icons/LICENSE.txt[39m[0m
+  [  16% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/SupplyRoute.cs[39m[0m
+  [  17% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopCommandRouter.cs[39m[0m
+  [  17% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BumperSidekick.cs[39m[0m
+  [  17% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ActivationMemory.cs[39m[0m
+  [  18% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-9ac2f32577642dafc815b014af439108-wall.scn[39m[0m
+  [  18% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopClientCursor.cs[39m[0m
+  [  19% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopWireGenerated.cs[39m[0m
+  [  19% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/IWorkshopClient.cs[39m[0m
+  [  20% ] [90m[1msavepack[22m | Storing File: res://elements/PoweredGate/icon.svg[39m[0m
+  [  20% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-47eda7bf6596fcb492a08ad4735b27e9-powered_gate.scn[39m[0m
+  [  20% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopReliableReadLedger.cs[39m[0m
+  [  21% ] [90m[1msavepack[22m | Storing File: res://elements/PoweredGate/PoweredGateElementDeclaration.cs[39m[0m
+  [  21% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-177f7bf4e947f1f4089da76e30c81405-domino.scn[39m[0m
+  [  22% ] [90m[1msavepack[22m | Storing File: res://elements/PressurePlate/icon.svg[39m[0m
+  [  22% ] [90m[1msavepack[22m | Storing File: res://engine/presentation/AnimationBatch.cs[39m[0m
+  [  23% ] [90m[1msavepack[22m | Storing File: res://engine/presentation/AnimationFollowDefinition.cs[39m[0m
+  [  23% ] [90m[1msavepack[22m | Storing File: res://engine/presentation/AnimationOscillationDefinition.cs[39m[0m
+  [  23% ] [90m[1msavepack[22m | Storing File: res://engine/presentation/AnimationImpulseDefinition.cs[39m[0m
+  [  24% ] [90m[1msavepack[22m | Storing File: res://engine/presentation/AnimationTimerSegment.cs[39m[0m
+  [  24% ] [90m[1msavepack[22m | Storing File: res://engine/CosmeticBindingSet.cs[39m[0m
+  [  25% ] [90m[1msavepack[22m | Storing File: res://engine/presentation/AnimationValues.cs[39m[0m
+  [  25% ] [90m[1msavepack[22m | Storing File: res://engine/IResizablePart.cs[39m[0m
+  [  26% ] [90m[1msavepack[22m | Storing File: res://engine/MachineWorld.cs[39m[0m
+  [  26% ] [90m[1msavepack[22m | Storing File: res://engine/MachinePart.cs[39m[0m
+  [  26% ] [90m[1msavepack[22m | Storing File: res://engine/MachineWorld.Gpu.cs[39m[0m
+  [  27% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopArtwork.cs[39m[0m
+  [  27% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopBattery.cs[39m[0m
+  [  28% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopConfiguration.cs[39m[0m
+  [  28% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopConnections.cs[39m[0m
+  [  28% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopBenchPlacement.cs[39m[0m
+  [  29% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopGuidance.cs[39m[0m
+  [  29% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopIcons.cs[39m[0m
+  [  30% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopGpu.cs[39m[0m
+  [  30% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopUiFailure.cs[39m[0m
+  [  31% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopPuzzle.cs[39m[0m
+  [  31% ] [90m[1msavepack[22m | Storing File: res://global.json[39m[0m
+  [  31% ] [90m[1msavepack[22m | Storing File: res://engine/PartId.cs[39m[0m
+  [  32% ] [90m[1msavepack[22m | Storing File: res://engine/PartRegistry.cs[39m[0m
+  [  32% ] [90m[1msavepack[22m | Storing File: res://engine/WorkshopUiBinding.cs[39m[0m
+  [  33% ] [90m[1msavepack[22m | Storing File: res://engine/TubeMouthSnap.cs[39m[0m
+  [  33% ] [90m[1msavepack[22m | Storing File: res://engine/Workbench.cs[39m[0m
+  [  33% ] [90m[1msavepack[22m | Storing File: res://ui/PlacementShadows.cs[39m[0m
+  [  33% ] [90m[1msavepack[22m | Storing File: res://engine/WorkshopVisualBinding.cs[39m[0m
+  [  33% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-531077ab56a38e253d01bce60896f9a0-workshop.scn[39m[0m
+  [  34% ] [90m[1msavepack[22m | Storing File: res://ui/Workshop.cs[39m[0m
+  [  34% ] [90m[1msavepack[22m | Storing File: res://ui/RotationGizmo.cs[39m[0m
+  [  35% ] [90m[1msavepack[22m | Storing File: res://ui/WorkshopAnimation.cs[39m[0m
+  [  35% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-cfcf9ec63574e66a09c83c3e632bdcbd-funnel.scn[39m[0m
+  [  36% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-e498b65c1271e08835f64bee556ca59e-ball_detector.scn[39m[0m
+  [  36% ] [90m[1msavepack[22m | Storing File: res://elements/Pipe/icon.svg[39m[0m
+  [  36% ] [90m[1msavepack[22m | Storing File: res://elements/BowlingBall/BowlingBallElementDeclaration.cs[39m[0m
+  [  37% ] [90m[1msavepack[22m | Storing File: res://elements/Battery/BatteryElementDeclaration.cs[39m[0m
+  [  37% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-a3247bdb95bfe0712ba179366e4d319b-bumper.scn[39m[0m
+  [  38% ] [90m[1msavepack[22m | Storing File: res://elements/Receiver/icon.svg[39m[0m
+  [  38% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPipe.cs[39m[0m
+  [  38% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopLatch.cs[39m[0m
+  [  39% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsGpuAbi.ContactWork.cs[39m[0m
+  [  39% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPhysicsCompiler.cs[39m[0m
+  [  40% ] [90m[1msavepack[22m | Storing File: res://elements/DelayBox/icon.svg[39m[0m
+  [  40% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-721567b66e54170e7e619f28739bdec7-pipe_bend_90.scn[39m[0m
+  [  41% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPoseRing.cs[39m[0m
+  [  41% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-12e54e05332e9a252922c3cb09d8c058-ramp.scn[39m[0m
+  [  41% ] [90m[1msavepack[22m | Storing File: res://elements/Ball/BallElementDeclaration.cs[39m[0m
+  [  42% ] [90m[1msavepack[22m | Storing File: res://elements/BallDetector/icon.svg[39m[0m
+  [  42% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopCadence.cs[39m[0m
+  [  43% ] [90m[1msavepack[22m | Storing File: res://elements/PipeBend90/icon.svg[39m[0m
+  [  43% ] [90m[1msavepack[22m | Storing File: res://elements/BallDetector/BallDetectorElementDeclaration.cs[39m[0m
+  [  44% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopTurnRegistry.cs[39m[0m
+  [  44% ] [90m[1msavepack[22m | Storing File: res://elements/Funnel/icon.svg[39m[0m
+  [  44% ] [90m[1msavepack[22m | Storing File: res://elements/Bumper/BumperElementDeclaration.cs[39m[0m
+  [  45% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-b5adc72dd64c5faecef32d1aae8aea33-basket.scn[39m[0m
+  [  45% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-7469617c4e73b0544f35ad10987dd03c-bowling.scn[39m[0m
+  [  46% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsContactWorkRead.cs[39m[0m
+  [  46% ] [90m[1msavepack[22m | Storing File: res://elements/SignalLamp/icon.svg[39m[0m
+  [  47% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-774f8cd1a94f315b5470c0e0fe8a553c-delay.scn[39m[0m
+  [  47% ] [90m[1msavepack[22m | Storing File: res://elements/BowlingBall/icon.svg[39m[0m
+  [  47% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-80fd617f7d06a01994d03186ee196373-ball.scn[39m[0m
+  [  48% ] [90m[1msavepack[22m | Storing File: res://elements/SignalLamp/SignalLampElementDeclaration.cs[39m[0m
+  [  48% ] [90m[1msavepack[22m | Storing File: res://elements/Receiver/ReceiverElementDeclaration.cs[39m[0m
+  [  49% ] [90m[1msavepack[22m | Storing File: res://elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs[39m[0m
+  [  49% ] [90m[1msavepack[22m | Storing File: res://elements/Funnel/FunnelElementDeclaration.cs[39m[0m
+  [  50% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-68a0051cc13f6bb5af07b6f0c1dffd01-battery.scn[39m[0m
+  [  50% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-374c8d2b6f3469e8e4fd39586efc3b6a-pressure_plate.scn[39m[0m
+  [  50% ] [90m[1msavepack[22m | Storing File: res://elements/Springboard/SpringboardElementDeclaration.cs[39m[0m
+  [  51% ] [90m[1msavepack[22m | Storing File: res://elements/Bumper/icon.svg[39m[0m
+  [  51% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPresentationWire.cs[39m[0m
+  [  52% ] [90m[1msavepack[22m | Storing File: res://elements/PressurePlate/PressurePlateElementDeclaration.cs[39m[0m
+  [  52% ] [90m[1msavepack[22m | Storing File: res://elements/Springboard/icon.svg[39m[0m
+  [  52% ] [90m[1msavepack[22m | Storing File: res://elements/Ball/icon.svg[39m[0m
+  [  53% ] [90m[1msavepack[22m | Storing File: res://elements/PipeBend90/PipeBend90ElementDeclaration.cs[39m[0m
+  [  53% ] [90m[1msavepack[22m | Storing File: res://elements/Pipe/PipeElementDeclaration.cs[39m[0m
+  [  54% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopClockMapping.cs[39m[0m
+  [  54% ] [90m[1msavepack[22m | Storing File: res://elements/Ramp/icon.svg[39m[0m
+  [  55% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-45d90663b7b8df4c6444414e2451154f-lamp.scn[39m[0m
+  [  55% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopCounter.cs[39m[0m
+  [  55% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopDiagnostics.cs[39m[0m
+  [  56% ] [90m[1msavepack[22m | Storing File: res://elements/Ramp/RampElementDeclaration.cs[39m[0m
+  [  56% ] [90m[1msavepack[22m | Storing File: res://elements/Domino/DominoElementDeclaration.cs[39m[0m
+  [  57% ] [90m[1msavepack[22m | Storing File: res://elements/Domino/icon.svg[39m[0m
+  [  57% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-d7b38d98edce197d01c9a006ece56467-springboard.scn[39m[0m
+  [  58% ] [90m[1msavepack[22m | Storing File: res://elements/Battery/icon.svg[39m[0m
+  [  58% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-919b207d764d2751c4573e588c61b46d-pipe.scn[39m[0m
+  [  58% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-7cdf903fe81c89f2c85b2ce7a5309722-switch.scn[39m[0m
+  [  59% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-60eb3839e6513bf136738b83042c27ba-counter.scn[39m[0m
+  [  59% ] [90m[1msavepack[22m | Storing File: res://elements/ImpactSwitch/icon.svg[39m[0m
+  [  60% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ElectricalSourceDeclaration.cs[39m[0m
+  [  60% ] [90m[1msavepack[22m | Storing File: res://elements/Counter/icon.svg[39m[0m
+  [  61% ] [90m[1msavepack[22m | Storing File: res://elements/Counter/CounterElementDeclaration.cs[39m[0m
+  [  61% ] [90m[1msavepack[22m | Storing File: res://elements/StateLatch/StateLatchElementDeclaration.cs[39m[0m
+  [  61% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkbenchCapacity.cs[39m[0m
+  [  62% ] [90m[1msavepack[22m | Storing File: res://elements/StateLatch/icon.svg[39m[0m
+  [  62% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-eb8db8a16d37fc33f34f9017a5e84da4-latch.scn[39m[0m
+  [  63% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ElectricalIndicator.cs[39m[0m
+  [  63% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopTraceRecord.cs[39m[0m
+  [  63% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/SoftConstraint.cs[39m[0m
+  [  64% ] [90m[1msavepack[22m | Storing File: res://elements/SystemClock/SystemClockElementDeclaration.cs[39m[0m
+  [  64% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ElementPortCatalogue.cs[39m[0m
+  [  65% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.cs[39m[0m
+  [  65% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-93652a7f7b199907ad9f7e1d3851ec1d-clock.scn[39m[0m
+  [  66% ] [90m[1msavepack[22m | Storing File: res://elements/SystemClock/icon.svg[39m[0m
+  [  66% ] [90m[1msavepack[22m | Storing File: res://elements/Wall/WallElementDeclaration.cs[39m[0m
+  [  66% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsGpuAbi.cs[39m[0m
+  [  66% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPressurePlate.cs[39m[0m
+  [  66% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ContactWorkDeclaration.cs[39m[0m
+  [  67% ] [90m[1msavepack[22m | Storing File: res://elements/PipeBend45/icon.svg[39m[0m
+  [  67% ] [90m[1msavepack[22m | Storing File: res://elements/PipeBend45/PipeBend45ElementDeclaration.cs[39m[0m
+  [  68% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopSaveStore.cs[39m[0m
+  [  68% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPuzzle.cs[39m[0m
+  [  68% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/CompiledMemoryLayout.cs[39m[0m
+  [  69% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-941a04392bba92c46eb0b5e8780c8dba-pipe_bend_45.scn[39m[0m
+  [  69% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopInstances.cs[39m[0m
+  [  70% ] [90m[1msavepack[22m | Storing File: res://elements/Wall/icon.svg[39m[0m
+  [  70% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopConnections.cs[39m[0m
+  [  71% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsGpuAbi.Header.cs[39m[0m
+  [  71% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsGpuAbi.Electrical.cs[39m[0m
+  [  71% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsNumericalException.cs[39m[0m
+  [  72% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopMessages.cs[39m[0m
+  [  72% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/OrientationSensorDeclaration.cs[39m[0m
+  [  73% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.ContactWork.cs[39m[0m
+  [  73% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsDeclarations.cs[39m[0m
+  [  74% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.Schedule.cs[39m[0m
+  [  74% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PrismaticRows.cs[39m[0m
+  [  74% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.Capture.cs[39m[0m
+  [  75% ] [90m[1msavepack[22m | Storing File: res://elements/elements.bundle.json[39m[0m
+  [  75% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopWireFlatBuffers.cs[39m[0m
+  [  76% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ElectricalSupply.cs[39m[0m
+  [  76% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopGoalEvaluator.cs[39m[0m
+  [  76% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopSimulation.cs[39m[0m
+  [  77% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/CanonicalBody.cs[39m[0m
+  [  77% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/QuarterBend.cs[39m[0m
+  [  78% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopSchedule.cs[39m[0m
+  [  78% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PrismaticConstraint.cs[39m[0m
+  [  79% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ContactLoadSensorDeclaration.cs[39m[0m
+  [  79% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ClearPipe.cs[39m[0m
+  [  79% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPuzzleWire.cs[39m[0m
+  [  80% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopSpringboard.cs[39m[0m
+  [  80% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsWorldLayout.cs[39m[0m
+  [  81% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/GltfPhysicsBodyExtractor.cs[39m[0m
+  [  81% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopWall.cs[39m[0m
+  [  82% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.Timer.cs[39m[0m
+  [  82% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopActivationParts.cs[39m[0m
+  [  82% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopBumper.cs[39m[0m
+  [  83% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ContactWorkImpulse.cs[39m[0m
+  [  83% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsGpuAbi.ContactLoad.cs[39m[0m
+  [  84% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ActivationNetwork.cs[39m[0m
+  [  84% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/DominoEffect.cs[39m[0m
+  [  85% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopGpuProfile.cs[39m[0m
+  [  85% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/UndeliveredParts.cs[39m[0m
+  [  85% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/CaptureLatch.cs[39m[0m
+  [  86% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/GentleBend.cs[39m[0m
+  [  86% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/JoinedPipe.cs[39m[0m
+  [  87% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopEditRejectedException.cs[39m[0m
+  [  87% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopDomino.cs[39m[0m
+  [  87% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopElectricalControl.cs[39m[0m
+  [  88% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopPoseHistory.cs[39m[0m
+  [  88% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsCaptureRead.cs[39m[0m
+  [  89% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsBodyWire.cs[39m[0m
+  [  89% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopClock.cs[39m[0m
+  [  90% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopConstruction.cs[39m[0m
+  [  90% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.Cosmetic.cs[39m[0m
+  [  90% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopInventory.cs[39m[0m
+  [  91% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsElectricalRead.cs[39m[0m
+  [  91% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/AnimationControlDeferral.cs[39m[0m
+  [  92% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopRead.cs[39m[0m
+  [  92% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/RigidMassProperties.cs[39m[0m
+  [  93% ] [90m[1msavepack[22m | Storing File: res://elements/DelayBox/DelayBoxElementDeclaration.cs[39m[0m
+  [  93% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/SpringboardLessons.cs[39m[0m
+  [  93% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopBattery.cs[39m[0m
+  [  94% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopNativeClock.cs[39m[0m
+  [  94% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ContactTriggerDeclaration.cs[39m[0m
+  [  95% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.Activation.cs[39m[0m
+  [  95% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopUi.cs[39m[0m
+  [  96% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopMemoryObservation.cs[39m[0m
+  [  96% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopClockDerivation.cs[39m[0m
+  [  96% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/PhysicsMotionRead.cs[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/BrowserWorkshopClient.Ui.cs[39m[0m
+  [  97% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopSaveCodec.cs[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/ActivationTimers.cs[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://engine/gpu/WorkshopTickLoop.cs[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Wall/wall.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/PoweredGate/powered_gate.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Domino/domino.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://scenes/workshop.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Funnel/funnel.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/BallDetector/ball_detector.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Bumper/bumper.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/PipeBend90/pipe_bend_90.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Ramp/ramp.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Receiver/basket.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/BowlingBall/bowling.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/DelayBox/delay.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Ball/ball.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Battery/battery.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/PressurePlate/pressure_plate.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/SignalLamp/lamp.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Springboard/springboard.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Pipe/pipe.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/ImpactSwitch/switch.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/Counter/counter.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/StateLatch/latch.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/SystemClock/clock.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://elements/PipeBend45/pipe_bend_45.tscn.remap[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://.godot/global_script_class_cache.cfg[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://.godot/uid_cache.bin[39m[0m
+  [  98% ] [90m[1msavepack[22m | Storing File: res://project.binary[39m[0m
+  [92m[ DONE ][39m [1msavepack[22m
+  [0m
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Release/net10.0/CuriousContraptions.Bundle.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/CuriousContraptions.web.dll
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Optimizing assemblies for size. This process might take a while.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Wall/bin/Debug/net10.0/Wall.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ball/bin/Debug/net10.0/Ball.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Battery/bin/Debug/net10.0/Battery.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Counter/bin/Debug/net10.0/Counter.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/elements.bundle.json (22 elements)
+  CuriousContraptions.web -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/bin/Release/net10.0/browser-wasm/publish/
+  [3/4] skipped unchanged files
+  Compiling native assets with /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/Sdk/../tools/emscripten/emcc with -Oz. This may take a while ...
+  [4/4] runtime.c -> runtime.o [took 0.456s]
+  Linking for initial memory $(WasmInitialHeapSize)=256MB bytes. Set this msbuild property to change the value.
+  Linking with emcc with -O2. This may take a while ...
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/clang --version
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmp6n_253bt.json --symbols-only
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-ld -o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm /Users/aidan/.nuget/packages//2dog.browser-wasm.release/4.7.2.6/godot-web/libgodot/libgodot.a /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/pinvoke.o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/driver.o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/corebindings.o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/runtime.o /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libbrotlicommon.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libbrotlidec.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libbrotlienc.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libicudata.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libicui18n.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libicuuc.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-component-debugger-stub-static.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-component-diagnostics_tracing-stub-static.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-component-hot_reload-stub-static.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-component-marshal-ilgen-static.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-component-marshal-ilgen-stub-static.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-ee-interp.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-icall-table.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-profiler-aot.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-profiler-browser.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-profiler-log.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-wasm-eh-wasm.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmono-wasm-simd.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libmonosgen-2.0.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libSystem.Globalization.Native.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libSystem.IO.Compression.Native.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libSystem.Native.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/libz.a /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/wasm-bundled-timezones.a -L/Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Cache.osx-arm64/10.0.12/tools/emscripten/cache/sysroot/lib/wasm32-emscripten -lGL-webgl2-ofb -lal -lhtml5 -lbulkmemory -lstubs -lc -ldlmalloc -lcompiler_rt-wasm-sjlj -lc++-except -lc++abi-except -lunwind-except -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -wasm-enable-sjlj -mllvm -disable-lsr -mllvm -wasm-enable-eh -mllvm -exception-model=wasm /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmpnl2opfhzlibemscripten_js_symbols.so --export=malloc --export=free --export=htons --export=sbrk --export=memalign --export=posix_memalign --export=memset --export=ntohs --export=stackAlloc --export=stackRestore --export=stackSave --export=fmod --export=atan2 --export=fma --export=pow --export=fmodf --export=atan2f --export=fmaf --export=powf --export=asin --export=asinh --export=acos --export=acosh --export=atan --export=atanh --export=cbrt --export=cos --export=cosh --export=exp --export=log --export=log2 --export=log10 --export=sin --export=sinh --export=tan --export=tanh --export=asinf --export=asinhf --export=acosf --export=acoshf --export=atanf --export=atanhf --export=cbrtf --export=cosf --export=coshf --export=expf --export=logf --export=log2f --export=log10f --export=sinf --export=sinhf --export=tanf --export=tanhf --export=__cpp_exception --export=stackAlloc --export=__funcs_on_exit --export=__trap --export=__wasm_call_ctors --export=stackSave --export=stackRestore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=fflush --export-table --growable-table -z stack-size=5242880 --max-memory=2147483648 --initial-memory=268435456 --no-entry --table-base=1 --global-base=1024
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/llvm-objcopy /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm --remove-section=producers
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmpv81cjokn.json
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-opt --strip-target-features --post-emscripten -O2 --low-memory-unused --zero-filled-memory --pass-arg=directize-initial-contents-immutable /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -g --mvp-features --enable-bulk-memory --enable-exception-handling --enable-multivalue --enable-mutable-globals --enable-reference-types --enable-sign-ext --enable-simd
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-opt --print-function-map --quiet /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm --mvp-features --enable-bulk-memory --enable-exception-handling --enable-multivalue --enable-mutable-globals --enable-reference-types --enable-sign-ext --enable-simd
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend45/bin/Release/net10.0/PipeBend45.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BowlingBall/bin/Release/net10.0/BowlingBall.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Pipe/bin/Release/net10.0/Pipe.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ramp/bin/Release/net10.0/Ramp.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ball/bin/Release/net10.0/Ball.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Funnel/bin/Release/net10.0/Funnel.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Receiver/bin/Release/net10.0/Receiver.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Wall/bin/Release/net10.0/Wall.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend90/bin/Release/net10.0/PipeBend90.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PoweredGate/bin/Release/net10.0/PoweredGate.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Battery/bin/Release/net10.0/Battery.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SignalLamp/bin/Release/net10.0/SignalLamp.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/StateLatch/bin/Release/net10.0/StateLatch.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/ImpactSwitch/bin/Release/net10.0/ImpactSwitch.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BallDetector/bin/Release/net10.0/BallDetector.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/DelayBox/bin/Release/net10.0/DelayBox.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Domino/bin/Release/net10.0/Domino.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PressurePlate/bin/Release/net10.0/PressurePlate.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Springboard/bin/Release/net10.0/Springboard.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Counter/bin/Release/net10.0/Counter.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SystemClock/bin/Release/net10.0/SystemClock.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Release/net10.0/CuriousContraptions.Bundle.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Bumper/bin/Release/net10.0/Bumper.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Release/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Release/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/elements.bundle.json (22 elements)
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  Optimizing assemblies for size. This process might take a while.
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Battery/bin/Release/net10.0/Battery.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Wall/bin/Release/net10.0/Wall.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Counter/bin/Release/net10.0/Counter.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/DelayBox/bin/Release/net10.0/DelayBox.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/StateLatch/bin/Release/net10.0/StateLatch.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SystemClock/bin/Release/net10.0/SystemClock.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/SignalLamp/bin/Release/net10.0/SignalLamp.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend45/bin/Release/net10.0/PipeBend45.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PipeBend90/bin/Release/net10.0/PipeBend90.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BallDetector/bin/Release/net10.0/BallDetector.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/ImpactSwitch/bin/Release/net10.0/ImpactSwitch.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Receiver/bin/Release/net10.0/Receiver.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Bumper/bin/Release/net10.0/Bumper.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PoweredGate/bin/Release/net10.0/PoweredGate.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Bundle/bin/Release/net10.0/CuriousContraptions.Bundle.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/PressurePlate/bin/Release/net10.0/PressurePlate.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ramp/bin/Release/net10.0/Ramp.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Pipe/bin/Release/net10.0/Pipe.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/BowlingBall/bin/Release/net10.0/BowlingBall.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Ball/bin/Release/net10.0/Ball.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Domino/bin/Release/net10.0/Domino.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Funnel/bin/Release/net10.0/Funnel.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/Springboard/bin/Release/net10.0/Springboard.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Release/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/BundleElements/bin/Release/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/elements/elements.bundle.json (22 elements)
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 27 assemblies
+  [1/27] System.IO.Pipelines.dll -> System.IO.Pipelines.dll.bc
+  [2/27] CuriousContraptions.Abstractions.Signal.dll -> CuriousContraptions.Abstractions.Signal.dll.bc
+  [3/27] System.Collections.Concurrent.dll -> System.Collections.Concurrent.dll.bc
+  [4/27] System.Collections.dll -> System.Collections.dll.bc
+  [5/27] CuriousContraptions.Animation.dll -> CuriousContraptions.Animation.dll.bc
+  [6/27] CuriousContraptions.Abstractions.Mechanical.dll -> CuriousContraptions.Abstractions.Mechanical.dll.bc
+  [7/27] System.Memory.dll -> System.Memory.dll.bc
+  [8/27] CuriousContraptions.Abstractions.Electrical.dll -> CuriousContraptions.Abstractions.Electrical.dll.bc
+  [9/27] CuriousContraptions.Abstractions.Fluid.dll -> CuriousContraptions.Abstractions.Fluid.dll.bc
+  [10/27] System.Linq.dll -> System.Linq.dll.bc
+  [11/27] CuriousContraptions.FlatBuffers.dll -> CuriousContraptions.FlatBuffers.dll.bc
+  [12/27] System.Console.dll -> System.Console.dll.bc
+  [13/27] CuriousContraptions.Bundle.dll -> CuriousContraptions.Bundle.dll.bc
+  [14/27] System.Text.RegularExpressions.dll -> System.Text.RegularExpressions.dll.bc
+  [15/27] System.Threading.dll -> System.Threading.dll.bc
+  [16/27] System.Collections.Immutable.dll -> System.Collections.Immutable.dll.bc
+  [17/27] System.Runtime.InteropServices.dll -> System.Runtime.InteropServices.dll.bc
+  [18/27] System.Runtime.dll -> System.Runtime.dll.bc
+  [19/27] CuriousContraptions.Abstractions.dll -> CuriousContraptions.Abstractions.dll.bc
+  [20/27] System.Numerics.Vectors.dll -> System.Numerics.Vectors.dll.bc
+  [21/27] System.Text.Encodings.Web.dll -> System.Text.Encodings.Web.dll.bc
+  [22/27] System.Runtime.InteropServices.JavaScript.dll -> System.Runtime.InteropServices.JavaScript.dll.bc
+  [23/27] System.Runtime.Intrinsics.dll -> System.Runtime.Intrinsics.dll.bc
+  [24/27] System.Text.Json.dll -> System.Text.Json.dll.bc
+  [25/27] CuriousContraptions.Simulation.dll -> CuriousContraptions.Simulation.dll.bc
+  [26/27] System.Private.CoreLib.dll -> System.Private.CoreLib.dll.bc
+  [27/27] aot-instances.dll -> aot-instances.dll.bc
+  IL stripping assemblies
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 4961 of 25088 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.Electrical.dll: 531 of 7168 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.Fluid.dll: 676 of 7680 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.Mechanical.dll: 2197 of 13824 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.Signal.dll: 600 of 7680 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 2461 of 14336 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Bundle.dll: 50522 of 174080 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3826 of 19968 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Simulation.dll: 262080 of 1086976 bytes rewritten
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Abstractions.Electrical;CuriousContraptions.Abstractions.Fluid;CuriousContraptions.Abstractions.Mechanical;CuriousContraptions.Abstractions.Signal;CuriousContraptions.Animation;CuriousContraptions.Bundle;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  Compiling assembly bitcode files with -O2 ...
+  [1/27] CuriousContraptions.Abstractions.Fluid.dll.bc -> CuriousContraptions.Abstractions.Fluid.dll.o [took 0.248s]
+  [2/27] CuriousContraptions.Abstractions.Mechanical.dll.bc -> CuriousContraptions.Abstractions.Mechanical.dll.o [took 0.268s]
+  [3/27] System.IO.Pipelines.dll.bc -> System.IO.Pipelines.dll.o [took 0.284s]
+  [4/27] System.Memory.dll.bc -> System.Memory.dll.o [took 0.285s]
+  [5/27] CuriousContraptions.Abstractions.Signal.dll.bc -> CuriousContraptions.Abstractions.Signal.dll.o [took 0.315s]
+  [6/27] CuriousContraptions.Animation.dll.bc -> CuriousContraptions.Animation.dll.o [took 0.315s]
+  [7/27] CuriousContraptions.Abstractions.Electrical.dll.bc -> CuriousContraptions.Abstractions.Electrical.dll.o [took 0.347s]
+  [8/27] System.Collections.dll.bc -> System.Collections.dll.o [took 0.349s]
+  [9/27] System.Console.dll.bc -> System.Console.dll.o [took 0.348s]
+  [10/27] CuriousContraptions.Abstractions.dll.bc -> CuriousContraptions.Abstractions.dll.o [took 0.379s]
+  [11/27] System.Numerics.Vectors.dll.bc -> System.Numerics.Vectors.dll.o [took 0.164s]
+  [12/27] CuriousContraptions.FlatBuffers.dll.bc -> CuriousContraptions.FlatBuffers.dll.o [took 0.447s]
+  [13/27] System.Runtime.InteropServices.dll.bc -> System.Runtime.InteropServices.dll.o [took 0.171s]
+  [14/27] System.Collections.Concurrent.dll.bc -> System.Collections.Concurrent.dll.o [took 0.464s]
+  [15/27] System.Runtime.dll.bc -> System.Runtime.dll.o [took 0.185s]
+  [16/27] System.Runtime.Intrinsics.dll.bc -> System.Runtime.Intrinsics.dll.o [took 0.160s]
+  [17/27] System.Threading.dll.bc -> System.Threading.dll.o [took 0.131s]
+  [18/27] System.Text.RegularExpressions.dll.bc -> System.Text.RegularExpressions.dll.o [took 0.199s]
+  [19/27] System.Text.Encodings.Web.dll.bc -> System.Text.Encodings.Web.dll.o [took 0.242s]
+  [20/27] System.Linq.dll.bc -> System.Linq.dll.o [took 0.609s]
+  [21/27] System.Runtime.InteropServices.JavaScript.dll.bc -> System.Runtime.InteropServices.JavaScript.dll.o [took 0.447s]
+  [22/27] System.Collections.Immutable.dll.bc -> System.Collections.Immutable.dll.o [took 0.860s]
+  [23/27] CuriousContraptions.Bundle.dll.bc -> CuriousContraptions.Bundle.dll.o [took 1.078s]
+  [24/27] System.Text.Json.dll.bc -> System.Text.Json.dll.o [took 1.655s]
+  [25/27] System.Private.CoreLib.dll.bc -> System.Private.CoreLib.dll.o [took 6.775s]
+  [26/27] CuriousContraptions.Simulation.dll.bc -> CuriousContraptions.Simulation.dll.o [took 7.648s]
+  [27/27] aot-instances.dll.bc -> aot-instances.dll.o [took 12.297s]
+  [2/4] skipped unchanged files
+  Compiling native assets with /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/Sdk/../tools/emscripten/emcc with -Oz. This may take a while ...
+  [3/4] pinvoke.c -> pinvoke.o [took 0.121s]
+  [4/4] runtime.c -> runtime.o [took 0.142s]
+  Linking for initial memory $(WasmInitialHeapSize)=33554432 bytes. Set this msbuild property to change the value.
+  Linking with emcc with -O2. This may take a while ...
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/clang --version
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmpe_m47wuf.json --symbols-only
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-ld @/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/emscripten_el32ctvn.rsp.utf-8
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/llvm-objcopy /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm --remove-section=producers
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmpjzgyjchw.json
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-opt --strip-target-features --post-emscripten -O2 --low-memory-unused --zero-filled-memory --pass-arg=directize-initial-contents-immutable /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -g --mvp-features --enable-bulk-memory --enable-exception-handling --enable-multivalue --enable-mutable-globals --enable-reference-types --enable-sign-ext --enable-simd
+  WORKER_AOT_SIMD_INSTRUCTIONS[WorkshopPhysicsEngine]=3
+  WORKER_AOT_SIMD_INSTRUCTIONS[PrismaticConstraintSolver]=55
+  WORKER_AOT_SIMD_INSTRUCTIONS[SoftConstraint]=8
+  WORKER_AOT_SIMD_INSTRUCTIONS=66 (per function: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/worker-aot-simd.txt)
+  Generated app bundle at /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions.Electrical,CuriousContraptions.Abstractions.Fluid,CuriousContraptions.Abstractions.Mechanical,CuriousContraptions.Abstractions.Signal,CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.Bundle,CuriousContraptions.FlatBuffers,CuriousContraptions.Simulation in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  Optimizing assemblies for size. This process might take a while.
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 19 assemblies
+  [1/19] System.Memory.dll -> System.Memory.dll.bc
+  [2/19] System.Linq.dll -> System.Linq.dll.bc
+  [3/19] System.Runtime.InteropServices.JavaScript.dll -> System.Runtime.InteropServices.JavaScript.dll.bc
+  [4/19] System.Numerics.Vectors.dll -> System.Numerics.Vectors.dll.bc
+  [5/19] CuriousContraptions.Bundle.dll -> CuriousContraptions.Bundle.dll.bc
+  [6/19] System.Console.dll -> System.Console.dll.bc
+  [7/19] System.Runtime.dll -> System.Runtime.dll.bc
+  [8/19] System.Text.Encodings.Web.dll -> System.Text.Encodings.Web.dll.bc
+  [10/19] System.Collections.dll -> System.Collections.dll.bc
+  [9/19] CuriousContraptions.Abstractions.dll -> CuriousContraptions.Abstractions.dll.bc
+  [11/19] System.Collections.Immutable.dll -> System.Collections.Immutable.dll.bc
+  [12/19] CuriousContraptions.Animation.dll -> CuriousContraptions.Animation.dll.bc
+  [13/19] System.Runtime.Intrinsics.dll -> System.Runtime.Intrinsics.dll.bc
+  [14/19] CuriousContraptions.FlatBuffers.dll -> CuriousContraptions.FlatBuffers.dll.bc
+  [15/19] System.Threading.dll -> System.Threading.dll.bc
+  [16/19] System.Text.Json.dll -> System.Text.Json.dll.bc
+  [17/19] CuriousContraptions.Animation.Worker.dll -> CuriousContraptions.Animation.Worker.dll.bc
+  [18/19] System.Private.CoreLib.dll -> System.Private.CoreLib.dll.bc
+  [19/19] aot-instances.dll -> aot-instances.dll.bc
+  IL stripping assemblies
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 3247 of 17920 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 11544 of 44032 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.Worker.dll: 242309 of 768512 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Bundle.dll: 8 of 4608 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3826 of 19968 bytes rewritten
+  WORKER_AOT_COMPILE=CuriousContraptions.Animation.Worker AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.Animation.Worker;CuriousContraptions.Bundle;CuriousContraptions.FlatBuffers
+  Compiling assembly bitcode files with -O2 ...
+  [1/19] CuriousContraptions.Bundle.dll.bc -> CuriousContraptions.Bundle.dll.o [took 0.124s]
+  [2/19] System.Numerics.Vectors.dll.bc -> System.Numerics.Vectors.dll.o [took 0.149s]
+  [3/19] System.Memory.dll.bc -> System.Memory.dll.o [took 0.201s]
+  [4/19] System.Console.dll.bc -> System.Console.dll.o [took 0.214s]
+  [5/19] System.Runtime.dll.bc -> System.Runtime.dll.o [took 0.164s]
+  [6/19] CuriousContraptions.Abstractions.dll.bc -> CuriousContraptions.Abstractions.dll.o [took 0.243s]
+  [7/19] System.Runtime.Intrinsics.dll.bc -> System.Runtime.Intrinsics.dll.o [took 0.171s]
+  [8/19] CuriousContraptions.FlatBuffers.dll.bc -> CuriousContraptions.FlatBuffers.dll.o [took 0.281s]
+  [9/19] System.Collections.dll.bc -> System.Collections.dll.o [took 0.293s]
+  [10/19] System.Threading.dll.bc -> System.Threading.dll.o [took 0.125s]
+  [11/19] System.Text.Encodings.Web.dll.bc -> System.Text.Encodings.Web.dll.o [took 0.246s]
+  [12/19] CuriousContraptions.Animation.dll.bc -> CuriousContraptions.Animation.dll.o [took 0.433s]
+  [13/19] System.Linq.dll.bc -> System.Linq.dll.o [took 0.449s]
+  [14/19] System.Text.Json.dll.bc -> System.Text.Json.dll.o [took 0.365s]
+  [15/19] System.Runtime.InteropServices.JavaScript.dll.bc -> System.Runtime.InteropServices.JavaScript.dll.o [took 0.437s]
+  [16/19] System.Collections.Immutable.dll.bc -> System.Collections.Immutable.dll.o [took 0.637s]
+  [17/19] System.Private.CoreLib.dll.bc -> System.Private.CoreLib.dll.o [took 5.723s]
+  [18/19] CuriousContraptions.Animation.Worker.dll.bc -> CuriousContraptions.Animation.Worker.dll.o [took 6.593s]
+  [19/19] aot-instances.dll.bc -> aot-instances.dll.o [took 10.155s]
+  [3/4] skipped unchanged files
+  Compiling native assets with /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/Sdk/../tools/emscripten/emcc with -Oz. This may take a while ...
+  [4/4] runtime.c -> runtime.o [took 0.121s]
+  Linking for initial memory $(WasmInitialHeapSize)=33554432 bytes. Set this msbuild property to change the value.
+  Linking with emcc with -O2. This may take a while ...
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/clang --version
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmpy5ij89eb.json --symbols-only
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-ld @/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/emscripten_tiekuagk.rsp.utf-8
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/llvm-objcopy /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm --remove-section=producers
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmppf0cy8r8.json
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-opt --strip-target-features --post-emscripten -O2 --low-memory-unused --zero-filled-memory --pass-arg=directize-initial-contents-immutable /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -g --mvp-features --enable-bulk-memory --enable-exception-handling --enable-multivalue --enable-mutable-globals --enable-reference-types --enable-sign-ext --enable-simd
+  Generated app bundle at /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.Animation.Worker,CuriousContraptions.Bundle,CuriousContraptions.FlatBuffers in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+  Generated app bundle at /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/AppBundle/
+  TwoDog: web app bundle finalized at /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a71abbddd0caa4be4/CuriousContraptions.web/AppBundle/
+  TwoDog: deployed godot.pck to the app bundle
+  TwoDog: wrote 210 precompressed sibling file(s)
+  WORKER_AOT_HOST_FILES=175 identical to the verified worker bundles

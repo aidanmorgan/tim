@@ -78,12 +78,40 @@ public static class WorkshopMemoryQuery
     /// <summary>Pairs an applied query's Simulation measurement with the browser's own, captured after it; a refused query captures
     /// nothing.</summary>
     public static WorkshopMemoryReply Complete(WorkshopCommandKind kind, WorkshopResponse acknowledgement,
-        Func<WorkshopMemoryMeasurement> captureBrowser)
+        bool applicable, Func<WorkshopMemoryMeasurement> captureBrowser)
     {
         ArgumentNullException.ThrowIfNull(captureBrowser);
         ValidateCarriage(kind, acknowledgement);
+        if (!applicable) return new(new(WorkshopCommandOutcome.Rejected, WorkshopRejection.StaleGeneration), null);
         return acknowledgement.Memory is { } simulation
             ? new(acknowledgement.Result, new(captureBrowser(), simulation))
             : new(acknowledgement.Result, null);
+    }
+}
+
+/// <summary>Owns the browser's stopped interval through the query acknowledgement and synchronous collector capture.</summary>
+public sealed class WorkshopMemoryQueryOwner
+{
+    public bool Active { get; private set; }
+
+    public void AdmitCommand(WorkshopCommandKind kind)
+    {
+        if (Active && kind != WorkshopCommandKind.Dispose)
+            throw new InvalidOperationException("A stopped memory observation owns the client.");
+    }
+
+    public async System.Threading.Tasks.Task<WorkshopMemoryReply> Execute(int pending,
+        Func<System.Threading.Tasks.Task<WorkshopDelivery>> query, Func<bool> current,
+        Func<WorkshopMemoryMeasurement> captureBrowser)
+    {
+        if (Active || pending != 0) return new(new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy), null);
+        Active = true;
+        try
+        {
+            var delivery = await query();
+            return WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, delivery.Response,
+                delivery.Applicable && current(), captureBrowser);
+        }
+        finally { Active = false; }
     }
 }

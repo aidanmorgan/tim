@@ -1,0 +1,2409 @@
+diff --git a/CuriousContraptions.Simulation/Program.cs b/CuriousContraptions.Simulation/Program.cs
+index 4ac3855a..4ba89097 100644
+--- a/CuriousContraptions.Simulation/Program.cs
++++ b/CuriousContraptions.Simulation/Program.cs
+@@ -17,13 +17,14 @@ public static partial class Program
+     private static WorkshopSimulation Simulation => _simulation ?? throw new InvalidOperationException("Worker clock has not bootstrapped.");
+     private static WorkshopClockPeer Peer => _peer ?? throw new InvalidOperationException("Worker clock has not bootstrapped.");
+     private static ulong _publication;
+-    private static MemoryObservationId _lastMemoryObservation;
++    // The worker's own reliable-read accounting (Story 9A.3): every publication, and every browser receipt matched against it.
++    private static WorkshopReliableReadLedger? _reads;
++    private static WorkshopReliableReadLedger Reads => _reads ?? throw new InvalidOperationException("Worker session has not bootstrapped.");
+     private static readonly WorkshopCommandRouter Commands = new(Execute);
+     // One builder for every physical read this worker publishes: the per-tick encode reuses its storage.
+     private static readonly Google.FlatBuffers.FlatBufferBuilder ReadBuilder = new(4096);
+     private static ulong _loopOwner;
+     private static WorkshopCommandIdentity? _pendingCommand;
+-    private static bool _reliableStalled;
+     private static readonly CuriousContraptions.Simulation.WorkshopTrace Trace = new();
+     public static void Main() { }
+ 
+@@ -46,6 +47,7 @@ public static partial class Program
+         var origin = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
+         var peer = new WorkshopClockPeer(session, new(1), origin, new(1), new(100_000), WorkshopRuntimeRole.Browser);
+         _device = new(new BrowserGpuTransport(), new(session.Low, session.High));
++        _reads = new(session);
+         _peer = peer;
+         return WorkshopClockWire.EncodePeer(peer);
+     }
+@@ -143,20 +145,24 @@ public static partial class Program
+         catch (JSException) { return double.NaN; } // Incomplete observation never replaces the physical result.
+     }
+ 
++    /// <summary>Matches the browser's receipt of a posted read (its 24-byte identity, echoed unread) and retires every read up to it.
++    /// A mismatch throws its typed <see cref="ReadReceiptRejectedException"/>; the worker reports it as a transport failure.</summary>
+     [JSExport]
+-    public static byte[] ObserveMemory(byte[] bytes, bool transportIdle)
++    public static void AcknowledgeRead(byte[] receipt) => Reads.Receipt(receipt);
++
++    /// <summary>Refuses an envelope no handler owns, naming its keys, and records it in this worker's fault log; returns the
++    /// rejection the worker reports to the browser.</summary>
++    [JSExport]
++    public static string RejectUnknownEnvelope(string[] keys) =>
++        RejectEnvelope(new(WorkerEnvelopeRejection.UnknownEnvelope, keys));
++
++    [JSExport]
++    public static string RejectSaturatedCommand() => RejectEnvelope(new(WorkerEnvelopeRejection.CommandTransportSaturated, []));
++
++    private static string RejectEnvelope(WorkerEnvelopeRejectedException rejection)
+     {
+-        var request = WorkshopMemoryWire.DecodeRequest(bytes);
+-        if (request.Context != WorkshopMemoryContext.Simulation)
+-            throw new ArgumentException("Wrong memory observation context.");
+-        var status = request.Session != Peer.Session || request.Epoch != Simulation.Epoch ||
+-            request.Revision != Simulation.Revision || request.Publication.Value != _publication || request.Id.Value <= _lastMemoryObservation.Value
+-            ? WorkshopMemoryStatus.Stale
+-            : !transportIdle || _pendingCommand is not null || Simulation.HasPendingGpuOperation || !WorkshopMemoryWire.IsStopped(Simulation.Phase)
+-                ? WorkshopMemoryStatus.Busy : WorkshopMemoryStatus.Accepted;
+-        if (status != WorkshopMemoryStatus.Stale) _lastMemoryObservation = request.Id;
+-        return WorkshopMemoryWire.Encode(status == WorkshopMemoryStatus.Accepted
+-            ? WorkshopMemoryWire.Capture(request) : new(request, status));
++        WorkshopDiagnostics.Fault(FaultSite.WorkerEnvelope, rejection);
++        return rejection.Message;
+     }
+ 
+ 
+@@ -189,6 +195,14 @@ public static partial class Program
+         if ((_pendingCommand is not null || _preparedEndpoint is not null) && command.Kind != WorkshopCommandKind.Dispose)
+             return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
+                 new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy), Simulation.Phase, Simulation.Committed));
++        if (command.Kind == WorkshopCommandKind.ObserveMemory)
++        {
++            // A query: answered by this acknowledgement, never queued behind a tick or a pending GPU operation.
++            var admitted = WorkshopMemoryQuery.Admit(Simulation.Phase, Simulation.HasPendingGpuOperation, Reads.Idle);
++            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement, admitted,
++                Simulation.Phase, Simulation.Committed,
++                Memory: admitted.Outcome == WorkshopCommandOutcome.Applied ? WorkshopMemoryMeasurement.Capture() : null));
++        }
+         _pendingCommand = identity;
+         try { return await Apply(command); }
+         finally { if (_pendingCommand == identity) _pendingCommand = null; }
+@@ -240,11 +254,7 @@ public static partial class Program
+                 GC.Collect(2, GCCollectionMode.Aggressive, true, true);
+                 var resetting = Simulation.Reset();
+                 result = await resetting;
+-                if (result.Outcome == WorkshopCommandOutcome.Applied)
+-                {
+-                    _loopOwner++;
+-                    _reliableStalled = false;
+-                }
++                if (result.Outcome == WorkshopCommandOutcome.Applied) _loopOwner++;
+                 break;
+             case WorkshopCommandKind.Dispose:
+                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Disposed);
+@@ -252,7 +262,8 @@ public static partial class Program
+                 await Simulation.DisposeAsync();
+                 result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
+                 break;
+-            default: throw new ArgumentException("Unsupported Workshop command.");
++            // Cancel and the memory query are answered in Execute; the decoder refuses every undefined kind.
++            default: throw new WireFaultException(WireFaultReason.UnknownCommand, $"Command kind {(uint)command.Kind} has no executor.");
+         }
+         if (result.Outcome == WorkshopCommandOutcome.Applied && _preparedEndpoint is not null)
+         {
+@@ -325,14 +336,26 @@ public static partial class Program
+         private static WorkshopSchedule Schedule => _schedule ?? throw new InvalidOperationException("Missing physical schedule.");
+         public bool Owns => owner == _loopOwner && Simulation.Phase == WorkshopSimulationPhase.Running;
+         public bool Blocked => Simulation.HasPendingGpuOperation || _preparedEndpoint is not null || _pendingCommand is not null;
+-        public bool DebtExceeded => _reliableStalled || Schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, MasterNow());
++        public bool DebtExceeded
++        {
++            get
++            {
++                var now = MasterNow();
++                return Reads.Stalled(now) || Schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, now);
++            }
++        }
+         public bool AtRunLimit => Simulation.Committed.Tick.Value == Simulation.Profile.RunTickLimit;
+         public bool CaughtUp => Simulation.Committed.Tick.Value >= Schedule.World.DueTick(Schedule.Settings, MasterNow()).Value;
+ 
+         public ValueTask StopForDebt()
+         {
+-            Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reliableStalled={_reliableStalled}");
+-            Simulation.Stop(_reliableStalled ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity);
++            var now = MasterNow();
++            var reason = Reads.DebtReason(now);
++            var oldest = Reads.Oldest;
++            var age = oldest is { } read ? (now.Value - read.Published.Value) / 1_000_000 : 0;
++            Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reason={reason} " +
++                $"oldestUnreceipted={oldest?.Publication.Value ?? 0} ageMs={age}");
++            Simulation.Stop(reason);
+             Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+             EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
+             return ValueTask.CompletedTask;
+@@ -387,6 +410,7 @@ public static partial class Program
+             Projection: _schedule?.World.Epoch ?? default,
+             SourcePulse: new(Simulation.Committed.Tick.Value));
+         var encoded = WorkshopWireFlatBuffers.EncodeResponse(readResponse, ReadBuilder);
++        Reads.Publish(sequence, MasterNow());
+         _publication++;
+         // Existing read-only observation channel, in the production build every Chrome suite runs against (owner decision
+         // h; Story 9A.24 replaces it with the typed observation port): retained energy/event commits prove finite
+@@ -399,7 +423,4 @@ public static partial class Program
+         Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
+             Trace.CanFlush(Simulation.Phase), retainOccurrence);
+     }
+-
+-    [JSExport]
+-    public static void SetReliableStall(bool stalled) => _reliableStalled = stalled;
+ }
+diff --git a/CuriousContraptions.Simulation/wwwroot/worker.js b/CuriousContraptions.Simulation/wwwroot/worker.js
+index a2949fa2..10a0b860 100644
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -9,7 +9,7 @@ let animationPort, clockMaster, derivationCheck, roles, lifetime = 0, disposed =
+ // Scheduler turns (Program.NextTurn): declared before anything that can dispose the session.
+ const turnChannel = new MessageChannel(), queuedTurns = [], turnTimers = new Set();
+ let poseRing, poseSeqView, poseCapacity = 0, poseSlotIndex = 0, posePublicationSequence = 0n;
+-let latestRead, pendingReadIdentity, occurrenceReadReserved = false; // a read is { bytes, identity }
++let latestRead, readInFlight = false, occurrenceReadReserved = false; // a read is { bytes, identity }
+ const occurrenceReads = [], pendingScheduleControls = [], occurrenceReadCapacity = 64;
+ 
+ // The pose ring layout owned by WorkshopPoseRing; WorkerAbiTests pins every value against its C# owner. Story 9A.2: this worker
+@@ -75,7 +75,7 @@ function disposeOwned() {
+     turnTimers.clear(); queuedTurns.length = 0;
+     poseRing = poseSeqView = undefined; poseCapacity = 0;
+     occurrenceReads.length = pendingScheduleControls.length = 0;
+-    latestRead = undefined; occurrenceReadReserved = false;
++    latestRead = undefined; readInFlight = occurrenceReadReserved = false;
+ }
+ 
+ // The clock master context answers every requester's probe through the clock ring; this worker never does (Story 9.4b).
+@@ -156,32 +156,38 @@ function forwardScheduleControl(bytes, recipient) {
+ }
+ 
+ function flushScheduleControls() {
+-    if (pendingReadIdentity || latestRead || occurrenceReads.length) return;
++    if (readInFlight || latestRead || occurrenceReads.length) return;
+     while (pendingScheduleControls.length) {
+         const item = pendingScheduleControls.shift();
+         forwardScheduleControl(item.bytes, item.recipient);
+     }
+ }
+ 
+-// One read in flight: its receipt identity (session and publication) comes from C# with the read, and the browser echoes it.
++// One read in flight, posted in publication order: its receipt identity (session and publication) comes from C# with the read,
++// and the browser echoes it unread.
+ function flushRead() {
+-    if (pendingReadIdentity || (occurrenceReads.length === 0 && !latestRead)) return;
++    if (readInFlight || (occurrenceReads.length === 0 && !latestRead)) return;
+     const read = occurrenceReads.length ? occurrenceReads.shift() : latestRead;
+     if (read === latestRead) latestRead = undefined;
+-    pendingReadIdentity = read.identity;
+-    const readIdentity = read.identity.slice();
+-    self.postMessage({ read: read.bytes, readIdentity, dispatchReadbackMs: 0 }, [read.bytes.buffer, readIdentity.buffer]);
++    readInFlight = true;
++    self.postMessage({ read: read.bytes, readIdentity: read.identity, dispatchReadbackMs: 0 }, [read.bytes.buffer, read.identity.buffer]);
+ }
+ 
++// The trace flush is diagnostic output: its failure never stops the session, but it is always logged, never swallowed.
+ function flushObservation() {
+-    if (!observationPending || activeRequests !== 0 || pendingReadIdentity || latestRead || occurrenceReads.length) return;
++    if (!observationPending || activeRequests !== 0 || readInFlight || latestRead || occurrenceReads.length) return;
+     observationPending = false;
+-    try { host.FlushObservation(); } catch {}
++    try { host.FlushObservation(); }
++    catch (error) { console.error('CCGPU_TRACE_FLUSH_EXCEPTION', String(error)); }
+ }
+ 
++// Story 9A.3: C# matches every receipt in its own reliable-read accounting (WorkshopReliableReadLedger), which is how the worker
++// detects a reliable-read stall. A receipt it refuses is a typed rejection reported as a transport failure, never ignored.
+ function acknowledgeRead(receipt) {
+-    if (!pendingReadIdentity || receipt.length !== 24 || !receipt.every((v, i) => v === pendingReadIdentity[i])) return;
+-    pendingReadIdentity = undefined;
++    if (disposed) return;
++    try { host.AcknowledgeRead(receipt); }
++    catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); return; }
++    readInFlight = false;
+     flushRead();
+     flushScheduleControls();
+     flushObservation();
+@@ -208,7 +214,7 @@ runtime.setModuleImports('workshopGpu', {
+     },
+     scheduleControl(bytes, recipient) {
+         const val = new Uint8Array(bytes);
+-        if (pendingReadIdentity || latestRead || occurrenceReads.length) {
++        if (readInFlight || latestRead || occurrenceReads.length) {
+             if (pendingScheduleControls.length >= 4) throw new Error('Schedule drain capacity exceeded.');
+             pendingScheduleControls.push({ bytes: val, recipient });
+         } else forwardScheduleControl(val, recipient);
+@@ -251,8 +257,7 @@ host = exports.CuriousContraptions.Simulation.Program;
+ roles = Array.from(host.ScheduleRoles());
+ 
+ self.onmessage = async event => {
+-    let received;
+-    try { received = clockNow(); } catch { return; }
++    try { clockNow(); } catch { return; } // a failed native clock has already retired this session and reported it
+     const bootstrap = event.data?.bootstrap;
+     if (bootstrap instanceof Uint8Array) {
+         try {
+@@ -298,29 +303,21 @@ self.onmessage = async event => {
+         catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
+         return;
+     }
+-    if (typeof event.data?.reliableStalled === 'boolean') { if (!disposed) host.SetReliableStall(event.data.reliableStalled); return; }
+     const receipt = event.data?.readAcknowledged;
+     if (receipt instanceof Uint8Array) {
+         acknowledgeRead(receipt);
+         return;
+     }
+-    const memoryRequest = event.data?.memoryRequest;
+-    if (memoryRequest instanceof Uint8Array) {
+-        try {
+-            if (memoryRequest.length !== 64) throw new Error('Invalid stopped memory request width.');
+-            const result = new Uint8Array(host.ObserveMemory(memoryRequest,
+-                activeRequests === 0 && !latestRead && !pendingReadIdentity));
+-            if (clockNow() - received > 1000) {
+-                console.error('CCGPU_MEMORY_LATE', Array.from(result).join(','));
+-                throw new Error('Stopped worker collection exceeded 1000ms; reload to recover.');
+-            }
+-            self.postMessage({ memoryResult: result }, [result.buffer]);
+-        } catch (error) { self.postMessage({ failure: true, detail: String(error) }); }
++    // Every command and query (memory observation among them) is one typed buffer for the managed decoder. Any other envelope,
++    // a retired channel name included, is refused by name with its typed reason and recorded in this worker's fault log.
++    const bytes = event.data?.bytes;
++    if (!(bytes instanceof Uint8Array)) {
++        const keys = event.data !== null && typeof event.data === 'object' ? Object.keys(event.data) : [];
++        self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(keys) });
+         return;
+     }
+-    const bytes = event.data?.bytes;
+-    if (!(bytes instanceof Uint8Array) || activeRequests >= 2) {
+-        self.postMessage({ rejected: true, detail: 'Invalid or saturated Workshop command transport.' });
++    if (activeRequests >= 2) {
++        self.postMessage({ rejected: true, detail: host.RejectSaturatedCommand() });
+         return;
+     }
+     activeRequests++;
+diff --git a/CuriousContraptions.tests/CuriousContraptions.tests.csproj b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+index 58933330..516465eb 100644
+--- a/CuriousContraptions.tests/CuriousContraptions.tests.csproj
++++ b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+@@ -136,6 +136,7 @@
+         <Compile Include="WorkshopPhysicsLawSensorWorkTests.cs" />
+         <Compile Include="WorkshopPhysicsLawPrismaticTests.cs" />
+         <Compile Include="WorkshopTickLoopTests.cs" />
++        <Compile Include="TypedTransportCommandTests.cs" />
+         <Compile Include="WorkshopClockDerivationTests.cs" />
+         <Compile Include="ContactWorkLedgerPropertyTests.cs" />
+         <Compile Include="ConstructionDecodeBoundaryTests.cs" />
+diff --git a/CuriousContraptions.tests/TypedTransportCommandTests.cs b/CuriousContraptions.tests/TypedTransportCommandTests.cs
+new file mode 100644
+index 00000000..c172d351
+--- /dev/null
++++ b/CuriousContraptions.tests/TypedTransportCommandTests.cs
+@@ -0,0 +1,361 @@
++using System.Buffers.Binary;
++using System.Text.RegularExpressions;
++using CuriousContraptions.Gpu;
++
++namespace CuriousContraptions.Tests;
++
++/// <summary>Story 9A.3: transport controls are typed commands and queries. The Simulation worker detects a reliable-read stall in
++/// its own receipt accounting (<see cref="WorkshopReliableReadLedger"/>), memory observation is the typed
++/// <see cref="WorkshopCommandKind.ObserveMemory"/> query answered by an acknowledgement on the command transport, and an unknown
++/// command or worker envelope is refused with a typed reason. The raw stall flag and the raw memory channel are deleted.</summary>
++public sealed class TypedTransportCommandTests
++{
++    private static readonly RuntimeSessionId Session = WireFaultTests.Session;
++    private static MasterTimeNanoseconds Ms(long milliseconds) => new(milliseconds * 1_000_000);
++
++    private static byte[] Receipt(ulong publication, RuntimeSessionId? session = null)
++    {
++        var bytes = new byte[WorkshopClockWire.ReceiptBytes];
++        (session ?? Session).WriteTo(bytes.AsSpan(0, RuntimeSessionId.ByteLength));
++        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(RuntimeSessionId.ByteLength), publication);
++        return bytes;
++    }
++
++    private static WorkshopReliableReadLedger Published(params (ulong Publication, long Milliseconds)[] reads)
++    {
++        var ledger = new WorkshopReliableReadLedger(Session);
++        foreach (var (publication, milliseconds) in reads) ledger.Publish(new(publication), Ms(milliseconds));
++        return ledger;
++    }
++
++    private static ReadReceiptRejection Rejection(WorkshopReliableReadLedger ledger, byte[] receipt) =>
++        Assert.Throws<ReadReceiptRejectedException>(() => ledger.Receipt(receipt)).Reason;
++
++    // ---- AC1: the worker detects the stall in its own reliable-read accounting ----
++
++    [Fact]
++    public void AnUnreceiptedReadStallsOnlyPastTheBound()
++    {
++        var ledger = Published((1, 100));
++        Assert.False(ledger.Stalled(Ms(600)), "exactly the bound is not a stall");
++        Assert.True(ledger.Stalled(new(Ms(600).Value + 1)), "one nanosecond past the bound is a stall");
++        Assert.Equal(WorkshopRejection.ReliableStalled, ledger.DebtReason(new(Ms(600).Value + 1)));
++    }
++
++    [Fact]
++    public void AReceiptRetiresItsReadAndClearsTheStall()
++    {
++        var ledger = Published((1, 0));
++        Assert.True(ledger.Stalled(Ms(501)));
++        Assert.Equal(new PublicationSequence(1), ledger.Receipt(Receipt(1)));
++        Assert.True(ledger.Idle);
++        Assert.False(ledger.Stalled(Ms(10_000)));
++        Assert.Equal(WorkshopRejection.Capacity, ledger.DebtReason(Ms(10_000)));
++    }
++
++    [Fact]
++    public void AReceiptRetiresEveryCoalescedEarlierPublication()
++    {
++        // The worker overwrites an unposted ordinary read with a newer one, so P1 and P2 are never posted or receipted.
++        var ledger = Published((1, 0), (2, 8), (3, 16));
++        ledger.Receipt(Receipt(3));
++        Assert.True(ledger.Idle);
++        Assert.False(ledger.Stalled(Ms(5_000)));
++    }
++
++    [Fact]
++    public void ThePartlyReceiptedLedgerAgesFromItsOldestUnreceiptedRead()
++    {
++        var ledger = Published((1, 0), (2, 400));
++        ledger.Receipt(Receipt(1));
++        Assert.Equal(new UnreceiptedRead(new(2), Ms(400)), ledger.Oldest);
++        Assert.False(ledger.Stalled(Ms(900)));
++        Assert.True(ledger.Stalled(new(Ms(900).Value + 1)));
++    }
++
++    [Fact]
++    public void AReceiptForAReadPublishedBeforeLaterOnesStillRetires()
++    {
++        // Reset never clears the ledger: a receipt in flight across a Reset retires its read, then the newer ones retire in turn.
++        var ledger = Published((1, 0), (2, 1), (3, 2));
++        ledger.Receipt(Receipt(1));
++        ledger.Publish(new(4), Ms(3));
++        ledger.Receipt(Receipt(2));
++        ledger.Receipt(Receipt(4));
++        Assert.True(ledger.Idle);
++    }
++
++    [Fact]
++    public void AMismatchedReceiptIsATypedRejectionThatRetiresNothing()
++    {
++        var ledger = Published((1, 0), (2, 1));
++        ledger.Receipt(Receipt(1));
++        Assert.Equal(ReadReceiptRejection.Malformed, Rejection(ledger, new byte[WorkshopClockWire.ReceiptBytes - 1]));
++        Assert.Equal(ReadReceiptRejection.Malformed, Rejection(ledger, new byte[WorkshopClockWire.ReceiptBytes + 1]));
++        Assert.Equal(ReadReceiptRejection.WrongSession, Rejection(ledger, Receipt(2, new RuntimeSessionId(9, 9))));
++        var zeroSession = Receipt(2); zeroSession.AsSpan(0, RuntimeSessionId.ByteLength).Clear();
++        Assert.Equal(ReadReceiptRejection.WrongSession, Rejection(ledger, zeroSession));
++        Assert.Equal(ReadReceiptRejection.Unpublished, Rejection(ledger, Receipt(3)));
++        Assert.Equal(ReadReceiptRejection.Retired, Rejection(ledger, Receipt(1)));
++        Assert.Equal(ReadReceiptRejection.Retired, Rejection(ledger, Receipt(0)));
++        Assert.Equal(new UnreceiptedRead(new(2), Ms(1)), ledger.Oldest);
++        Assert.True(ledger.Stalled(Ms(502)), "a refused receipt leaves its read unreceipted");
++    }
++
++    [Fact]
++    public void PublicationsAreStrictlyIncreasing()
++    {
++        var ledger = Published((5, 0));
++        Assert.Throws<ArgumentException>(() => ledger.Publish(new(5), Ms(1)));
++        Assert.Throws<ArgumentException>(() => ledger.Publish(new(4), Ms(1)));
++        Assert.Throws<ArgumentException>(() => new WorkshopReliableReadLedger(default));
++    }
++
++    [Fact]
++    public void TheLedgerHasNoFixedCapacity()
++    {
++        var ledger = new WorkshopReliableReadLedger(Session);
++        for (ulong publication = 1; publication <= 20_000; publication++) ledger.Publish(new(publication), Ms(0));
++        ledger.Receipt(Receipt(20_000));
++        Assert.True(ledger.Idle);
++    }
++
++    [Fact]
++    public async Task TheRunLoopStopsForAStalledLedger()
++    {
++        var ledger = Published((1, 0));
++        var host = new LedgerHost(ledger, Ms(501));
++        await WorkshopTickLoop.Run(host);
++        Assert.Equal([WorkshopRejection.ReliableStalled], host.Stops);
++        Assert.Equal(0, host.Advances);
++    }
++
++    [Fact]
++    public async Task TheRunLoopKeepsRunningWhileReceiptsFlow()
++    {
++        var ledger = Published((1, 0));
++        ledger.Receipt(Receipt(1));
++        var host = new LedgerHost(ledger, Ms(501));
++        await WorkshopTickLoop.Run(host);
++        Assert.Empty(host.Stops);
++        Assert.Equal(1, host.Advances);
++    }
++
++    /// <summary>A run-loop host whose debt is the ledger's stall, as the worker's RunLoopHost reads it; it completes after one tick.</summary>
++    private sealed class LedgerHost(WorkshopReliableReadLedger ledger, MasterTimeNanoseconds now) : ITickLoopHost
++    {
++        public List<WorkshopRejection> Stops { get; } = [];
++        public int Advances { get; private set; }
++        private bool _completed;
++        public bool Owns => Stops.Count == 0 && !_completed;
++        public bool Blocked => false;
++        public bool DebtExceeded => ledger.Stalled(now);
++        public bool AtRunLimit => Advances == 1;
++        public bool CaughtUp => false;
++        public ValueTask<TickAttempt> Advance() { Advances++; return ValueTask.FromResult(TickAttempt.Committed); }
++        public ValueTask StopForDebt() { Stops.Add(ledger.DebtReason(now)); return ValueTask.CompletedTask; }
++        public ValueTask CompleteRun() { _completed = true; return ValueTask.CompletedTask; }
++        public ValueTask YieldTurn() => ValueTask.CompletedTask;
++        public ValueTask AwaitWork() => ValueTask.CompletedTask;
++    }
++
++    // ---- AC2: memory observation is a typed query with a receipt on the command/query transport ----
++
++    private static readonly WorkshopMemoryMeasurement Measurement = new(1234, 1200, 19, 1_000_000_000, 5000, 5050, 6, 7);
++
++    private static WorkshopCommand ObserveMemory(ulong sequence = 1) => new(new(sequence), WorkshopCommandKind.ObserveMemory, new(10), default,
++        null, RevisionKind: ExpectedRevisionKind.Any, Session: Session, Cadence: new(2), Projection: new(3));
++
++    private static WorkshopResponse Acknowledgement(WorkshopCommandResult result, WorkshopMemoryMeasurement? memory) =>
++        WireFaultTests.Acknowledgement() with { Result = result, Memory = memory };
++
++    private static readonly WorkshopCommandResult Applied = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
++
++    [Fact]
++    public void TheMemoryQueryIsATypedCommandOnTheOneCodec()
++    {
++        var command = ObserveMemory();
++        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)));
++        Assert.Equal(12u, (uint)WorkshopCommandKind.ObserveMemory);
++        Assert.Equal((uint)WorkshopCommandKind.ObserveMemory, (uint)CuriousContraptions.Wire.CommandKind.ObserveMemory);
++    }
++
++    [Fact]
++    public async Task TheMemoryQueryIsRoutedWithItsSequenceAndAnsweredByItsAcknowledgement()
++    {
++        var executed = new List<WorkshopCommand>();
++        var acknowledgement = WorkshopWireFlatBuffers.EncodeResponse(Acknowledgement(Applied, Measurement));
++        var router = new WorkshopCommandRouter(command => { executed.Add(command); return Task.FromResult(acknowledgement); });
++        var routed = router.Dispatch(WorkshopWireFlatBuffers.EncodeCommand(ObserveMemory()));
++        Assert.Equal(new CommandSequence(1), routed.Sequence);
++        Assert.Equal(WorkshopCommandKind.ObserveMemory, Assert.Single(executed).Kind);
++        var response = WorkshopWireFlatBuffers.DecodeResponse(await routed.Response);
++        Assert.Equal(WorkshopResponseKind.Acknowledgement, response.Kind);
++        Assert.Equal(Measurement, response.Memory);
++    }
++
++    [Fact]
++    public void AnAcknowledgementCarriesItsMemoryMeasurementExactly()
++    {
++        var wide = new WorkshopMemoryMeasurement(long.MaxValue, 0, long.MaxValue, long.MaxValue, 0, long.MaxValue, 0, int.MaxValue);
++        foreach (var memory in new[] { Measurement, wide })
++        {
++            var response = Acknowledgement(Applied, memory);
++            Assert.Equal(response, WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)));
++        }
++        var none = Acknowledgement(Applied, null);
++        Assert.Null(WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(none)).Memory);
++    }
++
++    [Fact]
++    public void OnlyAnAppliedAcknowledgementCarriesMemory()
++    {
++        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(
++            Acknowledgement(new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase), Measurement)));
++        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(WireFaultTests.PhysicalRead() with { Memory = Measurement }));
++    }
++
++    [Fact]
++    public void AnUnboundedOrFabricatedMeasurementIsRefused()
++    {
++        foreach (var invalid in new[] {
++            Measurement with { UsedBefore = -1 }, Measurement with { UsedAfter = -1 },
++            Measurement with { DurationTicks = -1 }, Measurement with { Frequency = 0 },
++            Measurement with { AllocatedBefore = -1 }, Measurement with { AllocatedAfter = 4999 },
++            Measurement with { CollectionsBefore = -1 }, Measurement with { CollectionsAfter = 5 } })
++        {
++            Assert.Throws<ArgumentException>(invalid.Validate);
++            Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(Acknowledgement(Applied, invalid)));
++        }
++    }
++
++    [Theory]
++    [InlineData(WorkshopSimulationPhase.Running)]
++    [InlineData(WorkshopSimulationPhase.Paused)]
++    [InlineData(WorkshopSimulationPhase.Starting)]
++    [InlineData(WorkshopSimulationPhase.Resetting)]
++    public void AQueryOutsideAStoppedPhaseIsWrongPhase(WorkshopSimulationPhase phase) =>
++        Assert.Equal(new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase),
++            WorkshopMemoryQuery.Admit(phase, gpuOperationPending: false, readsReceipted: true));
++
++    [Theory]
++    [InlineData(WorkshopSimulationPhase.Building)]
++    [InlineData(WorkshopSimulationPhase.Completed)]
++    [InlineData(WorkshopSimulationPhase.Faulted)]
++    public void AStoppedIdleWorldAdmitsTheQuery(WorkshopSimulationPhase phase)
++    {
++        Assert.Equal(Applied, WorkshopMemoryQuery.Admit(phase, gpuOperationPending: false, readsReceipted: true));
++        var busy = new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy);
++        Assert.Equal(busy, WorkshopMemoryQuery.Admit(phase, gpuOperationPending: true, readsReceipted: true));
++        Assert.Equal(busy, WorkshopMemoryQuery.Admit(phase, gpuOperationPending: false, readsReceipted: false));
++    }
++
++    [Fact]
++    public void AnAppliedQueryPairsTheSimulationMeasurementWithTheBrowserOne()
++    {
++        var browser = Measurement with { UsedBefore = 77 };
++        var reply = WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, Acknowledgement(Applied, Measurement), () => browser);
++        Assert.Equal(Applied, reply.Result);
++        Assert.Equal(new WorkshopMemoryObservation(browser, Measurement), reply.Observation);
++    }
++
++    [Fact]
++    public void ARefusedQueryHasNoObservationAndCapturesNothing()
++    {
++        var refused = new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase);
++        var reply = WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, Acknowledgement(refused, null),
++            () => throw new InvalidOperationException("A refused query captures nothing."));
++        Assert.Equal(refused, reply.Result);
++        Assert.Null(reply.Observation);
++    }
++
++    [Fact]
++    public void MemoryRidesOnlyOnTheAcknowledgementOfAnAppliedQuery()
++    {
++        Assert.Throws<ArgumentException>(() => WorkshopMemoryQuery.ValidateCarriage(WorkshopCommandKind.ObserveMemory, Acknowledgement(Applied, null)));
++        Assert.Throws<ArgumentException>(() => WorkshopMemoryQuery.ValidateCarriage(WorkshopCommandKind.Save, Acknowledgement(Applied, Measurement)));
++        WorkshopMemoryQuery.ValidateCarriage(WorkshopCommandKind.Save, Acknowledgement(Applied, null));
++        WorkshopMemoryQuery.ValidateCarriage(WorkshopCommandKind.ObserveMemory, Acknowledgement(Applied, Measurement));
++    }
++
++    // ---- AC3: an unknown command or worker envelope is refused structurally with a typed reason ----
++
++    [Fact]
++    public void AnUnknownCommandKindIsATypedWireFault()
++    {
++        var builder = new Google.FlatBuffers.FlatBufferBuilder(128);
++        var session = new byte[RuntimeSessionId.ByteLength];
++        Session.WriteTo(session);
++        var sessionVector = CuriousContraptions.Wire.WorkshopCommand.CreateSessionVectorBlock(builder, session);
++        CuriousContraptions.Wire.WorkshopCommand.StartWorkshopCommand(builder);
++        CuriousContraptions.Wire.WorkshopCommand.AddSequence(builder, 1);
++        CuriousContraptions.Wire.WorkshopCommand.AddKind(builder, (CuriousContraptions.Wire.CommandKind)99);
++        CuriousContraptions.Wire.WorkshopCommand.AddEpoch(builder, 10);
++        CuriousContraptions.Wire.WorkshopCommand.AddRevisionKind(builder, (uint)ExpectedRevisionKind.Any);
++        CuriousContraptions.Wire.WorkshopCommand.AddSession(builder, sessionVector);
++        CuriousContraptions.Wire.WorkshopCommand.AddCadence(builder, 2);
++        CuriousContraptions.Wire.WorkshopCommand.AddProjection(builder, 3);
++        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
++        var executed = 0;
++        var router = new WorkshopCommandRouter(_ => { executed++; return Task.FromResult(Array.Empty<byte>()); });
++        var fault = Assert.Throws<WireFaultException>(() => router.Dispatch(builder.SizedByteArray()));
++        Assert.Equal(WireFaultReason.UnknownCommand, fault.Reason);
++        Assert.Contains("99", fault.Message, StringComparison.Ordinal);
++        Assert.Equal(0, executed);
++    }
++
++    [Fact]
++    public void AnUnknownWorkerEnvelopeIsRefusedByNameWithItsTypedReason()
++    {
++        var stall = new WorkerEnvelopeRejectedException(WorkerEnvelopeRejection.UnknownEnvelope, ["reliable" + "Stalled"]);
++        Assert.Equal(WorkerEnvelopeRejection.UnknownEnvelope, stall.Reason);
++        Assert.Equal("Unsupported worker envelope: reliable" + "Stalled", stall.Message);
++        Assert.Equal("Unsupported worker envelope: memory" + "Request, extra",
++            new WorkerEnvelopeRejectedException(WorkerEnvelopeRejection.UnknownEnvelope, ["memory" + "Request", "extra"]).Message);
++        Assert.Equal("Unsupported worker envelope: (no keys)",
++            new WorkerEnvelopeRejectedException(WorkerEnvelopeRejection.UnknownEnvelope, []).Message);
++        Assert.Equal(WorkerEnvelopeRejection.CommandTransportSaturated,
++            new WorkerEnvelopeRejectedException(WorkerEnvelopeRejection.CommandTransportSaturated, []).Reason);
++        Assert.Throws<ArgumentOutOfRangeException>(() => new WorkerEnvelopeRejectedException((WorkerEnvelopeRejection)99, []));
++    }
++
++    // ---- Deletes: the raw stall flag and the raw memory channel are gone from production ----
++
++    private static string Root => twodog.Engine.ResolveProjectDir();
++
++    private static readonly string[] ProductionRoots = ["engine", "ui", "elements", "schemas", "CuriousContraptions.Abstractions",
++        "CuriousContraptions.Abstractions.Electrical", "CuriousContraptions.Abstractions.Fluid", "CuriousContraptions.Abstractions.Mechanical",
++        "CuriousContraptions.Abstractions.Signal", "CuriousContraptions.Animation", "CuriousContraptions.Animation.Worker",
++        "CuriousContraptions.Bundle", "CuriousContraptions.Simulation", "CuriousContraptions.web"];
++
++    private static readonly string[] ProductionExtensions = [".cs", ".js", ".mjs", ".fbs"];
++
++    /// <summary>The typed command and query definitions: the closed command kind's declaration in the C# enum, the schema and the
++    /// generated schema code. Everywhere else the query is named only through its enum (<c>CommandKind.ObserveMemory</c>).</summary>
++    private static readonly string[] TypedDefinitions = ["engine/gpu/WorkshopMessages.cs", "schemas/workshop_wire.fbs", "engine/gpu/WorkshopWireGenerated.cs"];
++
++    private static bool IsBuildOutput(string path) => path.Split(Path.DirectorySeparatorChar)
++        .Any(segment => segment is "bin" or "obj" or "node_modules" or ".godot" or "AppBundle" or "_framework");
++
++    /// <summary>The acceptance rg over production, plus the deleted channel's own symbols (split here so this file is no hit).</summary>
++    [Fact]
++    public void TheRawStallFlagAndMemoryChannelAreGoneFromProduction()
++    {
++        var retired = new Regex(string.Join('|', "reliable" + "Stalled", "memory" + "Request", "SetReliable" + "Stall", "Observe" + "Memory",
++            "memory" + "Result", "candidate" + "TimedOut", "Workshop" + "MemoryWire", "Begin" + "Memory", "Receive" + "Memory\\b",
++            "Release" + "Memory", "SendMemory" + "Request", "CompleteMemory" + "Observation", "settle" + "Memory"));
++        var enumUse = new Regex(@"CommandKind\." + "Observe" + "Memory" + @"\b");
++        var declaration = new Regex(@"\b" + "Observe" + "Memory" + @"\b(?=\s*(=|,|\}))");
++        var hits = ProductionRoots.Select(directory => Path.Combine(Root, directory)).Where(Directory.Exists)
++            .SelectMany(directory => Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
++            .Select(path => Path.GetRelativePath(Root, path))
++            .Where(path => ProductionExtensions.Contains(Path.GetExtension(path)) && !IsBuildOutput(path))
++            .SelectMany(path =>
++            {
++                var text = enumUse.Replace(File.ReadAllText(Path.Combine(Root, path)), "");
++                if (TypedDefinitions.Contains(path.Replace(Path.DirectorySeparatorChar, '/'))) text = declaration.Replace(text, "");
++                return retired.Matches(text).Select(match => $"{path}: {match.Value}");
++            }).ToArray();
++        Assert.Empty(hits);
++    }
++}
+diff --git a/CuriousContraptions.tests/WorkshopActivationAnimationTests.cs b/CuriousContraptions.tests/WorkshopActivationAnimationTests.cs
+index e36b524c..c407445e 100644
+--- a/CuriousContraptions.tests/WorkshopActivationAnimationTests.cs
++++ b/CuriousContraptions.tests/WorkshopActivationAnimationTests.cs
+@@ -650,7 +650,7 @@ public sealed class WorkshopActivationAnimationTests
+     private static readonly string[] FeedbackSlots =
+     [
+         "_activationRequested", "_activationSamples", "_activationOrdinals", "_activationFrameTaken",
+-        "_memoryRequested", "_memorySamples", "_memoryRetry", "_memoryOrdinals",
++        "_memoryControls", "_memorySamples", "_memoryRetry", "_memoryOrdinals",
+         "_timerRequested", "_timerSamples", "_timerRetry", "_timerOrdinals",
+         "_captureRequested", "_captureSamples", "_captureOrdinals", "_captureFrameTaken",
+         "_electricalRequested", "_electricalSamples", "_electricalRetry", "_electricalOrdinals",
+diff --git a/CuriousContraptions.tests/WorkshopFormatTests.cs b/CuriousContraptions.tests/WorkshopFormatTests.cs
+index e740ca0a..9e90d984 100644
+--- a/CuriousContraptions.tests/WorkshopFormatTests.cs
++++ b/CuriousContraptions.tests/WorkshopFormatTests.cs
+@@ -107,7 +107,9 @@ public sealed class WorkshopFormatTests
+         Assert.Equal(["next_body_id", "construction"], Fields("table SavedConstruction"));
+         Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
+             "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works", "occurrences",
+-            "electrical", "activation_memory", "motion"], Fields("table WorkshopResponse"));
++            "electrical", "activation_memory", "motion", "memory"], Fields("table WorkshopResponse"));
++        Assert.Equal(["used_before", "used_after", "duration_ticks", "frequency", "allocated_before", "allocated_after", "collections_before",
++            "collections_after"], Fields("struct MemoryObservationRecord"));
+         Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "electrical", "settings",
+             "target", "construction_record"], Fields("table WorkshopCommand"));
+         // The generated settings struct takes exactly the six words (builder plus six arguments).
+diff --git a/CuriousContraptions.tests/WorkshopWireTests.cs b/CuriousContraptions.tests/WorkshopWireTests.cs
+index b834ab9c..5c4434df 100644
+--- a/CuriousContraptions.tests/WorkshopWireTests.cs
++++ b/CuriousContraptions.tests/WorkshopWireTests.cs
+@@ -1364,74 +1364,6 @@ public sealed class WorkshopWireTests
+         Assert.Equal(2, applied.Count);
+     }
+ 
+-    private static WorkshopMemoryRequest MemoryRequest => new(WorkshopMemoryKind.PostGc, WorkshopMemoryContext.Simulation,
+-        Session, new(ulong.MaxValue), new(ulong.MaxValue), new(ulong.MaxValue), new(ulong.MaxValue));
+-
+-    [Fact]
+-    public void StoppedMemoryWirePreservesExactWideIdentitiesAndSeparateContext()
+-    {
+-        var bytes = WorkshopMemoryWire.Encode(MemoryRequest);
+-        Assert.Equal(64, bytes.Length);
+-        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes)); // Story 9A.1 (F.10): the former version word is zero padding
+-        Assert.Equal(MemoryRequest, WorkshopMemoryWire.DecodeRequest(bytes));
+-        Assert.Equal(ulong.MaxValue, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32)));
+-        var sample = new WorkshopMemoryResult(MemoryRequest, WorkshopMemoryStatus.Accepted,
+-            1234, 1200, 19, 1_000_000_000, 5000, 5050, 6, 7);
+-        var result = WorkshopMemoryWire.Encode(sample);
+-        Assert.Equal(128, result.Length);
+-        Assert.Equal(sample, WorkshopMemoryWire.DecodeResult(result));
+-        Assert.Equal(sample with { Request = MemoryRequest with { Context = WorkshopMemoryContext.Browser } },
+-            WorkshopMemoryWire.DecodeResult(WorkshopMemoryWire.Encode(sample with
+-            { Request = MemoryRequest with { Context = WorkshopMemoryContext.Browser } })));
+-    }
+-
+-    [Fact]
+-    public void StoppedMemoryRequestsRejectUnknownEnumsReservedBytesAndInvalidIdentity()
+-    {
+-        var valid = WorkshopMemoryWire.Encode(MemoryRequest);
+-        var retired = (byte[])valid.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(retired, 1); // the retired version 1
+-        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeRequest(retired));
+-        foreach (var offset in new[] { 0, 4, 8, 12 })
+-        {
+-            var malformed = (byte[])valid.Clone();
+-            BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(offset), uint.MaxValue);
+-            Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeRequest(malformed));
+-        }
+-        foreach (var offset in new[] { 32, 40 })
+-        {
+-            var malformed = (byte[])valid.Clone();
+-            BinaryPrimitives.WriteUInt64LittleEndian(malformed.AsSpan(offset), 0);
+-            Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeRequest(malformed));
+-        }
+-        var missingSession = (byte[])valid.Clone();
+-        missingSession.AsSpan(16, 16).Clear();
+-        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeRequest(missingSession));
+-        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeRequest(valid.AsSpan(1)));
+-        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeRequest(new byte[65]));
+-    }
+-
+-    [Fact]
+-    public void StoppedMemoryResultRejectsUnboundedOrFabricatedMetrics()
+-    {
+-        var sample = new WorkshopMemoryResult(MemoryRequest, WorkshopMemoryStatus.Accepted,
+-            1234, 1200, 19, 1_000_000_000, 5000, 5050, 6, 7);
+-        foreach (var invalid in new[] {
+-            sample with { UsedBefore = -1 }, sample with { UsedAfter = -1 },
+-            sample with { DurationTicks = -1 }, sample with { Frequency = 0 },
+-            sample with { AllocatedBefore = -1 }, sample with { AllocatedAfter = 4999 },
+-            sample with { CollectionsBefore = -1 }, sample with { CollectionsAfter = 5 },
+-            sample with { Status = (WorkshopMemoryStatus)uint.MaxValue },
+-            sample with { Status = WorkshopMemoryStatus.Busy } })
+-            Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.Encode(invalid));
+-        var malformed = WorkshopMemoryWire.Encode(sample);
+-        malformed[120] = 1;
+-        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeResult(malformed));
+-        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeResult(new byte[127]));
+-        Assert.Throws<ArgumentException>(() => WorkshopMemoryWire.DecodeResult(new byte[129]));
+-        foreach (var status in new[] { WorkshopMemoryStatus.Busy, WorkshopMemoryStatus.Stale, WorkshopMemoryStatus.Unsupported })
+-        {
+-            var rejection = new WorkshopMemoryResult(MemoryRequest, status);
+-            Assert.Equal(rejection, WorkshopMemoryWire.DecodeResult(WorkshopMemoryWire.Encode(rejection)));
+-        }
+-    }
++    // Story 9A.3: the fixed 64/128-byte memory wire is deleted. Memory observation is the typed ObserveMemory command, answered by its
++    // acknowledgement's measurement on the one codec (TypedTransportCommandTests).
+ }
+diff --git a/CuriousContraptions.web/wwwroot/workshop-client.js b/CuriousContraptions.web/wwwroot/workshop-client.js
+index 64c2845d..4dec67fe 100644
+--- a/CuriousContraptions.web/wwwroot/workshop-client.js
++++ b/CuriousContraptions.web/wwwroot/workshop-client.js
+@@ -37,15 +37,12 @@ function sequence(bytes) {
+     if (!(bytes instanceof Uint8Array) || bytes.length !== 8) throw new Error('Invalid command identity.');
+     return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(0, true);
+ }
+-function updateReliableStall(client, current) {
++// The age of the oldest command still pending or unconsumed: the player's Backpressure and TimedOut state only. The browser posts
++// nothing about it; the Simulation worker detects a reliable-read stall in its own receipt accounting (Story 9A.3).
++function oldestCommandAge(client, current) {
+     let oldest = 0;
+     for (const pending of client.pending.values()) oldest = Math.max(oldest, current - pending.started);
+     for (const receipt of client.acknowledgements.values()) oldest = Math.max(oldest, current - receipt.started);
+-    const stalled = oldest > 500;
+-    if (stalled !== client.stalled) {
+-        client.stalled = stalled;
+-        client.worker.postMessage({ reliableStalled: stalled });
+-    }
+     return oldest;
+ }
+ function fail(client, error, retiring = false) {
+@@ -66,7 +63,6 @@ function fail(client, error, retiring = false) {
+     client.clock = client.clockRing = undefined;
+     for (const pending of client.pending.values()) pending.reject(error);
+     client.pending.clear();
+-    settleMemory(client, error);
+     client.bootstrapReject?.(error);
+     client.bootstrapReject = null;
+     if (!retiring) stopIsolation(error);
+@@ -102,7 +98,7 @@ async function admitDisplayRate() {
+     });
+ }
+ export function displayRate(id) { return owner(id).displayRate; }
+-export async function create(states, bootstrapBytes, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service, beginMemory, receiveMemory, releaseMemory) {
++export async function create(states, bootstrapBytes, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service) {
+     if (clients.size !== 0 || retiredSession || creating) throw new Error('RecoveryBlocked: reload the page before creating another worker.');
+     creating = true;
+     let id;
+@@ -127,9 +123,8 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
+             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
+             serviceCallback: service, service: undefined, clockReplyCallback: clockReply,
+             clockRing, clock: attachClockRing(clockRing),
+-            state: ready, stalled: false, candidateTimedOut: false,
+-            identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
+-            memory: undefined,
++            state: ready,
++            identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode,
+             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
+             presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n };
+         attachPoseRing(client, poseRing);
+@@ -257,8 +252,6 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
+                         attachPoseRing(client, message.poseRing);
+                     } else if (message.scheduleControl instanceof Uint8Array) {
+                         deliver(client, message.scheduleControl, received, scheduleControl);
+-                    } else if (typeof message.candidateTimedOut === 'boolean') {
+-                        client.candidateTimedOut = message.candidateTimedOut;
+                     } else if (message.acknowledgement instanceof Uint8Array) {
+                         const key = sequence(message.sequence);
+                         const pending = client.pending.get(key);
+@@ -266,8 +259,6 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
+                         client.pending.delete(key);
+                         client.acknowledgements.set(key, { bytes: message.acknowledgement, started: pending.started, taken: false });
+                         pending.resolve();
+-                    } else if (message.memoryResult instanceof Uint8Array) {
+-                        receiveMemoryResult(client, message.memoryResult, received);
+                     } else if (message.read instanceof Uint8Array) {
+                         // Complete C# validation/admission precedes return; JS retains no pose history.
+                         deliver(client, message.read, received, physicalRead);
+@@ -349,10 +340,9 @@ export function activate(id) {
+             // bounds as counted telemetry (Story 9.4b, game-grade envelope).
+             client.serviceCallback();
+             checkSimulationLiveness(client, current);
+-            const oldest = updateReliableStall(client, current);
+-            client.state = oldest > 2000 || client.candidateTimedOut ? client.states.timedOut
++            const oldest = oldestCommandAge(client, current);
++            client.state = oldest > 2000 ? client.states.timedOut
+                 : oldest > 50 ? client.states.backpressure : client.states.ready;
+-
+         } catch (error) { fail(client, error); }
+     }, 10);
+ }
+@@ -405,7 +395,6 @@ function evidence(client, ring, total, recordBytes, capacity, afterSequence) {
+     if (typeof afterSequence !== 'string' || !/^(0|[1-9][0-9]{0,19})$/.test(afterSequence))
+         throw new Error('Evidence cursor must be an exact unsigned decimal sequence.');
+     if (!ring) throw new Error('Evidence capture is unavailable in Production.');
+-    if (client.memory) throw new Error('A stopped observation owns the evidence reservation.');
+     const after = BigInt(afterSequence);
+     if (after > total) throw new Error('Evidence cursor is ahead of this session.');
+     const oldest = total >= BigInt(capacity) ? total - BigInt(capacity) + 1n : 1n;
+@@ -449,80 +438,9 @@ export function clockProfileEvidence(id) {
+ export function status(id) { return owner(id).state; }
+ export function captureMode(id) { return owner(id).captureMode; }
+ 
+-function settleMemory(client, error, bytes) {
+-    const observation = client.memory;
+-    if (!observation) return;
+-    client.memory = undefined;
+-    clearTimeout(observation.timeout);
+-    observation.request = undefined;
+-    observation.simulation = undefined;
+-    try { client.releaseMemory(); }
+-    catch (releaseError) { error ??= releaseError; }
+-    if (error) observation.reject(error);
+-    else observation.resolve(bytes);
+-}
+-export function observeMemory(id) {
+-    const client = owner(id);
+-    if (client.failure) return Promise.reject(client.failure);
+-    if (client.memory || client.pending.size || client.acknowledgements.size || client.eventBytes ||
+-        client.state !== client.states.ready)
+-        return Promise.reject(new Error('Memory observation requires an idle Ready transport.'));
+-    const started = now();
+-    return new Promise((resolve, reject) => {
+-        const observation = { resolve, reject, started, request: undefined, simulation: undefined, timeout: undefined };
+-        client.memory = observation;
+-        observation.timeout = setTimeout(() => {
+-            if (client.memory === observation)
+-                fail(client, new Error('Stopped memory observation exceeded 1000ms; reload to recover.'));
+-        }, 1000);
+-        try {
+-            client.beginMemory();
+-            if (!observation.request) throw new Error('Memory observation did not produce its owned request.');
+-        } catch (error) { settleMemory(client, error); }
+-    });
+-}
+-export function sendMemoryRequest(id, bytes) {
+-    const client = owner(id), observation = client.memory;
+-    if (!observation || observation.request || !(bytes instanceof Uint8Array) || bytes.length !== 64)
+-        throw new Error('No unique stopped memory request is owned.');
+-    observation.request = new Uint8Array(bytes);
+-    const memoryRequest = new Uint8Array(bytes);
+-    client.worker.postMessage({ memoryRequest }, [memoryRequest.buffer]);
+-}
+-function receiveMemoryResult(client, bytes, received) {
+-    const observation = client.memory;
+-    if (!observation?.request || observation.simulation || bytes.length !== 128)
+-        throw new Error('Unexpected, malformed or duplicate stopped memory response.');
+-    if (received - observation.started > 1000) {
+-        console.error('CCGPU_MEMORY_LATE', Array.from(bytes).join(','));
+-        throw new Error('Stopped memory response exceeded 1000ms; reload to recover.');
+-    }
+-    observation.simulation = bytes;
+-    deliver(client, bytes, received, client.receiveMemory);
+-    if (client.memory === observation)
+-        settleMemory(client, new Error('Worker rejected the stopped collector observation.'));
+-}
+-export function completeMemoryObservation(id, bytes) {
+-    const client = owner(id), observation = client.memory;
+-    if (!observation?.simulation || client.eventBytes !== observation.simulation ||
+-        !(bytes instanceof Uint8Array) || bytes.length !== 128)
+-        throw new Error('Stopped browser result does not own the response lease.');
+-    const combined = new Uint8Array(256);
+-    combined.set(bytes);
+-    combined.set(observation.simulation, 128);
+-    const elapsed = now() - observation.started;
+-    if (elapsed > 1000) {
+-        console.error('CCGPU_MEMORY_LATE', Array.from(combined).join(','));
+-        throw new Error('Stopped collection exceeded 1000ms; reload to recover.');
+-    }
+-    if (new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(12, true) !== 1)
+-        settleMemory(client, new Error('Browser collector observation is unsupported.'));
+-    else settleMemory(client, undefined, combined);
+-}
+ export function send(id, bytes, sequenceBytes) {
+     const client = owner(id);
+     if (client.failure) return Promise.reject(client.failure);
+-    if (client.memory) return Promise.reject(new Error('A stopped memory observation owns the transport.'));
+     const key = sequence(new Uint8Array(sequenceBytes));
+     if (client.pending.size + client.acknowledgements.size >= 2 || client.pending.has(key) || client.acknowledgements.has(key))
+         return Promise.reject(new Error('Workshop transport capacity or identity violation.'));
+@@ -547,7 +465,6 @@ export function completeAcknowledgement(id, identity) {
+     if (!receipt?.taken) throw new Error('The command acknowledgement is not leased.');
+     // C# has validated the complete response and its command/session identity.
+     client.acknowledgements.delete(key);
+-    updateReliableStall(client, now());
+ }
+ export function dispose(id) {
+     const client = clients.get(id);
+diff --git a/_bmad-output/implementation-artifacts/evidence-9a-3/red-compile.txt b/_bmad-output/implementation-artifacts/evidence-9a-3/red-compile.txt
+new file mode 100644
+index 00000000..a037d0f0
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/evidence-9a-3/red-compile.txt
+@@ -0,0 +1,12 @@
++Story 9A.3 red step: `dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj` at main 379cc24a plus only
++CuriousContraptions.tests/TypedTransportCommandTests.cs (and its Compile Include). Build FAILED, 0 warnings, 6 errors:
++
++TypedTransportCommandTests.cs(24,20): error CS0246: The type or namespace name 'WorkshopReliableReadLedger' could not be found
++TypedTransportCommandTests.cs(31,51): error CS0246: The type or namespace name 'WorkshopReliableReadLedger' could not be found
++TypedTransportCommandTests.cs(31,20): error CS0246: The type or namespace name 'ReadReceiptRejection' could not be found
++TypedTransportCommandTests.cs(168,83): error CS0246: The type or namespace name 'WorkshopMemoryMeasurement' could not be found
++TypedTransportCommandTests.cs(163,29): error CS0246: The type or namespace name 'WorkshopMemoryMeasurement' could not be found
++TypedTransportCommandTests.cs(145,37): error CS0246: The type or namespace name 'WorkshopReliableReadLedger' could not be found
++
++(The compiler stops at the missing types; WorkshopCommandKind.ObserveMemory, WorkshopMemoryQuery, WorkerEnvelopeRejection,
++WireFaultReason.UnknownCommand and WorkshopResponse.Memory are equally absent at main.)
+diff --git a/_bmad-output/implementation-artifacts/evidence-9a-3/tier1-node.sh b/_bmad-output/implementation-artifacts/evidence-9a-3/tier1-node.sh
+new file mode 100644
+index 00000000..23c9db6d
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/evidence-9a-3/tier1-node.sh
+@@ -0,0 +1,16 @@
++#!/bin/zsh
++# Story 9A.3 Tier 1 Node harnesses: every tools/*.test.mjs file run alone with --experimental-vm-modules, plus the e2e unit tests.
++# Run from the worktree root. Prints one line per file with its pass and fail counts and exit code.
++echo "node $(node --version), HEAD $(git rev-parse --short HEAD), status digest $(git status --porcelain | shasum -a 256 | cut -c1-12)"
++tsx=$(dirname $(grep -l '"version": "4.23.15"' ~/.npm/_npx/*/node_modules/tsx/package.json | head -1))/dist/loader.mjs
++report() {
++  echo "$1 exit=$2 $(echo "$3" | grep -E '^ℹ (pass|fail) ' | tr '\n' ' ')"
++  [ $2 -ne 0 ] && echo "$3" | grep -E '^not ok|✖|Error' | head -20
++}
++for f in tools/*.test.mjs; do
++  out=$(node --experimental-vm-modules --test "$f" 2>&1); report "$f" $? "$out"
++done
++# The browserless e2e unit checks run under tsx 4.23.15 (tools/e2e/README.md).
++for f in tools/e2e/unit/*.test.ts; do
++  out=$(node --import "$tsx" --test "$f" 2>&1); report "$f" $? "$out"
++done
+diff --git a/_bmad-output/implementation-artifacts/spec-9a-3-typed-transport-control-commands.md b/_bmad-output/implementation-artifacts/spec-9a-3-typed-transport-control-commands.md
+index 0f08e3a5..6c58c94a 100644
+--- a/_bmad-output/implementation-artifacts/spec-9a-3-typed-transport-control-commands.md
++++ b/_bmad-output/implementation-artifacts/spec-9a-3-typed-transport-control-commands.md
+@@ -2,7 +2,7 @@
+ title: 'Story 9A.3: Transport Controls as Typed Commands and Queries'
+ type: 'refactor'
+ created: '2026-10-18'
+-status: 'ready-for-dev'
++status: 'review'
+ route: 'dispatch'
+ review_loop_iteration: 0
+ context:
+@@ -171,8 +171,60 @@ context:
+ 
+ ## Implementation Notes
+ 
++Amelia-24, 21 Oct 2026, on main `379cc24a`. Story 9A.17 (in review) is not merged: it touches ports and footprints, not the
++schema, the codec or the transport, so this story does not depend on it.
++
++**What landed (code map as built):**
++- `engine/gpu/WorkshopReliableReadLedger.cs` (new, compiled natively so it is unit-tested): the worker's reliable-read accounting,
++  `ReadReceiptRejection` (Malformed, WrongSession, Unpublished, Retired) and `ReadReceiptRejectedException`. `Program.EmitRead`
++  publishes into it; `Program.AcknowledgeRead` (JSExport) matches every receipt; `RunLoopHost.DebtExceeded` and `StopForDebt` read
++  `Stalled` and `DebtReason` on the master clock.
++- `engine/gpu/WorkshopMemoryObservation.cs` (renamed from `WorkshopMemoryWire.cs`; it keeps `WorkshopCaptureMode` and
++  `WorkshopBuild`): `WorkshopMemoryMeasurement`, `WorkshopMemoryObservation`, `WorkshopMemoryReply` and `WorkshopMemoryQuery`
++  (`Admit`, `ValidateCarriage`, `Complete`).
++- `WorkshopCommandKind.ObserveMemory` (12), schema `CommandKind.ObserveMemory`, `struct MemoryObservationRecord` and
++  `WorkshopResponse.memory`; `WorkshopResponse.Memory`. Generated code from flatc 25.2.10, byte-identical to its output (C# whole
++  file; TS generated part).
++- `WireFaultReason.UnknownCommand`: `DecodeCommand` refuses an undefined kind before any other check of its shape.
++- `engine/gpu/WorkerEnvelopeRejection.cs` (new): `WorkerEnvelopeRejection` (UnknownEnvelope, CommandTransportSaturated) and
++  `WorkerEnvelopeRejectedException`; `Program.RejectUnknownEnvelope` and `RejectSaturatedCommand` record it in the worker fault log
++  (`CCGPU_WORKER_ENVELOPE_EXCEPTION`, new `FaultSite.WorkerEnvelope`) and return the detail the worker posts.
++- `BrowserWorkshopClient.QueryMemory()` over `Execute`; every acknowledgement passes `WorkshopMemoryQuery.ValidateCarriage`.
++
++**Decisions (owner delegation: decide small gaps, record each):**
++- **I1. A refused envelope is the existing `rejected` envelope,** not `failure`. The browser treats both alike
++  (`CCGPU_TRANSPORT_FAILURE` with the detail), so the matrix's observable outcome holds; the typed reason is managed.
++- **I2. The ledger is never cleared, Reset included** (Task 1 said "Reset clears"). Publication sequences never reset and the
++  worker's read queues survive Reset, so a receipt in flight across a Reset must still retire its read; clearing would turn it into a
++  `Retired` rejection and retire the session. A run started after a genuine stall stops again at once, which is correct.
++- **I3. The memory query is answered in `Execute`,** after the stale-generation and Busy guards and without taking
++  `_pendingCommand`, so it never sets a schedule transition. `Busy` covers a pending GPU operation or any unreceipted read (this
++  replaces the old script-computed `transportIdle`). The old `Stale` status is the command path's `StaleGeneration`.
++- **I4. The `Unsupported` memory status is deleted with no replacement rejection.** The GC APIs it guarded run on browser-wasm; a
++  failure would be a fault, never a fallback result.
++- **I5. The worker's per-request 1000 ms lateness checks (`CCGPU_MEMORY_LATE`) are deleted with the channel.** The query is bounded
++  like every command by the browser's TimedOut state (2 s).
++- **I6. The dead `candidateTimedOut` envelope is deleted.** Nothing posts it; the browser now refuses it as an unknown envelope.
++- **I7. `_memoryRequested` (State Latch feedback controls, unrelated to this channel) is renamed `_memoryControls`,** so the AC's
++  `rg memoryRequest` is literally empty.
++- **I8. The typed command and query definitions for the AC's `rg`** are the `WorkshopCommandKind` enum (`engine/gpu/WorkshopMessages.cs`),
++  the schema and the generated schema code. Everywhere else the query is named only as `WorkshopCommandKind.ObserveMemory` (or the
++  generated `CommandKind.ObserveMemory`). `TypedTransportCommandTests.TheRawStallFlagAndMemoryChannelAreGoneFromProduction` enforces
++  exactly that, and it is the killer of every re-add mutant.
++- **I9. The `FlushObservation` swallow is contained and logged** (`CCGPU_TRACE_FLUSH_EXCEPTION`), never silent; the trace is
++  diagnostic, so its failure does not retire the session.
++- **I10. `CCGPU_DEBT_FAULT` now reads `reason=<WorkshopRejection> oldestUnreceipted=<publication> ageMs=<age>`,** so a stall fault
++  names the read that stalled.
++- **I11. The Node harness cannot encode FlatBuffers** (the `flatbuffers` module exists only for the e2e suites), and the worker parses
++  no buffer, so the typed query's encoding, routing and acknowledgement are proven natively; the harness proves the worker carries it
++  on the command transport, forwards every receipt to the ledger and refuses each retired envelope by name.
++- **I12. `QueryMemory` has no production caller,** as before (`observeMemory` had none). Story 9A.24's observation port exposes it.
++
+ ## Spec Change Log
+ 
++- 21 Oct 2026 (Amelia-24): Task 1's "Reset clears" is replaced by I2 (the ledger is never cleared). The matrix row "Old envelope:
++  worker posts `failure`" is met through I1 (`rejected`, same browser outcome).
++
+ ## Review Triage Log
+ 
+ ## Appendix: reference census (main tree, 18 Oct 2026)
+diff --git a/_bmad-output/planning-artifacts/epics.md b/_bmad-output/planning-artifacts/epics.md
+index 5939061e..14dd70d3 100644
+--- a/_bmad-output/planning-artifacts/epics.md
++++ b/_bmad-output/planning-artifacts/epics.md
+@@ -2564,7 +2564,7 @@ So that a malformed message fails visibly instead of being silently reinterprete
+ - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview, including every suite that saves and loads.
+ 
+ ### Story 9A.3: Transport Controls as Typed Commands and Queries
+-*Status: Backlog*
++*Status: Review (21 Oct 2026). Amelia-24 implemented it on main `379cc24a` ([spec and evidence](../implementation-artifacts/spec-9a-3-typed-transport-control-commands.md)).*
+ 
+ *Depends on: Story 9A.2. Position 13, right after 9A.17 (owner amendment, 21 Oct 2026). Audit: C2, C3.*
+ 
+diff --git a/docs/architecture/element-package-isolation.md b/docs/architecture/element-package-isolation.md
+index 921ac9b9..16d406a8 100644
+--- a/docs/architecture/element-package-isolation.md
++++ b/docs/architecture/element-package-isolation.md
+@@ -149,7 +149,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
+ | A16 | `SimulationEventKind.CounterReached` and `LatchSet` are element-named | 5 | 9A.22 |
+ | D1 | The event ring has no runtime producer | 4 | 9A.22 |
+ | D2, D3 | The event ring has no runtime consumer; occurrences ride in reliable reads and main-thread pumps relay them | 3, 4 | 9A.23 + 9A.25b |
+-| C2, C3 | `worker.js` accepts a raw `reliableStalled` flag and a raw `memoryRequest` channel outside the router | 3 | 9A.3 |
++| C2, C3 | Story 9A.3 (in review) deletes the raw stall flag and the raw memory channel: the Simulation worker detects a reliable-read stall in its own receipt accounting (`WorkshopReliableReadLedger`, receipts matched in C#), memory observation is the typed `ObserveMemory` command answered by its acknowledgement, and an unknown command or worker envelope is refused with a typed reason (`WireFaultReason.UnknownCommand`, `WorkerEnvelopeRejection`). The row closes at 9A.3's terminal Pass | 3 | 9A.3 |
+ | C4, C5 | `CCGPU` and `CCGOAL_SOLVED` console lines and `globalThis.WorkshopPoseRing`/`WorkshopAnimation` test hooks | 3 | 9A.24 |
+ | B1 | Story 9A.2 (in review) deletes the legacy binary codec (`WorkshopWire`) and its section codecs: commands, responses, schedule endpoints, the trace and saves are size-prefixed, identified FlatBuffers decoded once (`WireFaultException`), saves are pre-validated (`WorkshopSaveRejectedException`), and the workers parse no buffer. The row closes at 9A.2's terminal Pass | 3, 9 | 9A.2 |
+ | B6 | `System.Half` binary16 lanes remain in production code (about 850 tokens) | f32 authority | 9A.44 (9.5a moves the timer lane first) |
+diff --git a/engine/gpu/BrowserWorkshopClient.Activation.cs b/engine/gpu/BrowserWorkshopClient.Activation.cs
+index d60b1d86..025042bf 100644
+--- a/engine/gpu/BrowserWorkshopClient.Activation.cs
++++ b/engine/gpu/BrowserWorkshopClient.Activation.cs
+@@ -11,7 +11,7 @@ public sealed partial class BrowserWorkshopClient
+     private ulong[] _activationOrdinals = [];
+     private bool[] _activationFrameTaken = [];
+     // Bistable Memory feedback (State Latch): one Transition per committed On/Off change, on the node's own activation target.
+-    private WorkshopAnimationControl?[] _memoryRequested = [];
++    private WorkshopAnimationControl?[] _memoryControls = [];
+     private WorkshopAnimationSample?[] _memorySamples = [];
+     private bool[] _memoryRetry = [];
+     private ulong[] _memoryOrdinals = [];
+@@ -25,7 +25,7 @@ public sealed partial class BrowserWorkshopClient
+     {
+         RetireTimerFeedback(); RetireElectricalFeedback();
+         Array.Clear(_activationRequested); Array.Clear(_activationSamples); Array.Clear(_activationOrdinals);
+-        Array.Clear(_memoryRequested); Array.Clear(_memorySamples); Array.Clear(_memoryRetry); Array.Clear(_memoryOrdinals);
++        Array.Clear(_memoryControls); Array.Clear(_memorySamples); Array.Clear(_memoryRetry); Array.Clear(_memoryOrdinals);
+     }
+     /// <summary>Drives a Memory cosmetic toward the committed value: Latched → 1 (On), Clear → 0 (Off). Off at admission needs no control.</summary>
+     private void PumpMemory()
+@@ -37,33 +37,33 @@ public sealed partial class BrowserWorkshopClient
+             var value = latest.Read.Activations[i];
+             if (!TryCosmeticDeclaration(value.Owner, AnimationFeedbackSource.Memory, out var declaration)) continue;
+             var to = value.Phase == ActivationPhase.Latched ? (Half)1 : (Half)0;
+-            if (_memoryRequested[i] is { } previous ? previous.To == to && !_memoryRetry[i] : to == (Half)0) continue;
++            if (_memoryControls[i] is { } previous ? previous.To == to && !_memoryRetry[i] : to == (Half)0) continue;
+             var from = _memorySamples[i]?.Value ?? (Half)1 - to;
+             var control = new WorkshopAnimationControl(ActivationTarget(value.Node), latest.Read.Epoch, checked(_animationSequence + 1),
+-                (_memoryRequested[i]?.Generation ?? 0) + 1, AnimationControlKind.Transition, true, from, to, declaration.Duration,
++                (_memoryControls[i]?.Generation ?? 0) + 1, AnimationControlKind.Transition, true, from, to, declaration.Duration,
+                 declaration.Curve, CommittedOrdinal(latest.Read), default, AnimationProperty.ColourBlend);
+             SendAnimation(control, schedule);
+-            _memoryRequested[i] = control; _memoryRetry[i] = false;
++            _memoryControls[i] = control; _memoryRetry[i] = false;
+             return; // The single reliable Animation lease owns this control until its ACK.
+         }
+     }
+     private int MemorySlot(AnimationTargetId target)
+     {
+-        for (var i = 0; i < _memoryRequested.Length; i++)
+-            if (_memoryRequested[i] is { } control && control.Target == target) return i;
++        for (var i = 0; i < _memoryControls.Length; i++)
++            if (_memoryControls[i] is { } control && control.Target == target) return i;
+         return -1;
+     }
+     private bool IsMemoryTarget(AnimationTargetId target) => MemorySlot(target) >= 0;
+     private void RetryMemoryFeedback(WorkshopAnimationControl rejected)
+     {
+         var slot = MemorySlot(rejected.Target);
+-        if (slot >= 0 && _memoryRequested[slot] == rejected) _memoryRetry[slot] = true;
++        if (slot >= 0 && _memoryControls[slot] == rejected) _memoryRetry[slot] = true;
+     }
+     private void ReceiveMemorySample(WorkshopAnimationSample sample, AnimationOutputKind kind, WorkshopSchedule active)
+     {
+         if (sample.World.Value < active.World.WorldGeneration.Value) return;
+         var slot = MemorySlot(sample.Target);
+-        if (slot < 0 || _memoryRequested[slot] is not { } control) throw new ArgumentException("Unowned memory animation.");
++        if (slot < 0 || _memoryControls[slot] is not { } control) throw new ArgumentException("Unowned memory animation.");
+         if (sample.Generation < control.Generation) return;
+         if (sample.World != active.World.WorldGeneration || sample.Generation != control.Generation ||
+             sample.Property != AnimationProperty.ColourBlend || sample.EventOrdinal != control.EventOrdinal ||
+diff --git a/engine/gpu/BrowserWorkshopClient.cs b/engine/gpu/BrowserWorkshopClient.cs
+index 307930ea..6200a13b 100644
+--- a/engine/gpu/BrowserWorkshopClient.cs
++++ b/engine/gpu/BrowserWorkshopClient.cs
+@@ -27,9 +27,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+     private WorkshopConstruction _construction;
+     private ulong _sequence;
+     private int _pending;
+-    private ulong _memorySequence;
+-    private WorkshopMemoryRequest? _memoryRequest;
+-    private PublicationSequence _observedPublication;
+     private bool _disposed;
+     private readonly WorkshopClientCursor _cursor;
+     public WorkshopCommandIdentity? Pending { get; private set; }
+@@ -62,18 +59,11 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         [JSMarshalAs<JSType.Function>] Action physicalRead,
+         [JSMarshalAs<JSType.Function>] Action scheduleControl,
+         [JSMarshalAs<JSType.Function>] Action animationOutput,
+-        [JSMarshalAs<JSType.Function>] Action service,
+-        [JSMarshalAs<JSType.Function>] Action beginMemory,
+-        [JSMarshalAs<JSType.Function>] Action receiveMemory,
+-        [JSMarshalAs<JSType.Function>] Action releaseMemory);
++        [JSMarshalAs<JSType.Function>] Action service);
+     [JSImport("bootstrap", "workshopClient")]
+     private static partial byte[] MasterBootstrap(int client);
+     [JSImport("activate", "workshopClient")]
+     private static partial void ActivateClient(int client);
+-    [JSImport("sendMemoryRequest", "workshopClient")]
+-    private static partial void SendMemoryRequest(int client, byte[] request);
+-    [JSImport("completeMemoryObservation", "workshopClient")]
+-    private static partial void CompleteMemoryObservation(int client, byte[] result);
+     [JSImport("eventBytes", "workshopClient")]
+     private static partial byte[] EventBytes(int client);
+     [JSImport("eventMilliseconds", "workshopClient")]
+@@ -115,7 +105,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+                     WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
+                     WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
+                 (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
+-                client.Service, client.BeginMemory, client.ReceiveMemory, client.ReleaseMemory));
++                client.Service));
+             var peer = WorkshopClockWire.DecodePeer(MasterBootstrap(client._id.Value));
+             if (peer.Session != session || peer.Generation.Value != 1 || peer.RequesterGeneration.Value != 1 ||
+                 peer.RequesterRole != WorkshopRuntimeRole.Browser)
+@@ -155,7 +145,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+     public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+     {
+         ObjectDisposedException.ThrowIf(_disposed, this);
+-        if (_memoryRequest is not null) throw new InvalidOperationException("A stopped memory observation owns this client.");
+         if (kind == WorkshopCommandKind.Construct && _constructionOwner is not null)
+             throw new InvalidOperationException("A construction candidate already owns the client.");
+         if (_pending >= 2) throw new InvalidOperationException("Workshop command queue is full.");
+@@ -163,6 +152,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         var sequence = new CommandSequence(_sequence + 1);
+         // Pause targets the current drained endpoint; physical commits may advance after B sends it.
+         var revisionKind = kind is WorkshopCommandKind.Pause or WorkshopCommandKind.Reset or WorkshopCommandKind.Cancel or WorkshopCommandKind.Dispose or WorkshopCommandKind.ConfigureElectrical
++            or WorkshopCommandKind.ObserveMemory
+             ? ExpectedRevisionKind.Any : ExpectedRevisionKind.Exact;
+         var command = new WorkshopCommand(sequence, kind, Epoch,
+             revisionKind == ExpectedRevisionKind.Any ? default : Revision, construction, target, revisionKind, Peer.Session, _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, settings, electrical);
+@@ -182,6 +172,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+             var response = WorkshopWireFlatBuffers.DecodeResponse(Acknowledgement(_id.Value, encodedIdentity));
+             try
+             {
++                WorkshopMemoryQuery.ValidateCarriage(kind, response);
+                 var prepared = _cursor.PrepareAcknowledgement(command, response, dispatchedReadOrder, _disposed);
+                 if (prepared.Applicable)
+                 {
+@@ -213,6 +204,14 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         finally { _pending--; if (_constructionOwner == identity) { _proposedConstruction = null; _constructionOwner = null; } if (Pending == identity) Pending = null; }
+     }
+ 
++    /// <summary>The stopped memory observation query (Story 9A.3): one typed command whose acknowledgement carries the Simulation
++    /// worker's measurement, paired with this context's own measurement taken after it.</summary>
++    public async Task<WorkshopMemoryReply> QueryMemory()
++    {
++        var delivery = await Execute(WorkshopCommandKind.ObserveMemory);
++        return WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, delivery.Response, WorkshopMemoryMeasurement.Capture);
++    }
++
+     public Task<WorkshopDelivery> CancelPending()
+     {
+         var target = Pending ?? throw new InvalidOperationException("No pending operation to cancel.");
+@@ -274,7 +273,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         if (response.Cadence != active.Revision || response.Projection != active.World.Epoch)
+             throw new ArgumentException("Future read cannot install a schedule.");
+         var prepared = _cursor.PrepareRead(response);
+-        if (response.Publication.Value > _observedPublication.Value) _observedPublication = response.Publication;
+         if (!prepared.Applicable) return;
+         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
+         var history = PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(milliseconds));
+@@ -292,7 +290,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         var activations = read.Activations.Count;
+         Fit(ref _activationRequested, activations); Fit(ref _activationSamples, activations);
+         Fit(ref _activationOrdinals, activations); Fit(ref _activationFrameTaken, activations);
+-        Fit(ref _memoryRequested, activations); Fit(ref _memorySamples, activations);
++        Fit(ref _memoryControls, activations); Fit(ref _memorySamples, activations);
+         Fit(ref _memoryRetry, activations); Fit(ref _memoryOrdinals, activations);
+         var timers = read.Timers.Count;
+         Fit(ref _timerRequested, timers); Fit(ref _timerSamples, timers); Fit(ref _timerRetry, timers); Fit(ref _timerOrdinals, timers);
+@@ -338,34 +336,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+         #endif
+     }
+ 
+-    private void BeginMemory()
+-    {
+-        ObjectDisposedException.ThrowIf(_disposed, this);
+-        if (_memoryRequest is not null || _pending != 0 || TransportState != WorkshopTransportState.Ready ||
+-            !WorkshopMemoryWire.IsStopped(_cursor.Phase))
+-            throw new InvalidOperationException("Memory observation requires a stopped, idle client.");
+-        if (_memorySequence == ulong.MaxValue) throw new InvalidOperationException("Memory observation identity exhausted.");
+-        var request = new WorkshopMemoryRequest(WorkshopMemoryKind.PostGc, WorkshopMemoryContext.Simulation,
+-            Peer.Session, new(++_memorySequence), Epoch, Revision, _observedPublication);
+-        _memoryRequest = request;
+-        SendMemoryRequest(_id.Value, WorkshopMemoryWire.Encode(request));
+-    }
+-
+-    private void ReceiveMemory()
+-    {
+-        var request = _memoryRequest ?? throw new InvalidOperationException("No stopped observation is owned.");
+-        var result = WorkshopMemoryWire.DecodeResult(EventBytes(_id.Value));
+-        if (_disposed || result.Request != request) throw new ArgumentException("Memory result belongs to another observation.");
+-        if (result.Status != WorkshopMemoryStatus.Accepted) return;
+-        if (_pending != 0 || TransportState != WorkshopTransportState.Ready || !WorkshopMemoryWire.IsStopped(_cursor.Phase) ||
+-            request.Epoch != Epoch || request.Revision != Revision || request.Publication != _observedPublication)
+-            throw new InvalidOperationException("Stopped observation lost its committed identity.");
+-        var browser = WorkshopMemoryWire.Capture(request with { Context = WorkshopMemoryContext.Browser });
+-        CompleteMemoryObservation(_id.Value, WorkshopMemoryWire.Encode(browser));
+-    }
+-
+-    private void ReleaseMemory() => _memoryRequest = null;
+-
+     private void ThrowIfTransportFailed()
+     {
+         if (TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked)
+@@ -386,9 +356,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
+     public async ValueTask DisposeAsync()
+     {
+         if (_disposed) return;
+-        if (!_started || _memoryRequest is not null)
++        if (!_started)
+         {
+-            // Startup failure or a pending memory observation: retire locally without a worker command.
++            // Startup failure: retire locally without a worker command.
+             // A client whose browser registration failed has no id (browser ids start at 1).
+             _disposed = true; _clock?.Retire(); _history.Retire();
+             if (_id.Value != 0) DisposeClient(_id.Value);
+diff --git a/engine/gpu/WireFaultException.cs b/engine/gpu/WireFaultException.cs
+index 241bb56f..17b39817 100644
+--- a/engine/gpu/WireFaultException.cs
++++ b/engine/gpu/WireFaultException.cs
+@@ -19,6 +19,8 @@ public enum WireFaultReason : uint
+     OutOfRange,
+     /// <summary>An instance names an element id the decoder has no element for (Story 9A.15); the message names the id.</summary>
+     UnknownElement,
++    /// <summary>A command names a command kind this game does not have (Story 9A.3); the message names the kind.</summary>
++    UnknownCommand,
+ }
+ 
+ /// <summary>A refused Workshop wire buffer: decoded once, never retried through another codec. Deliberately not an
+diff --git a/engine/gpu/WorkerEnvelopeRejection.cs b/engine/gpu/WorkerEnvelopeRejection.cs
+new file mode 100644
+index 00000000..4198b6d5
+--- /dev/null
++++ b/engine/gpu/WorkerEnvelopeRejection.cs
+@@ -0,0 +1,39 @@
++using System;
++using System.Collections.Generic;
++
++namespace CuriousContraptions.Gpu;
++
++/// <summary>Why the Simulation worker refused a message envelope before any command was decoded (Story 9A.3). Closed set.</summary>
++public enum WorkerEnvelopeRejection
++{
++    /// <summary>No handler owns the envelope's keys: a retired channel name, a raw flag or any other untyped message.</summary>
++    UnknownEnvelope = 1,
++    /// <summary>A command buffer arrived while the transport already held its two outstanding commands.</summary>
++    CommandTransportSaturated,
++}
++
++/// <summary>A refused worker envelope. The worker records it in its fault log and reports it to the browser as a rejection, so an
++/// untyped message is never handled, ignored or forwarded. The message names the refused keys; the shell keeps no list of old
++/// channel names.</summary>
++public sealed class WorkerEnvelopeRejectedException : Exception
++{
++    public WorkerEnvelopeRejectedException(WorkerEnvelopeRejection reason, IReadOnlyList<string> keys) : base(Describe(reason, keys))
++    {
++        Reason = reason;
++    }
++
++    public WorkerEnvelopeRejection Reason { get; }
++
++    private static string Describe(WorkerEnvelopeRejection reason, IReadOnlyList<string> keys)
++    {
++        ArgumentNullException.ThrowIfNull(keys);
++        return reason switch
++        {
++            WorkerEnvelopeRejection.UnknownEnvelope =>
++                "Unsupported worker envelope: " + (keys.Count == 0 ? "(no keys)" : string.Join(", ", keys)),
++            WorkerEnvelopeRejection.CommandTransportSaturated =>
++                "The Workshop command transport already holds its two outstanding commands.",
++            _ => throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undefined worker envelope rejection."),
++        };
++    }
++}
+diff --git a/engine/gpu/WorkerEnvelopeRejection.cs.uid b/engine/gpu/WorkerEnvelopeRejection.cs.uid
+new file mode 100644
+index 00000000..a79c436f
+--- /dev/null
++++ b/engine/gpu/WorkerEnvelopeRejection.cs.uid
+@@ -0,0 +1 @@
++uid://c2xhkbw61jj0b
+diff --git a/engine/gpu/WorkshopDiagnostics.cs b/engine/gpu/WorkshopDiagnostics.cs
+index 6cdc6308..c02bfdb0 100644
+--- a/engine/gpu/WorkshopDiagnostics.cs
++++ b/engine/gpu/WorkshopDiagnostics.cs
+@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
+ public enum FaultSite
+ {
+     Initialize = 1, Construct, Advance, Reset, Startup, LateDispose, RunLoop, StaleRunLoop, Warmup, Presentation,
+-    Disposal, TraceFlush, Installation, UiHandler
++    Disposal, TraceFlush, Installation, UiHandler, WorkerEnvelope
+ }
+ 
+ /// <summary>
+@@ -56,6 +56,7 @@ public static class WorkshopDiagnostics
+         FaultSite.TraceFlush => "TRACE_FLUSH",
+         FaultSite.Installation => "INSTALLATION",
+         FaultSite.UiHandler => "UI_HANDLER",
++        FaultSite.WorkerEnvelope => "WORKER_ENVELOPE",
+         _ => throw new ArgumentOutOfRangeException(nameof(site), site, "Undefined fault site.")
+     };
+ }
+diff --git a/engine/gpu/WorkshopMemoryObservation.cs b/engine/gpu/WorkshopMemoryObservation.cs
+new file mode 100644
+index 00000000..db3551b5
+--- /dev/null
++++ b/engine/gpu/WorkshopMemoryObservation.cs
+@@ -0,0 +1,89 @@
++using System;
++using System.Diagnostics;
++
++namespace CuriousContraptions.Gpu;
++
++public enum WorkshopCaptureMode : uint { Production = 1, Diagnostic = 2 }
++public static class WorkshopBuild
++{
++#if PLAYTEST
++    public const WorkshopCaptureMode CaptureMode = WorkshopCaptureMode.Diagnostic;
++#else
++    public const WorkshopCaptureMode CaptureMode = WorkshopCaptureMode.Production;
++#endif
++}
++
++/// <summary>One stopped collector measurement of one runtime context: managed usage before and after a full blocking collection,
++/// the collection's duration in <see cref="Stopwatch"/> ticks, and the allocation and collection counters around it. Usage is not
++/// exact live or resident memory.</summary>
++public readonly record struct WorkshopMemoryMeasurement(long UsedBefore, long UsedAfter, long DurationTicks, long Frequency,
++    long AllocatedBefore, long AllocatedAfter, int CollectionsBefore, int CollectionsAfter)
++{
++    public void Validate()
++    {
++        if (UsedBefore < 0 || UsedAfter < 0 || DurationTicks < 0 || Frequency <= 0 ||
++            AllocatedBefore < 0 || AllocatedAfter < AllocatedBefore ||
++            CollectionsBefore < 0 || CollectionsAfter < CollectionsBefore)
++            throw new ArgumentException("Invalid memory observation measurements.");
++    }
++
++    /// <summary>Measures this runtime context now (it runs one full blocking collection).</summary>
++    public static WorkshopMemoryMeasurement Capture()
++    {
++        var used = GC.GetTotalMemory(false);
++        var collections = GC.CollectionCount(GC.MaxGeneration);
++        var allocated = GC.GetTotalAllocatedBytes(precise: true);
++        var started = Stopwatch.GetTimestamp();
++        var after = GC.GetTotalMemory(true);
++        var elapsed = checked(Stopwatch.GetTimestamp() - started);
++        var measurement = new WorkshopMemoryMeasurement(used, after, elapsed, Stopwatch.Frequency,
++            allocated, GC.GetTotalAllocatedBytes(precise: true), collections, GC.CollectionCount(GC.MaxGeneration));
++        measurement.Validate();
++        return measurement;
++    }
++}
++
++/// <summary>One stopped memory observation: the browser's measurement and the Simulation worker's, taken for one query.</summary>
++public readonly record struct WorkshopMemoryObservation(WorkshopMemoryMeasurement Browser, WorkshopMemoryMeasurement Simulation);
++
++/// <summary>The answer to one memory query: its command result, and the observation when the query was applied.</summary>
++public readonly record struct WorkshopMemoryReply(WorkshopCommandResult Result, WorkshopMemoryObservation? Observation);
++
++/// <summary>
++/// The stopped memory observation query (Story 9A.3): a typed command, <see cref="WorkshopCommandKind.ObserveMemory"/>, routed with
++/// its sequence like every other command and answered by its acknowledgement, which carries the Simulation worker's measurement.
++/// The query is admitted only while the world is stopped and the transport is quiet, so its blocking collection never delays a tick.
++/// </summary>
++public static class WorkshopMemoryQuery
++{
++    public static bool IsStopped(WorkshopSimulationPhase phase) =>
++        phase is WorkshopSimulationPhase.Building or WorkshopSimulationPhase.Completed or WorkshopSimulationPhase.Faulted;
++
++    /// <summary>The worker's admission: a stopped phase, no GPU operation in progress and every published read receipted.</summary>
++    public static WorkshopCommandResult Admit(WorkshopSimulationPhase phase, bool gpuOperationPending, bool readsReceipted) =>
++        !IsStopped(phase) ? new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase)
++        : gpuOperationPending || !readsReceipted ? new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy)
++        : new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
++
++    /// <summary>A measurement rides only on the acknowledgement of an applied memory query, and that acknowledgement always has one.</summary>
++    public static void ValidateCarriage(WorkshopCommandKind kind, WorkshopResponse acknowledgement)
++    {
++        var expected = kind == WorkshopCommandKind.ObserveMemory && acknowledgement.Result.Outcome == WorkshopCommandOutcome.Applied;
++        if (expected != acknowledgement.Memory.HasValue)
++            throw new ArgumentException(expected
++                ? "An applied memory query acknowledgement has no measurement."
++                : $"A {kind} acknowledgement carries a memory measurement.");
++    }
++
++    /// <summary>Pairs an applied query's Simulation measurement with the browser's own, captured after it; a refused query captures
++    /// nothing.</summary>
++    public static WorkshopMemoryReply Complete(WorkshopCommandKind kind, WorkshopResponse acknowledgement,
++        Func<WorkshopMemoryMeasurement> captureBrowser)
++    {
++        ArgumentNullException.ThrowIfNull(captureBrowser);
++        ValidateCarriage(kind, acknowledgement);
++        return acknowledgement.Memory is { } simulation
++            ? new(acknowledgement.Result, new(captureBrowser(), simulation))
++            : new(acknowledgement.Result, null);
++    }
++}
+diff --git a/engine/gpu/WorkshopMemoryWire.cs.uid b/engine/gpu/WorkshopMemoryObservation.cs.uid
+similarity index 100%
+rename from engine/gpu/WorkshopMemoryWire.cs.uid
+rename to engine/gpu/WorkshopMemoryObservation.cs.uid
+diff --git a/engine/gpu/WorkshopMemoryWire.cs b/engine/gpu/WorkshopMemoryWire.cs
+deleted file mode 100644
+index c5b2b84f..00000000
+--- a/engine/gpu/WorkshopMemoryWire.cs
++++ /dev/null
+@@ -1,139 +0,0 @@
+-using System;
+-using System.Buffers.Binary;
+-using System.Diagnostics;
+-
+-namespace CuriousContraptions.Gpu;
+-
+-public enum WorkshopCaptureMode : uint { Production = 1, Diagnostic = 2 }
+-public static class WorkshopBuild
+-{
+-#if PLAYTEST
+-    public const WorkshopCaptureMode CaptureMode = WorkshopCaptureMode.Diagnostic;
+-#else
+-    public const WorkshopCaptureMode CaptureMode = WorkshopCaptureMode.Production;
+-#endif
+-}
+-public enum WorkshopMemoryKind : uint { PostGc = 1 }
+-public enum WorkshopMemoryContext : uint { Browser = 1, Simulation = 2 }
+-public enum WorkshopMemoryStatus : uint { Accepted = 1, Busy = 2, Stale = 3, Unsupported = 4 }
+-public readonly record struct MemoryObservationId(ulong Value);
+-public readonly record struct WorkshopMemoryRequest(WorkshopMemoryKind Kind, WorkshopMemoryContext Context,
+-    RuntimeSessionId Session, MemoryObservationId Id, SimulationEpoch Epoch, AuthorityRevision Revision,
+-    PublicationSequence Publication);
+-public readonly record struct WorkshopMemoryResult(WorkshopMemoryRequest Request, WorkshopMemoryStatus Status,
+-    long UsedBefore = 0, long UsedAfter = 0, long DurationTicks = 0, long Frequency = 0,
+-    long AllocatedBefore = 0, long AllocatedAfter = 0, int CollectionsBefore = 0, int CollectionsAfter = 0);
+-
+-/// <summary>One stopped collector observation; usage is not exact live or resident memory.</summary>
+-public static class WorkshopMemoryWire
+-{
+-    public const int RequestBytes = 64, ResultBytes = 128;
+-
+-    public static bool IsStopped(WorkshopSimulationPhase phase) =>
+-        phase is WorkshopSimulationPhase.Building or WorkshopSimulationPhase.Completed or WorkshopSimulationPhase.Faulted;
+-
+-    public static byte[] Encode(WorkshopMemoryRequest request)
+-    {
+-        var bytes = new byte[RequestBytes];
+-        WriteRequest(request, bytes);
+-        return bytes;
+-    }
+-
+-    private static void WriteRequest(WorkshopMemoryRequest request, Span<byte> bytes)
+-    {
+-        if (!Enum.IsDefined(request.Kind) || !Enum.IsDefined(request.Context) ||
+-            request.Id.Value == 0 || request.Epoch.Value == 0)
+-            throw new ArgumentException("Invalid memory observation identity.");
+-        request.Session.Validate();
+-        BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)request.Kind);
+-        BinaryPrimitives.WriteUInt32LittleEndian(bytes[8..], (uint)request.Context);
+-        request.Session.WriteTo(bytes[16..32]);
+-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[32..], request.Id.Value);
+-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[40..], request.Epoch.Value);
+-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[48..], request.Revision.Value);
+-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[56..], request.Publication.Value);
+-    }
+-
+-    public static WorkshopMemoryRequest DecodeRequest(ReadOnlySpan<byte> bytes)
+-    {
+-        if (bytes.Length != RequestBytes || BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]) != 0)
+-            throw new ArgumentException("Invalid memory observation request shape.");
+-        return ReadIdentity(bytes);
+-    }
+-
+-    private static WorkshopMemoryRequest ReadIdentity(ReadOnlySpan<byte> bytes)
+-    {
+-        if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0) // bytes 0..3: zero padding (one bundle, one schema)
+-            throw new ArgumentException("Invalid memory observation padding.");
+-        var request = new WorkshopMemoryRequest((WorkshopMemoryKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]),
+-            (WorkshopMemoryContext)BinaryPrimitives.ReadUInt32LittleEndian(bytes[8..]), RuntimeSessionId.Read(bytes[16..32]),
+-            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..])), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..])),
+-            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[48..])), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[56..])));
+-        if (!Enum.IsDefined(request.Kind) || !Enum.IsDefined(request.Context) || request.Id.Value == 0 || request.Epoch.Value == 0)
+-            throw new ArgumentException("Invalid memory observation identity.");
+-        request.Session.Validate();
+-        return request;
+-    }
+-
+-    public static byte[] Encode(WorkshopMemoryResult result)
+-    {
+-        Validate(result);
+-        var bytes = new byte[ResultBytes];
+-        WriteRequest(result.Request, bytes);
+-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(12), (uint)result.Status);
+-        BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(64), result.UsedBefore);
+-        BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(72), result.UsedAfter);
+-        BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(80), result.DurationTicks);
+-        BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(88), result.Frequency);
+-        BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(96), result.AllocatedBefore);
+-        BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(104), result.AllocatedAfter);
+-        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(112), result.CollectionsBefore);
+-        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(116), result.CollectionsAfter);
+-        return bytes;
+-    }
+-
+-    public static WorkshopMemoryResult DecodeResult(ReadOnlySpan<byte> bytes)
+-    {
+-        if (bytes.Length != ResultBytes || BinaryPrimitives.ReadUInt64LittleEndian(bytes[120..]) != 0)
+-            throw new ArgumentException("Invalid memory observation result shape.");
+-        var result = new WorkshopMemoryResult(ReadIdentity(bytes), (WorkshopMemoryStatus)BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]),
+-            BinaryPrimitives.ReadInt64LittleEndian(bytes[64..]), BinaryPrimitives.ReadInt64LittleEndian(bytes[72..]),
+-            BinaryPrimitives.ReadInt64LittleEndian(bytes[80..]), BinaryPrimitives.ReadInt64LittleEndian(bytes[88..]),
+-            BinaryPrimitives.ReadInt64LittleEndian(bytes[96..]), BinaryPrimitives.ReadInt64LittleEndian(bytes[104..]),
+-            BinaryPrimitives.ReadInt32LittleEndian(bytes[112..]), BinaryPrimitives.ReadInt32LittleEndian(bytes[116..]));
+-        Validate(result);
+-        return result;
+-    }
+-
+-    private static void Validate(WorkshopMemoryResult result)
+-    {
+-        if (!Enum.IsDefined(result.Status)) throw new ArgumentException("Unknown memory observation status.");
+-        if (result.Status != WorkshopMemoryStatus.Accepted)
+-        {
+-            if (result.UsedBefore != 0 || result.UsedAfter != 0 || result.DurationTicks != 0 || result.Frequency != 0 ||
+-                result.AllocatedBefore != 0 || result.AllocatedAfter != 0 || result.CollectionsBefore != 0 || result.CollectionsAfter != 0)
+-                throw new ArgumentException("Rejected memory observation cannot contain measurements.");
+-            return;
+-        }
+-        if (result.UsedBefore < 0 || result.UsedAfter < 0 || result.DurationTicks < 0 || result.Frequency <= 0 ||
+-            result.AllocatedBefore < 0 || result.AllocatedAfter < result.AllocatedBefore ||
+-            result.CollectionsBefore < 0 || result.CollectionsAfter < result.CollectionsBefore)
+-            throw new ArgumentException("Invalid memory observation measurements.");
+-    }
+-
+-    public static WorkshopMemoryResult Capture(WorkshopMemoryRequest request)
+-    {
+-        try
+-        {
+-            var used = GC.GetTotalMemory(false);
+-            var collections = GC.CollectionCount(GC.MaxGeneration);
+-            var allocated = GC.GetTotalAllocatedBytes(precise: true);
+-            var started = Stopwatch.GetTimestamp();
+-            var after = GC.GetTotalMemory(true);
+-            var elapsed = checked(Stopwatch.GetTimestamp() - started);
+-            return new(request, WorkshopMemoryStatus.Accepted, used, after, elapsed, Stopwatch.Frequency,
+-                allocated, GC.GetTotalAllocatedBytes(precise: true), collections, GC.CollectionCount(GC.MaxGeneration));
+-        }
+-        catch (PlatformNotSupportedException) { return new(request, WorkshopMemoryStatus.Unsupported); }
+-    }
+-}
+diff --git a/engine/gpu/WorkshopMessages.cs b/engine/gpu/WorkshopMessages.cs
+index 277b7ef9..ae317899 100644
+--- a/engine/gpu/WorkshopMessages.cs
++++ b/engine/gpu/WorkshopMessages.cs
+@@ -2,7 +2,9 @@ using System;
+ 
+ namespace CuriousContraptions.Gpu;
+ 
+-public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
++/// <summary>Every Workshop command and query (closed set). <see cref="WorkshopCommandKind.ObserveMemory"/> is the stopped memory
++/// observation query (Story 9A.3), answered by its acknowledgement's <see cref="WorkshopResponse.Memory"/>.</summary>
++public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical, ObserveMemory }
+ public enum WorkshopResponseKind : uint { Acknowledgement, Read }
+ public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
+ public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
+@@ -11,7 +13,7 @@ public readonly record struct WorkshopCommandIdentity(CommandSequence Sequence,
+ public readonly record struct WorkshopResponse(CommandSequence Sequence, WorkshopResponseKind Kind,
+     WorkshopCommandResult Result, WorkshopSimulationPhase Phase, WorkshopRead Read, RuntimeSessionId Session = default, PublicationSequence Publication = default,
+     CadenceRevision Cadence = default, ClockGeneration MasterGeneration = default,
+-    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default);
++    ProjectionEpoch Projection = default, PulseOrdinal SourcePulse = default, WorkshopMemoryMeasurement? Memory = null);
+ 
+ /// <summary>The domain rules of Workshop commands and responses that every encoder and decoder of the one codec
+ /// (<see cref="WorkshopWireFlatBuffers"/>) applies.</summary>
+diff --git a/engine/gpu/WorkshopReliableReadLedger.cs b/engine/gpu/WorkshopReliableReadLedger.cs
+new file mode 100644
+index 00000000..d5fa1adb
+--- /dev/null
++++ b/engine/gpu/WorkshopReliableReadLedger.cs
+@@ -0,0 +1,102 @@
++using System;
++using System.Buffers.Binary;
++using System.Collections.Generic;
++
++namespace CuriousContraptions.Gpu;
++
++/// <summary>Why the Simulation worker refused a physical read receipt (Story 9A.3). Closed set.</summary>
++public enum ReadReceiptRejection
++{
++    /// <summary>Not the 24-byte receipt identity (session, then publication) the worker published with its read.</summary>
++    Malformed = 1,
++    /// <summary>Another runtime session's receipt, or none.</summary>
++    WrongSession,
++    /// <summary>A publication this worker has not published.</summary>
++    Unpublished,
++    /// <summary>A publication an earlier receipt already retired: a duplicate or out-of-order receipt.</summary>
++    Retired,
++}
++
++/// <summary>A refused physical read receipt. It retires nothing, and the worker reports it as a transport failure.</summary>
++public sealed class ReadReceiptRejectedException : Exception
++{
++    public ReadReceiptRejectedException(ReadReceiptRejection reason, string message) : base(message)
++    {
++        if (!Enum.IsDefined(reason)) throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undefined read receipt rejection.");
++        Reason = reason;
++    }
++
++    public ReadReceiptRejection Reason { get; }
++}
++
++/// <summary>A published physical read the browser has not yet receipted, and when it was published on the master clock.</summary>
++public readonly record struct UnreceiptedRead(PublicationSequence Publication, MasterTimeNanoseconds Published);
++
++/// <summary>
++/// The Simulation worker's own reliable-read accounting (Story 9A.3). Every published read is recorded with its master time, and
++/// each browser receipt is matched here, never in script. Receipts are cumulative: the worker coalesces an unposted ordinary read
++/// into a newer one, and posts reads in publication order, so a receipt for publication P retires every read up to P. The ledger
++/// is never cleared, so a receipt in flight across a Reset still retires its read. A read left unreceipted past
++/// <see cref="StallNanoseconds"/> is a reliable-read stall: the run loop stops with <see cref="WorkshopRejection.ReliableStalled"/>.
++/// </summary>
++public sealed class WorkshopReliableReadLedger
++{
++    /// <summary>The stall bound: 500 ms, the bound the browser measured before this story. Exactly the bound is not a stall.</summary>
++    public const long StallNanoseconds = 500_000_000;
++
++    private readonly RuntimeSessionId _session;
++    private readonly Queue<UnreceiptedRead> _unreceipted = new();
++    private PublicationSequence _published, _retired;
++
++    public WorkshopReliableReadLedger(RuntimeSessionId session)
++    {
++        session.Validate();
++        _session = session;
++    }
++
++    /// <summary>Every published read has been receipted.</summary>
++    public bool Idle => _unreceipted.Count == 0;
++
++    /// <summary>The oldest unreceipted read, if any.</summary>
++    public UnreceiptedRead? Oldest => _unreceipted.TryPeek(out var oldest) ? oldest : null;
++
++    public void Publish(PublicationSequence publication, MasterTimeNanoseconds published)
++    {
++        published.Validate();
++        if (publication.Value <= _published.Value)
++            throw new ArgumentException($"Publication {publication.Value} does not follow publication {_published.Value}.");
++        _unreceipted.Enqueue(new(publication, published));
++        _published = publication;
++    }
++
++    /// <summary>Matches one browser receipt and retires every read up to its publication; a mismatch is a typed rejection that
++    /// retires nothing.</summary>
++    public PublicationSequence Receipt(ReadOnlySpan<byte> receipt)
++    {
++        if (receipt.Length != WorkshopClockWire.ReceiptBytes)
++            throw new ReadReceiptRejectedException(ReadReceiptRejection.Malformed,
++                $"A read receipt is {WorkshopClockWire.ReceiptBytes} bytes, not {receipt.Length}.");
++        var session = new RuntimeSessionId(BinaryPrimitives.ReadUInt64LittleEndian(receipt),
++            BinaryPrimitives.ReadUInt64LittleEndian(receipt[8..]));
++        if (session != _session)
++            throw new ReadReceiptRejectedException(ReadReceiptRejection.WrongSession, "A read receipt names another runtime session.");
++        var publication = new PublicationSequence(BinaryPrimitives.ReadUInt64LittleEndian(receipt[RuntimeSessionId.ByteLength..]));
++        if (publication.Value > _published.Value)
++            throw new ReadReceiptRejectedException(ReadReceiptRejection.Unpublished,
++                $"Publication {publication.Value} is receipted, but the last published is {_published.Value}.");
++        if (publication.Value <= _retired.Value)
++            throw new ReadReceiptRejectedException(ReadReceiptRejection.Retired,
++                $"Publication {publication.Value} is receipted, but publication {_retired.Value} is already retired.");
++        while (_unreceipted.TryPeek(out var oldest) && oldest.Publication.Value <= publication.Value) _unreceipted.Dequeue();
++        _retired = publication;
++        return publication;
++    }
++
++    /// <summary>The oldest unreceipted read is older than the stall bound.</summary>
++    public bool Stalled(MasterTimeNanoseconds now) =>
++        _unreceipted.TryPeek(out var oldest) && now.Value - oldest.Published.Value > StallNanoseconds;
++
++    /// <summary>Why a run that exceeded its debt stops: a reliable-read stall, or else the physical debt bound.</summary>
++    public WorkshopRejection DebtReason(MasterTimeNanoseconds now) =>
++        Stalled(now) ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity;
++}
+diff --git a/engine/gpu/WorkshopReliableReadLedger.cs.uid b/engine/gpu/WorkshopReliableReadLedger.cs.uid
+new file mode 100644
+index 00000000..bbb18c2a
+--- /dev/null
++++ b/engine/gpu/WorkshopReliableReadLedger.cs.uid
+@@ -0,0 +1 @@
++uid://cdacp65uen25w
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index 5c84d820..6cd753f6 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -116,12 +116,14 @@ public static class WorkshopWireFlatBuffers
+             throw new ArgumentException("Unsupported expected revision.");
+ 
+         var kind = (WorkshopCommandKind)fb.Kind;
++        if (!Enum.IsDefined(kind))
++            throw new WireFaultException(WireFaultReason.UnknownCommand, $"The command names kind {(uint)fb.Kind}, which this game does not have.");
+         var sequence = new CommandSequence(fb.Sequence);
+         var cadence = new CadenceRevision(fb.Cadence);
+         var projection = new ProjectionEpoch(fb.Projection);
+         var hasSettings = kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.ConfigureCadence;
+         if ((kind == WorkshopCommandKind.Initialize ? cadence.Value != 0 || projection.Value != 0 : cadence.Value == 0 || projection.Value == 0) ||
+-            !Enum.IsDefined(kind) || sequence.Value == 0 ||
++            sequence.Value == 0 ||
+             (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && revisionKind != ExpectedRevisionKind.Exact) ||
+             hasSettings != fb.Settings.HasValue ||
+             (kind == WorkshopCommandKind.ConfigureElectrical) != fb.Electrical.HasValue ||
+@@ -180,6 +182,7 @@ public static class WorkshopWireFlatBuffers
+         response.Session.Validate();
+         if ((response.Kind == WorkshopResponseKind.Read) != (response.Publication.Value != 0))
+             throw new ArgumentException("Invalid physical publication identity.");
++        ValidateMemory(response);
+         WorkshopMessages.ValidateCapture(response.Read);
+         WorkshopMessages.ValidateScheduleIdentity(response);
+         WorkshopMessages.ValidatePhysicalRead(response.Read);
+@@ -324,6 +327,10 @@ public static class WorkshopWireFlatBuffers
+         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
+         if (memoryOffset.HasValue) Wire.WorkshopResponse.AddActivationMemory(builder, memoryOffset.Value);
+         if (motion.HasValue) Wire.WorkshopResponse.AddMotion(builder, motion.Value);
++        if (response.Memory is { } observed)
++            Wire.WorkshopResponse.AddMemory(builder, MemoryObservationRecord.CreateMemoryObservationRecord(builder, observed.UsedBefore,
++                observed.UsedAfter, observed.DurationTicks, observed.Frequency, observed.AllocatedBefore, observed.AllocatedAfter,
++                observed.CollectionsBefore, observed.CollectionsAfter));
+         builder.FinishSizePrefixed(Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, ResponseIdentifier);
+         return builder.SizedByteArray();
+     }
+@@ -437,13 +444,26 @@ public static class WorkshopWireFlatBuffers
+         WorkshopMessages.ValidatePhysicalRead(read);
+         WorkshopMessages.ValidateCapture(read);
+ 
++        WorkshopMemoryMeasurement? memory = fb.Memory is { } r
++            ? new(r.UsedBefore, r.UsedAfter, r.DurationTicks, r.Frequency, r.AllocatedBefore, r.AllocatedAfter, r.CollectionsBefore, r.CollectionsAfter)
++            : null;
+         var response = new WorkshopResponse(sequence, kind, new WorkshopCommandResult(outcome, reason), phase, read, session,
+             new PublicationSequence(fb.Publication), new CadenceRevision(fb.Cadence), master, new ProjectionEpoch(fb.Projection),
+-            new PulseOrdinal(tick.Value));
++            new PulseOrdinal(tick.Value), memory);
+         WorkshopMessages.ValidateScheduleIdentity(response);
++        ValidateMemory(response);
+         return response;
+     }
+ 
++    /// <summary>A memory measurement rides only on an applied acknowledgement (the memory query's), and is a valid measurement.</summary>
++    private static void ValidateMemory(WorkshopResponse response)
++    {
++        if (response.Memory is not { } memory) return;
++        if (response.Kind != WorkshopResponseKind.Acknowledgement || response.Result.Outcome != WorkshopCommandOutcome.Applied)
++            throw new ArgumentException("Only an applied acknowledgement carries a memory measurement.");
++        memory.Validate();
++    }
++
+     public static Offset<ConstructionRecord> EncodeConstructionRecord(FlatBufferBuilder builder, WorkshopConstruction construction, bool validate = true)
+     {
+         ArgumentNullException.ThrowIfNull(builder);
+diff --git a/engine/gpu/WorkshopWireGenerated.cs b/engine/gpu/WorkshopWireGenerated.cs
+index a9266e8f..cefe2c07 100644
+--- a/engine/gpu/WorkshopWireGenerated.cs
++++ b/engine/gpu/WorkshopWireGenerated.cs
+@@ -234,6 +234,7 @@ public enum CommandKind : uint
+   Step = 9,
+   Save = 10,
+   ConfigureElectrical = 11,
++  ObserveMemory = 12,
+ };
+ 
+ public enum CommandOutcome : byte
+@@ -582,6 +583,36 @@ static public class InstanceRecordVerify
+   }
+ }
+ 
++public struct MemoryObservationRecord : IFlatbufferObject
++{
++  private Struct __p;
++  public ByteBuffer ByteBuffer { get { return __p.bb; } }
++  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
++  public MemoryObservationRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
++
++  public long UsedBefore { get { return __p.bb.GetLong(__p.bb_pos + 0); } }
++  public long UsedAfter { get { return __p.bb.GetLong(__p.bb_pos + 8); } }
++  public long DurationTicks { get { return __p.bb.GetLong(__p.bb_pos + 16); } }
++  public long Frequency { get { return __p.bb.GetLong(__p.bb_pos + 24); } }
++  public long AllocatedBefore { get { return __p.bb.GetLong(__p.bb_pos + 32); } }
++  public long AllocatedAfter { get { return __p.bb.GetLong(__p.bb_pos + 40); } }
++  public int CollectionsBefore { get { return __p.bb.GetInt(__p.bb_pos + 48); } }
++  public int CollectionsAfter { get { return __p.bb.GetInt(__p.bb_pos + 52); } }
++
++  public static Offset<CuriousContraptions.Wire.MemoryObservationRecord> CreateMemoryObservationRecord(FlatBufferBuilder builder, long UsedBefore, long UsedAfter, long DurationTicks, long Frequency, long AllocatedBefore, long AllocatedAfter, int CollectionsBefore, int CollectionsAfter) {
++    builder.Prep(8, 56);
++    builder.PutInt(CollectionsAfter);
++    builder.PutInt(CollectionsBefore);
++    builder.PutLong(AllocatedAfter);
++    builder.PutLong(AllocatedBefore);
++    builder.PutLong(Frequency);
++    builder.PutLong(DurationTicks);
++    builder.PutLong(UsedAfter);
++    builder.PutLong(UsedBefore);
++    return new Offset<CuriousContraptions.Wire.MemoryObservationRecord>(builder.Offset);
++  }
++}
++
+ public struct PuzzleRecord : IFlatbufferObject
+ {
+   private Table __p;
+@@ -995,8 +1026,9 @@ public struct WorkshopResponse : IFlatbufferObject
+   public ArraySegment<byte>? GetMotionBytes() { return __p.__vector_as_arraysegment(48); }
+ #endif
+   public byte[] GetMotionArray() { return __p.__vector_as_array<byte>(48); }
++  public CuriousContraptions.Wire.MemoryObservationRecord? Memory { get { int o = __p.__offset(50); return o != 0 ? (CuriousContraptions.Wire.MemoryObservationRecord?)(new CuriousContraptions.Wire.MemoryObservationRecord()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+ 
+-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(23); }
++  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(24); }
+   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
+   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
+   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
+@@ -1038,6 +1070,7 @@ public struct WorkshopResponse : IFlatbufferObject
+   public static VectorOffset CreateMotionVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+   public static VectorOffset CreateMotionVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+   public static void StartMotionVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
++  public static void AddMemory(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.MemoryObservationRecord> memoryOffset) { builder.AddStruct(23, memoryOffset.Value, 0); }
+   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
+     int o = builder.EndTable();
+     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
+@@ -1075,6 +1108,7 @@ static public class WorkshopResponseVerify
+       && verifier.VerifyVectorOfData(tablePos, 44 /*Electrical*/, 32 /*CuriousContraptions.Wire.ElectricalSourceRecord*/, false)
+       && verifier.VerifyVectorOfData(tablePos, 46 /*ActivationMemory*/, 40 /*CuriousContraptions.Wire.ActivationMemoryRecord*/, false)
+       && verifier.VerifyVectorOfData(tablePos, 48 /*Motion*/, 1 /*byte*/, false)
++      && verifier.VerifyField(tablePos, 50 /*Memory*/, 56 /*CuriousContraptions.Wire.MemoryObservationRecord*/, 8, false)
+       && verifier.VerifyTableEnd(tablePos);
+   }
+ }
+diff --git a/schemas/README.md b/schemas/README.md
+index 3124860e..4cf9b7f2 100644
+--- a/schemas/README.md
++++ b/schemas/README.md
+@@ -13,6 +13,10 @@ reads and schedule endpoints) and the construction save. `engine/gpu/WorkshopWir
+   carries a numeric part id (Story 9A.15). A stored save is validated against the loaded bundle's elements and an unknown id is a
+   `WorkshopSaveRejection.UnknownElement` refusal naming it; the worker's command decode refuses an id it has no element for with
+   `WireFaultReason.UnknownElement`, naming it.
++- Every transport control is a typed command or query (Story 9A.3). A command naming a kind the game does not have is a
++  `WireFaultReason.UnknownCommand` refusal naming it. The stopped memory observation is the `ObserveMemory` command; only its applied
++  acknowledgement carries `WorkshopResponse.memory`. A reliable-read stall is detected by the Simulation worker's own receipt
++  accounting, so no message carries a stall flag.
+ - There is no format version (owner, 21 Oct 2026): the game and its saves ship in one bundle with one schema, and bad input is
+   rejected structurally.
+ 
+diff --git a/schemas/workshop_wire.fbs b/schemas/workshop_wire.fbs
+index ed27862a..882ac9fb 100644
+--- a/schemas/workshop_wire.fbs
++++ b/schemas/workshop_wire.fbs
+@@ -26,7 +26,9 @@ enum CommandKind : uint32 {
+     Resume = 8,
+     Step = 9,
+     Save = 10,
+-    ConfigureElectrical = 11
++    ConfigureElectrical = 11,
++    // The stopped memory observation query (Story 9A.3): its acknowledgement carries WorkshopResponse.memory.
++    ObserveMemory = 12
+ }
+ 
+ enum CommandOutcome : uint8 {
+@@ -184,6 +186,19 @@ struct CadenceSettingsRecord {
+     presentation_rate_denominator: uint32;
+ }
+ 
++// One stopped collector measurement of the Simulation worker (Story 9A.3): managed usage before and after a full blocking
++// collection, its duration in Stopwatch ticks at frequency, and the allocation and collection counters around it.
++struct MemoryObservationRecord {
++    used_before: int64;
++    used_after: int64;
++    duration_ticks: int64;
++    frequency: int64;
++    allocated_before: int64;
++    allocated_after: int64;
++    collections_before: int32;
++    collections_after: int32;
++}
++
+ struct CommandIdentityRecord {
+     sequence: uint64;
+     epoch: uint64;
+@@ -312,6 +327,8 @@ table WorkshopResponse {
+     activation_memory: [ActivationMemoryRecord];
+     // The committed render trajectory: the physics ABI's PhysicsMotionRead record, validated against this read's bodies and tick.
+     motion: [uint8];
++    // Present only on the acknowledgement of an applied memory query command.
++    memory: MemoryObservationRecord;
+ }
+ 
+ table WorkshopCommand {
+diff --git a/tools/e2e/run-reset-snapshot.ts b/tools/e2e/run-reset-snapshot.ts
+index 4b549791..e4bb9785 100644
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -42,6 +42,9 @@ export const SNAPSHOT_SCHEMA = {
+         CadenceSettingsRecord: { kind: 'struct', fields: [['simulation', 'uint32'], ['physical', 'uint32'],
+             ['animation', 'uint32'], ['presentation', 'uint32'], ['presentation_rate_numerator', 'uint32'],
+             ['presentation_rate_denominator', 'uint32']] },
++        MemoryObservationRecord: { kind: 'struct', fields: [['used_before', 'int64'], ['used_after', 'int64'],
++            ['duration_ticks', 'int64'], ['frequency', 'int64'], ['allocated_before', 'int64'], ['allocated_after', 'int64'],
++            ['collections_before', 'int32'], ['collections_after', 'int32']] },
+         ConnectionRecord: { kind: 'struct', fields: [['source', 'uint64'], ['target', 'uint64'], ['domain', 'uint32'],
+             ['from_socket', 'uint32'], ['to_socket', 'uint32']] },
+         InstanceRecord: { kind: 'table', fields: [['id', 'uint64'], ['part_id', 'string'], ['locked', 'bool'], ['cell', 'Vec3i'],
+@@ -65,7 +68,8 @@ export const SNAPSHOT_SCHEMA = {
+             ['projection', 'uint64'], ['session', '[uint8]'], ['capture', 'ClockStamp'], ['bodies', '[BodyRead]'],
+             ['captures', '[CaptureLatchRead]'], ['activations', '[ActivationRecord]'], ['timers', '[TimerRecord]'],
+             ['contact_works', '[ContactWorkStoreRecord]'], ['occurrences', '[ContactWorkOccurrenceRecord]'],
+-            ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]']] },
++            ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]'],
++            ['memory', 'MemoryObservationRecord']] },
+     } as Readonly<Record<string, TypeListing>>,
+ } as const;
+ 
+diff --git a/tools/e2e/workshop-wire.ts b/tools/e2e/workshop-wire.ts
+index 5ea610c5..5b7de1fc 100644
+--- a/tools/e2e/workshop-wire.ts
++++ b/tools/e2e/workshop-wire.ts
+@@ -31,7 +31,8 @@ export enum CommandKind {
+   Resume = 8,
+   Step = 9,
+   Save = 10,
+-  ConfigureElectrical = 11
++  ConfigureElectrical = 11,
++  ObserveMemory = 12
+ }
+ 
+ /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+@@ -834,6 +835,68 @@ static createCadenceSettingsRecord(builder:flatbuffers.Builder, simulation: numb
+ 
+ /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+ 
++export class MemoryObservationRecord {
++  bb: flatbuffers.ByteBuffer|null = null;
++  bb_pos = 0;
++  __init(i:number, bb:flatbuffers.ByteBuffer):MemoryObservationRecord {
++  this.bb_pos = i;
++  this.bb = bb;
++  return this;
++}
++
++usedBefore():bigint {
++  return this.bb!.readInt64(this.bb_pos);
++}
++
++usedAfter():bigint {
++  return this.bb!.readInt64(this.bb_pos + 8);
++}
++
++durationTicks():bigint {
++  return this.bb!.readInt64(this.bb_pos + 16);
++}
++
++frequency():bigint {
++  return this.bb!.readInt64(this.bb_pos + 24);
++}
++
++allocatedBefore():bigint {
++  return this.bb!.readInt64(this.bb_pos + 32);
++}
++
++allocatedAfter():bigint {
++  return this.bb!.readInt64(this.bb_pos + 40);
++}
++
++collectionsBefore():number {
++  return this.bb!.readInt32(this.bb_pos + 48);
++}
++
++collectionsAfter():number {
++  return this.bb!.readInt32(this.bb_pos + 52);
++}
++
++static sizeOf():number {
++  return 56;
++}
++
++static createMemoryObservationRecord(builder:flatbuffers.Builder, used_before: bigint, used_after: bigint, duration_ticks: bigint, frequency: bigint, allocated_before: bigint, allocated_after: bigint, collections_before: number, collections_after: number):flatbuffers.Offset {
++  builder.prep(8, 56);
++  builder.writeInt32(collections_after);
++  builder.writeInt32(collections_before);
++  builder.writeInt64(BigInt(allocated_after ?? 0));
++  builder.writeInt64(BigInt(allocated_before ?? 0));
++  builder.writeInt64(BigInt(frequency ?? 0));
++  builder.writeInt64(BigInt(duration_ticks ?? 0));
++  builder.writeInt64(BigInt(used_after ?? 0));
++  builder.writeInt64(BigInt(used_before ?? 0));
++  return builder.offset();
++}
++
++}
++
++/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
++
+ export class CommandIdentityRecord {
+   bb: flatbuffers.ByteBuffer|null = null;
+   bb_pos = 0;
+@@ -1826,8 +1889,13 @@ motionArray():Uint8Array|null {
+   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+ }
+ 
++memory(obj?:MemoryObservationRecord):MemoryObservationRecord|null {
++  const offset = this.bb!.__offset(this.bb_pos, 50);
++  return offset ? (obj || new MemoryObservationRecord()).__init(this.bb_pos + offset, this.bb!) : null;
++}
++
+ static startWorkshopResponse(builder:flatbuffers.Builder) {
+-  builder.startObject(23);
++  builder.startObject(24);
+ }
+ 
+ static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
+@@ -1978,6 +2046,10 @@ static startMotionVector(builder:flatbuffers.Builder, numElems:number) {
+   builder.startVector(1, numElems, 1);
+ }
+ 
++static addMemory(builder:flatbuffers.Builder, memoryOffset:flatbuffers.Offset) {
++  builder.addFieldStruct(23, memoryOffset, 0);
++}
++
+ static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
+   const offset = builder.endObject();
+   return offset;
+diff --git a/tools/workshop-client-lifecycle.test.mjs b/tools/workshop-client-lifecycle.test.mjs
+index 73904507..b3773189 100644
+--- a/tools/workshop-client-lifecycle.test.mjs
++++ b/tools/workshop-client-lifecycle.test.mjs
+@@ -67,7 +67,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
+         if (simulationRuns) clockRing.beat(clock);
+     };
+     const creation = api.create(Object.values(state), session, [2, 64, 72, 96, 160, 1, 2], 1, false,
+-        () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
++        () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service);
+     creation.catch(() => {});
+     await workerCreated;
+     await Promise.resolve();
+@@ -380,25 +380,35 @@ function commandIdentity(sequence) {
+     new DataView(bytes.buffer).setBigUint64(0, sequence, true);
+     return bytes;
+ }
+-function stallStates(h) { return h.messages.filter(item => typeof item.reliableStalled === 'boolean').map(item => item.reliableStalled); }
++// Story 9A.3: the browser posts no stall flag. The Simulation worker detects a reliable-read stall in its own receipt accounting;
++// the browser's command ages drive only the player's Backpressure and TimedOut state.
++function stallFlags(h) { return h.messages.filter(item => Object.hasOwn(item, 'reliableStalled')).length; }
+ 
+-test('delayed valid ACK clears current stall only after managed validation completion', async () => {
++test('delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag', async () => {
+     const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
+     const bytes = commandIdentity(1n), pending = h.api.send(id, bytes, bytes);
+-    h.clock(500); h.tick(); assert.deepEqual(stallStates(h), []);
+-    h.clock(501); h.tick(); assert.deepEqual(stallStates(h), [true]);
++    h.clock(50); h.tick(); assert.equal(h.api.status(id), state.Ready, 'exactly 50 ms is not backpressure');
++    h.clock(501); h.tick(); assert.equal(h.api.status(id), state.Backpressure);
+     h.workers[0].onmessage({ data: { acknowledgement: bytes, sequence: bytes } }); await pending;
+-    assert.deepEqual(stallStates(h), [true], 'arrival is not validated completion');
++    h.tick(); assert.equal(h.api.status(id), state.Backpressure, 'arrival is not validated completion');
+     assert.deepEqual(h.api.acknowledgement(id, bytes), bytes);
+-    h.tick(); assert.deepEqual(stallStates(h), [true], 'leased but unvalidated remains unresolved');
++    h.tick(); assert.equal(h.api.status(id), state.Backpressure, 'leased but unvalidated remains unresolved');
+     // Represents return from the actual C# decode/cursor/admission boundary, including valid inapplicable receipts.
+     h.api.completeAcknowledgement(id, bytes);
+-    assert.deepEqual(stallStates(h), [true, false]);
+-    h.tick(); assert.deepEqual(stallStates(h), [true, false], 'state transitions do not repeat');
++    h.tick(); assert.equal(h.api.status(id), state.Ready);
+     assert.throws(() => h.api.completeAcknowledgement(id, bytes), /not leased/);
++    assert.equal(stallFlags(h), 0, 'no stall flag is ever posted');
+     h.api.dispose(id);
+ });
+ 
++test('a command older than two seconds is TimedOut for the player, still without a stall flag', async () => {
++    const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
++    const bytes = commandIdentity(1n), pending = h.api.send(id, bytes, bytes); pending.catch(() => {});
++    h.clock(2000); h.tick(); assert.equal(h.api.status(id), state.Backpressure);
++    h.clock(2001); h.tick(); assert.equal(h.api.status(id), state.TimedOut);
++    assert.equal(stallFlags(h), 0); h.api.dispose(id);
++});
++
+ test('completing an older ACK cannot clear another aged request or exceed two leases', async () => {
+     const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
+     const a = commandIdentity(1n), b = commandIdentity(2n), c = commandIdentity(3n);
+@@ -407,11 +417,12 @@ test('completing an older ACK cannot clear another aged request or exceed two le
+     h.workers[0].onmessage({ data: { acknowledgement: a, sequence: a } }); await pa;
+     h.api.acknowledgement(id, a);
+     await assert.rejects(h.api.send(id, c, c), /capacity/);
+-    h.api.completeAcknowledgement(id, a); assert.deepEqual(stallStates(h), [true]);
++    h.api.completeAcknowledgement(id, a); h.tick(); assert.equal(h.api.status(id), state.Backpressure);
+     h.workers[0].onmessage({ data: { acknowledgement: b, sequence: b } }); await pb;
+     assert.throws(() => h.api.completeAcknowledgement(id, b), /not leased/);
+     h.api.acknowledgement(id, b); h.api.completeAcknowledgement(id, b);
+-    assert.deepEqual(stallStates(h), [true, false]); h.api.dispose(id);
++    h.tick(); assert.equal(h.api.status(id), state.Ready);
++    assert.equal(stallFlags(h), 0); h.api.dispose(id);
+ });
+ 
+ test('taken but invalid ACK cannot release capacity or report healthy without completion', async () => {
+@@ -425,15 +436,15 @@ test('taken but invalid ACK cannot release capacity or report healthy without co
+     assert.throws(() => h.api.completeAcknowledgement(id, c), /not leased/);
+     const pb = h.api.send(id, b, b); pb.catch(() => {});
+     await assert.rejects(h.api.send(id, c, c), /capacity/);
+-    h.clock(502); h.tick(); assert.deepEqual(stallStates(h), [true]);
++    h.clock(502); h.tick(); assert.equal(h.api.status(id), state.Backpressure);
+     const handler = h.workers[0].onmessage;
+     h.api.dispose(id);
+     handler({ data: { acknowledgement: b, sequence: b } });
+     assert.throws(() => h.api.completeAcknowledgement(id, a), /disposed/);
+-    assert.deepEqual(stallStates(h), [true]);
++    assert.equal(stallFlags(h), 0);
+ });
+ 
+-for (const duplicate of [false, true]) test(`unmatched or duplicate ACK faults without clearing stall (${duplicate})`, async () => {
++for (const duplicate of [false, true]) test(`unmatched or duplicate ACK faults the session (${duplicate})`, async () => {
+     const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
+     const a = commandIdentity(1n), pending = h.api.send(id, a, a); pending.catch(() => {});
+     h.clock(501); h.tick();
+@@ -441,9 +452,18 @@ for (const duplicate of [false, true]) test(`unmatched or duplicate ACK faults w
+     h.workers[0].onmessage({ data: { acknowledgement: duplicate ? a : commandIdentity(2n), sequence: duplicate ? a : commandIdentity(2n) } });
+     assert.equal(h.api.status(id), state.Indeterminate);
+     assert.equal(h.workers[0].terminated, true);
+-    assert.deepEqual(stallStates(h), [true]); h.api.dispose(id);
++    assert.equal(stallFlags(h), 0); h.api.dispose(id);
+ });
+ 
++for (const retired of ['memoryResult', 'candidateTimedOut'])
++    test(`the deleted worker channel ${retired} is an unknown envelope that faults the session`, async () => {
++        const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
++        h.workers[0].onmessage({ data: { [retired]: retired === 'memoryResult' ? new Uint8Array(128) : true } });
++        assert.equal(h.api.status(id), state.Indeterminate);
++        assert.match(String(h.errors.find(entry => entry[0] === 'CCGPU_TRANSPORT_FAILURE')?.[2]), /Unknown worker transport envelope/);
++        h.api.dispose(id);
++    });
++
+ 
+ test('two animation owners send sequential controls only after managed ACK delivery returns', async () => {
+     const h = await clientHarness(), id = await h.ready();
+diff --git a/tools/workshop-close-findings.test.mjs b/tools/workshop-close-findings.test.mjs
+index 291bc038..ace746c0 100644
+--- a/tools/workshop-close-findings.test.mjs
++++ b/tools/workshop-close-findings.test.mjs
+@@ -123,9 +123,9 @@ test('a declared fault does not excuse another fault that also occurred', () =>
+     assert.deepEqual(findings.map(finding => finding.message), ['The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}']);
+ });
+ test('an undeclared debt fault is a finding', () => {
+-    const findings = sessionFaultFindings(observed(['CCGPU_DEBT_FAULT: committedTick=9 reliableStalled=False']));
+-    assert.deepEqual(findings.map(finding => finding.message),
+-        ['The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=9 reliableStalled=False']);
++    const line = 'CCGPU_DEBT_FAULT: committedTick=9 reason=ReliableStalled oldestUnreceipted=4 ageMs=501';
++    const findings = sessionFaultFindings(observed([line]));
++    assert.deepEqual(findings.map(finding => finding.message), [`The simulation stopped on 1 debt fault(s); first: ${line}`]);
+     assert.deepEqual(sessionFaultFindings(observed([])), [], 'no fault, nothing declared: no finding (control)');
+ });
+ test('unknown session faults are rejected', () => {
+diff --git a/tools/workshop-observation.test.mjs b/tools/workshop-observation.test.mjs
+index 54da034f..6e9d69db 100644
+--- a/tools/workshop-observation.test.mjs
++++ b/tools/workshop-observation.test.mjs
+@@ -115,21 +115,32 @@ async function loadWorker(host, additionalGlobals = {}) {
+     return { self, messages, get imports() { return imports; } };
+ }
+ 
++// Story 9A.3: the worker refuses every envelope no handler owns through the managed typed rejection, which names its keys
++// (WorkerEnvelopeRejectedException); these stand-ins return the same detail the managed one does.
++const envelopeRejections = record => ({
++    RejectUnknownEnvelope: keys => { record.push(Array.from(keys)); return 'Unsupported worker envelope: ' + (keys.length ? Array.from(keys).join(', ') : '(no keys)'); },
++    RejectSaturatedCommand: () => { record.push('saturated'); return 'The Workshop command transport already holds its two outstanding commands.'; }
++});
++const hex = bytes => Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
++
+ for (const captureMode of [1, 2]) {
+     let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
+-    const stallStates = [];
++    const receipts = [], rejectedEnvelopes = [], logged = [];
+     const derivation = derivationHost();
+     const host = {
+         ...derivation,
++        ...envelopeRejections(rejectedEnvelopes),
+         ScheduleRoles: () => [1, 2],
+         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
+         AnimationPeer: () => new Uint8Array(64),
+         PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
+         Dispatch: async () => { await new Promise(resolve => { release = resolve; }); },
+         FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); },
+-        SetReliableStall: value => stallStates.push(value)
++        // The managed reliable-read ledger: every receipt reaches it, unparsed (it accepts all here; refusals are below).
++        AcknowledgeRead: receipt => { receipts.push(hex(receipt)); }
+     };
+-    const boundary = await loadWorker(host);
++    const recordingConsole = { ...console, error: (...items) => { logged.push(items.map(String).join(' ')); } };
++    const boundary = await loadWorker(host, { console: recordingConsole });
+     const { self, messages, imports } = boundary;
+     const sessionClock = clockRing.createClockRing();
+     const preparing = self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode, clockRing: sessionClock,
+@@ -145,9 +156,10 @@ for (const captureMode of [1, 2]) {
+         'every check turn also beats the Simulation heartbeat the Browser watches');
+     assert.equal(preparations, 1);
+     // The Simulation worker no longer answers clock probes itself (Story 9.4b): the deleted raw probe envelope is
+-    // now just an invalid command transport, rejected without dispatch.
++    // now an unknown envelope, refused by name without dispatch.
+     await self.onmessage({ data: { clockProbe: new Uint8Array(80) } });
+     assert.equal(messages.at(-1).rejected, true, 'a raw clock probe envelope has no handler in the Simulation worker');
++    assert.equal(messages.at(-1).detail, 'Unsupported worker envelope: clockProbe');
+     assert.equal(messages.filter(item => item.clockReply).length, 0, 'the Simulation worker never posts a clock reply');
+     assert.equal(messages.filter(item => item.read || item.acknowledgement).length, 0, 'preparation cannot publish a world');
+     releasePreparation();
+@@ -170,12 +182,11 @@ for (const captureMode of [1, 2]) {
+         await self.onmessage({ data: { readAcknowledged: receipt(running) } });
+     }
+     assert.equal(flushes, 0, 'ordinary Running reads never call the observation export');
++    assert.deepEqual(receipts, Array.from({ length: 8 }, (_, index) => hex(publication(BigInt(index + 10)).identity)),
++        'every receipt reaches the managed ledger unparsed, in order');
+     publish(first, false);
+     publish(final, true);
+     assert.equal(flushes, 0);
+-    const wrong = receipt(first); wrong[0] ^= 1;
+-    await self.onmessage({ data: { readAcknowledged: wrong } });
+-    assert.equal(flushes, 0);
+     await self.onmessage({ data: { readAcknowledged: receipt(first) } });
+     assert.equal(flushes, 0, 'queued terminal is pending before observation flush');
+     const command = self.onmessage({ data: { bytes: new Uint8Array(72) } });
+@@ -185,8 +196,6 @@ for (const captureMode of [1, 2]) {
+     release();
+     await command;
+     assert.equal(flushes, 1);
+-    await self.onmessage({ data: { readAcknowledged: receipt(final) } });
+-    assert.equal(flushes, 1, 'duplicate receipt does not flush again');
+     throwOutput = true;
+     const last = publication(3n);
+     publish(last, true);
+@@ -194,6 +203,7 @@ for (const captureMode of [1, 2]) {
+     await self.onmessage({ data: { readAcknowledged: receipt(last) } });
+     assert.equal(flushes, 2);
+     assert.equal(messages.filter(item => item.failure).length, failuresBefore, 'observation failure is contained');
++    assert.deepEqual(logged, ['CCGPU_TRACE_FLUSH_EXCEPTION Error: Output unavailable'], 'and logged, never swallowed');
+     throwOutput = false;
+     const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
+     await Promise.resolve();
+@@ -203,9 +213,17 @@ for (const captureMode of [1, 2]) {
+     release();
+     await reset;
+     assert.equal(flushes, 3, 'acknowledgement-only Reset announces sealed observation');
+-    await self.onmessage({ data: { reliableStalled: true } });
+-    await self.onmessage({ data: { reliableStalled: false } });
+-    assert.deepEqual(stallStates, [true, false], 'actual worker forwards current boolean state');
++    // Story 9A.3 negative control: the deleted raw stall flag and raw memory channel are unknown envelopes, refused by name
++    // through the typed rejection; nothing reaches the ledger, the dispatcher or a stall setter.
++    const receiptsBefore = receipts.length;
++    for (const [data, detail] of [[{ reliableStalled: true }, 'reliableStalled'], [{ reliableStalled: false }, 'reliableStalled'],
++        [{ memoryRequest: new Uint8Array(64) }, 'memoryRequest'], [{ memoryResult: new Uint8Array(128) }, 'memoryResult']]) {
++        await self.onmessage({ data });
++        assert.equal(messages.at(-1).rejected, true);
++        assert.equal(messages.at(-1).detail, 'Unsupported worker envelope: ' + detail);
++    }
++    assert.equal(receipts.length, receiptsBefore);
++    assert.equal(host.SetReliableStall, undefined, 'no stall setter exists to forward to');
+     const held = publication(100n), eventOne = publication(102n), eventTwo = publication(104n), latest = publication(105n);
+     publish(held, false);
+     publish(publication(101n), false);
+@@ -240,10 +258,62 @@ for (const captureMode of [1, 2]) {
+     for (let index = 0; index < 64; index++)
+         await self.onmessage({ data: { readAcknowledged: receipt(publication(BigInt(201 + index))) } });
+     imports.dispose();
+-    await self.onmessage({ data: { reliableStalled: true } });
+-    assert.deepEqual(stallStates, [true, false], 'disposed worker cannot update stall state');
+-    console.log(JSON.stringify({ captureMode, passed: true, controls: ['preparationClockOverlap', 'noEarlyWorld', 'pending', 'staleReceipt',
+-        'queuedTerminal', 'activeCommand', 'matchingReceipt', 'duplicateReceipt', 'outputFailure', 'ordinaryReadNoExport', 'acknowledgementOnlyReset', 'currentReliableStall', 'dispose'] }));
++    const receiptsAtDisposal = receipts.length;
++    await self.onmessage({ data: { readAcknowledged: receipt(publication(300n)) } });
++    assert.equal(receipts.length, receiptsAtDisposal, 'a disposed worker forwards no receipt');
++    assert.equal(rejectedEnvelopes.filter(item => item !== 'saturated').length, 5, 'one typed rejection per unknown envelope');
++    console.log(JSON.stringify({ captureMode, passed: true, controls: ['preparationClockOverlap', 'noEarlyWorld', 'pending', 'receiptsToLedger',
++        'queuedTerminal', 'activeCommand', 'matchingReceipt', 'outputFailureLogged', 'ordinaryReadNoExport', 'acknowledgementOnlyReset',
++        'retiredEnvelopesRejected', 'dispose'] }));
++}
++
++// Story 9A.3: a receipt the managed ledger refuses (a mismatched, duplicate or unpublished one) is a typed rejection reported
++// through the failure envelope, never a silent return; the session is retired, so no later read or receipt is handled.
++{
++    const forwarded = [];
++    const host = {
++        ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
++        AcknowledgeRead: receipt => {
++            forwarded.push(hex(receipt));
++            if (forwarded.length === 2) throw new Error('ReadReceiptRejectedException: Publication 1 is receipted, but publication 1 is already retired.');
++        }
++    };
++    const { self, messages, imports } = await loadWorker(host);
++    const identity = new Uint8Array(24); identity.fill(7, 0, 16); identity[16] = 1;
++    imports.publish(new Uint8Array(8), identity, new Uint8Array(16), false, false);
++    assert.equal(messages.filter(item => item.read).length, 1);
++    await self.onmessage({ data: { readAcknowledged: identity.slice() } });
++    assert.equal(messages.filter(item => item.failure).length, 0, 'an accepted receipt is no failure');
++    await self.onmessage({ data: { readAcknowledged: identity.slice() } });
++    const failure = messages.find(item => item.failure);
++    assert.match(failure?.detail ?? '', /ReadReceiptRejectedException: Publication 1 is receipted, but publication 1 is already retired/);
++    await self.onmessage({ data: { readAcknowledged: identity.slice() } });
++    assert.equal(forwarded.length, 2, 'the retired session forwards no later receipt');
++    console.log(JSON.stringify({ refusedReceiptIsAFailure: true }));
++}
++
++// Story 9A.3: the memory query travels the command transport like every command (one typed buffer for the managed decoder, its
++// acknowledgement keyed by its sequence); a third outstanding command is refused with its typed reason, never dispatched.
++{
++    const dispatched = [], rejected = [], releases = [];
++    const host = {
++        ScheduleRoles: () => [1, 2], ...envelopeRejections(rejected),
++        Dispatch: async bytes => { dispatched.push(hex(bytes)); await new Promise(resolve => { releases.push(resolve); }); }
++    };
++    const { self, messages, imports } = await loadWorker(host);
++    const query = new Uint8Array([0x51, 0x4d, 0x0c, 0x00]), other = new Uint8Array([1, 2, 3]);
++    const first = self.onmessage({ data: { bytes: query } });
++    const second = self.onmessage({ data: { bytes: other } });
++    await self.onmessage({ data: { bytes: new Uint8Array([9]) } });
++    assert.deepEqual(dispatched, ['514d0c00', '010203'], 'the query buffer reaches the managed decoder unchanged');
++    assert.equal(messages.at(-1).detail, 'The Workshop command transport already holds its two outstanding commands.');
++    assert.deepEqual(rejected, ['saturated']);
++    const sequence = new Uint8Array(8); sequence[0] = 1;
++    imports.acknowledge(new Uint8Array(16), sequence, false);
++    assert.deepEqual(Array.from(messages.at(-1).sequence), Array.from(sequence), 'its acknowledgement carries its sequence');
++    for (const release of releases) release();
++    await first; await second;
++    console.log(JSON.stringify({ memoryQueryOnCommandTransport: true }));
+ }
+ 
+ // The worker owns no WebGPU device since the pure C# WASM engine (Story 9.2b), so startup has only preparation
+@@ -276,7 +346,7 @@ for (const control of Object.values(StartupControl)) {
+ // refuses its exact framed shape; only a non-buffer envelope is the transport's own rejection.
+ {
+     let dispatched = 0;
+-    const host = { ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; } };
++    const host = { ScheduleRoles: () => [1, 2], ...envelopeRejections([]), Dispatch: async () => { dispatched++; } };
+     const { self, messages } = await loadWorker(host);
+     for (const width of [0, 7, 72, 70000]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
+     assert.equal(dispatched, 4);
+

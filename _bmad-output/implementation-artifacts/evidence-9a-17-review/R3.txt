@@ -1,0 +1,7 @@
+== R3 counter drawer order: PowerIn and Supply swapped in the declaration (scene unchanged)
+ elements/Counter/CounterElementDeclaration.cs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+    0 Error(s)
+    0 Warning(s)
+[xUnit.net 00:00:01.09]     CuriousContraptions.Tests.BundlePortsTests.EveryElementsBundlePortsAndFootprintEqualTheGoldenTable [FAIL]
+Failed!  - Failed:     1, Passed:    36, Skipped:     0, Total:    37, Duration: 463 ms - CuriousContraptions.tests.dll (net10.0)

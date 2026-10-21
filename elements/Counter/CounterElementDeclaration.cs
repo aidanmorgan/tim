@@ -28,10 +28,10 @@ public sealed class CounterElementDeclaration : ISignalElement, IElectricalEleme
 
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("ActivationIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(0f, .72f, .1f), Vector3.UnitY),
-        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, -.72f, .1f), -Vector3.UnitY),
-        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
-        new("Supply", SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
+        new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(0f, .72f, .1f), Vector3.UnitY),
+        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, -.72f, .1f), -Vector3.UnitY),
+        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
+        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The housing and its foot.</summary>

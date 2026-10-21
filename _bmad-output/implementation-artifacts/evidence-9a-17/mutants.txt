@@ -1,0 +1,67 @@
+== M1 (AC3) re-add a WorkshopPorts.For switch table in engine/gpu/WorkshopConnections.cs
+Build succeeded.
+   A hand-written port source is re-added:
+CuriousContraptions.Tests.BundlePortsTests.NoHandWrittenPortTableFootprintTableOrLocatorAliasIsReAdded [FAIL]
+engine/gpu/WorkshopConnections.cs:26: public static class WorkshopPorts { public static ReadOnlySpan<WorkshopPort> For(PartId id) => id.Value switch { _ => [] }; }
+Failed!  - Failed:     1, Passed:    23, Skipped:     0, Total:    24, Duration: 105 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M2 (AC3) re-add a locator alias ("power_in") lookup to engine/MachinePart.cs
+Build succeeded.
+CuriousContraptions.Tests.BundlePortsTests.NoHandWrittenPortTableFootprintTableOrLocatorAliasIsReAdded [FAIL]
+engine/MachinePart.cs:547: (Definition.PortLocators.ContainsKey(portId) || Definition.PortLocators.ContainsKey("power_in"));
+Failed!  - Failed:     1, Passed:    23, Skipped:     0, Total:    24, Duration: 107 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M3 (AC1, AC2) the catalogue substitutes its own anchor for the counter instead of the bundle's
+Build succeeded.
+CuriousContraptions.Tests.BundlePortsTests.EveryElementsBundlePortsAndFootprintEqualTheGoldenTable [FAIL]
+CuriousContraptions.Tests.BundlePortsTests.ThePortsTheRuntimeSeesAreTheBundleTextsPorts [FAIL]
+Failed!  - Failed:     2, Passed:    23, Skipped:     0, Total:    25, Duration: 158 ms - CuriousContraptions.tests.dll (net10.0)
+CuriousContraptions.Tests.CounterTests.Ports_DeclareExactSocketsAndDirections [FAIL]
+Failed!  - Failed:     1, Passed:    11, Skipped:     0, Total:    12, Duration: 145 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M4 (AC4) connection validation admits a target's declared output as an input
+Build succeeded.
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 99 ms - CuriousContraptions.tests.dll (net10.0)
+
+   M4 survives as an equivalent mutant: each socket fixes its own direction and domain (ElementPortCatalogue SocketDisagrees), and the link rules then refuse ActivationOut or Supply as an input. Replaced by M4b.
+
+== M4b (AC4) connection validation no longer requires the target to declare the input socket
+Build succeeded.
+CuriousContraptions.Tests.BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused [FAIL]
+Failed!  - Failed:     1, Passed:    23, Skipped:     0, Total:    24, Duration: 103 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M5 (owner rule: typed structural refusal) a Bidirectional port is coerced to an output instead of refused
+Build succeeded.
+CuriousContraptions.Tests.BundlePortsTests.AnInvalidPortDeclarationIsRefusedWithItsTypedReason(defect: "bidirectional", port: PortDescriptor { Socket = ActivationOut, Domain = Signal, Direction = Bidirectional, Signal = Pulse, LocalPosition = <0, 0, 0>, Normal = <0, 1, 0> }, reason: UnsupportedDirection) [FAIL]
+Failed!  - Failed:     1, Passed:    23, Skipped:     0, Total:    24, Duration: 107 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M6 (AC6) re-add the PoweredGate's Loc_Port_power_in locator name
+BundleElements : error BUNDLE011: PoweredGate.Metadata.ScenePath: Loc_Port_power_in names no declared socket or tube mouth
+BundleElements : error BUNDLE012: PoweredGate.Ports[0]: the scene has no Loc_Port_PowerIn locator
+
+   (the bundle build fails, so BundleElements.Tests cannot build)
+
+== M7 (AC6) the locator dictionary matches names ignoring case again
+Build succeeded.
+CuriousContraptions.Tests.GltfColliderExtractionTests.PortLocatorNamesAreMatchedExactly [FAIL]
+Failed!  - Failed:     1, Passed:    15, Skipped:     0, Total:    16, Duration: 78 ms - CuriousContraptions.tests.dll (net10.0)
+CuriousContraptions.Tests.BundlePortsTests.LocatorNamesAreMatchedOrdinally [FAIL]
+CuriousContraptions.Tests.GltfColliderExtractionTests.PortLocatorNamesAreMatchedExactly [FAIL]
+Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 277 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M8 (no second source) a different port catalogue may be installed over the bundle's
+Build succeeded.
+CuriousContraptions.Tests.BundlePortsTests.ADifferentCatalogueIsNeverInstalledOverTheBundles [FAIL]
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 20 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M9 (typed boundary) the bundle schema drops the exact-name PortSocket converter (sockets written and read as numbers)
+Build succeeded.
+CuriousContraptions.Tests.BundlePortsTests.TheBundleRefusesAnUnknownSocketName(replacement: "\"Socket\": \"Kite\"") [FAIL]
+CuriousContraptions.Tests.BundlePortsTests.TheBundleRefusesAnUnknownSocketName(replacement: "\"Socket\": \"powerin\"") [FAIL]
+CuriousContraptions.Tests.BundlePortsTests.TheBundleRefusesAnUnknownSocketName(replacement: "\"Socket\": 8") [FAIL]
+Failed!  - Failed:     3, Passed:    21, Skipped:     0, Total:    24, Duration: 102 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M10 (AC6) the bundle build stops comparing a locator with its declared anchor (tolerance widened to 10 m)
+CuriousContraptions.BundleElements.Tests.PortLocatorTests.ALocatorAwayFromTheDeclaredAnchorFailsTheBuild [FAIL]
+Failed!  - Failed:     1, Passed:   109, Skipped:     0, Total:   110, Duration: 194 ms - BundleElements.Tests.dll (net10.0)
+

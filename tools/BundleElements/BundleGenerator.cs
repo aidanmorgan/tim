@@ -12,7 +12,7 @@ public static class BundleGenerator
     {
         var discovered = PackageDiscovery.Discover(root);
         var errors = discovered.Errors.Concat(PackageValidator.Validate(discovered.Packages))
-            .Concat(PackageValidator.Assets(root, discovered.Packages)).ToArray();
+            .Concat(PackageValidator.Assets(root, discovered.Packages)).Concat(PackageValidator.Locators(root, discovered.Packages)).ToArray();
         return errors.Length > 0
             ? new(null, 0, errors)
             : new(BundleSchema.Write(discovered.Packages.Select(package => package.Declaration)), discovered.Packages.Count, []);

@@ -1,0 +1,44 @@
+BundleElements : error BUNDLE011: Battery.Metadata.ScenePath: Loc_Port_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: Bumper.Metadata.ScenePath: Loc_Port_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: Counter.Metadata.ScenePath: Loc_Port_activation_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: Counter.Metadata.ScenePath: Loc_Port_activation_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: Counter.Metadata.ScenePath: Loc_Port_power_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: Counter.Metadata.ScenePath: Loc_Port_supply names no declared socket or tube mouth
+BundleElements : error BUNDLE011: DelayBox.Metadata.ScenePath: Loc_Port_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: DelayBox.Metadata.ScenePath: Loc_Port_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: Domino.Metadata.ScenePath: Loc_Port_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: ImpactSwitch.Metadata.ScenePath: Loc_Port_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: PoweredGate.Metadata.ScenePath: Loc_Port_power_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: PressurePlate.Metadata.ScenePath: Loc_Port_activation_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: PressurePlate.Metadata.ScenePath: Loc_Port_power_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: PressurePlate.Metadata.ScenePath: Loc_Port_supply names no declared socket or tube mouth
+BundleElements : error BUNDLE011: SignalLamp.Metadata.ScenePath: Loc_Port_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: StateLatch.Metadata.ScenePath: Loc_Port_activation_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: StateLatch.Metadata.ScenePath: Loc_Port_power_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: StateLatch.Metadata.ScenePath: Loc_Port_reset_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: StateLatch.Metadata.ScenePath: Loc_Port_set_in names no declared socket or tube mouth
+BundleElements : error BUNDLE011: StateLatch.Metadata.ScenePath: Loc_Port_supply names no declared socket or tube mouth
+BundleElements : error BUNDLE011: SystemClock.Metadata.ScenePath: Loc_Port_activation_out names no declared socket or tube mouth
+BundleElements : error BUNDLE011: SystemClock.Metadata.ScenePath: Loc_Port_power_in names no declared socket or tube mouth
+BundleElements : error BUNDLE012: Battery.Ports[0]: the scene has no Loc_Port_Supply locator
+BundleElements : error BUNDLE012: Bumper.Ports[0]: the scene has no Loc_Port_PowerIn locator
+BundleElements : error BUNDLE012: Counter.Ports[0]: the scene has no Loc_Port_ActivationIn locator
+BundleElements : error BUNDLE012: Counter.Ports[1]: the scene has no Loc_Port_ActivationOut locator
+BundleElements : error BUNDLE012: Counter.Ports[2]: the scene has no Loc_Port_PowerIn locator
+BundleElements : error BUNDLE012: Counter.Ports[3]: the scene has no Loc_Port_Supply locator
+BundleElements : error BUNDLE012: DelayBox.Ports[0]: the scene has no Loc_Port_ActivationIn locator
+BundleElements : error BUNDLE012: DelayBox.Ports[1]: the scene has no Loc_Port_ActivationOut locator
+BundleElements : error BUNDLE012: Domino.Ports[0]: the scene has no Loc_Port_ActivationOut locator
+BundleElements : error BUNDLE012: ImpactSwitch.Ports[0]: the scene has no Loc_Port_ActivationOut locator
+BundleElements : error BUNDLE012: PoweredGate.Ports[0]: the scene has no Loc_Port_PowerIn locator
+BundleElements : error BUNDLE012: PressurePlate.Ports[0]: the scene has no Loc_Port_PowerIn locator
+BundleElements : error BUNDLE012: PressurePlate.Ports[1]: the scene has no Loc_Port_ActivationOut locator
+BundleElements : error BUNDLE012: PressurePlate.Ports[2]: the scene has no Loc_Port_Supply locator
+BundleElements : error BUNDLE012: SignalLamp.Ports[0]: the scene has no Loc_Port_ActivationIn locator
+BundleElements : error BUNDLE012: StateLatch.Ports[0]: the scene has no Loc_Port_SetIn locator
+BundleElements : error BUNDLE012: StateLatch.Ports[1]: the scene has no Loc_Port_ResetIn locator
+BundleElements : error BUNDLE012: StateLatch.Ports[2]: the scene has no Loc_Port_PowerIn locator
+BundleElements : error BUNDLE012: StateLatch.Ports[3]: the scene has no Loc_Port_ActivationOut locator
+BundleElements : error BUNDLE012: StateLatch.Ports[4]: the scene has no Loc_Port_Supply locator
+BundleElements : error BUNDLE012: SystemClock.Ports[0]: the scene has no Loc_Port_PowerIn locator
+BundleElements : error BUNDLE012: SystemClock.Ports[1]: the scene has no Loc_Port_ActivationOut locator

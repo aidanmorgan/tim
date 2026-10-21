@@ -73,5 +73,5 @@ mesh = SubResource("Mesh_Ring2")
 visible = false
 shape = SubResource("Shape_Sphere")
 
-[node name="Loc_Port_in" type="Node3D" parent="."]
+[node name="Loc_Port_PowerIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.65)

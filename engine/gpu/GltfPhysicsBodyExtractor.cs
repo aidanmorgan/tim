@@ -24,7 +24,8 @@ public static class GltfPhysicsBodyExtractor
         ArgumentNullException.ThrowIfNull(root);
 
         var colliders = new List<ExtractedCollider>();
-        var ports = new Dictionary<string, ExtractedPortLocator>(StringComparer.OrdinalIgnoreCase);
+        // Locator names are the typed socket and tube mouth names exactly (Story 9A.17): a differently cased name is another name.
+        var ports = new Dictionary<string, ExtractedPortLocator>(StringComparer.Ordinal);
 
         Traverse(root, Transform3D.Identity, isRoot: true, colliders, ports);
 
@@ -44,7 +45,7 @@ public static class GltfPhysicsBodyExtractor
             currentTransform = isRoot ? Transform3D.Identity : parentAccumulatedTransform * node3D.Transform;
 
             var name = node.Name.ToString();
-            if (name.StartsWith("Loc_Port_", StringComparison.OrdinalIgnoreCase))
+            if (name.StartsWith("Loc_Port_", StringComparison.Ordinal))
             {
                 var portId = name["Loc_Port_".Length..];
                 if (!string.IsNullOrWhiteSpace(portId))

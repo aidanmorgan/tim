@@ -26,11 +26,11 @@ public sealed class StateLatchElementDeclaration : ISignalElement, IElectricalEl
     /// <summary>The level output is high while memory is On (owner decision 18 Oct 2026) and is listed before Supply.</summary>
     public IReadOnlyList<PortDescriptor> Ports =>
     [
-        new("SetIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(-.45f, .72f, 0f), Vector3.UnitY),
-        new("ResetIn", SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(.45f, .72f, 0f), Vector3.UnitY),
-        new("PowerIn", SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
-        new("ActivationOut", SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Level, new Vector3(0f, -.56f, .38f), Vector3.UnitZ),
-        new("Supply", SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
+        new(PortSocket.SetIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(-.45f, .72f, 0f), Vector3.UnitY),
+        new(PortSocket.ResetIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, new Vector3(.45f, .72f, 0f), Vector3.UnitY),
+        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(-.93f, 0f, 0f), -Vector3.UnitX),
+        new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Level, new Vector3(0f, -.56f, .38f), Vector3.UnitZ),
+        new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
     ];
 
     /// <summary>The housing and its foot.</summary>

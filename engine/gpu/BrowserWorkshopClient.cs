@@ -28,6 +28,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private ulong _sequence;
     private int _pending;
     private bool _disposed;
+    private readonly WorkshopMemoryQueryOwner _memoryQuery = new();
     private readonly WorkshopClientCursor _cursor;
     public WorkshopCommandIdentity? Pending { get; private set; }
     public WorkshopTransportState TransportState
@@ -142,7 +143,13 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         }
     }
 
-    public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+    public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
+    {
+        _memoryQuery.AdmitCommand(kind);
+        return ExecuteCore(kind, construction, target, settings, electrical);
+    }
+
+    private async Task<WorkshopDelivery> ExecuteCore(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (kind == WorkshopCommandKind.Construct && _constructionOwner is not null)
@@ -206,10 +213,11 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
 
     /// <summary>The stopped memory observation query (Story 9A.3): one typed command whose acknowledgement carries the Simulation
     /// worker's measurement, paired with this context's own measurement taken after it.</summary>
-    public async Task<WorkshopMemoryReply> QueryMemory()
+    public Task<WorkshopMemoryReply> QueryMemory()
     {
-        var delivery = await Execute(WorkshopCommandKind.ObserveMemory);
-        return WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, delivery.Response, WorkshopMemoryMeasurement.Capture);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        return _memoryQuery.Execute(_pending, () => ExecuteCore(WorkshopCommandKind.ObserveMemory),
+            () => !_disposed && _pending == 0, WorkshopMemoryMeasurement.Capture);
     }
 
     public Task<WorkshopDelivery> CancelPending()

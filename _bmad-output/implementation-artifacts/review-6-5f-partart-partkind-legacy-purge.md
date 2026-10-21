@@ -237,3 +237,49 @@ $ SPRING_PREVIEW_URL=http://127.0.0.1:8060/ npx tsx --test tools/e2e/engine-core
 Story 6.5f satisfies every acceptance criterion, permanently eradicates all remnants of `engine/PartArt.cs` and `engine/gpu/WorkshopPartKind.cs`, enforces zero backwards-compatibility shims, ensures clean pre-commit static analysis, and achieves a 100% automated test pass rate across 826 unit tests and 24 real Chrome Playwright E2E tests.
 
 Terminal Scoped Verdict: **PASS**.
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Story 9A.17)
+
+Closing record under the epics rule "Reopened-record closure". Story 6.5f's closing stories are 9A.16, 9A.17, 9A.25a, 9A.27 and
+every conversion, and it closes with C-Memory. Only the port and footprint switch-table clauses are in scope here. The original
+text above is unchanged.
+
+**Reviewer:** Murdoch-24, terminal reviewer of Story 9A.17. I am not its implementer (Amelia-23), and I did not write the
+original review above (dated 2026-10-14).
+
+**Identity.**
+- Reviewed tree: `46e734289726c169d2d4a395a54db29ebb57d0f7`, commit `2bdd7e27`.
+- Final commit: `24179187`, tree `0b9a8182`; only docs and `_bmad-output/` differ from the reviewed tree.
+- Merged: as `6ca5591e`, same tree.
+- The switch-table census below was taken on later main `941c8b50` (2026-10-21T10:30:47Z).
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`):
+- `review-9a-17-bundle-ports-and-footprint.md` and `evidence-9a-17-review/` (mutants `R1.txt` to `R6.txt`, the Tier 1 logs).
+- `evidence-9a-17-review/addendum-6-5f-switch-tables-main-941c8b50.txt`: the raw census, stamped with its main commit, tree and UTC time.
+- **Full run:** `evidence-9a-17/e2e-full-2bdd7e27/summary.txt`.
+  - Run `20261021T092247Z-74820`, `sourceHead 2bdd7e27`, `bundleIdentity 570e3d4cb8b8…`.
+  - 09:22:47Z to 10:16:41Z, 284/284.
+- **Clean rerun:** `evidence-9a-17/e2e-contended-rerun-2bdd7e27/summary.txt`.
+  - Run `20261021T101828Z-84313`, `bundleIdentity fdf5b9e38fed…`.
+  - 10:18:28Z to 10:21:06Z, Pass.
+
+| Original clause | Retro-verification finding (18 Oct) | Verdict |
+| --- | --- | --- |
+| Checklist #5: "`WorkbenchFootprint`, `WorkbenchCapacity`, `PuzzleDefinition`, and `WorkshopPorts` operate exclusively on `PartId`" and AC-2: "… `WorkshopPorts` updated" (the ports table) | C: "All part-kind switches eradicated" is contradicted by the `PartId` switch tables, including `WorkshopConnections.cs:19` (`WorkshopPorts.For`) | **Closed, Pass** (the `WorkshopPorts` site). `WorkshopPorts` (`For`, 12 arms; `LocalPosition`, 23 arms; `Has`; `Signal`) is deleted. Ports come only from each element's bundle declaration (`ElementPortCatalogue`). The census finds 0 hits for `WorkshopPorts`, `WorkbenchFootprint`, `TryGetPortTransform` and `GetPortTransform` in `engine`, `ui` and both workers. The golden test proves the declared ports equal the deleted table bit for bit (mutants R2 and R3 are killed) |
+| The same clauses (the footprint table, `WorkbenchCapacity.cs:35`, `WorkbenchFootprint.Of`, 18 arms) | C (same row) | **The switch is closed, Pass.** It was already deleted by Story 9R.5b (`007a65ed`), and this addendum verifies it is absent. `WorkbenchCapacity` keeps one `PartId.Receiver` comparison for the guide invariant, which is not a footprint table. **Open, not a fail:** the runtime does not read the footprints the packages declare. Each instance's bodies and constraints still come from its record's compile arm, checked against the declaration by `PackageRuntimeParityTests`. This is the split row "A3 (footprints)" in `docs/architecture/element-package-isolation.md`, accepted by the coordinator on 21 Oct. Owner: 9A.16 (bundle bodies and colliders), then each record's family conversion |
+| AC-3/"Zero Shims" (the port part): socket string alias chain (retro #12) | C | **Closed, Pass.** `MachinePart.TryGetPortTransform` and its alias chain are deleted, and the extractor matches locator names ordinally |
+
+**Stays open in this record** (census counts are heuristic regex hits on main `941c8b50`):
+- `engine/MachinePart.cs` (30; `BuildDeclarative` per-element arms, A4). Owner: 9A.25a, then 9A.25b.
+- `engine/MachineWorld.Gpu.cs` (20; `CaptureInstance`). Owner: 9A.27, then each family conversion.
+- `engine/gpu/WorkshopWireFlatBuffers.cs` (18; decode arms). Owner: 9A.27, then each family conversion.
+- `engine/gpu/WorkshopCanonicalColliders.cs` (10). Owner: 9A.16.
+- `engine/gpu/WorkshopConstruction.cs` (3), `ui/WorkshopConfiguration.cs` (4) and `ui/WorkshopGuidance.cs` (2): per-element records and UI panels (A6, A11). Owner: the family conversions.
+- In total, 39 `== PartId.` branches remain in `engine` and `ui`.
+- `engine/gpu/WorkshopWire.cs` no longer exists.
+- Zero shims (X4, collider fallbacks). Owner: 9A.16.
+- Cumulative Chrome (W). Re-verified for the current tree by the run cited above, 284/284 across every suite.
+
+Per the closure table, 6.5f stays open until C-Memory's addendum records its terminal Pass.

@@ -205,6 +205,8 @@ for (const captureMode of [1, 2]) {
     assert.equal(messages.filter(item => item.failure).length, failuresBefore, 'observation failure is contained');
     assert.deepEqual(logged, ['CCGPU_TRACE_FLUSH_EXCEPTION Error: Output unavailable'], 'and logged, never swallowed');
     throwOutput = false;
+    const beforeReset = publication(4n), afterReset = publication(5n);
+    publish(beforeReset, false);
     const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
     await Promise.resolve();
     imports.acknowledge(new Uint8Array(64), new Uint8Array(8), true);
@@ -212,7 +214,20 @@ for (const captureMode of [1, 2]) {
     assert.equal(flushes, 2);
     release();
     await reset;
-    assert.equal(flushes, 3, 'acknowledgement-only Reset announces sealed observation');
+    assert.equal(flushes, 2, 'Reset cannot flush while its earlier read remains in flight');
+    publish(afterReset, true);
+    assert.deepEqual(posted().readIdentity, beforeReset.identity, 'Reset keeps the in-flight publication');
+    await self.onmessage({ data: { readAcknowledged: receipt(beforeReset) } });
+    assert.equal(receipts.at(-1), hex(beforeReset.identity), 'the delayed pre-Reset receipt reaches managed accounting');
+    assert.deepEqual(posted().readIdentity, afterReset.identity, 'the post-Reset publication drains afterwards');
+    await self.onmessage({ data: { readAcknowledged: receipt(afterReset) } });
+    assert.equal(flushes, 3, 'Reset observation flushes once both reads retire');
+    const nextRun = self.onmessage({ data: { bytes: new Uint8Array(72) } });
+    await Promise.resolve();
+    release();
+    await nextRun;
+    assert.equal(messages.filter(item => item.failure).length, failuresBefore, 'the recovered transport accepts the next Run');
+
     // Story 9A.3 negative control: the deleted raw stall flag and raw memory channel are unknown envelopes, refused by name
     // through the typed rejection; nothing reaches the ledger, the dispatcher or a stall setter.
     const receiptsBefore = receipts.length;
@@ -400,4 +415,27 @@ for (const control of Object.values(StartupControl)) {
     assert.ok(cleared.has(turnTimers[0]), 'disposal clears the timed turn instead of leaving it to fire');
     assert.deepEqual(closed.sort(), ['port1', 'port2'], 'disposal closes both ends of the turn channel');
     console.log(JSON.stringify({ disposalCancelsSchedulerTurns: true }));
+}
+
+// A recognized transport field never makes an unknown companion field legal. Rejection is atomic.
+{
+    let dispatches = 0, receipts = 0, schedules = 0;
+    const host = {
+        ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
+        Dispatch: async () => { dispatches++; },
+        AcknowledgeRead: () => { receipts++; },
+        ScheduleResult: () => { schedules++; }
+    };
+    const { self, messages } = await loadWorker(host);
+    for (const data of [
+        { bytes: new Uint8Array(8), memoryRequest: true },
+        { readAcknowledged: new Uint8Array(24), reliableStalled: true },
+        { scheduleControl: new Uint8Array(8), unexpected: true }
+    ]) {
+        await self.onmessage({ data });
+        assert.equal(messages.at(-1).rejected, true);
+        assert.match(messages.at(-1).detail, /Unsupported worker envelope: (memoryRequest|reliableStalled|unexpected)/);
+    }
+    assert.deepEqual([dispatches, receipts, schedules], [0, 0, 0], 'mixed envelopes mutate no managed state');
+    console.log(JSON.stringify({ mixedEnvelopesRejectedAtomically: true }));
 }

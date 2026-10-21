@@ -103,6 +103,19 @@ public sealed class TypedTransportCommandTests
     }
 
     [Fact]
+    public void AReceiptForAnUnpublishedGapRetiresNothing()
+    {
+        var ledger = Published((1, 0), (3, 100));
+        Assert.Equal(ReadReceiptRejection.Unpublished, Rejection(ledger, Receipt(2)));
+        Assert.Equal(new UnreceiptedRead(new(1), Ms(0)), ledger.Oldest);
+        Assert.True(ledger.Stalled(Ms(501)));
+        ledger.Receipt(Receipt(1));
+        Assert.Equal(ReadReceiptRejection.Unpublished, Rejection(ledger, Receipt(2)));
+        ledger.Receipt(Receipt(3));
+        Assert.True(ledger.Idle);
+    }
+
+    [Fact]
     public void PublicationsAreStrictlyIncreasing()
     {
         var ledger = Published((5, 0));
@@ -254,7 +267,7 @@ public sealed class TypedTransportCommandTests
     public void AnAppliedQueryPairsTheSimulationMeasurementWithTheBrowserOne()
     {
         var browser = Measurement with { UsedBefore = 77 };
-        var reply = WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, Acknowledgement(Applied, Measurement), () => browser);
+        var reply = WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, Acknowledgement(Applied, Measurement), true, () => browser);
         Assert.Equal(Applied, reply.Result);
         Assert.Equal(new WorkshopMemoryObservation(browser, Measurement), reply.Observation);
     }
@@ -263,9 +276,58 @@ public sealed class TypedTransportCommandTests
     public void ARefusedQueryHasNoObservationAndCapturesNothing()
     {
         var refused = new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase);
-        var reply = WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, Acknowledgement(refused, null),
+        var reply = WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, Acknowledgement(refused, null), true,
             () => throw new InvalidOperationException("A refused query captures nothing."));
         Assert.Equal(refused, reply.Result);
+        Assert.Null(reply.Observation);
+    }
+
+    [Fact]
+    public async Task MemoryQueryOwnsTheStoppedIntervalUntilCaptureCompletes()
+    {
+        var owner = new WorkshopMemoryQueryOwner();
+        var source = new TaskCompletionSource<WorkshopDelivery>();
+        var captures = 0;
+        var pending = owner.Execute(0, () => source.Task, () => true, () =>
+        {
+            Assert.True(owner.Active);
+            Assert.Throws<InvalidOperationException>(() => owner.AdmitCommand(WorkshopCommandKind.Run));
+            captures++;
+            return Measurement;
+        });
+        Assert.True(owner.Active);
+        Assert.Throws<InvalidOperationException>(() => owner.AdmitCommand(WorkshopCommandKind.Run));
+        Assert.Throws<InvalidOperationException>(() => owner.AdmitCommand(WorkshopCommandKind.Reset));
+        owner.AdmitCommand(WorkshopCommandKind.Dispose);
+        var busy = await owner.Execute(0, () => throw new InvalidOperationException("No second query."),
+            () => true, () => throw new InvalidOperationException("No second capture."));
+        Assert.Equal(WorkshopRejection.Busy, busy.Result.Reason);
+        source.SetResult(new(Acknowledgement(Applied, Measurement), true));
+        Assert.Equal(Applied, (await pending).Result);
+        Assert.Equal(1, captures);
+        Assert.False(owner.Active);
+        owner.AdmitCommand(WorkshopCommandKind.Run);
+    }
+
+    [Theory]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    public async Task SupersededOrDisposedQueryReleasesOwnershipWithoutCapture(bool applicable, bool current)
+    {
+        var owner = new WorkshopMemoryQueryOwner();
+        var reply = await owner.Execute(0, () => Task.FromResult(new WorkshopDelivery(Acknowledgement(Applied, Measurement), applicable)),
+            () => current, () => throw new InvalidOperationException("No stale capture."));
+        Assert.Equal(WorkshopRejection.StaleGeneration, reply.Result.Reason);
+        Assert.Null(reply.Observation);
+        Assert.False(owner.Active);
+    }
+
+    [Fact]
+    public void ASupersededQueryCapturesNothing()
+    {
+        var reply = WorkshopMemoryQuery.Complete(WorkshopCommandKind.ObserveMemory, Acknowledgement(Applied, Measurement), false,
+            () => throw new InvalidOperationException("A superseded query captures nothing."));
+        Assert.Equal(new(WorkshopCommandOutcome.Rejected, WorkshopRejection.StaleGeneration), reply.Result);
         Assert.Null(reply.Observation);
     }
 

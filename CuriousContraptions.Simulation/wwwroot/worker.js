@@ -258,6 +258,18 @@ roles = Array.from(host.ScheduleRoles());
 
 self.onmessage = async event => {
     try { clockNow(); } catch { return; } // a failed native clock has already retired this session and reported it
+    const data = event.data;
+    const keys = data !== null && typeof data === 'object' ? Object.keys(data) : [];
+    const allowed = data?.bootstrap instanceof Uint8Array ? ['bootstrap', 'captureMode', 'clockRing', 'poseRing']
+        : data?.animationPort instanceof MessagePort ? ['animationPort']
+        : data?.scheduleControl instanceof Uint8Array ? ['scheduleControl']
+        : data?.readAcknowledged instanceof Uint8Array ? ['readAcknowledged']
+        : data?.bytes instanceof Uint8Array ? ['bytes'] : [];
+    const unsupported = keys.filter(key => !allowed.includes(key));
+    if (unsupported.length) {
+        self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(unsupported) });
+        return;
+    }
     const bootstrap = event.data?.bootstrap;
     if (bootstrap instanceof Uint8Array) {
         try {
