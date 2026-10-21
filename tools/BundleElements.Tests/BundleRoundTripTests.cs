@@ -77,6 +77,10 @@ public sealed class BundleRoundTripTests
     [Theory]
     [InlineData("\"Category\": \"Structure\"", "\"Category\": \"Sideways\"")]
     [InlineData("\"Category\": \"Structure\"", "\"Category\": 5")]
+    [InlineData("\"Category\": \"Structure\"", "\"Category\": \"Motion, Goals\"")]
+    [InlineData("\"Category\": \"Structure\"", "\"Category\": \"structure\"")]
+    [InlineData("\"ShapeKind\": \"Box\"", "\"ShapeKind\": \"box\"")]
+    [InlineData("\"KinematicMode\": \"Static\"", "\"KinematicMode\": \" Static\"")]
     [InlineData("\"ScenePath\":", "\"Unknown\": 1, \"ScenePath\":")]
     [InlineData("\"HalfExtents\": [\n", "\"HalfExtents\": [\n 1,\n")]
     public void MalformedInputIsRejected(string original, string replacement)

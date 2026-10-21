@@ -1611,6 +1611,7 @@ So that two plates switch two gates independently.
 **Acceptance Criteria:**
 - `select --diff` and `run --diff` let a path that forces Full win over a `NoPrimarySuite` refusal raised by another path. Today `select --diff 844981c9` refuses with `NoPrimarySuite` for `elements/Ball`, although the same diff touches the Abstractions, `tools/BundleElements` and `tools/E2eRunner`, each of which selects Full.
 - `ball` has a Primary suite, or its absence is a declared and tested decision. Every C-Balls story changes `elements/Ball`.
+- `tools/BundleElements.Tests/**` has a rule (no browser impact), instead of selecting Full as an unmatched path.
 
 ### Story F.12: Architecture Doc Follow-ups
 *Status: Backlog. Filed from the 9A.0 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-0-architecture-authority-docs.md)).*

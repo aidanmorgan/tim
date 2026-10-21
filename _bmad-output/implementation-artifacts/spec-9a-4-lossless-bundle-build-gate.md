@@ -235,6 +235,16 @@ Amelia-16, 21 Oct 2026, implementation (owner delegation: decide small gaps; the
 
 ## Review Triage Log
 
+**Round 1 (Murdoch-17): Fail on B-1. Round 2 fixes, Amelia-16, 21 Oct 2026.**
+- **B-1 (AC4).** BUNDLE004 now fires for any package that declares a footprint body, or a mechanical payload, but no collider, whatever its domains. Before, only `IMechanicalElement` was checked, so an emptied Signal lamp still produced 13 elements.
+  - Red: `ANonMechanicalBodyWithoutAColliderIsRefused` used a new internal `SignalFixture` ([round2-red.txt](evidence-9a-4/round2-red.txt)). A Bodies = 0 signal package with no collider is admitted, as the control.
+  - Mutant M25 (back to mechanical-only) fails that test ([mutant-m25-mechanical-only.txt](evidence-9a-4/mutant-m25-mechanical-only.txt)).
+  - A real solution build with the lamp's colliders emptied fails with `BUNDLE004 SignalLamp.Colliders` ([round2-b1-emptied-lamp-build.txt](evidence-9a-4/round2-b1-emptied-lamp-build.txt)).
+- **F14-1.** The bundle reader accepts only exact enum member names. `ExactEnumConverterFactory` replaces `JsonStringEnumConverter`, which accepted any case and comma-joined flag lists. `"Motion, Goals"`, `"structure"`, `"box"` and `" Static"` are now rejected (`MalformedInputIsRejected`, red then green). The E2eRunner reader already compared names ordinally.
+- **Test hygiene.** `TheCatalogueIdsWithoutAPackageAreExactlyTheElevenListed` no longer disposes `ResourceLoader`-cached definitions that later registries in the process reuse. The first solution test run after the merge failed 30 registry and palette tests once; the cause was not captured. The tests then passed alone, and the solution passed 3 runs in a row after this change ([round2-tier1-dotnet-test.txt](evidence-9a-4/round2-tier1-dotnet-test.txt)).
+- **Merge.** Merged main `980e222d` (9A.1 final). The runner follow-ups are renumbered F.14, because 9A.1's review took F.13.
+- **Runner.** `select --diff b8910e92` selects Full only through `tools/BundleElements` (SharedDriverInfrastructure) and the unmatched `tools/BundleElements.Tests` path ([selection](evidence-9a-4/round2-select-diff-b8910e92.txt)). Neither is an engine, solver, clock, worker, wire or compiler change, and no runtime code or package declaration changes. So, per the 21 Oct rule, Tier 2 (the smoke pair) runs instead of a full run. The unmatched test path is filed to F.14.
+
 ## Appendix: reference census
 
 - **`elements.bundle.json`:** `tools/BundleElements/Program.cs:56-58` and tracked `parts/elements.bundle.json`. No runtime reader, csproj, `export_presets.cfg`, `.tres`/`.tscn` or doc reference. The `AppBundle/` copies are git-ignored (`.gitignore:13`).

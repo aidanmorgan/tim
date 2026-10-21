@@ -57,6 +57,9 @@ public static class BundleValidator
             if (footprint.Bodies < 0) OutOfRange("Footprint.Bodies");
             if (footprint.MovingBodies < 0 || footprint.MovingBodies > footprint.Bodies) OutOfRange("Footprint.MovingBodies");
             if (footprint.PrismaticConstraints < 0) OutOfRange("Footprint.PrismaticConstraints");
+            // Any package with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
+            if ((footprint.Bodies > 0 || declaration is IMechanicalElement) && declaration.Colliders.Count == 0)
+                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{package}.Colliders: a body declares no collider"));
             for (var i = 0; i < declaration.Ports.Count; i++) Port($"Ports[{i}]", declaration.Ports[i]);
             for (var i = 0; i < declaration.Colliders.Count; i++) Collider($"Colliders[{i}]", declaration.Colliders[i]);
             for (var i = 0; i < declaration.Events.Count; i++)
@@ -129,8 +132,6 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].LocalRotation", anchor.LocalRotation);
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
-            if (mechanical.Colliders.Count == 0)
-                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{package}.Colliders: a mechanical body declares no collider"));
         }
 
         private void Electrical(IElectricalElement electrical)

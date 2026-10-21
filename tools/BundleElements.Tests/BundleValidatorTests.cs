@@ -43,8 +43,20 @@ public sealed class BundleValidatorTests
 
     [Fact]
     public void ABodyWithoutAColliderIsRefused() =>
-        Assert.Equal(["BUNDLE004 FixtureBody.Colliders: a mechanical body declares no collider"],
+        Assert.Equal(["BUNDLE004 FixtureBody.Colliders: a body declares no collider"],
             Errors(("FixtureBody", new Fixture { Colliders = [] })));
+
+    [Fact]
+    public void ANonMechanicalBodyWithoutAColliderIsRefused() =>
+        Assert.Equal(["BUNDLE004 FixtureLamp.Colliders: a body declares no collider"],
+            Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0), Colliders = [] })));
+
+    [Fact]
+    public void ANonMechanicalPackageWithColliderOrWithoutBodyIsAdmitted()
+    {
+        Assert.Empty(Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0) })));
+        Assert.Empty(Errors(("FixtureSignal", new SignalFixture { Footprint = new(0, 0, 0), Colliders = [] })));
+    }
 
     [Fact]
     public void ADefaultOutsideItsBoundsIsRefused() =>

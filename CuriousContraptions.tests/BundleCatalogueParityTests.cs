@@ -58,8 +58,8 @@ public sealed class BundleCatalogueParityTests(NativeSceneFixture godot)
         var catalogue = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var file in DirAccess.GetFilesAt("res://parts/catalog").Where(file => file.EndsWith(".tres", StringComparison.Ordinal)))
         {
-            using var definition = ResourceLoader.Load<PartDefinition>("res://parts/catalog/" + file);
-            catalogue.Add(definition.Id);
+            // Not disposed: ResourceLoader caches the definition, and later registries in this process reuse that same wrapper.
+            catalogue.Add(ResourceLoader.Load<PartDefinition>("res://parts/catalog/" + file).Id);
         }
         var packaged = Packages().Select(package => package.Declaration.Metadata.Id).ToHashSet(StringComparer.Ordinal);
         Assert.Subset(catalogue, packaged);
