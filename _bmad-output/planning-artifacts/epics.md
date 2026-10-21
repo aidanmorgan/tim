@@ -1605,6 +1605,17 @@ So that two plates switch two gates independently.
 - *Wiring the plate to anything other than a lamp is refused.*
 - *Findings are filed to Story F.7.*
 
+### Story F.16: Catalogue Follow-ups
+*Status: Backlog. Filed from the 9A.14+18 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-14-bundle-sole-catalogue.md)).*
+
+**Acceptance Criteria:**
+- Resolve items F16-1 and F16-3 to F16-7:
+  - category grouping versus the old order;
+  - native pins for the switch's colour, description, title and icon;
+  - naming the rejected Tennis/Balloon id (owned by 9A.15);
+  - a Workshop-level start-up refusal test;
+  - the cosmetic items.
+
 ### Story F.15: Package Follow-ups (incl. Reproducible Publish Bundle Identity)
 *PKG-3 review findings: F15-10 (titles, descriptions and colours) and F15-11 (Signal declaration parity) were moved into Story 9A.14 on 21 Oct 2026. F15-12, the cat-052-lamp spec wording, stays here.*
 *Also covers the PKG-1 review findings F15-1 to F15-5:*

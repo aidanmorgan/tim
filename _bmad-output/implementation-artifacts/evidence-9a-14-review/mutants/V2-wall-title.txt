@@ -1,0 +1,21 @@
+mutant V2-wall-title at 2026-10-21T05:16:00Z head=de4d1ea5
+--- diff
+diff --git a/elements/Wall/WallElementDeclaration.cs b/elements/Wall/WallElementDeclaration.cs
+index ed84ad15..2304fa72 100644
+--- a/elements/Wall/WallElementDeclaration.cs
++++ b/elements/Wall/WallElementDeclaration.cs
+@@ -10,7 +10,7 @@ public sealed class WallElementDeclaration : IMechanicalElement
+     public ElementMetadata Metadata => new(
+         Id: "wall",
+         Category: ElementCategory.Structure,
+-        DisplayName: "Wall",
++        DisplayName: "Walls",
+         Description: "A solid panel. Move, rotate or stretch its three local dimensions to guide and contain balls.",
+         Color: new(0.76f, 0.56f, 0.32f, 1f),
+         PaletteOrder: 5,
+ M elements/Wall/WallElementDeclaration.cs
+--- build+test
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"DisplayName\": \"Wall\"|\"DisplayName\": \"\"", expected: "BUNDLE010 wall.Metadata.DisplayName") [8 ms]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"DisplayName\": \"Wall\"|\"DisplayName\": \"\"", expected: "BUNDLE010 wall.Metadata.DisplayName") [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

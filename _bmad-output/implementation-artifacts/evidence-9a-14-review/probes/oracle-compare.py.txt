@@ -1,0 +1,58 @@
+# Murdoch-21 independent oracle (read-only): compares the candidate's generated bundle with the pre-cutover catalogue at a base
+# commit: every .tres Title, Category, Description and Color; the old static palette order; and every old pictogram SVG (composed
+# exactly as the old WorkshopIcons.Pictogram composed it) against the package icon.svg bytes.
+# Usage: python3 -I oracle-compare.py.txt <candidate-tree> <base-commit>
+import json, re, subprocess, sys
+
+tree, base = sys.argv[1], sys.argv[2]
+def show(path):
+    return subprocess.run(["git", "-C", tree, "show", f"{base}:{path}"], check=True, capture_output=True, text=True).stdout
+
+bundle = json.load(open(f"{tree}/elements/elements.bundle.json"))
+meta = {e["Metadata"]["Id"]: e["Metadata"] for e in bundle["Elements"]}
+names = subprocess.run(["git", "-C", tree, "ls-tree", "--name-only", f"{base}:parts/catalog"], check=True, capture_output=True,
+                       text=True).stdout.split()
+failures = 0
+def check(label, expected, actual):
+    global failures
+    ok = expected == actual
+    if not ok: failures += 1
+    print(f"{'ok  ' if ok else 'FAIL'} {label}: expected {expected!r} actual {actual!r}")
+
+tres = {}
+for name in names:
+    text = show(f"parts/catalog/{name}")
+    fields = dict(re.findall(r'^(\w+) = (.*)$', text, re.M))
+    tres[fields["Id"].strip('"')] = fields
+print(f"base {base}: {len(tres)} .tres; bundle: {len(meta)} entries")
+check("bundle ids == .tres ids minus tennis, balloon", sorted(set(tres) - {"tennis", "balloon"}), sorted(meta))
+for pid, fields in sorted(tres.items()):
+    if pid not in meta: continue
+    m = meta[pid]
+    check(f"{pid} title", json.loads(fields["Title"]), m["DisplayName"])
+    check(f"{pid} category", json.loads(fields["Category"]), m["Category"])
+    check(f"{pid} description", json.loads(fields["Description"]), m["Description"])
+    rgba = [float(v) for v in re.match(r'Color\((.*)\)', fields["Color"]).group(1).split(",")]
+    check(f"{pid} color", rgba, [m["Color"][k] for k in "RGBA"])
+
+inventory = show("engine/gpu/WorkshopInventory.cs")
+order_block = re.search(r'_canonicalOrder =\s*\[(.*?)\];', inventory, re.S).group(1)
+partid = show("engine/PartId.cs")
+constants = dict(re.findall(r'public static readonly PartId (\w+) = new\("([^"]+)"\);', partid))
+old_order = [constants[n.strip().removeprefix("PartId.")] for n in order_block.split(",") if n.strip()]
+old_free = [pid for pid in old_order if pid not in ("tennis", "balloon")]
+new_free = [e["Metadata"]["Id"] for e in sorted(bundle["Elements"], key=lambda e: e["Metadata"]["PaletteOrder"])]
+check("palette order (old canonical minus undelivered)", old_free, new_free)
+
+icons = show("ui/WorkshopIcons.cs")
+header = re.search(r'LoadSvgFromString\("(<svg [^"]*>)" \+ drawing', icons).group(1)
+arms = {}
+for key, drawing in re.findall(r'^\s*"([a-z_0-9]+)"(?: or "[a-z_]+")* => "(.*)",\s*$', icons, re.M):
+    arms[key] = drawing.replace("\\'", "'").replace('\\"', '"')
+for pid, m in sorted(meta.items()):
+    path = m["IconPath"].replace("res://", f"{tree}/")
+    data = open(path, "rb").read()
+    expected = (header + arms[pid] + "</svg>").encode()
+    check(f"{pid} icon.svg bytes (newline-stripped)", expected, data.rstrip(b"\n"))
+print(f"failures={failures}")
+sys.exit(1 if failures else 0)

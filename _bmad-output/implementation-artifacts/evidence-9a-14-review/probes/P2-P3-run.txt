@@ -1,0 +1,807 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (22 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/elements/elements.bundle.json (22 elements)
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (2 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.59]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.11]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.23]   Starting:    CuriousContraptions.tests
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/gpu/BrowserWorkshopClient.cs:line 97
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/ui/Workshop.cs:line 96
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Mechanical.Sliders[].MovingBody.Colliders") [17 ms]
+  Standard Output Messages:
+ P2b Mechanical.Sliders[].MovingBody.Colliders: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.ColliderDescriptor. Path: $.Elements[19].Mechanical.Sliders[0].MovingBody.Colliders[1] | LineNumber: 0 | BytePositionInLine: 81015.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Mechanical.AnchorPoints") [3 ms]
+  Standard Output Messages:
+ P2b Mechanical.AnchorPoints: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.Mechanical.AnchorPointDescriptor. Path: $.Elements[0].Mechanical.AnchorPoints[0] | LineNumber: 0 | BytePositionInLine: 918.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Mechanical.Sliders") [3 ms]
+  Standard Output Messages:
+ P2b Mechanical.Sliders: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.Mechanical.PrismaticSliderDescriptor. Path: $.Elements[0].Mechanical.Sliders[0] | LineNumber: 0 | BytePositionInLine: 931.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Electrical.Nodes") [3 ms]
+  Standard Output Messages:
+ P2b Electrical.Nodes: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.Electrical.ElectricalNodeDescriptor. Path: $.Elements[3].Electrical.Nodes[1] | LineNumber: 0 | BytePositionInLine: 9130.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Events") [4 ms]
+  Standard Output Messages:
+ P2b Events: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.EventDescriptor. Path: $.Elements[0].Events[1] | LineNumber: 0 | BytePositionInLine: 728.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Signal.Triggers") [3 ms]
+  Standard Output Messages:
+ P2b Signal.Triggers: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.Signal.SignalTriggerDescriptor. Path: $.Elements[1].Signal.Triggers[1] | LineNumber: 0 | BytePositionInLine: 5650.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Ports") [3 ms]
+  Standard Output Messages:
+ P2b Ports: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.PortDescriptor. Path: $.Elements[0].Ports[0] | LineNumber: 0 | BytePositionInLine: 437.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Colliders") [3 ms]
+  Standard Output Messages:
+ P2b Colliders: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.ColliderDescriptor. Path: $.Elements[0].Colliders[1] | LineNumber: 0 | BytePositionInLine: 639.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Metadata.Parameters[].Options") [5 ms]
+  Standard Output Messages:
+ P2b Metadata.Parameters[].Options: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: BUNDLE006 basket.Metadata.Parameters[0].Options: outside its declared range.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Domains") [5 ms]
+  Standard Output Messages:
+ P2b Domains: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: Expected a SimulationDomain name.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2b_ANullListItemAnywhereIsTheNamedRefusal(path: "Metadata.Parameters") [3 ms]
+  Standard Output Messages:
+ P2b Metadata.Parameters: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.ParameterDescriptor. Path: $.Elements[0].Metadata.Parameters[0] | LineNumber: 0 | BytePositionInLine: 333.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "ID_SPACE") [5 ms]
+  Standard Output Messages:
+ P2 ID_SPACE: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: BUNDLE010  ball.Metadata.Id: empty or padded text.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "ICON_NULL") [3 ms]
+  Standard Output Messages:
+ P2 ICON_NULL: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The constructor parameter 'IconPath' on type 'CuriousContraptions.Abstractions.ElementMetadata' doesn't allow null values. Consider updating its nullability annotation. Path: $.Elements[0].Metadata.IconPath | LineNumber: 0 | BytePositionInLine: 244.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "{\"Elements\": null}") [< 1 ms]
+  Standard Output Messages:
+ P2 {"Elements": null}: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The constructor parameter 'Elements' on type 'CuriousContraptions.Bundle.BundleDocument' doesn't allow null values. Consider updating its nullability annotation. Path: $.Elements | LineNumber: 0 | BytePositionInLine: 17.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "ID_EMPTY") [4 ms]
+  Standard Output Messages:
+ P2 ID_EMPTY: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: BUNDLE010 .Metadata.Id: empty or padded text.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "{}") [< 1 ms]
+  Standard Output Messages:
+ P2 {}: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: JSON deserialization for type 'CuriousContraptions.Bundle.BundleDocument' was missing required properties including: 'Elements'.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "BOWLING_MASS") [3 ms]
+  Standard Output Messages:
+ P2 BOWLING_MASS: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: bowling: Only the declared material of this ball kind is admitted..
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "") [< 1 ms]
+  Standard Output Messages:
+ P2 : InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+
+
+[xUnit.net 00:00:01.70]     CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "SCENE_FOREIGN_PACKAGE") [FAIL]
+[xUnit.net 00:00:01.70]       Assert.NotNull() Failure: Value is null
+[xUnit.net 00:00:01.70]       Stack Trace:
+[xUnit.net 00:00:01.70]         /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs(90,0): at CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(String edit)
+[xUnit.net 00:00:01.70]            at InvokeStub_Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(Object, Span`1)
+[xUnit.net 00:00:01.70]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.70]       Output:
+[xUnit.net 00:00:01.70]         P2 SCENE_FOREIGN_PACKAGE: : 
+[xUnit.net 00:00:01.72]     CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "{\"Elements\": [null]}") [FAIL]
+[xUnit.net 00:00:01.72]       System.NullReferenceException: Object reference not set to an instance of an object.
+[xUnit.net 00:00:01.72]          at CuriousContraptions.PartRegistry.<>c.<Read>b__10_0(BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:line 74
+[xUnit.net 00:00:01.72]          at System.Linq.Enumerable.ListSelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+[xUnit.net 00:00:01.72]          at System.Linq.Enumerable.ListSelectIterator`2.ToArray()
+[xUnit.net 00:00:01.72]          at CuriousContraptions.PartRegistry.Read(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:line 74
+[xUnit.net 00:00:01.72]          at CuriousContraptions.PartRegistry.Load(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:line 48
+[xUnit.net 00:00:01.72]          at CuriousContraptions.Tests.Murdoch21Probes.<>c__DisplayClass9_0.<P2_EveryStructurallyInvalidBundleIsTheNamedRefusal>b__0() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:line 88
+[xUnit.net 00:00:01.72]          at Xunit.Record.Exception(Action testCode) in /_/src/xunit.v3.core/Record.cs:line 30
+[xUnit.net 00:00:01.72]       Stack Trace:
+[xUnit.net 00:00:01.72]         /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs(91,0): at CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(String edit)
+[xUnit.net 00:00:01.72]            at InvokeStub_Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(Object, Span`1)
+[xUnit.net 00:00:01.72]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.72]       Output:
+[xUnit.net 00:00:01.72]         P2 {"Elements": [null]}: NullReferenceException: Object reference not set to an instance of an object.
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "ORDER_NEGATIVE") [5 ms]
+  Standard Output Messages:
+ P2 ORDER_NEGATIVE: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: BUNDLE006 ball.Metadata.PaletteOrder: outside its declared range.
+
+
+  Failed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "SCENE_FOREIGN_PACKAGE") [5 ms]
+  Error Message:
+   Assert.NotNull() Failure: Value is null
+  Stack Trace:
+     at CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(String edit) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:line 90
+   at InvokeStub_Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ P2 SCENE_FOREIGN_PACKAGE: : 
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "META_NULL") [2 ms]
+  Standard Output Messages:
+ P2 META_NULL: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.ElementMetadata. Path: $.Elements[0].Metadata | LineNumber: 0 | BytePositionInLine: 29.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "[]") [< 1 ms]
+  Standard Output Messages:
+ P2 []: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Bundle.BundleDocument. Path: $ | LineNumber: 0 | BytePositionInLine: 1.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "COLOR_OUT_OF_RANGE") [4 ms]
+  Standard Output Messages:
+ P2 COLOR_OUT_OF_RANGE: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: BUNDLE006 ball.Metadata.Color.R: outside its declared range.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "COLLIDERS_NULL_ITEM") [2 ms]
+  Standard Output Messages:
+ P2 COLLIDERS_NULL_ITEM: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.ColliderDescriptor. Path: $.Elements[0].Colliders[1] | LineNumber: 0 | BytePositionInLine: 639.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "ORDER_ZERO") [5 ms]
+  Standard Output Messages:
+ P2 ORDER_ZERO: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: BUNDLE006 ball.Metadata.PaletteOrder: outside its declared range.
+
+
+  Failed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "{\"Elements\": [null]}") [< 1 ms]
+  Error Message:
+   System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.PartRegistry.<>c.<Read>b__10_0(BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:line 74
+   at System.Linq.Enumerable.ListSelectIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+   at System.Linq.Enumerable.ListSelectIterator`2.ToArray()
+   at CuriousContraptions.PartRegistry.Read(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:line 74
+   at CuriousContraptions.PartRegistry.Load(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:line 48
+   at CuriousContraptions.Tests.Murdoch21Probes.<>c__DisplayClass9_0.<P2_EveryStructurallyInvalidBundleIsTheNamedRefusal>b__0() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:line 88
+   at Xunit.Record.Exception(Action testCode) in /_/src/xunit.v3.core/Record.cs:line 30
+  Stack Trace:
+     at CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(String edit) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:line 91
+   at InvokeStub_Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ P2 {"Elements": [null]}: NullReferenceException: Object reference not set to an instance of an object.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "PORTS_NULL_ITEM") [2 ms]
+  Standard Output Messages:
+ P2 PORTS_NULL_ITEM: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The JSON value could not be converted to CuriousContraptions.Abstractions.PortDescriptor. Path: $.Elements[0].Ports[0] | LineNumber: 0 | BytePositionInLine: 437.
+
+
+ERROR: No loader found for resource:  (expected type: unknown)
+   at: _load (./core/io/resource_loader.cpp:332)
+   C# backtrace (most recent call first):
+       [0] Godot.GodotObject Godot.NativeCalls.godot_icall_3_1269(nint, nint, string, string, int)
+       [1] Godot.Resource Godot.ResourceLoader.Load(string, string, Godot.ResourceLoader+CacheMode)
+       [2] T Godot.ResourceLoader.Load<T>(string, string, Godot.ResourceLoader+CacheMode)
+       [3] CuriousContraptions.PartDefinition CuriousContraptions.PartRegistry.Definition(CuriousContraptions.PartId, CuriousContraptions.Bundle.BundleEntry) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:84)
+       [4] void CuriousContraptions.PartRegistry.Load(string) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:52)
+       [5] void CuriousContraptions.Tests.Murdoch21Probes+<>c__DisplayClass9_0.<P2_EveryStructurallyInvalidBundleIsTheNamedRefusal>b__0() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:88)
+       [6] System.Exception Xunit.Record.Exception(System.Action) (/_/src/xunit.v3.core/Record.cs:30)
+       [7] void CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(string) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:88)
+       [8] object <unknown>.InvokeStub_Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(object, System.Span`1[System.Object])
+       [9] object System.Reflection.MethodBaseInvoker.InvokeWithOneArg(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [10] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [11] object Xunit.v3.TestRunner`2.InvokeTestMethod(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:194)
+       [12] void Xunit.v3.TestRunner`2+<>c__DisplayClass5_0+<<InvokeTest>b__1>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:167)
+       [13] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [14] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [15] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__1()
+       [16] void Xunit.v3.ExceptionAggregator+<RunAsync>d__13.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:124)
+       [17] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [18] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [19] System.Threading.Tasks.ValueTask Xunit.v3.ExceptionAggregator.RunAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [20] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__0() (/_/src/xunit.v3.core/Runners/TestRunner.cs:144)
+       [21] void Xunit.v3.ExecutionTimer+<MeasureAsync>d__2.MoveNext() (/_/src/xunit.v3.core/Utility/ExecutionTimer.cs:58)
+       [22] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [23] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [24] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.ExecutionTimer.MeasureAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [25] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:143)
+       [26] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:99)
+       [27] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2+<>c__DisplayClass15_0.<RunTest>b__6() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [28] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [29] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [30] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [31] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [32] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1+<<RunTest>g__runTest|0>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [33] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [34] void System.Runtime.CompilerServices.AsyncVoidMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [35] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1.<RunTest>g__runTest|0(object)
+       [36] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [37] void Xunit.v3.TestRunner`2+<RunTest>d__15.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:356)
+       [38] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [39] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [40] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.RunTest(TContext)
+       [41] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.RunTest(TContext) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:127)
+       [42] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunnerBase`2+<>c__DisplayClass13_0.<Run>b__2() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [43] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [44] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [45] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [46] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [47] void Xunit.v3.TestRunnerBase`2+<Run>d__13.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [48] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [49] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [50] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestRunnerBase`2.Run(TContext)
+       [51] void Xunit.v3.XunitTestRunner+<Run>d__2.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestRunner.cs:55)
+       [52] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [53] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [54] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestRunner.Run(Xunit.v3.IXunitTest, Xunit.v3.IMessageBus, System.Object[], Xunit.Sdk.ExplicitOption, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IBeforeAfterTestAttribute])
+       [55] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.RunTest(Xunit.v3.XunitTestCaseRunnerContext, Xunit.v3.IXunitTest) (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:83)
+       [56] void Xunit.v3.TestCaseRunner`3+<RunTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunner.cs:74)
+       [57] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [58] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [59] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunner`3.RunTestCase(TContext, System.Exception)
+       [60] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.<>n__0(TContext, System.Exception)
+       [61] void Xunit.v3.XunitTestCaseRunnerBase`3+<RunTestCase>d__0.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunnerBase.cs:38)
+       [62] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [63] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [64] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.RunTestCase(TContext, System.Exception)
+       [65] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2+<>c__DisplayClass5_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [66] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [67] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [68] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [69] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [70] void Xunit.v3.TestCaseRunnerBase`2+<Run>d__5.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [71] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [72] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [73] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2.Run(TContext)
+       [74] void Xunit.v3.XunitTestCaseRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:72)
+       [75] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [76] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [77] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.Run(Xunit.v3.IXunitTestCase, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTest], Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, string, string, Xunit.Sdk.ExplicitOption, System.Object[])
+       [78] void Xunit.v3.XunitRunnerHelper+<RunXunitTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Internal/XunitRunnerHelper.cs:256)
+       [79] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [80] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [81] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitRunnerHelper.RunXunitTestCase(Xunit.v3.IXunitTestCase, Xunit.v3.IMessageBus, System.Threading.CancellationTokenSource, Xunit.v3.ExceptionAggregator, Xunit.Sdk.ExplicitOption, System.Object[])
+       [82] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunnerBase`3.RunTestCase(TContext, TTestCase) (/_/src/xunit.v3.core/Runners/XunitTestMethodRunnerBase.cs:29)
+       [83] void Xunit.v3.TestMethodRunner`3+<RunTestCases>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:250)
+       [84] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [85] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [86] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.RunTestCases(TContext, System.Exception)
+       [87] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [88] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [89] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [90] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [91] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [92] void Xunit.v3.TestMethodRunner`3+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [93] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [94] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [95] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.Run(TContext)
+       [96] void Xunit.v3.XunitTestMethodRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestMethodRunner.cs:59)
+       [97] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [98] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [99] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunner.Run(Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Object[])
+       [100] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.RunTestMethod(Xunit.v3.XunitTestClassRunnerContext, Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], System.Object[]) (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:90)
+       [101] void Xunit.v3.TestClassRunner`4+<RunTestMethods>d__9.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:303)
+       [102] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [103] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [104] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.RunTestMethods(TContext, System.Exception)
+       [105] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4+<>c__DisplayClass8_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [106] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [107] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [108] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [109] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [110] void Xunit.v3.TestClassRunner`4+<Run>d__8.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [111] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [112] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [113] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.Run(TContext)
+       [114] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner+<>c__DisplayClass4_0.<Run>b__0() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [115] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [116] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [117] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [118] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [119] void Xunit.v3.XunitTestClassRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [120] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [121] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [122] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.Run(Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [123] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.RunTestClass(Xunit.v3.XunitTestCollectionRunnerContext, Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:88)
+       [124] void Xunit.v3.TestCollectionRunner`4+<RunTestClasses>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:257)
+       [125] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [126] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [127] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.RunTestClasses(TContext, System.Exception)
+       [128] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [129] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [130] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [131] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [132] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [133] void Xunit.v3.TestCollectionRunner`4+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [134] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [135] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [136] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.Run(TContext)
+       [137] void Xunit.v3.XunitTestCollectionRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:66)
+       [138] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [139] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [140] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.Run(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [141] void Xunit.v3.XunitTestAssemblyRunnerBaseContext`2+<RunTestCollection>d__38.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBaseContext.cs:164)
+       [142] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [143] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [144] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBaseContext`2.RunTestCollection(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase], Xunit.v3.ITestCaseOrderer)
+       [145] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBase`4.RunTestCollection(TContext, TTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBase.cs:173)
+       [146] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner.<>n__0(Xunit.v3.XunitTestAssemblyRunnerContext, Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase])
+       [147] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner+<>c__DisplayClass4_0.<RunTestCollection>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:67)
+       [148] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1+<<Loop>b__0>d.MoveNext() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:99)
+       [149] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [150] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1.<Loop>b__0(object)
+       [151] void twodog.Testing.Xunit.GodotTestThread.Invoke<T>(System.ValueTuple`2[System.Threading.SendOrPostCallback,System.Object], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:121)
+       [152] void twodog.Testing.Xunit.GodotTestThread.Loop<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:111)
+       [153] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass0_0`1.<Run>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:85)
+       [154] void System.Threading.Thread+StartHelper.Callback(object)
+       [155] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+ERROR: Failed loading resource: res://elements/Ball/icon.svg.
+   at: _load (./core/io/resource_loader.cpp:317)
+   C# backtrace (most recent call first):
+       [0] Godot.GodotObject Godot.NativeCalls.godot_icall_3_1269(nint, nint, string, string, int)
+       [1] Godot.Resource Godot.ResourceLoader.Load(string, string, Godot.ResourceLoader+CacheMode)
+       [2] T Godot.ResourceLoader.Load<T>(string, string, Godot.ResourceLoader+CacheMode)
+       [3] CuriousContraptions.PartDefinition CuriousContraptions.PartRegistry.Definition(CuriousContraptions.PartId, CuriousContraptions.Bundle.BundleEntry) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:84)
+       [4] void CuriousContraptions.PartRegistry.Load(string) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:52)
+       [5] void CuriousContraptions.Tests.Murdoch21Probes+<>c__DisplayClass9_0.<P2_EveryStructurallyInvalidBundleIsTheNamedRefusal>b__0() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:88)
+       [6] System.Exception Xunit.Record.Exception(System.Action) (/_/src/xunit.v3.core/Record.cs:30)
+       [7] void CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(string) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:88)
+       [8] object <unknown>.InvokeStub_Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(object, System.Span`1[System.Object])
+       [9] object System.Reflection.MethodBaseInvoker.InvokeWithOneArg(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [10] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [11] object Xunit.v3.TestRunner`2.InvokeTestMethod(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:194)
+       [12] void Xunit.v3.TestRunner`2+<>c__DisplayClass5_0+<<InvokeTest>b__1>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:167)
+       [13] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [14] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [15] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__1()
+       [16] void Xunit.v3.ExceptionAggregator+<RunAsync>d__13.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:124)
+       [17] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [18] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [19] System.Threading.Tasks.ValueTask Xunit.v3.ExceptionAggregator.RunAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [20] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__0() (/_/src/xunit.v3.core/Runners/TestRunner.cs:144)
+       [21] void Xunit.v3.ExecutionTimer+<MeasureAsync>d__2.MoveNext() (/_/src/xunit.v3.core/Utility/ExecutionTimer.cs:58)
+       [22] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [23] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [24] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.ExecutionTimer.MeasureAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [25] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:143)
+       [26] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:99)
+       [27] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2+<>c__DisplayClass15_0.<RunTest>b__6() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [28] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [29] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [30] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [31] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [32] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1+<<RunTest>g__runTest|0>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [33] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [34] void System.Runtime.CompilerServices.AsyncVoidMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [35] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1.<RunTest>g__runTest|0(object)
+       [36] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [37] void Xunit.v3.TestRunner`2+<RunTest>d__15.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:356)
+       [38] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [39] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [40] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.RunTest(TContext)
+       [41] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.RunTest(TContext) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:127)
+       [42] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunnerBase`2+<>c__DisplayClass13_0.<Run>b__2() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [43] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [44] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [45] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [46] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [47] void Xunit.v3.TestRunnerBase`2+<Run>d__13.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [48] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [49] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [50] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestRunnerBase`2.Run(TContext)
+       [51] void Xunit.v3.XunitTestRunner+<Run>d__2.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestRunner.cs:55)
+       [52] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [53] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [54] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestRunner.Run(Xunit.v3.IXunitTest, Xunit.v3.IMessageBus, System.Object[], Xunit.Sdk.ExplicitOption, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IBeforeAfterTestAttribute])
+       [55] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.RunTest(Xunit.v3.XunitTestCaseRunnerContext, Xunit.v3.IXunitTest) (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:83)
+       [56] void Xunit.v3.TestCaseRunner`3+<RunTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunner.cs:74)
+       [57] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [58] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [59] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunner`3.RunTestCase(TContext, System.Exception)
+       [60] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.<>n__0(TContext, System.Exception)
+       [61] void Xunit.v3.XunitTestCaseRunnerBase`3+<RunTestCase>d__0.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunnerBase.cs:38)
+       [62] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [63] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [64] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.RunTestCase(TContext, System.Exception)
+       [65] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2+<>c__DisplayClass5_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [66] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [67] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [68] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [69] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [70] void Xunit.v3.TestCaseRunnerBase`2+<Run>d__5.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [71] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [72] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [73] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2.Run(TContext)
+       [74] void Xunit.v3.XunitTestCaseRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:72)
+       [75] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [76] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [77] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.Run(Xunit.v3.IXunitTestCase, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTest], Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, string, string, Xunit.Sdk.ExplicitOption, System.Object[])
+       [78] void Xunit.v3.XunitRunnerHelper+<RunXunitTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Internal/XunitRunnerHelper.cs:256)
+       [79] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [80] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [81] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitRunnerHelper.RunXunitTestCase(Xunit.v3.IXunitTestCase, Xunit.v3.IMessageBus, System.Threading.CancellationTokenSource, Xunit.v3.ExceptionAggregator, Xunit.Sdk.ExplicitOption, System.Object[])
+       [82] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunnerBase`3.RunTestCase(TContext, TTestCase) (/_/src/xunit.v3.core/Runners/XunitTestMethodRunnerBase.cs:29)
+       [83] void Xunit.v3.TestMethodRunner`3+<RunTestCases>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:250)
+       [84] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [85] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [86] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.RunTestCases(TContext, System.Exception)
+       [87] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [88] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [89] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [90] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [91] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [92] void Xunit.v3.TestMethodRunner`3+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [93] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [94] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [95] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.Run(TContext)
+       [96] void Xunit.v3.XunitTestMethodRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestMethodRunner.cs:59)
+       [97] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [98] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [99] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunner.Run(Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Object[])
+       [100] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.RunTestMethod(Xunit.v3.XunitTestClassRunnerContext, Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], System.Object[]) (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:90)
+       [101] void Xunit.v3.TestClassRunner`4+<RunTestMethods>d__9.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:303)
+       [102] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [103] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [104] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.RunTestMethods(TContext, System.Exception)
+       [105] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4+<>c__DisplayClass8_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [106] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [107] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [108] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [109] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [110] void Xunit.v3.TestClassRunner`4+<Run>d__8.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [111] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [112] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [113] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.Run(TContext)
+       [114] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner+<>c__DisplayClass4_0.<Run>b__0() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [115] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [116] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [117] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [118] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [119] void Xunit.v3.XunitTestClassRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [120] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [121] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [122] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.Run(Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [123] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.RunTestClass(Xunit.v3.XunitTestCollectionRunnerContext, Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:88)
+       [124] void Xunit.v3.TestCollectionRunner`4+<RunTestClasses>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:257)
+       [125] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [126] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [127] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.RunTestClasses(TContext, System.Exception)
+       [128] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [129] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [130] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [131] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [132] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [133] void Xunit.v3.TestCollectionRunner`4+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [134] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [135] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [136] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.Run(TContext)
+       [137] void Xunit.v3.XunitTestCollectionRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:66)
+       [138] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [139] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [140] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.Run(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [141] void Xunit.v3.XunitTestAssemblyRunnerBaseContext`2+<RunTestCollection>d__38.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBaseContext.cs:164)
+       [142] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [143] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [144] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBaseContext`2.RunTestCollection(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase], Xunit.v3.ITestCaseOrderer)
+       [145] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBase`4.RunTestCollection(TContext, TTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBase.cs:173)
+       [146] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner.<>n__0(Xunit.v3.XunitTestAssemblyRunnerContext, Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase])
+       [147] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner+<>c__DisplayClass4_0.<RunTestCollection>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:67)
+       [148] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1+<<Loop>b__0>d.MoveNext() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:99)
+       [149] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [150] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1.<Loop>b__0(object)
+       [151] void twodog.Testing.Xunit.GodotTestThread.Invoke<T>(System.ValueTuple`2[System.Threading.SendOrPostCallback,System.Object], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:121)
+       [152] void twodog.Testing.Xunit.GodotTestThread.Loop<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:111)
+       [153] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass0_0`1.<Run>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:85)
+       [154] void System.Threading.Thread+StartHelper.Callback(object)
+       [155] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+ERROR: Error loading resource: 'res://elements/Ball/icon.svg'.
+   at: load (./core/core_bind.cpp:82)
+   C# backtrace (most recent call first):
+       [0] Godot.GodotObject Godot.NativeCalls.godot_icall_3_1269(nint, nint, string, string, int)
+       [1] Godot.Resource Godot.ResourceLoader.Load(string, string, Godot.ResourceLoader+CacheMode)
+       [2] T Godot.ResourceLoader.Load<T>(string, string, Godot.ResourceLoader+CacheMode)
+       [3] CuriousContraptions.PartDefinition CuriousContraptions.PartRegistry.Definition(CuriousContraptions.PartId, CuriousContraptions.Bundle.BundleEntry) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:84)
+       [4] void CuriousContraptions.PartRegistry.Load(string) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs:52)
+       [5] void CuriousContraptions.Tests.Murdoch21Probes+<>c__DisplayClass9_0.<P2_EveryStructurallyInvalidBundleIsTheNamedRefusal>b__0() (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:88)
+       [6] System.Exception Xunit.Record.Exception(System.Action) (/_/src/xunit.v3.core/Record.cs:30)
+       [7] void CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(string) (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/CuriousContraptions.tests/Murdoch21Probes.cs:88)
+       [8] object <unknown>.InvokeStub_Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(object, System.Span`1[System.Object])
+       [9] object System.Reflection.MethodBaseInvoker.InvokeWithOneArg(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [10] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [11] object Xunit.v3.TestRunner`2.InvokeTestMethod(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:194)
+       [12] void Xunit.v3.TestRunner`2+<>c__DisplayClass5_0+<<InvokeTest>b__1>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:167)
+       [13] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [14] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [15] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__1()
+       [16] void Xunit.v3.ExceptionAggregator+<RunAsync>d__13.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:124)
+       [17] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [18] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [19] System.Threading.Tasks.ValueTask Xunit.v3.ExceptionAggregator.RunAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [20] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__0() (/_/src/xunit.v3.core/Runners/TestRunner.cs:144)
+       [21] void Xunit.v3.ExecutionTimer+<MeasureAsync>d__2.MoveNext() (/_/src/xunit.v3.core/Utility/ExecutionTimer.cs:58)
+       [22] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [23] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [24] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.ExecutionTimer.MeasureAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [25] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:143)
+       [26] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:99)
+       [27] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2+<>c__DisplayClass15_0.<RunTest>b__6() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [28] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [29] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [30] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [31] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [32] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1+<<RunTest>g__runTest|0>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [33] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [34] void System.Runtime.CompilerServices.AsyncVoidMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [35] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1.<RunTest>g__runTest|0(object)
+       [36] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [37] void Xunit.v3.TestRunner`2+<RunTest>d__15.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:356)
+       [38] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [39] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [40] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.RunTest(TContext)
+       [41] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.RunTest(TContext) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:127)
+       [42] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunnerBase`2+<>c__DisplayClass13_0.<Run>b__2() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [43] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [44] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [45] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [46] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [47] void Xunit.v3.TestRunnerBase`2+<Run>d__13.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [48] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [49] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [50] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestRunnerBase`2.Run(TContext)
+       [51] void Xunit.v3.XunitTestRunner+<Run>d__2.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestRunner.cs:55)
+       [52] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [53] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [54] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestRunner.Run(Xunit.v3.IXunitTest, Xunit.v3.IMessageBus, System.Object[], Xunit.Sdk.ExplicitOption, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IBeforeAfterTestAttribute])
+       [55] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.RunTest(Xunit.v3.XunitTestCaseRunnerContext, Xunit.v3.IXunitTest) (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:83)
+       [56] void Xunit.v3.TestCaseRunner`3+<RunTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunner.cs:74)
+       [57] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [58] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [59] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunner`3.RunTestCase(TContext, System.Exception)
+       [60] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.<>n__0(TContext, System.Exception)
+       [61] void Xunit.v3.XunitTestCaseRunnerBase`3+<RunTestCase>d__0.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunnerBase.cs:38)
+       [62] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [63] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [64] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.RunTestCase(TContext, System.Exception)
+       [65] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2+<>c__DisplayClass5_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [66] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [67] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [68] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [69] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [70] void Xunit.v3.TestCaseRunnerBase`2+<Run>d__5.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [71] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [72] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [73] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2.Run(TContext)
+       [74] void Xunit.v3.XunitTestCaseRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:72)
+       [75] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [76] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [77] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.Run(Xunit.v3.IXunitTestCase, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTest], Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, string, string, Xunit.Sdk.ExplicitOption, System.Object[])
+       [78] void Xunit.v3.XunitRunnerHelper+<RunXunitTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Internal/XunitRunnerHelper.cs:256)
+       [79] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [80] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [81] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitRunnerHelper.RunXunitTestCase(Xunit.v3.IXunitTestCase, Xunit.v3.IMessageBus, System.Threading.CancellationTokenSource, Xunit.v3.ExceptionAggregator, Xunit.Sdk.ExplicitOption, System.Object[])
+       [82] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunnerBase`3.RunTestCase(TContext, TTestCase) (/_/src/xunit.v3.core/Runners/XunitTestMethodRunnerBase.cs:29)
+       [83] void Xunit.v3.TestMethodRunner`3+<RunTestCases>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:250)
+       [84] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [85] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [86] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.RunTestCases(TContext, System.Exception)
+       [87] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [88] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [89] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [90] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [91] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [92] void Xunit.v3.TestMethodRunner`3+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [93] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [94] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [95] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.Run(TContext)
+       [96] void Xunit.v3.XunitTestMethodRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestMethodRunner.cs:59)
+       [97] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [98] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [99] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunner.Run(Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Object[])
+       [100] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.RunTestMethod(Xunit.v3.XunitTestClassRunnerContext, Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], System.Object[]) (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:90)
+       [101] void Xunit.v3.TestClassRunner`4+<RunTestMethods>d__9.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:303)
+       [102] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [103] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [104] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.RunTestMethods(TContext, System.Exception)
+       [105] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4+<>c__DisplayClass8_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [106] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [107] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [108] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [109] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [110] void Xunit.v3.TestClassRunner`4+<Run>d__8.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [111] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [112] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [113] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.Run(TContext)
+       [114] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner+<>c__DisplayClass4_0.<Run>b__0() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [115] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [116] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [117] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [118] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [119] void Xunit.v3.XunitTestClassRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [120] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [121] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [122] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.Run(Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [123] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.RunTestClass(Xunit.v3.XunitTestCollectionRunnerContext, Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:88)
+       [124] void Xunit.v3.TestCollectionRunner`4+<RunTestClasses>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:257)
+       [125] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [126] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [127] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.RunTestClasses(TContext, System.Exception)
+       [128] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [129] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [130] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [131] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [132] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [133] void Xunit.v3.TestCollectionRunner`4+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [134] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [135] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [136] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.Run(TContext)
+       [137] void Xunit.v3.XunitTestCollectionRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:66)
+       [138] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [139] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [140] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.Run(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [141] void Xunit.v3.XunitTestAssemblyRunnerBaseContext`2+<RunTestCollection>d__38.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBaseContext.cs:164)
+       [142] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [143] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [144] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBaseContext`2.RunTestCollection(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase], Xunit.v3.ITestCaseOrderer)
+       [145] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBase`4.RunTestCollection(TContext, TTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBase.cs:173)
+       [146] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner.<>n__0(Xunit.v3.XunitTestAssemblyRunnerContext, Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase])
+       [147] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner+<>c__DisplayClass4_0.<RunTestCollection>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:67)
+       [148] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1+<<Loop>b__0>d.MoveNext() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:99)
+       [149] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [150] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1.<Loop>b__0(object)
+       [151] void twodog.Testing.Xunit.GodotTestThread.Invoke<T>(System.ValueTuple`2[System.Threading.SendOrPostCallback,System.Object], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:121)
+       [152] void twodog.Testing.Xunit.GodotTestThread.Loop<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:111)
+       [153] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass0_0`1.<Run>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:85)
+       [154] void System.Threading.Thread+StartHelper.Callback(object)
+       [155] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+[xUnit.net 00:00:01.74]     CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "SCENE_IS_ICON") [FAIL]
+[xUnit.net 00:00:01.74]       twodog.GodotErrorException : Godot reported 3 error(s) during this test:
+[xUnit.net 00:00:01.74]       Error: No loader found for resource:  (expected type: unknown)
+[xUnit.net 00:00:01.74]          at _load (./core/io/resource_loader.cpp:332)
+[xUnit.net 00:00:01.74]       Error: Failed loading resource: res://elements/Ball/icon.svg.
+[xUnit.net 00:00:01.74]          at _load (./core/io/resource_loader.cpp:317)
+[xUnit.net 00:00:01.74]       Error: Error loading resource: 'res://elements/Ball/icon.svg'.
+[xUnit.net 00:00:01.74]          at load (./core/core_bind.cpp:82)
+[xUnit.net 00:00:01.74]       Stack Trace:
+[xUnit.net 00:00:01.74]         /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs(33,0): at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when)
+[xUnit.net 00:00:01.74]         /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs(27,0): at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test)
+[xUnit.net 00:00:01.74]       Output:
+[xUnit.net 00:00:01.74]         P2 SCENE_IS_ICON: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: ball.Metadata.ScenePath: 'res://elements/Ball/icon.svg' is not a scene.
+[xUnit.net 00:00:01.80]   Finished:    CuriousContraptions.tests (ID = '3b06da74d30d308775ba1668f404cc7f5d570b0e4d048ffc8825962168288849')
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "null") [< 1 ms]
+  Standard Output Messages:
+ P2 null: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The bundle is null.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "   ") [< 1 ms]
+  Standard Output Messages:
+ P2    : InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is malformed: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 3.
+
+
+  Failed CuriousContraptions.Tests.Murdoch21Probes.P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(edit: "SCENE_IS_ICON") [8 ms]
+  Error Message:
+   twodog.GodotErrorException : Godot reported 3 error(s) during this test:
+Error: No loader found for resource:  (expected type: unknown)
+   at _load (./core/io/resource_loader.cpp:332)
+Error: Failed loading resource: res://elements/Ball/icon.svg.
+   at _load (./core/io/resource_loader.cpp:317)
+Error: Error loading resource: 'res://elements/Ball/icon.svg'.
+   at load (./core/core_bind.cpp:82)
+  Stack Trace:
+     at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+  Standard Output Messages:
+ P2 SCENE_IS_ICON: InvalidDataException: The element bundle 'res://elements/elements.bundle.json' is invalid: ball.Metadata.ScenePath: 'res://elements/Ball/icon.svg' is not a scene.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P3_ASaveHoldingAnUndeliveredPartIsTheTypedRefusalWithAMessage(delivered: "switch", undelivered: "tennis") [21 ms]
+  Standard Output Messages:
+ P3 tennis: UnsupportedSave: Unsupported instance kind or parameters.
+
+
+  Passed CuriousContraptions.Tests.Murdoch21Probes.P3_ASaveHoldingAnUndeliveredPartIsTheTypedRefusalWithAMessage(delivered: "bowling", undelivered: "balloon") [1 ms]
+  Standard Output Messages:
+ P3 balloon: UnsupportedSave: Unsupported instance kind or parameters.
+
+
+
+Test Run Failed.
+Total tests: 32
+     Passed: 29
+     Failed: 3
+ Total time: 1.9993 Seconds

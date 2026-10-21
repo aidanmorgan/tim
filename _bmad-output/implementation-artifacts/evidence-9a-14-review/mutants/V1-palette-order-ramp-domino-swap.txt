@@ -1,0 +1,49 @@
+mutant V1-palette-order-ramp-domino-swap at 2026-10-21T05:15:24Z head=de4d1ea5
+--- diff
+diff --git a/elements/Domino/DominoElementDeclaration.cs b/elements/Domino/DominoElementDeclaration.cs
+index 0d46e67d..35bd26dd 100644
+--- a/elements/Domino/DominoElementDeclaration.cs
++++ b/elements/Domino/DominoElementDeclaration.cs
+@@ -14,7 +14,7 @@ public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElemen
+         DisplayName: "Domino",
+         Description: "A physical tile: knock it over to hit the next domino. Its activation output signals once it has turned 45° from its placed pose.",
+         Color: new(0.91f, 0.83f, 0.65f, 1f),
+-        PaletteOrder: 9,
++        PaletteOrder: 8,
+         IconPath: "res://elements/Domino/icon.svg",
+         ScenePath: "res://elements/Domino/domino.tscn",
+         Parameters: []);
+diff --git a/elements/Ramp/RampElementDeclaration.cs b/elements/Ramp/RampElementDeclaration.cs
+index 15a8ca84..944b9e97 100644
+--- a/elements/Ramp/RampElementDeclaration.cs
++++ b/elements/Ramp/RampElementDeclaration.cs
+@@ -13,7 +13,7 @@ public sealed class RampElementDeclaration : IMechanicalElement
+         DisplayName: "Ramp",
+         Description: "Rotate a ramp to guide a falling ball. Its width extends into depth.",
+         Color: new(0.76f, 0.56f, 0.32f, 1f),
+-        PaletteOrder: 8,
++        PaletteOrder: 9,
+         IconPath: "res://elements/Ramp/icon.svg",
+         ScenePath: "res://elements/Ramp/ramp.tscn",
+         Parameters:
+ M elements/Domino/DominoElementDeclaration.cs
+ M elements/Ramp/RampElementDeclaration.cs
+--- build+test
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"DisplayName\": \"Wall\"|\"DisplayName\": \"\"", expected: "BUNDLE010 wall.Metadata.DisplayName") [5 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Id\": \"bowling\"|\"Id\": \"ball\"", expected: "BUNDLE001 duplicate id 'ball'") [5 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"PaletteOrder\": 10,|\"PaletteOrder\": 1,", expected: "BUNDLE008 duplicate palette order 1") [9 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/wall.tscn|res://parts/scenes/w"···, expected: "BUNDLE007 wall.Metadata.ScenePath") [5 ms]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Category\": \"Motion\"|\"Category\": \"Sideways\"···, expected: "is malformed") [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"DisplayName\": \"Wall\"|\"DisplayName\": \"\"", expected: "BUNDLE010 wall.Metadata.DisplayName") [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Id\": \"bowling\"|\"Id\": \"ball\"", expected: "BUNDLE001 duplicate id 'ball'") [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"PaletteOrder\": 10,|\"PaletteOrder\": 1,", expected: "BUNDLE008 duplicate palette order 1") [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"ScenePath\":|\"Unknown\": 1, \"ScenePath\":", expected: "is malformed") [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "malformed", expected: "is malformed") [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/icon.svg|res://elements/Wall/m"···, expected: "wall.Metadata.IconPath: 'res://elements/Wall/missi"···) [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/wall.tscn|res://elements/Wall/"···, expected: "wall.Metadata.ScenePath: 'res://elements/Wall/miss"···) [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/wall.tscn|res://parts/scenes/w"···, expected: "BUNDLE007 wall.Metadata.ScenePath") [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette [FAIL]
+CuriousContraptions.Tests.PartRegistryTests.Load_RegistersEveryBundleElementFromItsPackageInPaletteOrder [FAIL]
+CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder [FAIL]
+Failed!  - Failed:    12, Passed:  1895, Skipped:     0, Total:  1907, Duration: 27 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

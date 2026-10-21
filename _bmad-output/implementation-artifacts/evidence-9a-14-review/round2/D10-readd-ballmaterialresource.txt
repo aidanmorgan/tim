@@ -1,0 +1,19 @@
+mutant D10-readd-ballmaterialresource at 2026-10-21T05:36:30Z head=3be7f97c
+diff --git a/CuriousContraptions.csproj b/CuriousContraptions.csproj
+index 95fba1d2..d6760bc2 100644
+--- a/CuriousContraptions.csproj
++++ b/CuriousContraptions.csproj
+@@ -37,6 +37,7 @@
+         <Compile Include="engine/CosmeticBindingSet.cs" />
+         <Compile Include="engine/WorkshopUiBinding.cs" />
+         <Compile Include="engine/PartDefinition.cs" />
++        <Compile Include="engine/BallMaterialResource.cs" />
+         <Compile Include="engine/PartRegistry.cs" />
+         <Compile Include="engine/PartId.cs" />
+         <Compile Include="engine/TubeMouthSnap.cs" />
+ M CuriousContraptions.csproj
+?? engine/BallMaterialResource.cs
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains [FAIL]
+Failed!  - Failed:     1, Passed:  1909, Skipped:     0, Total:  1910, Duration: 33 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

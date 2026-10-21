@@ -1,0 +1,21 @@
+mutant V8-startup-refusal-swallowed at 2026-10-21T05:18:47Z head=de4d1ea5
+--- diff
+diff --git a/ui/Workshop.cs b/ui/Workshop.cs
+index e658908a..a60aed9c 100644
+--- a/ui/Workshop.cs
++++ b/ui/Workshop.cs
+@@ -84,7 +84,7 @@ public partial class Workshop : Node3D
+         _picker.AddItem("Around the corner");
+         _picker.AddItem("Meet in the middle");
+         // Story 9A.14: the catalogue is the generated element bundle alone; a missing or invalid bundle stops start-up here.
+-        try { World.Registry.Load(); }
++        try { try { World.Registry.Load(); } catch (System.IO.InvalidDataException) { } }
+         catch (System.IO.InvalidDataException error)
+         {
+             WorkshopDiagnostics.Fault(FaultSite.Startup, error);
+ M ui/Workshop.cs
+--- build+test
+CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty [FAIL]
+CuriousContraptions.Tests.WorkshopUiFailureTests.EveryUiCatchReportsThroughTheClassificationOrIsAFaultOrRethrows [FAIL]
+Failed!  - Failed:     2, Passed:  1905, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

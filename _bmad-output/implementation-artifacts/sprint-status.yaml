@@ -204,9 +204,9 @@ development_status:
   # merged into 9a-pkg-3 (21 Oct 2026)
   9a-13-impact-switch-element-package: done
   # 9
-  9a-14-bundle-sole-catalogue-source: review
+  9a-14-bundle-sole-catalogue-source: done
   # merged into 9a-14 (21 Oct 2026)
-  9a-18-package-icons: review
+  9a-18-package-icons: done
   # 10
   9a-2-single-flatbuffers-codec: backlog
   # 11
@@ -462,5 +462,6 @@ development_status:
   f-14-e2e-runner-selection-follow-ups: backlog
   # filed by 9a-pkg-1 (21 Oct 2026): one source publishes with different runner bundleIdentity values
   f-15-reproducible-publish-bundle-identity: backlog
+  f-16-catalogue-follow-ups: backlog
 
 action_items: []

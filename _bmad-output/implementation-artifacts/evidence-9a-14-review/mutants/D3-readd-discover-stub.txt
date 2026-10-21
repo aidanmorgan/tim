@@ -1,0 +1,21 @@
+mutant D3-readd-discover-stub at 2026-10-21T05:10:01Z head=de4d1ea5
+--- diff
+diff --git a/engine/PartRegistry.cs b/engine/PartRegistry.cs
+index 7d7da4b6..bf2b965d 100644
+--- a/engine/PartRegistry.cs
++++ b/engine/PartRegistry.cs
+@@ -31,7 +31,7 @@ public sealed class PartRegistry
+     public IReadOnlyDictionary<PartId, PartAllowance> Free => _free ?? throw new InvalidOperationException("The element bundle is not loaded.");
+ 
+     /// <summary>Loads <see cref="BundlePath"/>.</summary>
+-    public void Load() => LoadFile(BundlePath);
++    public void Load() => LoadFile(BundlePath); public void Discover() { }
+ 
+     /// <summary>Loads the bundle file at <paramref name="path"/>; a missing file refuses the load.</summary>
+     internal void LoadFile(string path)
+ M engine/PartRegistry.cs
+--- build+test
+test exit=1
+    0 Warning(s)
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut/engine/PartRegistry.cs(34,61): error CA1822: Member 'Discover' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [/Users/aidan/dev/personal/tim/.
+Build FAILED.

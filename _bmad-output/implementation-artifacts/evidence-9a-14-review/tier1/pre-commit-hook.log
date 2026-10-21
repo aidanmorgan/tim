@@ -1,0 +1,28 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.gUiprb/solution.binlog
+
+Time Elapsed 00:00:12.08
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.gUiprb/playtest.binlog
+
+Time Elapsed 00:00:11.79
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.gUiprb/web.binlog
+
+Time Elapsed 00:00:06.83
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.zsfEYs/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   123, Skipped:     0, Total:   123, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

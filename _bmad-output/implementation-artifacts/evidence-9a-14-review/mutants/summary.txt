@@ -1,0 +1,21 @@
+D1-readd-ball-tres exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains 
+D2-readd-static-canonical-order exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.NoStaticFreePaletteListRemains 
+D3-readd-discover-stub exit=1 failed=
+D4-readd-tres-scan-pattern exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains 
+D5-readd-tennis-pictogram-arm exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.WorkshopIconsKeepsNoElementArm 
+D6-readd-motor-pictogram-arm exit=0 failed=
+D7-readd-ball-pictogram-arm exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.WorkshopIconsKeepsNoElementArm 
+D8-readd-partid-tennis-constant exit=0 failed=
+D9-readd-fromnumericid-13 exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.PartId_ValidatesValuesAndSupportsEqualityAndComparison 
+D10-readd-ballmaterialresource exit=0 failed=
+D11-readd-stray-parts-scene exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains 
+D12-undelivered-filter-removed exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette 
+V1-palette-order-ramp-domino-swap exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Category\": \"Motion\"|\"Category\": \"Sideways\"···, expected: "is malformed") CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"DisplayName\": \"Wall\"|\"DisplayName\": \"\"", expected: "BUNDLE010 wall.Metadata.DisplayName") CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"Id\": \"bowling\"|\"Id\": \"ball\"", expected: "BUNDLE001 duplicate id 'ball'") CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"PaletteOrder\": 10,|\"PaletteOrder\": 1,", expected: "BUNDLE008 duplicate palette order 1") CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"ScenePath\":|\"Unknown\": 1, \"ScenePath\":", expected: "is malformed") CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "malformed", expected: "is malformed") CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/icon.svg|res://elements/Wall/m"···, expected: "wall.Metadata.IconPath: 'res://elements/Wall/missi"···) CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/wall.tscn|res://elements/Wall/"···, expected: "wall.Metadata.ScenePath: 'res://elements/Wall/miss"···) CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "res://elements/Wall/wall.tscn|res://parts/scenes/w"···, expected: "BUNDLE007 wall.Metadata.ScenePath") CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette CuriousContraptions.Tests.PartRegistryTests.Load_RegistersEveryBundleElementFromItsPackageInPaletteOrder CuriousContraptions.Tests.WorkbenchCapacityTests.FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder 
+V2-wall-title exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.AnInvalidBundleRefusesTheWholeLoadNamingTheProblem(edit: "\"DisplayName\": \"Wall\"|\"DisplayName\": \"\"", expected: "BUNDLE010 wall.Metadata.DisplayName") 
+V3-wall-description exit=0 failed=
+V4-switch-colour exit=0 failed=
+V5-wall-icon-bytes exit=0 failed=
+V6-wall-icon-missing exit=1 failed=
+V7-switch-trigger-threshold exit=1 failed=CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime 
+V8-startup-refusal-swallowed exit=1 failed=CuriousContraptions.Tests.CSharpStaticGateTests.NoCatchBlockIsEmpty CuriousContraptions.Tests.WorkshopUiFailureTests.EveryUiCatchReportsThroughTheClassificationOrIsAFaultOrRethrows 
+done 2026-10-21T05:19:22Z status_lines=0

@@ -1,0 +1,19 @@
+mutant V3-wall-description at 2026-10-21T05:16:32Z head=de4d1ea5
+--- diff
+diff --git a/elements/Wall/WallElementDeclaration.cs b/elements/Wall/WallElementDeclaration.cs
+index ed84ad15..4073fcf1 100644
+--- a/elements/Wall/WallElementDeclaration.cs
++++ b/elements/Wall/WallElementDeclaration.cs
+@@ -11,7 +11,7 @@ public sealed class WallElementDeclaration : IMechanicalElement
+         Id: "wall",
+         Category: ElementCategory.Structure,
+         DisplayName: "Wall",
+-        Description: "A solid panel. Move, rotate or stretch its three local dimensions to guide and contain balls.",
++        Description: "A solid wall panel. Move, rotate or stretch its three local dimensions to guide and contain balls.",
+         Color: new(0.76f, 0.56f, 0.32f, 1f),
+         PaletteOrder: 5,
+         IconPath: "res://elements/Wall/icon.svg",
+ M elements/Wall/WallElementDeclaration.cs
+--- build+test
+Passed!  - Failed:     0, Passed:  1907, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=0

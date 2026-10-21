@@ -1,0 +1,19 @@
+mutant D7-readd-ball-pictogram-arm at 2026-10-21T05:11:51Z head=de4d1ea5
+--- diff
+diff --git a/ui/WorkshopIcons.cs b/ui/WorkshopIcons.cs
+index fdf28230..f6805ccc 100644
+--- a/ui/WorkshopIcons.cs
++++ b/ui/WorkshopIcons.cs
+@@ -43,6 +43,7 @@ public static class WorkshopIcons
+             "retract_input" => "<path d='M3 8h7v8H3zM21 12H11m4-4-4 4 4 4'/>",
+             "extended_output" => "<path d='M2 7h7v10H2zM9 12h11M20 7v10M14 3h7m-3-2 3 2-3 2'/>",
+             "retracted_output" => "<path d='M2 7h7v10H2zM9 12h3M12 7v10M21 3h-7m3-2-3 2 3 2'/>",
++            "ball" => "<circle cx='12' cy='12' r='9'/><path d='M5 6q12 2 13 12'/>",
+             "resize" => "<path d='M4 9V4h5M15 20h5v-5M4 4l6 6m4 4 6 6'/><rect x='9' y='9' width='6' height='6'/>",
+             // The Set and Reset socket choices mirror the on-part tactile marks: a raised bar for Set, a hollow ring for Reset.
+             "socket_set" => "<rect x='9.5' y='3' width='5' height='18' rx='1.5' fill='#293954'/>",
+ M ui/WorkshopIcons.cs
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.WorkshopIconsKeepsNoElementArm [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

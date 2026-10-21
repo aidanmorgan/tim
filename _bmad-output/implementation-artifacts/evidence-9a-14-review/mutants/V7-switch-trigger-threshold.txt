@@ -1,0 +1,20 @@
+mutant V7-switch-trigger-threshold at 2026-10-21T05:18:14Z head=de4d1ea5
+--- diff
+diff --git a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+index dcdfb9d6..74bc852a 100644
+--- a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
++++ b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+@@ -61,7 +61,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
+ 
+     public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
+     [
+-        new("impact", SignalTriggerMode.Edge, Threshold: 0.8f, PulseDurationSeconds: 0.1f)
++        new("impact", SignalTriggerMode.Edge, Threshold: 0.5f, PulseDurationSeconds: 0.1f)
+     ];
+ 
+     public SignalLatchMode LatchMode => SignalLatchMode.None;
+ M elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+--- build+test
+CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 27 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

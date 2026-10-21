@@ -1,0 +1,20 @@
+mutant D4-readd-tres-scan-pattern at 2026-10-21T05:10:05Z head=de4d1ea5
+--- diff
+diff --git a/engine/PartRegistry.cs b/engine/PartRegistry.cs
+index 7d7da4b6..78ff3ba7 100644
+--- a/engine/PartRegistry.cs
++++ b/engine/PartRegistry.cs
+@@ -31,7 +31,7 @@ public sealed class PartRegistry
+     public IReadOnlyDictionary<PartId, PartAllowance> Free => _free ?? throw new InvalidOperationException("The element bundle is not loaded.");
+ 
+     /// <summary>Loads <see cref="BundlePath"/>.</summary>
+-    public void Load() => LoadFile(BundlePath);
++    public void Load() => LoadFile(BundlePath); internal static string CataloguePattern => "res://parts/catalog/*" + ".tres";
+ 
+     /// <summary>Loads the bundle file at <paramref name="path"/>; a missing file refuses the load.</summary>
+     internal void LoadFile(string path)
+ M engine/PartRegistry.cs
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 25 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

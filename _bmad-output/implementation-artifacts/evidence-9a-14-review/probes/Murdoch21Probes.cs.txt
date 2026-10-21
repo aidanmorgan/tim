@@ -1,0 +1,125 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Nodes;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Murdoch-21 review probes for Story 9A.14 (not a deliverable). P2: structural bundle edge cases the nine cases do not
+/// cover must refuse as InvalidDataException naming the bundle. P3: a save holding a Tennis ball or Balloon (PartId constants
+/// deleted) is refused structurally as the typed UnsupportedSave with a message, and the unmodified save still decodes.</summary>
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class Murdoch21Probes(NativeSceneFixture godot, ITestOutputHelper output)
+{
+    private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
+
+    private static string FirstEntry(Action<JsonObject> edit)
+    {
+        var document = JsonNode.Parse(Bundle())!.AsObject();
+        edit(document["Elements"]!.AsArray()[0]!.AsObject());
+        return document.ToJsonString();
+    }
+
+    /// <summary>Adds a null item to the list at a dotted path ("[]" steps into the first item) in the first entry that has it.</summary>
+    private static string NullItem(string path)
+    {
+        var document = JsonNode.Parse(Bundle())!.AsObject();
+        foreach (var entry in document["Elements"]!.AsArray())
+        {
+            JsonNode? node = entry;
+            foreach (var step in path.Split('.'))
+            {
+                var name = step.EndsWith("[]", StringComparison.Ordinal) ? step[..^2] : step;
+                node = node?[name];
+                if (step.EndsWith("[]", StringComparison.Ordinal)) node = node is JsonArray { Count: > 0 } items ? items[0] : null;
+            }
+            if (node is JsonArray list) { list.Add(null); return document.ToJsonString(); }
+        }
+        throw new InvalidOperationException($"No entry has a list at {path}.");
+    }
+
+    public static TheoryData<string> NullItemPaths() => new()
+    {
+        "Domains", "Events", "Metadata.Parameters", "Metadata.Parameters[].Options", "Electrical.Nodes", "Mechanical.AnchorPoints",
+        "Mechanical.Sliders", "Mechanical.Sliders[].MovingBody.Colliders", "Signal.Triggers", "Ports", "Colliders",
+    };
+
+    [Theory]
+    [MemberData(nameof(NullItemPaths))]
+    public void P2b_ANullListItemAnywhereIsTheNamedRefusal(string path)
+    {
+        _ = godot;
+        var error = Record.Exception(() => new PartRegistry().Load(NullItem(path)));
+        output.WriteLine($"P2b {path}: {error?.GetType().Name}: {error?.Message}");
+        Assert.NotNull(error);
+        Assert.True(error is InvalidDataException, error.ToString());
+        Assert.Contains(PartRegistry.BundlePath, error.Message, StringComparison.Ordinal);
+    }
+
+    public static TheoryData<string> EdgeCases() => new()
+    {
+        "{}", "null", "[]", "{\"Elements\": null}", "{\"Elements\": [null]}", "", "   ",
+        "META_NULL", "SCENE_IS_ICON", "BOWLING_MASS", "PORTS_NULL_ITEM", "COLLIDERS_NULL_ITEM", "ID_EMPTY", "ID_SPACE", "ORDER_ZERO", "ORDER_NEGATIVE", "ICON_NULL", "SCENE_FOREIGN_PACKAGE", "COLOR_OUT_OF_RANGE",
+    };
+
+    [Theory]
+    [MemberData(nameof(EdgeCases))]
+    public void P2_EveryStructurallyInvalidBundleIsTheNamedRefusal(string edit)
+    {
+        _ = godot;
+        var text = edit switch
+        {
+            "META_NULL" => FirstEntry(entry => entry["Metadata"] = null),
+            "SCENE_IS_ICON" => FirstEntry(entry => entry["Metadata"]!["ScenePath"] = "res://elements/Ball/icon.svg"),
+            "BOWLING_MASS" => Bundle().Replace("\"Mass\": 4,", "\"Mass\": 4.5,", StringComparison.Ordinal),
+            "PORTS_NULL_ITEM" => FirstEntry(entry => entry["Ports"]!.AsArray().Add(null)),
+            "COLLIDERS_NULL_ITEM" => FirstEntry(entry => entry["Colliders"]!.AsArray().Add(null)),
+            "ID_EMPTY" => FirstEntry(entry => entry["Metadata"]!["Id"] = ""),
+            "ID_SPACE" => FirstEntry(entry => entry["Metadata"]!["Id"] = " ball"),
+            "ORDER_ZERO" => FirstEntry(entry => entry["Metadata"]!["PaletteOrder"] = 0),
+            "ORDER_NEGATIVE" => FirstEntry(entry => entry["Metadata"]!["PaletteOrder"] = -3),
+            "ICON_NULL" => FirstEntry(entry => entry["Metadata"]!["IconPath"] = null),
+            "SCENE_FOREIGN_PACKAGE" => FirstEntry(entry => entry["Metadata"]!["ScenePath"] = "res://elements/Wall/wall.tscn"),
+            "COLOR_OUT_OF_RANGE" => FirstEntry(entry => entry["Metadata"]!["Color"]!["R"] = 1.5),
+            _ => edit
+        };
+        var error = Record.Exception(() => new PartRegistry().Load(text));
+        output.WriteLine($"P2 {edit}: {error?.GetType().Name}: {error?.Message}");
+        Assert.NotNull(error);
+        Assert.True(error is InvalidDataException, error.ToString());
+        Assert.Contains(PartRegistry.BundlePath, error.Message, StringComparison.Ordinal);
+    }
+
+    private static byte[] Replace(byte[] bytes, string from, string to)
+    {
+        var source = Encoding.ASCII.GetBytes(from);
+        var target = Encoding.ASCII.GetBytes(to);
+        Assert.Equal(source.Length, target.Length);
+        var at = bytes.AsSpan().IndexOf(source);
+        Assert.True(at >= 0, $"the save holds no '{from}'");
+        var copy = (byte[])bytes.Clone();
+        target.CopyTo(copy.AsSpan(at));
+        Assert.Equal(-1, copy.AsSpan(at + 1).IndexOf(source));
+        return copy;
+    }
+
+    [Theory]
+    [InlineData("switch", "tennis")]
+    [InlineData("bowling", "balloon")]
+    public void P3_ASaveHoldingAnUndeliveredPartIsTheTypedRefusalWithAMessage(string delivered, string undelivered)
+    {
+        var instance = delivered == "switch"
+            ? (IWorkshopInstance)new WorkshopSwitch(new(2), new(0, 16, 0), default, CanonicalRotation.Identity, ContactTriggerSettings.Default)
+            : WorkshopInput.Ball(PartId.BowlingBall, new(2), 0, 1, 0, 0, 0, 0, 1) with { Material = BallMaterial.For(PartId.BowlingBall) };
+        var saved = new WorkshopSavedConstruction(new(new(4), WorkshopCadenceSettings.Default(), new(instance)), new(4));
+        var bytes = WorkshopSaveCodec.Encode(saved);
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(bytes)); // control: the delivered part loads
+        var error = Assert.Throws<WorkshopEditRejectedException>(() => WorkshopSaveCodec.Decode(Replace(bytes, delivered, undelivered)));
+        output.WriteLine($"P3 {undelivered}: {error.Reason}: {error.Message}");
+        Assert.Equal(WorkshopEditRejection.UnsupportedSave, error.Reason);
+        Assert.False(string.IsNullOrWhiteSpace(error.Message));
+        Assert.True(WorkshopUiFailure.IsRejection(error), "the Load handler shows it as a refusal, not a fault");
+    }
+}

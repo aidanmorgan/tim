@@ -1,0 +1,20 @@
+mutant D12-undelivered-filter-removed at 2026-10-21T05:14:49Z head=de4d1ea5
+--- diff
+diff --git a/engine/PartRegistry.cs b/engine/PartRegistry.cs
+index 7d7da4b6..b436955c 100644
+--- a/engine/PartRegistry.cs
++++ b/engine/PartRegistry.cs
+@@ -48,7 +48,7 @@ public sealed class PartRegistry
+         foreach (var entry in Read(json))
+         {
+             var id = new PartId(entry.Metadata.Id);
+-            if (UndeliveredParts.Contains(id)) continue;
++            // filter removed
+             definitions.Add(Definition(id, entry));
+         }
+         if (definitions.Count == 0) throw Invalid("it declares no deliverable element");
+ M engine/PartRegistry.cs
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.AnUndeliveredElementInTheBundleNeverReachesTheRegistryOrThePalette [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

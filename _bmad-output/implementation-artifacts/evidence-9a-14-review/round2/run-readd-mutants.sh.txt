@@ -1,0 +1,24 @@
+#!/bin/sh
+# Murdoch-21 round 2: the three re-add mutants that survived round 1 (D6, D8, D10), re-run on 3be7f97c in murdoch21-mut.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-mut
+E=/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9a-14-review/round2
+cd "$W" || exit 1
+restore() { git reset -q --hard HEAD; git clean -fdq -- parts engine elements ui CuriousContraptions.tests; }
+run() {
+  name=$1; out="$E/$name.txt"
+  { echo "mutant $name at $(date -u +%FT%TZ) head=$(git rev-parse --short HEAD)"; git diff; git status --porcelain --untracked-files=all; echo "--- build+test"; } > "$out"
+  dotnet test CuriousContraptions.tests > "$out.log" 2>&1; code=$?
+  grep -E "error CS|\[FAIL\]|Passed!|Failed!|Build FAILED" "$out.log" | sed 's/^\[xUnit.net [0-9:.]*\] *//' | sort -u | head -20 >> "$out"
+  echo "test exit=$code" >> "$out"; rm -f "$out.log"
+  echo "$name exit=$code failed=$(grep -E '\[FAIL\]' "$out" | sed 's/ \[FAIL\]//' | tr '\n' ' ')"
+  restore
+}
+restore
+sed -i '' "s|            \"resize\" => |            \"motor\" => \"<rect x='3' y='6' width='14' height='13' rx='3'/>\",\\
+            \"resize\" => |" ui/WorkshopIcons.cs; run D6-readd-motor-pictogram-arm
+sed -i '' 's|    public static readonly PartId Springboard = new("spring");|    public static readonly PartId Springboard = new("spring");\
+    public static readonly PartId Tennis = new("tennis");|' engine/PartId.cs; run D8-readd-partid-tennis-constant
+git show 679c36cd:engine/BallMaterialResource.cs > engine/BallMaterialResource.cs
+sed -i '' 's|        <Compile Include="engine/PartDefinition.cs" />|        <Compile Include="engine/PartDefinition.cs" />\
+        <Compile Include="engine/BallMaterialResource.cs" />|' CuriousContraptions.csproj; run D10-readd-ballmaterialresource
+echo "done $(date -u +%FT%TZ) status_lines=$(git status --porcelain | wc -l | tr -d ' ')"

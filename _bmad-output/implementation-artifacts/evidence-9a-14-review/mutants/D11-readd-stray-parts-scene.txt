@@ -1,0 +1,7 @@
+mutant D11-readd-stray-parts-scene at 2026-10-21T05:14:13Z head=de4d1ea5
+--- diff
+?? parts/scenes/wall.tscn
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

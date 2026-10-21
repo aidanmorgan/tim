@@ -1,0 +1,20 @@
+mutant D2-readd-static-canonical-order at 2026-10-21T05:09:25Z head=de4d1ea5
+--- diff
+diff --git a/engine/gpu/WorkshopInventory.cs b/engine/gpu/WorkshopInventory.cs
+index f1f4fecb..1fc86433 100644
+--- a/engine/gpu/WorkshopInventory.cs
++++ b/engine/gpu/WorkshopInventory.cs
+@@ -47,7 +47,7 @@ public sealed class PartInventoryDictionary : IReadOnlyDictionary<PartId, PartAl
+ /// bundle declares (Story 9A.14), without a count, filtered only by <see cref="UndeliveredParts"/>, so delivering a part (Story 12.1)
+ /// is shipping its package and removing it from that set.</summary>
+ public static class WorkshopInventoryPolicy
+-{    /// <summary>The Free inventory of these parts, in the given palette order, minus the undelivered set.</summary>
++{ private static readonly PartId[] _canonicalOrder = [PartId.Basketball]; internal static IReadOnlyList<PartId> CanonicalOrder => _canonicalOrder;    /// <summary>The Free inventory of these parts, in the given palette order, minus the undelivered set.</summary>
+     public static IReadOnlyDictionary<PartId, PartAllowance> Free(IEnumerable<PartId> paletteOrder) =>
+         FreeRows(paletteOrder, UndeliveredParts.Ids);
+ 
+ M engine/gpu/WorkshopInventory.cs
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.NoStaticFreePaletteListRemains [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

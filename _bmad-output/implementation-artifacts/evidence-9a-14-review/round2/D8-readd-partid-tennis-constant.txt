@@ -1,0 +1,18 @@
+mutant D8-readd-partid-tennis-constant at 2026-10-21T05:35:42Z head=3be7f97c
+diff --git a/engine/PartId.cs b/engine/PartId.cs
+index 748be1b2..b91c1a19 100644
+--- a/engine/PartId.cs
++++ b/engine/PartId.cs
+@@ -34,6 +34,7 @@ public readonly record struct PartId : IComparable<PartId>
+     public static readonly PartId Domino = new("domino");
+     public static readonly PartId Battery = new("battery");
+     public static readonly PartId Springboard = new("spring");
++    public static readonly PartId Tennis = new("tennis");
+     public static readonly PartId Pipe = new("pipe");
+     public static readonly PartId BallDetector = new("ball_detector");
+     public static readonly PartId PipeBend45 = new("pipe_bend_45");
+ M engine/PartId.cs
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity [FAIL]
+Failed!  - Failed:     1, Passed:  1909, Skipped:     0, Total:  1910, Duration: 38 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

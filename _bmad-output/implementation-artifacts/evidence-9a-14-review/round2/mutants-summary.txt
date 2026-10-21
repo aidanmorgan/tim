@@ -1,0 +1,4 @@
+D6-readd-motor-pictogram-arm exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.WorkshopIconsKeepsNoElementArm 
+D8-readd-partid-tennis-constant exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.TheUndeliveredPartsHaveNoPartIdConstantOrWireIdentity 
+D10-readd-ballmaterialresource exit=1 failed=CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains 
+done 2026-10-21T05:37:18Z status_lines=0

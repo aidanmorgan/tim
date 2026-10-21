@@ -1,0 +1,41 @@
+#!/bin/sh
+# Murdoch-21: brute force the dirty set behind her Full run's sourceStatusDigest (750652f0...) at 57826e42.
+# Fixed: paths whose mtime in her worktree precedes the run start (12:09:22 AWST = 04:09:22Z).
+# Varied: paths whose last write is after the start but which may have existed (or been dirty) at the start.
+# The digest depends only on porcelain paths and status codes, so content edits are a one-byte append.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch21-id
+TARGET=$1
+cd "$W" || exit 1
+D=_bmad-output/implementation-artifacts/evidence-9a-14
+FIXED_M="CuriousContraptions.tests/PackageRuntimeParityTests.cs docs/architecture/element-package-isolation.md docs/planning/invest/decisions.md docs/planning/invest/engine.md docs/planning/invest/vertical-delivery.md"
+FIXED_U="$D/f15-11-runtime-readers.txt"
+set -- "U:$D/e2e-full-57826e42.log" "M:_bmad-output/implementation-artifacts/spec-9a-14-bundle-sole-catalogue-source.md" \
+  "U:$D/mutant-f15-11-clock-event-kind.txt" "U:$D/tier1-test.txt" "U:$D/tier1-release-build.txt" \
+  "M:_bmad-output/planning-artifacts/epics.md" "M:_bmad-output/implementation-artifacts/sprint-status.yaml"
+n=$#
+total=$((1 << n))
+for mode in fixed none; do
+  i=0
+  while [ $i -lt $total ]; do
+    git checkout -q -- . ; git clean -fdq -- _bmad-output
+    if [ $mode = fixed ]; then
+      for p in $FIXED_M; do printf x >> "$p"; done
+      for p in $FIXED_U; do mkdir -p "$(dirname "$p")"; touch "$p"; done
+    fi
+    j=0; label=""
+    for item in "$@"; do
+      if [ $(( (i >> j) & 1 )) = 1 ]; then
+        kind=${item%%:*}; path=${item#*:}
+        mkdir -p "$(dirname "$path")"
+        if [ "$kind" = U ]; then touch "$path"; else printf x >> "$path"; fi
+        label="$label $path"
+      fi
+      j=$((j + 1))
+    done
+    h=$(git status --porcelain=v1 -z --untracked-files=all | shasum -a 256 | cut -c1-64)
+    [ "$h" = "$TARGET" ] && echo "MATCH($mode):$label"
+    i=$((i + 1))
+  done
+done
+git checkout -q -- . ; git clean -fdq -- _bmad-output
+echo "searched $((total * 2)) at $(date -u +%FT%TZ); status_lines_after=$(git status --porcelain | wc -l | tr -d ' ')"

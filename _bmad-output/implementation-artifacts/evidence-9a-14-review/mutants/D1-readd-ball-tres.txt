@@ -1,0 +1,7 @@
+mutant D1-readd-ball-tres at 2026-10-21T05:08:49Z head=de4d1ea5
+--- diff
+A  parts/catalog/ball.tres
+--- build+test
+CuriousContraptions.Tests.PartRegistryTests.NoCatalogueResourceOrResourceLoaderRemains [FAIL]
+Failed!  - Failed:     1, Passed:  1906, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=1

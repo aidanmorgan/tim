@@ -1,0 +1,13 @@
+mutant V5-wall-icon-bytes at 2026-10-21T05:17:38Z head=de4d1ea5
+--- diff
+diff --git a/elements/Wall/icon.svg b/elements/Wall/icon.svg
+index b3a1ec4e..3d9381a4 100644
+--- a/elements/Wall/icon.svg
++++ b/elements/Wall/icon.svg
+@@ -1 +1 @@
+-<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#293954' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='16' rx='1'/><path d='M3 12h18M9 4v8m6 0v8'/></svg>
++<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#293954' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='16' rx='2'/><path d='M3 12h18M9 4v8m6 0v8'/></svg>
+ M elements/Wall/icon.svg
+--- build+test
+Passed!  - Failed:     0, Passed:  1907, Skipped:     0, Total:  1907, Duration: 26 s - CuriousContraptions.tests.dll (net10.0)
+test exit=0
