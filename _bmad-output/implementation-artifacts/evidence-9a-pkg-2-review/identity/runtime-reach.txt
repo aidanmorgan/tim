@@ -1,0 +1,5 @@
+# runtime reach at d4195fb066b7cc185721c2e2912e48fb7b8bd34f, 2026-10-21T02:24:22Z
+# rg -n 'elements\.bundle' over engine ui scenes CuriousContraptions.web CuriousContraptions.Simulation CuriousContraptions.Animation* (excluding bin, obj, AppBundle)
+# rg exit=1 (1 = no hits)
+# grep -E 'Failed loading|Cannot open|not found' over the run's .tap and .log files
+# grep exit=1 (1 = no hits)

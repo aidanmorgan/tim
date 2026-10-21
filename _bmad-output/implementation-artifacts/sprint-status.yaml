@@ -95,9 +95,9 @@ development_status:
   # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-16, 9a-17, 9a-25a, 9a-27 and every conversion; last is 9a-c-memory
   6-5f-partart-partkind-legacy-purge: in-progress
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-1; re-verified by addendum in 9a-pkg-2
-  6-6-straight-pipe-compound-cylinder: done
+  6-6-straight-pipe-compound-cylinder: in-progress # addendum Incomplete; remaining clauses owned by 9r-23
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-1; re-verified by addendum in 9a-pkg-2
-  6-7-hollow-sdf-torus-cap-clear-pipe: done
+  6-7-hollow-sdf-torus-cap-clear-pipe: in-progress # addendum Incomplete; owned by 9r-23
   # weak Pass (retro-verification 18 Oct 2026); repaired and re-verified by addendum in 9a-c-lamp-detector (9r-9)
   6-8-generic-aperture-sensor-directional-rearm: done
   # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and an addendum in 9a-pkg-2
@@ -107,7 +107,7 @@ development_status:
   # reopened 18 Oct 2026 (retro-verification); closes via 9r-6, 9r-7 and an addendum in 9a-pkg-2
   6-10-pipe-bend-90-joined-pipe-route: in-progress
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-6, re-verified by addendum in 9a-pkg-2
-  6-11-funnel-hollow-frustum-inlet: done
+  6-11-funnel-hollow-frustum-inlet: in-progress # addendum Incomplete; owned by 9r-23
   epic-6-retrospective: optional
 
   # Owner decision 9 Oct 2026: Epic 7 (legacy purge) runs after 6-1d and before 6-2.
@@ -188,15 +188,15 @@ development_status:
   # merged into 9a-pkg-1 (21 Oct 2026)
   9a-12-springboard-element-package: done
   # 7
-  9a-pkg-2-funnel-pipe-bend-packages: review
+  9a-pkg-2-funnel-pipe-bend-packages: done
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-8-funnel-element-package: review
+  9a-8-funnel-element-package: done
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-9-pipe-element-package: review
+  9a-9-pipe-element-package: done
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-10-pipe-bend-45-element-package: review
+  9a-10-pipe-bend-45-element-package: done
   # merged into 9a-pkg-2 (21 Oct 2026)
-  9a-11-pipe-bend-90-element-package: review
+  9a-11-pipe-bend-90-element-package: done
   # 8
   9a-pkg-3-delay-switch-packages: backlog
   # merged into 9a-pkg-3 (21 Oct 2026)
@@ -377,6 +377,8 @@ development_status:
   12-3-windmill-rotor-aerodynamic-capture-drive: backlog
   # 56 (polish, after all deletion work). Owner visual report 19 Oct 2026 (Funnel glass inverted).
   9r-19-tube-glass-art-repair: backlog
+  # PKG-2 review F15-8 (21 Oct 2026): tube behaviour clauses no repair covered; closes 6-6, 6-7, 6-11 and the 6-9/6-10 remainders
+  9r-23-tube-behaviour-clause-proofs: backlog
   # 57 (element)
   12-4-pneumatic-bellows-compression-pulse: backlog
   epic-12-retrospective: optional

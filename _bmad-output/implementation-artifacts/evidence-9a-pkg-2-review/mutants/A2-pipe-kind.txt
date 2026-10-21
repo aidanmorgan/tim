@@ -1,0 +1,49 @@
+# mutant A2-pipe-kind at d4195fb066b7cc185721c2e2912e48fb7b8bd34f, 2026-10-21T02:20:27Z
+ M elements/Pipe/PipeElementDeclaration.cs
+diff --git a/elements/Pipe/PipeElementDeclaration.cs b/elements/Pipe/PipeElementDeclaration.cs
+index 3b9944f8..c7c6fbeb 100644
+--- a/elements/Pipe/PipeElementDeclaration.cs
++++ b/elements/Pipe/PipeElementDeclaration.cs
+@@ -22,7 +22,7 @@ public sealed class PipeElementDeclaration : IMechanicalElement
+         ScenePath: "res://elements/Pipe/pipe.tscn",
+         Parameters:
+         [
+-            new("length", ParameterUnit.Metre, ParameterKind.Real, Minimum: 1f, Maximum: 8f, Default: DefaultLength, Options: [])
++            new("length", ParameterUnit.None, ParameterKind.WholeNumber, Minimum: 1f, Maximum: 8f, Default: DefaultLength, Options: [])
+         ]);
+ 
+     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+BundleElements : error BUNDLE006: Pipe.Metadata.Parameters[0].Default: outside its declared range [/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/BundleElements.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/BundleElements.csproj(26,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.402/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll" --root "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/parts/elements.bundle.json"" exited with code 1.
+# dotnet test exit=1 (KILLED)

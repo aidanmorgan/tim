@@ -2064,6 +2064,15 @@ So that `done` means proven.
 
 *Review depth: 9R.19, 9R.21 and 9R.22 are art and data, so Murdoch reviews them alone. 9R.20 changes presentation bindings, so it also gets the three lenses. E2e uses Tier 2 with the affected element suites, plus Chrome screenshots that use actual UI controls.*
 
+### Story 9R.23: Tube Behaviour Clause Proofs (Closes Stories 6.6, 6.7, 6.9, 6.10 and 6.11)
+*Status: Backlog. Runs immediately before Story 9R.19. Coordinator decision, 21 Oct 2026: the PKG-2 review (F15-8) found that each tube story still has clauses that no repair touched, so the re-verification addenda came out Incomplete.*
+
+**Acceptance Criteria:**
+- **Given** each clause the five PKG-2 addenda list as unproven, **Then** it gets an actual-UI Chrome proof with a negative control, or it is fixed. The addenda list these clauses: the oversized-ball stop, the entry speed and angle bounds, the rim and sidewall controls, and the parity at non-default pipe lengths (F15-9).
+- **And** the scene `col_*` boxes for the pipe and funnel are re-authored in the correct orientation, so they match the canonical colliders (F15-7, ahead of 9A.16).
+- **And** each of Stories 6.6, 6.7, 6.9, 6.10 and 6.11 gets a dated Pass addendum, and `sprint-status.yaml` marks it done.
+- **Excluded:** the art clauses belong to 9R.19, nudging to 15.0, air to 12.2 and light to 13.1.
+
 ### Story 9R.19: Tube Glass Art Repair (Funnel, Clear Pipe, Pipe Bends, Gate and Detector Collars)
 *Status: Backlog*
 

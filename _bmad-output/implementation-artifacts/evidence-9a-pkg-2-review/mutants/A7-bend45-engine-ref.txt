@@ -1,0 +1,66 @@
+# mutant A7-bend45-engine-ref at d4195fb066b7cc185721c2e2912e48fb7b8bd34f, 2026-10-21T02:21:19Z
+ M elements/PipeBend45/PipeBend45.csproj
+diff --git a/elements/PipeBend45/PipeBend45.csproj b/elements/PipeBend45/PipeBend45.csproj
+index 244fc91c..981595a7 100644
+--- a/elements/PipeBend45/PipeBend45.csproj
++++ b/elements/PipeBend45/PipeBend45.csproj
+@@ -8,5 +8,6 @@
+   <ItemGroup>
+     <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+     <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
++    <ProjectReference Include="../../CuriousContraptions.csproj" />
+   </ItemGroup>
+ </Project>
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend45/PipeBend45.csproj (in 103 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/BundleElements.csproj (in 128 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements.Tests/BundleElements.Tests.csproj (in 134 ms).
+  27 of 30 projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (20 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/parts/elements.bundle.json (20 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.98]     CuriousContraptions.BundleElements.Tests.PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(package: "PipeBend45") [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(package: "PipeBend45") [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+Expected: OrderedIterator<string, string> ["CuriousContraptions.Abstractions.Mechanical/Curiou"···, "CuriousContraptions.Abstractions/CuriousContraptio"···]
+Actual:   string[]                        ["CuriousContraptions.Abstractions.Mechanical/Curiou"···, "CuriousContraptions.Abstractions/CuriousContraptio"···, "CuriousContraptions.csproj"]
+                                                                                                                                                             ↑ (pos 2)
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements.Tests/PackageReferenceTests.cs:line 44
+   at InvokeStub_PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     1, Passed:    21, Skipped:     0, Total:    22, Duration: 71 ms - BundleElements.Tests.dll (net10.0)
+# dotnet test exit=1 (KILLED)

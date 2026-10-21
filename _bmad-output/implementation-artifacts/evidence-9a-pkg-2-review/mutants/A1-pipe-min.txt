@@ -1,0 +1,79 @@
+# mutant A1-pipe-min at d4195fb066b7cc185721c2e2912e48fb7b8bd34f, 2026-10-21T02:20:17Z
+ M elements/Pipe/PipeElementDeclaration.cs
+diff --git a/elements/Pipe/PipeElementDeclaration.cs b/elements/Pipe/PipeElementDeclaration.cs
+index 3b9944f8..1e0acbf5 100644
+--- a/elements/Pipe/PipeElementDeclaration.cs
++++ b/elements/Pipe/PipeElementDeclaration.cs
+@@ -22,7 +22,7 @@ public sealed class PipeElementDeclaration : IMechanicalElement
+         ScenePath: "res://elements/Pipe/pipe.tscn",
+         Parameters:
+         [
+-            new("length", ParameterUnit.Metre, ParameterKind.Real, Minimum: 1f, Maximum: 8f, Default: DefaultLength, Options: [])
++            new("length", ParameterUnit.Metre, ParameterKind.Real, Minimum: 0.5f, Maximum: 8f, Default: DefaultLength, Options: [])
+         ]);
+ 
+     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Wall/bin/Debug/net10.0/Wall.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Ball/bin/Debug/net10.0/Ball.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (20 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/parts/elements.bundle.json (20 elements)
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.10]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [FAIL]
+  Failed CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [7 ms]
+  Error Message:
+   Pipe.Metadata.Parameters[0] (length): the runtime refuses a declared bound.
+  Stack Trace:
+     at CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds() in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-mut/CuriousContraptions.tests/BundleCatalogueParityTests.cs:line 151
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 133 ms - CuriousContraptions.tests.dll (net10.0)
+# dotnet test exit=1 (KILLED)

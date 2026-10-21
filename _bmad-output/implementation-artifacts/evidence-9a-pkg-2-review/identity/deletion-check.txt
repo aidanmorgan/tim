@@ -1,0 +1,58 @@
+# reviewer deletion check, 2026-10-21T02:00:39Z, tree d4195fb066b7cc185721c2e2912e48fb7b8bd34f
+# 1. git ls-files of the four old scene paths (expect empty)
+# 2. files naming an old path (rg -c), active tree, excluding _bmad-output, bin, obj, .godot, .anvil
+./docs/committed-motor-intervals-sources.json:4
+./docs/contact-scratch-sources.json:4
+./docs/coupled-motor-prediction-sources.json:4
+./docs/coverage/engine/catalogue-01.json:4
+./docs/held-wrench-path-work-sources.json:4
+./docs/motor-power-sources.json:4
+./docs/owned-counters-sources.json:4
+./docs/owned-hold-timers-sources.json:4
+./docs/owned-latches-sources.json:4
+./docs/owned-oscillators-sources.json:4
+./docs/owned-timers-final-sources.json:4
+./docs/owned-timers-sources.json:4
+./docs/performance-audit-sources.json:4
+./docs/performance-run-identity-sources.json:4
+./docs/planning/elements/CAT-030-funnel.md:2
+./docs/planning/elements/CAT-048-pipe.md:2
+./docs/planning/elements/CAT-049-pipe_bend_45.md:2
+./docs/planning/elements/CAT-050-pipe_bend_90.md:2
+./docs/planning/elements/legacy-disposition.md:4
+./docs/prediction-constraint-work-sources.json:4
+./docs/prediction-samples-sources.json:4
+./docs/s001-source-baseline.json:4
+./docs/spatial-work-sources.json:4
+./docs/springboard-lesson-sources.json:4
+./docs/springboard-precharged-sources.json:4
+# 3. the same, restricted to code, scenes, catalogue, content and e2e (cs, tscn, tres, ts, mjs, js, json under content/ or tools/)
+# rg exit=1 (1 = no hits)
+# 4. runtime composes scene paths from ids? rg 'parts/scenes' in engine ui scenes CuriousContraptions.web CuriousContraptions.Simulation
+# rg exit=1
+# 5. moved scenes reference only:
+[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
+# 6. unpackaged list in the parity guard
+68:        Assert.Equal(["balloon", "delay", "switch", "tennis"],
+# 7. 9A.45a known-violations list present?
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:518:    // its pinned SHA-256 (KnownViolationsSha256) and may never raise the pinned entry or match totals, so an addition is
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:521:    private static readonly KnownViolation[] KnownViolations =
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:536:    private const int MaximumKnownViolations = 2;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:538:    private const string KnownViolationsSha256 = "3314aae3aa7d104237eb5a09d8ddabedda736f3bf440f971ad2cb2a2388a5dac";
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:578:    private static string KnownViolationsHash() => Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:579:        System.Text.Encoding.UTF8.GetBytes(string.Join('\u001e', KnownViolations.Select(Canonical)))));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:612:        foreach (var known in KnownViolations)
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:645:        Assert.True(KnownViolations.Length <= MaximumKnownViolations, $"{KnownViolations.Length} entries exceed the frozen {MaximumKnownViolations}");
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:646:        var pinned = KnownViolations.Sum(known => known.Count);
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:648:        var hash = KnownViolationsHash();
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:649:        Assert.True(hash == KnownViolationsSha256, $"The known-violation list changed (SHA-256 {hash}); only an owning story may delete entries.");
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:650:        Assert.Equal(KnownViolations.Length, KnownViolations.Select(known => (known.File, known.Pattern)).Distinct().Count());
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:688:        foreach (var known in KnownViolations)
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:690:        if (State(ViolationOwner.Story9A19) == "done") Assert.Empty(KnownViolations);
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:692:        Assert.All(KnownViolations, known => Assert.True(Enum.IsDefined(known.Owner)));
+# rg exit=0 (1 = none yet)
+# 8. renames
+ rename {parts/scenes => elements/Funnel}/funnel.tscn (100%)
+ rename {parts/scenes => elements/Pipe}/pipe.tscn (100%)
+ rename {parts/scenes => elements/PipeBend45}/pipe_bend_45.tscn (100%)
+ rename {parts/scenes => elements/PipeBend90}/pipe_bend_90.tscn (100%)

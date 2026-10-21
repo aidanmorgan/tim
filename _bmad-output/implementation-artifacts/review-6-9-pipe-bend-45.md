@@ -170,3 +170,36 @@ During initial cumulative E2E execution, `cat-002.test.ts` failed when selecting
 Story 6.9 has been rigorously reviewed under adversarial principles. The hollow torus geometry of CAT-049 operates seamlessly without bespoke solver hacks, level `gentle_bend` completes with exact physical determinism, all legacy remnants are purged, static analysis is clean, and 100% test pass rates are verified across both the unit test suite and real Chrome Playwright suites.
 
 **Final Scoped Verdict: PASS**
+
+---
+
+## Addendum 21 Oct 2026, retro-verification (Murdoch-19, PKG-2 closing review)
+
+*Added under the reopened-record closure (epics.md, Delivery order; Story 9R.18's evidence ACs). The text above is unchanged.*
+
+**Independence.** Murdoch-19 is not the implementer or the original reviewer of Story 6.9. Murdoch-19 also did not implement Stories 9R.1 and 9R.6 (the repairs) or PKG-2 (Amelia-18).
+
+**Fresh evidence.** All paths are relative to `_bmad-output/implementation-artifacts/`.
+- Commit `d4195fb0`, a clean detached copy with an empty `git status`.
+- Bundle identity `c389a3b7c9660e7199ddd8cd938d52b0457baa37f2ac1d28a33ff598c3a03e14`, the same at start and end.
+- Chrome 155.0.8059.86. Run `20261021T020207Z-92416`, from 2026-10-21T02:02:07Z to 02:18:35Z.
+- Logs: `evidence-9a-pkg-2-review/e2e-tier2-d4195fb0/summary.txt`, `cat-049.tap` and `tube-snapping.tap`.
+- Tier 1: `evidence-9a-pkg-2-review/tier1/test.log`, 2229/2229 (`CuriousContraptions.tests.dll` 1897). The commit and timestamps are in `evidence-9a-pkg-2-review/tier1/identity.txt` (`d4195fb0`, 2026-10-21T01:49:15Z to 01:52:00Z).
+
+**Claims from the retro-verification (§D and the 6.9 table), with corrections.**
+
+| Original claim / AC | Retro class | Fresh result | Class now |
+| --- | --- | --- | --- |
+| `gentle_bend` solved through real UI controls | W | `cat-049.tap`: "ok 3 - 3. Solved run: pipe_bend_45 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED". The bend is placed from the palette, and the ball settles in the receiver. | P |
+| "exits the lower mouth without added speed" | W (no speed assertion) | **Still unasserted.** | U |
+| Straight-to-bend and bend-to-bend rotated passages through typed mouth snapping | C (no snapping) | Story 9R.6. `tube-snapping.tap`: "ok 10 - 10. A ball crosses a snapped straight→45° joint continuously" and "ok 11 - 11. A ball crosses a snapped 45°→45° joint continuously"; "ok 3 - 3. Angled: a pipe turned 40° keeps the grid pose; turned 15° it snaps" | P |
+| Missed-connection control delivers nothing | P | "ok 2 - 2. Negative control: without placing pipe_bend_45, ball falls straight to floor, missing receiver (goal not solved)" | P |
+| Rim, oversize and sidewall controls; an actual valid Precise alternative route | U | **Still untested.** No catalogue ball exceeds the 0.65 m bore. | U |
+| Authored assistance depends on placement nudging | D | Owned by **Story 15.0** (owner, 18 Oct 2026); CAT-049 stays open until then | D → 15.0 |
+| Own icon, rails and collars; no 90° proof substitutes | U | palette-placement places `pipe_bend_45` from the bundle (25/25), but nothing asserts the art. The art repairs are Stories 9R.19–9R.22. | U |
+| Exact Reset and Save/Load | W (ranges) | "ok 4 - 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again"; "ok 5 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again" | P |
+| "851/851 tests passed… including 12 comprehensive unit tests" (§D: the same total as 6.8) | false | Not reconstructable at the old commit. The current solution passes 2229/2229, and the bend's scene test now loads `res://elements/PipeBend45/pipe_bend_45.tscn` | corrected |
+| "anvil 0 warnings" (§D X1) | no C# signal | The C# static gate passes 123/123 | P |
+| `cat-049.test.ts` passes 100% in Chrome | unverifiable | 5/5, observation Clean | P |
+
+**Fresh verdict: Incomplete.** Still unproven: no added speed; the rim, oversize and sidewall controls; the Precise alternative route; the bend's own art. None has an owning story yet (review-9a-pkg-2, F15-8). The nudging clause stays owned by Story 15.0. Story 6.9 stays `in-progress`.

@@ -1,0 +1,57 @@
+2026-10-21T02:07:45Z
+head=66597b36fdbaae5bfe9644043c114b1ede09ac95
+suiteSourceDigest=fe1c75cd72a909629dd59f70bd64e8e4dbb04cd14024b8a171f8dbab42f5e2d1
+runnerSourceDigest=a946b5889d4f37d2f346e23007f3c575c78ef51f35fd5195f11094cd36751766
+run summary: suiteSourceDigest fe1c75cd72a909629dd59f70bd64e8e4dbb04cd14024b8a171f8dbab42f5e2d1 runnerSourceDigest a946b5889d4f37d2f346e23007f3c575c78ef51f35fd5195f11094cd36751766 sourceStatusDigest 93fe5a7e17de7a0009888c9146e573b7525769ab65776f5fa405a74eff65de08
+clean-tree status digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  -
+# status brute force (scripts: digest-combos2.sh, copied below)
+searched 1024
+# script:
+#!/bin/sh
+# Wider brute force of the untracked/modified set behind a sourceStatusDigest at 66597b36.
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch19-id
+TARGET=$1
+cd "$W" || exit 1
+D=_bmad-output/implementation-artifacts/evidence-9a-pkg-2
+set -- "U:$D/tier2-suites.txt" "U:$D/e2e-tier2-66597b36.log" "U:_bmad-output/implementation-artifacts/spec-9a-pkg-2-funnel-pipe-bend-packages.md" \
+  "M:_bmad-output/planning-artifacts/epics.md" "M:_bmad-output/implementation-artifacts/sprint-status.yaml" "U:$D/select-elements.txt" \
+  "U:$D/select-elements-output.txt" "U:$D/publish.log" "U:$D/preview.log" "U:$D/e2e-tier2-66597b36/summary.txt"
+n=$#
+total=$((1 << n))
+i=0
+while [ $i -lt $total ]; do
+  git checkout -q -- . ; git clean -fdq -- _bmad-output
+  j=0; label=""
+  for item in "$@"; do
+    if [ $(( (i >> j) & 1 )) = 1 ]; then
+      kind=${item%%:*}; path=${item#*:}
+      mkdir -p "$(dirname "$path")"
+      if [ "$kind" = U ]; then touch "$path"; else printf x >> "$path"; fi
+      label="$label $path"
+    fi
+    j=$((j + 1))
+  done
+  h=$(git status --porcelain=v1 -z --untracked-files=all | shasum -a 256 | cut -c1-64)
+  [ "$h" = "$TARGET" ] && echo "MATCH:$label"
+  i=$((i + 1))
+done
+git checkout -q -- . ; git clean -fdq -- _bmad-output
+echo searched $total
+# source-digests.sh:
+#!/bin/sh
+# Recompute the E2eRunner suiteSourceDigest and runnerSourceDigest (tools/E2eRunner/SourceIdentity.cs) for a clean tree.
+W=$1
+cd "$W" || exit 1
+files=$(git ls-files -z --cached --others --exclude-standard -- tools | tr '\0' '\n' | sort -u)
+manifest() {
+  while IFS= read -r p; do
+    [ -z "$p" ] && continue
+    if [ -f "$p" ]; then h=$(shasum -a 256 "$p" | cut -c1-64); else h=missing; fi
+    printf '%s\t%s\n' "$p" "$h"
+  done
+}
+suite=$(printf '%s\n' "$files" | LC_ALL=C grep -E '^tools/e2e/|^tools/E2eRunner/|^tools/[^/]*\.mjs$' | LC_ALL=C sort | manifest | shasum -a 256 | cut -c1-64)
+runner=$(printf '%s\n' "$files" | LC_ALL=C grep -E '^tools/E2eRunner/' | LC_ALL=C sort | manifest | shasum -a 256 | cut -c1-64)
+echo "head=$(git rev-parse HEAD)"
+echo "suiteSourceDigest=$suite"
+echo "runnerSourceDigest=$runner"
