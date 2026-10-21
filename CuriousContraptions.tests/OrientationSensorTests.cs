@@ -243,7 +243,7 @@ public sealed class OrientationSensorTests
     {
         var delayed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Basketball(new(1), -.4, 3, 0, 0, 0, 0, 1), WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
-                WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Delay(new(4), 0, 1, 0, 0, 0, 0, 1, DelayDuration.Default)),
+                WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(4), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
                 new WorkshopConnection(new(4), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var scene = WorkshopPhysicsCompiler.Compile(delayed, new(1, 2));

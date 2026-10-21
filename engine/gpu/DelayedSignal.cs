@@ -49,7 +49,7 @@ public static class DelayedSignal
         var delays = 0;
         foreach (var instance in construction.Instances)
         {
-            if (instance is WorkshopDelay { Locked: false }) { delays++; continue; }
+            if (instance is WorkshopGenericInstance { Locked: false } && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is not null) { delays++; continue; }
             if (instance is WorkshopBall || instance is WorkshopLamp lamp && lamp.Id.Value == puzzle.Goal.TargetNode.Value ||
                 instance is WorkshopSwitch trigger && trigger.Id.Value == puzzle.Goal.SourceNode.Value) continue;
             throw new WorkshopEditRejectedException(WorkshopEditRejection.InventoryUnsupported, "Unsupported delayed signal inventory.");

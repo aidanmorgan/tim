@@ -17,19 +17,7 @@ public partial class Workshop
         if (part.Definition?.PartId == PartId.Battery) { AddBatteryConfiguration(part); return; }
         if (part.Definition?.PartId == PartId.PinballBumper) { AddBumperConfiguration(part); return; }
         if (part.Definition?.PartId == PartId.Clock) { AddClockConfiguration(part); return; }
-        if (part.Definition?.PartId != PartId.Delay) return;
-        var owner=part.AuthoredId;
-        var configure=SignalButton("Delay: "+((double)part.CanonicalDuration.Seconds.Value).ToString("0.###", CultureInfo.CurrentCulture)+" s",()=>
-        {
-            if (!CanEdit) return;
-            ClearConnectionChoices();
-            var duration=new SpinBox {MinValue=(double)(Half).1,MaxValue=12,Step=0,Value=(double)part.CanonicalDuration.Seconds.Value,
-                Suffix="s",Name="DelaySeconds",CustomMinimumSize=new(140,36)};
-            _connectionChoices.AddChild(duration);
-            _connectionChoices.AddChild(SignalButton("Apply duration",()=> {duration.Apply();ApplyDelayDuration(owner,duration.Value);}));
-            _connectionChoices.AddChild(SignalButton("Cancel",RefreshConnectionChoices));
-        });
-        configure.Disabled=!CanEdit||part.Locked; _connectionChoices.AddChild(configure);
+
     }
     private void AddDeclaredConfiguration(MachinePart part, WorkshopGenericInstance instance)
     {
@@ -148,27 +136,6 @@ public partial class Workshop
             if (!_workshopUiRemoved) { _status.Text = "Clock interval updated."; RefreshConnectionChoices(); }
         }
         catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
-    }
-    private async void ApplyDelayDuration(GpuBodyId owner, double seconds)
-    {
-        try { await ApplyDelayDurationAsync(owner, seconds); }
-        catch (Exception error) { HandlerFailed(nameof(ApplyDelayDuration), error); }
-    }
-    private async Task ApplyDelayDurationAsync(GpuBodyId owner,double seconds)
-    {
-        if (!CanEdit) return;
-        try
-        {
-            if (World.Construction.Instances.Single(instance=>instance.Id==owner) is not WorkshopDelay current || current.Locked)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable delay.");
-            var duration=DelayDuration.FromInput(seconds);
-            if (duration==current.Duration) {RefreshConnectionChoices();return;}
-            var proposed=World.Construction.WithInstance(current with {Duration=duration});
-            PushUndo();
-            if (!await SubmitConstruction(proposed)) {if(_undo.Count>0)_undo.RemoveAt(_undo.Count-1);return;}
-            if (!_workshopUiRemoved) {_status.Text="Delay duration updated.";RefreshConnectionChoices();}
-        }
-        catch(Exception error) {var failure=WorkshopUiFailure.Report(error);if(!_workshopUiRemoved)_status.Text=failure;}
     }
     private void AddBumperConfiguration(MachinePart bumper)
     {

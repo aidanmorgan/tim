@@ -99,8 +99,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         Dimensions = dimensions;
         if (presentation.Sizing is not null) PickRadius = nextRadius;
     }
-    public DelayDuration CanonicalDuration { get; private set; } = DelayDuration.Default;
-    public void ApplyDuration(DelayDuration duration) { duration.Validate(); CanonicalDuration = duration; }
 
     public ElectricalSourceSettings CanonicalSource { get; private set; } = ElectricalSourceSettings.Default;
     public void ApplySource(ElectricalSourceSettings source) { source.Validate(); CanonicalSource = source; }

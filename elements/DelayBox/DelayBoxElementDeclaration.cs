@@ -7,7 +7,7 @@ namespace CuriousContraptions.Elements.DelayBox;
 
 /// <summary>The Delay Box (CAT-022): a static housing that waits its authored duration after an activation, then activates its
 /// output once. The duration is a typed parameter with the runtime's default and admitted range.</summary>
-public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryElement
+public sealed class DelayBoxElementDeclaration : ITimerElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.9f, PresentationAxes.None,
         [
@@ -34,7 +34,7 @@ public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryE
         ScenePath: "res://elements/DelayBox/delay.tscn",
         Parameters:
         [
-            new("duration_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])
+            new("delay_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])
         ]);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
@@ -64,6 +64,8 @@ public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryE
     [
         new("activation", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
     ];
+
+    public SignalTimerDescriptor Timer => new("delay_seconds");
 
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 

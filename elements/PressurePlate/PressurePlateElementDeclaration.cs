@@ -7,7 +7,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.PressurePlate;
 
-public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElectricalElement, ISignalElement, ISceneGeometryElement
+public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISupplyElement, ISignalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.5f, PresentationAxes.None,
         [
@@ -75,6 +75,8 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, IElect
         Gravity: Vector3.Zero);
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
+
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

@@ -123,7 +123,7 @@ public sealed class WorkshopWireFlatBuffersTests
         WorkshopInput.Ramp(new(1), 1, 2, 0, 0, 0, .258819, .9659258, new(new((Half)4), new((Half)1.5))),
         WorkshopInput.Generic(PartId.Wall, new(1), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f)),
         WorkshopInput.Switch(new(1), 0, 1, 0, 0, 0, 0, 1, new(new((Half)1.25))),
-        WorkshopInput.Delay(new(1), 0, 1, 0, 0, 0, 0, 1, new(new((Half)2.5))),
+        WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)2.5)])),
         WorkshopInput.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, new SpringboardSettings(400f, .2f, .2f)),
         WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, new(new(60f), new(30f), .5f, ElectricalEnable.Disabled)),
         WorkshopInput.Bumper(new(1), 0, 1, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(6f)),

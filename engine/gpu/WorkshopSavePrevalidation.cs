@@ -159,9 +159,6 @@ internal static class WorkshopSavePrevalidation
             case "switch":
                 Within(id, "trigger threshold", r.Threshold, (Half)0, (Half)64);
                 break;
-            case "delay":
-                Within(id, "duration", r.Duration, (Half).1, (Half)12);
-                break;
             case "spring":
                 Within(id, "stiffness", r.Stiffness, 120f, 1200f); Within(id, "damping", r.Damping, 0f, 8f);
                 Within(id, "initial compression", r.InitialCompression, 0f, .2f);
@@ -202,6 +199,8 @@ internal static class WorkshopSavePrevalidation
                 break;
             default:
                 genericParameters = true;
+                for (var i = 0; i < r.ParametersLength; i++)
+                    if (r.Parameters(i) is { } parameter) Finite(id, parameter.Key, parameter.Value);
                 try { _ = WorkshopWireFlatBuffers.DecodeParameters(r, part); }
                 catch (WireFaultException error) { throw Refuse(WorkshopSaveRejection.OutOfRange, error.Message); }
                 break;

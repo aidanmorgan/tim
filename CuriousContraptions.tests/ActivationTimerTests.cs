@@ -11,7 +11,7 @@ public sealed class ActivationTimerTests
             WorkshopInput.Basketball(new(1),0,4,0,0,0,0,1),
             WorkshopInput.Switch(new(2),0,2,0,0,0,0,1,ContactTriggerSettings.Default),
             WorkshopInput.Lamp(new(3),3,1,0,0,0,0,1),
-            WorkshopInput.Delay(new(4),2,2,0,0,0,0,1,DelayDuration.Default),
+            WorkshopInput.Generic(PartId.Delay, new(4), 2, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Switch(new(5),0,1,0,0,0,0,1,ContactTriggerSettings.Default));
         var links = new WorkshopConnections(Link(2,4),Link(5,4),Link(4,3));
         if (bypass) links = links.With(Link(5,3));
@@ -43,7 +43,7 @@ public sealed class ActivationTimerTests
         Assert.Equal(ActivationTimerPhase.Finished,due.Timers[0].Phase);
         Assert.Equal(ActivationOccurrenceKind.TimerElapsed,lamp.Kind);
         Assert.Equal(new ActivationNodeId(4),lamp.Emitter);
-        Assert.Equal(492u,lamp.EventOrdinal); Assert.Equal((Half)0,lamp.EventPhase);
+        Assert.Equal(492u,lamp.EventOrdinal); Assert.Equal(0f,lamp.EventPhase);
         Assert.Equal(first.EventOrdinal,lamp.CauseOrdinal); Assert.Equal(first.Id.Value,lamp.Source.Value);
         network.ValidateRead(due.Activations,due.Timers,new(123),4,scene);
         Assert.Throws<ArgumentException>(()=>network.ValidateRead(due.Activations,due.Timers,new(122),4,scene));
@@ -86,22 +86,32 @@ public sealed class ActivationTimerTests
         foreach(var substeps in new uint[]{2,4,8})
         {
             var boundary=10*substeps;
-            Assert.Equal(10UL,new ActivationTime(boundary,(Half)(-2048)).CeilingTick(substeps));
-            Assert.Equal(10UL,new ActivationTime(boundary,(Half)0).CeilingTick(substeps));
-            Assert.Equal(11UL,new ActivationTime(boundary,(Half).25).CeilingTick(substeps));
-            Assert.Equal(10UL,new ActivationTime(boundary-1,(Half)2047).CeilingTick(substeps));
+            Assert.Equal(10UL,new ActivationTime(boundary,(float)(-2048)).CeilingTick(substeps));
+            Assert.Equal(10UL,new ActivationTime(boundary,(float)0).CeilingTick(substeps));
+            Assert.Equal(11UL,new ActivationTime(boundary,(float).25).CeilingTick(substeps));
+            Assert.Equal(10UL,new ActivationTime(boundary-1,(float)2047).CeilingTick(substeps));
         }
-        Assert.Throws<ArgumentException>(()=>new ActivationTime(0,(Half)(-1)).CeilingTick(4));
-        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,(Half)0),new((Half)1));
+        Assert.Throws<ArgumentException>(()=>new ActivationTime(0,(float)(-1)).CeilingTick(4));
+        foreach (var invalid in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity, 2048f, MathF.BitDecrement(-2048f) })
+            Assert.Throws<ArgumentException>(() => new ActivationTime(1, invalid).Validate());
+        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new((Half)1));
         var input=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(1),cause.Time,cause);
         Assert.Throws<OverflowException>(()=>ActivationTimerState.Ready(new(2)).Trigger(new(new(2),1440),input,4));
-        Assert.Throws<ArgumentException>(() => (input with {Kind=ActivationOccurrenceKind.TimerElapsed,Time=new(uint.MaxValue,(Half).25)}).Validate());
+        Assert.Throws<ArgumentException>(() => (input with {Kind=ActivationOccurrenceKind.TimerElapsed,Time=new(uint.MaxValue,.25f)}).Validate());
     }
     [Fact]
     public void CompleteWorkerResponseRoundTripsCountingAndFinishedTimerSections()
     {
         var (network,_,first,_) = Fixture();
         var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
+        const float phase = 1.000123f;
+        Assert.NotEqual(phase, (float)(Half)phase);
+        var timer = counting.Timers[0];
+        var input = timer.Input with { Time = timer.Input.Time with { Phase = phase },
+            Cause = timer.Input.Cause with { Time = timer.Input.Cause.Time with { Phase = phase } } };
+        var activations = Enumerable.Range(0, counting.Activations.Count).Select(i => counting.Activations[i])
+            .Select(value => value.Phase == ActivationPhase.Latched ? value with { EventPhase = phase, CausePhase = phase } : value).ToArray();
+        counting = counting with { Activations = new(activations), Timers = new([timer with { Input = input }]) };
         var finished=network.Consume(counting.Activations,counting.Timers,[],new(123),[]);
         foreach(var withContact in new[]{false,true})
         foreach(var (logical,tick) in new[]{(counting,3UL),(finished,123UL)})
@@ -134,6 +144,10 @@ public sealed class ActivationTimerTests
             Assert.True(read.HasSameContent(decoded.Read));
             Assert.Equal(withContact ? 1 : 0, decoded.Read.ContactWorks.Count);
             Assert.Equal(logical.Timers[0],decoded.Read.Timers[0]);
+            Assert.True(F32Bits.Equal(phase, decoded.Read.Timers[0].Input.Time.Phase));
+            Assert.True(F32Bits.Equal(phase, decoded.Read.Timers[0].Input.Cause.Time.Phase));
+            Assert.True(F32Bits.Equal(phase, Node(decoded.Read.Activations, 2).EventPhase));
+            Assert.True(F32Bits.Equal(phase, Node(decoded.Read.Activations, 2).CausePhase));
             Assert.Equal(Node(logical.Activations,3),Node(decoded.Read.Activations,3));
         }
     }

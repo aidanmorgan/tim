@@ -57,7 +57,7 @@ export const SNAPSHOT_SCHEMA = {
             ['buoyancy', 'float'], ['margin', 'float'], ['speed_limit', 'float'], ['dwell', 'float'], ['participation', 'uint32'],
             ['force_min', 'Vec3f'], ['force_max', 'Vec3f'], ['support_height', 'float'], ['support_margin', 'float'],
             ['max_acceleration', 'float'], ['length', 'float'], ['width', 'float'],
-            ['threshold', 'float'], ['duration', 'float'], ['stiffness', 'float'], ['damping', 'float'],
+            ['threshold', 'float'], ['stiffness', 'float'], ['damping', 'float'],
             ['initial_compression', 'float'], ['capacity', 'float'], ['maximum_power', 'float'], ['initial_fraction', 'float'],
             ['enabled', 'uint8'], ['strength', 'float'], ['reference_mass', 'float'], ['preload', 'float'],
             ['half_extents', 'Vec3f'], ['friction', 'float'], ['target_count', 'uint32'], ['parameters', '[ParameterRecord]']] },

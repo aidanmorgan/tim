@@ -31,7 +31,7 @@ public static class WorkshopGoalEvaluator
         {
             for (var i = 0; i < captures.Count; i++)
                 if (captures[i].Sensor == goal.EventSource && captures[i].Phase == CaptureLatchPhase.Latched)
-                    return new(captures[i].EventOrdinal, captures[i].EventPhase);
+                    return new(captures[i].EventOrdinal, (float)captures[i].EventPhase);
         }
         else if (goal.Kind == WorkshopGoalKind.ActivatedAfter)
         {
@@ -53,25 +53,17 @@ public static class WorkshopGoalEvaluator
     {
         source.Validate(); target.Validate();
         PhysicsDeclarationBounds.Range(minimum.Value, (Half)0, (Half)120);
-        // Integer clock boundary adapter: 2^-36 of one canonical 480-Hz step.
-        // A Half phase is exact in units 2^-24, then divided by 4096.
-        // No elapsed time is rounded into Half or into simulation ticks.
         if (target.CompareTo(source) < 0) return false;
+        // Keep the integer origin separate: adding a small f32 phase to a large ordinal would erase it.
+        // The remaining goal-duration ABI widens at this boundary; timer phases never narrow to it.
         var ordinals = (long)target.Ordinal - source.Ordinal;
-        if (ordinals > 120 * 480) return true; // Signed phase difference has magnitude below one step.
-        var elapsed = checked(ordinals * (1L << 36) +
-            HalfClockUnits(target.Phase, 24) - HalfClockUnits(source.Phase, 24));
-        var duration = checked(HalfClockUnits(minimum.Value, 36) * 480);
-        return elapsed >= duration;
-    }
-    private static long HalfClockUnits(Half value, int scale)
-    {
-        var bits = BitConverter.HalfToUInt16Bits(value);
-        var exponent = (bits >> 10) & 31;
-        var significand = (long)(bits & 1023);
-        var shift = scale - 24;
-        if (exponent != 0) { significand |= 1024; shift = scale + exponent - 25; }
-        var magnitude = checked(significand * (1L << shift));
-        return (bits & 32768) == 0 ? magnitude : -magnitude;
+        var required = (float)minimum.Value * 480f;
+        var whole = (long)MathF.Floor(required);
+        var fraction = required - whole;
+        var elapsedPhase = target.Phase - source.Phase;
+        if (ordinals < whole) return false;
+        if (ordinals == whole) return elapsedPhase >= fraction * 4096f;
+        if (ordinals == whole + 1) return elapsedPhase >= (fraction - 1f) * 4096f;
+        return true;
     }
 }

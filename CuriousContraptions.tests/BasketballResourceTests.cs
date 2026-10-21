@@ -90,14 +90,6 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
                 Assert.Equal((float)colour.R,actual.R); Assert.Equal((float)colour.G,actual.G); Assert.Equal((float)colour.B,actual.B);
                 Assert.InRange(Math.Abs(hand.Rotation.Z-(float)((double)(float)(-Math.Tau)*(double)progress)),0,.00001);
             }
-            using var duration=new SpinBox {MinValue=(double)(float).1,MaxValue=12,Step=0,Value=8.9375};
-            Assert.Equal(new DelayDuration(new((Half)8.9375)),DelayDuration.FromInput(duration.Value));
-            duration.Apply();
-            Assert.Equal(8.9375,duration.Value);
-            duration.GetLineEdit().Text="4";
-            Assert.Equal(8.9375,duration.Value);
-            duration.Apply();
-            Assert.Equal(4,duration.Value);
         }
         finally {delay.GetParent()?.RemoveChild(delay);delay.Free();}
     }

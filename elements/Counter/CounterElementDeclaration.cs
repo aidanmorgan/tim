@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.Counter;
 
-public sealed class CounterElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
+public sealed class CounterElementDeclaration : ISignalElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
         [
@@ -86,6 +86,8 @@ public sealed class CounterElementDeclaration : ISignalElement, IElectricalEleme
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 
     public SignalCounterDescriptor? Counter => new(Threshold: 3, ResetOnThreshold: false);
+
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

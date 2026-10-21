@@ -6,6 +6,43 @@ namespace CuriousContraptions.BundleElements.Tests;
 /// <summary>Story 9A.4 AC4: generation fails naming the package and the field (the spec's edge-case matrix).</summary>
 public sealed class BundleValidatorTests
 {
+
+    [Fact]
+    public void TimerAndSupplyCapabilitiesRejectUnresolvedOrWrongTypedDeclarations()
+    {
+        var timer = Bundle.BundleSchema.Entry(new Fixture
+        {
+            Parameters = [new("seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 1f, [])],
+            Ports = [
+                new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX),
+                new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
+        }) with
+        {
+            Domains = [SimulationDomain.Signal], Mechanical = null,
+            Signal = new([], Abstractions.Signal.SignalLatchMode.None, null, new("seconds"))
+        };
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry entry) =>
+            Bundle.BundleValidator.Validate([new("Fixture", entry)]);
+        Assert.Empty(Check(timer));
+        Assert.NotEmpty(Check(timer with { Signal = timer.Signal! with { Timer = new("missing") } }));
+        Assert.NotEmpty(Check(timer with { Ports = [] }));
+        Assert.NotEmpty(Check(timer with { Metadata = timer.Metadata with
+            { Parameters = [new("seconds", ParameterUnit.Metre, ParameterKind.Real, .1f, 12f, 1f, [])] } }));
+        var supply = timer with
+        {
+            Domains = [SimulationDomain.Electrical], Signal = null,
+            Ports = [new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, Vector3.Zero, Vector3.UnitX)],
+            Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
+                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply))
+        };
+        Assert.Empty(Check(supply));
+        Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with
+            { Supply = new((Abstractions.Electrical.SupplyCapabilityKind)255, null, PortSocket.Supply) } }));
+        Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with
+            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply) } }));
+        Assert.NotEmpty(Check(supply with { Ports = [] }));
+        Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with { Nodes = [] } }));
+    }
     private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages) =>
         PackageValidator.Validate(packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
             .Select(error => error.ToString()).ToArray();

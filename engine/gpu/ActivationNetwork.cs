@@ -26,8 +26,8 @@ public readonly record struct ActivationEdge(ActivationNodeId Source, Activation
 
 public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,
     GpuEventSourceId Source, GpuBodyId Body, GpuColliderId Collider, uint EventOrdinal,
-    Half EventPhase, LinearSpeed ApproachSpeed, ActivationOccurrenceKind Kind = default,
-    ActivationNodeId Emitter = default, uint CauseOrdinal = 0, Half CausePhase = default)
+    float EventPhase, LinearSpeed ApproachSpeed, ActivationOccurrenceKind Kind = default,
+    ActivationNodeId Emitter = default, uint CauseOrdinal = 0, float CausePhase = default)
 {
     public ActivationOccurrence Occurrence => new(Kind, Emitter, new(EventOrdinal, EventPhase),
         new(Source, Body, Collider, new(CauseOrdinal, CausePhase), ApproachSpeed));
@@ -36,19 +36,19 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
             occurrence.Cause.Collider, occurrence.Time.Ordinal, occurrence.Time.Phase, occurrence.Cause.ApproachSpeed,
             occurrence.Kind, occurrence.Emitter, occurrence.Cause.Time.Ordinal, occurrence.Cause.Time.Phase);
     public static ActivationLatch Clear(ActivationNodeDeclaration node) => new(node.Id, node.Owner,
-        ActivationPhase.Clear, default, default, default, 0, (Half)0, new((Half)0));
+        ActivationPhase.Clear, default, default, default, 0, 0f, new((Half)0));
     public void Validate()
     {
         if (Node.Value == 0 || Owner.Value == 0 || !Enum.IsDefined(Phase) ||
-            !Half.IsFinite(EventPhase) || EventPhase < (Half)(-2048) || EventPhase >= (Half)2048 ||
-            (EventOrdinal == 0 && EventPhase < (Half)0) ||
+            !float.IsFinite(EventPhase) || EventPhase < -2048f || EventPhase >= 2048f ||
+            (EventOrdinal == 0 && EventPhase < 0f) ||
             !Half.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < (Half)0 || ApproachSpeed.Value > (Half)4096)
             throw new ArgumentException("Invalid activation latch.");
         if (Phase == ActivationPhase.Clear)
         {
             if (Source.Value != 0 || Body.Value != 0 || Collider.Value != 0 || EventOrdinal != 0 ||
-                !PhysicsDeclarationBounds.Zero(EventPhase) || !PhysicsDeclarationBounds.Zero(ApproachSpeed.Value) ||
-                Kind != 0 || Emitter.Value != 0 || CauseOrdinal != 0 || !PhysicsDeclarationBounds.Zero(CausePhase))
+                EventPhase != 0f || !PhysicsDeclarationBounds.Zero(ApproachSpeed.Value) ||
+                Kind != 0 || Emitter.Value != 0 || CauseOrdinal != 0 || CausePhase != 0f)
                 throw new ArgumentException("Clear activation retained an event.");
         }
         else Occurrence.Validate();
@@ -260,7 +260,7 @@ public sealed class ActivationNetwork
             for (var j = 0; j < i; j++) if (events[j].Id == item.Id)
                 throw new ArgumentException("Duplicate contact occurrence batch.");
             if (item.OccurrenceCount == 0) continue;
-            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Target, item.Collider, time, item.ApproachSpeed));
             occurrence.Validate();
@@ -297,7 +297,7 @@ public sealed class ActivationNetwork
                 if (values[slot].Phase == ActivationPhase.Latched) throw new ArgumentException("Orientation sensor regressed.");
                 continue;
             }
-            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Body, item.Collider, time, new((Half)0)));
             occurrence.Validate();
@@ -319,7 +319,7 @@ public sealed class ActivationNetwork
             for (var j = 0; j < i; j++) if (passages[j].Id == item.Id)
                 throw new ArgumentException("Duplicate passage occurrence batch.");
             if (item.Phase != PassageSensorPhase.Fired) continue;
-            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Body, item.Collider, time, item.Speed));
             occurrence.Validate();
@@ -765,8 +765,9 @@ public static class WorkshopActivationCompiler
                     link.Target == lamp.Id && construction.Instances.Any(source => source.Id == link.Source &&
                         DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
                     ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput, default));
-            else if (instance is WorkshopDelay delay)
-                nodes.Add(new(new(delay.Id.Value), delay.Id, ActivationNodeKind.Timer, default, delay.Duration.Ticks(construction.Settings.Simulation)));
+            else if (instance is WorkshopGenericInstance generic && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is { } timer)
+                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.Timer, default,
+                    ActivationTimerDeclaration.Duration(generic.Parameters[new ParameterId(timer.DurationParameter)], construction.Settings.Simulation)));
             // A Domino owns a node only while wired: its orientation sensor compiles under the same condition.
             else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
                 nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));

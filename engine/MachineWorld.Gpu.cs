@@ -127,9 +127,6 @@ public partial class MachineWorld
                 dimensions is { } rampSize ? new(new((Half)rampSize.X), new((Half)rampSize.Z)) : RampDimensions.Default),
             "switch" => WorkshopInput.Switch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
-            "delay" => WorkshopInput.Delay(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopDelay timer ? timer.Duration :
-                    DelayDuration.Default),
             "spring" => WorkshopInput.Springboard(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSpringboard spring ? spring.Settings :
                     SpringboardSettings.Default),
@@ -354,7 +351,6 @@ public partial class MachineWorld
             }
             if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
             part.ApplyPresentationParameters(DeclaredPhysics.Parameters(instance));
-            if (instance is WorkshopDelay delay) part.ApplyDuration(delay.Duration);
             if (instance is WorkshopBattery battery)
             {
                 part.ApplySource(battery.Settings);

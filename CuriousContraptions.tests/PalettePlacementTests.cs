@@ -11,6 +11,62 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class PalettePlacementTests(NativeSceneFixture godot)
 {
+
+    [Fact]
+    public void GenericTimerEditorUsesSecondsAndCommitsOnlyValidStoppedValues()
+    {
+        var (scene, client) = BenchScene(PartId.Delay, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            Press("Configure");
+            var input = Assert.Single(Nodes<LineEdit>(choices));
+            Assert.Equal("delay_seconds", input.Name.ToString());
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == "delay_seconds (0.1–12 s)");
+            var before = scene.World.Construction;
+            var commands = client.Commands.Count;
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            foreach (var invalid in new[] { "0", "13", "NaN", "Infinity" })
+            {
+                input.Text = invalid;
+                Press("Apply parameters");
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Press("Cancel");
+            Assert.Equal(before, scene.World.Construction);
+            Press("Configure");
+            input = Assert.Single(Nodes<LineEdit>(choices));
+            input.Text = "0.1234567";
+            Press("Apply parameters");
+            var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.True(F32Bits.Equal(.1234567f, current.Parameters[new("delay_seconds")]));
+            Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            var accepted = scene.World.Construction;
+            commands = client.Commands.Count;
+            var proposed = new InstanceParameterCollection([new(new ParameterId("delay_seconds"), 12f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", current.Id, proposed));
+                Assert.Equal(accepted, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(current with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", current.Id, proposed));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
     private static readonly Vector3 BenchPoint = new(0, 1, 0);
 
     private static MachineWorld DiscoveredWorld()

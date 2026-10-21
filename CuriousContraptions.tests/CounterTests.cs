@@ -340,7 +340,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         committed = network.Consume(committed.Activations, committed.Timers, [], new(2), [], [Pass(8)], memory: committed.Memory);
         var row = network.Memory(committed.Memory, counter.Id);
         Assert.Equal(2U, row.Count); // target - 1
-        Assert.Equal(new ActivationTime(8, (Half)0), row.Last);
+        Assert.Equal(new ActivationTime(8,(float)0), row.Last);
         Assert.Equal(ActivationNodeKind.Counter, row.Kind);
 
         // A candidate that counts the third passage is superseded: the committed checkpoint still holds count 2.

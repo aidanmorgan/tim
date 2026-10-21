@@ -22,3 +22,11 @@ Findings returned to the same owner and resolved: traversal of excluded director
 ## Publication-dependent checks
 
 Normal hooks must pass. Independently verify published commit/tree differs from the approved snapshot only by this authorized receipt, remote main identity, exact-SHA CI success including native tests, and Pages artifact/deployment association. Publication remains incomplete until these checks pass. No new local test campaign or Chrome run is required for this native structural change under the current owner policy. Retain terminal receipt for the next normal publication.
+
+## Terminal publication verification — 22 October 2026
+
+Scoped Pass. Independent remote/tree verification (41a14d) confirms main `bd37b95294d18da2416d58a08fa0312403193232`, tree `1fb7731dac8977d9db65b50ab67805dc60f512c8`, equals source `cc4c326ba01eec10b5b6503bbb1f22b0c608d91e`; only this authorized review receipt differs from the approved tree.
+
+Independent GitHub receipts49ad47/f79f00 confirm CI39642013275 completed successfully on that exact SHA. C# game tests2035/2035 passed, zero failed/skipped,1m13s. Pages artifact12366222291 is associated with that run/SHA, size77556558, digest `sha256:d80f904cda04dbd07a0c5b7cf4436a367b419a839250837d6301c12b51de32c2`. Deployment7232685236 reports success at2026-10-21T17:26:48Z for the same SHA at https://aidanmorgan.github.io/tim/.
+
+All required-now publication checks are satisfied. No runtime behavior changed; browser qualification remains deferred under current owner policy. This terminal receipt is retained locally for the next normal slice publication, without a standalone administrative commit.

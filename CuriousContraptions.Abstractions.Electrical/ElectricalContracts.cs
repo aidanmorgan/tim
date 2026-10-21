@@ -22,3 +22,14 @@ public interface IElectricalElement : IPuzzleElementDeclaration
 {
     IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes { get; }
 }
+
+/// <summary>A declared supply route; switched contacts conduct only their own committed closed state.</summary>
+public enum SupplyCapabilityKind : byte { Source, SwitchedContact }
+
+public readonly record struct SupplyCapabilityDescriptor(
+    SupplyCapabilityKind Kind, PortSocket? Input, PortSocket Output);
+
+public interface ISupplyElement : IElectricalElement
+{
+    SupplyCapabilityDescriptor Supply { get; }
+}

@@ -32,3 +32,11 @@ public interface ISignalElement : IPuzzleElementDeclaration
     SignalLatchMode LatchMode { get; }
     SignalCounterDescriptor? Counter { get; }
 }
+
+/// <summary>A one-shot timer whose duration comes from a declared seconds parameter.</summary>
+public readonly record struct SignalTimerDescriptor(string DurationParameter);
+
+public interface ITimerElement : ISignalElement
+{
+    SignalTimerDescriptor Timer { get; }
+}
