@@ -126,7 +126,8 @@ public sealed class WorkshopSaveTests
                             ? System.Text.Json.JsonSerializer.SerializeToNode(new { generic.PartId, generic.Id, generic.Cell, generic.Local, generic.Rotation, generic.Locked, Parameters = generic.Parameters.Select(pair => new { Key = pair.Key.Value, pair.Value }).ToArray() }, options)
                             : System.Text.Json.JsonSerializer.SerializeToNode(instance, instance.GetType(), options)).ToArray(),
                     Inventory = WorkshopInventoryPolicy.Authored(puzzle).Select(pair => new { Part = pair.Key.Value, pair.Value }).ToArray(),
-                    puzzle.Goal, BallAssistance = puzzle.PrimaryAssistance, ReceiverAssistance = puzzle.TargetAssistance, RampAssistance = puzzle.PlacementAssistance, WallAssistance = puzzle.SecondaryAssistance,
+                    // Preserve the immutable pre-conversion JSON shape; this name exists only in historical test projection.
+                    Goal = new { puzzle.Goal.Kind, puzzle.Goal.Body, puzzle.Goal.Target, puzzle.Goal.EventSource, puzzle.Goal.SourceNode, puzzle.Goal.TargetNode, MinimumDelay = puzzle.Goal.MinimumDuration }, BallAssistance = puzzle.PrimaryAssistance, ReceiverAssistance = puzzle.TargetAssistance, RampAssistance = puzzle.PlacementAssistance, WallAssistance = puzzle.SecondaryAssistance,
                     Bodies = scene.Bodies.ToArray(), Colliders = scene.Colliders.ToArray(),
                     Materials = scene.Materials.ToArray(), Prismatics = scene.Prismatics.ToArray()
                 }, options)!);
