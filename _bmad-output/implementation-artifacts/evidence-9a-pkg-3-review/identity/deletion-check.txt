@@ -1,0 +1,97 @@
+# 2026-10-21T02:49:43Z head=8b646ffee9c038eefadf9f890dd11d905e0bb41e
+$ git ls-files parts/scenes/delay.tscn parts/scenes/switch.tscn
+(exit 0, empty above = none)
+$ ls parts/scenes
+ball_detector.tscn
+ball.tscn
+battery.tscn
+bumper.tscn
+clock.tscn
+counter.tscn
+domino.tscn
+lamp.tscn
+latch.tscn
+powered_gate.tscn
+pressure_plate.tscn
+ramp.tscn
+wall.tscn
+$ rg -n "parts/scenes/(delay|switch)\.tscn" (excluding _bmad-output, docs/planning, bin, obj)
+docs/prediction-constraint-work-sources.json:562:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/prediction-constraint-work-sources.json:603:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/held-wrench-path-work-sources.json:583:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/held-wrench-path-work-sources.json:624:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/spatial-work-sources.json:1937:      "path": "parts/scenes/delay.tscn",
+docs/spatial-work-sources.json:2101:      "path": "parts/scenes/switch.tscn",
+docs/committed-motor-intervals-sources.json:586:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/committed-motor-intervals-sources.json:627:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/performance-run-identity-sources.json:1913:      "path": "parts/scenes/delay.tscn",
+docs/performance-run-identity-sources.json:2077:      "path": "parts/scenes/switch.tscn",
+docs/planning/elements/CAT-063-switch.md:26:| Art | `parts/SwitchPart.cs@a6c914e:L9-L23`: navy `#2c3a4c` base 1.1 × 0.25 × 1 at y −0.15, two `#293954` end studs r 0.08 at x ±0.58, button cylinder r 0.38 h 0.18 at y 0.06, gold `#ffd899` socket sphere r 0.09 at (0.45, 0, 0.4); pick radius 0.65. Scene `parts/scenes/switch.tscn`. Palette Switch `#f06e54` `DESIGN.md@a6c914e:L173-L173`. Icon `ui/WorkshopIcons.cs@a6c914e:L52-L52`. |
+docs/springboard-precharged-sources.json:560:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/springboard-precharged-sources.json:601:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/coverage/engine/catalogue-01.json:983:          "Path": "parts/scenes/delay.tscn",
+docs/coverage/engine/catalogue-01.json:2836:          "Path": "parts/scenes/switch.tscn",
+docs/owned-timers-final-sources.json:565:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/owned-timers-final-sources.json:606:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/owned-counters-sources.json:573:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/owned-counters-sources.json:614:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/s001-source-baseline.json:3419:      "parts/scenes/delay.tscn",
+docs/s001-source-baseline.json:3583:      "parts/scenes/switch.tscn",
+docs/motor-power-sources.json:586:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/motor-power-sources.json:627:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/planning/elements/CAT-022-delay.md:26:| Art | `parts/DelayPart.cs@a6c914e:L13-L34`: ochre box 1.25 × 1.25 × 0.6 and cylinder housing r 0.65; cream `#fff8e9` face r 0.55; navy base 1.35 × 0.15 × 0.8 at y −0.7; twelve navy marks at r 0.46; navy hand 0.055 × 0.38; gold hub; indicator at (0, −0.35, 0.37); gold sockets at x ±0.72; pick radius 0.9. Scene `parts/scenes/delay.tscn`. Palette Delay box `#d69c47` `DESIGN.md@a6c914e:L182-L182`. Icon `ui/WorkshopIcons.cs@a6c914e:L92-L92`. |
+docs/owned-hold-timers-sources.json:566:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/owned-hold-timers-sources.json:607:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/coupled-motor-prediction-sources.json:586:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/coupled-motor-prediction-sources.json:627:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/springboard-lesson-sources.json:559:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/springboard-lesson-sources.json:600:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/owned-latches-sources.json:577:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/owned-latches-sources.json:618:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/prediction-samples-sources.json:562:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/prediction-samples-sources.json:603:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/owned-oscillators-sources.json:569:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/owned-oscillators-sources.json:610:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/contact-scratch-sources.json:562:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/contact-scratch-sources.json:603:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/owned-timers-sources.json:565:    "parts/scenes/delay.tscn": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+docs/owned-timers-sources.json:606:    "parts/scenes/switch.tscn": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+docs/performance-audit-sources.json:1929:      "path": "parts/scenes/delay.tscn",
+docs/performance-audit-sources.json:2093:      "path": "parts/scenes/switch.tscn",
+(rg exit 0)
+$ rg -n "parts/scenes/(delay|switch)" in _bmad-output and docs (historical)
+docs/spatial-work-sources.json:2
+docs/committed-motor-intervals-sources.json:2
+docs/owned-latches-sources.json:2
+docs/motor-power-sources.json:2
+docs/springboard-lesson-sources.json:2
+docs/coverage/engine/catalogue-01.json:2
+docs/springboard-precharged-sources.json:2
+docs/owned-counters-sources.json:2
+docs/owned-timers-sources.json:2
+docs/owned-oscillators-sources.json:2
+$ grep include_filter/exclude_filter export_presets.cfg
+8:export_filter="resources"
+10:include_filter="assets/icons/*"
+11:exclude_filter="docs/*,tests/*,.tools/*,anvil/*,plans/*,archives/story-7-1-20261009/*,content/*"
+36:export_filter="resources"
+38:include_filter="assets/icons/*"
+39:exclude_filter="archives/story-7-1-20261009/*,content/*"
+42:encryption_include_filters=""
+43:encryption_exclude_filters=""
+77:export_filter="resources"
+79:include_filter="assets/icons/*"
+80:exclude_filter="archives/story-7-1-20261009/*,content/*"
+83:encryption_include_filters=""
+84:encryption_exclude_filters=""
+113:export_filter="resources"
+115:include_filter="assets/icons/*"
+116:exclude_filter="archives/story-7-1-20261009/*,content/*"
+119:encryption_include_filters=""
+120:encryption_exclude_filters=""
+$ uid headers
+==> elements/DelayBox/delay.tscn <==
+[gd_scene load_steps=15 format=3]
+
+==> elements/ImpactSwitch/switch.tscn <==
+[gd_scene load_steps=12 format=3]

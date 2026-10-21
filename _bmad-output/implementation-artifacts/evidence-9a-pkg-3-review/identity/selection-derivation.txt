@@ -1,0 +1,119 @@
+# reviewer selection derivation 2026-10-21T02:59:49Z head=8b646ffe
+## SuiteCatalogue entries naming PartId.Delay or PartId.ImpactSwitch
+151:            PartId.Latch, Set(PartId.Basketball, PartId.Battery, PartId.Delay, PartId.SignalLamp, PartId.Latch, PartId.PoweredGate,
+152:                PartId.ImpactSwitch), [], Set(Signal, Electrical), Set(Gizmo, Wire, Config, Present)),
+162:            null, Set(PartId.Basketball, PartId.PinballBumper, PartId.Delay), Set(DelayedSignal), Set(Signal),
+166:            null, Set(PartId.Basketball, PartId.Delay, PartId.Ramp, PartId.Receiver), Set(DelayedSignal, FirstPrinciples), Set(Signal),
+201:            null, Set(PartId.Basketball, PartId.Battery, PartId.BowlingBall, PartId.Counter, PartId.Delay, PartId.Domino, PartId.Latch,
+208:            null, Set(PartId.Basketball, PartId.ImpactSwitch, PartId.SignalLamp), [], Set(Signal), Set(Gizmo, Wire)),
+231:            null, Set(PartId.Basketball, PartId.Delay, PartId.ImpactSwitch, PartId.SignalLamp), [], Set(Signal), Set(Pal, Bench, Gizmo, Wire)),
+## level/content files holding a "switch" or "delay" part
+engine/MachinePart.cs
+ui/WorkshopConfiguration.cs
+engine/gpu/WorkshopActivationParts.cs
+content/puzzles.json
+engine/gpu/WorkshopDelay.cs
+engine/gpu/WorkshopInventory.cs
+engine/gpu/DelayedSignal.cs
+## selectLevel calls per suite
+tools/e2e/anim-1a.test.ts:171:selectLevel('first_principles')
+tools/e2e/anim-1a.test.ts:211:selectLevel('first_principles')
+tools/e2e/anim-1a.test.ts:41:selectLevel('first_principles')
+tools/e2e/anim-1b.test.ts:122:selectLevel('delayed_signal')
+tools/e2e/anim-1b.test.ts:62:selectLevel('delayed_signal')
+tools/e2e/anim-1b.test.ts:86:selectLevel('delayed_signal')
+tools/e2e/anim-1c.test.ts:107:selectLevel('first_principles')
+tools/e2e/anim-1c.test.ts:119:selectLevel('delayed_signal')
+tools/e2e/anim-1c.test.ts:168:selectLevel('first_principles')
+tools/e2e/anim-1c.test.ts:68:selectLevel('first_principles')
+tools/e2e/cat-015a-sidekick.test.ts:32:selectLevel('bumper_sidekick')
+tools/e2e/cat-023b.test.ts:174:selectLevel('domino_effect')
+tools/e2e/cat-023b.test.ts:215:selectLevel('domino_effect')
+tools/e2e/cat-023b.test.ts:270:selectLevel('domino_effect')
+tools/e2e/cat-048b.test.ts:117:selectLevel('clear_pipe')
+tools/e2e/cat-048b.test.ts:39:selectLevel('clear_pipe')
+tools/e2e/cat-049.test.ts:117:selectLevel('gentle_bend')
+tools/e2e/cat-049.test.ts:39:selectLevel('gentle_bend')
+tools/e2e/cat-050-joined.test.ts:245:selectLevel('joined_pipe')
+tools/e2e/cat-050-joined.test.ts:81:selectLevel('joined_pipe')
+tools/e2e/cat-050.test.ts:117:selectLevel('quarter_bend')
+tools/e2e/cat-050.test.ts:39:selectLevel('quarter_bend')
+tools/e2e/clock-master.test.ts:169:selectLevel('domino_effect')
+tools/e2e/clock-master.test.ts:331:selectLevel('domino_effect')
+tools/e2e/engine-core-2a3.test.ts:188:selectLevel('first_principles')
+tools/e2e/engine-core-2a3.test.ts:226:selectLevel('first_principles')
+tools/e2e/engine-core-2a3.test.ts:26:selectLevel('first_principles')
+tools/e2e/engine-core-2a3.test.ts:260:selectLevel('first_principles')
+tools/e2e/engine-core-2b4.test.ts:100:selectLevel('first_principles')
+tools/e2e/engine-core-2b4.test.ts:28:selectLevel('first_principles')
+tools/e2e/engine-core-2c.test.ts:105:selectLevel('first_principles')
+tools/e2e/engine-core-2c.test.ts:28:selectLevel('first_principles')
+tools/e2e/tube-snapping.test.ts:172:selectLevel('clear_pipe')
+## cat-005, cat-017, cat-020, clock-master: switch/delay mentions
+tools/e2e/clock-master.test.ts:1
+tools/e2e/cat-020.test.ts:1
+tools/e2e/cat-005.test.ts:2
+## content/puzzles.json levels holding a switch or delay part
+power_trip "switch"
+spring_signal "switch"
+wind_signal "switch"
+cold_start "switch"
+switched_motor "switch"
+counterweight "switch"
+pulley_depth "switch"
+delayed_signal "delay","switch"
+delayed_solar "delay","switch"
+catch_and_signal "switch"
+powered_post "switch"
+two_signals "switch"
+mixed_signals "switch"
+start_and_topple "switch"
+spatial_signals "switch"
+triple_signal "switch"
+cold_front "switch"
+bounce_mail "switch"
+relay_workshop "switch"
+double_cold_start "switch"
+signals_and_chain "switch"
+cold_signals "switch"
+depth_telegraph "switch"
+bridges_and_signal "switch"
+cold_bridges "switch"
+grand_contraption "switch"
+wind_then_release "switch","delay"
+saved_for_later "switch","delay"
+## level ids any suite selects (selectLevel literal or variable)
+tools/e2e/cat-015b.test.ts:79:        await d.selectLevel(lesson===Lesson.Depth?'bumper_depth':'wall_and_bumper');
+tools/e2e/workshop-driver.ts:680:    async selectLevel(level: WorkshopLevel): Promise<void> {
+tools/e2e/workshop-driver.ts:682:        if (level === this.currentLevel) throw new Error(`selectLevel(${level}): already the current level (a reload lands on f
+tools/e2e/workshop-driver.ts:683:        if (this.phase !== SimulationPhase.Building) throw new Error(`selectLevel(${level}): the picker only changes level in B
+tools/e2e/workshop-driver.ts:691:        await this.construct(`selectLevel(${level})`, () => this.press(UI_ANCHORS.picker[level].x, UI_ANCHORS.picker[level].y))
+## levels named in suite sources
+power_trip: none
+spring_signal: none
+wind_signal: none
+cold_start: none
+switched_motor: none
+counterweight: none
+pulley_depth: none
+delayed_signal: tools/E2eRunner/SuiteCatalogue.cs tools/e2e/workshop-driver.ts tools/e2e/anim-1b.test.ts tools/e2e/anim-1c.test.ts 
+delayed_solar: none
+catch_and_signal: none
+powered_post: none
+two_signals: none
+mixed_signals: none
+start_and_topple: none
+spatial_signals: none
+triple_signal: none
+cold_front: none
+bounce_mail: none
+relay_workshop: none
+double_cold_start: none
+signals_and_chain: none
+cold_signals: none
+depth_telegraph: none
+bridges_and_signal: none
+cold_bridges: none
+grand_contraption: none
+wind_then_release: none
+saved_for_later: none

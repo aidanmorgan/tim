@@ -1,0 +1,27 @@
+# mutant A5-switch-max at 2026-10-21T02:54:16Z on 8b646ffe
+## git status
+ M elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+## diff
+diff --git a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+index 887edd66..4caf9ab2 100644
+--- a/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
++++ b/elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+@@ -20,7 +20,7 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
+         ScenePath: "res://elements/ImpactSwitch/switch.tscn",
+         Parameters:
+         [
+-            new("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 64f, Default: 0.8f, Options: [])
++            new("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 65f, Default: 0.8f, Options: [])
+         ]);
+ 
+     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## parity + package tests
+[xUnit.net 00:00:01.20]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheRuntimeParameterDefaultsAndBounds [FAIL]
+   ImpactSwitch.Metadata.Parameters[0] (trigger_threshold): the runtime refuses a declared bound.
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 148 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 41 ms - BundleElements.Tests.dll (net10.0)
+restored: status lines 0

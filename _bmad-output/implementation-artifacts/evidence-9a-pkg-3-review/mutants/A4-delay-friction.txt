@@ -1,0 +1,28 @@
+# mutant A4-delay-friction at 2026-10-21T02:53:59Z on 8b646ffe
+## git status
+ M elements/DelayBox/DelayBoxElementDeclaration.cs
+## diff
+diff --git a/elements/DelayBox/DelayBoxElementDeclaration.cs b/elements/DelayBox/DelayBoxElementDeclaration.cs
+index 1f7db17f..9f22aacd 100644
+--- a/elements/DelayBox/DelayBoxElementDeclaration.cs
++++ b/elements/DelayBox/DelayBoxElementDeclaration.cs
+@@ -9,7 +9,7 @@ namespace CuriousContraptions.Elements.DelayBox;
+ /// output once. The duration is a typed parameter with the runtime's default and admitted range.</summary>
+ public sealed class DelayBoxElementDeclaration : ISignalElement
+ {
+-    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.3f, RollingResistance: 0f, BounceThreshold: 0.1f);
++    private static readonly MaterialProperties Surface = new(Restitution: 1f, Friction: 0.31f, RollingResistance: 0f, BounceThreshold: 0.1f);
+ 
+     public ElementMetadata Metadata => new(
+         Id: "delay",
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## parity + package tests
+[xUnit.net 00:00:01.06]     CuriousContraptions.Tests.BundleCatalogueParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [FAIL]
+   DelayBox.Colliders[0].Material: MaterialProperties { Restitution = 1, Friction = 0.31, RollingResistance = 0, BounceThreshold = 0.1 } declared, ContactMaterialDeclaration { Id = GpuMaterialId { Value = 4294967808 }, Restitution = Restitution { Value = 1 }, BounceThreshold = LinearSpeed { Value = 0.1 }, Friction = FrictionCoefficient { Value = 0.3 }, RollingResistance = RollingResistance { Value = 0 } } at runtime.
+     at CuriousContraptions.Tests.BundleCatalogueParityTests.AssertMaterials(String where, IReadOnlyList`1 declared, ColliderDeclaration[] colliders, ContactMaterialDeclaration[] materials) in /Users/aidan/dev/personal/tim/.claude/worktrees/murdoch20-mut/CuriousContraptions.tests/BundleCatalogueParityTests.cs:line 282
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 138 ms - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 41 ms - BundleElements.Tests.dll (net10.0)
+restored: status lines 0

@@ -1,0 +1,26 @@
+# mutant A9-delay-csproj-mechanical at 2026-10-21T02:55:22Z on 8b646ffe
+## git status
+ M elements/DelayBox/DelayBox.csproj
+## diff
+diff --git a/elements/DelayBox/DelayBox.csproj b/elements/DelayBox/DelayBox.csproj
+index 6043245a..5194581e 100644
+--- a/elements/DelayBox/DelayBox.csproj
++++ b/elements/DelayBox/DelayBox.csproj
+@@ -8,5 +8,6 @@
+   <ItemGroup>
+     <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+     <ProjectReference Include="../../CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj" />
++    <ProjectReference Include="../../CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj" />
+   </ItemGroup>
+ </Project>
+## build
+    0 Error(s)
+    0 Warning(s)
+build exit (pipeline tail)
+## parity + package tests
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 194 ms - CuriousContraptions.tests.dll (net10.0)
+[xUnit.net 00:00:00.43]     CuriousContraptions.BundleElements.Tests.PackageReferenceTests.EveryPackageReferencesExactlyTheAbstractionsItsDeclarationImplements(package: "DelayBox") [FAIL]
+Expected: ···"ontraptions.Abstractions.Signal/CuriousContraption"···
+Actual:   ···"ontraptions.Abstractions.Mechanical/CuriousContrap"···
+Failed!  - Failed:     1, Passed:    24, Skipped:     0, Total:    25, Duration: 50 ms - BundleElements.Tests.dll (net10.0)
+restored: status lines 0
