@@ -19,7 +19,8 @@ public static partial class Program
     private static ulong _publication;
     private static MemoryObservationId _lastMemoryObservation;
     private static readonly WorkshopCommandRouter Commands = new(Execute);
-    private static byte[] _readOutput = [];
+    // One builder for every physical read this worker publishes: the per-tick encode reuses its storage.
+    private static readonly Google.FlatBuffers.FlatBufferBuilder ReadBuilder = new(4096);
     private static ulong _loopOwner;
     private static WorkshopCommandIdentity? _pendingCommand;
     private static bool _reliableStalled;
@@ -41,7 +42,7 @@ public static partial class Program
     {
         if (_peer is not null) throw new InvalidOperationException("Worker session is already installed.");
         if (bytes.Length != 16) throw new ArgumentException("Unsupported session bootstrap.");
-        var session = WorkshopWire.ReadSession(bytes);
+        var session = RuntimeSessionId.Read(bytes);
         var origin = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         var peer = new WorkshopClockPeer(session, new(1), origin, new(1), new(100_000), WorkshopRuntimeRole.Browser);
         _device = new(new BrowserGpuTransport(), new(session.Low, session.High));
@@ -117,13 +118,16 @@ public static partial class Program
         }
     }
 
+    /// <summary>Publishes one committed read with its 24-byte receipt identity and its composed pose-ring slot: the worker copies
+    /// the slot into the ring verbatim and the browser echoes the identity, so no script parses the read.</summary>
     [JSImport("publish", "workshopGpu")]
-    private static partial void Publish(byte[] read, bool observationPending, bool retainOccurrence);
+    private static partial void Publish(byte[] read, byte[] readIdentity, byte[] poseSlot, bool observationPending, bool retainOccurrence);
     [JSImport("reserveOccurrenceRead", "workshopGpu")] private static partial bool ReserveOccurrenceRead();
     [JSImport("releaseOccurrenceRead", "workshopGpu")] private static partial void ReleaseOccurrenceRead();
 
+    /// <summary>Acknowledges one command with its response and its 8-byte little-endian sequence (the browser's receipt key).</summary>
     [JSImport("acknowledge", "workshopGpu")]
-    private static partial void Acknowledge(byte[] response, bool observationPending);
+    private static partial void Acknowledge(byte[] response, byte[] sequence, bool observationPending);
     [JSImport("retire", "workshopGpu")]
     private static partial void Retire(string detail);
 
@@ -155,25 +159,23 @@ public static partial class Program
             ? WorkshopMemoryWire.Capture(request) : new(request, status));
     }
 
-    [JSExport]
-    /// <summary>The smallest admissible command. A construction command is as wide as its own machine (Story 9R.5b): no ceiling.</summary>
-    public static int[] CommandAbi() => [16];
-    [JSExport]
-    public static int[] ResponseAbi() => WorkshopWire.ResponseAbi();
 
     [JSExport]
     public static async Task Dispatch(byte[] bytes)
     {
-        var response = await Commands.Dispatch(bytes);
-        Acknowledge(response, Trace.CanFlush(Simulation.Phase));
+        var routed = Commands.Dispatch(bytes);
+        var response = await routed.Response;
+        var sequence = new byte[sizeof(ulong)];
+        BinaryPrimitives.WriteUInt64LittleEndian(sequence, routed.Sequence.Value);
+        Acknowledge(response, sequence, Trace.CanFlush(Simulation.Phase));
     }
 
 
-    private static async Task<byte[]> Execute(WorkshopCommand command, WorkshopResponseCodec output)
+    private static async Task<byte[]> Execute(WorkshopCommand command)
     {
-        if (!WorkshopWire.Matches(command, _simulation?.Epoch ?? new(1), _simulation?.Revision ?? default, Peer.Session,
+        if (!WorkshopMessages.Matches(command, _simulation?.Epoch ?? new(1), _simulation?.Revision ?? default, Peer.Session,
             _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default))
-            return EncodeResponse(output, new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
+            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Rejected, WorkshopRejection.StaleGeneration), Simulation.Phase, Simulation.Committed));
         var identity = new WorkshopCommandIdentity(command.Sequence, command.Epoch, command.Revision, command.Cadence, command.Projection);
         if (command.Kind == WorkshopCommandKind.Cancel)
@@ -181,18 +183,18 @@ public static partial class Program
             var result = command.Target == _pendingCommand
                 ? Simulation.CancelPending()
                 : new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.AlreadyCommitted);
-            return EncodeResponse(output, new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
+            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
                 result, Simulation.Phase, Simulation.Committed));
         }
         if ((_pendingCommand is not null || _preparedEndpoint is not null) && command.Kind != WorkshopCommandKind.Dispose)
-            return EncodeResponse(output, new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
+            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy), Simulation.Phase, Simulation.Committed));
         _pendingCommand = identity;
-        try { return await Apply(command, output); }
+        try { return await Apply(command); }
         finally { if (_pendingCommand == identity) _pendingCommand = null; }
     }
 
-    private static async Task<byte[]> Apply(WorkshopCommand command, WorkshopResponseCodec output)
+    private static async Task<byte[]> Apply(WorkshopCommand command)
     {
         WorkshopCommandResult result;
         _transition = command.Kind switch
@@ -201,9 +203,9 @@ public static partial class Program
             WorkshopCommandKind.Resume => ScheduleTransition.Resume, WorkshopCommandKind.Step => ScheduleTransition.Step,
             WorkshopCommandKind.Reset => ScheduleTransition.Reset, _ => ScheduleTransition.Configure
         };
-        if (!WorkshopWire.Matches(command, _simulation?.Epoch ?? new(1), _simulation?.Revision ?? default, Peer.Session,
+        if (!WorkshopMessages.Matches(command, _simulation?.Epoch ?? new(1), _simulation?.Revision ?? default, Peer.Session,
             _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default))
-            return EncodeResponse(output, new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
+            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Rejected, WorkshopRejection.StaleGeneration), Simulation.Phase, Simulation.Committed));
         switch (command.Kind)
         {
@@ -268,21 +270,16 @@ public static partial class Program
             if (command.Kind is WorkshopCommandKind.Run or WorkshopCommandKind.Resume)
                 _ = RunLoop(++_loopOwner);
         }
-        return EncodeResponse(output, new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
+        return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
             result, Simulation.Phase, Simulation.Committed));
     }
 
-    private static byte[] EncodeResponse(WorkshopResponseCodec output, WorkshopResponse response)
+    private static byte[] EncodeResponse(WorkshopResponse response)
     {
         var populated = response with { Session = Peer.Session, Cadence = _schedule?.Revision ?? default,
             MasterGeneration = _schedule is null ? default : Peer.Generation,
             Projection = _schedule?.World.Epoch ?? default, SourcePulse = new(response.Read.Tick.Value) };
-        return output switch
-        {
-            WorkshopResponseCodec.FlatBuffers => WorkshopWireFlatBuffers.EncodeResponse(populated),
-            WorkshopResponseCodec.Binary => WorkshopWire.Encode(populated),
-            _ => throw new ArgumentException("Undefined response codec."),
-        };
+        return WorkshopWireFlatBuffers.EncodeResponse(populated);
     }
 
     private static async Task RunLoop(ulong owner)
@@ -378,18 +375,6 @@ public static partial class Program
         public async ValueTask YieldTurn() => await NextTurn(0);
         public async ValueTask AwaitWork() => await NextTurn(1);
     }
-    /// <summary>Encodes one physical read into the read buffer, reallocated only when the read's populations change width (once per
-    /// admitted world, never per tick: Story 9R.5b sizes it from the compiled scene instead of a fixed response capacity).</summary>
-    private static byte[] EncodeRead(WorkshopResponse response)
-    {
-        var populated = response with { Session = Peer.Session, Cadence = _schedule?.Revision ?? default,
-            MasterGeneration = _schedule is null ? default : Peer.Generation,
-            Projection = _schedule?.World.Epoch ?? default, SourcePulse = new(response.Read.Tick.Value) };
-        var width = WorkshopWire.ResponseBytes(populated);
-        if (_readOutput.Length != width) _readOutput = new byte[width];
-        WorkshopWire.Write(populated, _readOutput);
-        return _readOutput;
-    }
 
     private static void EmitRead(WorkshopCommandResult result, bool retainOccurrence = false)
     {
@@ -401,7 +386,7 @@ public static partial class Program
             MasterGeneration: _schedule is null ? default : Peer.Generation,
             Projection: _schedule?.World.Epoch ?? default,
             SourcePulse: new(Simulation.Committed.Tick.Value));
-        var encoded = EncodeRead(readResponse);
+        var encoded = WorkshopWireFlatBuffers.EncodeResponse(readResponse, ReadBuilder);
         _publication++;
         // Existing read-only observation channel, in the production build every Chrome suite runs against (owner decision
         // h; Story 9A.24 replaces it with the typed observation port): retained energy/event commits prove finite
@@ -409,9 +394,10 @@ public static partial class Program
         // the owner. The PlaytestDiagnostics variant only adds diagnostic recording and is never a gate.
         if (retainOccurrence)
         {
-            Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(WorkshopWireFlatBuffers.EncodeResponse(readResponse)));
+            Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(encoded));
         }
-        Publish(encoded, Trace.CanFlush(Simulation.Phase), retainOccurrence);
+        Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
+            Trace.CanFlush(Simulation.Phase), retainOccurrence);
     }
 
     [JSExport]

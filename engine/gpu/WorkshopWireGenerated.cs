@@ -485,8 +485,9 @@ public struct InstanceRecord : IFlatbufferObject
   public float Preload { get { int o = __p.__offset(74); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public CuriousContraptions.Wire.Vec3f? HalfExtents { get { int o = __p.__offset(76); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public float Friction { get { int o = __p.__offset(78); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public uint TargetCount { get { int o = __p.__offset(80); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
 
-  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(38); }
+  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(39); }
   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
   public static void AddPartId(FlatBufferBuilder builder, StringOffset partIdOffset) { builder.AddOffset(1, partIdOffset.Value, 0); }
   public static void AddLocked(FlatBufferBuilder builder, bool locked) { builder.AddBool(2, locked, false); }
@@ -525,6 +526,7 @@ public struct InstanceRecord : IFlatbufferObject
   public static void AddPreload(FlatBufferBuilder builder, float preload) { builder.AddFloat(35, preload, 0.0f); }
   public static void AddHalfExtents(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> halfExtentsOffset) { builder.AddStruct(36, halfExtentsOffset.Value, 0); }
   public static void AddFriction(FlatBufferBuilder builder, float friction) { builder.AddFloat(37, friction, 0.0f); }
+  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(38, targetCount, 0); }
   public static Offset<CuriousContraptions.Wire.InstanceRecord> EndInstanceRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.InstanceRecord>(o);
@@ -575,6 +577,7 @@ static public class InstanceRecordVerify
       && verifier.VerifyField(tablePos, 74 /*Preload*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 76 /*HalfExtents*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
       && verifier.VerifyField(tablePos, 78 /*Friction*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 80 /*TargetCount*/, 4 /*uint*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -723,25 +726,21 @@ public struct SavedConstruction : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
   public SavedConstruction __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public uint Magic { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-  public ulong NextBodyId { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public CuriousContraptions.Wire.ConstructionRecord? Construction { get { int o = __p.__offset(8); return o != 0 ? (CuriousContraptions.Wire.ConstructionRecord?)(new CuriousContraptions.Wire.ConstructionRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public ulong NextBodyId { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
+  public CuriousContraptions.Wire.ConstructionRecord? Construction { get { int o = __p.__offset(6); return o != 0 ? (CuriousContraptions.Wire.ConstructionRecord?)(new CuriousContraptions.Wire.ConstructionRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
 
   public static Offset<CuriousContraptions.Wire.SavedConstruction> CreateSavedConstruction(FlatBufferBuilder builder,
-      uint magic = 0,
       ulong next_body_id = 0,
       Offset<CuriousContraptions.Wire.ConstructionRecord> constructionOffset = default(Offset<CuriousContraptions.Wire.ConstructionRecord>)) {
-    builder.StartTable(3);
+    builder.StartTable(2);
     SavedConstruction.AddNextBodyId(builder, next_body_id);
     SavedConstruction.AddConstruction(builder, constructionOffset);
-    SavedConstruction.AddMagic(builder, magic);
     return SavedConstruction.EndSavedConstruction(builder);
   }
 
-  public static void StartSavedConstruction(FlatBufferBuilder builder) { builder.StartTable(3); }
-  public static void AddMagic(FlatBufferBuilder builder, uint magic) { builder.AddUint(0, magic, 0); }
-  public static void AddNextBodyId(FlatBufferBuilder builder, ulong nextBodyId) { builder.AddUlong(1, nextBodyId, 0); }
-  public static void AddConstruction(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ConstructionRecord> constructionOffset) { builder.AddOffset(2, constructionOffset.Value, 0); }
+  public static void StartSavedConstruction(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddNextBodyId(FlatBufferBuilder builder, ulong nextBodyId) { builder.AddUlong(0, nextBodyId, 0); }
+  public static void AddConstruction(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ConstructionRecord> constructionOffset) { builder.AddOffset(1, constructionOffset.Value, 0); }
   public static Offset<CuriousContraptions.Wire.SavedConstruction> EndSavedConstruction(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.SavedConstruction>(o);
@@ -754,9 +753,8 @@ static public class SavedConstructionVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyField(tablePos, 4 /*Magic*/, 4 /*uint*/, 4, false)
-      && verifier.VerifyField(tablePos, 6 /*NextBodyId*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyTable(tablePos, 8 /*Construction*/, CuriousContraptions.Wire.ConstructionRecordVerify.Verify, false)
+      && verifier.VerifyField(tablePos, 4 /*NextBodyId*/, 8 /*ulong*/, 8, false)
+      && verifier.VerifyTable(tablePos, 6 /*Construction*/, CuriousContraptions.Wire.ConstructionRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -893,17 +891,9 @@ public struct WorkshopCommand : IFlatbufferObject
   public CuriousContraptions.Wire.ElectricalControl? Electrical { get { int o = __p.__offset(20); return o != 0 ? (CuriousContraptions.Wire.ElectricalControl?)(new CuriousContraptions.Wire.ElectricalControl()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public CuriousContraptions.Wire.CadenceSettingsRecord? Settings { get { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.CadenceSettingsRecord?)(new CuriousContraptions.Wire.CadenceSettingsRecord()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public CuriousContraptions.Wire.CommandIdentityRecord? Target { get { int o = __p.__offset(24); return o != 0 ? (CuriousContraptions.Wire.CommandIdentityRecord?)(new CuriousContraptions.Wire.CommandIdentityRecord()).__assign(o + __p.bb_pos, __p.bb) : null; } }
-  public byte Construction(int j) { int o = __p.__offset(26); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
-  public int ConstructionLength { get { int o = __p.__offset(26); return o != 0 ? __p.__vector_len(o) : 0; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetConstructionBytes() { return __p.__vector_as_span<byte>(26, 1); }
-#else
-  public ArraySegment<byte>? GetConstructionBytes() { return __p.__vector_as_arraysegment(26); }
-#endif
-  public byte[] GetConstructionArray() { return __p.__vector_as_array<byte>(26); }
-  public CuriousContraptions.Wire.ConstructionRecord? ConstructionRecord { get { int o = __p.__offset(28); return o != 0 ? (CuriousContraptions.Wire.ConstructionRecord?)(new CuriousContraptions.Wire.ConstructionRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public CuriousContraptions.Wire.ConstructionRecord? ConstructionRecord { get { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.ConstructionRecord?)(new CuriousContraptions.Wire.ConstructionRecord()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
 
-  public static void StartWorkshopCommand(FlatBufferBuilder builder) { builder.StartTable(13); }
+  public static void StartWorkshopCommand(FlatBufferBuilder builder) { builder.StartTable(12); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandKind kind) { builder.AddUint(1, (uint)kind, 0); }
   public static void AddEpoch(FlatBufferBuilder builder, ulong epoch) { builder.AddUlong(2, epoch, 0); }
@@ -920,13 +910,7 @@ public struct WorkshopCommand : IFlatbufferObject
   public static void AddElectrical(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ElectricalControl> electricalOffset) { builder.AddStruct(8, electricalOffset.Value, 0); }
   public static void AddSettings(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CadenceSettingsRecord> settingsOffset) { builder.AddStruct(9, settingsOffset.Value, 0); }
   public static void AddTarget(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.CommandIdentityRecord> targetOffset) { builder.AddStruct(10, targetOffset.Value, 0); }
-  public static void AddConstruction(FlatBufferBuilder builder, VectorOffset constructionOffset) { builder.AddOffset(11, constructionOffset.Value, 0); }
-  public static VectorOffset CreateConstructionVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
-  public static VectorOffset CreateConstructionVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateConstructionVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateConstructionVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
-  public static void StartConstructionVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
-  public static void AddConstructionRecord(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ConstructionRecord> constructionRecordOffset) { builder.AddOffset(12, constructionRecordOffset.Value, 0); }
+  public static void AddConstructionRecord(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ConstructionRecord> constructionRecordOffset) { builder.AddOffset(11, constructionRecordOffset.Value, 0); }
   public static Offset<CuriousContraptions.Wire.WorkshopCommand> EndWorkshopCommand(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopCommand>(o);
@@ -950,8 +934,7 @@ static public class WorkshopCommandVerify
       && verifier.VerifyField(tablePos, 20 /*Electrical*/, 16 /*CuriousContraptions.Wire.ElectricalControl*/, 8, false)
       && verifier.VerifyField(tablePos, 22 /*Settings*/, 24 /*CuriousContraptions.Wire.CadenceSettingsRecord*/, 4, false)
       && verifier.VerifyField(tablePos, 24 /*Target*/, 40 /*CuriousContraptions.Wire.CommandIdentityRecord*/, 8, false)
-      && verifier.VerifyVectorOfData(tablePos, 26 /*Construction*/, 1 /*byte*/, false)
-      && verifier.VerifyTable(tablePos, 28 /*ConstructionRecord*/, CuriousContraptions.Wire.ConstructionRecordVerify.Verify, false)
+      && verifier.VerifyTable(tablePos, 26 /*ConstructionRecord*/, CuriousContraptions.Wire.ConstructionRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -1004,8 +987,16 @@ public struct WorkshopResponse : IFlatbufferObject
   public int ElectricalLength { get { int o = __p.__offset(44); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.ActivationMemoryRecord? ActivationMemory(int j) { int o = __p.__offset(46); return o != 0 ? (CuriousContraptions.Wire.ActivationMemoryRecord?)(new CuriousContraptions.Wire.ActivationMemoryRecord()).__assign(__p.__vector(o) + j * 40, __p.bb) : null; }
   public int ActivationMemoryLength { get { int o = __p.__offset(46); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public byte Motion(int j) { int o = __p.__offset(48); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int MotionLength { get { int o = __p.__offset(48); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetMotionBytes() { return __p.__vector_as_span<byte>(48, 1); }
+#else
+  public ArraySegment<byte>? GetMotionBytes() { return __p.__vector_as_arraysegment(48); }
+#endif
+  public byte[] GetMotionArray() { return __p.__vector_as_array<byte>(48); }
 
-  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(22); }
+  public static void StartWorkshopResponse(FlatBufferBuilder builder) { builder.StartTable(23); }
   public static void AddSequence(FlatBufferBuilder builder, ulong sequence) { builder.AddUlong(0, sequence, 0); }
   public static void AddKind(FlatBufferBuilder builder, CuriousContraptions.Wire.ResponseKind kind) { builder.AddByte(1, (byte)kind, 0); }
   public static void AddOutcome(FlatBufferBuilder builder, CuriousContraptions.Wire.CommandOutcome outcome) { builder.AddByte(2, (byte)outcome, 0); }
@@ -1041,6 +1032,12 @@ public struct WorkshopResponse : IFlatbufferObject
   public static void StartElectricalVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
   public static void AddActivationMemory(FlatBufferBuilder builder, VectorOffset activationMemoryOffset) { builder.AddOffset(21, activationMemoryOffset.Value, 0); }
   public static void StartActivationMemoryVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(40, numElems, 8); }
+  public static void AddMotion(FlatBufferBuilder builder, VectorOffset motionOffset) { builder.AddOffset(22, motionOffset.Value, 0); }
+  public static VectorOffset CreateMotionVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateMotionVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateMotionVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateMotionVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartMotionVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
   public static Offset<CuriousContraptions.Wire.WorkshopResponse> EndWorkshopResponse(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<CuriousContraptions.Wire.WorkshopResponse>(o);
@@ -1077,6 +1074,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfData(tablePos, 42 /*Occurrences*/, 40 /*CuriousContraptions.Wire.ContactWorkOccurrenceRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 44 /*Electrical*/, 32 /*CuriousContraptions.Wire.ElectricalSourceRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 46 /*ActivationMemory*/, 40 /*CuriousContraptions.Wire.ActivationMemoryRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 48 /*Motion*/, 1 /*byte*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

@@ -52,21 +52,20 @@ export const SNAPSHOT_SCHEMA = {
             ['threshold', 'float'], ['duration', 'float'], ['stiffness', 'float'], ['damping', 'float'],
             ['initial_compression', 'float'], ['capacity', 'float'], ['maximum_power', 'float'], ['initial_fraction', 'float'],
             ['enabled', 'uint8'], ['strength', 'float'], ['reference_mass', 'float'], ['preload', 'float'],
-            ['half_extents', 'Vec3f'], ['friction', 'float']] },
+            ['half_extents', 'Vec3f'], ['friction', 'float'], ['target_count', 'uint32']] },
         PuzzleRecord: { kind: 'table', fields: [['id', 'uint32'], ['placement', 'uint32'], ['precision', 'float'],
             ['inventory_part', 'string'], ['inventory_count', 'uint32'], ['goal_kind', 'uint32'], ['goal_body', 'uint64'],
             ['goal_target', 'uint64'], ['goal_event_source', 'uint64'], ['goal_delay', 'float'], ['raw_assistance', '[uint8]']] },
         ConstructionRecord: { kind: 'table', fields: [['revision', 'uint64'], ['settings', 'CadenceSettingsRecord'],
             ['puzzle', 'PuzzleRecord'], ['instances', '[InstanceRecord]'], ['connections', '[ConnectionRecord]']] },
-        SavedConstruction: { kind: 'table', fields: [['magic', 'uint32'], ['next_body_id', 'uint64'],
-            ['construction', 'ConstructionRecord']] },
+        SavedConstruction: { kind: 'table', fields: [['next_body_id', 'uint64'], ['construction', 'ConstructionRecord']] },
         WorkshopResponse: { kind: 'table', fields: [['sequence', 'uint64'], ['kind', 'ResponseKind'], ['outcome', 'CommandOutcome'],
             ['reason', 'uint8'], ['phase', 'SimulationPhase'], ['epoch', 'uint64'], ['tick', 'uint64'],
             ['revision', 'uint64'], ['publication', 'uint64'], ['master_generation', 'uint64'], ['cadence', 'uint64'],
             ['projection', 'uint64'], ['session', '[uint8]'], ['capture', 'ClockStamp'], ['bodies', '[BodyRead]'],
             ['captures', '[CaptureLatchRead]'], ['activations', '[ActivationRecord]'], ['timers', '[TimerRecord]'],
             ['contact_works', '[ContactWorkStoreRecord]'], ['occurrences', '[ContactWorkOccurrenceRecord]'],
-            ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]']] },
+            ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]']] },
     } as Readonly<Record<string, TypeListing>>,
 } as const;
 
@@ -209,8 +208,10 @@ class Flattener {
     }
 }
 
+// Story 9A.2: every buffer is size-prefixed, so its root offset follows the 4-byte size.
 function rootPosition(bb: flatbuffers.ByteBuffer): number {
-    return bb.readInt32(bb.position()) + bb.position();
+    const at = bb.position() + flatbuffers.SIZE_PREFIX_LENGTH;
+    return bb.readInt32(at) + at;
 }
 
 function flattenResponse(response: Uint8Array): { entries: SnapshotEntry[]; bodies: number; tick: bigint; outcome: number } {

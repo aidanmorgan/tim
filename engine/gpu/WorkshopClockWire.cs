@@ -22,7 +22,7 @@ public static class WorkshopClockWire
         if (peer.Uncertainty.Value != 100_000) throw new ArgumentException("Unsupported isolated native clock profile.");
         var bytes = new byte[PeerBytes]; var data = bytes.AsSpan();
         BinaryPrimitives.WriteUInt32LittleEndian(data[4..], (uint)NativeClockProfile.IsolatedWitnessedPerformanceNow);
-        WorkshopWire.WriteSession(data[8..24], peer.Session);
+        peer.Session.WriteTo(data[8..24]);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..], peer.Generation.Value);
         BinaryPrimitives.WriteInt64LittleEndian(data[32..], peer.MasterOrigin.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[40..], peer.RequesterGeneration.Value);
@@ -38,7 +38,7 @@ public static class WorkshopClockWire
             (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != NativeClockProfile.IsolatedWitnessedPerformanceNow ||
             (WorkshopRuntimeRole)BinaryPrimitives.ReadUInt32LittleEndian(data[60..]) != WorkshopRuntimeRole.Simulation)
             throw new ArgumentException("Unsupported clock bootstrap.");
-        var peer = new WorkshopClockPeer(WorkshopWire.ReadSession(data[8..24]),
+        var peer = new WorkshopClockPeer(RuntimeSessionId.Read(data[8..24]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[24..])),
             new(BinaryPrimitives.ReadInt64LittleEndian(data[32..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[40..])),
@@ -163,7 +163,7 @@ public static class WorkshopClockWire
     {
         if (destination.Length != ReceiptBytes || response.Kind != WorkshopResponseKind.Read || response.Publication.Value == 0)
             throw new ArgumentException("Invalid physical publication receipt.");
-        WorkshopWire.WriteSession(destination, response.Session);
+        response.Session.WriteTo(destination[..RuntimeSessionId.ByteLength]);
         BinaryPrimitives.WriteUInt64LittleEndian(destination[16..], response.Publication.Value);
     }
 }

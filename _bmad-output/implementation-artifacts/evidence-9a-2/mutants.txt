@@ -1,0 +1,161 @@
+# Story 9A.2 mutants (scratchpad/mutants.sh and readd.sh, on the working tree before the commit). Each edits one file, rebuilds the
+# tests, runs the named filter and restores the file; `git diff | shasum` was fe1d0fad2c6af5e52e523b99271bf6d20c16fe95 before and after.
+# M1, M2 and M4 below did NOT run: the style analyzers refused their builds (the removed code leaves an unused member), so the
+# results printed under them are of the previous build. They were rerun with style enforcement off: see mutants-style-off.txt
+# (all three red). Every other mutant built and went red. M17 (the TS decoder) is in mutant-ts-ac2.txt.
+== M1 skip motion encode (AC1) (engine/gpu/WorkshopWireFlatBuffers.cs)
+-        if (motion.HasValue) Wire.WorkshopResponse.AddMotion(builder, motion.Value);
+build: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1891c8929744c470/engine/gpu/WorkshopWireFlatBuffers.cs(190,23): error IDE0059: Unnecessary assignment of a value to 'motion' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1891c8929744c470/CuriousContraptions.csproj]
+Passed!  - Failed:     0, Passed:    35, Skipped:     0, Total:    35, Duration: 105 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M2 verifier call removed (AC3) (engine/gpu/WorkshopWireFlatBuffers.cs)
+-        try { verified = new Verifier(buffer).VerifyBuffer(identifier, true, verify); }
++        try { verified = true; }
+build: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1891c8929744c470/engine/gpu/WorkshopWireFlatBuffers.cs(21,105): error IDE0060: Remove unused parameter 'verify' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0060) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1891c8929744c470/CuriousContraptions.csproj]
+Passed!  - Failed:     0, Passed:    37, Skipped:     0, Total:    37, Duration: 388 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M3 size-prefix check removed (AC3) (engine/gpu/WorkshopWireFlatBuffers.cs)
+-        if (declared < bytes.Length)
+-            throw new WireFaultException(WireFaultReason.TrailingBytes, $"A {identifier} buffer has {bytes.Length - declared} bytes after its {declared}.");
+build: Build succeeded.
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Acknowledgement, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Command, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: PhysicalRead, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Save, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.RejectedInputIsNeverRetried [FAIL]
+Failed!  - Failed:     5, Passed:    31, Skipped:     0, Total:    36, Duration: 121 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M4 identifier check removed (AC3) (engine/gpu/WorkshopWireFlatBuffers.cs)
+-        if (bytes.Length < FrameHeaderBytes || !IsIdentifier(bytes[IdentifierOffset..FrameHeaderBytes], identifier))
++        if (bytes.Length < FrameHeaderBytes)
+build: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1891c8929744c470/engine/gpu/WorkshopWireFlatBuffers.cs(44,25): error IDE0051: Private member 'WorkshopWireFlatBuffers.IsIdentifier' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1891c8929744c470/CuriousContraptions.csproj]
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Acknowledgement, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Command, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: PhysicalRead, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.DamagedBufferIsATypedFaultNamingItsReason(message: Save, damage: TrailingByte) [FAIL]
+CuriousContraptions.Tests.WireFaultTests.RejectedInputIsNeverRetried [FAIL]
+Failed!  - Failed:     5, Passed:    31, Skipped:     0, Total:    36, Duration: 119 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M5 counter target defaulted (deleted silent default) (engine/gpu/WorkshopWireFlatBuffers.cs)
+-        0 => throw new WireFaultException(WireFaultReason.MissingField, $"Counter {inst.Id} has no target count."),
++        0 => WorkshopCounter.PlacedTargetCount,
+build: Build succeeded.
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.ACounterThresholdIsNotItsTarget [FAIL]
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.CounterTargetIsAWholeFieldAcceptedExactlyInItsRange(count: 0) [FAIL]
+Failed!  - Failed:     2, Passed:   103, Skipped:     0, Total:   105, Duration: 141 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M6 session silently defaulted (deleted fallback) (engine/gpu/WorkshopWireFlatBuffers.cs)
+-        : throw new WireFaultException(WireFaultReason.MissingField, "A Workshop message requires its 16-byte runtime session.");
++        : default;
+build: Build succeeded.
+CuriousContraptions.Tests.WireFaultTests.MessageWithoutSessionIsAMissingField [FAIL]
+Failed!  - Failed:     1, Passed:    35, Skipped:     0, Total:    36, Duration: 114 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M7 tick-0 motion fabricated again (engine/gpu/WorkshopWireFlatBuffers.cs)
+-        var motion = motionBytes is null ? null : PhysicsMotionRead.Decode(motionBytes, bodies, tick);
++        var motion = PhysicsMotionRead.Decode(motionBytes ?? new byte[PhysicsMotionRead.ByteLength(bodies.Count)], bodies, tick);
+build: Build succeeded.
+CuriousContraptions.Tests.WireFaultTests.AdmissionWithoutMotionStaysWithoutMotion [FAIL]
+Failed!  - Failed:     1, Passed:    49, Skipped:     0, Total:    50, Duration: 162 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M8 router swallows a refused command (AC3 retry) (engine/gpu/WorkshopCommandRouter.cs)
+-        var command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
++        WorkshopCommand command;
++        try { command = WorkshopWireFlatBuffers.DecodeCommand(bytes); }
++        catch (WireFaultException) { command = new(new(_lastSequence + 1), WorkshopCommandKind.Run, default, default, null); }
+build: Build succeeded.
+CuriousContraptions.Tests.WireFaultTests.RejectedInputIsNeverRetried [FAIL]
+Failed!  - Failed:     1, Passed:    35, Skipped:     0, Total:    36, Duration: 118 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M9 save path reclassifies a domain ArgumentException (AC4) (engine/gpu/WorkshopSaveCodec.cs)
+-        return Construct(saved);
++        try { return Construct(saved); }
++        catch (ArgumentException error) { throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange, error.Message, error); }
+build: Build succeeded.
+CuriousContraptions.Tests.WireFaultTests.NoSecondCodecOrScriptParserIsReAdded [FAIL]
+Failed!  - Failed:     1, Passed:    35, Skipped:     0, Total:    36, Duration: 120 ms - CuriousContraptions.tests.dll (net10.0)
+
+== M10 pre-validation skipped (AC4) (engine/gpu/WorkshopSaveCodec.cs)
+-        WorkshopSavePrevalidation.Check(saved);
+build: Build succeeded.
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "allocator at an existing identity", reason: InvalidAllocator) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "cell outside the world", reason: OutOfRange) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "changed ball material", reason: OutOfRange) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "counter target ten", reason: OutOfRange) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "dangling connection", reason: UnresolvedReference) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "duplicate instance", reason: DuplicateInstance) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "infinite local position", reason: NonFinite) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "local remainder of one half", reason: OutOfRange) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "long ramp", reason: OutOfRange) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "NaN ramp length", reason: NonFinite) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "NaN rotation", reason: NonFinite) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "no cell", reason: MissingField) [FAIL]
+
+== M11 duplicate identity check removed (AC4) (engine/gpu/WorkshopSavePrevalidation.cs)
+-            if (!parts.TryAdd(new(instance.Id), part))
+-                throw Refuse(WorkshopSaveRejection.DuplicateInstance, $"Two saved parts share identity {instance.Id}.");
++            parts[new(instance.Id)] = part;
+build: Build succeeded.
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "duplicate instance", reason: DuplicateInstance) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.FuzzedSavesAreRefusedOrDecodedAndNothingElse [FAIL]
+Failed!  - Failed:     2, Passed:    83, Skipped:     0, Total:    85, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+
+== M12 ramp range one step wide (AC4 parity) (engine/gpu/WorkshopSavePrevalidation.cs)
+-                Within(id, "length", r.Length, (Half).125, (Half)4); Within(id, "width", r.Width, (Half).125, (Half)4);
++                Within(id, "length", r.Length, (Half).125, (Half)4.004); Within(id, "width", r.Width, (Half).125, (Half)4);
+build: Build succeeded.
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.PreValidationAdmitsExactlyWhatTheDomainAdmits(part: "ramp") [FAIL]
+Failed!  - Failed:     1, Passed:    21, Skipped:     0, Total:    22, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+
+== M13 narrowing skipped on a declared material (AC4 parity) (engine/gpu/WorkshopSavePrevalidation.cs)
+-        if (!HalfBits.Equal(Narrow(id, field, value), declared))
++        if (Narrow(id, field, value) != declared || value != (float)declared)
+build: Build succeeded.
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.PreValidationAdmitsExactlyWhatTheDomainAdmits(part: "ball") [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.PreValidationAdmitsExactlyWhatTheDomainAdmits(part: "bowling") [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.PreValidationAdmitsExactlyWhatTheDomainAdmits(part: "domino") [FAIL]
+Failed!  - Failed:     3, Passed:    19, Skipped:     0, Total:    22, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+
+== M14 connection rules skipped (AC4) (engine/gpu/WorkshopSavePrevalidation.cs)
+-        try { new WorkshopConnections(links).Validate(id => parts.TryGetValue(id, out var part) ? part : null); }
++        try { }
+build: Build succeeded.
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "ramp to ramp electrical connection", reason: InvalidConnection) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.FuzzedSavesAreRefusedOrDecodedAndNothingElse [FAIL]
+CuriousContraptions.Tests.WorkshopSaveTests.EveryMalformedSaveIsTheTypedRefusal [FAIL]
+CuriousContraptions.Tests.WorkshopSaveTests.SerializedInvalidConnectionsRejectBeforeAdmission(source: 2, target: 3, domain: 1, fromSocket: 1, toSocket: 1, reason: InvalidConnection) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveTests.SerializedInvalidConnectionsRejectBeforeAdmission(source: 2, target: 3, domain: 1, fromSocket: 4, toSocket: 4, reason: InvalidConnection) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveTests.SerializedInvalidConnectionsRejectBeforeAdmission(source: 2, target: 3, domain: 2, fromSocket: 1, toSocket: 4, reason: InvalidConnection) [FAIL]
+Failed!  - Failed:     6, Passed:   130, Skipped:     0, Total:   136, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+
+== M15 save refusal shown as a fault (AC4 player-visible) (ui/WorkshopUiFailure.cs)
+-        return error is WorkshopEditRejectedException or WorkbenchFullException or WorkshopTransportException or WorkshopSaveRejectedException;
++        return error is WorkshopEditRejectedException or WorkbenchFullException or WorkshopTransportException;
+build: Build succeeded.
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.TheRefusalIsAPlayerRejectionNotAFault [FAIL]
+Failed!  - Failed:     1, Passed:    84, Skipped:     0, Total:    85, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+
+== M16 motion tick overflow restored (fuzz) (engine/gpu/PhysicsMotionRead.cs)
+-        if (steps is not (2 or 4 or 8) || tick.Value > uint.MaxValue || U32(bytes, 12) != tick.Value * steps ||
++        if (steps is not (2 or 4 or 8) || U32(bytes, 12) != checked(tick.Value * steps) ||
+build: Build succeeded.
+CuriousContraptions.Tests.WorkshopWireDecodeBoundaryTests.MalformedResponsesAreRejectedOnlyAsTypedFaults [FAIL]
+Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2, Duration: 188 ms - CuriousContraptions.tests.dll (net10.0)
+
+== R1 re-add an (empty) engine/gpu/WorkshopWire.cs
+build: Build succeeded.
+   Assert.DoesNotContain() Failure: Item found in set
+CuriousContraptions.Tests.WireFaultTests.NoSecondCodecOrScriptParserIsReAdded [FAIL]
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 25 ms - CuriousContraptions.tests.dll (net10.0)
+
+== R2 re-add extractReadIdentity to worker.js
+build: Build succeeded.
+   CuriousContraptions.Simulation/wwwroot/worker.js re-adds the buffer parser 'extractReadIdentity'.
+CuriousContraptions.Tests.WireFaultTests.NoSecondCodecOrScriptParserIsReAdded [FAIL]
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 24 ms - CuriousContraptions.tests.dll (net10.0)
+
+== R3 re-add the router catch-and-retry (catch (ArgumentException))
+build: Build succeeded.
+CuriousContraptions.Tests.WireFaultTests.NoSecondCodecOrScriptParserIsReAdded [FAIL]
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 29 ms - CuriousContraptions.tests.dll (net10.0)
+

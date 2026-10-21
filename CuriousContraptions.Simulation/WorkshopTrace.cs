@@ -40,7 +40,7 @@ internal sealed class WorkshopTrace
             if (construction.Settings.Simulation != profile.Cadence ||
                 construction.Settings.Physical != profile.Physical)
                 throw new ArgumentException("Trace construction and physical cadence differ.");
-            var encoded = WorkshopWire.Encode(new WorkshopCommand(new(1), WorkshopCommandKind.Construct,
+            var encoded = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct,
                 epoch, default, construction, Session: session, Cadence: profile.Revision, Projection: projection));
             var expectedCount = checked((int)profile.RunTickLimit + 1);
             if (expectedCount > Capacity) throw new ArgumentException("Trace profile exceeds its reservation.");

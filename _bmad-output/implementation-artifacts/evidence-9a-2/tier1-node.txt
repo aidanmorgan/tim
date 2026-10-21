@@ -1,0 +1,10 @@
+tools/workshop-animation-clock.test.mjs ℹ pass 3 ℹ fail 0  rc=0
+tools/workshop-animation-output.test.mjs ℹ pass 1 ℹ fail 0  rc=0
+tools/workshop-client-lifecycle.test.mjs ℹ pass 36 ℹ fail 0  rc=0
+tools/workshop-clock-ring.test.mjs ℹ pass 12 ℹ fail 0  rc=0
+tools/workshop-close-findings.test.mjs ℹ pass 14 ℹ fail 0  rc=0
+tools/workshop-console.test.mjs ℹ pass 4 ℹ fail 0  rc=0
+tools/workshop-isolation.test.mjs ℹ pass 9 ℹ fail 0  rc=0
+tools/workshop-observation.test.mjs ℹ pass 1 ℹ fail 0  rc=0
+tools/workshop-pose-ring.test.mjs ℹ pass 5 ℹ fail 0  rc=0
+tools/workshop-save-storage.test.mjs ℹ pass 3 ℹ fail 0  rc=0

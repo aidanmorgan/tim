@@ -88,13 +88,8 @@ public sealed class WorkshopWallTests
                 };
                 var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
                 var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
-                CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-                CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-                CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
-                CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-                var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-                builder.Finish(end.Value);
-                EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+                var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
+                SaveFixture.Refused(Half.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
             }
         }
         Assert.Equal(valid, WorkshopSaveCodec.Encode(Saved(WallDimensions.Default)));

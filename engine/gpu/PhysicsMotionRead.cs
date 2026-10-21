@@ -77,8 +77,9 @@ public sealed class PhysicsMotionRead
             return;
         }
         var steps = U32(bytes, 4);
-        if (steps is not (2 or 4 or 8) || U32(bytes, 12) != checked(tick.Value * steps) ||
-            U32(bytes, 8) + steps != U32(bytes, 12) || count != steps * bodies.Count)
+        // A tick beyond the u32 ordinal range cannot be covered: an input rejection, never an arithmetic fault (decoded wire input).
+        if (steps is not (2 or 4 or 8) || tick.Value > uint.MaxValue || U32(bytes, 12) != tick.Value * steps ||
+            (ulong)U32(bytes, 8) + steps != U32(bytes, 12) || count != (ulong)steps * (ulong)bodies.Count)
             throw new ArgumentException("Motion does not cover its owning commit.");
         double previous = U32(bytes, 8) * 4096.0;
         for (var i = 0; i < count; i++)

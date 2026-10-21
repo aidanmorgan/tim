@@ -85,7 +85,7 @@ public sealed class WorkshopBumperTests
         var original = WorkshopSaveCodec.Encode(saved);
         var command = new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),construction,
             Session:new(1,2),Cadence:new(1),Projection:new(1));
-        var wire = WorkshopWire.Encode(command);
+        var wire = WorkshopWireFlatBuffers.EncodeCommand(command);
         var malformedPuzzles = new[]
         {
             construction.Puzzle! with { Id = (WorkshopPuzzleId)uint.MaxValue },
@@ -99,26 +99,22 @@ public sealed class WorkshopBumperTests
             var badConstruction = construction with { Puzzle = badPuzzle };
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
-            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-            builder.Finish(end.Value);
-            var badSave = builder.SizedByteArray();
-            // A puzzle rule's refusal keeps its reason; a non-finite precision is a malformed stored value.
-            EditRefusal.Is(Half.IsNaN(badPuzzle.Precision.Value) ? WorkshopEditRejection.UnsupportedSave : WorkshopEditRejection.PuzzleSettings,
-                () => WorkshopSaveCodec.Decode(badSave));
+            var badSave = SaveFixture.Finish(builder, crOffset, 3);
+            // Pre-validation refuses an undefined puzzle or a non-finite precision; the lesson's authored-settings rule keeps its own
+            // typed refusal.
+            if (!Enum.IsDefined(badPuzzle.Id)) SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(badSave));
+            else if (Half.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(badSave));
+            else EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(badSave));
 
             var badCommand = command with { Construction = badConstruction };
             // The wire encoder validates the construction it carries: a puzzle rule's typed refusal, or for a
             // non-finite precision the structural bound (an argument guard).
-            var refused = Assert.ThrowsAny<ArgumentException>(() => WorkshopWire.Encode(badCommand));
+            var refused = Assert.ThrowsAny<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(badCommand));
             Assert.Equal(Half.IsNaN(badPuzzle.Precision.Value) ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), refused.GetType());
         }
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(original));
-        Assert.Equal(command, WorkshopWire.DecodeCommand(wire));
+        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(wire));
     }
 
     private static void CheckSourcePose(System.Text.Json.JsonElement source, CellOrigin cell,
@@ -505,13 +501,8 @@ public sealed class WorkshopBumperTests
             var forgedConstruction = save.Construction with { Instances = new WorkshopInstances(save.Construction.Instances[0], forgedBumper) };
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
-            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
-            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-            builder.Finish(end.Value);
-            EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+            var savedBytes = SaveFixture.Finish(builder, crOffset, save.NextBodyId.Value);
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(savedBytes));
         }
     }
 

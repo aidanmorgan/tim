@@ -46,10 +46,10 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 // The bench placement reaches the Simulation worker as a Construct command on the binary wire.
                 var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
                     Session: new(1, 1), Cadence: new(1), Projection: new(1));
-                var wire = WorkshopWire.Encode(command);
-                var received = WorkshopWire.DecodeCommand(wire).Construction;
+                var wire = WorkshopWireFlatBuffers.EncodeCommand(command);
+                var received = WorkshopWireFlatBuffers.DecodeCommand(wire).Construction;
                 Assert.Equal(id, Assert.Single(Assert.NotNull(received).Instances).PartId);
-                Assert.Equal(wire, WorkshopWire.Encode(command with { Construction = received }));
+                Assert.Equal(wire, WorkshopWireFlatBuffers.EncodeCommand(command with { Construction = received }));
             }
         }
         finally { world.Free(); }

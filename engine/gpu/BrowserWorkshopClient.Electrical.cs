@@ -37,7 +37,7 @@ public sealed partial class BrowserWorkshopClient
                 var slot = source * IndicatorsPerSource + indicator;
                 if (_electricalRequested[slot] is { } previous && previous.To == to && !_electricalRetry[slot]) continue;
                 var generation = (_electricalRequested[slot]?.Generation ?? 0) + 1;
-                var ordinal = latest.Read.Motion?.LastOrdinal ?? 0;
+                var ordinal = CommittedOrdinal(latest.Read);
                 var control = new WorkshopAnimationControl(new(ElectricalTargetBase + (ulong)slot), latest.Read.Epoch,
                     checked(_animationSequence + 1), generation, AnimationControlKind.Transition, true, _electricalSamples[slot]?.Value ?? to, to,
                     (Half).1f, AnimationCurve.SmoothStep, ordinal, default, AnimationProperty.ColourBlend);

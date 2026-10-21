@@ -255,6 +255,9 @@ table InstanceRecord {
     // Domino
     half_extents: Vec3f;
     friction: float;
+
+    // Counter: the whole target count; absent (0) is a missing field, never a default
+    target_count: uint32;
 }
 
 table PuzzleRecord {
@@ -280,7 +283,6 @@ table ConstructionRecord {
 }
 
 table SavedConstruction {
-    magic: uint32;
     next_body_id: uint64;
     construction: ConstructionRecord;
 }
@@ -308,6 +310,8 @@ table WorkshopResponse {
     occurrences: [ContactWorkOccurrenceRecord];
     electrical: [ElectricalSourceRecord];
     activation_memory: [ActivationMemoryRecord];
+    // The committed render trajectory: the physics ABI's PhysicsMotionRead record, validated against this read's bodies and tick.
+    motion: [uint8];
 }
 
 table WorkshopCommand {
@@ -322,9 +326,11 @@ table WorkshopCommand {
     electrical: ElectricalControl;
     settings: CadenceSettingsRecord;
     target: CommandIdentityRecord;
-    construction: [uint8];
     construction_record: ConstructionRecord;
 }
 
+// Every buffer is size-prefixed and carries its root's identifier (Story 9A.2): "CCWC" WorkshopCommand, "CCWR" WorkshopResponse
+// (acknowledgements, physical reads and schedule endpoints) and "CCWS" SavedConstruction. A schema declares one file_identifier,
+// so the codecs pass each root's identifier to FinishSizePrefixed and to the verifier. No field or check names a format generation.
 root_type WorkshopResponse;
 

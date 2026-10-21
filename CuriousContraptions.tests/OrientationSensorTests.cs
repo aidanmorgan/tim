@@ -220,11 +220,6 @@ public sealed class OrientationSensorTests
             domino with { Collider = new(99) }, domino with { ApproachSpeed = new((Half)1) }, domino with { EventOrdinal = 2, CauseOrdinal = 2 }
         }) Assert.Throws<ArgumentException>(() => network.ValidateRead(new([changed, lamp]), network.ClearTimers(), new(1), 4, scene));
         Assert.Throws<ArgumentException>(() => network.ValidateRead(new([domino, clear[1]]), network.ClearTimers(), new(1), 4, scene));
-        // The activation wire carries the new kind in its existing layout.
-        var wire = new byte[WorkshopActivationWire.ByteLength(active.Count)]; WorkshopActivationWire.Write(active, wire);
-        Assert.Equal((uint)ActivationOccurrenceKind.Orientation, BinaryPrimitives.ReadUInt32LittleEndian(wire.AsSpan(52)));
-        var decoded = WorkshopActivationWire.Read(wire, 2);
-        Assert.Equal(domino, decoded[0]); Assert.Equal(lamp, decoded[1]);
         Assert.Equal(ActivationPhase.Clear, network.Clear()[0].Phase);
     }
 
@@ -269,9 +264,6 @@ public sealed class OrientationSensorTests
         Assert.Equal(new ActivationNodeId(4), lamp.Emitter);
         Assert.Equal(123u * 4, lamp.EventOrdinal);
         network.ValidateRead(due.Activations, due.Timers, new(123), 4, scene);
-        var wire = new byte[WorkshopTimerWire.ByteLength(due.Timers.Count)]; WorkshopTimerWire.Write(due.Timers, wire);
-        Assert.Equal(due.Timers[0], WorkshopTimerWire.Read(wire, 1)[0]);
-        Assert.Equal(ActivationOccurrenceKind.Orientation, WorkshopTimerWire.Read(wire, 1)[0].Input.Kind);
     }
 
     [Fact]

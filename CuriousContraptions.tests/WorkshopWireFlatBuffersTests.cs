@@ -182,12 +182,12 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal(bytes, EncodeConstruction(decoded));
     }
 
-    public enum DeclaredSetting { PressurePlateMinimumMass, CounterTargetCount, ClockIntervalSeconds }
+    // The Counter's target is its own whole field (ConstructionDecodeBoundaryTests.CounterTargetIsAWholeFieldAcceptedExactlyInItsRange).
+    public enum DeclaredSetting { PressurePlateMinimumMass, ClockIntervalSeconds }
 
     private static PartId Owner(DeclaredSetting setting) => setting switch
     {
         DeclaredSetting.PressurePlateMinimumMass => PartId.PressurePlate,
-        DeclaredSetting.CounterTargetCount => PartId.Counter,
         DeclaredSetting.ClockIntervalSeconds => PartId.Clock,
         _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "Unknown declared setting."),
     };
@@ -196,13 +196,9 @@ public sealed class WorkshopWireFlatBuffersTests
     // (AGENTS.md: no fallback), and the rejection names the instance and the field. Admitted values decode (positive controls).
     [Theory]
     [InlineData(DeclaredSetting.PressurePlateMinimumMass, .5f, null)]
-    [InlineData(DeclaredSetting.CounterTargetCount, 3f, null)]
     [InlineData(DeclaredSetting.ClockIntervalSeconds, 1f, null)]
     [InlineData(DeclaredSetting.PressurePlateMinimumMass, 0f, "Pressure plate 1 minimum mass '0'")]
     [InlineData(DeclaredSetting.PressurePlateMinimumMass, float.NaN, "Pressure plate 1 minimum mass 'NaN'")]
-    [InlineData(DeclaredSetting.CounterTargetCount, 0f, "Counter 1 target count '0'")]
-    [InlineData(DeclaredSetting.CounterTargetCount, 2.5f, "Counter 1 target count '2.5' must be a whole number")]
-    [InlineData(DeclaredSetting.CounterTargetCount, 2147483648f, "Counter 1 target count '2.1474836E+09' must be a whole number within Int32")]
     [InlineData(DeclaredSetting.ClockIntervalSeconds, 0f, "Clock 1 interval seconds '0'")]
     public void Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(DeclaredSetting setting, float threshold, string? rejection)
     {
@@ -270,7 +266,7 @@ public sealed class WorkshopWireFlatBuffersTests
             new WorkshopCommand(new(1), WorkshopCommandKind.Initialize, new(1), new(1), null,
                 Session: Session, Cadence: new(1), Settings: WorkshopCadenceSettings.Default())));
         // Decode corrupt bytes
-        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeCommand(new byte[16]));
+        Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(new byte[16])).Reason);
     }
 
     // Blind hunter 4 (Story 9.4b final round): the retired DeviceLost rejection (6) is undefined on the FlatBuffers
@@ -332,7 +328,8 @@ public sealed class WorkshopWireFlatBuffersTests
         var elec = new ElectricalSourceRead(new(50), new(1), new Joules(100f), new Joules(5f), ElectricalEnable.Enabled);
         var electrical = new PhysicsElectricalRead(new[] { elec });
 
-        var read = new WorkshopRead(new(1), new(1), bodies, new(1), stamp, captures, null,
+        var read = new WorkshopRead(new(1), new(1), bodies, new(1), stamp, captures,
+            PhysicsMotionRead.Decode(WireFaultTests.MotionBytes(canonical), bodies, new(1)),
             ContactWorks: contactWorks, Electrical: electrical);
 
         var response = new WorkshopResponse(default, WorkshopResponseKind.Read,

@@ -30,29 +30,9 @@ public sealed class WorkshopSaveTests
         foreach (var bytes in corpus)
         {
             var error = Record.Exception(() => WorkshopSaveCodec.Decode(bytes));
-            if (error is not (null or WorkshopEditRejectedException)) escaped.Add($"{bytes.Length} bytes: {error.GetType().FullName}: {error.Message}");
+            if (error is not (null or WorkshopSaveRejectedException)) escaped.Add($"{bytes.Length} bytes: {error.GetType().FullName}: {error.Message}");
         }
         Assert.Empty(escaped);
-    }
-
-    // Only the failures malformed bytes produce become the refusal, each only where it can mean that; a defect stays a
-    // defect. The reader's bounds failures count only while reading records, never during construction validation.
-    // Exact ArgumentException and ArgumentOutOfRangeException are the structural validators' declared input rejection
-    // (shared argument guards), the untrusted-input boundary the coordinator ruled on (spec §10).
-    [Theory]
-    [InlineData(typeof(ArgumentException), true, true)]
-    [InlineData(typeof(ArgumentOutOfRangeException), true, true)]
-    [InlineData(typeof(IndexOutOfRangeException), false, true)]
-    [InlineData(typeof(OverflowException), false, true)]
-    [InlineData(typeof(ArgumentNullException), false, false)]
-    [InlineData(typeof(System.ComponentModel.InvalidEnumArgumentException), false, false)]
-    [InlineData(typeof(InvalidOperationException), false, false)]
-    [InlineData(typeof(NullReferenceException), false, false)]
-    [InlineData(typeof(KeyNotFoundException), false, false)]
-    public void OnlyMalformedInputFailuresBecomeTheSaveRefusal(Type failure, bool invalidStoredValue, bool malformedRecord)
-    {
-        var error = (Exception)Activator.CreateInstance(failure)!;
-        Assert.Equal((invalidStoredValue, malformedRecord), (WorkshopSaveCodec.IsInvalidStoredValue(error), WorkshopSaveCodec.IsMalformedRecord(error)));
     }
 
     [Theory]
@@ -116,13 +96,8 @@ public sealed class WorkshopSaveTests
         };
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
+        SaveFixture.Refused(Half.IsFinite(invalidVal) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(savedBytes));
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
     }
 
@@ -146,40 +121,34 @@ public sealed class WorkshopSaveTests
     }
 
     [Theory]
-    [InlineData(0x12345678u, 7UL, true)]
-    [InlineData(WorkshopSaveCodec.Magic, 0UL, true)]
-    [InlineData(WorkshopSaveCodec.Magic, 2UL, true)]
-    [InlineData(WorkshopSaveCodec.Magic, 7UL, false)]
-    public void UnknownHeaderCannotBeLoaded(uint magic, ulong nextBodyId, bool includeConstruction)
+    [InlineData("XXXX", 7UL, true, WorkshopSaveRejection.UnknownIdentifier)]
+    [InlineData(WorkshopSaveCodec.Identifier, 0UL, true, WorkshopSaveRejection.InvalidAllocator)]
+    [InlineData(WorkshopSaveCodec.Identifier, 2UL, true, WorkshopSaveRejection.InvalidAllocator)]
+    [InlineData(WorkshopSaveCodec.Identifier, 7UL, false, WorkshopSaveRejection.MissingField)]
+    public void UnknownHeaderCannotBeLoaded(string identifier, ulong nextBodyId, bool includeConstruction, WorkshopSaveRejection reason)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord>? crOffset = includeConstruction
             ? WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction)
             : null;
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, magic);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, nextBodyId);
         if (crOffset.HasValue) CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset.Value);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, identifier);
+        SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 
     [Fact]
     public void TruncatedTrailingAndInvalidAllocatorReject()
     {
         var bytes = WorkshopSaveCodec.Encode(Saved());
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes.AsSpan(1)));
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes.AsSpan(..10)));
+        SaveFixture.Refused(WorkshopSaveRejection.Truncated, () => WorkshopSaveCodec.Decode(bytes.AsSpan(..^1)));
+        SaveFixture.Refused(WorkshopSaveRejection.Truncated, () => WorkshopSaveCodec.Decode(bytes.AsSpan(..10)));
+        SaveFixture.Refused(WorkshopSaveRejection.TrailingBytes, () => WorkshopSaveCodec.Decode([.. bytes, 0]));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
+        SaveFixture.Refused(WorkshopSaveRejection.InvalidAllocator, () => WorkshopSaveCodec.Decode(savedBytes));
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(Saved() with { NextBodyId = new(3) }));
     }
 
@@ -204,13 +173,8 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)defCadence.Simulation, (uint)defCadence.Physical, (uint)defCadence.Animation, (uint)defCadence.Presentation, defCadence.PresentationRate.Numerator, defCadence.PresentationRate.Denominator));
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instancesOffset);
         var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 10);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        var savedBytes = SaveFixture.Finish(builder, crOffset, 10);
+        SaveFixture.Refused(WorkshopSaveRejection.UnknownElement, () => WorkshopSaveCodec.Decode(savedBytes));
     }
 
     [Fact]
@@ -218,11 +182,10 @@ public sealed class WorkshopSaveTests
     {
         var command = new WorkshopCommand(new(5), WorkshopCommandKind.Save, new(2), new(8), null,
             Session: new(1, 2), Cadence: new(1), Projection: new(2));
-        var current = WorkshopWire.Encode(command);
-        Assert.Equal(command, WorkshopWire.DecodeCommand(current));
-        BinaryPrimitives.WriteUInt32LittleEndian(current.AsSpan(12), 7);
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeCommand(current));
-        Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(command with
+        var current = WorkshopWireFlatBuffers.EncodeCommand(command);
+        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(current));
+        Assert.Equal(WireFaultReason.Truncated, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(current.AsSpan(..^1))).Reason);
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(command with
             { RevisionKind = ExpectedRevisionKind.Any, Revision = default }));
     }
 
@@ -356,15 +319,20 @@ public sealed class WorkshopSaveTests
     }
 
     [Fact]
-    public void PuzzlePaddingAndPreviousSaveSchemaReject()
+    public void ShortPuzzleAssistanceAndAForeignRootOffsetReject()
     {
         var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)1));
         var bytes = WorkshopSaveCodec.Encode(new(construction, new(3)));
-        bytes[24 + 48 + 246] = 1;
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes));
-        bytes[24 + 48 + 246] = 0;
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), 1);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes));
+        Assert.Equal(new WorkshopSavedConstruction(construction, new(3)), WorkshopSaveCodec.Decode(bytes)); // control
+        // The assistance vector's own length word (198): two profiles short is a missing field, never a default profile.
+        var length = bytes.AsSpan().IndexOf(new byte[] { (byte)WorkshopPuzzleWire.AssistanceBytes, 0, 0, 0 });
+        Assert.True(length > 0, "the saved puzzle's assistance vector length");
+        var shortened = (byte[])bytes.Clone();
+        BinaryPrimitives.WriteUInt32LittleEndian(shortened.AsSpan(length), WorkshopPuzzleWire.ProfileBytes);
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(shortened));
+        var foreign = (byte[])bytes.Clone();
+        BinaryPrimitives.WriteUInt32LittleEndian(foreign.AsSpan(4), 1);
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(foreign));
     }
 
     [Fact]
@@ -458,15 +426,14 @@ public sealed class WorkshopSaveTests
     }
 
     [Fact]
-    public void ACommandWithNonZeroHeaderPaddingRejectsBeforeAdmission()
+    public void AConstructCommandWithTrailingBytesRejectsBeforeAdmission()
     {
         var save = ActivationSaved();
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), save.Construction,
             Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        var wire = WorkshopWire.Encode(command);
-        Assert.Equal(command, WorkshopWire.DecodeCommand(wire));
-        BinaryPrimitives.WriteUInt32LittleEndian(wire.AsSpan(12), 9);
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeCommand(wire));
+        var wire = WorkshopWireFlatBuffers.EncodeCommand(command);
+        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(wire));
+        Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand([.. wire, 9])).Reason);
     }
 
     [Fact]
@@ -480,12 +447,12 @@ public sealed class WorkshopSaveTests
     }
 
     [Theory]
-    [InlineData(99UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn)]
-    [InlineData(2UL, 99UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn)]
-    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Electrical, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn)]
-    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationIn, (uint)WorkshopSocket.ActivationIn)]
-    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationOut)]
-    public void SerializedInvalidConnectionsRejectBeforeAdmission(ulong source, ulong target, uint domain, uint fromSocket, uint toSocket)
+    [InlineData(99UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.UnresolvedReference)]
+    [InlineData(2UL, 99UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.UnresolvedReference)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Electrical, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.InvalidConnection)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationIn, (uint)WorkshopSocket.ActivationIn, WorkshopSaveRejection.InvalidConnection)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationOut, WorkshopSaveRejection.InvalidConnection)]
+    public void SerializedInvalidConnectionsRejectBeforeAdmission(ulong source, ulong target, uint domain, uint fromSocket, uint toSocket, WorkshopSaveRejection reason)
     {
         var save = ActivationSaved();
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
@@ -514,12 +481,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instancesVector);
         CuriousContraptions.Wire.ConstructionRecord.AddConnections(builder, connectionsVector);
         var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
-        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
-        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
-        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
-        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
-        builder.Finish(end.Value);
-        EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        var savedBytes = SaveFixture.Finish(builder, crOffset, save.NextBodyId.Value);
+        SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(savedBytes));
     }
 }

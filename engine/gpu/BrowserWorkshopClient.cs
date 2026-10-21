@@ -57,7 +57,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private static partial void RecordPresentationObservation(int client, byte[] observation);
 
     [JSImport("create", "workshopClient")]
-    private static partial Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int[] responseAbi, int captureMode, bool admitDisplay,
+    private static partial Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
         [JSMarshalAs<JSType.Function>] Action clockReply,
         [JSMarshalAs<JSType.Function>] Action physicalRead,
         [JSMarshalAs<JSType.Function>] Action scheduleControl,
@@ -82,8 +82,10 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private static partial void Qualified(int client);
     [JSImport("status", "workshopClient")]
     private static partial int Status(int client);
+    /// <summary>Sends one encoded command with its 8-byte little-endian sequence, the transport's receipt key (no script parses the
+    /// command to find it).</summary>
     [JSImport("send", "workshopClient")]
-    private static partial Task Send(int client, byte[] command);
+    private static partial Task Send(int client, byte[] command, byte[] sequence);
     [JSImport("acknowledgement", "workshopClient")]
     private static partial byte[] Acknowledgement(int client, byte[] sequence);
     [JSImport("completeAcknowledgement", "workshopClient")]
@@ -102,7 +104,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         await JSHost.ImportAsync("workshopClient", new Uri(new Uri(baseUri), "workshop-client.js").AbsoluteUri);
         var identity = new byte[16];
         System.Security.Cryptography.RandomNumberGenerator.Fill(identity);
-        var session = WorkshopWire.ReadSession(identity);
+        var session = RuntimeSessionId.Read(identity);
         var client = new BrowserWorkshopClient(session);
         try
         {
@@ -112,7 +114,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 identity, [(int)NativeClockProfile.IsolatedWitnessedPerformanceNow,
                     WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
                     WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
-                WorkshopWire.ResponseAbi(), (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
+                (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
                 client.Service, client.BeginMemory, client.ReceiveMemory, client.ReleaseMemory));
             var peer = WorkshopClockWire.DecodePeer(MasterBootstrap(client._id.Value));
             if (peer.Session != session || peer.Generation.Value != 1 || peer.RequesterGeneration.Value != 1 ||
@@ -173,10 +175,10 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (construction is not null) { _proposedConstruction = construction; _constructionOwner = identity; }
         try
         {
-            try { await Send(_id.Value, bytes); }
-            catch (Exception error) { throw new WorkshopTransportException(identity, TransportState, error); }
-            var encodedIdentity = new byte[8];
+            var encodedIdentity = new byte[sizeof(ulong)];
             BinaryPrimitives.WriteUInt64LittleEndian(encodedIdentity, sequence.Value);
+            try { await Send(_id.Value, bytes, encodedIdentity); }
+            catch (Exception error) { throw new WorkshopTransportException(identity, TransportState, error); }
             var response = WorkshopWireFlatBuffers.DecodeResponse(Acknowledgement(_id.Value, encodedIdentity));
             try
             {
@@ -265,16 +267,8 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (_disposed) return;
         var bytes = EventBytes(_id.Value);
         var milliseconds = EventMilliseconds(_id.Value);
-        WorkshopResponse response;
-        try
-        {
-            response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
-        }
-        catch (ArgumentException)
-        {
-            // Not a FlatBuffers response (its decoder rejects foreign bytes with ArgumentException): fixed binary.
-            response = WorkshopWire.DecodeResponse(bytes);
-        }
+        // One decode: a refused read is its WireFaultException, a transport fault, never retried through another codec.
+        var response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
         if (_schedule is not { } active || response.Cadence.Value < active.Revision.Value ||
             response.Projection.Value < active.World.Epoch.Value) return;
         if (response.Cadence != active.Revision || response.Projection != active.World.Epoch)

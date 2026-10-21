@@ -378,7 +378,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
             WorkshopSimulationPhase.Building, read, new(1, 2), default, new(1), new(1), new(1), new(0));
 
         foreach (var decoded in new[] { WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)),
-            WorkshopWire.DecodeResponse(WorkshopWire.Encode(response)) })
+            WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)) })
         {
             Assert.Equal(2, decoded.Read.Memory.Count);
             Assert.Equal(rows[0], decoded.Read.Memory[0]);
@@ -401,16 +401,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
             new([clock, battery]),
             Connections: new([conn]));
 
-        // 1. Binary WorkshopWire roundtrip
-        Span<byte> binaryBuffer = stackalloc byte[WorkshopWire.ConstructionBytes(construction)];
-        WorkshopWire.WriteConstruction(binaryBuffer, construction);
-        var decodedBinary = WorkshopWire.ReadConstruction(binaryBuffer);
-        var decodedClock = decodedBinary.Instances.OfType<WorkshopClock>().Single();
-        Assert.Equal(10UL, decodedClock.Id.Value);
-        Assert.Equal(2.5f, decodedClock.IntervalSeconds);
-        Assert.Single(decodedBinary.Connections);
-
-        // 2. FlatBuffers roundtrip
+        // The one codec's round trip.
         var session = new RuntimeSessionId(0x1122334455667788UL, 0x8877665544332211UL);
         var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), default, construction,
             Session: session, Cadence: new(1), Projection: new(1));

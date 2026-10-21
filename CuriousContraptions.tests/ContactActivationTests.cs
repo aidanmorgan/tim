@@ -157,19 +157,4 @@ public sealed class ContactActivationTests
         Assert.Throws<ArgumentException>(() => ValidateRead(network, new(new[] { active[0], network.Clear()[1] }), new(3), 4, scene));
     }
 
-    [Fact]
-    public void ActivationReadWireRetainsIdentityAndRejectsPaddingAndUnknownPhase()
-    {
-        var (network, _) = Activation(); var clear = network.Clear();
-        var bytes = new byte[WorkshopActivationWire.ByteLength(clear.Count)]; WorkshopActivationWire.Write(clear, bytes);
-        var decoded = WorkshopActivationWire.Read(bytes, clear.Count);
-        Assert.Equal(clear[0], decoded[0]); Assert.Equal(clear[1], decoded[1]);
-        // Story 9R.5b: the section is exactly its population; a trailing byte is rejected rather than an unused row.
-        Assert.Throws<ArgumentException>(() => WorkshopActivationWire.Read(new byte[WorkshopActivationWire.ByteLength(clear.Count) + 1], clear.Count));
-        foreach (var offset in new[] { 40, 52 })
-        {
-            var changed = (byte[])bytes.Clone(); changed[offset] = 255;
-            Assert.Throws<ArgumentException>(() => WorkshopActivationWire.Read(changed, clear.Count));
-        }
-    }
 }

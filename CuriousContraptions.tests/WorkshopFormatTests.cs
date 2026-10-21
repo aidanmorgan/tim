@@ -104,12 +104,12 @@ public sealed class WorkshopFormatTests
         }
         Assert.Equal(["simulation", "physical", "animation", "presentation", "presentation_rate_numerator", "presentation_rate_denominator"],
             Fields("struct CadenceSettingsRecord"));
-        Assert.Equal(["magic", "next_body_id", "construction"], Fields("table SavedConstruction"));
+        Assert.Equal(["next_body_id", "construction"], Fields("table SavedConstruction"));
         Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
             "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works", "occurrences",
-            "electrical", "activation_memory"], Fields("table WorkshopResponse"));
+            "electrical", "activation_memory", "motion"], Fields("table WorkshopResponse"));
         Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "electrical", "settings",
-            "target", "construction", "construction_record"], Fields("table WorkshopCommand"));
+            "target", "construction_record"], Fields("table WorkshopCommand"));
         // The generated settings struct takes exactly the six words (builder plus six arguments).
         Assert.Equal(7, typeof(CuriousContraptions.Wire.CadenceSettingsRecord).GetMethod("CreateCadenceSettingsRecord")!.GetParameters().Length);
     }
@@ -120,13 +120,12 @@ public sealed class WorkshopFormatTests
         // A well-formed buffer of another root (a command) and a save whose construction table is absent.
         var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Saved().Construction, Session: new(1, 2), Cadence: new(1), Projection: new(1)));
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(command));
+        SaveFixture.Refused(WorkshopSaveRejection.UnknownIdentifier, () => WorkshopSaveCodec.Decode(command));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(64);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
-        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-        builder.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, WorkshopSaveCodec.Identifier);
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         // Control: the same codec admits its own encoding.
         Assert.Equal(Saved(), WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(Saved())));
     }
@@ -142,7 +141,7 @@ public sealed class WorkshopFormatTests
         Assert.True(at > 0, "the saved pipe's part id string");
         var corrupted = (byte[])bytes.Clone();
         corrupted[at + 4] = (byte)'x';
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(corrupted));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(corrupted));
     }
 
     /// <summary>A slot written by the retired versioned schema (magic, version, next body id, construction; a seven-word settings
@@ -163,12 +162,12 @@ public sealed class WorkshopFormatTests
         CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
         var record = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
         builder.StartTable(4); // the retired SavedConstruction: magic, version, next body id, construction
-        builder.AddUint(0, WorkshopSaveCodec.Magic, 0);
+        builder.AddUint(0, 0x53574343u, 0); // the retired "CCWS" magic word
         builder.AddUint(1, 13, 0);
         builder.AddUlong(2, 1, 0);
         builder.AddOffset(3, record.Value, 0);
-        builder.Finish(builder.EndTable());
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        builder.FinishSizePrefixed(builder.EndTable(), WorkshopSaveCodec.Identifier);
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 
     [Fact]
@@ -176,22 +175,16 @@ public sealed class WorkshopFormatTests
     {
         var bytes = WorkshopSaveCodec.Encode(Saved());
         var corrupted = (byte[])bytes.Clone();
-        BinaryPrimitives.WriteUInt32LittleEndian(corrupted, (uint)bytes.Length * 4); // the root table offset points past the buffer
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(corrupted));
-        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeCommand(corrupted));
-        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(corrupted));
+        // After the 4-byte size prefix: the root table offset points past the buffer.
+        BinaryPrimitives.WriteUInt32LittleEndian(corrupted.AsSpan(4), (uint)bytes.Length * 4);
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(corrupted));
+        Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(corrupted)).Reason);
+        Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(corrupted)).Reason);
     }
 
     [Fact]
-    public void TheBinaryHeadersRejectNonZeroPaddingWhereTheVersionWas()
+    public void TheCadenceRecordRejectsNonZeroPaddingWhereTheVersionWas()
     {
-        var command = WorkshopWire.Encode(new WorkshopCommand(new(1), WorkshopCommandKind.Run, new(1), new(1), null,
-            Session: new(1, 2), Cadence: new(1), Projection: new(1)));
-        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(command.AsSpan(12)));
-        WorkshopWire.DecodeCommand(command); // control
-        command[12] = 1;
-        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeCommand(command));
-
         var settings = new byte[WorkshopCadenceWire.ByteLength];
         WorkshopCadenceWire.Write(WorkshopCadenceSettings.Default(), settings);
         Assert.Equal(WorkshopCadenceSettings.Default(), WorkshopCadenceWire.Read(settings)); // control

@@ -208,7 +208,7 @@ development_status:
   # merged into 9a-14 (21 Oct 2026)
   9a-18-package-icons: done
   # 10
-  9a-2-single-flatbuffers-codec: backlog
+  9a-2-single-flatbuffers-codec: review
   # 11
   9a-15-bundle-element-id-save-wire: backlog
   # 12
@@ -463,5 +463,7 @@ development_status:
   # filed by 9a-pkg-1 (21 Oct 2026): one source publishes with different runner bundleIdentity values
   f-15-reproducible-publish-bundle-identity: backlog
   f-16-catalogue-follow-ups: backlog
+  # filed by 9a-2 (21 Oct 2026): foreign record fields, lesson and workbench save refusals, publish allocation, numeric ids (9a-15)
+  f-17-single-codec-follow-ups: backlog
 
 action_items: []

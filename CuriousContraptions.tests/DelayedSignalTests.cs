@@ -121,12 +121,11 @@ public sealed class DelayedSignalTests
     {
         var bytes=WorkshopSaveCodec.Encode(new(Lesson((Half)1),new(4)));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4),5);
-        EditRefusal.Is(WorkshopEditRejection.UnsupportedSave, () => WorkshopSaveCodec.Decode(bytes));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(bytes));
         var goal=Lesson((Half)1).Puzzle.Goal;
         Assert.Throws<ArgumentException>(() => (goal with { Body=new(1) }).Validate());
         Assert.Throws<ArgumentException>(() => (goal with { SourceNode=goal.TargetNode }).Validate());
-        var command=WorkshopWire.Encode(new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),Lesson((Half)1),Session:new(1,2),Cadence:new(1),Projection:new(1)));
-        BinaryPrimitives.WriteUInt32LittleEndian(command.AsSpan(12),12);
-        Assert.Throws<ArgumentException>(()=>WorkshopWire.DecodeCommand(command));
+        var command=WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),Lesson((Half)1),Session:new(1,2),Cadence:new(1),Projection:new(1)));
+        Assert.Equal(WireFaultReason.TrailingBytes, Assert.Throws<WireFaultException>(()=>WorkshopWireFlatBuffers.DecodeCommand([.. command, 12])).Reason);
     }
 }

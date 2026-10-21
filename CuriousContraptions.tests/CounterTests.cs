@@ -363,8 +363,8 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var counter = new WorkshopCounter(new(10), default, new LocalPosition(0.1f, 0.2f, -0.3f), CanonicalRotation.Identity, 7, false);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new([counter]));
         var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        var bytes = WorkshopWire.Encode(cmd);
-        var decodedCmd = WorkshopWire.DecodeCommand(bytes);
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(cmd);
+        var decodedCmd = WorkshopWireFlatBuffers.DecodeCommand(bytes);
         Assert.NotNull(decodedCmd.Construction);
         var decodedCounter = Assert.IsType<WorkshopCounter>(Assert.Single(decodedCmd.Construction!.Value.Instances));
         Assert.Equal(counter.Id, decodedCounter.Id);

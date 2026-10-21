@@ -48,8 +48,7 @@ public sealed class DominoEffectTests
         var save = new WorkshopSavedConstruction(solved, new(8));
         var decoded = WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(save));
         Assert.Equal(save, decoded);
-        var puzzle = new byte[WorkshopPuzzleWire.ByteLength]; WorkshopPuzzleWire.Write(puzzle, solved.Puzzle);
-        Assert.Equal(solved.Puzzle, WorkshopPuzzleWire.Read(puzzle));
+        Assert.Equal(solved.Puzzle, decoded.Construction.Puzzle);
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
         Assert.Equal(new GpuBodyId(2), sensor.Body);

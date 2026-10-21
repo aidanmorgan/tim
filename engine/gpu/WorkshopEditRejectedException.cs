@@ -15,8 +15,6 @@ public enum WorkshopEditRejection : uint
     OutOfRange,
     /// <summary>No part identity is left to allocate.</summary>
     IdentityExhausted,
-    /// <summary>The stored browser save is not an admissible construction.</summary>
-    UnsupportedSave,
     /// <summary>The stored browser save uses other simulation settings.</summary>
     SaveSettingsMismatch,
     /// <summary>A connection is duplicated or does not join matching declared ports.</summary>
@@ -38,9 +36,10 @@ public enum WorkshopEditRejection : uint
 }
 
 /// <summary>
-/// A declared rule refused a proposed Workshop edit: a construction, a part's settings, a connection, a puzzle change or
-/// a stored save. It is the only edit refusal a UI handler shows as one (with WorkbenchFullException and an
-/// indeterminate transport); any other exception, ArgumentException included, is a defect. It is an ArgumentException
+/// A declared rule refused a proposed Workshop edit: a construction, a part's settings, a connection or a puzzle change
+/// (a stored save is refused by WorkshopSaveRejectedException). It is the only edit refusal a UI handler shows as one (with
+/// WorkbenchFullException, an indeterminate transport and a save refusal); any other exception, ArgumentException included,
+/// is a defect. It is an ArgumentException
 /// so the decode and admission boundaries that reject invalid input by that type keep rejecting it.
 /// </summary>
 public sealed class WorkshopEditRejectedException : ArgumentException

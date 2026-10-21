@@ -10,7 +10,7 @@ public static class CapabilityImplementationRequirements
             [EngineCapability.TopologyTransaction]=[new(new("engine/gpu/WorkshopSimulation.cs"),new("WorkshopSimulation")),new(new("engine/gpu/PhysicsGpuAbi.cs"),new("PhysicsGpuAbi"))],
             [EngineCapability.PresentationHistory]=[new(new("engine/gpu/WorkshopPoseHistory.cs"),new("WorkshopPoseHistory")),new(new("engine/gpu/PhysicsMotionRead.cs"),new("PhysicsMotionRead"))],
             [EngineCapability.RenderApplication]=[new(new("engine/MachineWorld.Gpu.cs"),new("MachineWorld"))],
-            [EngineCapability.TypedContracts]=[new(new("engine/gpu/PhysicsDeclarations.cs"),new("PhysicsSceneDeclaration")),new(new("engine/gpu/WorkshopWire.cs"),new("WorkshopWire"))],
+            [EngineCapability.TypedContracts]=[new(new("engine/gpu/PhysicsDeclarations.cs"),new("PhysicsSceneDeclaration")),new(new("engine/gpu/WorkshopWireFlatBuffers.cs"),new("WorkshopWireFlatBuffers"))],
             [EngineCapability.RigidBodyDynamics]=[new(new("engine/gpu/PhysicsDeclarations.cs"),new("RigidBodyDeclaration"))],
             [EngineCapability.EnvironmentState]=[new(new("engine/gpu/PhysicsDeclarations.cs"),new("PhysicsSceneDeclaration"))],
             [EngineCapability.ConstructionCompiler]=[new(new("engine/gpu/WorkshopPhysicsCompiler.cs"),new("WorkshopPhysicsCompiler"))],

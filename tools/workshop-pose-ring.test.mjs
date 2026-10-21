@@ -85,8 +85,7 @@ test('actual worker writer publishes globally newest frames across wraps and shr
     const posted = [];
     const workerContext = vm.createContext({ self: { postMessage(message) { if (message?.poseRing) posted.push(message); } }, console, Uint8Array, Uint32Array,
         Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, DataView, Atomics, MessageChannel: HarnessMessageChannel });
-    const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56],
-        ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
+    const host = { ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
     const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
         getConfig: () => ({ mainAssemblyName: 'PoseWriterControl' }) };
     const worker = new vm.SourceTextModule(workerSource + `
@@ -108,14 +107,15 @@ export { writePoseRing };
     });
     await worker.evaluate();
     let c = client(); worker.namespace.bindTestRing(c.poseRing);
-    // The binary read: a 144-byte header whose u32 body count is at 112 (WorkshopWire), then 80-byte bodies.
+    // The C#-composed slot (WorkshopPoseRing.ComposeSlot): a 16-byte header with the capture time at 8, then one 64-byte record
+    // per committed body (position at 0, rotation w at 28, the active flag at 44, the full identity at 48).
     const read = (ids, publication) => {
-        const bytes = new Uint8Array(144 + ids.length * 80), view = new DataView(bytes.buffer);
-        view.setUint32(112, ids.length, true); view.setBigInt64(72, BigInt(publication * 100), true);
+        const bytes = new Uint8Array(16 + ids.length * 64), view = new DataView(bytes.buffer);
+        view.setBigInt64(8, BigInt(publication * 100), true);
         ids.forEach((id, index) => {
-            const offset = 144 + index * 80;
-            view.setBigUint64(offset, id, true); view.setInt32(offset + 8, publication * 16, true);
-            view.setFloat32(offset + 44, 1, true);
+            const offset = 16 + index * 64;
+            view.setFloat32(offset, publication, true); view.setFloat32(offset + 28, 1, true);
+            view.setUint32(offset + 44, 1, true); view.setBigUint64(offset + 48, id, true);
         });
         return bytes;
     };

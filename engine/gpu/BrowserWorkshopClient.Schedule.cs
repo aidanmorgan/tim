@@ -55,7 +55,7 @@ public sealed partial class BrowserWorkshopClient
                     throw new ArgumentException("Stale browser schedule Prepare.");
                 var transition = (ScheduleTransition)BinaryPrimitives.ReadUInt32LittleEndian(data[48..]);
                 if (!Enum.IsDefined(transition)) throw new ArgumentException("Unknown projection transition.");
-                var endpoint = WorkshopWire.DecodeResponse(data[80..]);
+                var endpoint = WorkshopWireFlatBuffers.DecodeResponse(data[WorkshopScheduleWire.PrepareFieldBytes..]);
                 if (endpoint.Session != Peer.Session || endpoint.Cadence != header.Revision ||
                     endpoint.Projection != header.Projection || endpoint.MasterGeneration != Peer.Generation ||
                     endpoint.Read.Epoch.Value != BinaryPrimitives.ReadUInt64LittleEndian(data[56..]) ||

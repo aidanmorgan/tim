@@ -116,7 +116,7 @@ public sealed class NoFixedCapacityTests
     {
         var response = new WorkshopResponse(default, WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Running, read, new(1, 2), new(1), new(1), read.Capture!.Value.Generation, new(1), new(read.Tick.Value));
-        foreach (var (codec, decoded) in new[] { ("binary", WorkshopWire.DecodeResponse(WorkshopWire.Encode(response))),
+        foreach (var (codec, decoded) in new[] { ("binary", WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response))),
             ("FlatBuffers", WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response))) })
         {
             var actual = decoded.Read;

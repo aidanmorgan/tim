@@ -28,12 +28,14 @@ public sealed class WorkshopReadTests
     public void IndependentlyDecodedReadsDeduplicateByExactContent(bool bodyPresent, bool captured)
     {
         var body = bodyPresent ? new CanonicalBody(new(1), 2, 0, default, default, default) : (CanonicalBody?)null;
-        var read = new WorkshopRead(new(2), new(0), body.HasValue ? Bodies(body.Value) : default, new(4),
+        var bodies = body.HasValue ? Bodies(body.Value) : default;
+        var read = new WorkshopRead(new(2), new(0), bodies, new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
-            Captures: captured ? new PhysicsCaptureRead([CaptureLatch.Clear(new(9))]) : default);
-        var bytes = WorkshopWire.Encode(Response(read));
-        var first = WorkshopWire.DecodeResponse(bytes).Read;
-        var second = WorkshopWire.DecodeResponse(bytes).Read;
+            Captures: captured ? new PhysicsCaptureRead([CaptureLatch.Clear(new(9))]) : default,
+            Motion: PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(bodies.Count)], bodies, new(0)));
+        var bytes = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
+        var first = WorkshopWireFlatBuffers.DecodeResponse(bytes).Read;
+        var second = WorkshopWireFlatBuffers.DecodeResponse(bytes).Read;
         Assert.NotSame(first.Motion, second.Motion);
         Assert.True(first.HasSameContent(second));
         Assert.True(first == second); // Independent immutable backing arrays must compare by canonical content.
@@ -62,20 +64,16 @@ public sealed class WorkshopReadTests
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Captures: new([new(new(9), CaptureLatchPhase.Latched, 1, (Half)0)]),
             Motion: PhysicsMotionRead.Decode(motion, Bodies(body), new(1)));
-        var encoded = WorkshopWire.Encode(Response(read));
-        var first = WorkshopWire.DecodeResponse(encoded).Read;
-        var second = WorkshopWire.DecodeResponse(encoded).Read;
+        var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
+        var first = WorkshopWireFlatBuffers.DecodeResponse(encoded).Read;
+        var second = WorkshopWireFlatBuffers.DecodeResponse(encoded).Read;
         Assert.True(first.HasSameContent(second));
-        var layout = WorkshopWire.ResponseLayout.Of(read);
-        var changed = (byte[])encoded.Clone();
-        H(changed, layout.MotionOffset + piece + PhysicsMotionRead.DragRateOffset, (Half).125);
-        Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
-        changed = (byte[])encoded.Clone();
-        U32(changed, layout.CapturesOffset + 12, 2);
-        Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
-        changed = (byte[])encoded.Clone();
-        H(changed, layout.CapturesOffset + 16, BitConverter.UInt16BitsToHalf(0x8000));
-        Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
+        WorkshopRead Wire(WorkshopRead changed) => WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(Response(changed))).Read;
+        var drag = (byte[])motion.Clone();
+        H(drag, piece + PhysicsMotionRead.DragRateOffset, (Half).125);
+        Assert.False(first.HasSameContent(Wire(read with { Motion = PhysicsMotionRead.Decode(drag, Bodies(body), new(1)) })));
+        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 2, (Half)0)]) })));
+        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 1, BitConverter.UInt16BitsToHalf(0x8000))]) })));
     }
 
     [Fact]
@@ -145,9 +143,9 @@ public sealed class WorkshopReadTests
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, Bodies(body), new(1)));
         Assert.True(motion.Bytes.SequenceEqual(expected));
         var read = MotionRead(body, motion);
-        var encoded = WorkshopWire.Encode(Response(read));
-        Assert.True(encoded.AsSpan(WorkshopWire.ResponseLayout.Of(read).MotionOffset, expected.Length).SequenceEqual(expected));
-        Assert.Equal(encoded, WorkshopWire.Encode(WorkshopWire.DecodeResponse(encoded)));
+        var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
+        Assert.True(WorkshopWireFlatBuffers.DecodeResponse(encoded).Read.Motion!.Bytes.SequenceEqual(expected));
+        Assert.Equal(encoded, WorkshopWireFlatBuffers.EncodeResponse(WorkshopWireFlatBuffers.DecodeResponse(encoded)));
     }
 
     public enum MotionBindingMismatch { BodyIdentity, BodyPresence, Tick }
@@ -168,9 +166,7 @@ public sealed class WorkshopReadTests
             MotionBindingMismatch.Tick => read with { Tick = new(2), Bodies = Bodies(body with { Tick = 2 }) },
             _ => throw new ArgumentOutOfRangeException(nameof(mismatch))
         };
-        var destination = Enumerable.Repeat((byte)0xa5, WorkshopWire.ResponseBytes(Response(read))).ToArray();
-        Assert.Throws<ArgumentException>(() => WorkshopWire.Write(Response(read), destination));
-        Assert.All(destination, value => Assert.Equal((byte)0xa5, value));
+        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeResponse(Response(read)));
     }
 
     [Fact]
@@ -186,8 +182,8 @@ public sealed class WorkshopReadTests
         var read = new WorkshopRead(new(2), new(0), default, new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Motion: motion);
-        var encoded = WorkshopWire.Encode(Response(read));
-        Assert.Equal(encoded, WorkshopWire.Encode(WorkshopWire.DecodeResponse(encoded)));
+        var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
+        Assert.Equal(encoded, WorkshopWireFlatBuffers.EncodeResponse(WorkshopWireFlatBuffers.DecodeResponse(encoded)));
     }
 
     [Theory]
@@ -208,7 +204,7 @@ public sealed class WorkshopReadTests
         var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,new(20));
         var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,(Half)0,
             declaration.Threshold,new(effect == ContactWorkEffect.Paid ? 12 : 0),effect);
-        WorkshopResponse Wire(ContactWorkOccurrence occurrence) => WorkshopWire.DecodeResponse(WorkshopWire.Encode(
+        WorkshopResponse Wire(ContactWorkOccurrence occurrence) => WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(
             Response(MotionRead(body,motion) with { ContactWorks=new(new[] {store}, new[] {occurrence}) })));
         Wire(hit).Read.ContactWorks.ValidateScene(scene, Wire(hit).Read.Bodies);
         var initial = new PhysicsContactWorkRead(

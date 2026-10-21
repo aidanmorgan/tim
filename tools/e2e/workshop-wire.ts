@@ -67,7 +67,6 @@ export enum WorkEffect {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class Vec3f {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -105,7 +104,6 @@ static createVec3f(builder:flatbuffers.Builder, x: number, y: number, z: number)
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class Vec3i {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -142,7 +140,6 @@ static createVec3i(builder:flatbuffers.Builder, x: number, y: number, z: number)
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class Quat4f {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -185,9 +182,6 @@ static createQuat4f(builder:flatbuffers.Builder, x: number, y: number, z: number
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class BodyRead {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -266,7 +260,6 @@ static createBodyRead(builder:flatbuffers.Builder, id: bigint, cell_x: number, c
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CaptureLatchRead {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -309,7 +302,6 @@ static createCaptureLatchRead(builder:flatbuffers.Builder, sensor: bigint, phase
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ElectricalSourceRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -364,7 +356,6 @@ static createElectricalSourceRecord(builder:flatbuffers.Builder, id: bigint, own
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ContactWorkStoreRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -412,7 +403,6 @@ static createContactWorkStoreRecord(builder:flatbuffers.Builder, id: bigint, own
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ContactWorkOccurrenceRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -481,66 +471,6 @@ static createContactWorkOccurrenceRecord(builder:flatbuffers.Builder, work: numb
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-export class ActivationMemoryRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):ActivationMemoryRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-node():bigint {
-  return this.bb!.readUint64(this.bb_pos);
-}
-
-kind():number {
-  return this.bb!.readUint32(this.bb_pos + 8);
-}
-
-count():number {
-  return this.bb!.readUint32(this.bb_pos + 12);
-}
-
-lastOrdinal():number {
-  return this.bb!.readUint32(this.bb_pos + 16);
-}
-
-lastPhase():number {
-  return this.bb!.readFloat32(this.bb_pos + 20);
-}
-
-phase():number {
-  return this.bb!.readUint32(this.bb_pos + 24);
-}
-
-dueTick():bigint {
-  return this.bb!.readUint64(this.bb_pos + 32);
-}
-
-static sizeOf():number {
-  return 40;
-}
-
-static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, kind: number, count: number, last_ordinal: number, last_phase: number, phase: number, due_tick: bigint):flatbuffers.Offset {
-  builder.prep(8, 40);
-  builder.writeInt64(BigInt(due_tick ?? 0));
-  builder.pad(4);
-  builder.writeInt32(phase);
-  builder.writeFloat32(last_phase);
-  builder.writeInt32(last_ordinal);
-  builder.writeInt32(count);
-  builder.writeInt32(kind);
-  builder.writeInt64(BigInt(node ?? 0));
-  return builder.offset();
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class ActivationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -629,7 +559,6 @@ static createActivationRecord(builder:flatbuffers.Builder, node: bigint, owner: 
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class TimerRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -724,6 +653,63 @@ static createTimerRecord(builder:flatbuffers.Builder, node: bigint, phase: numbe
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class ActivationMemoryRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ActivationMemoryRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+node():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+kind():number {
+  return this.bb!.readUint32(this.bb_pos + 8);
+}
+
+count():number {
+  return this.bb!.readUint32(this.bb_pos + 12);
+}
+
+lastOrdinal():number {
+  return this.bb!.readUint32(this.bb_pos + 16);
+}
+
+lastPhase():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+phase():number {
+  return this.bb!.readUint32(this.bb_pos + 24);
+}
+
+dueTick():bigint {
+  return this.bb!.readUint64(this.bb_pos + 32);
+}
+
+static sizeOf():number {
+  return 40;
+}
+
+static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, kind: number, count: number, last_ordinal: number, last_phase: number, phase: number, due_tick: bigint):flatbuffers.Offset {
+  builder.prep(8, 40);
+  builder.writeInt64(BigInt(due_tick ?? 0));
+  builder.pad(4);
+  builder.writeInt32(phase);
+  builder.writeFloat32(last_phase);
+  builder.writeInt32(last_ordinal);
+  builder.writeInt32(count);
+  builder.writeInt32(kind);
+  builder.writeInt64(BigInt(node ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class ClockStamp {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -763,7 +749,6 @@ static createClockStamp(builder:flatbuffers.Builder, time: bigint, uncertainty: 
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class ElectricalControl {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -796,7 +781,6 @@ static createElectricalControl(builder:flatbuffers.Builder, owner: bigint, enabl
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 
 export class CadenceSettingsRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -850,7 +834,6 @@ static createCadenceSettingsRecord(builder:flatbuffers.Builder, simulation: numb
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-
 export class CommandIdentityRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -896,7 +879,7 @@ static createCommandIdentityRecord(builder:flatbuffers.Builder, sequence: bigint
 
 }
 
-
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class ConnectionRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -943,6 +926,8 @@ static createConnectionRecord(builder:flatbuffers.Builder, source: bigint, targe
 }
 
 }
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class InstanceRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1154,8 +1139,13 @@ friction():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
+targetCount():number {
+  const offset = this.bb!.__offset(this.bb_pos, 80);
+  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+}
+
 static startInstanceRecord(builder:flatbuffers.Builder) {
-  builder.startObject(38);
+  builder.startObject(39);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -1310,12 +1300,18 @@ static addFriction(builder:flatbuffers.Builder, friction:number) {
   builder.addFieldFloat32(37, friction, 0.0);
 }
 
+static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
+  builder.addFieldInt32(38, targetCount, 0);
+}
+
 static endInstanceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
 }
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class PuzzleRecord {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1484,6 +1480,8 @@ static createPuzzleRecord(builder:flatbuffers.Builder, id:number, placement:numb
 }
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class ConstructionRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1584,6 +1582,8 @@ static endConstructionRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class SavedConstruction {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1602,35 +1602,26 @@ static getSizePrefixedRootAsSavedConstruction(bb:flatbuffers.ByteBuffer, obj?:Sa
   return (obj || new SavedConstruction()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-magic():number {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
 nextBodyId():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
+  const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
 construction(obj?:ConstructionRecord):ConstructionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startSavedConstruction(builder:flatbuffers.Builder) {
-  builder.startObject(3);
-}
-
-static addMagic(builder:flatbuffers.Builder, magic:number) {
-  builder.addFieldInt32(0, magic, 0);
+  builder.startObject(2);
 }
 
 static addNextBodyId(builder:flatbuffers.Builder, nextBodyId:bigint) {
-  builder.addFieldInt64(1, nextBodyId, BigInt('0'));
+  builder.addFieldInt64(0, nextBodyId, BigInt('0'));
 }
 
 static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, constructionOffset, 0);
+  builder.addFieldOffset(1, constructionOffset, 0);
 }
 
 static endSavedConstruction(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -1641,9 +1632,6 @@ static endSavedConstruction(builder:flatbuffers.Builder):flatbuffers.Offset {
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class WorkshopResponse {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -1823,8 +1811,23 @@ activationMemoryLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+motion(index: number):number|null {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+}
+
+motionLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+motionArray():Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(22);
+  builder.startObject(23);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1959,6 +1962,22 @@ static startActivationMemoryVector(builder:flatbuffers.Builder, numElems:number)
   builder.startVector(40, numElems, 8);
 }
 
+static addMotion(builder:flatbuffers.Builder, motionOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(22, motionOffset, 0);
+}
+
+static createMotionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
+  builder.startVector(1, data.length, 1);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startMotionVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(1, numElems, 1);
+}
+
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
@@ -1975,9 +1994,6 @@ static finishSizePrefixedWorkshopResponseBuffer(builder:flatbuffers.Builder, off
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
 
 export class WorkshopCommand {
   bb: flatbuffers.ByteBuffer|null = null;
@@ -2062,28 +2078,13 @@ target(obj?:CommandIdentityRecord):CommandIdentityRecord|null {
   return offset ? (obj || new CommandIdentityRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-construction(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
-}
-
-constructionLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-constructionArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
 constructionRecord(obj?:ConstructionRecord):ConstructionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopCommand(builder:flatbuffers.Builder) {
-  builder.startObject(13);
+  builder.startObject(12);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -2142,24 +2143,8 @@ static addTarget(builder:flatbuffers.Builder, targetOffset:flatbuffers.Offset) {
   builder.addFieldStruct(10, targetOffset, 0);
 }
 
-static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(11, constructionOffset, 0);
-}
-
-static createConstructionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
-  builder.startVector(1, data.length, 1);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt8(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startConstructionVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(1, numElems, 1);
-}
-
 static addConstructionRecord(builder:flatbuffers.Builder, constructionRecordOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(12, constructionRecordOffset, 0);
+  builder.addFieldOffset(11, constructionRecordOffset, 0);
 }
 
 static endWorkshopCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -2169,28 +2154,42 @@ static endWorkshopCommand(builder:flatbuffers.Builder):flatbuffers.Offset {
 
 }
 
+// ---- hand-written helpers (everything above is flatc output; see schemas/README.md) ----------------------------------------
+// Story 9A.2: every Workshop buffer is size-prefixed and carries its root's identifier, exactly as the C# codec frames it.
+export const COMMAND_IDENTIFIER = 'CCWC';
+export const RESPONSE_IDENTIFIER = 'CCWR';
+export const SAVE_IDENTIFIER = 'CCWS';
+
+/** The buffer positioned at its root, after the same frame checks as the C# decoder: the size prefix covers the buffer exactly
+ * and the root identifier is the expected one. */
+function openFrame(data: Buffer | Uint8Array, identifier: string): flatbuffers.ByteBuffer {
+    const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+    if (bytes.length < 12) throw new Error(`a ${identifier} buffer is shorter than its frame`);
+    const declared = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(0, true) + 4;
+    if (declared !== bytes.length) throw new Error(`a ${identifier} buffer declares ${declared} of its ${bytes.length} bytes`);
+    const bb = new flatbuffers.ByteBuffer(bytes);
+    bb.setPosition(flatbuffers.SIZE_PREFIX_LENGTH);
+    if (!bb.__has_identifier(identifier)) throw new Error(`not a ${identifier} buffer`);
+    return bb;
+}
+
 export function decodeWorkshopResponse(data: Buffer | Uint8Array): WorkshopResponse {
-    const bb = new flatbuffers.ByteBuffer(data instanceof Uint8Array ? data : new Uint8Array(data));
-    return WorkshopResponse.getRootAsWorkshopResponse(bb);
+    return WorkshopResponse.getRootAsWorkshopResponse(openFrame(data, RESPONSE_IDENTIFIER));
 }
 
 export function decodeWorkshopCommand(data: Buffer | Uint8Array): WorkshopCommand {
-    const bb = new flatbuffers.ByteBuffer(data instanceof Uint8Array ? data : new Uint8Array(data));
-    return WorkshopCommand.getRootAsWorkshopCommand(bb);
+    return WorkshopCommand.getRootAsWorkshopCommand(openFrame(data, COMMAND_IDENTIFIER));
 }
 
 export function decodeSavedConstruction(data: Buffer | Uint8Array): SavedConstruction {
-    const bb = new flatbuffers.ByteBuffer(data instanceof Uint8Array ? data : new Uint8Array(data));
-    const saved = SavedConstruction.getRootAsSavedConstruction(bb);
-    if (saved.magic() !== 0x53574343 || !saved.construction()) {
-        throw new Error('not a CCWS construction save');
-    }
+    const saved = SavedConstruction.getRootAsSavedConstruction(openFrame(data, SAVE_IDENTIFIER));
+    if (!saved.construction()) throw new Error('a CCWS construction save without its construction');
     return saved;
 }
 
 export function dumpAuthored(saved: SavedConstruction): object {
     const cr = saved.construction();
-    if (!cr) return { magic: saved.magic(), nextBodyId: String(saved.nextBodyId()), construction: null };
+    if (!cr) return { nextBodyId: String(saved.nextBodyId()), construction: null };
     const instances = [];
     for (let i = 0; i < cr.instancesLength(); i++) {
         const inst = cr.instances(i)!;
@@ -2233,6 +2232,7 @@ export function dumpAuthored(saved: SavedConstruction): object {
             referenceMass: inst.referenceMass(),
             preload: inst.preload(),
             friction: inst.friction(),
+            targetCount: inst.targetCount(),
         });
     }
     const connections = [];
@@ -2261,7 +2261,6 @@ export function dumpAuthored(saved: SavedConstruction): object {
     } : null;
 
     return {
-        magic: saved.magic(),
         nextBodyId: String(saved.nextBodyId()),
         puzzle,
         instances,
@@ -2433,7 +2432,7 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     if (occurrencesOffset !== null) WorkshopResponse.addOccurrences(builder, occurrencesOffset);
     if (memoryOffset !== null) WorkshopResponse.addActivationMemory(builder, memoryOffset);
     const end = WorkshopResponse.endWorkshopResponse(builder);
-    WorkshopResponse.finishWorkshopResponseBuffer(builder, end);
+    builder.finishSizePrefixed(end, RESPONSE_IDENTIFIER);
     return Buffer.from(builder.asUint8Array());
 }
 
@@ -2462,7 +2461,6 @@ export interface MockCommandParams {
         cadence?: bigint;
         projection?: bigint;
     };
-    construction?: Uint8Array | number[];
 }
 
 export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
@@ -2470,10 +2468,6 @@ export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
     let sessionOffset: flatbuffers.Offset | null = null;
     if (params.session) {
         sessionOffset = WorkshopCommand.createSessionVector(builder, params.session);
-    }
-    let constructionOffset: flatbuffers.Offset | null = null;
-    if (params.construction) {
-        constructionOffset = WorkshopCommand.createConstructionVector(builder, params.construction);
     }
     WorkshopCommand.startWorkshopCommand(builder);
     if (params.sequence !== undefined) WorkshopCommand.addSequence(builder, params.sequence);
@@ -2517,8 +2511,7 @@ export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
         );
         WorkshopCommand.addTarget(builder, targetOffset);
     }
-    if (constructionOffset !== null) WorkshopCommand.addConstruction(builder, constructionOffset);
     const end = WorkshopCommand.endWorkshopCommand(builder);
-    builder.finish(end);
+    builder.finishSizePrefixed(end, COMMAND_IDENTIFIER);
     return Buffer.from(builder.asUint8Array());
 }

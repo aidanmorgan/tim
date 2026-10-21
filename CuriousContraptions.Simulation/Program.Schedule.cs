@@ -79,7 +79,7 @@ public static partial class Program
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), phase, read, Peer.Session, default,
                 profile.Revision, Peer.Generation, projection, new(read.Tick.Value));
             // Validate the complete endpoint before retaining a candidate or touching either recipient.
-            var encoded = WorkshopWire.Encode(endpoint);
+            var encoded = WorkshopWireFlatBuffers.EncodeResponse(endpoint);
             _installationOwner = owner; _preparedEndpoint = endpoint; _preparedSettings = construction.Settings; _preparedTransition = _transition;
             BeginReceipts(ScheduleControlKind.Prepared);
             try

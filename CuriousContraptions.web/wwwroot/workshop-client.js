@@ -31,38 +31,11 @@ function owner(id) {
     if (!client) throw new Error('Workshop worker client is disposed.');
     return client;
 }
+// A command's receipt key: the 8-byte little-endian sequence C# hands over with the command and the worker returns with its
+// acknowledgement (Story 9A.2: no script parses a FlatBuffers buffer).
 function sequence(bytes) {
-    if (!(bytes instanceof Uint8Array) || bytes.length < 8) throw new Error('Invalid command identity.');
-    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    if (bytes.length === 8) return view.getBigUint64(0, true);
-    if (bytes.length >= 12) {
-        const rootPos = view.getUint32(0, true);
-        if (rootPos >= 4 && rootPos <= bytes.length - 4) {
-            const vtableOffset = view.getInt32(rootPos, true);
-            const vtablePos = rootPos - vtableOffset;
-            if (vtableOffset > 0 && vtablePos >= 0 && vtablePos <= rootPos) {
-                const vtableSize = view.getUint16(vtablePos, true);
-                const tableSize = view.getUint16(vtablePos + 2, true);
-                if (vtableSize >= 6 && tableSize >= 4 && rootPos + tableSize <= bytes.length) {
-                    const fieldOffset = view.getUint16(vtablePos + 4, true);
-                    if (fieldOffset >= 4 && fieldOffset + 8 <= tableSize) {
-                        return view.getBigUint64(rootPos + fieldOffset, true);
-                    }
-                }
-            }
-        }
-    }
-    return view.getBigUint64(0, true);
-}
-// The Simulation posts every physical read as one complete binary response (worker.js extractReadIdentity rejects any
-// other length), so its receipt identity is read at the binary ABI offsets only.
-function extractReadIdentity(bytes, responseAbi) {
-    // responseAbi[0] is the response header: a read is as long as its own populations (Story 9R.5b).
-    if (bytes.length < responseAbi[0]) throw new Error('A physical read must be one complete binary response.');
-    const id = new Uint8Array(24);
-    id.set(bytes.subarray(responseAbi[1], responseAbi[1] + 16));
-    id.set(bytes.subarray(responseAbi[2], responseAbi[2] + 8), 16);
-    return id;
+    if (!(bytes instanceof Uint8Array) || bytes.length !== 8) throw new Error('Invalid command identity.');
+    return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(0, true);
 }
 function updateReliableStall(client, current) {
     let oldest = 0;
@@ -129,7 +102,7 @@ async function admitDisplayRate() {
     });
 }
 export function displayRate(id) { return owner(id).displayRate; }
-export async function create(states, bootstrapBytes, clockAbi, responseAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service, beginMemory, receiveMemory, releaseMemory) {
+export async function create(states, bootstrapBytes, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service, beginMemory, receiveMemory, releaseMemory) {
     if (clients.size !== 0 || retiredSession || creating) throw new Error('RecoveryBlocked: reload the page before creating another worker.');
     creating = true;
     let id;
@@ -141,10 +114,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
         if (typeof admitDisplay !== 'boolean') throw new Error('Invalid display admission selection.');
         const displayRate = admitDisplay ? await admitDisplayRate() : undefined;
         const session = new Uint8Array(bootstrapBytes);
-        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 7 || responseAbi.length !== 3 ||
-            !responseAbi.every(Number.isInteger) || responseAbi[0] < 128 ||
-            responseAbi[1] < 0 || responseAbi[1] + 16 > responseAbi[0] ||
-            responseAbi[2] < 0 || responseAbi[2] + 8 > responseAbi[0])
+        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 7)
             throw new Error('Unsupported session bootstrap.');
         const [clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole] = clockAbi;
         if (clockProfile !== nativeProfile) throw new Error('Unsupported native clock profile.');
@@ -290,7 +260,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                     } else if (typeof message.candidateTimedOut === 'boolean') {
                         client.candidateTimedOut = message.candidateTimedOut;
                     } else if (message.acknowledgement instanceof Uint8Array) {
-                        const key = sequence(message.acknowledgement);
+                        const key = sequence(message.sequence);
                         const pending = client.pending.get(key);
                         if (!pending) throw new Error('Unexpected worker acknowledgement.');
                         client.pending.delete(key);
@@ -301,8 +271,10 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                     } else if (message.read instanceof Uint8Array) {
                         // Complete C# validation/admission precedes return; JS retains no pose history.
                         deliver(client, message.read, received, physicalRead);
-                        const receipt = extractReadIdentity(message.read, responseAbi);
-                        worker.postMessage({ readAcknowledged: receipt }, [receipt.buffer]);
+                        // The receipt is the identity C# published with the read (its session and publication), echoed unread.
+                        if (!(message.readIdentity instanceof Uint8Array) || message.readIdentity.length !== 24)
+                            throw new Error('A physical read arrived without its receipt identity.');
+                        worker.postMessage({ readAcknowledged: message.readIdentity }, [message.readIdentity.buffer]);
                     } else if (message.failure || message.rejected) {
                         throw new Error(message.detail ?? 'Worker rejected its transport envelope.');
                     } else throw new Error('Unknown worker transport envelope.');
@@ -547,11 +519,11 @@ export function completeMemoryObservation(id, bytes) {
         settleMemory(client, new Error('Browser collector observation is unsupported.'));
     else settleMemory(client, undefined, combined);
 }
-export function send(id, bytes) {
+export function send(id, bytes, sequenceBytes) {
     const client = owner(id);
     if (client.failure) return Promise.reject(client.failure);
     if (client.memory) return Promise.reject(new Error('A stopped memory observation owns the transport.'));
-    const key = sequence(bytes);
+    const key = sequence(new Uint8Array(sequenceBytes));
     if (client.pending.size + client.acknowledgements.size >= 2 || client.pending.has(key) || client.acknowledgements.has(key))
         return Promise.reject(new Error('Workshop transport capacity or identity violation.'));
     return new Promise((resolve, reject) => {

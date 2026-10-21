@@ -47,7 +47,7 @@ public static class WorkshopMemoryWire
         request.Session.Validate();
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)request.Kind);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[8..], (uint)request.Context);
-        WorkshopWire.WriteSession(bytes[16..32], request.Session);
+        request.Session.WriteTo(bytes[16..32]);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes[32..], request.Id.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes[40..], request.Epoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes[48..], request.Revision.Value);
@@ -66,7 +66,7 @@ public static class WorkshopMemoryWire
         if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0) // bytes 0..3: zero padding (one bundle, one schema)
             throw new ArgumentException("Invalid memory observation padding.");
         var request = new WorkshopMemoryRequest((WorkshopMemoryKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]),
-            (WorkshopMemoryContext)BinaryPrimitives.ReadUInt32LittleEndian(bytes[8..]), WorkshopWire.ReadSession(bytes[16..32]),
+            (WorkshopMemoryContext)BinaryPrimitives.ReadUInt32LittleEndian(bytes[8..]), RuntimeSessionId.Read(bytes[16..32]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..])), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[48..])), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[56..])));
         if (!Enum.IsDefined(request.Kind) || !Enum.IsDefined(request.Context) || request.Id.Value == 0 || request.Epoch.Value == 0)

@@ -152,8 +152,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         Assert.Equal(24, decodedPipe.DeclaredColliders.Count);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
-        var bb = new Google.FlatBuffers.ByteBuffer(bytes);
-        var fbSave = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(bb);
+        var fbSave = WorkshopSaveCodec.Open(bytes);
         Assert.True(fbSave.Construction.HasValue);
         var fbPipe = fbSave.Construction.Value.Instances(1);
         Assert.True(fbPipe.HasValue);

@@ -44,7 +44,7 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 | ObjectiveEvaluation | exists now for Receiver capture only | `engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`; exposure-window predicate combined with arrival: unscheduled (LAW-GOALS-D) |
 | ReliablePublication | exists now | `engine/gpu/BrowserWorkshopClient.cs@a6c914e:L17-L17`; publishes the goal phase |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; D commits with the tick and clears on Reset (unscheduled with this element) |
-| TypedContracts | exists now | `engine/gpu/WorkshopWire.cs@a6c914e:L6-L19`; new goal and band enums join it |
+| TypedContracts | exists now | `engine/gpu/WorkshopMessages.cs` (the command and response kinds; Story 9A.2 moved them out of the deleted binary codec, cited earlier at a6c914e L6-L19); new goal and band enums join it |
 
 The cargo composition also uses RigidBodyDynamics, ContactImpulse and SlidingFriction (exist now: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L726`) and the residence sensor (exists, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L123-L141`).
 

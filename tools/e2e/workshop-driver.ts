@@ -86,7 +86,7 @@ declare global {
     };
 }
 
-// Closed sets of the CCGPU acknowledgement (engine/gpu/WorkshopSimulation.cs, engine/gpu/WorkshopWire.cs). Node runs these suites in
+// Closed sets of the CCGPU acknowledgement (engine/gpu/WorkshopSimulation.cs, engine/gpu/WorkshopMessages.cs). Node runs these suites in
 // type-strip mode, which rejects TypeScript `enum`, so each set is a frozen value table with its derived union type.
 const CommandOutcome = { Applied: 0, Rejected: 1, Superseded: 2, Faulted: 3, Cancelled: 4 } as const;
 type CommandOutcome = typeof CommandOutcome[keyof typeof CommandOutcome];
@@ -144,8 +144,8 @@ function member<T extends number>(table: Readonly<Record<string, T>>, value: num
 }
 
 // MachineWorld.LogWorkshop prints "CCGPU <base64>" for every command the Workshop UI issues (Construct for placement, edits, wiring,
-// level selection and Load; Run; Reset; Save; Pause; Resume). Byte layout: WorkshopWire.Write(WorkshopResponse) — 0 command sequence
-// (u64), 8 kind, 9 outcome, 10 reason, 11 phase, 32 authority revision (u64). Unknown values reject at this boundary.
+// level selection and Load; Run; Reset; Save; Pause; Resume). The bytes are the one codec's size-prefixed "CCWR" FlatBuffers response
+// (WorkshopWireFlatBuffers.EncodeResponse), decoded through the generated schema. Unknown values reject at this boundary.
 const ACK_PREFIX = 'CCGPU ';
 function decodeAcknowledgement(text: string): WorkshopAcknowledgement {
     const bytes = Buffer.from(text.slice(ACK_PREFIX.length), 'base64');
@@ -190,8 +190,6 @@ const PUBLICATION_TIMEOUT_MS = 10000;
 const CONSTRUCTION_DATABASE = 'curious-contraptions-workshop';
 const CONSTRUCTION_STORE = 'construction';
 const CONSTRUCTION_SLOT = 1;
-// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343). One bundle, one schema: there is no format version.
-const SAVE_MAGIC = 0x53574343;
 
 async function bounded<T>(work: Promise<T>, timeoutMs: number, message: string): Promise<T> {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -935,9 +933,8 @@ export class WorkshopDriver {
         if (!savedBytes)
             throw new Error('save: the Save command was acknowledged but the IndexedDB slot is empty or invalid');
         const bytes = new Uint8Array(savedBytes);
-        const saved = decodeSavedConstruction(bytes);
-        if (saved.magic() !== SAVE_MAGIC || !saved.construction())
-            throw new Error(`save: the Save command was acknowledged but the IndexedDB slot has invalid magic 0x${saved.magic().toString(16)} or no construction`);
+        // The slot must be one size-prefixed "CCWS" save root with its construction (decodeSavedConstruction throws otherwise).
+        decodeSavedConstruction(bytes);
         return bytes;
     }
 
@@ -945,6 +942,47 @@ export class WorkshopDriver {
         await this.openMenu();
         await this.construct('load', () => this.press(UI_ANCHORS.menu.load.x, UI_ANCHORS.menu.load.y));
         await this.closeMenu();
+    }
+
+    /** Story 9A.2: overwrites the construction slot with stored bytes (a damaged or foreign save) through IndexedDB, as storage
+     *  corruption or a save from another build would leave it. Never creates or upgrades the database. */
+    async writeSavedSlot(bytes: Uint8Array): Promise<void> {
+        await this.page.evaluate(({ database, store, slot, data }: { database: string; store: string; slot: number; data: number[] }) =>
+            new Promise<void>((resolve, reject) => {
+                const request = indexedDB.open(database);
+                request.onupgradeneeded = () => request.transaction?.abort();
+                request.onerror = () => reject(new Error(`Construction database ${database} is unavailable: ${request.error?.message ?? 'no detail'}`));
+                request.onsuccess = () => {
+                    const connection = request.result;
+                    const transaction = connection.transaction(store, 'readwrite');
+                    transaction.objectStore(store).put(new Uint8Array(data), slot);
+                    transaction.oncomplete = () => { connection.close(); resolve(); };
+                    transaction.onabort = () => { connection.close(); reject(new Error(`Construction slot write aborted: ${transaction.error?.message ?? 'no detail'}`)); };
+                };
+            }), { database: CONSTRUCTION_DATABASE, store: CONSTRUCTION_STORE, slot: CONSTRUCTION_SLOT, data: Array.from(bytes) });
+    }
+
+    /** Story 9A.2: Load through the Workshop menu when the stored slot fails structural pre-validation. The Workshop issues no
+     *  command (no CCGPU acknowledgement arrives) and reports the typed refusal on its UI rejection channel; returns that line. */
+    async loadRefused(): Promise<string> {
+        const rejections: string[] = [], acknowledgements: string[] = [];
+        const listener = (message: ConsoleMessage) => {
+            const text = message.text();
+            if (text.startsWith('CCGPU_UI_REJECTION ')) rejections.push(text);
+            if (text.startsWith(ACK_PREFIX)) acknowledgements.push(text);
+        };
+        this.page.on('console', listener);
+        try {
+            await this.openMenu();
+            await this.press(UI_ANCHORS.menu.load.x, UI_ANCHORS.menu.load.y);
+            const started = Date.now();
+            while (rejections.length === 0 && Date.now() - started < ACK_TIMEOUT_MS) await this.frames(UI_SETTLE_FRAMES);
+            await this.frames(READY_SETTLE_FRAMES);
+            await this.closeMenu();
+        } finally { this.page.off('console', listener); }
+        if (rejections.length !== 1) throw new Error(`loadRefused: expected one UI rejection, got ${rejections.length}`);
+        if (acknowledgements.length !== 0) throw new Error(`loadRefused: the refused Load issued ${acknowledgements.length} command(s)`);
+        return rejections[0]!;
     }
 
     async pauseSimulation(): Promise<void> {
