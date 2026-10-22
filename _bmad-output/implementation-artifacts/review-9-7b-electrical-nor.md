@@ -73,3 +73,99 @@ No unresolved scoped unintended regression found in the candidate.
 ### Provisional verdict
 
 **Pass-pending-merge.** All required-now 9.7b native criteria pass on the real C# simulation. Each law row, the supply rule, ordering, nonmonotone refusal, undefined-value closure and solver scan is mutation-discriminated. SnapshotApproval is withheld until PM1 and PM2 close on the merged snapshot after C-Balls. This is not browser or release qualification: `tools/e2e/cat-025.test.ts` remains queued post-catalogue.
+
+## Post-merge re-review — 22 October 2026
+
+Same independent reviewer, with no source, test, tool or content edits. Raw output: `evidence-9-7b-review/post-merge/`.
+
+**Branch layout**
+
+- WIP `f443dc99146749cdef03357d38185b44caa649a9`, with parent `b35be7f4`.
+- Merge `01cdd6cc9e9292ac4355d4206b5247cb9ef5983a`, with parents `f443dc99` and main `3fce7a034b328be0a79f834a2a70a4d049372a4b` (C-Balls).
+- On top: an uncommitted delta of the spec's post-merge section plus `evidence-9-7b/post-merge/`.
+
+| Check | Command / method | Result |
+| --- | --- | --- |
+| WIP = reviewed candidate + review files only | Rebuilt the identity manifest from `git diff b35be7f4 f443dc99` over the 21 reviewed tracked paths, plus `git show f443dc99:<f>` hashes for the 31 untracked paths. Listed any other paths changed in f443dc99. | **Pass.** The manifest SHA-256 rebuilds to `86f393f1…`, identical to the pre-merge review. The only extra paths are this record and `evidence-9-7b-review/`, both identical to the files reviewed. |
+| Merge brings only main + resolutions; NOR not lost or altered | Classified files (main 179, NOR 83, 11 both). Main-only files compared with 3fce7a03, NOR-only files with f443dc99. Re-ran `git merge-tree --write-tree 3fce7a03 f443dc99` (auto-merge tree `bc821caa`, sole conflict `TODO.md`) and compared it with merge tree `01cdd6cc`. | **Pass.** No file outside main ∪ NOR. Main-only files equal 3fce7a03. NOR-only files equal f443dc99 except `ElectricalNorTests.cs`. The recorded merge equals git's auto-merge except two files: (a) the `TODO.md` conflict resolution, which keeps main's Verified/Also-verified lines (9.7a terminal Pass carried) and names 9.7b in flight, closing L1; (b) the two `SwitchMachine` calls changed from deleted `WorkshopInput.Basketball(…)` to `WorkshopInput.Generic(PartId.Basketball,…)`, the same mechanical conversion main applied to NAND, with no oracle changed. |
+| Pins / ordinal, derived independently | Generated merged bundle; `elements/` dirs; `UndeliveredParts` arms; pin lines | 26 bundle entries, 26 package dirs, 2 undelivered parts and no `PaletteOrder` duplicates; `electrical_nor` = 28. Pins match: registry 26 (×2), SaveFixture 26, Coverage admitted 26, ids+undelivered 28. C-Balls added no package, so no pin edit was needed. (`pin-derivation.txt`) |
+| Uncommitted delta | Diff; `anvil check` | Spec post-merge section and implementer `evidence-9-7b/post-merge/` only. Its claims match the reviewer's results. Anvil: no warnings. |
+| One rebuild | `dotnet build CuriousContraptions.slnx -c Debug -v:q` (HEAD 01cdd6cc + delta) | 0 W / 0 E |
+| Full solution | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2278/2278**, Coverage 77/77, BundleElements 145/145, E2eRunner 189/189, WorkerAotGuard 17/17 |
+| CI "Test C# tools" | `pages.yml` lines 51–64 verbatim, `bash -e` | Coverage 77, BundleElements 145, WorkerAotGuard 17, E2eRunner 174; exit 0 |
+| Worker | `dotnet build CuriousContraptions.Simulation -c Release --no-incremental` | 0 W / 0 E |
+| Named NOR / chooser / scan | filtered, normal verbosity | 56/56, 0 failed |
+| AppBundle | `ls -d CuriousContraptions.web/AppBundle` | absent |
+| Identity production branches | rg over production dirs | none |
+
+Pre-merge findings:
+
+- **PM1:** closed.
+- **PM2:** closed. The exact identity is in the SnapshotApproval below.
+- **L1:** closed.
+- **L2, I1–I3:** non-blocking, as recorded.
+
+Mutation discrimination from the pre-merge review still applies: `SupplyRoute`, `WorkshopConnections` and the NOR oracles are unchanged by the merge, and the merge is test-input-only for NOR.
+
+Verdict: **Pass** for required-now scoped native/tool criteria on the merged candidate. SnapshotApproval follows.
+
+## SnapshotApproval — 22 October 2026
+
+**Approved snapshot**
+
+- Staged tree: `3a9754dc33fb69bd519adafefc0130253e1fffe9`.
+- SHA-256 of `git diff --cached --binary 01cdd6cc`: `ceabffde7d7d2c73514a76a0ff529a438428b07b4243506c93672b84e1d3a2ac`. The diff has 20 paths.
+- What is staged:
+  - the spec's post-merge section;
+  - `evidence-9-7b/post-merge/`;
+  - `evidence-9-7b-review/post-merge/`;
+  - this record, up to the end of the post-merge re-review.
+- Nothing staged is outside those paths. No unstaged changes remain.
+
+**Parent chain**
+
+- Merge `01cdd6cc9e9292ac4355d4206b5247cb9ef5983a` has two parents:
+  - WIP `f443dc99146749cdef03357d38185b44caa649a9`, whose parent is `b35be7f444a199c2faaa8958d66c210947aad346` (main with 9.7a);
+  - main `3fce7a034b328be0a79f834a2a70a4d049372a4b` (C-Balls merge).
+
+**Staged whitespace**
+
+- `git diff --cached --check` reports trailing whitespace only in raw tool output under `evidence-9-7b*/`. Those logs are kept byte-for-byte.
+- The spec and this record are clean.
+
+**Other conditions**
+
+- `CuriousContraptions.web/AppBundle` is absent.
+- Exclusions (scoped approval does not cover these):
+  - browser/Chrome qualification (`cat-025.test.ts` queued post-catalogue);
+  - Or chaining (9.8a);
+  - release/device/performance gates;
+  - common 9A.44 numerical conversion.
+
+## Publication-dependent checks
+
+Publication is:
+
+1. commit the approved snapshot plus this SnapshotApproval section on `story-9-7b`, with normal hooks and no `--no-verify`;
+2. `git merge --no-ff` into main;
+3. push.
+
+**Before pushing to main**, both of these must hold:
+
+- **C-Balls has published.** C-Balls's exact-SHA CI run `39712582817` for main `3fce7a03` was `in_progress` at approval. Confirm it succeeds and its deployment succeeds before pushing. TODO keeps the C-Balls terminal receipt with its owner.
+- **Main has not moved.** If origin/main has moved past `3fce7a03`, the new merge is a changed input: return it for an affected re-review.
+
+**Terminal checks** (independent reviewer, after push):
+
+- **Tree equivalence.** The published tree differs from `3a9754dc` only by this record's SnapshotApproval and Publication-dependent sections, with first parent `3fce7a03`. Confirm remote identity with `git fetch` and `git rev-parse origin/main`.
+- **Normal hooks.** They succeed on the slice commit. The merge commit runs no hook (only pre-commit exists), so re-run the hook on the exact published tree if no log is kept.
+- **Exact-SHA CI** "Build and deploy game" succeeds, including:
+  - the static gate;
+  - "Test C# game" (native ≥ 2278, no failures);
+  - the **"Test C# tools"** step: Coverage 77, BundleElements 145, WorkerAotGuard 17, E2eRunner 174 filtered;
+  - the production bundle publish;
+  - the static deployment check.
+- **Artifact.** The `github-pages` artifact belongs to that run/SHA and has not expired.
+- **Deployment.** The github-pages deployment of that SHA reaches the **success** status and consumes that artifact.
+
+Preserve any failed attempt unchanged and return concrete failures to the same implementation owner. Terminal scoped Pass is native/publication only, not browser or release qualification.

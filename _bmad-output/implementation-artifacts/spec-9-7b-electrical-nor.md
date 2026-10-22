@@ -127,7 +127,30 @@ Do not change: `workshop_wire.fbs`/generated code, `ElectricalLogicRecord`, `Wor
 
 # Current state
 
-Pre-merge candidate in the worktree `story-9-7b`, uncommitted, on base `b35be7f4`. Next: merge main after C-Balls publishes, re-derive the count pins and `PaletteOrder` 28, rebuild and retest, then independent review and SnapshotApproval. Browser qualification is pending post-catalogue (cases above).
+The pre-merge candidate was committed as WIP `f443dc99`, with normal hooks and including the reviewer's review/evidence files. The pre-merge review is Pass-pending-merge ([review](review-9-7b-electrical-nor.md)). It was then merged with main `3fce7a03` (C-Balls) as `01cdd6cc` (see Post-merge below). Next: an exact SnapshotApproval of the merged snapshot, then protected publication. Browser qualification is pending post-catalogue (cases above).
+
+## Post-merge (PM1, PM2, L1)
+
+Merge `01cdd6cc9e9292ac4355d4206b5247cb9ef5983a`: tree `48d12b36f786934dd467f24d0f6fae647d8e7293`, parents `f443dc99` (WIP) and `3fce7a03` (main). Evidence: [`evidence-9-7b/post-merge/`](evidence-9-7b/post-merge/).
+
+- **Conflict: `TODO.md` only.** Main's Verified and Also-verified lines are kept. In flight and Owner now name 9.7b, and C-Balls is recorded as merged to main `3fce7a03` (L1). Next reads "publish 9.7b after its SnapshotApproval". Every other file auto-merged, and sprint-status keeps main's rows plus 9.7b `review`.
+- **C-Balls API.** C-Balls deleted `WorkshopInput.Basketball`. The two `SwitchMachine` callers in `ElectricalNorTests` now use `WorkshopInput.Generic(PartId.Basketball, …)`, exactly as main converted NAND's. No oracle changed.
+- **Pins re-derived from the merged bundle (`pin-derivation.txt`).** C-Balls adds no package and no undelivered part.
+  - 26 bundle entries and 26 package dirs, with 2 undelivered parts (ids+undelivered 28).
+  - 26 distinct `PaletteOrder` values; `electrical_nor` is 28.
+  - So registry 26, SaveFixture 26, Coverage admitted 26 and ids 28 all hold unchanged; no pin was edited.
+- **Identity (`identity.txt`, `identity-checks.txt`).** Against main, the merge differs only in the slice's own files: 30 non-evidence paths. Against the WIP commit, the slice-owned changes are only the two resolutions above.
+- **`git diff --check`.** It is clean on every non-evidence path and on the working tree. It flags trailing whitespace only inside committed raw tool output (`evidence-9-7b*/` logs, mutation diffs and the reviewer's manifest), which is kept unchanged as evidence (`diff-check-evidence-files.txt`).
+- `CuriousContraptions.web/AppBundle` is absent from the worktree.
+
+| Check | Command | Result |
+| --- | --- | --- |
+| One rebuild of the merged tree | `dotnet build CuriousContraptions.slnx -c Debug` | 0 W / 0 E (`build-debug.log`) |
+| Whole solution | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2278/2278** (main 2245 + 33 NOR), Coverage 77/77, BundleElements 145/145, E2eRunner 189/189, WorkerAotGuard 17/17 (`test-slnx.log`) |
+| CI "Test C# tools" step, verbatim, under bash | `evidence-9-7b/ci-tool-step.sh` | Coverage 77, BundleElements 145, WorkerAotGuard 17, E2eRunner 174 filtered; exit 0 (`ci-tool-step.log`) |
+| Worker | `dotnet build CuriousContraptions.Simulation -c Release` | 0 W / 0 E (`worker-release.log`) |
+| Named NOR, chooser and scan tests | same filter as below | 56/56 (`native-nor-named.log`) |
+| Merge commit hooks | `git commit` (normal pre-commit) | anvil 0 errors; gate tests 124/124 |
 
 ## Assumptions and deviations
 

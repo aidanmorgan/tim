@@ -1,0 +1,11 @@
+  22 _bmad-output/implementation-artifacts/evidence-9-7b-review/candidate-identity-manifest.txt
+   1 _bmad-output/implementation-artifacts/evidence-9-7b-review/mutations/N6-undefined-op-evaluates-plus-N7-solver-nor-names.mutation-vs-candidate.diff
+   1 _bmad-output/implementation-artifacts/evidence-9-7b/build-debug-final.log
+   1 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Ma-nor-law-as-nand.build.log
+   2 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Ma-nor-law-as-nand.diff
+   2 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Mb-reverse-component-order.build.log
+   2 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Mb-reverse-component-order.diff
+   2 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Mc-nor-declared-monotone.build.log
+   2 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Mc-nor-declared-monotone.diff
+   2 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Md-old-slot-sweep.build.log
+   2 _bmad-output/implementation-artifacts/evidence-9-7b/mutations/Md-old-slot-sweep.diff
