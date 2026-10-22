@@ -42,7 +42,7 @@ public class CurrentCapabilityInputsTests
         Assert.Contains(preparation.Issues, issue => issue.Problem == CurrentInputProblem.MissingScope);
         Assert.Empty(expected.ImplementationEligibleOwners);
         var ball = new SourceKey(RequirementOrigin.Catalogue, new("ball"));
-        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_nor"));
+        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_or"));
         Assert.Equal(ConsumerKind.CurrentPart, expected.Classifications[ball].Consumer);
         Assert.Equal(ConsumerKind.FutureDeclaration, expected.Classifications[planned].Consumer);
         Assert.NotEmpty(expected.RequiredSymbols[ball]);
@@ -84,8 +84,9 @@ public class CurrentCapabilityInputsTests
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
                 File.Copy(Path.Combine(original.FullName, path), destination);
             }
-            // Not both (CAT-024) is admitted since Story 9.7a; Neither (CAT-025, electrical_nor) is still planned with no package.
-            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalNor")));
+            // Not both (CAT-024) and Neither (CAT-025) are admitted since Stories 9.7a and 9.7b; Either (CAT-026, electrical_or) is
+            // still planned with no package.
+            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalOr")));
             var sources = RequirementDiscovery.Discover(target);
             var prepared = CapabilityInputs.Prepare(target, sources);
             Assert.Equal(1472, sources.Count);

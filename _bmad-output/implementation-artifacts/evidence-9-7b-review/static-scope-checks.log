@@ -1,0 +1,13 @@
+$ PaletteOrder duplicates / count / NOR
+26
+3651-        "Id": "electrical_nor",
+$ identity branches in production
+rc=1
+$ forbidden-scope diff
+(empty)
+$ Known list hash line
+(none)
+$ anvil check
+  - 4 line(s) too long to scan, so this result cannot prove them clean: raise `max_line_bytes` to cover them, or suppress with a documented reason
+$ git diff --check
+clean

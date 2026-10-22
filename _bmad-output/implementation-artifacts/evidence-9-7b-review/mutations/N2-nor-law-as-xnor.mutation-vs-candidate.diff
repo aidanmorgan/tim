@@ -1,0 +1,8 @@
+2c2
+< index 65bb6234..a023d289 100644
+---
+> index 65bb6234..36a2bb5d 100644
+9c9
+< +        LogicGateOperation.Nor => !(first || second),
+---
+> +        LogicGateOperation.Nor => first == second,

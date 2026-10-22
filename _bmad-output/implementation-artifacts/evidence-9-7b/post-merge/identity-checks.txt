@@ -1,0 +1,40 @@
+## git diff --check 3fce7a03 HEAD excluding raw evidence dirs
+exit 0
+## working tree vs HEAD
+exit 0
+## slice vs main (non-evidence)
+ .../ElectricalContracts.cs                         |   6 +-
+ CuriousContraptions.slnx                           |   1 +
+ .../BasketballResourceTests.cs                     |   2 +-
+ CuriousContraptions.tests/BundleElementIdTests.cs  |   2 +-
+ CuriousContraptions.tests/BundlePortsTests.cs      |   1 +
+ CuriousContraptions.tests/CSharpStaticGateTests.cs |   3 +-
+ .../CuriousContraptions.tests.csproj               |   1 +
+ CuriousContraptions.tests/ElectricalNandTests.cs   |   4 +-
+ CuriousContraptions.tests/ElectricalNorTests.cs    | 388 +++++++++++++++++++++
+ .../PackageRuntimeParityTests.cs                   |   6 +-
+ CuriousContraptions.tests/PalettePlacementTests.cs |  38 ++
+ CuriousContraptions.tests/PartRegistryTests.cs     |   8 +-
+ .../WorkbenchCapacityTests.cs                      |   4 +-
+ .../WorkshopPhysicsLawTests.cs                     |   1 +
+ TODO.md                                            |   6 +-
+ .../review-9-7b-electrical-nor.md                  |  75 ++++
+ .../spec-9-7b-electrical-nor.md                    | 174 +++++++++
+ .../implementation-artifacts/sprint-status.yaml    |   2 +-
+ docs/planning/elements/CAT-025-electrical_nor.md   |  10 +-
+ elements/ElectricalNor/ElectricalNor.csproj        |  12 +
+ .../ElectricalNorElementDeclaration.cs             |  47 +++
+ .../ElectricalNorElementDeclaration.cs.uid         |   1 +
+ elements/ElectricalNor/electrical_nor.tscn         | 241 +++++++++++++
+ elements/ElectricalNor/icon.svg                    |   1 +
+ elements/ElectricalNor/icon.svg.import             |  43 +++
+ engine/gpu/SupplyRoute.cs                          |   6 +-
+ tools/BundleElements.Tests/BundleValidatorTests.cs |   3 +-
+ .../Coverage.Tests/CurrentCapabilityInputsTests.cs |   7 +-
+ tools/Coverage.Tests/CurrentCatalogueTests.cs      |   7 +-
+ tools/E2eRunner/ImpactRules.cs                     |   3 +-
+ 30 files changed, 1067 insertions(+), 36 deletions(-)
+## merge resolution delta vs WIP, slice-owned files
+ CuriousContraptions.tests/ElectricalNorTests.cs | 4 ++--
+ TODO.md                                         | 8 +++++---
+ 2 files changed, 7 insertions(+), 5 deletions(-)

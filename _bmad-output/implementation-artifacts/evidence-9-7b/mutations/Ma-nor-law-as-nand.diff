@@ -1,0 +1,30 @@
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index 65bb6234..2e74fa5c 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -167,6 +167,7 @@ public sealed class CompiledSupplyGraph
+     {
+         LogicGateOperation.And => first && second,
+         LogicGateOperation.Nand => !(first && second),
++        LogicGateOperation.Nor => !(first && second),
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
+@@ -174,14 +175,15 @@ public sealed class CompiledSupplyGraph
+     {
+         LogicGateOperation.And => true,
+         LogicGateOperation.Nand => false,
++        LogicGateOperation.Nor => false,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+ 
+ }
+ 
+ /// <summary>Directed cycles of the declared electrical topology. Only monotone rules may share one: a gate that more input power can
+-/// switch off (Nand) has no settled zero-delay state on a loop, so connection validation refuses such a loop before any solve, even
+-/// when only an open contact closes it.</summary>
++/// switch off (a nonmonotone gate) has no settled zero-delay state on a loop, so connection validation refuses such a loop before any
++/// solve, even when only an open contact closes it.</summary>
+ public static class SupplyCycles
+ {
+     /// <summary>A node without a gate law (source, contact, consumer) only ever passes more power on with more power in.</summary>

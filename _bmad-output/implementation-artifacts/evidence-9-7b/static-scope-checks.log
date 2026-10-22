@@ -1,0 +1,14 @@
+## git diff --check (tracked + new)
+exit 0
+## PaletteOrder duplicates in generated bundle (expect none)
+"PaletteOrder": 26
+"PaletteOrder": 27
+"PaletteOrder": 28
+## new PartId/string classification in production (expect no hits)
+exit 1 (1 = none)
+## solver-scan word nor in shipped solver files (expect none)
+done
+## isolation known-violation list unchanged
+ CuriousContraptions.tests/WorkshopPhysicsLawTests.cs | 1 +
+ 1 file changed, 1 insertion(+)
+exit 1 (1 = unchanged)
