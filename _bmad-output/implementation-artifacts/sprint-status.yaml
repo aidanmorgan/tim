@@ -272,25 +272,25 @@ development_status:
   # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)
   9-7-electrical-logic-gates-nand-nor: backlog
   # 26 (deletion)
-  9a-c-balls-conversion: review
+  9a-c-balls-conversion: done # scoped native/publication Pass3fce7a; browser pending
   # merged into 9a-c-balls (21 Oct 2026)
-  9a-30-generic-instance-basketball: review
+  9a-30-generic-instance-basketball: done # scoped native/publication Pass3fce7a; browser pending
   # merged into 9a-c-balls (21 Oct 2026)
-  9a-31-generic-instance-bowling-ball: review
+  9a-31-generic-instance-bowling-ball: done # scoped native/publication Pass3fce7a; browser pending
   # merged into 9a-c-balls (21 Oct 2026) as its suite-first guard
   9r-11-cat-001-basketball-suite: backlog
   # 27 (element)
-  9-7b-electrical-nor-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
+  9-7b-electrical-nor-gate: done # scoped native/publication Pass55ee05; browser pending
   # 28 (deletion)
-  9a-c-bumper-spring-conversion: backlog
+  9a-c-bumper-spring-conversion: review
   # merged into 9a-c-bumper-spring (21 Oct 2026)
-  9a-33-generic-instance-bumper: backlog
+  9a-33-generic-instance-bumper: review
   # merged into 9a-c-bumper-spring (21 Oct 2026)
-  9a-34-generic-instance-springboard: backlog
+  9a-34-generic-instance-springboard: review
   # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
   9r-8-spring-forward-lesson-chrome-proof: backlog
   # 29 (element)
-  9-8a-electrical-or-gate: backlog
+  9-8a-electrical-or-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
   # split into 9-8a and 9-8b (21 Oct 2026; one new element per story)
   9-8-electrical-logic-gates-or-xor: backlog
   # 30 (deletion-lane slot): latch-dependent deferred integrations CAT-005 N19 and CAT-051 supply

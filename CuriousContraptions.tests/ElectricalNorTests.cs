@@ -142,27 +142,27 @@ public sealed class ElectricalNorTests
             }
     }
 
-    /// <summary>CAT-025 boundary with Both Gate in place of the undelivered Or (9.8a): condition battery 1 feeds the Neither gate's
-    /// first input directly and its second input through a Both Gate (supplied by battery 2). Enabled from the start, the output
+    /// <summary>CAT-025 boundary (CAT-026 O9): condition battery 1 feeds the Neither gate's first input directly and its second input
+    /// through an Either gate (its first input only; supplied by battery 2). Enabled from the start, the output
     /// never powers the consumer on any tick; disabling it is the positive control, and re-enabling retracts on the first tick.</summary>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(bool gateFirst)
     {
-        ulong both=gateFirst?Gate:6, nor=gateFirst?6:Gate;
+        ulong either=gateFirst?Gate:6, nor=gateFirst?6:Gate;
         var parts=new List<IWorkshopInstance>{Battery(1,-8,true),Battery(2,-5,true),
-            WorkshopInput.Generic(BothGateTests.Kind,new(both),-1,3,-3,0,0,0,1),
+            WorkshopInput.Generic(ElectricalOrTests.Kind,new(either),-1,3,-3,0,0,0,1),
             WorkshopInput.Generic(Kind,new(nor),3,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)};
         if(gateFirst) parts.Reverse();
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
-            Link(1,nor,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.SecondIn),Link(2,both),
-            Link(both,nor,WorkshopSocket.SecondIn),Link(2,nor),Link(nor,Consumer)));
+            Link(1,nor,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
+            Link(either,nor,WorkshopSocket.SecondIn),Link(2,nor),Link(nor,Consumer)));
         var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,60);
         Assert.All(reads,read=>
         {
-            Assert.True(Logic(read,both).Active);
+            Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,either).Inputs);Assert.True(Logic(read,either).Active);
             Assert.Equal(ElectricalInputState.Both,Logic(read,nor).Inputs);Assert.True(Logic(read,nor).Supplied);
             Assert.False(Logic(read,nor).Active);Assert.False(Powered(read));AssertBladeStill(read,BladeY(built));
         });
@@ -173,7 +173,7 @@ public sealed class ElectricalNorTests
         Assert.True(BladeY(phases[0][^1])>BladeY(built)+.2f); // the control: the same consumer really opens on the 00 row
         Assert.All(phases[1],read=>
         {
-            Assert.True(Logic(read,both).Active);
+            Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,either).Inputs);Assert.True(Logic(read,either).Active);
             Assert.Equal(ElectricalInputState.Both,Logic(read,nor).Inputs);Assert.False(Logic(read,nor).Active);Assert.False(Powered(read));
         });
         Assert.True(BladeY(phases[1][^1])<BladeY(phases[0][^1])-.02f);
@@ -204,19 +204,23 @@ public sealed class ElectricalNorTests
         NoFixedCapacityTests.AssertSameState(built,reset,"monotone loop Reset");
     }
 
-    public enum FeedbackLoop { NorToNor, ThroughBothGate, MixedWithNand, ThroughOpenSwitch, EnteringPowerIn }
+    public enum FeedbackLoop { NorToNor, ThroughBothGate, ThroughOr, MixedWithNand, ThroughOpenSwitch, EnteringPowerIn }
     /// <summary>Each loop as an acyclic construction plus the one wire that closes it, and the ids the refusal must name.</summary>
     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string Ids) LoopCase(FeedbackLoop loop)
     {
         IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),x,3,0,0,0,0,1);
         IWorkshopInstance Both(ulong id,float x)=>WorkshopInput.Generic(BothGateTests.Kind,new(id),x,3,-3,0,0,0,1);
         IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(ElectricalNandTests.Kind,new(id),x,3,-3,0,0,0,1);
+        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(ElectricalOrTests.Kind,new(id),x,3,-3,0,0,0,1);
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
             FeedbackLoop.NorToNor => (new[]{supply,Nor(4,0),Nor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
             FeedbackLoop.ThroughBothGate => (new[]{supply,Nor(4,0),Both(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn)},
+                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+            // CAT-025 R6: Nor → Or → Nor.
+            FeedbackLoop.ThroughOr => (new[]{supply,Nor(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
             FeedbackLoop.MixedWithNand => (new[]{supply,Nor(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.SecondIn)},
                 Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
@@ -233,6 +237,7 @@ public sealed class ElectricalNorTests
     [Theory]
     [InlineData(FeedbackLoop.NorToNor)]
     [InlineData(FeedbackLoop.ThroughBothGate)]
+    [InlineData(FeedbackLoop.ThroughOr)]
     [InlineData(FeedbackLoop.MixedWithNand)]
     [InlineData(FeedbackLoop.ThroughOpenSwitch)]
     [InlineData(FeedbackLoop.EnteringPowerIn)]
@@ -280,7 +285,7 @@ public sealed class ElectricalNorTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nor,row.Item1,row.Item2)).ToArray());
         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nor));
         Assert.False(SupplyCycles.Monotone(LogicGateOperation.Nor));
-        foreach(var undefined in new[]{(LogicGateOperation)3,(LogicGateOperation)255})
+        foreach(var undefined in new[]{(LogicGateOperation)4,(LogicGateOperation)255})
         {
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate(undefined,false,false));
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone(undefined));

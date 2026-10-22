@@ -103,20 +103,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     public ElectricalSourceSettings CanonicalSource { get; private set; } = ElectricalSourceSettings.Default;
     public void ApplySource(ElectricalSourceSettings source) { source.Validate(); CanonicalSource = source; }
 
-    public SpringboardSettings CanonicalSpring { get; private set; } = SpringboardSettings.Default;
-    private bool _physicalReady;
-    public void ApplySpring(SpringboardSettings value)
-    {
-        value.Validate();
-        CanonicalSpring = value;
-        if (_physicalReady)
-            SetPhysicalRestPose(PhysicalVisualSlot.Secondary,
-                new Transform3D(Basis.Identity, new Vector3(0, .14f - value.InitialCompression, 0)));
-    }
-
-    public BumperWork CanonicalWork { get; private set; } = BumperWork.Default;
-    public void ApplyWork(BumperWork work) { work.Validate(); CanonicalWork = work; }
-
     public float CanonicalIntervalSeconds { get; private set; } = WorkshopClock.PlacedIntervalSeconds;
     public void ApplyIntervalSeconds(float seconds)
     {
@@ -152,11 +138,23 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     internal void ApplyCosmetic(WorkshopCosmeticSample sample) => _cosmetic.Apply(sample);
     private readonly Dictionary<PhysicalVisualSlot, (GpuBodyId Id, Node3D Target, Transform3D RestPose)> _physicalBodies = new();
     private readonly List<(Node3D Moving, Vector3 MovingAnchor, Node3D Target, Vector3 FixedAnchor, float RestLength)> _physicalSpans = new();
+    /// <summary>Each bound visual's scene rest pose (after its declared rest offset): the frame a slider compression displaces.</summary>
+    private readonly Dictionary<PhysicalVisualSlot, Transform3D> _sceneRestPoses = new();
     private void BindPhysicalBody(PhysicalVisualSlot slot, Node3D target)
     {
         if (slot != PhysicalVisualSlot.Secondary || !IsAncestorOf(target) ||
             !_physicalBodies.TryAdd(slot, (default, target, target.Transform)))
             throw new ArgumentException("Invalid owned physical visual binding.");
+        _sceneRestPoses.Add(slot, target.Transform);
+    }
+    /// <summary>The slider body's visual: its admitted identity, resting at its scene pose displaced along the owner's local Y by the
+    /// declared starting compression (the compiled moving body's pose; never compounded across edits).</summary>
+    internal void InstallSliderPresentation(GpuBodyId id, float compression)
+    {
+        if (!float.IsFinite(compression)) throw new ArgumentException("Slider compression must be finite.");
+        InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, id);
+        var scene = _sceneRestPoses[PhysicalVisualSlot.Secondary];
+        SetPhysicalRestPose(PhysicalVisualSlot.Secondary, new Transform3D(scene.Basis, scene.Origin - Vector3.Up * compression));
     }
     private void BindPhysicalSpan(Node3D moving, Vector3 movingAnchor, Node3D target, Vector3 fixedAnchor, float restLength)
     {
@@ -261,7 +259,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
             };
             target.Position += new Vector3(binding.RestOffset.X, binding.RestOffset.Y, binding.RestOffset.Z);
             BindPhysicalBody(slot, target);
-            _physicalReady = true;
         }
         foreach (var binding in presentation.Spans)
             BindPhysicalSpan(GetNode<Node3D>(binding.MovingNode),

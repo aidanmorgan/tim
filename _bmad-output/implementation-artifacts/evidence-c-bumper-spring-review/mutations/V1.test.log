@@ -1,0 +1,12 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.79]     CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ContactWorkCapabilityRequiresOneTypedStrengthWithinTheTwoHundredJouleStore [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ContactWorkCapabilityRequiresOneTypedStrengthWithinTheTwoHundredJouleStore [3 ms]
+  Error Message:
+   duplicate key
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ContactWorkCapabilityRequiresOneTypedStrengthWithinTheTwoHundredJouleStore() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/tools/BundleElements.Tests/BundleValidatorTests.cs:line 90
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   145, Skipped:     0, Total:   146, Duration: 308 ms - BundleElements.Tests.dll (net10.0)

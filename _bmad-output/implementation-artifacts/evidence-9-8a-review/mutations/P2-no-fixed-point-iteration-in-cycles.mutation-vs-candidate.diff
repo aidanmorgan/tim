@@ -1,0 +1,14 @@
+2c2
+< index a023d289..6add5dd2 100644
+---
+> index a023d289..fe643f07 100644
+4a5,13
+> @@ -138,7 +138,7 @@ public sealed class CompiledSupplyGraph
+>              {
+>                  changed=false;
+>                  foreach (var i in _components[c])
+> -                    if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=_cyclic[c]; }
+> +                    if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=false; }
+>              }
+>          }
+>          var closed=new bool[consumers];

@@ -207,7 +207,7 @@ public sealed class WorkshopActivationAnimationTests
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
+            WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene);
         var declaration = scene.ContactWorks[0];
@@ -277,7 +277,7 @@ public sealed class WorkshopActivationAnimationTests
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Basketball,new(2),2,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(3),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
+            WorkshopInput.Generic(PartId.PinballBumper,new(3),0,4,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11,22));
         Set(client, "_readScene", scene);
         var declaration = scene.ContactWorks[0];
@@ -557,7 +557,7 @@ public sealed class WorkshopActivationAnimationTests
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength(8f))));
+            WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene); Set(client, "_readConstruction", construction);
         var declaration = scene.ContactWorks[0];
@@ -588,7 +588,7 @@ public sealed class WorkshopActivationAnimationTests
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
+            WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene); Set(client, "_readConstruction", construction);
         var declaration = scene.ContactWorks[0];

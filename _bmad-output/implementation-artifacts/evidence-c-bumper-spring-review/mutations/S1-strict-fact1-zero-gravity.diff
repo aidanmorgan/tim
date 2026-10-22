@@ -1,0 +1,14 @@
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
+index a0ff375d..26e71253 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
+@@ -218,7 +218,8 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
+             Assert.True(occurrence.Effect == ContactWorkEffect.Paid && occurrence.ApproachSpeed.Value > 3.9f,
+                 $"{normal}: {occurrence.Effect} at {occurrence.ApproachSpeed.Value}");
+             var v = after[s.Ball].Velocity; var outward = Vector3.Dot(v, normal);
+-            Assert.InRange(outward, 7.5f, 8.5f);
++            Assert.True(outward > 7.99f && outward <= 8.0001f, $"REVIEW strict fact 1 {normal}: outward {outward:R}");
++            Console.WriteLine($"REVIEW {normal}: outward {outward:R}");
+             Assert.True((v - outward * normal).Length() < .01f, $"{normal}: the paid response is radial ({v})");
+         }
+     }

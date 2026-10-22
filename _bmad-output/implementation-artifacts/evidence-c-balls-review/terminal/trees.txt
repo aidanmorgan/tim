@@ -1,0 +1,10 @@
+== identities
+e3769cc16d99336ee40acc96cdf5ebdffbeb57bc 3b7d3c8fa6c89339157bcf802cb7daedab9874ad parents=0795c2357beabdd076d454c1a7bebe797dc9ac97
+3fce7a034b328be0a79f834a2a70a4d049372a4b 3b7d3c8fa6c89339157bcf802cb7daedab9874ad parents=b35be7f444a199c2faaa8958d66c210947aad346 e3769cc16d99336ee40acc96cdf5ebdffbeb57bc
+origin/main=3fce7a034b328be0a79f834a2a70a4d049372a4b main=3fce7a034b328be0a79f834a2a70a4d049372a4b
+== approved T1 vs slice tree
+_bmad-output/implementation-artifacts/review-c-balls.md
+== T2 vs slice tree (expect empty)
+== slice tree vs merge tree (expect empty: main b35be7f4 is an ancestor of the slice)
+b35be7f4 ancestor of e3769cc1
+== merge tree vs origin/main tree

@@ -104,15 +104,9 @@ public partial class MachineWorld
         var q = rotation.Normalized();
         return id.Value switch
         {
-            "spring" => WorkshopInput.Springboard(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSpringboard spring ? spring.Settings :
-                    SpringboardSettings.Default),
             "battery" => WorkshopInput.Battery(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopBattery battery ? battery.Settings :
                     ElectricalSourceSettings.Default),
-            "bumper" => WorkshopInput.Bumper(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopBumper bumper ? bumper.Work :
-                    BumperWork.Default),
             "lamp" => WorkshopInput.Lamp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             "domino" => WorkshopInput.Domino(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
@@ -332,21 +326,17 @@ public partial class MachineWorld
                 part.EnsureConstructed(); AddChild(part); _parts.Add(part); _bodies.Add(part);
             }
             if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
-            part.ApplyPresentationParameters(DeclaredPhysics.Parameters(instance));
+            var parameters = DeclaredPhysics.Parameters(instance);
+            part.ApplyPresentationParameters(parameters);
             if (instance is WorkshopBattery battery)
             {
                 part.ApplySource(battery.Settings);
             }
-            if (instance is WorkshopSpringboard spring)
-            {
-                part.ApplySpring(spring.Settings);
-                part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, WorkshopPhysicsCompiler.SpringboardPlate(instance.Id));
-            }
-            if (instance.PartId == PartId.PoweredGate)
-            {
-                part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, WorkshopPhysicsCompiler.GateBlade(instance.Id));
-            }
-            if (instance is WorkshopBumper bumper) part.ApplyWork(bumper.Work);
+            // Every declared slider body presents through the part's one secondary visual, at its declared starting compression.
+            var sliders = DeclaredPhysics.Of(instance.PartId).Mechanical?.Sliders ?? [];
+            if (sliders.Count > 1) throw new ArgumentException("A part presents at most one slider body.");
+            if (sliders.Count == 1)
+                part.InstallSliderPresentation(WorkshopPhysicsCompiler.SliderBody(instance.Id, 0), sliders[0].Compression.Evaluate(parameters));
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;

@@ -1,0 +1,14 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.11]     CuriousContraptions.Tests.SliderInstanceTests.ThePoweredGateBladeRestsAtItsScenePoseUnderItsSliderIdentity [FAIL]
+  Failed CuriousContraptions.Tests.SliderInstanceTests.ThePoweredGateBladeRestsAtItsScenePoseUnderItsSliderIdentity [9 ms]
+  Error Message:
+   Assert.IsAssignableFrom() Failure: Value is null
+Expected: typeof(Godot.Node3D)
+Actual:   null
+  Stack Trace:
+     at CuriousContraptions.Tests.SliderInstanceTests.ThePoweredGateBladeRestsAtItsScenePoseUnderItsSliderIdentity() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/CuriousContraptions.tests/SliderInstanceTests.cs:line 123
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    95, Skipped:     0, Total:    96, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

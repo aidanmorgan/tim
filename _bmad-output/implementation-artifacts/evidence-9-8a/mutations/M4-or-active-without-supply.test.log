@@ -1,0 +1,172 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.96]     CuriousContraptions.Tests.ElectricalOrPresentationTests.PictogramThreeTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalOrPresentationTests.PictogramThreeTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrPresentationTests.PictogramThreeTruthDotsAndThreeLampsFollowCommittedRowsThroughReset() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 363
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.43]     CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [FAIL]
+[xUnit.net 00:00:03.44]     CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [FAIL]
+[xUnit.net 00:00:03.45]     CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [FAIL]
+[xUnit.net 00:00:03.46]     CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [FAIL]
+[xUnit.net 00:00:03.47]     CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [FAIL]
+[xUnit.net 00:00:03.48]     CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: True) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [12 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 66
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.65]     CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [FAIL]
+[xUnit.net 00:00:03.66]     CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: True) [FAIL]
+[xUnit.net 00:00:03.67]     CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [FAIL]
+[xUnit.net 00:00:03.70]     CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [FAIL]
+[xUnit.net 00:00:03.73]     CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [FAIL]
+[xUnit.net 00:00:03.74]     CuriousContraptions.Tests.ElectricalOrTests.TrueRowWithoutSupplyWireNeverCreatesPower [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: True) [11 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [28 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 163
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [28 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 163
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.TrueRowWithoutSupplyWireNeverCreatesPower [10 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 270
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.ElectricalOrTests.TrueRowWithoutSupplyWireNeverCreatesPower() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 85
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.84]     CuriousContraptions.Tests.ElectricalOrTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalOrTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/ElectricalOrTests.cs:line 338
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    14, Passed:   100, Skipped:     0, Total:   114, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

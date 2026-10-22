@@ -2,6 +2,8 @@
 
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); current declarations still store them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
 
+Current implementation (C-Bumper+Spring, 22 Oct 2026): the Bumper is a generic instance of the `bumper` package. Its `strength` parameter and declared `ContactWorkDescriptor` (1 kg reference mass, 0.05 m/s threshold, 72-step cooldown) are compiled by the shared `WorkshopPhysicsCompiler.ContactWorkFor`. The `engine/gpu/WorkshopBumper.cs@a6c914e` citations below are historical: that record was deleted. See [CAT-015 §2](CAT-015-bumper.md#2-declaration).
+
 ## 1. Identity
 
 | Field | Value |

@@ -1,0 +1,13 @@
+diff --git a/engine/MachineWorld.Gpu.cs b/engine/MachineWorld.Gpu.cs
+index c9ead233..58823944 100644
+--- a/engine/MachineWorld.Gpu.cs
++++ b/engine/MachineWorld.Gpu.cs
+@@ -335,7 +335,7 @@ public partial class MachineWorld
+             // Every declared slider body presents through the part's one secondary visual, at its declared starting compression.
+             var sliders = DeclaredPhysics.Of(instance.PartId).Mechanical?.Sliders ?? [];
+             if (sliders.Count > 1) throw new ArgumentException("A part presents at most one slider body.");
+-            if (sliders.Count == 1)
++            if (sliders.Count == 1 && instance.PartId != PartId.PoweredGate)
+                 part.InstallSliderPresentation(WorkshopPhysicsCompiler.SliderBody(instance.Id, 0), sliders[0].Compression.Evaluate(parameters));
+             part.Locked = instance.Locked;
+             part.Position = RenderPosition(instance.Cell, instance.Local);

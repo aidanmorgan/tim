@@ -170,6 +170,22 @@ public sealed class WorkshopSaveTests
                         ball["Parameters"] = new System.Text.Json.Nodes.JsonArray();
                         continue;
                     }
+                    if (expected!["PartId"]!["Value"]!.GetValue<string>() == "spring")
+                    {
+                        // The historical springboard record's typed settings are now its declared parameters, by the same values;
+                        // the compiled prismatic and moving-body rows of the row stay compared unchanged.
+                        var historical = expected["Settings"]!;
+                        Assert.False(expected["Cosmetic"]!["IsDeclared"]!.GetValue<bool>());
+                        var board = expected.AsObject();
+                        board.Remove("Settings"); board.Remove("Cosmetic");
+                        board["Parameters"] = System.Text.Json.JsonSerializer.SerializeToNode(new[]
+                        {
+                            new { Key = "damping", Value = historical["Damping"]!.GetValue<float>() },
+                            new { Key = "initial_compression", Value = historical["InitialCompression"]!.GetValue<float>() },
+                            new { Key = "stiffness", Value = historical["Stiffness"]!.GetValue<float>() }
+                        }, options);
+                        continue;
+                    }
                     if (expected!["PartId"]!["Value"]!.GetValue<string>() != "basket") continue;
                     var owner = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
                     var capture = expected["Capture"]!;

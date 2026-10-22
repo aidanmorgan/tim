@@ -1,0 +1,9 @@
+merge-base(ac4a858a,55ee05b9)=3fce7a034b328be0a79f834a2a70a4d049372a4b
+# per file: patch-id of the merge's change (ac4a858a..f5484157) vs main's own diff (3fce7a03..55ee05b9)
+same: 98  different: 3
+DIFFERENT CuriousContraptions.tests/WorkbenchCapacityTests.cs
+DIFFERENT TODO.md
+DIFFERENT _bmad-output/implementation-artifacts/sprint-status.yaml
+# main files not brought by the merge (expect none):
+# files the merge changed that main did not touch (expect none):
+# resolutions: WorkbenchCapacityTests.cs combined (main electrical_nor + this slice's generic bumper/spring); TODO.md textual; sprint-status.yaml auto-merged both sides' lines (git show --cc f5484157)

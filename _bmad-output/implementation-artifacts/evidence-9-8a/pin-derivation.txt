@@ -1,0 +1,5 @@
+bundle entries:       27
+package dirs:       27
+undelivered: 2
+duplicate PaletteOrder:        0
+"Id": "electrical_or"	"PaletteOrder": 29

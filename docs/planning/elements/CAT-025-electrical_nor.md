@@ -75,7 +75,7 @@ Authority: [CAT-025](../requirements.md#current-cat-025), [todo-362](../requirem
 - **Negative / controls.** Rows 01, 10, 11 with supply; row 00 without supply (R5).
 - **Boundaries.** Zero-delay Nor loop, including through an open switch, stays in build mode (R6, R7); reordered placement and wiring; a reconvergent second input retracts the output in the same tick.
 - **Run/Reset; Save/Load.** As CAT-013.
-- **Integrations.** Its own icon, pictogram and single truth dot legible at projected size.
+- **Integrations.** Its own icon, pictogram and single truth dot legible at projected size. Native Or chaining (the R6 Nor → Or → Nor refusal and reconvergence through an Either gate) is proved with the real Either gate since Story 9.8a; the browser case stays queued post-catalogue.
 
 ## 6. Open questions
 

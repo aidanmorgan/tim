@@ -1,0 +1,14 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.60]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.22]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.33]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.71]   Finished:    CuriousContraptions.tests (ID = '65f1ddf91a55bd49137e2e96a78dedf174cd868c356770bf86ca9a4d88006823')
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawSensorWorkTests.AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation [42 ms]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 1.8974 Seconds

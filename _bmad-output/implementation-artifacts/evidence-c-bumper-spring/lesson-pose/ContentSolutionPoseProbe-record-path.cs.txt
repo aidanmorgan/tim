@@ -1,0 +1,64 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Scratch probe, record-path copy (main 55ee05b9): identical cases and outcome lines to the candidate copy; only the part
+/// constructors (WorkshopInput.Bumper/Springboard) and the inlined goal check differ.</summary>
+public sealed class ContentSolutionPoseProbe
+{
+    private static readonly GpuBodyId Player = new(3);
+    private const double DepthQy = -0.7071067811865476, DepthQw = 0.7071067811865476;
+
+    private static WorkshopBumper Bumper(double x, double y, double z, double qy = 0, double qw = 1) =>
+        WorkshopInput.Bumper(Player, x, y, z, 0, qy, 0, qw, BumperWork.FromCanonicalStrength(8f));
+
+    private static WorkshopConstruction Wall(WorkshopConstruction lesson) => lesson.WithInstance(WorkshopInput.Generic(PartId.Wall, new(4), -1, 4, 0,
+        0, 0, 0, 1, new([new(new("width"), .4f), new(new("height"), 6f), new(new("thickness"), 1.5f)])));
+
+    private static bool Solved(WorkshopConstruction construction, IEnumerable<WorkshopRead> run) =>
+        run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations) is not null);
+
+    public static IEnumerable<(string Case, string Lesson, Func<WorkshopConstruction, WorkshopConstruction> Place)> Cases()
+    {
+        yield return ("content", "bumper_sidekick", l => l.WithInstance(Bumper(-3.2, 1.5, 0)));
+        yield return ("content", "bumper_depth", l => l.WithInstance(Bumper(0, 1.5, 3.2, DepthQy, DepthQw)));
+        yield return ("content", "wall_and_bumper", l => Wall(l.WithInstance(Bumper(-3.2, 1.5, 0))));
+        yield return ("content", "spring_forward", l => l.WithInstance(WorkshopInput.Springboard(Player, -3, .8, 0, 0, 0,
+            -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), new(400f, .2f, 0f))));
+        yield return ("chrome", "bumper_sidekick", l => l.WithInstance(Bumper(-3.3, 1, 0)));
+        yield return ("chrome", "bumper_depth", l => l.WithInstance(Bumper(0, 1, 3.3)));
+        yield return ("chrome", "wall_and_bumper", l => Wall(l.WithInstance(Bumper(-3.3, 1, 0))));
+        foreach (var y in new[] { 1.0, 1.25 })
+        {
+            yield return ($"x3.2-y{y}", "bumper_sidekick", l => l.WithInstance(Bumper(-3.2, y, 0)));
+            yield return ($"x3.2-y{y}", "bumper_depth", l => l.WithInstance(Bumper(0, y, 3.2, DepthQy, DepthQw)));
+            yield return ($"x3.2-y{y}", "wall_and_bumper", l => Wall(l.WithInstance(Bumper(-3.2, y, 0))));
+        }
+        foreach (var x in new[] { 3.3, 3.4 })
+        {
+            yield return ($"x{x}-y1.5", "bumper_sidekick", l => l.WithInstance(Bumper(-x, 1.5, 0)));
+            yield return ($"x{x}-y1.5", "bumper_depth", l => l.WithInstance(Bumper(0, 1.5, x, DepthQy, DepthQw)));
+            yield return ($"x{x}-y1.5", "wall_and_bumper", l => Wall(l.WithInstance(Bumper(-x, 1.5, 0))));
+        }
+    }
+
+    [Fact]
+    public async Task WriteOutcomes()
+    {
+        var lines = new List<string>();
+        foreach (var (name, lesson, place) in Cases())
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var start = PuzzleCatalogue.Create(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
+                var bench = place(start);
+                bench.Validate();
+                var placed = bench.Instances.Single(instance => instance.Id == Player);
+                var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 1200);
+                var paid = run.Sum(read => Enumerable.Range(0, read.ContactWorks.OccurrenceCount)
+                    .Count(i => read.ContactWorks.Occurrence(i).Effect == ContactWorkEffect.Paid && read.ContactWorks.Occurrence(i).Sequence != 0));
+                var at = $"({(placed.Cell.X + placed.Local.X) / 16f:0.####}, {(placed.Cell.Y + placed.Local.Y) / 16f:0.####}, {(placed.Cell.Z + placed.Local.Z) / 16f:0.####})";
+                lines.Add($"{name} {lesson} {(float)precision} placedAt={at} solved={Solved(bench, run)} paidReads={paid}");
+            }
+        await File.WriteAllLinesAsync(Environment.GetEnvironmentVariable("PROBE_OUT")!, lines, TestContext.Current.CancellationToken);
+    }
+}

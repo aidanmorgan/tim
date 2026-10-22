@@ -1,0 +1,13 @@
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index b3d143a8..143ae134 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -371,7 +371,7 @@ public static class BundleValidator
+                 if (!referenceMass) OutOfRange("ContactWork.ReferenceMass");
+                 if (strengths.Length > 1 || (strengths.Length == 1 && (strengths[0].Unit != ParameterUnit.MetrePerSecond ||
+                     strengths[0].Minimum < 0f || strengths[0].Maximum > 20f ||
+-                    (referenceMass && .5f * work.ReferenceMass * strengths[0].Maximum * strengths[0].Maximum > 200f))))
++                    (referenceMass && false))))
+                     OutOfRange("ContactWork.StrengthParameter");
+                 if (Finite("ContactWork.Threshold", work.Threshold) && (work.Threshold < 0f || work.Threshold > 64f))
+                     OutOfRange("ContactWork.Threshold");

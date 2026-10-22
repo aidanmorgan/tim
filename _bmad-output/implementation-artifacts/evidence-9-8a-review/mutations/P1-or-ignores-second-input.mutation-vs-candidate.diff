@@ -1,0 +1,8 @@
+2c2
+< index a023d289..6add5dd2 100644
+---
+> index a023d289..ad781140 100644
+9c9
+< +        LogicGateOperation.Or => first || second,
+---
+> +        LogicGateOperation.Or => first,

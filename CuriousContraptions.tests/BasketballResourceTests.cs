@@ -10,12 +10,11 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [Fact]
     public void GenericBumperWorkPreservesF32AndRejectsMissingOrInvalidDeclarations()
     {
-        var declared = BumperWork.FromCanonicalStrength(8.000001f);
-        Assert.Equal(8.000001f, declared.Strength.Value);
-        Assert.NotEqual((float)(Half)8.000001f, declared.Strength.Value);
+        var declared = (WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: 8.000001f);
+        Assert.Equal(8.000001f, declared.Parameters[new("strength")]);
+        Assert.NotEqual((float)(Half)8.000001f, declared.Parameters[new("strength")]);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1),
-            WorkshopInput.Bumper(new(2), 0, 4, 0, 0, 0, 0, 1, declared)));
+            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), declared));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
@@ -23,8 +22,9 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             admitted.AsSpan(scene.World.ContactWorkOffset(0) + 16)));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
-        Assert.Throws<ArgumentException>(() => new BumperWork(new(8f), new(0f), new(32f)).Validate());
-        Assert.Throws<ArgumentException>(() => new BumperWork(new(float.NaN), new(1f), new(32f)).Validate());
+        // A missing or nonfinite declared strength is no Bumper.
+        Assert.ThrowsAny<ArgumentException>(() => (declared with { Parameters = InstanceParameterCollection.Empty }).Validate());
+        Assert.ThrowsAny<ArgumentException>(() => PlacedParts.Bumper(new(2), 0, 4, 0, strength: float.NaN));
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor") }.OrderBy(id => id),
+        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         // The canonical binary16 bits each package's material compiles to (the generic dynamic-body compile).
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(

@@ -1,0 +1,47 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.31]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.92]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.03]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 20) [40 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 3.33333325) [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 8) [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(wired: False) [78 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(wired: True) [24 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.StrengthEndpointsHoldAnEmptyAndATwoHundredJouleStore [1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.StrengthZeroIsAnEmptyStoreWhoseContactsAreUnpaid [14 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.SwitchedStoreRoutingIsRefused [3 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.APartiallyAffordableBoostEmptiesTheStoreAndALaterContactIsAnOrdinaryUnpaidBounce [22 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.StrengthEightLaunchesTheBallPaidAtTheTargetSpeedAndTheLedgerCloses [9 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.ABallInAnotherDepthPlaneNeverPays [9 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.ThePlateVisualRestsAtTheDeclaredCompressionAndEqualsItsCompiledBody [19 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.APreloadedBoardLaunchesARestingBallAndAnUnchargedOneDoesNot(compression: 0.200000003, launches: True) [26 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.APreloadedBoardLaunchesARestingBallAndAnUnchargedOneDoesNot(compression: 0, launches: False) [29 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [29 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.ThePlateHoldsItsLowerAndUpperStops [55 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: WallMiss, solves: False) [79 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: ReadyMissingReceiver, solves: False) [127 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: DepthPaid, solves: True) [81 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SidekickPaid, solves: True) [66 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: DepthMiss, solves: False) [50 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringAway, solves: False) [112 ms]
+[xUnit.net 00:00:03.16]   Finished:    CuriousContraptions.tests (ID = '0b8c1d378a255735ec7cea19bf5af9ce8dc19f91b7d0a7cfeb45024e419aeadf')
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: ReadyReceiver, solves: True) [132 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SidekickUnpaid, solves: False) [51 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringCharged, solves: True) [132 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringPassive, solves: True) [117 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: WallPaid, solves: True) [63 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringZero, solves: False) [114 ms]
+
+Test Run Successful.
+Total tests: 29
+     Passed: 29
+ Total time: 3.3456 Seconds

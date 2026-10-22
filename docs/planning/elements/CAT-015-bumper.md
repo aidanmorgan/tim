@@ -15,6 +15,7 @@
 
 | Item | Value and source |
 | --- | --- |
+| Current declaration (C-Bumper+Spring, 22 Oct 2026) | A generic instance of the `bumper` package (`elements/Bumper/BumperElementDeclaration.cs`); no engine record remains. Its sphere and material come from the bundle. Its one typed parameter `strength` (Real, m/s, 0–20, default 8, editor policy Clamp) and its declared `ContactWorkDescriptor("strength", 1 kg, 0.05 m/s, 72 steps)` are the whole store declaration. The shared compiler (`WorkshopPhysicsCompiler.ContactWorkFor`) emits one `ContactWorkDeclaration`: target speed = strength, preload = (½·1 kg)·s·s in f32 (32 J at 8 m/s, 200 J at 20 m/s). The bundle validator refuses a capability whose strength range could exceed 200 J. A save carries only the `strength` parameter; the generic editor edits it. The `a6c914e` citations below are the legacy-harvest baseline. |
 | Body and shape | One static body with one static sphere collider, radius 0.65 m `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L119-L126`; full pose `engine/gpu/WorkshopBumper.cs@a6c914e:L29-L39`. |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none (static head). |
@@ -26,7 +27,7 @@
 | Art | `parts/BumperPart.cs@a6c914e:L13-L31`: coral head sphere r 0.65; slate `#273744` pedestal cylinder r 0.3 h 0.12 at y −0.46; gold `#f7cb52` cap r 0.25 h 0.12 at y 0.59; impact ring r 0.66 with half thickness 0.035; small ring r 0.49 with half thickness 0.018 at y 0.43 (torus inner/outer radius = r ∓ half thickness `engine/PartArt.cs@a6c914e:L22-L23`); pick radius 0.8. Scene `parts/scenes/bumper.tscn`. Palette Pinball bumper `#de7059` `DESIGN.md@a6c914e:L177-L177`. Icon `ui/WorkshopIcons.cs@a6c914e:L49-L49`. |
 | Catalogue and inventory | `parts/catalog/bumper.tres@a6c914e:L8-L22`: id `bumper`, title Pinball bumper, category Motion, strength 8, reference mass 1, preload 32. |
 
-Current tests: `CuriousContraptions.tests/WorkshopBumperTests.cs` (sphere and preload compile, round trip, owner/target rules, strength bounds), `WorkshopActivationAnimationTests.cs` (contact pulse, impulse envelope overlap), `BasketballResourceTests.cs` (bumper artwork); Chrome `tools/e2e/anim-1b.test.ts` (squash pulse; un-struck bumper emits nothing), `engine-core-2a2.test.ts` (payout).
+Current tests: `CuriousContraptions.tests/ContactWorkInstanceTests.cs` (declared store bits, capability-driven compile, paid/partial/unpaid/empty/depth-miss contacts, recharge and switched-routing refusal, exact Run/Reset and Save/Load on the real simulation), `LaunchLessonSolveTests.cs` (bumper_sidekick, bumper_depth and wall_and_bumper native solve-runs and controls), `PalettePlacementTests.GenericBumperEditorClampsAFiniteStrengthAndRefusesNaNAtomically`, `PreConversionLaunchSaveTests.cs` (old saves refused), `WorkshopBumperTests.cs` (sphere and preload compile, round trip and forged-store refusal, owner/target rules, strength bounds), `WorkshopActivationAnimationTests.cs` (contact pulse, impulse envelope overlap), `BasketballResourceTests.cs` (bumper artwork); Chrome `tools/e2e/anim-1b.test.ts` (squash pulse; un-struck bumper emits nothing), `engine-core-2a2.test.ts` (payout).
 
 ## 3. Engine capabilities
 

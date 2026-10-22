@@ -193,7 +193,7 @@ public sealed class WorkshopReadTests
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
+            WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,23));
         var declaration = scene.ContactWorks[0];
         var colliders = scene.Colliders.ToArray();

@@ -169,3 +169,25 @@ Publication is:
 - **Deployment.** The github-pages deployment of that SHA reaches the **success** status and consumes that artifact.
 
 Preserve any failed attempt unchanged and return concrete failures to the same implementation owner. Terminal scoped Pass is native/publication only, not browser or release qualification.
+
+## Terminal publication verification — 22 October 2026
+
+Same independent reviewer, with no source changed. Raw outputs are in `evidence-9-7b-review/terminal/`: `identity.txt`, `ci-runs.txt`, `build-job.log`, `deploy-job.log`, `pages.txt` and `hook-rerun.log`. The GitHub run/job logs are the original evidence.
+
+| Check | Command (summarised) | Result |
+| --- | --- | --- |
+| Remote identity | `git fetch origin`; `git rev-parse origin/main` | `55ee05b96f949a7d93241b5ed0608b32db6bb8a0`; tree `6ef3218d4fee133fb234139936ab1b631ae5ae18` |
+| Parent chain | `git log --format='%H %P %T'` | **Main side:** 55ee05b9 ← `3fce7a034b328be0a79f834a2a70a4d049372a4b` (main, `--no-ff` first parent). **Slice:** `b218cc543b43d2eb9bbad5a94ec3a0f4e93e7d3a` (tree 6ef3218d) ← merge `01cdd6cc9e9292ac4355d4206b5247cb9ef5983a` ← WIP `f443dc99146749cdef03357d38185b44caa649a9` and `3fce7a03`. f443dc99 was verified identical to the pre-merge reviewed candidate. |
+| Tree equivalence | `git diff --stat 3a9754dc 6ef3218d`; `git diff --stat 6ef3218d origin/main^{tree}` | The approved tree `3a9754dc` differs from the published tree in 1 file, this record (+61 lines). Those lines are only the "SnapshotApproval" and "Publication-dependent checks" sections (the receipt). The published main tree is identical to slice tree 6ef3218d. |
+| Publication precondition | `gh run view 39712582817`; deployment 7242501369 statuses | C-Balls main `3fce7a03` CI completed **success** at 02:53:26Z, and its Pages deployment succeeded, both before the NOR run was created at 02:55:23Z. Main had not moved: the first parent is 3fce7a03. |
+| Exact-SHA CI | `gh run list --commit 55ee05b9…`; `gh run view 39714013919 --json jobs` | The only run for that SHA: "Build and deploy game", push, main, attempt 1, **success**. Job build 119611722225 succeeded, with every step successful: checkout of `55ee05b9…`, the C# static gate, Test C# game, Test C# tools, the production bundle publish, the static deployment check and upload-pages-artifact. Job deploy 119614370016 succeeded. |
+| Native and tools totals | build job log | **Test C# game:** `Passed! - Failed: 0, Passed: 2278, Total: 2278` CuriousContraptions.tests. **Test C# tools:** Coverage 77/77, BundleElements 145/145, WorkerAotGuard 17/17, E2eRunner 174/174. The static gate's 3 builds have 0 warnings and 0 errors. |
+| Pages artifact | `gh api …/actions/runs/39714013919/artifacts`; upload log | `github-pages` id **12398905421**, 79480633 bytes, digest `sha256:71586cf43a8645e5ed2612248861c2fb218c571f6745bce13f98e59bfe03f403`. workflow_run 39714013919 with head_sha 55ee05b9; not expired. The upload step logged the same id and size. |
+| Deployment | `gh api …/deployments?sha=55ee05b9…`; `…/deployments/7242636803/statuses`; deploy job log | Deployment **7242636803**, github-pages, ref main, sha 55ee05b9. Statuses went waiting → queued → in_progress → **success**, with environment_url https://aidanmorgan.github.io/tim/. deploy-pages used `"artifact_id": 12398905421` and logged "Reported success!". This is the latest github-pages deployment; the prior one is 7242501369 for 3fce7a03. |
+| Normal hooks | Index tree 6ef3218d with nothing staged; `sh .githooks/pre-commit` | rc 0 in 47 s. Gate builds passed and the staged-test check passed 124/124. The index tree was unchanged afterwards. The implementer reports the hook passed on b218cc54. The clean merge commit ran no hook, because only pre-commit is installed. The re-run on the exact published tree independently confirms the hook passes on this tree. |
+
+No failed attempt occurred. The published tree differs from the approved tree only by the receipt.
+
+No unresolved scoped unintended regression.
+
+Verdict: **Pass.** This is a scoped native/publication terminal Pass for 9.7b Electrical NOR Gate (CAT-025) at `55ee05b96f949a7d93241b5ed0608b32db6bb8a0`. It is not browser or release qualification: cat-025 Chrome/Playwright proof remains queued for post-catalogue E2E, and the SnapshotApproval exclusions stand. Carry this receipt into the next normal publication.

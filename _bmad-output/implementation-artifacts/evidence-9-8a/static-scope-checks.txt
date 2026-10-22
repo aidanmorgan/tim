@@ -1,0 +1,9 @@
+## uid uniqueness
+./elements/ElectricalOr/icon.svg.import
+./elements/ElectricalOr/ElectricalOrElementDeclaration.cs.uid
+## new PartId/string classification in production (expect none)
+exit 1 (1 = none)
+## Known list unchanged
+exit 1 (1 = unchanged)
+## Both Gate stand-ins removed from NAND/NOR reconvergence
+exit 1 (1 = none)

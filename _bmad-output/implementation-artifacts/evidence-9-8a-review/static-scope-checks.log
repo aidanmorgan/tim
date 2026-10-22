@@ -1,0 +1,36 @@
+$ bundle / PaletteOrder / dirs / undelivered
+27
+      27
+2
+3965-        "Id": "electrical_or",
+$ pins
+tools/Coverage.Tests/CurrentCatalogueTests.cs:197:        Assert.Equal(27, plan.Admitted.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:39:        Assert.Equal(27, registry.Definitions.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:131:        Assert.Equal(27, registry.Definitions.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:262:        Assert.Equal(29, ids.Length);
+CuriousContraptions.tests/BundleElementIdTests.cs:81:        Assert.Equal(27, SaveFixture.Elements.Count);
+$ planned example
+-        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_or"));
++        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_xor"));
+-            // Not both (CAT-024) and Neither (CAT-025) are admitted since Stories 9.7a and 9.7b; Either (CAT-026, electrical_or) is
+-            // still planned with no package.
+-            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalOr")));
++            // Not both, Neither and Either (CAT-024..026) are admitted since Stories 9.7a, 9.7b and 9.8a; Exactly one (CAT-027,
++            // electrical_xor) is still planned with no package.
++            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalXor")));
+CAT-027-electrical_xor.md
+$ identity branches
+engine/gpu/SupplyRoute.cs:171:        LogicGateOperation.Or => first || second,
+engine/gpu/SupplyRoute.cs:180:        LogicGateOperation.Or => true,
+rc=0
+$ forbidden scope
+(empty)
+$ remaining undelivered-Or text
+CuriousContraptions.tests/PartRegistryTests.cs:269:        // element arm (delivered, undelivered or future, such as "motor") fails here.
+rc=0
+$ anvil
+  ✓ No warnings found
+$ diff --check
+clean
+$ AppBundle
+ls: CuriousContraptions.web/AppBundle: No such file or directory

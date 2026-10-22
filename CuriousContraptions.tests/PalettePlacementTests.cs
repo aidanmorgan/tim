@@ -154,6 +154,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     /// loop through the gate, even through an open switch, is refused on the bottom status line with no command and no Undo.</summary>
     [Theory]
     [InlineData(ElectricalNandTests.FeedbackLoop.NandToNand)]
+    [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOr)]
     [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOpenSwitch)]
     public async Task NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(ElectricalNandTests.FeedbackLoop loop)
     {
@@ -190,6 +191,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Theory]
     [InlineData(ElectricalNorTests.FeedbackLoop.NorToNor)]
     [InlineData(ElectricalNorTests.FeedbackLoop.ThroughBothGate)]
+    [InlineData(ElectricalNorTests.FeedbackLoop.ThroughOr)]
     [InlineData(ElectricalNorTests.FeedbackLoop.MixedWithNand)]
     [InlineData(ElectricalNorTests.FeedbackLoop.ThroughOpenSwitch)]
     [InlineData(ElectricalNorTests.FeedbackLoop.EnteringPowerIn)]
@@ -217,6 +219,54 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var status=Field<Label>(scene,"_status").Text;
             Assert.Contains("parts "+ids+".",status,StringComparison.Ordinal);
             Assert.StartsWith("Break the wire loop",status,StringComparison.Ordinal);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally {Release(scene);}
+    }
+
+    /// <summary>CAT-026 through the real chooser: a wire closing a pure Either-gate loop is admitted with one Undo entry, and a wire
+    /// closing a loop with a Not both or Neither gate in it is refused on the bottom status line with no command and no Undo.</summary>
+    [Theory]
+    [InlineData(ElectricalOrTests.FeedbackLoop.OrToOr)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.WithNand)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.WithNor)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.ThroughOpenSwitch)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.EnteringPowerIn)]
+    public async Task EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(ElectricalOrTests.FeedbackLoop loop)
+    {
+        var (scene,client)=BenchScene(ElectricalOrTests.Kind,PlacementAnswer.Applied);
+        try
+        {
+            var (open,closing,ids)=ElectricalOrTests.LoopCase(loop);
+            await scene.World.ReplaceConstruction(open);
+            var choices=Field<VBoxContainer>(scene,"_connectionChoices");
+            IEnumerable<Button> Buttons()=>choices.GetChildren().OfType<Button>();
+            MachinePart Part(GpuBodyId id)=>scene.World.Parts.Single(part=>part.AuthoredId==id);
+            Assert.Empty(InvokeHandler(scene,"Select",Part(closing.Source)));
+            Assert.Single(Buttons(),button=>button.Text=="Connect Supply").EmitSignal(Button.SignalName.Pressed);
+            Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",Part(closing.Target)));
+            Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
+            Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
+            var undos=Field<List<WorkshopConstruction>>(scene,"_undo").Count;
+            var commands=client.Commands.Count;
+            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
+            if(ids is null)
+            {
+                Assert.Contains(closing,scene.World.Construction.Connections);
+                Assert.Equal(open.Connections.Count+1,scene.World.Construction.Connections.Count);
+                Assert.Equal(undos+1,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
+                Assert.Empty(InvokeHandler(scene,"Undo"));
+                Assert.Equal(open.Connections,scene.World.Construction.Connections);
+            }
+            else
+            {
+                Assert.Equal(open,scene.World.Construction);
+                Assert.Equal(commands,client.Commands.Count);
+                Assert.Equal(undos,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
+                var status=Field<Label>(scene,"_status").Text;
+                Assert.Contains("parts "+ids+".",status,StringComparison.Ordinal);
+                Assert.StartsWith("Break the wire loop",status,StringComparison.Ordinal);
+            }
             Assert.Empty(godot.Errors.Drain());
         }
         finally {Release(scene);}
@@ -684,6 +734,163 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Equal(locked, scene.World.Construction);
             Assert.Equal(commands, client.Commands.Count);
             Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // C-Bumper+Spring (9A.33): the Bumper placed through the drawer is a generic instance at its declared 8 m/s, and the generic editor
+    // replaces its panel. Its strength is the declared Clamp policy: a finite out-of-range value clamps into 0–20 m/s (as the former
+    // SpinBox did), NaN refuses atomically, Cancel changes nothing, one Apply records one Undo, and Running/Paused/locked guard it.
+    [Fact]
+    public void GenericBumperEditorClampsAFiniteStrengthAndRefusesNaNAtomically()
+    {
+        var (scene, client) = BenchScene(PartId.PinballBumper, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            var key = new ParameterId("strength");
+            Assert.Equal((PartId.PinballBumper, 8f), (Current().PartId, Current().Parameters[key]));
+            var initial = scene.World.Construction;
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Press("Configure");
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == "strength (0–20 m/s)");
+            Assert.Equal(key, new ParameterId(Assert.Single(Nodes<LineEdit>(choices)).Name.ToString()));
+            Assert.Single(Nodes<LineEdit>(choices)).Text = "12";
+            Press("Cancel");
+            Assert.Equal(initial, scene.World.Construction);
+            foreach (var (text, expected) in new[] { ("-1", 0f), ("25", 20f), ("12.345678", 12.345678f), ("0", 0f), ("20", 20f) })
+            {
+                Press("Configure");
+                Assert.Single(Nodes<LineEdit>(choices)).Text = text;
+                Press("Apply parameters");
+                Assert.Equal(expected, Current().Parameters[key]);
+                Assert.Equal(++undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+                // The store the shared compiler builds is the edited strength's (½·1 kg)·s·s.
+                Assert.Equal(.5f * expected * expected,
+                    Assert.Single(WorkshopPhysicsCompiler.Compile(scene.World.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
+            }
+            var accepted = scene.World.Construction;
+            var commands = client.Commands.Count;
+            Press("Configure");
+            Assert.Single(Nodes<LineEdit>(choices)).Text = "NaN";
+            Press("Apply parameters");
+            Assert.Equal(accepted, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Equal(undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Press("Cancel");
+            var values = new InstanceParameterCollection([new(key, 4f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+                Assert.Equal(accepted, scene.World.Construction);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(Current() with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // C-Bumper+Spring (9A.34): the Springboard placed through the drawer is a generic instance at its declared 400 N/m, 0.2 N·s/m and
+    // zero preload, edited through the generic editor. Its parameters keep the Reject policy (CAT-062 fact 7): every value just outside
+    // its range, and NaN, is refused atomically (no command, no Undo, no change); the endpoints are accepted, one Undo each.
+    [Fact]
+    public void GenericSpringboardEditorRefusesOutOfRangeValuesAtomicallyAndAcceptsEndpoints()
+    {
+        var (scene, client) = BenchScene(PartId.Springboard, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            ParameterId k = new("stiffness"), c = new("damping"), q = new("initial_compression");
+            Assert.Equal((PartId.Springboard, 400f, .2f, 0f), (Current().PartId, Current().Parameters[k], Current().Parameters[c], Current().Parameters[q]));
+            void Edit(ParameterId key, string text)
+            {
+                Press("Configure");
+                Assert.Equal(3, Nodes<LineEdit>(choices).Count());
+                Assert.Single(Nodes<LineEdit>(choices), field => new ParameterId(field.Name.ToString()) == key).Text = text;
+                Press("Apply parameters");
+            }
+            Press("Configure");
+            foreach (var label in new[] { "stiffness (120–1200 N/m)", "damping (0–8 N·s/m)", "initial_compression (0–0.2 m)" })
+                Assert.Contains(Nodes<Label>(choices), row => row.Text == label);
+            Press("Cancel");
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            foreach (var (key, text) in new[] { (k, "119"), (k, "1201"), (c, "-0.1"), (c, "8.1"), (q, "-0.01"), (q, "0.21"), (q, "NaN") })
+            {
+                var before = scene.World.Construction;
+                var commands = client.Commands.Count;
+                Edit(key, text);
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+                Assert.Equal(undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+                Press("Cancel");
+            }
+            foreach (var (key, text, expected) in new[] { (k, "120", 120f), (k, "1200", 1200f), (c, "0", 0f), (c, "8", 8f), (q, "0.2", .2f), (q, "0", 0f) })
+            {
+                Edit(key, text);
+                Assert.Equal(expected, Current().Parameters[key]);
+                Assert.Equal(++undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            var accepted = scene.World.Construction;
+            var values = new InstanceParameterCollection([new(k, 500f), new(c, 1f), new(q, .1f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+                Assert.Equal(accepted, scene.World.Construction);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(Current() with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // Spec 6.5 / 9R.8 decision: the distinct charged Spring Forward construction solves with its preload set through the generic editor.
+    // The matched zero-preload board at the charged pose (Precise) is edited to 0.2 m by the Workshop's own handler, through the lesson's
+    // placement configuration; the edited construction solves in the real simulation and the unedited one does not.
+    [Fact]
+    public async Task TheChargedSpringForwardRouteSolvesWithItsPreloadSetThroughTheGenericEditor()
+    {
+        var (scene, _) = BenchScene(PartId.Springboard, PlacementAnswer.Applied);
+        try
+        {
+            var zero = LaunchLessonSolveTests.Bench(LaunchLessonSolveTests.Route.SpringZero);
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, zero);
+            var board = (WorkshopGenericInstance)zero.Instances.Single(instance => instance.PartId == PartId.Springboard);
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            var values = new InstanceParameterCollection([new(new("stiffness"), 400f), new(new("damping"), .2f), new(new("initial_compression"), .2f)]);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", board.Id, values));
+            var edited = scene.World.Construction;
+            Assert.Equal(values, ((WorkshopGenericInstance)edited.Instances.Single(instance => instance.Id == board.Id)).Parameters);
+            Assert.Equal(undo + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Assert.Equal(board with { Parameters = values }, edited.Instances.Single(instance => instance.Id == board.Id)); // only the preload
+            Assert.Equal(zero.Instances.Where(instance => instance.Id != board.Id), edited.Instances.Where(instance => instance.Id != board.Id));
+            // A fresh simulation admits its first construction at revision 2 (the Workshop advanced its own to 3); the content is as edited.
+            var charged = edited with { Revision = zero.Revision };
+            Assert.Empty(godot.Errors.Drain());
+            var (_, run, _) = await NoFixedCapacityTests.RunAndReset(charged, 1200);
+            Assert.True(LaunchLessonSolveTests.Solved(charged, run), "the editor-charged board solves Spring Forward");
+            var (_, control, _) = await NoFixedCapacityTests.RunAndReset(zero, 1200);
+            Assert.False(LaunchLessonSolveTests.Solved(zero, control), "the same board at zero preload does not");
         }
         finally { Release(scene); }
     }

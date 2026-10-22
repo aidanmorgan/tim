@@ -1,0 +1,38 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Record-path-only probe (3fce7a03; removed before the cutover, retained as evidence): each hand-encoded old-layout save
+/// equals the old production encoder's bytes for the same construction and loads on the record path.</summary>
+public sealed class OldLayoutEqualityProbe
+{
+    private static IWorkshopInstance At(IWorkshopInstance instance) => instance;
+
+    [Fact]
+    public void HandEncodedOldLayoutEqualsTheRecordPathEncoderAndLoads()
+    {
+        var expected = new Dictionary<string, IWorkshopInstance>
+        {
+            ["bumper strength 8"] = WorkshopInput.Bumper(new(1), 0, 2, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(8f)),
+            ["bumper strength 0"] = WorkshopInput.Bumper(new(1), 0, 2, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(0f)),
+            ["spring default"] = WorkshopInput.Springboard(new(1), 0, 2, 0, 0, 0, 0, 1, new(400f, .2f, 0f)),
+            ["spring charged"] = WorkshopInput.Springboard(new(1), 0, 2, 0, 0, 0, 0, 1, new(400f, .2f, .2f)),
+            ["battery default"] = WorkshopInput.Battery(new(1), 0, 2, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+            ["domino"] = WorkshopInput.Domino(new(1), 0, 2, 0, 0, 0, 0, 1),
+            ["counter"] = WorkshopInput.Counter(new(1), 0, 2, 0, 0, 0, 0, 1, 3),
+            ["switch threshold"] = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 2, 0, 0, 0, 0, 1, new([new(new("trigger_threshold"), 1.5f)])),
+            ["resized ramp"] = WorkshopInput.Generic(PartId.Ramp, new(1), 0, 2, 0, 0, 0, 0, 1, new([new(new("length"), 3.123457f), new(new("width"), 1.234567f)])),
+        };
+        var lines = new List<string>();
+        foreach (var (name, bytes) in OldLayoutSaves.Records())
+        {
+            var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(At(expected[name])));
+            var encoded = WorkshopSaveCodec.Encode(new(construction, new(2)));
+            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+            lines.Add($"{name}: equal={encoded.AsSpan().SequenceEqual(bytes)} loads={loaded.Construction.Instances[0].GetType().Name} sha256={Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes))}");
+            Assert.Equal(encoded, bytes);
+            Assert.Equal(construction, loaded.Construction);
+        }
+        File.WriteAllLines(Environment.GetEnvironmentVariable("PROBE_OUT") ?? Path.GetTempFileName(), lines);
+    }
+}

@@ -534,23 +534,17 @@ public struct InstanceRecord : IFlatbufferObject
   public float Bounce { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public float Length { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public float Threshold { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float Stiffness { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float Damping { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float InitialCompression { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float Capacity { get { int o = __p.__offset(30); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float MaximumPower { get { int o = __p.__offset(32); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float InitialFraction { get { int o = __p.__offset(34); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public byte Enabled { get { int o = __p.__offset(36); return o != 0 ? __p.bb.Get(o + __p.bb_pos) : (byte)0; } }
-  public float Strength { get { int o = __p.__offset(38); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float ReferenceMass { get { int o = __p.__offset(40); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float Preload { get { int o = __p.__offset(42); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public CuriousContraptions.Wire.Vec3f? HalfExtents { get { int o = __p.__offset(44); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
-  public float Friction { get { int o = __p.__offset(46); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public uint TargetCount { get { int o = __p.__offset(48); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-  public CuriousContraptions.Wire.ParameterRecord? Parameters(int j) { int o = __p.__offset(50); return o != 0 ? (CuriousContraptions.Wire.ParameterRecord?)(new CuriousContraptions.Wire.ParameterRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
-  public int ParametersLength { get { int o = __p.__offset(50); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public float Capacity { get { int o = __p.__offset(24); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float MaximumPower { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float InitialFraction { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public byte Enabled { get { int o = __p.__offset(30); return o != 0 ? __p.bb.Get(o + __p.bb_pos) : (byte)0; } }
+  public CuriousContraptions.Wire.Vec3f? HalfExtents { get { int o = __p.__offset(32); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+  public float Friction { get { int o = __p.__offset(34); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public uint TargetCount { get { int o = __p.__offset(36); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public CuriousContraptions.Wire.ParameterRecord? Parameters(int j) { int o = __p.__offset(38); return o != 0 ? (CuriousContraptions.Wire.ParameterRecord?)(new CuriousContraptions.Wire.ParameterRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int ParametersLength { get { int o = __p.__offset(38); return o != 0 ? __p.__vector_len(o) : 0; } }
 
-  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(24); }
+  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(18); }
   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
   public static void AddPartId(FlatBufferBuilder builder, StringOffset partIdOffset) { builder.AddOffset(1, partIdOffset.Value, 0); }
   public static void AddLocked(FlatBufferBuilder builder, bool locked) { builder.AddBool(2, locked, false); }
@@ -561,20 +555,14 @@ public struct InstanceRecord : IFlatbufferObject
   public static void AddBounce(FlatBufferBuilder builder, float bounce) { builder.AddFloat(7, bounce, 0.0f); }
   public static void AddLength(FlatBufferBuilder builder, float length) { builder.AddFloat(8, length, 0.0f); }
   public static void AddThreshold(FlatBufferBuilder builder, float threshold) { builder.AddFloat(9, threshold, 0.0f); }
-  public static void AddStiffness(FlatBufferBuilder builder, float stiffness) { builder.AddFloat(10, stiffness, 0.0f); }
-  public static void AddDamping(FlatBufferBuilder builder, float damping) { builder.AddFloat(11, damping, 0.0f); }
-  public static void AddInitialCompression(FlatBufferBuilder builder, float initialCompression) { builder.AddFloat(12, initialCompression, 0.0f); }
-  public static void AddCapacity(FlatBufferBuilder builder, float capacity) { builder.AddFloat(13, capacity, 0.0f); }
-  public static void AddMaximumPower(FlatBufferBuilder builder, float maximumPower) { builder.AddFloat(14, maximumPower, 0.0f); }
-  public static void AddInitialFraction(FlatBufferBuilder builder, float initialFraction) { builder.AddFloat(15, initialFraction, 0.0f); }
-  public static void AddEnabled(FlatBufferBuilder builder, byte enabled) { builder.AddByte(16, enabled, 0); }
-  public static void AddStrength(FlatBufferBuilder builder, float strength) { builder.AddFloat(17, strength, 0.0f); }
-  public static void AddReferenceMass(FlatBufferBuilder builder, float referenceMass) { builder.AddFloat(18, referenceMass, 0.0f); }
-  public static void AddPreload(FlatBufferBuilder builder, float preload) { builder.AddFloat(19, preload, 0.0f); }
-  public static void AddHalfExtents(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> halfExtentsOffset) { builder.AddStruct(20, halfExtentsOffset.Value, 0); }
-  public static void AddFriction(FlatBufferBuilder builder, float friction) { builder.AddFloat(21, friction, 0.0f); }
-  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(22, targetCount, 0); }
-  public static void AddParameters(FlatBufferBuilder builder, VectorOffset parametersOffset) { builder.AddOffset(23, parametersOffset.Value, 0); }
+  public static void AddCapacity(FlatBufferBuilder builder, float capacity) { builder.AddFloat(10, capacity, 0.0f); }
+  public static void AddMaximumPower(FlatBufferBuilder builder, float maximumPower) { builder.AddFloat(11, maximumPower, 0.0f); }
+  public static void AddInitialFraction(FlatBufferBuilder builder, float initialFraction) { builder.AddFloat(12, initialFraction, 0.0f); }
+  public static void AddEnabled(FlatBufferBuilder builder, byte enabled) { builder.AddByte(13, enabled, 0); }
+  public static void AddHalfExtents(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> halfExtentsOffset) { builder.AddStruct(14, halfExtentsOffset.Value, 0); }
+  public static void AddFriction(FlatBufferBuilder builder, float friction) { builder.AddFloat(15, friction, 0.0f); }
+  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(16, targetCount, 0); }
+  public static void AddParameters(FlatBufferBuilder builder, VectorOffset parametersOffset) { builder.AddOffset(17, parametersOffset.Value, 0); }
   public static VectorOffset CreateParametersVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ParameterRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
   public static VectorOffset CreateParametersVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ParameterRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
   public static VectorOffset CreateParametersVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.ParameterRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
@@ -602,20 +590,14 @@ static public class InstanceRecordVerify
       && verifier.VerifyField(tablePos, 18 /*Bounce*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 20 /*Length*/, 4 /*float*/, 4, false)
       && verifier.VerifyField(tablePos, 22 /*Threshold*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 24 /*Stiffness*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 26 /*Damping*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 28 /*InitialCompression*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 30 /*Capacity*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 32 /*MaximumPower*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 34 /*InitialFraction*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 36 /*Enabled*/, 1 /*byte*/, 1, false)
-      && verifier.VerifyField(tablePos, 38 /*Strength*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 40 /*ReferenceMass*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 42 /*Preload*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 44 /*HalfExtents*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
-      && verifier.VerifyField(tablePos, 46 /*Friction*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 48 /*TargetCount*/, 4 /*uint*/, 4, false)
-      && verifier.VerifyVectorOfTables(tablePos, 50 /*Parameters*/, CuriousContraptions.Wire.ParameterRecordVerify.Verify, false)
+      && verifier.VerifyField(tablePos, 24 /*Capacity*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 26 /*MaximumPower*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 28 /*InitialFraction*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 30 /*Enabled*/, 1 /*byte*/, 1, false)
+      && verifier.VerifyField(tablePos, 32 /*HalfExtents*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
+      && verifier.VerifyField(tablePos, 34 /*Friction*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 36 /*TargetCount*/, 4 /*uint*/, 4, false)
+      && verifier.VerifyVectorOfTables(tablePos, 38 /*Parameters*/, CuriousContraptions.Wire.ParameterRecordVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

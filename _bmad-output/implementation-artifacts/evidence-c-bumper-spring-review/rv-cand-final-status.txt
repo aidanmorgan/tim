@@ -1,0 +1,5 @@
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/LaunchLessonSolveTests.cs
+ M content/puzzles.json
+?? CuriousContraptions.tests/ReviewLessonHashProbe.cs
+?? CuriousContraptions.tests/ReviewOldSaveProbe.cs
