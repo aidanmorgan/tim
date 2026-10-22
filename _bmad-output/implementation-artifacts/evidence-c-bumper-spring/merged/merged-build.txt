@@ -1,0 +1,62 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Wall/bin/Debug/net10.0/Wall.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Ball/bin/Debug/net10.0/Ball.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Counter/bin/Debug/net10.0/Counter.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (26 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/elements/elements.bundle.json (26 elements)
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.51

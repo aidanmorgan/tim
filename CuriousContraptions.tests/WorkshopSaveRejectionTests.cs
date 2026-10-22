@@ -17,8 +17,7 @@ public sealed class WorkshopSaveRejectionTests
     public enum Field
     {
         Id, PartId, Locked, Cell, Local, Rotation, Mass, Bounce, Length, Threshold,
-        Stiffness, Damping, InitialCompression, Capacity, MaximumPower, InitialFraction, Enabled, Strength, ReferenceMass, Preload,
-        HalfExtents, Friction, TargetCount, Parameters,
+        Capacity, MaximumPower, InitialFraction, Enabled, HalfExtents, Friction, TargetCount, Parameters,
     }
 
     internal sealed class Instance(string part, ulong id)
@@ -121,10 +120,8 @@ public sealed class WorkshopSaveRejectionTests
             object value = field switch
             {
                 Field.Mass => record.Mass, Field.Bounce => record.Bounce, Field.Length => record.Length,
-                Field.Threshold => record.Threshold, Field.Stiffness => record.Stiffness,
-                Field.Damping => record.Damping, Field.InitialCompression => record.InitialCompression, Field.Capacity => record.Capacity,
+                Field.Threshold => record.Threshold, Field.Capacity => record.Capacity,
                 Field.MaximumPower => record.MaximumPower, Field.InitialFraction => record.InitialFraction, Field.Enabled => record.Enabled,
-                Field.Strength => record.Strength, Field.ReferenceMass => record.ReferenceMass, Field.Preload => record.Preload,
                 Field.Friction => record.Friction, Field.TargetCount => record.TargetCount,
                 Field.HalfExtents => Vec(record.HalfExtents!.Value),
                 _ => throw new InvalidOperationException($"No fixture reader for {field}."),
@@ -141,9 +138,7 @@ public sealed class WorkshopSaveRejectionTests
     internal static Field[] Parameters(string part) => part switch
     {
         "switch" or "pressure_plate" or "clock" => [Field.Threshold],
-        "spring" => [Field.Stiffness, Field.Damping, Field.InitialCompression],
         "battery" => [Field.Capacity, Field.MaximumPower, Field.InitialFraction, Field.Enabled],
-        "bumper" => [Field.Strength, Field.ReferenceMass, Field.Preload],
         "domino" => [Field.HalfExtents, Field.Mass, Field.Bounce, Field.Friction],
         "pipe" => [Field.Length],
         "counter" => [Field.TargetCount],
@@ -160,9 +155,9 @@ public sealed class WorkshopSaveRejectionTests
         WorkshopInput.Generic(PartId.Wall, new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
         WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 2, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Delay, new(7), 3, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Springboard(new(8), 5, 0, 0, 0, 0, 0, 1, SpringboardSettings.Default),
+        WorkshopInput.Generic(PartId.Springboard, new(8), 5, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Battery(new(9), 6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
-        WorkshopInput.Bumper(new(10), 7, 0, 0, 0, 0, 0, 1, BumperWork.Default),
+        WorkshopInput.Generic(PartId.PinballBumper, new(10), 7, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
         WorkshopInput.BallDetector(new(13), 10, 0, 0, 0, 0, 0, 1),

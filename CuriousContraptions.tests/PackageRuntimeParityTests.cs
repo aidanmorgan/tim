@@ -308,7 +308,6 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1, new(values));
         });
         var enables = Enum.GetValues<ElectricalEnable>();
-        var spring = SpringboardSettings.Default;
         return id switch
         {
             "ramp" =>
@@ -324,8 +323,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "bumper" =>
             [
-                ("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, BumperWork.Default.Strength.Value,
-                    Admits(value => BumperWork.FromInput(value)), [])
+                ("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, 8f, Generic(PartId.PinballBumper, "strength"), [])
             ],
             "battery" =>
             [
@@ -359,12 +357,9 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "spring" =>
             [
-                ("stiffness", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, spring.Stiffness,
-                    Admits(value => (spring with { Stiffness = value }).Validate()), []),
-                ("damping", ParameterUnit.NewtonSecondPerMetre, ParameterKind.Real, Lane.Single, spring.Damping,
-                    Admits(value => (spring with { Damping = value }).Validate()), []),
-                ("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, spring.InitialCompression,
-                    Admits(value => (spring with { InitialCompression = value }).Validate()), [])
+                ("stiffness", ParameterUnit.NewtonPerMetre, ParameterKind.Real, Lane.Single, 400f, Generic(PartId.Springboard, "stiffness"), []),
+                ("damping", ParameterUnit.NewtonSecondPerMetre, ParameterKind.Real, Lane.Single, .2f, Generic(PartId.Springboard, "damping"), []),
+                ("initial_compression", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 0f, Generic(PartId.Springboard, "initial_compression"), [])
             ],
             "pipe" =>
             [
@@ -396,11 +391,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "ball" => WorkshopInput.Generic(PartId.Basketball,Owner, 0, 3, 0, 0, 0, 0, 1),
         "bowling" => WorkshopInput.Generic(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),
         "basket" => WorkshopInput.Generic(PartId.Receiver, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default),
+        "spring" => WorkshopInput.Generic(PartId.Springboard, Owner, 0, 3, 0, 0, 0, 0, 1),
         "ramp" => WorkshopInput.Generic(PartId.Ramp, Owner, 0, 3, 0, 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
         "battery" => WorkshopInput.Battery(Owner, 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
-        "bumper" => WorkshopInput.Bumper(Owner, 0, 3, 0, 0, 0, 0, 1, BumperWork.Default),
+        "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
         "lamp" => WorkshopInput.Lamp(Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
@@ -419,8 +414,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     /// <summary>One placed slider part with its declared parameters set to these values.</summary>
     private static IWorkshopInstance Placed(PartId id, Dictionary<string, float> parameters) => id.Value switch
     {
-        "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1,
-            new SpringboardSettings(parameters["stiffness"], parameters["damping"], parameters["initial_compression"])),
+        "spring" => PlacedParts.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, parameters["initial_compression"],
+            parameters["stiffness"], parameters["damping"]),
         "powered_gate" => Placed(id),
         _ => throw new ArgumentException($"No slider placement for packaged part '{id}'.")
     };

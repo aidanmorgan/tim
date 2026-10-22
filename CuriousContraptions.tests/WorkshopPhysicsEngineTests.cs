@@ -260,7 +260,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         var reads = await Run(Free(
             WorkshopInput.Generic(PartId.BowlingBall, new(1), 0, dropHeight, 0, 0, 0, 0, 1),
-            WorkshopInput.Bumper(new(2), 0, 3, 0, 0, 0, 0, 1, BumperWork.Default)), 4 * TicksPerSecond);
+            WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
         var seen = new HashSet<uint>();
         var paid = new List<float>();
         var exhausted = false;
@@ -290,7 +290,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         var reads = await Run(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4.5, 0, 0, 0, 0, 1),
-            WorkshopInput.Bumper(new(2), 0, 3, 0, 0, 0, 0, 1, BumperWork.Default)), 2 * TicksPerSecond);
+            WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 3, 0, 0, 0, 0, 1)), 2 * TicksPerSecond);
         var first = reads.First(read => read.ContactWorks.OccurrenceCount > 0 && read.ContactWorks.Occurrence(0).Sequence == 1);
         var debit = first.ContactWorks.Occurrence(0).Debit.Value;
         Assert.InRange(debit, 1f, 31f);
@@ -301,7 +301,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         var admitted = AdmitMoving(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4.5, 0, 0, 0, 0, 1),
-            WorkshopInput.Bumper(new(2), 0, 3, 0, 0, 0, 0, 1, BumperWork.Default)), 1, 0f);
+            WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 3, 0, 0, 0, 0, 1)), 1, 0f);
         var store = PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0);
         Assert.Equal(32f, BinaryPrimitives.ReadSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkPreloadOffset)));
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(store + PhysicsGpuAbi.ContactWorkAvailableOffset), available);
@@ -364,7 +364,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         var reads = await Run(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4.5, 0, 0, 0, 0, 1),
-            WorkshopInput.Bumper(new(2), 0, 3, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(0f))), 2 * TicksPerSecond);
+            PlacedParts.Bumper(new(2), 0, 3, 0, strength: 0f)), 2 * TicksPerSecond);
         var occurrences = reads.SelectMany(read => Enumerable.Range(0, read.ContactWorks.OccurrenceCount).Select(read.ContactWorks.Occurrence))
             .Where(occurrence => occurrence.Sequence != 0).ToArray();
         Assert.NotEmpty(occurrences); // the ball struck the Bumper with a qualifying approach
@@ -550,8 +550,8 @@ public sealed class WorkshopPhysicsEngineTests
     public void ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(double offset, bool captures)
     {
         var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), Settings, new(1), new((Half)0));
-        var construction = lesson.WithInstance(WorkshopInput.Springboard(new(3), -3, .8, 0,
-            0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default));
+        var construction = lesson.WithInstance(WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8, 0,
+            0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18)));
         var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
         var position = WorkshopInput.Generic(PartId.Receiver, receiver.Id, -.7 + offset, .55, 0, 0, 0, 0, 1);
         var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
@@ -652,7 +652,7 @@ public sealed class WorkshopPhysicsEngineTests
     public void BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(SimulationCadence cadence)
     {
         var battery = WorkshopInput.Battery(new(1), 2, 1, 0, 0, 0, 0, 1, new(new(3600f), new(10f), 1f, ElectricalEnable.Enabled));
-        var bumper = WorkshopInput.Bumper(new(2), 0, 1, 0, 0, 0, 0, 1, BumperWork.Default);
+        var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 1, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), Settings, new(battery, bumper), Connections: new(
             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         var admitted = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(1, 2)), new(1),

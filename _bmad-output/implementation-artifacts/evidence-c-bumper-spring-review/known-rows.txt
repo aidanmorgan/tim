@@ -1,0 +1,8 @@
+# git diff 55ee05b9 -- known.json, removed rows by Owner
+  42 "Owner":"Bumper"
+   2 "Owner":"GateDrive"
+  47 "Owner":"Springboard"
+# added rows
+0
+# remaining Bumper/Springboard owned rows
+0

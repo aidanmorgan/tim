@@ -22,18 +22,6 @@ public readonly record struct ContactSpeed(float Value)
     public bool HasSameBits(ContactSpeed other) =>
         BitConverter.SingleToInt32Bits(Value) == BitConverter.SingleToInt32Bits(other.Value);
 }
-public readonly record struct WorkMass(float Value);
-public readonly record struct ContactWorkCalibration(ContactSpeed TargetSpeed, WorkMass ReferenceMass, Joules InitialEnergy)
-{
-    public void Validate()
-    {
-        TargetSpeed.Validate(20f);
-        InitialEnergy.Validate();
-        if (!float.IsFinite(ReferenceMass.Value) || ReferenceMass.Value <= 0 || ReferenceMass.Value > 100)
-            throw new ArgumentException("Invalid contact-work reference mass.");
-    }
-}
-
 public readonly record struct GpuContactWorkId(ulong Value);
 /// <summary>Table slots are u32: no work or collider table has a fixed bound (Story 9R.5b).</summary>
 public readonly record struct ContactWorkSlot(uint Value);

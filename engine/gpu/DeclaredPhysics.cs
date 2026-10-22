@@ -34,8 +34,6 @@ public static class DeclaredPhysics
     {
         WorkshopPipe pipe => new Dictionary<string, float> { ["length"] = pipe.Length.Metres },
         WorkshopGenericInstance generic => generic.Parameters.ToBundleValues(),
-        WorkshopSpringboard spring => new Dictionary<string, float> { ["stiffness"] = spring.Settings.Stiffness,
-            ["damping"] = spring.Settings.Damping, ["initial_compression"] = spring.Settings.InitialCompression },
         _ => BundleGeometry.Parameters(Of(instance.PartId))
     };
 

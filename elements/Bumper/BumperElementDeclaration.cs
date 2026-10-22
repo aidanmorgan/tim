@@ -6,7 +6,10 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.Bumper;
 
-public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalElement, ISceneGeometryElement
+/// <summary>The Pinball Bumper (CAT-015): a static sphere whose finite contact-work store kicks a qualifying ball radially. Its one
+/// typed parameter, strength, is the store's target speed; the preload is a 1 kg reference mass at that speed (32 J at the default
+/// 8 m/s, 200 J at 20 m/s). The editor clamps a finite strength into 0–20 m/s.</summary>
+public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.8f, PresentationAxes.None,
         [
@@ -28,8 +31,10 @@ public sealed class BumperElementDeclaration : IMechanicalElement, IElectricalEl
         ScenePath: "res://elements/Bumper/bumper.tscn",
         Parameters:
         [
-            new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [])
+            new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [], EditorPolicy: ParameterEditorPolicy.Clamp)
         ]);
+
+    public ContactWorkDescriptor ContactWork => new("strength", ReferenceMass: 1f, Threshold: .05f, CooldownPhysicalSteps: 72);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
 

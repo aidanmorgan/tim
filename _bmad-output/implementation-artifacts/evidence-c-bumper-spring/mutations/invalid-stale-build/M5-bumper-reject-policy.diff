@@ -1,0 +1,11 @@
+--- elements/Bumper/BumperElementDeclaration.cs.orig	2026-10-22 11:28:32.365774755 +0800
++++ elements/Bumper/BumperElementDeclaration.cs	2026-10-22 11:28:32.369476839 +0800
+@@ -31,7 +31,7 @@
+         ScenePath: "res://elements/Bumper/bumper.tscn",
+         Parameters:
+         [
+-            new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [], EditorPolicy: ParameterEditorPolicy.Clamp)
++            new("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, Minimum: 0f, Maximum: 20f, Default: 8f, Options: [])
+         ]);
+ 
+     public ContactWorkDescriptor ContactWork => new("strength", ReferenceMass: 1f, Threshold: .05f, CooldownPhysicalSteps: 72);

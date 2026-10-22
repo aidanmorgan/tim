@@ -1,0 +1,11 @@
+--- engine/gpu/WorkshopPhysicsCompiler.cs.orig	2026-10-22 11:27:41.755122966 +0800
++++ engine/gpu/WorkshopPhysicsCompiler.cs	2026-10-22 11:27:41.758419008 +0800
+@@ -191,7 +191,7 @@
+         ContactWorkDescriptor work, InstanceParameterCollection parameters)
+     {
+         var strength = parameters[new ParameterId(work.StrengthParameter)];
+-        return new(ContactWork(owner), owner, targets, new(strength), new(.5f * work.ReferenceMass * strength * strength),
++        return new(ContactWork(owner), owner, targets, new(strength), new(.5f * 1f * strength * strength),
+             new(work.Threshold), work.CooldownPhysicalSteps);
+     }
+ 

@@ -19,7 +19,7 @@ public sealed class WorkshopGpuDeviceTests
             new ResetInstallation(), GpuDeviceOwnership.Borrowed);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default with { InitialCompression = compression })));
+            PlacedParts.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, compression)));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         byte[] Committed() => ((byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!).ToArray();

@@ -34,16 +34,10 @@ public static class WorkshopWireFlatBuffers
         InstanceRecord.AddBounce(builder, values[AuthoredScalar.Bounce]);
         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
         InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
-        InstanceRecord.AddStiffness(builder, values[AuthoredScalar.Stiffness]);
-        InstanceRecord.AddDamping(builder, values[AuthoredScalar.Damping]);
-        InstanceRecord.AddInitialCompression(builder, values[AuthoredScalar.InitialCompression]);
         InstanceRecord.AddCapacity(builder, values[AuthoredScalar.Capacity]);
         InstanceRecord.AddMaximumPower(builder, values[AuthoredScalar.MaximumPower]);
         InstanceRecord.AddInitialFraction(builder, values[AuthoredScalar.InitialFraction]);
         InstanceRecord.AddEnabled(builder, (byte)template.Enabled);
-        InstanceRecord.AddStrength(builder, values[AuthoredScalar.Strength]);
-        InstanceRecord.AddReferenceMass(builder, values[AuthoredScalar.ReferenceMass]);
-        InstanceRecord.AddPreload(builder, values[AuthoredScalar.Preload]);
         InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, template.HalfExtents.X, template.HalfExtents.Y, template.HalfExtents.Z));
         InstanceRecord.AddFriction(builder, values[AuthoredScalar.Friction]);
         InstanceRecord.AddTargetCount(builder, template.TargetCount);
@@ -623,21 +617,11 @@ public static class WorkshopWireFlatBuffers
 
             switch (instance)
             {
-                case WorkshopSpringboard spring:
-                    InstanceRecord.AddStiffness(builder, spring.Settings.Stiffness);
-                    InstanceRecord.AddDamping(builder, spring.Settings.Damping);
-                    InstanceRecord.AddInitialCompression(builder, spring.Settings.InitialCompression);
-                    break;
                 case WorkshopBattery battery:
                     InstanceRecord.AddCapacity(builder, battery.Settings.Capacity.Value);
                     InstanceRecord.AddMaximumPower(builder, battery.Settings.MaximumPower.Value);
                     InstanceRecord.AddInitialFraction(builder, battery.Settings.InitialFraction);
                     InstanceRecord.AddEnabled(builder, (byte)battery.Settings.Enabled);
-                    break;
-                case WorkshopBumper bumper:
-                    InstanceRecord.AddStrength(builder, bumper.Work.Strength.Value);
-                    InstanceRecord.AddReferenceMass(builder, bumper.Work.ReferenceMass.Value);
-                    InstanceRecord.AddPreload(builder, bumper.Work.Preload.Value);
                     break;
                 case WorkshopDomino domino:
                     InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, (float)domino.Material.HalfExtents.X, (float)domino.Material.HalfExtents.Y, (float)domino.Material.HalfExtents.Z));
@@ -760,11 +744,8 @@ public static class WorkshopWireFlatBuffers
 
         IWorkshopInstance result = partId.Value switch
         {
-            "spring" => new WorkshopSpringboard(id, cell, local, rotation, new SpringboardSettings(inst.Stiffness, inst.Damping, inst.InitialCompression), locked),
             "battery" => new WorkshopBattery(id, cell, local, rotation,
                 new ElectricalSourceSettings(new Joules(inst.Capacity), new Watts(inst.MaximumPower), inst.InitialFraction, (ElectricalEnable)inst.Enabled), locked),
-            "bumper" => new WorkshopBumper(id, cell, local, rotation,
-                new BumperWork(new ContactSpeed(inst.Strength), new WorkMass(inst.ReferenceMass), new Joules(inst.Preload)), locked),
             "domino" => MapDomino(inst, id, cell, local, rotation, locked),
             "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
@@ -795,9 +776,8 @@ public static class WorkshopWireFlatBuffers
     {
         static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
         var extents = r.HalfExtents;
-        return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Stiffness) || Set(r.Damping) ||
-            Set(r.InitialCompression) || Set(r.Capacity) || Set(r.MaximumPower) || Set(r.InitialFraction) || Set(r.Strength) ||
-            Set(r.ReferenceMass) || Set(r.Preload) || Set(r.Friction) || r.Enabled != 0 || r.TargetCount != 0 ||
+        return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Capacity) || Set(r.MaximumPower) ||
+            Set(r.InitialFraction) || Set(r.Friction) || r.Enabled != 0 || r.TargetCount != 0 ||
             (extents is { } h && (Set(h.X) || Set(h.Y) || Set(h.Z)));
     }
 

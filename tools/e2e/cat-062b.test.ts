@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { createRequire } from 'node:module';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, type BodyRead, type WorkshopResponse } from './workshop-wire.ts';
+import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, type BodyRead, type WorkshopResponse } from './workshop-wire.ts';
 
 enum Lesson { SpringForward = 7, ReadyToRebound = 8 }
 enum Route { Passive, Charged, Zero, Away, Ready, MissingReceiver }
@@ -69,7 +69,7 @@ function assertInitial(read: WorkshopResponse, save: Buffer, boardIndex: number,
     const delta=actual.map((value,i)=>f(f(value-base[i])-anchor[i]));
     const displacement=f(f(f(delta[0]*axis[0])+f(delta[1]*axis[1]))+f(delta[2]*axis[2]));
     assert.ok(Math.abs(displacement+compression)<3e-7,JSON.stringify({displacement,compression}));
-    const energy=.5*board.stiffness()*displacement*displacement;
+    const energy=.5*parameter(board,'stiffness')*displacement*displacement;
     if(compression===.2)assert.ok(Math.abs(energy-8)<=1e-5,JSON.stringify({energy,displacement}));
     assert.equal(plate.velocity()!.x(),0,'Initial plate velocity/spin is zero');
     assert.equal(plate.velocity()!.y(),0,'Initial plate velocity/spin is zero');
@@ -92,7 +92,7 @@ function clearances(save: Buffer, boardIndex: number) {
         Math.max(Math.abs(local[0])-half(0x3933),0),
         Math.max(Math.abs(local[1]-center)-height,0),
         Math.max(Math.abs(local[2])-half(0x38cd),0))-radius;
-    const plate=gap(f(f(.14)-board.initialCompression()),half(0x2ccd));
+    const plate=gap(f(f(.14)-parameter(board,'initial_compression')),half(0x2ccd));
     const base=gap(-half(0x35c3),half(0x2bae));
     assert.ok(plate>0&&base>0,JSON.stringify({local,plate,base}));
     return {plate,base};
@@ -149,8 +149,8 @@ async function construct(d: WorkshopDriver, route: Route) {
     assert.equal(savedFb.construction()!.puzzle()!.id(),ready?Lesson.ReadyToRebound:Lesson.SpringForward);
     const board=savedFb.construction()!.instances(boardIndex)!;
     const expectedCompression=route===Route.Passive||route===Route.Zero?0:.2;
-    assert.equal(board.stiffness(),400);assert.equal(board.damping(),f(.2));
-    assert.equal(board.initialCompression(),f(expectedCompression));
+    assert.equal(parameter(board,'stiffness'),400);assert.equal(parameter(board,'damping'),f(.2));
+    assert.equal(parameter(board,'initial_compression'),f(expectedCompression));
     if(!ready){
         assert.equal(savedFb.construction()!.puzzle()!.precision(),1,'Actual precision is Precise');
         assert.equal(savedFb.construction()!.instances(0)!.locked(),true);

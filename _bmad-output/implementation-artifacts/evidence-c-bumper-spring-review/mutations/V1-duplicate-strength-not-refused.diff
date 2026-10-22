@@ -1,0 +1,13 @@
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index b3d143a8..1c25aca1 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -369,7 +369,7 @@ public static class BundleValidator
+                 var strengths = parameters.Where(parameter => parameter.Key == work.StrengthParameter).ToArray();
+                 var referenceMass = Finite("ContactWork.ReferenceMass", work.ReferenceMass) && work.ReferenceMass > 0f && work.ReferenceMass <= 100f;
+                 if (!referenceMass) OutOfRange("ContactWork.ReferenceMass");
+-                if (strengths.Length > 1 || (strengths.Length == 1 && (strengths[0].Unit != ParameterUnit.MetrePerSecond ||
++                if ((strengths.Length >= 1 && (strengths[0].Unit != ParameterUnit.MetrePerSecond ||
+                     strengths[0].Minimum < 0f || strengths[0].Maximum > 20f ||
+                     (referenceMass && .5f * work.ReferenceMass * strengths[0].Maximum * strengths[0].Maximum > 200f))))
+                     OutOfRange("ContactWork.StrengthParameter");

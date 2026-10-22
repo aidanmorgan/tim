@@ -141,7 +141,7 @@ public sealed class SwitchElectricalTests
         var battery=WorkshopInput.Battery(new(8),-6,4,0,0,0,0,1,ElectricalSourceSettings.Default);
         var ambiguous=sourced with {Instances=new(sourced.Instances.Concat(new IWorkshopInstance[]{battery}).ToArray()),Connections=sourced.Connections.With(Power(8,6))};
         EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopActivationCompiler.Compile(ambiguous));
-        var bumper=WorkshopInput.Bumper(new(9),12,1,0,0,0,0,1,BumperWork.FromCanonicalStrength(8f));
+        var bumper=WorkshopInput.Generic(PartId.PinballBumper,new(9),12,1,0,0,0,0,1);
         var storage=ambiguous with {Instances=new(ambiguous.Instances.Concat(new IWorkshopInstance[]{bumper}).ToArray()),Connections=ambiguous.Connections.With(Power(6,9))};
         // Physical compile is isolated from activation compilation; it must reject the storage binding itself.
         storage=storage with {Instances=new(storage.Instances.Where(instance=>instance.Id!=clock.Id).ToArray()),Connections=storage.Connections.Without(clock.Id)};

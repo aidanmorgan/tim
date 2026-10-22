@@ -48,6 +48,48 @@ public sealed class BundleValidatorTests
         })]));
     }
 
+    // The finite contact-work store (C-Bumper+Spring): one Real m/s strength parameter whose range keeps the reference-mass preload at
+    // or below 200 J, a positive reference mass, a 0–64 m/s threshold, a 9–14400-step cooldown and a static, slider-free owner.
+    [Fact]
+    public void ContactWorkCapabilityRequiresOneTypedStrengthWithinTheTwoHundredJouleStore()
+    {
+        var strength = new ParameterDescriptor("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 20f, 8f, [], ParameterEditorPolicy.Clamp);
+        var entry = Bundle.BundleSchema.Entry(new Fixture { Parameters = [strength] });
+        var work = new Abstractions.Mechanical.ContactWorkDescriptor("strength", 1f, .05f, 72);
+        Bundle.BundleEntry With(Abstractions.Mechanical.ContactWorkDescriptor value, params ParameterDescriptor[] parameters) =>
+            entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with { ContactWork = value } };
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
+        Assert.Empty(Check(With(work, strength)));
+        // Boundaries: exactly 200 J (1 kg at 20 m/s; 4 kg at 10 m/s), the 9- and 14400-step cooldowns and the 0/64 m/s thresholds.
+        Assert.Empty(Check(With(work with { ReferenceMass = 4f }, strength with { Maximum = 10f, Default = 8f })));
+        foreach (var edge in new[] { work with { CooldownPhysicalSteps = 9 }, work with { CooldownPhysicalSteps = 14400 },
+                     work with { Threshold = 0f }, work with { Threshold = 64f } })
+            Assert.Empty(Check(With(edge, strength)));
+        foreach (var (name, candidate) in new[]
+        {
+            ("missing parameter", With(work)),
+            ("unknown key", With(work with { StrengthParameter = "unknown" }, strength)),
+            ("duplicate key", With(work, strength, strength)),
+            ("wrong unit", With(work, strength with { Unit = ParameterUnit.Metre })),
+            ("not Real", With(work, strength with { Kind = ParameterKind.Choice, Options = ["A", "B"], Minimum = 0f, Maximum = 1f, Default = 0f })),
+            ("negative minimum", With(work, strength with { Minimum = -1f })),
+            ("maximum above 20 m/s", With(work, strength with { Maximum = 21f })),
+            ("over 200 J", With(work with { ReferenceMass = 2f }, strength)),
+            ("zero reference mass", With(work with { ReferenceMass = 0f }, strength)),
+            ("nonfinite reference mass", With(work with { ReferenceMass = float.NaN }, strength)),
+            ("reference mass above 100 kg", With(work with { ReferenceMass = 101f }, strength)),
+            ("negative threshold", With(work with { Threshold = -.01f }, strength)),
+            ("threshold above 64 m/s", With(work with { Threshold = 64.5f }, strength)),
+            ("nonfinite threshold", With(work with { Threshold = float.PositiveInfinity }, strength)),
+            ("short cooldown", With(work with { CooldownPhysicalSteps = 8 }, strength)),
+            ("long cooldown", With(work with { CooldownPhysicalSteps = 14401 }, strength)),
+            ("dynamic owner", With(work, strength) with { Mechanical = entry.Mechanical! with
+                { ContactWork = work, KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }),
+            ("slider owner", With(work, [.. Fixture.SpringParameters, strength]) with { Mechanical = entry.Mechanical! with
+                { ContactWork = work, Sliders = [Fixture.Slider()] } })
+        }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".ContactWork.", StringComparison.Ordinal)), name);
+    }
+
     [Fact]
     public void ContactCapabilityRequiresOneTypedParameterAndPulseOutput()
     {
