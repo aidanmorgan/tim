@@ -1,0 +1,26 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.50]     CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ElementPackagesMatchDirectoriesAndBundle [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ElementPackagesMatchDirectoriesAndBundle [7 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ at index 3
+             ↓ (pos 2)
+Expected: "BothGate"
+Actual:   "BowlingBall"
+             ↑ (pos 2)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ElementPackagesMatchDirectoriesAndBundle() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 137
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:08.01]     CuriousContraptions.E2eRunner.Tests.SelectionTests.PartPreplacedByADeclaredLevelSelectsThatLevelsSuites [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.PartPreplacedByADeclaredLevelSelectsThatLevelsSuites [279 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: ["cat-014\town: elements/BowlingBall/BowlingBallElem"···, "cat-052-two-plates\tintegration: places bowling", "cat-052-lamp\tintegration: places bowling", "pkg-1\tintegration: places bowling", "arch-9a-catalogue\tintegration: places bowling", ···]
+Not found:  "cat-023b\tintegration: level domino_effect places "···
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.PartPreplacedByADeclaredLevelSelectsThatLevelsSuites() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/E2eRunner.Tests/SelectionTests.cs:line 60
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:   187, Skipped:     0, Total:   189, Duration: 23 s - E2eRunner.Tests.dll (net10.0)

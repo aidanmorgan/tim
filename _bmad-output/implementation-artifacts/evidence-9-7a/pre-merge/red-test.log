@@ -1,0 +1,82 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.97]     CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [2 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.Gpu.WorkshopEditRejectedException)
+  Stack Trace:
+     at CuriousContraptions.Tests.EditRefusal.Is(WorkshopEditRejection reason, Action edit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/EditRefusal.cs:line 11
+   at CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 217
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.97]     CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [FAIL]
+[xUnit.net 00:00:01.97]     CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [FAIL]
+[xUnit.net 00:00:01.98]     CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NandToNand) [FAIL]
+[xUnit.net 00:00:02.00]     CuriousContraptions.Tests.ElectricalNandTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [FAIL]
+[xUnit.net 00:00:02.02]     CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: True) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [< 1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.Gpu.WorkshopEditRejectedException)
+  Stack Trace:
+     at CuriousContraptions.Tests.EditRefusal.Is(WorkshopEditRejection reason, Action edit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/EditRefusal.cs:line 11
+   at CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 217
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [< 1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.Gpu.WorkshopEditRejectedException)
+  Stack Trace:
+     at CuriousContraptions.Tests.EditRefusal.Is(WorkshopEditRejection reason, Action edit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/EditRefusal.cs:line 11
+   at CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 217
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NandToNand) [< 1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(CuriousContraptions.Gpu.WorkshopEditRejectedException)
+  Stack Trace:
+     at CuriousContraptions.Tests.EditRefusal.Is(WorkshopEditRejection reason, Action edit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/EditRefusal.cs:line 11
+   at CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 217
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNandTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [1 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.ElectricalNandTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 243
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: True) [13 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 701
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 706
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 706
+   at CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(Boolean gateFirst) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 149
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.22]     CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults [FAIL]
+[xUnit.net 00:00:03.60]     CuriousContraptions.Tests.ElectricalNandPresentationTests.PictogramTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults [53 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 701
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 706
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 706
+   at CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 120
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNandPresentationTests.PictogramTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [20 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 14
+Actual:   13
+  Stack Trace:
+     at CuriousContraptions.Tests.ElectricalNandPresentationTests.PictogramTruthDotsAndThreeLampsFollowCommittedRowsThroughReset() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/CuriousContraptions.tests/ElectricalNandTests.cs:line 322
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     8, Passed:    14, Skipped:     0, Total:    22, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

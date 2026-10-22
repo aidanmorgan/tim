@@ -1,0 +1,49 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.78]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [FAIL]
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [47 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs:line 63
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.79]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource [FAIL]
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource [34 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage.Tests/CurrentCatalogueTests.cs:line 181
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.83]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [FAIL]
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [38 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage.Tests/CurrentCatalogueTests.cs:line 52
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.85]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [FAIL]
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [44 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.Coverage.RequirementDiscovery.Discover(DirectoryInfo root) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage/RequirementDiscovery.cs:line 24
+   at CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs:line 31
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:    73, Skipped:     0, Total:    77, Duration: 151 ms - Coverage.Tests.dll (net10.0)

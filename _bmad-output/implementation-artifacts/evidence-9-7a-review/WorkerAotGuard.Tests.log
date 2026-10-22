@@ -1,0 +1,5 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-7a/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 40 ms - WorkerAotGuard.Tests.dll (net10.0)
+dotnet test tools/$p -c Debug --no-build --no-restore -v:minimal  0.81s user 0.17s system 109% cpu 0.890 total

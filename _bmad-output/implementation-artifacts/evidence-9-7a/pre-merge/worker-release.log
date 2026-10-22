@@ -1,0 +1,7 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.34
+dotnet build  -c Release -v:q  2.63s user 1.12s system 84% cpu 4.453 total

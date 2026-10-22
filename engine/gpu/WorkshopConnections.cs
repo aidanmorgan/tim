@@ -98,7 +98,22 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                         throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
             }
         }
+        // Every electrical wire is a potential path, open contacts included: a loop through a nonmonotone gate is refused here, in
+        // build mode, before any construction or solve sees it. The rule reads each part's declared gate law, never its identity.
+        var loop = SupplyCycles.NonmonotoneCycle(
+            _items.Where(link => link.Domain == WorkshopConnectionDomain.Electrical).Select(link => (link.Source, link.Target)),
+            owner => DeclaredPhysics.Of(partOf(owner)!.Value).Electrical?.Supply?.Operation);
+        if (loop.Length != 0)
+        {
+            // The bottom status line wraps but never truncates: name the first few parts (ascending ids) and count the rest.
+            var named = string.Join(", ", loop.Take(LoopPartsNamed).Select(owner => owner.Value));
+            var rest = loop.Length > LoopPartsNamed ? $" and {loop.Length - LoopPartsNamed} more" : "";
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.NonmonotoneFeedback,
+                $"Break the wire loop through parts {named}{rest}. This gate's output cannot feed its own inputs.");
+        }
     }
+    /// <summary>How many part ids a feedback refusal names before it counts the remainder.</summary>
+    internal const int LoopPartsNamed = 4;
     public bool Equals(WorkshopConnections? other) =>
         other is not null && _items.Length == other._items.Length && _items.SequenceEqual(other._items);
     public override bool Equals(object? obj) => Equals(obj as WorkshopConnections);

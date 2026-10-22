@@ -1,0 +1,212 @@
+diff --git a/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs b/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
+index df58c7c4..374f13b0 100644
+--- a/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
++++ b/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
+@@ -26,7 +26,9 @@ public interface IElectricalElement : IPuzzleElementDeclaration
+ 
+ /// <summary>A declared supply route; switched contacts conduct only their own committed closed state.</summary>
+ public enum SupplyCapabilityKind : byte { Source, SwitchedContact, LogicGate }
+-public enum LogicGateOperation : byte { And }
++/// <summary>The declared law of a supplied two-input gate. And is monotone; Nand is not, so it may never sit on a directed
++/// electrical cycle.</summary>
++public enum LogicGateOperation : byte { And = 0, Nand = 1 }
+ 
+ public readonly record struct SupplyCapabilityDescriptor(
+     SupplyCapabilityKind Kind, PortSocket? Input, PortSocket Output, LogicGateOperation? Operation = null);
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index f0e72a10..65bb6234 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -55,6 +55,8 @@ public sealed class CompiledSupplyGraph
+     private readonly int[] _sources;
+     private readonly int[] _consumers;
+     private readonly (int Source, WorkshopSocket Input)[][] _inputs;
++    private readonly int[][] _components;
++    private readonly bool[] _cyclic;
+     public ReadOnlySpan<SupplyNodeDeclaration> Nodes => _nodes;
+     public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
+         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> consumers,
+@@ -103,6 +105,16 @@ public sealed class CompiledSupplyGraph
+             inputs[to].Add((from,edge.Input));
+         }
+         _inputs=inputs.Select(list=>list.ToArray()).ToArray();
++        var predecessors=_inputs.Select(list=>list.Select(edge=>edge.Source).ToArray()).ToArray();
++        _components=SupplyCycles.Components(predecessors);
++        _cyclic=new bool[_components.Length];
++        for(var c=0;c<_components.Length;c++)
++        {
++            _cyclic[c]=SupplyCycles.Cyclic(_components[c],predecessors);
++            // Connection validation refuses these loops first; reaching here is a defect, never a refusal.
++            if(_cyclic[c] && _components[c].Any(i=>!SupplyCycles.Monotone(_nodes[i].Operation)))
++                throw new ArgumentException("A nonmonotone electrical gate lies on a directed cycle.");
++        }
+     }
+     public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
+         .OrderBy(node=>node.Owner.Value).Select(node=>new ElectricalLogicRead(node.Owner,ElectricalInputState.Neither,false,false)).ToArray();
+@@ -116,25 +128,17 @@ public sealed class CompiledSupplyGraph
+             if (_sources[i]>=0) powered[i]=controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled;
+             if (_nodes[i].Kind==SupplyNodeKind.Contact) contacts[i]=contactClosed(_nodes[i].Owner);
+         }
+-        // Monotone declared rules converge from the unpowered least fixed point. Each node can
+-        // become powered only once; no previous tick feeds this candidate's solution.
+-        var changed = true;
+-        while (changed)
++        // Components in evaluation order: every input of a component is settled before it is visited. A singleton is evaluated
++        // once. A cycle holds only monotone rules, so it settles at its least fixed point from unpowered. No previous tick feeds
++        // this candidate's solution.
++        for (var c=0;c<_components.Length;c++)
+         {
+-            changed=false;
+-            for (var i=0;i<_nodes.Length;i++)
++            var changed = true;
++            while (changed)
+             {
+-                if (powered[i] || _nodes[i].Kind==SupplyNodeKind.Source) continue;
+-                var supplied = Input(i,WorkshopSocket.PowerIn);
+-                var active = _nodes[i].Kind switch
+-                {
+-                    SupplyNodeKind.Contact => supplied && contacts[i],
+-                    SupplyNodeKind.Consumer => supplied,
+-                    SupplyNodeKind.LogicGate => supplied && Evaluate(_nodes[i].Operation!.Value,
+-                        Input(i,WorkshopSocket.FirstIn),Input(i,WorkshopSocket.SecondIn)),
+-                    _ => throw new ArgumentException("Unsupported electrical node.")
+-                };
+-                if (active) { powered[i]=true; changed=true; }
++                changed=false;
++                foreach (var i in _components[c])
++                    if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=_cyclic[c]; }
+             }
+         }
+         var closed=new bool[consumers];
+@@ -150,13 +154,99 @@ public sealed class CompiledSupplyGraph
+         }
+         return new(closed,logic.OrderBy(row=>row.Owner.Value).ToArray());
+         bool Input(int node, WorkshopSocket socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
++        bool Active(int i) => _nodes[i].Kind switch
++        {
++            SupplyNodeKind.Contact => Input(i,WorkshopSocket.PowerIn) && contacts[i],
++            SupplyNodeKind.Consumer => Input(i,WorkshopSocket.PowerIn),
++            SupplyNodeKind.LogicGate => Input(i,WorkshopSocket.PowerIn) && Evaluate(_nodes[i].Operation!.Value,
++                Input(i,WorkshopSocket.FirstIn),Input(i,WorkshopSocket.SecondIn)),
++            _ => throw new ArgumentException("Unsupported electrical node.")
++        };
+     }
+     public static bool Evaluate(LogicGateOperation operation, bool first, bool second) => operation switch
+     {
+         LogicGateOperation.And => first && second,
++        LogicGateOperation.Nand => !(first && second),
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
++    /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
++    public static bool IsMonotone(LogicGateOperation operation) => operation switch
++    {
++        LogicGateOperation.And => true,
++        LogicGateOperation.Nand => false,
++        _ => throw new ArgumentOutOfRangeException(nameof(operation))
++    };
++
++}
++
++/// <summary>Directed cycles of the declared electrical topology. Only monotone rules may share one: a gate that more input power can
++/// switch off (Nand) has no settled zero-delay state on a loop, so connection validation refuses such a loop before any solve, even
++/// when only an open contact closes it.</summary>
++public static class SupplyCycles
++{
++    /// <summary>A node without a gate law (source, contact, consumer) only ever passes more power on with more power in.</summary>
++    public static bool Monotone(LogicGateOperation? operation) => operation is not { } gate || CompiledSupplyGraph.IsMonotone(gate);
+ 
++    /// <summary>The strongly connected components of a graph given as predecessor lists, in evaluation order: every edge runs from an
++    /// earlier component into a later one or stays inside one. Tarjan over predecessors emits each component after everything
++    /// upstream of it; iterative, so a long chain cannot exhaust the worker's stack.</summary>
++    public static int[][] Components(int[][] predecessors)
++    {
++        ArgumentNullException.ThrowIfNull(predecessors);
++        var count=predecessors.Length;
++        var index=new int[count]; var low=new int[count]; var onStack=new bool[count];
++        Array.Fill(index,-1);
++        var stack=new System.Collections.Generic.Stack<int>();
++        var work=new System.Collections.Generic.Stack<(int Node,int Edge)>();
++        var components=new System.Collections.Generic.List<int[]>();
++        var next=0;
++        for(var root=0;root<count;root++)
++        {
++            if(index[root]>=0) continue;
++            Open(root);
++            while(work.TryPop(out var frame))
++            {
++                var (node,edge)=frame;
++                if(edge<predecessors[node].Length)
++                {
++                    work.Push((node,edge+1));
++                    var other=predecessors[node][edge];
++                    if(index[other]<0) Open(other);
++                    else if(onStack[other]) low[node]=Math.Min(low[node],index[other]);
++                    continue;
++                }
++                if(work.TryPeek(out var parent)) low[parent.Node]=Math.Min(low[parent.Node],low[node]);
++                if(low[node]!=index[node]) continue;
++                var members=new System.Collections.Generic.List<int>();
++                int member;
++                do { member=stack.Pop(); onStack[member]=false; members.Add(member); } while(member!=node);
++                members.Sort();
++                components.Add(members.ToArray());
++            }
++        }
++        return components.ToArray();
++        void Open(int node) { index[node]=low[node]=next++; stack.Push(node); onStack[node]=true; work.Push((node,0)); }
++    }
++
++    public static bool Cyclic(int[] component, int[][] predecessors) =>
++        component.Length>1 || Array.IndexOf(predecessors[component[0]],component[0])>=0;
++
++    /// <summary>The ascending owners of the first directed cycle through a nonmonotone gate, or empty. <paramref name="operation"/>
++    /// names each owner's declared gate law (null for a part without one); the edges are the potential topology, every electrical
++    /// wire whatever its socket and whether or not a contact on it is closed.</summary>
++    public static GpuBodyId[] NonmonotoneCycle(System.Collections.Generic.IEnumerable<(GpuBodyId Source, GpuBodyId Target)> edges,
++        Func<GpuBodyId, LogicGateOperation?> operation)
++    {
++        ArgumentNullException.ThrowIfNull(edges); ArgumentNullException.ThrowIfNull(operation);
++        var wires=edges.ToArray();
++        var owners=wires.SelectMany(wire=>new[]{wire.Source,wire.Target}).Distinct().OrderBy(owner=>owner.Value).ToArray();
++        var slot=owners.Select((owner,i)=>(owner,i)).ToDictionary(pair=>pair.owner,pair=>pair.i);
++        var predecessors=owners.Select(owner=>wires.Where(wire=>wire.Target==owner).Select(wire=>slot[wire.Source]).ToArray()).ToArray();
++        foreach(var component in Components(predecessors))
++            if(Cyclic(component,predecessors) && component.Any(i=>!Monotone(operation(owners[i]))))
++                return component.Select(i=>owners[i]).ToArray();
++        return [];
++    }
+ }
+ 
+ /// <summary>Player controls the discrete owner hands to one physics step: the enable state of every admitted source, in source order.</summary>
+diff --git a/engine/gpu/WorkshopConnections.cs b/engine/gpu/WorkshopConnections.cs
+index 9d869dfb..61bbb6e8 100644
+--- a/engine/gpu/WorkshopConnections.cs
++++ b/engine/gpu/WorkshopConnections.cs
+@@ -98,6 +98,14 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
+                         throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
+             }
+         }
++        // Every electrical wire is a potential path, open contacts included: a loop through a nonmonotone gate is refused here, in
++        // build mode, before any construction or solve sees it. The rule reads each part's declared gate law, never its identity.
++        var loop = SupplyCycles.NonmonotoneCycle(
++            _items.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && link.Input != WorkshopSocket.PowerIn).Select(link => (link.Source, link.Target)),
++            owner => DeclaredPhysics.Of(partOf(owner)!.Value).Electrical?.Supply?.Operation);
++        if (loop.Length != 0)
++            throw new WorkshopEditRejectedException(WorkshopEditRejection.NonmonotoneFeedback,
++                $"Break the wire loop through parts {string.Join(", ", loop.Select(owner => owner.Value))}. This gate's output cannot feed its own inputs.");
+     }
+     public bool Equals(WorkshopConnections? other) =>
+         other is not null && _items.Length == other._items.Length && _items.SequenceEqual(other._items);
+diff --git a/engine/gpu/WorkshopEditRejectedException.cs b/engine/gpu/WorkshopEditRejectedException.cs
+index 37183908..1e42e016 100644
+--- a/engine/gpu/WorkshopEditRejectedException.cs
++++ b/engine/gpu/WorkshopEditRejectedException.cs
+@@ -33,6 +33,8 @@ public enum WorkshopEditRejection : uint
+     PuzzleSettings,
+     /// <summary>The Workshop has no bench placement for that part.</summary>
+     UnsupportedPart,
++    /// <summary>A wire would close a loop through a gate whose output more input power can switch off.</summary>
++    NonmonotoneFeedback,
+ }
+ 
+ /// <summary>
