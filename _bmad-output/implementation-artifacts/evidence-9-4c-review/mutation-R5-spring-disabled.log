@@ -1,0 +1,37 @@
+# mutation R5-spring-disabled  2026-10-22T03:26:46Z  base 55ee05b96f949a7d93241b5ed0608b32db6bb8a0
+diff --git a/elements/PoweredGate/PoweredGateElementDeclaration.cs b/elements/PoweredGate/PoweredGateElementDeclaration.cs
+index 930e998a..f7572349 100644
+--- a/elements/PoweredGate/PoweredGateElementDeclaration.cs
++++ b/elements/PoweredGate/PoweredGateElementDeclaration.cs
+@@ -70,7 +70,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
+     public IReadOnlyList<PrismaticSliderDescriptor> Sliders =>
+     [
+         new(new(Vector3.Zero, Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
+-            0f, 1.55f, MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
++            0f, 1.55f, MechanicalValue.Fixed(0.001f), MechanicalValue.Fixed(4f), /* MUTATION R5: return spring disabled */ MechanicalValue.Fixed(0f), false,
+             new(1f, new Vector3(0f, -9.81f, 0f), 0f,
+                 []))
+     ];
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [36 ms]
+  Error Message:
+   the unsupplied blade falls
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [81 ms]
+  Error Message:
+   fact 15: energy 15.66391 -> 15.668477 at tick 117
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [80 ms]
+  Error Message:
+   blade closes within 240 ticks of tick 103 (closed index -1)
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [79 ms]
+  Error Message:
+   spring-damper law residual 21.732693 m/s²
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [64 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 1.53504
+--
+Failed!  - Failed:     5, Passed:     5, Skipped:     0, Total:    10, Duration: 841 ms - CuriousContraptions.tests.dll (net10.0)

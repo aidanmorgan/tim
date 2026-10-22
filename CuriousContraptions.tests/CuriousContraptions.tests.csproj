@@ -77,6 +77,7 @@
         <Compile Include="ElectricalNandTests.cs" />
         <Compile Include="ElectricalNorTests.cs" />
         <Compile Include="SwitchElectricalTests.cs" />
+        <Compile Include="LatchSupplyFixtureTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />
         <Compile Include="ElectricalSupplyTests.cs" />
         <Compile Include="SoftConstraintTests.cs" />

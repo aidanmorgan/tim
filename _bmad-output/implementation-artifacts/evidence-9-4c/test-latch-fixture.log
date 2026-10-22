@@ -1,0 +1,22 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.18]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.81]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.92]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.AuthoredDisabledBatteryNeverOpensAfterSet [150 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [36 ms]
+[xUnit.net 00:00:02.03]   Finished:    CuriousContraptions.tests (ID = '5f7e9517178500677e3214735c55296a1436e3952f979ddb0eea1852dd614a9f')
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [81 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [80 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [67 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [75 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [36 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [41 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically [119 ms]
+  Passed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [62 ms]
+
+Test Run Successful.
+Total tests: 10
+     Passed: 10
+ Total time: 2.2289 Seconds

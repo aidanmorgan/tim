@@ -1,0 +1,47 @@
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index a023d289..7bb4fb77 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -125,7 +125,7 @@ public sealed class CompiledSupplyGraph
+         var contacts = new bool[_nodes.Length];
+         for (var i=0;i<_nodes.Length;i++)
+         {
+-            if (_sources[i]>=0) powered[i]=controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled;
++            if (_sources[i]>=0) powered[i]=true; // MUTATION M3
+             if (_nodes[i].Kind==SupplyNodeKind.Contact) contacts[i]=contactClosed(_nodes[i].Owner);
+         }
+         // Components in evaluation order: every input of a component is settled before it is visited. A singleton is evaluated
+    1 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [81 ms]
+  Error Message:
+   spring-damper law residual 0.12750816 m/s²
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [87 ms]
+  Error Message:
+   spring-damper law residual 0.088186264 m/s²
+--
+Failed!  - Failed:     2, Passed:     8, Skipped:     0, Total:    10, Duration: 889 ms - CuriousContraptions.tests.dll (net10.0)
+--- attempt 1 above did not compile (IDE0060 unused 'controls'); stale binary results discarded. attempt 2:
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index a023d289..d0725328 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -125,7 +125,7 @@ public sealed class CompiledSupplyGraph
+         var contacts = new bool[_nodes.Length];
+         for (var i=0;i<_nodes.Length;i++)
+         {
+-            if (_sources[i]>=0) powered[i]=controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled;
++            if (_sources[i]>=0) powered[i]=controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled || true; // MUTATION M3
+             if (_nodes[i].Kind==SupplyNodeKind.Contact) contacts[i]=contactClosed(_nodes[i].Owner);
+         }
+         // Components in evaluation order: every input of a component is settled before it is visited. A singleton is evaluated
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.AuthoredDisabledBatteryNeverOpensAfterSet [153 ms]
+  Error Message:
+   Assert.All() Failure: 173 out of 240 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [36 ms]
+  Error Message:
+   Assert.All() Failure: 40 out of 40 items in the collection did not pass.
+--
+Failed!  - Failed:     2, Passed:     8, Skipped:     0, Total:    10, Duration: 804 ms - CuriousContraptions.tests.dll (net10.0)

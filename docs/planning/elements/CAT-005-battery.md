@@ -144,6 +144,7 @@ Acceptance authority: [CAT-005](../requirements.md#current-cat-005) and [todo-14
 - **Run/Reset.** Reset restores the authored enable state and an unpowered network; replay is tick-identical (L3, N22).
 - **Save/Load.** `enabled` and the electrical wire round-trip with exact socket names (N16).
 - **Integrations.** Supply-loss control through the supply fixture (N19) once Latch exists; `battery_motor` and `switched_motor` replays once the Motor and Switch supply modes exist.
+  - *Status (Story 9.4c, 22 Oct 2026):* the N19/N17 supply fixture is proven natively by `CuriousContraptions.tests/LatchSupplyFixtureTests.cs` (production simulation; measured route lag one tick, see [spec D3](../../../_bmad-output/implementation-artifacts/spec-9-4c-latch-fixture-deferred-integrations.md)). Browser case `cat-005-n19` is pending post-catalogue E2E.
 
 ## 6. Open questions
 

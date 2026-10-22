@@ -296,7 +296,7 @@ development_status:
   # 30 (deletion-lane slot): latch-dependent deferred integrations CAT-005 N19 and CAT-051 supply
   # interruption mid-stroke (coordinator 18 Oct 2026, review-9-4 D1). Placed before 9a-c-gate because the
   # 9a-19, 9a-39 and 9a-43 ACs require its suites.
-  9-4c-latch-fixture-deferred-integrations: backlog
+  9-4c-latch-fixture-deferred-integrations: review
   # 31 (element)
   9-8b-electrical-xor-gate: backlog
   epic-9-retrospective: optional
