@@ -1,0 +1,36 @@
+2c2
+< index a023d289..6add5dd2 100644
+---
+> index a023d289..2fea7641 100644
+5c5,29
+< @@ -168,6 +168,7 @@ public sealed class CompiledSupplyGraph
+---
+> @@ -57,6 +57,7 @@ public sealed class CompiledSupplyGraph
+>      private readonly (int Source, WorkshopSocket Input)[][] _inputs;
+>      private readonly int[][] _components;
+>      private readonly bool[] _cyclic;
+> +    private bool[] _carry = [];
+>      public ReadOnlySpan<SupplyNodeDeclaration> Nodes => _nodes;
+>      public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
+>          ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> consumers,
+> @@ -133,6 +134,7 @@ public sealed class CompiledSupplyGraph
+>          // this candidate's solution.
+>          for (var c=0;c<_components.Length;c++)
+>          {
+> +            if (_cyclic[c] && _carry.Length==_nodes.Length) foreach (var i in _components[c]) if (_nodes[i].Kind!=SupplyNodeKind.Source) powered[i]=_carry[i];
+>              var changed = true;
+>              while (changed)
+>              {
+> @@ -141,6 +143,7 @@ public sealed class CompiledSupplyGraph
+>                      if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=_cyclic[c]; }
+>              }
+>          }
+> +        _carry=(bool[])powered.Clone();
+>          var closed=new bool[consumers];
+>          var logic=new System.Collections.Generic.List<ElectricalLogicRead>();
+>          for(var i=0;i<_nodes.Length;i++)
+> @@ -168,6 +171,7 @@ public sealed class CompiledSupplyGraph
+13c37
+< @@ -176,6 +177,7 @@ public sealed class CompiledSupplyGraph
+---
+> @@ -176,6 +180,7 @@ public sealed class CompiledSupplyGraph

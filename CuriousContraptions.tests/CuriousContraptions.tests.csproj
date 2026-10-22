@@ -76,6 +76,7 @@
         <Compile Include="BothGateTests.cs" />
         <Compile Include="ElectricalNandTests.cs" />
         <Compile Include="ElectricalNorTests.cs" />
+        <Compile Include="ElectricalOrTests.cs" />
         <Compile Include="SwitchElectricalTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />
         <Compile Include="ElectricalSupplyTests.cs" />

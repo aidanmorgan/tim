@@ -1,0 +1,46 @@
+merge 71f7ca1295e592db219bbc8bf1d2fcd76110afef tree eb87ad00b876cfa4bc26028acc2186ef734981d1 parents 8527aa3f7c84d8aeaa966d2948284f128bec7543 711568c473cf3143b60ea9145635ccd1a10acf64
+## git diff --check 711568c4 HEAD excluding raw evidence dirs
+exit 0
+## working tree
+exit 0
+## slice vs main (non-evidence)
+ .../ElectricalContracts.cs                         |   6 +-
+ CuriousContraptions.slnx                           |   1 +
+ .../BasketballResourceTests.cs                     |   2 +-
+ CuriousContraptions.tests/BundleElementIdTests.cs  |   2 +-
+ CuriousContraptions.tests/BundlePortsTests.cs      |   1 +
+ CuriousContraptions.tests/CSharpStaticGateTests.cs |   3 +-
+ .../CuriousContraptions.tests.csproj               |   1 +
+ CuriousContraptions.tests/ElectricalNandTests.cs   |  24 +-
+ CuriousContraptions.tests/ElectricalNorTests.cs    |  25 +-
+ CuriousContraptions.tests/ElectricalOrTests.cs     | 409 +++++++++++++++++++++
+ .../PackageRuntimeParityTests.cs                   |   6 +-
+ CuriousContraptions.tests/PalettePlacementTests.cs |  50 +++
+ CuriousContraptions.tests/PartRegistryTests.cs     |   8 +-
+ .../WorkbenchCapacityTests.cs                      |   4 +-
+ .../WorkshopPhysicsLawTests.cs                     |   2 +
+ TODO.md                                            |   6 +-
+ .../review-9-8a-electrical-or.md                   |  70 ++++
+ .../spec-9-8a-electrical-or.md                     | 235 ++++++++++++
+ .../implementation-artifacts/sprint-status.yaml    |   2 +-
+ docs/planning/elements/CAT-024-electrical_nand.md  |   2 +-
+ docs/planning/elements/CAT-025-electrical_nor.md   |   2 +-
+ docs/planning/elements/CAT-026-electrical_or.md    |  10 +-
+ elements/ElectricalOr/ElectricalOr.csproj          |  12 +
+ .../ElectricalOr/ElectricalOrElementDeclaration.cs |  47 +++
+ .../ElectricalOrElementDeclaration.cs.uid          |   1 +
+ elements/ElectricalOr/electrical_or.tscn           | 240 ++++++++++++
+ elements/ElectricalOr/icon.svg                     |   1 +
+ elements/ElectricalOr/icon.svg.import              |  43 +++
+ engine/gpu/SupplyRoute.cs                          |   2 +
+ tools/BundleElements.Tests/BundleValidatorTests.cs |   3 +-
+ .../Coverage.Tests/CurrentCapabilityInputsTests.cs |   8 +-
+ tools/Coverage.Tests/CurrentCatalogueTests.cs      |   7 +-
+ tools/E2eRunner/ImpactRules.cs                     |   2 +-
+ 33 files changed, 1182 insertions(+), 55 deletions(-)
+## merge resolution delta vs WIP, slice-owned files
+ CuriousContraptions.tests/WorkbenchCapacityTests.cs | 4 ++--
+ TODO.md                                             | 8 +++++---
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+## deleted-API callers in slice tests (expect none)
+exit 1

@@ -1,0 +1,16 @@
+_bmad-output/implementation-artifacts/evidence-9-8a-review/candidate-identity-manifest.txt
+_bmad-output/implementation-artifacts/evidence-9-8a/build-debug-final.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.build.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.diff
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.build.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.diff
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.build.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.diff
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.build.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.diff
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.build.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.diff
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.build.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.diff
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.build.log
+_bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.diff

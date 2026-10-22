@@ -8,12 +8,12 @@
 
 **Also verified (receipts carried with C-Bumper+Spring):** C-Balls (position 26) terminal scoped Pass at main 3fce7a03 ([review](_bmad-output/implementation-artifacts/review-c-balls.md)); 9.7b Electrical NOR (position 27) terminal scoped Pass at main 55ee05b9, CI 39714013919, deployment 7242636803 ([review](_bmad-output/implementation-artifacts/review-9-7b-electrical-nor.md)); browser pending for both.
 
-**In flight:** C-Bumper+Spring (position 28; worktree `story-c-bumper-spring`, main 55ee05b9 merged in). Pinball Bumper and Springboard are generic instances: the Bumper declares a `ContactWorkDescriptor` and the Springboard is the shared slider compile with generic slider presentation. Records, panels and six wire fields are deleted; 91 Known rows removed. [Spec and evidence](_bmad-output/implementation-artifacts/spec-c-bumper-spring.md#evidence).
+**In flight:** 9.8a Either gate (CAT-026, position 29; worktree `story-9-8a`, main 711568c4 merged in): package `elements/ElectricalOr` and the monotone Or law; Or-only loops admitted at their least fixed point, mixed loops refused; pre-merge review Pass-pending-merge ([review](_bmad-output/implementation-artifacts/review-9-8a-electrical-or.md)). [Spec and evidence](_bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md#current-state). C-Bumper+Spring (position 28: Pinball Bumper and Springboard as generic instances, [spec](_bmad-output/implementation-artifacts/spec-c-bumper-spring.md#evidence)) is merged to main 711568c4; its terminal receipt stays with its owner.
 
-**Owner / next check:** C-Bumper+Spring implementation owner, retained for reviewer findings. Full `dotnet test CuriousContraptions.slnx --no-build --no-restore` on one matching 0-warning Debug build of the merged candidate (totals in the spec evidence); CI tools step and Release worker clean. Next: independent review and SnapshotApproval, then normal publication. Browser 9R.8 pending.
+**Owner / next check:** 9.8a implementation owner, retained for reviewer findings. Full `dotnet test CuriousContraptions.slnx --no-build --no-restore` on one matching 0-warning Debug build of the merged candidate (totals in the spec evidence); CI tools step and Release worker clean. Next: independent SnapshotApproval of the merged snapshot, then normal publication. No known product blocker; browser qualification deferred.
 
 **Verification:** Production C# UNIT tests PRIMARY, integration supplemental. Real behavior/control/boundary/ticks/Reset/save-load; one matching build per changed input/config then --no-build --no-restore. Chrome/E2E deferred until all catalogue elements complete.
 
 **Cleanup/design:** Explicit record/factory/compiler/capture/whitelist/caller deletion, package-owned declarations and typed shared engines. No fallback, compatibility bridge or new platform.
 
-**Next:** after C-Bumper+Spring, position 29 (9.8a OR) per the roadmap. Preserve unrelated main dirt and historical evidence.
+**Next:** publish 9.8a OR (position 29) after its SnapshotApproval, then the next roadmap position. Preserve unrelated main dirt and historical evidence.

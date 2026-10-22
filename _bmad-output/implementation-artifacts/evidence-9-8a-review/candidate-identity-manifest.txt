@@ -1,0 +1,716 @@
+diff --git a/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs b/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
+index ba91b995..83826463 100644
+--- a/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
++++ b/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
+@@ -26,9 +26,9 @@ public interface IElectricalElement : IPuzzleElementDeclaration
+ 
+ /// <summary>A declared supply route; switched contacts conduct only their own committed closed state.</summary>
+ public enum SupplyCapabilityKind : byte { Source, SwitchedContact, LogicGate }
+-/// <summary>The declared law of a supplied two-input gate. And is monotone; Nand and Nor are not, so neither may sit on a
+-/// directed electrical cycle.</summary>
+-public enum LogicGateOperation : byte { And = 0, Nand = 1, Nor = 2 }
++/// <summary>The declared law of a supplied two-input gate. And and Or are monotone; Nand and Nor are not, so neither may sit on
++/// a directed electrical cycle.</summary>
++public enum LogicGateOperation : byte { And = 0, Nand = 1, Nor = 2, Or = 3 }
+ 
+ public readonly record struct SupplyCapabilityDescriptor(
+     SupplyCapabilityKind Kind, PortSocket? Input, PortSocket Output, LogicGateOperation? Operation = null);
+diff --git a/CuriousContraptions.slnx b/CuriousContraptions.slnx
+index cf327ef2..c93fe2de 100644
+--- a/CuriousContraptions.slnx
++++ b/CuriousContraptions.slnx
+@@ -23,6 +23,7 @@
+     <Project Path="elements/BothGate/BothGate.csproj" />
+     <Project Path="elements/ElectricalNand/ElectricalNand.csproj" />
+     <Project Path="elements/ElectricalNor/ElectricalNor.csproj" />
++    <Project Path="elements/ElectricalOr/ElectricalOr.csproj" />
+     <Project Path="elements/Domino/Domino.csproj" />
+     <Project Path="elements/Funnel/Funnel.csproj" />
+     <Project Path="elements/ImpactSwitch/ImpactSwitch.csproj" />
+diff --git a/CuriousContraptions.tests/BasketballResourceTests.cs b/CuriousContraptions.tests/BasketballResourceTests.cs
+index 9e9b8c87..acb549ba 100644
+--- a/CuriousContraptions.tests/BasketballResourceTests.cs
++++ b/CuriousContraptions.tests/BasketballResourceTests.cs
+@@ -32,7 +32,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
+     {
+         var registry = new PartRegistry();
+         registry.Load();
+-        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor") }.OrderBy(id => id),
++        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or") }.OrderBy(id => id),
+             registry.Definitions.Keys.OrderBy(id => id));
+         // The canonical binary16 bits each package's material compiles to (the generic dynamic-body compile).
+         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+diff --git a/CuriousContraptions.tests/BundleElementIdTests.cs b/CuriousContraptions.tests/BundleElementIdTests.cs
+index 647feca9..177449a3 100644
+--- a/CuriousContraptions.tests/BundleElementIdTests.cs
++++ b/CuriousContraptions.tests/BundleElementIdTests.cs
+@@ -78,7 +78,7 @@ public sealed class BundleElementIdTests
+     [Fact]
+     public void EveryLoadedElementIsKnownToTheWorkerDecode()
+     {
+-        Assert.Equal(26, SaveFixture.Elements.Count);
++        Assert.Equal(27, SaveFixture.Elements.Count);
+         foreach (var element in SaveFixture.Elements)
+         {
+             var builder = new FlatBufferBuilder(256);
+diff --git a/CuriousContraptions.tests/BundlePortsTests.cs b/CuriousContraptions.tests/BundlePortsTests.cs
+index 5bd8fe77..873daf99 100644
+--- a/CuriousContraptions.tests/BundlePortsTests.cs
++++ b/CuriousContraptions.tests/BundlePortsTests.cs
+@@ -83,6 +83,7 @@ public sealed class BundlePortsTests
+         ["both_gate"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
+         ["electrical_nand"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
+         ["electrical_nor"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
++        ["electrical_or"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
+         ["ball"] = ([], new(1, 1, 0)),
+         ["ball_detector"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0)),
+         ["basket"] = ([], new(1, 0, 0)),
+diff --git a/CuriousContraptions.tests/CSharpStaticGateTests.cs b/CuriousContraptions.tests/CSharpStaticGateTests.cs
+index 7ef0a938..ee1229fb 100644
+--- a/CuriousContraptions.tests/CSharpStaticGateTests.cs
++++ b/CuriousContraptions.tests/CSharpStaticGateTests.cs
+@@ -636,7 +636,8 @@ public sealed class CSharpStaticGateTests
+         "elements/BowlingBall/BowlingBall.csproj", "elements/Bumper/Bumper.csproj", "elements/Counter/Counter.csproj",
+         "elements/DelayBox/DelayBox.csproj", "elements/Domino/Domino.csproj", "elements/Funnel/Funnel.csproj",
+         "elements/HoldTimer/HoldTimer.csproj", "elements/BothGate/BothGate.csproj", "elements/ElectricalNand/ElectricalNand.csproj",
+-        "elements/ElectricalNor/ElectricalNor.csproj", "elements/ImpactSwitch/ImpactSwitch.csproj", "elements/Pipe/Pipe.csproj",
++        "elements/ElectricalNor/ElectricalNor.csproj", "elements/ElectricalOr/ElectricalOr.csproj",
++        "elements/ImpactSwitch/ImpactSwitch.csproj", "elements/Pipe/Pipe.csproj",
+         "elements/PipeBend45/PipeBend45.csproj", "elements/PipeBend90/PipeBend90.csproj",
+         "elements/PoweredGate/PoweredGate.csproj", "elements/PressurePlate/PressurePlate.csproj",
+         "elements/Ramp/Ramp.csproj", "elements/Receiver/Receiver.csproj", "elements/SignalLamp/SignalLamp.csproj",
+diff --git a/CuriousContraptions.tests/CuriousContraptions.tests.csproj b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+index 2d88962f..61f7d0e0 100644
+--- a/CuriousContraptions.tests/CuriousContraptions.tests.csproj
++++ b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+@@ -76,6 +76,7 @@
+         <Compile Include="BothGateTests.cs" />
+         <Compile Include="ElectricalNandTests.cs" />
+         <Compile Include="ElectricalNorTests.cs" />
++        <Compile Include="ElectricalOrTests.cs" />
+         <Compile Include="SwitchElectricalTests.cs" />
+         <Compile Include="WorkshopBumperTests.cs" />
+         <Compile Include="ElectricalSupplyTests.cs" />
+diff --git a/CuriousContraptions.tests/ElectricalNandTests.cs b/CuriousContraptions.tests/ElectricalNandTests.cs
+index 1b3f665f..a3babbd2 100644
+--- a/CuriousContraptions.tests/ElectricalNandTests.cs
++++ b/CuriousContraptions.tests/ElectricalNandTests.cs
+@@ -130,28 +130,28 @@ public sealed class ElectricalNandTests
+             }
+     }
+ 
+-    /// <summary>CAT-024 D6 with Both Gate in place of the undelivered Or (9.8a): battery 1 feeds the Not both gate's first input
+-    /// directly and its second input through a Both Gate. Enabling it retracts the output on the very first tick.</summary>
++    /// <summary>CAT-024 D6 (CAT-026 O9): battery 1 feeds the Not both gate's first input directly and its second input through an
++    /// Either gate (its first input only). Enabling it retracts the output on the very first tick.</summary>
+     [Theory]
+     [InlineData(false)]
+     [InlineData(true)]
+     public async Task ReconvergentConditionRetractsOutputOnTheSameTick(bool gateFirst)
+     {
+-        ulong both=gateFirst?Gate:6, nand=gateFirst?6:Gate;
++        ulong either=gateFirst?Gate:6, nand=gateFirst?6:Gate;
+         var parts=new List<IWorkshopInstance>{Battery(1,-8,false),Battery(2,-5,true),
+-            WorkshopInput.Generic(BothGateTests.Kind,new(both),-1,3,-3,0,0,0,1),
++            WorkshopInput.Generic(ElectricalOrTests.Kind,new(either),-1,3,-3,0,0,0,1),
+             WorkshopInput.Generic(Kind,new(nand),3,3,0,0,0,0,1),
+             WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)};
+         if(gateFirst) parts.Reverse();
+         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
+-            Link(1,nand,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.SecondIn),Link(2,both),
+-            Link(both,nand,WorkshopSocket.SecondIn),Link(2,nand),Link(nand,Consumer)));
++            Link(1,nand,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
++            Link(either,nand,WorkshopSocket.SecondIn),Link(2,nand),Link(nand,Consumer)));
+         var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([],90),([new(new(1),ElectricalEnable.Enabled)],40));
+         Assert.All(phases[0],read=>{Assert.Equal(ElectricalInputState.Neither,Logic(read,nand).Inputs);Assert.True(Logic(read,nand).Active);Assert.True(Powered(read));});
+         Assert.True(BladeY(phases[0][^1])>BladeY(phases[0][0])+.2f);
+         Assert.All(phases[1],read=>
+         {
+-            Assert.True(Logic(read,both).Active);
++            Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,either).Inputs);Assert.True(Logic(read,either).Active);
+             Assert.Equal(ElectricalInputState.Both,Logic(read,nand).Inputs);Assert.False(Logic(read,nand).Active);Assert.False(Powered(read));
+         });
+         Assert.True(BladeY(phases[1][^1])<BladeY(phases[0][^1])-.02f);
+@@ -181,12 +181,13 @@ public sealed class ElectricalNandTests
+         NoFixedCapacityTests.AssertSameState(built,reset,"monotone loop Reset");
+     }
+ 
+-    public enum FeedbackLoop { NandToNand, ThroughBothGate, ThroughOpenSwitch, EnteringPowerIn }
++    public enum FeedbackLoop { NandToNand, ThroughBothGate, ThroughOr, ThroughOpenSwitch, EnteringPowerIn }
+     /// <summary>Each loop as an acyclic construction plus the one wire that closes it, and the ids the refusal must name.</summary>
+     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string Ids) LoopCase(FeedbackLoop loop)
+     {
+         IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),x,3,0,0,0,0,1);
+         IWorkshopInstance Both(ulong id,float x)=>WorkshopInput.Generic(BothGateTests.Kind,new(id),x,3,-3,0,0,0,1);
++        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(ElectricalOrTests.Kind,new(id),x,3,-3,0,0,0,1);
+         var supply=Battery(1,-8,true);
+         var (parts,links,closing,ids)=loop switch
+         {
+@@ -194,6 +195,8 @@ public sealed class ElectricalNandTests
+                 Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
+             FeedbackLoop.ThroughBothGate => (new[]{supply,Nand(4,0),Both(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn)},
+                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
++            FeedbackLoop.ThroughOr => (new[]{supply,Nand(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
++                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+             FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nand(4,0),WorkshopInput.Generic(PartId.ImpactSwitch,new(6),4,1,0,0,0,0,1)},
+                 new[]{Link(1,4),Link(4,6)},Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
+             FeedbackLoop.EnteringPowerIn => (new[]{supply,Nand(4,0),Both(6,4),Both(7,8)},
+@@ -207,6 +210,7 @@ public sealed class ElectricalNandTests
+     [Theory]
+     [InlineData(FeedbackLoop.NandToNand)]
+     [InlineData(FeedbackLoop.ThroughBothGate)]
++    [InlineData(FeedbackLoop.ThroughOr)]
+     [InlineData(FeedbackLoop.ThroughOpenSwitch)]
+     [InlineData(FeedbackLoop.EnteringPowerIn)]
+     public async Task ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop)
+@@ -278,8 +282,8 @@ public sealed class ElectricalNandTests
+             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nand,row.Item1,row.Item2)).ToArray());
+         Assert.True(CompiledSupplyGraph.IsMonotone(LogicGateOperation.And));
+         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nand));
+-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)3,true,true));
+-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)3));
++        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)4,true,true));
++        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)4));
+         Assert.Equal(LogicGateOperation.Nand,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
+         var construction=SwitchMachine(ElectricalInputState.Neither,true);
+         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,(WorkshopSocket)255))}).Validate());
+diff --git a/CuriousContraptions.tests/ElectricalNorTests.cs b/CuriousContraptions.tests/ElectricalNorTests.cs
+index 86d9612e..8b7e2ba7 100644
+--- a/CuriousContraptions.tests/ElectricalNorTests.cs
++++ b/CuriousContraptions.tests/ElectricalNorTests.cs
+@@ -142,27 +142,27 @@ public sealed class ElectricalNorTests
+             }
+     }
+ 
+-    /// <summary>CAT-025 boundary with Both Gate in place of the undelivered Or (9.8a): condition battery 1 feeds the Neither gate's
+-    /// first input directly and its second input through a Both Gate (supplied by battery 2). Enabled from the start, the output
++    /// <summary>CAT-025 boundary (CAT-026 O9): condition battery 1 feeds the Neither gate's first input directly and its second input
++    /// through an Either gate (its first input only; supplied by battery 2). Enabled from the start, the output
+     /// never powers the consumer on any tick; disabling it is the positive control, and re-enabling retracts on the first tick.</summary>
+     [Theory]
+     [InlineData(false)]
+     [InlineData(true)]
+     public async Task ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(bool gateFirst)
+     {
+-        ulong both=gateFirst?Gate:6, nor=gateFirst?6:Gate;
++        ulong either=gateFirst?Gate:6, nor=gateFirst?6:Gate;
+         var parts=new List<IWorkshopInstance>{Battery(1,-8,true),Battery(2,-5,true),
+-            WorkshopInput.Generic(BothGateTests.Kind,new(both),-1,3,-3,0,0,0,1),
++            WorkshopInput.Generic(ElectricalOrTests.Kind,new(either),-1,3,-3,0,0,0,1),
+             WorkshopInput.Generic(Kind,new(nor),3,3,0,0,0,0,1),
+             WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)};
+         if(gateFirst) parts.Reverse();
+         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
+-            Link(1,nor,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.SecondIn),Link(2,both),
+-            Link(both,nor,WorkshopSocket.SecondIn),Link(2,nor),Link(nor,Consumer)));
++            Link(1,nor,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
++            Link(either,nor,WorkshopSocket.SecondIn),Link(2,nor),Link(nor,Consumer)));
+         var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,60);
+         Assert.All(reads,read=>
+         {
+-            Assert.True(Logic(read,both).Active);
++            Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,either).Inputs);Assert.True(Logic(read,either).Active);
+             Assert.Equal(ElectricalInputState.Both,Logic(read,nor).Inputs);Assert.True(Logic(read,nor).Supplied);
+             Assert.False(Logic(read,nor).Active);Assert.False(Powered(read));AssertBladeStill(read,BladeY(built));
+         });
+@@ -173,7 +173,7 @@ public sealed class ElectricalNorTests
+         Assert.True(BladeY(phases[0][^1])>BladeY(built)+.2f); // the control: the same consumer really opens on the 00 row
+         Assert.All(phases[1],read=>
+         {
+-            Assert.True(Logic(read,both).Active);
++            Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,either).Inputs);Assert.True(Logic(read,either).Active);
+             Assert.Equal(ElectricalInputState.Both,Logic(read,nor).Inputs);Assert.False(Logic(read,nor).Active);Assert.False(Powered(read));
+         });
+         Assert.True(BladeY(phases[1][^1])<BladeY(phases[0][^1])-.02f);
+@@ -204,13 +204,14 @@ public sealed class ElectricalNorTests
+         NoFixedCapacityTests.AssertSameState(built,reset,"monotone loop Reset");
+     }
+ 
+-    public enum FeedbackLoop { NorToNor, ThroughBothGate, MixedWithNand, ThroughOpenSwitch, EnteringPowerIn }
++    public enum FeedbackLoop { NorToNor, ThroughBothGate, ThroughOr, MixedWithNand, ThroughOpenSwitch, EnteringPowerIn }
+     /// <summary>Each loop as an acyclic construction plus the one wire that closes it, and the ids the refusal must name.</summary>
+     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string Ids) LoopCase(FeedbackLoop loop)
+     {
+         IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),x,3,0,0,0,0,1);
+         IWorkshopInstance Both(ulong id,float x)=>WorkshopInput.Generic(BothGateTests.Kind,new(id),x,3,-3,0,0,0,1);
+         IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(ElectricalNandTests.Kind,new(id),x,3,-3,0,0,0,1);
++        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(ElectricalOrTests.Kind,new(id),x,3,-3,0,0,0,1);
+         var supply=Battery(1,-8,true);
+         var (parts,links,closing,ids)=loop switch
+         {
+@@ -218,6 +219,9 @@ public sealed class ElectricalNorTests
+                 Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
+             FeedbackLoop.ThroughBothGate => (new[]{supply,Nor(4,0),Both(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn)},
+                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
++            // CAT-025 R6: Nor → Or → Nor.
++            FeedbackLoop.ThroughOr => (new[]{supply,Nor(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
++                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+             FeedbackLoop.MixedWithNand => (new[]{supply,Nor(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.SecondIn)},
+                 Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
+             FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nor(4,0),WorkshopInput.Generic(PartId.ImpactSwitch,new(6),4,1,0,0,0,0,1)},
+@@ -233,6 +237,7 @@ public sealed class ElectricalNorTests
+     [Theory]
+     [InlineData(FeedbackLoop.NorToNor)]
+     [InlineData(FeedbackLoop.ThroughBothGate)]
++    [InlineData(FeedbackLoop.ThroughOr)]
+     [InlineData(FeedbackLoop.MixedWithNand)]
+     [InlineData(FeedbackLoop.ThroughOpenSwitch)]
+     [InlineData(FeedbackLoop.EnteringPowerIn)]
+@@ -280,7 +285,7 @@ public sealed class ElectricalNorTests
+             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nor,row.Item1,row.Item2)).ToArray());
+         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nor));
+         Assert.False(SupplyCycles.Monotone(LogicGateOperation.Nor));
+-        foreach(var undefined in new[]{(LogicGateOperation)3,(LogicGateOperation)255})
++        foreach(var undefined in new[]{(LogicGateOperation)4,(LogicGateOperation)255})
+         {
+             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate(undefined,false,false));
+             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone(undefined));
+diff --git a/CuriousContraptions.tests/PackageRuntimeParityTests.cs b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+index 6497d163..efd9e801 100644
+--- a/CuriousContraptions.tests/PackageRuntimeParityTests.cs
++++ b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+@@ -197,8 +197,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+         _ = godot;
+         var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+         var rows = new List<System.Text.Json.Nodes.JsonNode>();
+-        // The immutable 9A.16 baseline predates Hold, Both Gate, Not both gate and Neither gate; their new geometry is checked separately.
+-        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor")).OrderBy(package => package.Package, StringComparer.Ordinal))
++        // The immutable 9A.16 baseline predates Hold and the supplied gates; their new geometry is checked separately.
++        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or")).OrderBy(package => package.Package, StringComparer.Ordinal))
+         {
+             Capture(package.Declaration.Metadata.Id, Placed(new PartId(package.Declaration.Metadata.Id)));
+         }
+@@ -405,7 +405,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
+-        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" =>
++        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" =>
+             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
+         "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
+         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+diff --git a/CuriousContraptions.tests/PalettePlacementTests.cs b/CuriousContraptions.tests/PalettePlacementTests.cs
+index f9942c9e..6a69f399 100644
+--- a/CuriousContraptions.tests/PalettePlacementTests.cs
++++ b/CuriousContraptions.tests/PalettePlacementTests.cs
+@@ -154,6 +154,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+     /// loop through the gate, even through an open switch, is refused on the bottom status line with no command and no Undo.</summary>
+     [Theory]
+     [InlineData(ElectricalNandTests.FeedbackLoop.NandToNand)]
++    [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOr)]
+     [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOpenSwitch)]
+     public async Task NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(ElectricalNandTests.FeedbackLoop loop)
+     {
+@@ -190,6 +191,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+     [Theory]
+     [InlineData(ElectricalNorTests.FeedbackLoop.NorToNor)]
+     [InlineData(ElectricalNorTests.FeedbackLoop.ThroughBothGate)]
++    [InlineData(ElectricalNorTests.FeedbackLoop.ThroughOr)]
+     [InlineData(ElectricalNorTests.FeedbackLoop.MixedWithNand)]
+     [InlineData(ElectricalNorTests.FeedbackLoop.ThroughOpenSwitch)]
+     [InlineData(ElectricalNorTests.FeedbackLoop.EnteringPowerIn)]
+@@ -222,6 +224,54 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         finally {Release(scene);}
+     }
+ 
++    /// <summary>CAT-026 through the real chooser: a wire closing a pure Either-gate loop is admitted with one Undo entry, and a wire
++    /// closing a loop with a Not both or Neither gate in it is refused on the bottom status line with no command and no Undo.</summary>
++    [Theory]
++    [InlineData(ElectricalOrTests.FeedbackLoop.OrToOr)]
++    [InlineData(ElectricalOrTests.FeedbackLoop.WithNand)]
++    [InlineData(ElectricalOrTests.FeedbackLoop.WithNor)]
++    [InlineData(ElectricalOrTests.FeedbackLoop.ThroughOpenSwitch)]
++    [InlineData(ElectricalOrTests.FeedbackLoop.EnteringPowerIn)]
++    public async Task EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(ElectricalOrTests.FeedbackLoop loop)
++    {
++        var (scene,client)=BenchScene(ElectricalOrTests.Kind,PlacementAnswer.Applied);
++        try
++        {
++            var (open,closing,ids)=ElectricalOrTests.LoopCase(loop);
++            await scene.World.ReplaceConstruction(open);
++            var choices=Field<VBoxContainer>(scene,"_connectionChoices");
++            IEnumerable<Button> Buttons()=>choices.GetChildren().OfType<Button>();
++            MachinePart Part(GpuBodyId id)=>scene.World.Parts.Single(part=>part.AuthoredId==id);
++            Assert.Empty(InvokeHandler(scene,"Select",Part(closing.Source)));
++            Assert.Single(Buttons(),button=>button.Text=="Connect Supply").EmitSignal(Button.SignalName.Pressed);
++            Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",Part(closing.Target)));
++            Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
++            Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
++            var undos=Field<List<WorkshopConstruction>>(scene,"_undo").Count;
++            var commands=client.Commands.Count;
++            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
++            if(ids is null)
++            {
++                Assert.Contains(closing,scene.World.Construction.Connections);
++                Assert.Equal(open.Connections.Count+1,scene.World.Construction.Connections.Count);
++                Assert.Equal(undos+1,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
++                Assert.Empty(InvokeHandler(scene,"Undo"));
++                Assert.Equal(open.Connections,scene.World.Construction.Connections);
++            }
++            else
++            {
++                Assert.Equal(open,scene.World.Construction);
++                Assert.Equal(commands,client.Commands.Count);
++                Assert.Equal(undos,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
++                var status=Field<Label>(scene,"_status").Text;
++                Assert.Contains("parts "+ids+".",status,StringComparison.Ordinal);
++                Assert.StartsWith("Break the wire loop",status,StringComparison.Ordinal);
++            }
++            Assert.Empty(godot.Errors.Drain());
++        }
++        finally {Release(scene);}
++    }
++
+     private static readonly Vector3 BenchPoint = new(0, 1, 0);
+ 
+     private static MachineWorld DiscoveredWorld()
+diff --git a/CuriousContraptions.tests/PartRegistryTests.cs b/CuriousContraptions.tests/PartRegistryTests.cs
+index 6f80b10a..bc011cf3 100644
+--- a/CuriousContraptions.tests/PartRegistryTests.cs
++++ b/CuriousContraptions.tests/PartRegistryTests.cs
+@@ -19,7 +19,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+         PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper,
+         PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector,
+         PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
+-        PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor")
++        PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or")
+     ];
+ 
+     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
+@@ -36,7 +36,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+     {
+         _ = godot;
+         var registry = Loaded();
+-        Assert.Equal(26, registry.Definitions.Count);
++        Assert.Equal(27, registry.Definitions.Count);
+         Assert.Equal(PaletteRows, registry.Free.Keys);
+         Assert.All(registry.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
+         var entries = PartRegistry.Read(Bundle()).ToDictionary(entry => new PartId(entry.Metadata.Id));
+@@ -128,7 +128,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+         Assert.Contains(expected, error.Message, StringComparison.Ordinal);
+         // Nothing is kept from a refused load: the registry still holds the last good bundle.
+         Assert.Equal(PaletteRows, registry.Free.Keys);
+-        Assert.Equal(26, registry.Definitions.Count);
++        Assert.Equal(27, registry.Definitions.Count);
+     }
+ 
+     [Fact]
+@@ -259,7 +259,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
+         var ids = PartRegistry.Read(Bundle()).Select(entry => entry.Metadata.Id)
+             .Concat(UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value)).ToArray();
+-        Assert.Equal(28, ids.Length);
++        Assert.Equal(29, ids.Length);
+         foreach (var id in ids)
+         {
+             Assert.DoesNotContain($"\"{id}\"", source, StringComparison.Ordinal);
+diff --git a/CuriousContraptions.tests/WorkbenchCapacityTests.cs b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+index 28721f6f..1eb159b4 100644
+--- a/CuriousContraptions.tests/WorkbenchCapacityTests.cs
++++ b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+@@ -114,7 +114,7 @@ public sealed class WorkbenchCapacityTests
+         "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),
+         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, x, 1, z, 0, 0, 0, 1),
+         "lamp" => WorkshopInput.Lamp(id, x, 1, z, 0, 0, 0, 1),
+-        "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
++        "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
+         "bumper" => WorkshopInput.Bumper(id, x, 1, z, 0, 0, 0, 1, BumperWork.Default),
+         "battery" => WorkshopInput.Battery(id, x, 1, z, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+         "spring" => WorkshopInput.Springboard(id, x, 1, z, 0, 0, 0, 1, SpringboardSettings.Default),
+@@ -257,7 +257,7 @@ public sealed class WorkbenchCapacityTests
+     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
+     {
+         PartId[] rows = [PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp,
+-            PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor")];
++            PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or")];
+         Assert.Equal(rows, FreePalette.Keys.ToArray());
+         Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
+         Assert.Equal(rows.Length, FreePalette.Count);
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+index 44cd65a7..9d8e1575 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+@@ -666,6 +666,8 @@ public sealed class WorkshopPhysicsLawTests
+     [InlineData("electricalNandRow", true)]  // an element-specific electrical name is still found
+     [InlineData("nandRow", true)]
+     [InlineData("norRow", true)]             // Neither gate (electrical_nor); "contactNormal" above stays generic
++    [InlineData("electricalOrRow", true)]    // Either gate: found through its "electrical" id word
++    [InlineData("orRow", false)]             // "or" is under the three-letter id-word floor (like "color", "order")
+     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
+         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
+ 
+diff --git a/TODO.md b/TODO.md
+index 88fd25d9..c0f8ed49 100644
+--- a/TODO.md
++++ b/TODO.md
+@@ -6,9 +6,9 @@
+ 
+ **Also verified:** 9.7a Electrical NAND (CAT-024, position 25) terminal scoped native/publication Pass at main b35be7f4: CI 39706295965 native 2173/2173, artifact 12395965745, deployment 7241638673; browser pending. [Review](_bmad-output/implementation-artifacts/review-9-7a-electrical-nand.md#terminal-publication-verification--22-october-2026). The C-Ramp+Receiver corrective forward fix's terminal receipt is carried with C-Balls ([review](_bmad-output/implementation-artifacts/review-c-ramp-receiver.md)).
+ 
+-**In flight:** 9.7b Neither gate (CAT-025, position 27; worktree `story-9-7b`, main 3fce7a03 merged in): package `elements/ElectricalNor` and shared Nor law on the 9.7a engine; pre-merge review Pass-pending-merge ([review](_bmad-output/implementation-artifacts/review-9-7b-electrical-nor.md)). [Spec and evidence](_bmad-output/implementation-artifacts/spec-9-7b-electrical-nor.md#current-state). C-Balls (position 26: Basketball and Bowling ball as zero-parameter generic instances, [spec](_bmad-output/implementation-artifacts/spec-c-balls.md#evidence)) is merged to main 3fce7a03; its terminal receipt stays with its owner.
++**In flight:** 9.7b Neither gate (CAT-025, position 27; worktree `story-9-7b`, main 3fce7a03 merged in): package `elements/ElectricalNor` and shared Nor law on the 9.7a engine; pre-merge review Pass-pending-merge ([review](_bmad-output/implementation-artifacts/review-9-7b-electrical-nor.md)). [Spec and evidence](_bmad-output/implementation-artifacts/spec-9-7b-electrical-nor.md#current-state). C-Balls (position 26: Basketball and Bowling ball as zero-parameter generic instances, [spec](_bmad-output/implementation-artifacts/spec-c-balls.md#evidence)) is merged to main 3fce7a03; its terminal receipt stays with its owner. 9.8a Either gate (CAT-026, position 29; worktree `story-9-8a` from main 55ee05b9): package `elements/ElectricalOr` and the monotone Or law; Or-only loops admitted, mixed loops refused. [Spec](_bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md).
+ 
+-**Owner / next check:** 9.7b implementation owner, retained for reviewer findings. Full `dotnet test CuriousContraptions.slnx --no-build --no-restore` on one matching 0-warning Debug build of the merged candidate (totals in the spec evidence); CI tools step and Release worker clean. Next: independent SnapshotApproval of the merged snapshot, then normal publication. No known product blocker; browser qualification deferred.
++**Owner / next check:** 9.7b implementation owner, retained for reviewer findings. Full `dotnet test CuriousContraptions.slnx --no-build --no-restore` on one matching 0-warning Debug build of the merged candidate (totals in the spec evidence); CI tools step and Release worker clean. Next: independent SnapshotApproval of the merged snapshot, then normal publication. 9.8a: implementation owner, native slnx 2747/2747 pre-merge; next merge main after C-Bumper+Spring, re-derive pins, then independent review and SnapshotApproval. No known product blocker; browser qualification deferred.
+ 
+ **Verification:** Production C# UNIT tests PRIMARY, integration supplemental. Real behavior/control/boundary/ticks/Reset/save-load; one matching build per changed input/config then --no-build --no-restore. Chrome/E2E deferred until all catalogue elements complete.
+ 
+diff --git a/_bmad-output/implementation-artifacts/sprint-status.yaml b/_bmad-output/implementation-artifacts/sprint-status.yaml
+index 777dbb12..05d74988 100644
+--- a/_bmad-output/implementation-artifacts/sprint-status.yaml
++++ b/_bmad-output/implementation-artifacts/sprint-status.yaml
+@@ -290,7 +290,7 @@ development_status:
+   # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
+   9r-8-spring-forward-lesson-chrome-proof: backlog
+   # 29 (element)
+-  9-8a-electrical-or-gate: backlog
++  9-8a-electrical-or-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
+   # split into 9-8a and 9-8b (21 Oct 2026; one new element per story)
+   9-8-electrical-logic-gates-or-xor: backlog
+   # 30 (deletion-lane slot): latch-dependent deferred integrations CAT-005 N19 and CAT-051 supply
+diff --git a/docs/planning/elements/CAT-024-electrical_nand.md b/docs/planning/elements/CAT-024-electrical_nand.md
+index b6403002..090de2f5 100644
+--- a/docs/planning/elements/CAT-024-electrical_nand.md
++++ b/docs/planning/elements/CAT-024-electrical_nand.md
+@@ -74,7 +74,7 @@ Authority: [CAT-024](../requirements.md#current-cat-024), [todo-362](../requirem
+ - **Negative / controls.** Row 11 with supply; row 00 without supply (true but unpowered: D5); output retraction on reconvergence (D6).
+ - **Boundaries.** A zero-delay Nand loop, including one closed only through an open switch, stays in build mode with the short bottom-status explanation (D7, D8); reordered placement and wiring.
+ - **Run/Reset; Save/Load.** As CAT-013.
+-- **Integrations.** Chained with an Or gate (D6); its own pictogram and three truth dots visible at projected size.
++- **Integrations.** Chained with an Or gate (D6); its own pictogram and three truth dots visible at projected size. Native Or chaining (D6 reconvergence and the D7 Nand → Or → Nand refusal) is proved with the real Either gate since Story 9.8a; the browser case stays queued post-catalogue.
+ 
+ ## 6. Open questions
+ 
+diff --git a/docs/planning/elements/CAT-025-electrical_nor.md b/docs/planning/elements/CAT-025-electrical_nor.md
+index e784a8f0..15c58c07 100644
+--- a/docs/planning/elements/CAT-025-electrical_nor.md
++++ b/docs/planning/elements/CAT-025-electrical_nor.md
+@@ -75,7 +75,7 @@ Authority: [CAT-025](../requirements.md#current-cat-025), [todo-362](../requirem
+ - **Negative / controls.** Rows 01, 10, 11 with supply; row 00 without supply (R5).
+ - **Boundaries.** Zero-delay Nor loop, including through an open switch, stays in build mode (R6, R7); reordered placement and wiring; a reconvergent second input retracts the output in the same tick.
+ - **Run/Reset; Save/Load.** As CAT-013.
+-- **Integrations.** Its own icon, pictogram and single truth dot legible at projected size.
++- **Integrations.** Its own icon, pictogram and single truth dot legible at projected size. Native Or chaining (the R6 Nor → Or → Nor refusal and reconvergence through an Either gate) is proved with the real Either gate since Story 9.8a; the browser case stays queued post-catalogue.
+ 
+ ## 6. Open questions
+ 
+diff --git a/docs/planning/elements/CAT-026-electrical_or.md b/docs/planning/elements/CAT-026-electrical_or.md
+index eef7ba85..22eac686 100644
+--- a/docs/planning/elements/CAT-026-electrical_or.md
++++ b/docs/planning/elements/CAT-026-electrical_or.md
+@@ -10,7 +10,7 @@ Story 7.0 Batch B declaration spec (CAT-026-D). Legacy citations are pinned to `
+ | Requirement anchor | [current-cat-026](../requirements.md#current-cat-026); retained behaviour [todo-362](../requirements.md#todo-362) |
+ | Mapped identities | [EL-134 Electrical OR gate](../invest/named-elements.md#element-134). No TH/RAD/GAP identity. |
+ | Roadmap story | 9.8 "Electrical Logic Gates OR & XOR" (Epic 9), shared with CAT-027 |
+-| Status | not started |
++| Status | Story 9.8a candidate: package `elements/ElectricalOr` and shared monotone `Or` law on the Story 9.7a ordered supply resolve (Or-only cycles admitted at their least fixed point; mixed loops refused), implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md)); independent review and publication pending; browser qualification pending post-catalogue. |
+ 
+ ## 2. Declaration
+ 
+@@ -22,9 +22,9 @@ Story 7.0 Batch B declaration spec (CAT-026-D). Legacy citations are pinned to `
+ | Typed sockets and ports | Same four electrical ports as CAT-013: `FirstIn`, `SecondIn`, separate `PowerIn` supply, `Supply` output. |
+ | Sensors and activation | none |
+ | Work and energy stores | none; output energy only from `PowerIn`. |
+-| Parameters | `Operation = Or` (enum value 1), fixed by catalogue kind (`parts/scenes/electrical_or.tscn@a6c914e:L1-L5`). |
++| Parameters | `Operation = Or`, fixed by catalogue kind. Current closed value `LogicGateOperation.Or = 3` in the package declaration; 1 was the legacy scene integer (`parts/scenes/electrical_or.tscn@a6c914e:L1-L5`) and is not carried forward. |
+ | Cosmetic curves and UI bindings | Same three lamps as CAT-013 (inputs follow committed availability; output follows truth ∧ supplied). |
+-| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Or shows its toolbox pictogram on the face and gold truth-row dots for rows 01, 10, 11 at x −0.07, 0.07, 0.21 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives; shared with `optical_or`): `ui/WorkshopIcons.cs@a6c914e:L76-L76`. Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
++| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Or shows its toolbox pictogram on the face and gold truth-row dots for rows 01, 10, 11 at x −0.07, 0.07, 0.21 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives; shared with `optical_or`): `ui/WorkshopIcons.cs@a6c914e:L76-L76`, now the package `icon.svg`. Current art draws the same pictogram as navy mesh strokes (two input stubs, the two OR curves and concave back as four segments each, and the output stub) rather than the legacy textured quad (Story 9.8a F6). Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
+ | Catalogue / inventory | Id `electrical_or`, Title "Either gate", Category Control, colour (0.4, 0.72, 0.79), no parameters; Description: "Passes the separate bottom supply when either numbered input is powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`parts/catalog/electrical_or.tres@a6c914e:L1-L11`). No level places or grants it. |
+ 
+ ## 3. Engine capabilities
+@@ -32,7 +32,7 @@ Story 7.0 Batch B declaration spec (CAT-026-D). Legacy citations are pinned to `
+ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction (P0-022/023 shared evaluator/feedback registration).
+ 
+ - **Exists now:** as [CAT-013 §3](CAT-013-both_gate.md#3-engine-capabilities).
+-- **Missing:** supply network (Story 8.1); gate element, sockets, electrical-input cosmetic source and cycle rules (Story 9.6). Story 9.8 adds only the Or operation value, pictogram and truth dots.
++- **Missing:** none after Story 9.8a. Story 9.6 delivered the gate element, sockets and electrical-input cosmetic source; Story 9.7a the settled supply evaluation and nonmonotone-feedback refusal; Story 9.8a adds only the Or operation value, pictogram and truth dots.
+ - **Dependencies:** CAT-005 Battery; CAT-013 declaration (Story 9.6) first; a supplied consumer (CAT-013 open question 1); condition switches as [CAT-024 open question 1](CAT-024-electrical_nand.md#6-open-questions).
+ 
+ ## 4. Legacy harvest
+@@ -68,7 +68,7 @@ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, Ani
+ 
+ ## 5. Acceptance outline
+ 
+-Authority: [CAT-026](../requirements.md#current-cat-026), [todo-362](../requirements.md#todo-362); Story 9.8 adds `tools/e2e/cat-026-027.test.ts`.
++Authority: [CAT-026](../requirements.md#current-cat-026), [todo-362](../requirements.md#todo-362); Story 9.8a adds `tools/e2e/cat-026.test.ts` (Story 9.8 was split; its shared `cat-026-027.test.ts` is not used).
+ 
+ - **Construction (Chrome UI).** As CAT-013: battery to the bottom supply socket via the icon choice, conditions to the one-mark/two-mark sockets, gate→consumer.
+ - **Positive.** Rows 01, 10, 11 with supply power the consumer.
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index a023d289..6add5dd2 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -168,6 +168,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.And => first && second,
+         LogicGateOperation.Nand => !(first && second),
+         LogicGateOperation.Nor => !(first || second),
++        LogicGateOperation.Or => first || second,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
+@@ -176,6 +177,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.And => true,
+         LogicGateOperation.Nand => false,
+         LogicGateOperation.Nor => false,
++        LogicGateOperation.Or => true,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+ 
+diff --git a/tools/BundleElements.Tests/BundleValidatorTests.cs b/tools/BundleElements.Tests/BundleValidatorTests.cs
+index aa21b537..51e5eeb7 100644
+--- a/tools/BundleElements.Tests/BundleValidatorTests.cs
++++ b/tools/BundleElements.Tests/BundleValidatorTests.cs
+@@ -129,7 +129,8 @@ public sealed class BundleValidatorTests
+         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=null}}}));
+         Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Nand}}}));
+         Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Nor}}}));
+-        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)3}}}));
++        Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Or}}}));
++        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)4}}}));
+         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)255}}}));
+         Assert.NotEmpty(Check(logic with {Ports=logic.Ports.Where(port=>port.Socket!=PortSocket.SecondIn).ToArray()}));
+         Assert.NotEmpty(Check(supply with {Electrical=supply.Electrical! with {Supply=supply.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.And}}}));
+diff --git a/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs b/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
+index 1d38c2e6..c0928deb 100644
+--- a/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
++++ b/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
+@@ -42,7 +42,7 @@ public class CurrentCapabilityInputsTests
+         Assert.Contains(preparation.Issues, issue => issue.Problem == CurrentInputProblem.MissingScope);
+         Assert.Empty(expected.ImplementationEligibleOwners);
+         var ball = new SourceKey(RequirementOrigin.Catalogue, new("ball"));
+-        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_or"));
++        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_xor"));
+         Assert.Equal(ConsumerKind.CurrentPart, expected.Classifications[ball].Consumer);
+         Assert.Equal(ConsumerKind.FutureDeclaration, expected.Classifications[planned].Consumer);
+         Assert.NotEmpty(expected.RequiredSymbols[ball]);
+@@ -84,9 +84,9 @@ public class CurrentCapabilityInputsTests
+                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                 File.Copy(Path.Combine(original.FullName, path), destination);
+             }
+-            // Not both (CAT-024) and Neither (CAT-025) are admitted since Stories 9.7a and 9.7b; Either (CAT-026, electrical_or) is
+-            // still planned with no package.
+-            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalOr")));
++            // Not both, Neither and Either (CAT-024..026) are admitted since Stories 9.7a, 9.7b and 9.8a; Exactly one (CAT-027,
++            // electrical_xor) is still planned with no package.
++            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalXor")));
+             var sources = RequirementDiscovery.Discover(target);
+             var prepared = CapabilityInputs.Prepare(target, sources);
+             Assert.Equal(1472, sources.Count);
+diff --git a/tools/Coverage.Tests/CurrentCatalogueTests.cs b/tools/Coverage.Tests/CurrentCatalogueTests.cs
+index 3c4a804b..27020328 100644
+--- a/tools/Coverage.Tests/CurrentCatalogueTests.cs
++++ b/tools/Coverage.Tests/CurrentCatalogueTests.cs
+@@ -192,11 +192,12 @@ public class CurrentCatalogueTests
+         while (root is not null && !File.Exists(Path.Combine(root.FullName, CurrentCatalogue.ConsumersPath.Value))) root = root.Parent;
+         Assert.NotNull(root);
+         var plan = CurrentCatalogue.Read(root);
+-        // Every package in the generated bundle, including the Hold Timer (CAT-033), Both Gate (CAT-013), Not both gate (CAT-024)
+-        // and Neither gate (CAT-025) packages.
+-        Assert.Equal(26, plan.Admitted.Count);
++        // Every package in the generated bundle, including the Hold Timer (CAT-033), Both Gate (CAT-013), Not both gate (CAT-024),
++        // Neither gate (CAT-025) and Either gate (CAT-026) packages.
++        Assert.Equal(27, plan.Admitted.Count);
+         Assert.Equal(new SourcePath("elements/ElectricalNand/ElectricalNandElementDeclaration.cs"), plan.Admitted[new("electrical_nand")]);
+         Assert.Equal(new SourcePath("elements/ElectricalNor/ElectricalNorElementDeclaration.cs"), plan.Admitted[new("electrical_nor")]);
++        Assert.Equal(new SourcePath("elements/ElectricalOr/ElectricalOrElementDeclaration.cs"), plan.Admitted[new("electrical_or")]);
+         Assert.Equal(new SourcePath("elements/Springboard/SpringboardElementDeclaration.cs"), plan.Admitted[new("spring")]);
+         Assert.Equal(plan.Admitted.Values.OrderBy(path => path.Value, StringComparer.Ordinal),
+             plan.AvailableResources.Select(artifact => artifact.Path));
+diff --git a/tools/E2eRunner/ImpactRules.cs b/tools/E2eRunner/ImpactRules.cs
+index 35297681..27f4ed1f 100644
+--- a/tools/E2eRunner/ImpactRules.cs
++++ b/tools/E2eRunner/ImpactRules.cs
+@@ -17,7 +17,7 @@ internal static class ImpactRules
+         ["Ball"] = PartId.Basketball, ["BallDetector"] = PartId.BallDetector, ["Battery"] = PartId.Battery,
+         ["BothGate"] = new("both_gate"), ["BowlingBall"] = PartId.BowlingBall, ["Bumper"] = PartId.PinballBumper, ["Counter"] = PartId.Counter,
+         ["Domino"] = PartId.Domino, ["DelayBox"] = PartId.Delay, ["ElectricalNand"] = new("electrical_nand"),
+-        ["ElectricalNor"] = new("electrical_nor"), ["Funnel"] = PartId.Funnel,
++        ["ElectricalNor"] = new("electrical_nor"), ["ElectricalOr"] = new("electrical_or"), ["Funnel"] = PartId.Funnel,
+         ["HoldTimer"] = new("hold_timer"), ["ImpactSwitch"] = PartId.ImpactSwitch, ["Pipe"] = PartId.Pipe,
+         ["PipeBend45"] = PartId.PipeBend45, ["PipeBend90"] = PartId.PipeBend90,
+         ["PoweredGate"] = PartId.PoweredGate, ["PressurePlate"] = PartId.PressurePlate, ["Ramp"] = PartId.Ramp,
+=== UNTRACKED CuriousContraptions.tests/ElectricalOrTests.cs
+eeceb7ad189624ff4cb6de5025b306edee4f1aa4204823e80aafeb630386d3a9  CuriousContraptions.tests/ElectricalOrTests.cs
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/anvil-check.log
+e4c069715f3898eb3aa34e1e43713180c9a7ca41c231edafa0234e33c9121e55  _bmad-output/implementation-artifacts/evidence-9-8a/anvil-check.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/build-debug-final.log
+7971bdcdf8d83237674a0651e632842136cf8f032bd83fdadb25c5ef3b3ce122  _bmad-output/implementation-artifacts/evidence-9-8a/build-debug-final.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/changed-files.txt
+191dcc6ebeb1f8801d1208a58cd36e159919a2f246a589eb5082b548301f802f  _bmad-output/implementation-artifacts/evidence-9-8a/changed-files.txt
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/ci-tool-step.log
+06c16ed015385efaa72ae99ef86d0d2935800f6a543acf7377d5beea0039bcad  _bmad-output/implementation-artifacts/evidence-9-8a/ci-tool-step.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/ci-tool-step.sh
+6a81a1f61487712ecae198657600ff3aec31d43ea1d5d64953e93a5d3730d69e  _bmad-output/implementation-artifacts/evidence-9-8a/ci-tool-step.sh
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutate.sh
+f60729bd20f4e66706fce5c4e3060352ab393354953da8c5b802a897b3d6e0c5  _bmad-output/implementation-artifacts/evidence-9-8a/mutate.sh
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.build.log
+c62b6f064864f6769cb73dfe17eb40702e51801c25cf22ffe3e0fa9f0d5e33f1  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.build.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.diff
+9428676b0e6b0dea90faa20fc6bb106a25a7ef6541c0c037772e4e937b63c019  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.diff
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.test.log
+e4f553c07fe948de8444afc0b7d2c93a2a7d09b43cdd0344e60f06f7d6423c42  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M1-or-as-and.test.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.build.log
+f474a3f4a8835ba11ba8a903d751402306a2015853af3487038ac19d1e826f06  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.build.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.diff
+8de6545a95794e8cf1192a3c081072ceae5065605e5c4c023cc3ca8132a0d554  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.diff
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.test.log
+d9a6c7a264fafa5df73b7cd64602ab83427d663c3dab6aca6d2f9f82b0c3c445  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M2-or-as-xor.test.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.build.log
+8d5ec07f7ba12ff6b2d438227eb109941cd53cef34462fb11f1ab95efb4e762c  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.build.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.diff
+32c249c0fcd6464e3f630628b78723e414967d4389d470551bbefd9b19ae44ca  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.diff
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.test.log
+c7a764f870b36c50c95b45bb41e424927b8704dca5b809cfb482ee30c186a3fe  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M3-or-declared-nonmonotone.test.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.build.log
+2eaa3af6174569fc74e3c28d0ca14533bf42b434e2864cec3b7481f11b82ba50  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.build.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.diff
+aabb7aff40bc6bef88c11813ef100d05d599326eef62950b37050f70f4a58c69  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.diff
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.test.log
+2e4d114224339f831b4772b03b4a5db832468c2a9ea90e403e1e9afb829e506b  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M4-or-active-without-supply.test.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.build.log
+9f085fb460a12cff3da843656f17373c3e91bc7c2ee2d07a567657802914e717  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.build.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.diff
+519baee936126b94719b0f0a29da3cbc5f0b8486c81b14c803a873a2f330f68d  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.diff
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.test.log
+aee5d0a9dbea0c415f45d403966dbe7d49d5c18e471c69682aed0173afda6512  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M5-cyclic-seeded-powered.test.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.build.log
+cfec8c83990deb5461185d9e163ce0e28a68416c1d4749d78d4b77edb9431b23  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.build.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.diff
+ad3891d834f1e618143a330df2a3e85dffe0fd6f6772a6fb2b5a2f0d3d51d0c3  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.diff
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.test.log
+805ba5471385e91c325eeed6fef711c4dcaf5965df0ff7e622b5a8b1bd4bcaaa  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M6-previous-tick-carried.test.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.build.log
+6ef56e69f89f7ef20eb0d4f6b611f28b5d319b6a6fab9dece668865dc7180737  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.build.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.diff
+8c2679b1ddc12618c9a99835c4a9f4b2bb4ffea9e82468b9776f32d44c7b30bc  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.diff
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.test.log
+b55780ef4ffba55a0b11bbe985ff5135f13df0eaf062204e2b54189f240dc58f  _bmad-output/implementation-artifacts/evidence-9-8a/mutations/M7-old-slot-sweep.test.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/native-electrical-named.log
+b4422767ef3521529168dde43bd431e8eb49a6b704f61b82f0780a30dfa88ffd  _bmad-output/implementation-artifacts/evidence-9-8a/native-electrical-named.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/or_pictogram.py
+a380131b2f69792713746156cfad4ec5ad2178ba07bee1357f2657bf97cf9259  _bmad-output/implementation-artifacts/evidence-9-8a/or_pictogram.py
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/palette-ordinals.txt
+2cd527b87dd0a2a1e295462c5eeb35e7e6b532e1191702d33fb73a31e6efc6a0  _bmad-output/implementation-artifacts/evidence-9-8a/palette-ordinals.txt
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/pin-derivation.txt
+abc20a36478ad70f19ed598fb1b6e40c8ec7fe7709b555a33b536d98c86c016d  _bmad-output/implementation-artifacts/evidence-9-8a/pin-derivation.txt
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/static-scope-checks.txt
+e942bbdfe6961c14c6e1cdb4831c487badced42531bebc68f17742a566a4946f  _bmad-output/implementation-artifacts/evidence-9-8a/static-scope-checks.txt
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/test-slnx-final.log
+7a490e1a93353681c2db74876d5d4c267841f49517ba42590794d1f65e563bb0  _bmad-output/implementation-artifacts/evidence-9-8a/test-slnx-final.log
+=== UNTRACKED _bmad-output/implementation-artifacts/evidence-9-8a/worker-release.log
+67f681107e7e11b65e3373f3492d7437d38b1759cb8f72d615d36340ac222356  _bmad-output/implementation-artifacts/evidence-9-8a/worker-release.log
+=== UNTRACKED _bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md
+34af43dfee7e639c4b0a394714c55fd55f95c43a672eb8940780614a51f7ace5  _bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md
+=== UNTRACKED elements/ElectricalOr/ElectricalOr.csproj
+c559f0c2e3b61845ce0fa3c5c6f121b7a702df8280e93c206004e536bf9069ca  elements/ElectricalOr/ElectricalOr.csproj
+=== UNTRACKED elements/ElectricalOr/ElectricalOrElementDeclaration.cs
+ede3409f02b0304e3f37f43b10fc94dd724c52eda38d21962a200d7dca573e6e  elements/ElectricalOr/ElectricalOrElementDeclaration.cs
+=== UNTRACKED elements/ElectricalOr/ElectricalOrElementDeclaration.cs.uid
+eaa6524fb8296df9984fc19c0b9ef8e9aee39ed9823c40d1c4d6dce08bfc4e12  elements/ElectricalOr/ElectricalOrElementDeclaration.cs.uid
+=== UNTRACKED elements/ElectricalOr/electrical_or.tscn
+305b08e70796bf0e0aea5920884d9d8cefbb2f0b5f06ecdf11a3fc0f7f7f9402  elements/ElectricalOr/electrical_or.tscn
+=== UNTRACKED elements/ElectricalOr/icon.svg
+c70ccf8d5f4f4afcc656a3d3d0a47b057ee1a6be3f434a6e35191523d6f0eb9e  elements/ElectricalOr/icon.svg
+=== UNTRACKED elements/ElectricalOr/icon.svg.import
+bfd605ef8a12defd62617525a17559d8a7a2ec3f300b6d44447b9f4ee7f65169  elements/ElectricalOr/icon.svg.import

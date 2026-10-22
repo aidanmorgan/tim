@@ -290,7 +290,7 @@ development_status:
   # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
   9r-8-spring-forward-lesson-chrome-proof: backlog
   # 29 (element)
-  9-8a-electrical-or-gate: backlog
+  9-8a-electrical-or-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
   # split into 9-8a and 9-8b (21 Oct 2026; one new element per story)
   9-8-electrical-logic-gates-or-xor: backlog
   # 30 (deletion-lane slot): latch-dependent deferred integrations CAT-005 N19 and CAT-051 supply
