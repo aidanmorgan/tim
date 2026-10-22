@@ -1,0 +1,2 @@
+3bb360ded1d856949f2141b7e4b99b2cc2e8df758a4ee5a72f6a443eba3eb0b7  -
+b348e930f53d1bc10601bb7739a56c934f71fb1777a3fe641c5883e30b71b9bc  tools/E2eRunner/LessonFixtures.cs

@@ -43,6 +43,25 @@ jobs:
         env:
           CSHARP_STATIC_GATE_BINLOGS: ${{ runner.temp }}/csharp-gate-binlogs
         run: dotnet test CuriousContraptions.tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+      # The solution's tool test projects, from the same Debug solution build. The 15 E2eRunner tests named in `toolchain` run
+      # real suite files or tsc through the workstation browser toolchain (npx-pinned tsx/TypeScript, Playwright and suite
+      # modules); they run locally in `dotnet test CuriousContraptions.slnx` and with the post-catalogue browser tier, not here.
+      - name: Test C# tools
+        run: |
+          dotnet test tools/Coverage.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+          dotnet test tools/BundleElements.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+          dotnet test tools/WorkerAotGuard.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+          toolchain="TypeCheckTests.EverySuiteAndSharedModuleTypeChecks TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck
+            SuiteProcessTests.EnvironmentIsScrubbed SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled
+            SuiteProcessTests.FailingAssertionFailsTheFile SuiteProcessTests.CloseFindingInAfterHookFailsTheFile
+            SuiteProcessTests.FileWithoutTestsIsNoTests SuiteProcessTests.CrashFailsTheFile
+            SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals SuiteProcessTests.ImportErrorFailsWithNoTests
+            IdentityTests.UnchangedRunPasses IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged
+            IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged
+            IdentityTests.EndRehashCatchesAChangeTheWatcherMissed"
+          filter=""
+          for test in $toolchain; do filter="$filter&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.$test"; done
+          dotnet test tools/E2eRunner.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse --filter "${filter#&}"
       - name: Publish production browser bundle
         run: dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
       - name: Check static deployment

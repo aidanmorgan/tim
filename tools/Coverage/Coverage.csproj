@@ -8,5 +8,6 @@
   <ItemGroup>
     <Compile Include="../Ownership/CurrentOwnerMembership.cs" Link="CurrentOwnerMembership.cs" />
     <Compile Include="../Ownership/WorkId.cs" Link="WorkId.cs" />
+    <Compile Include="../E2eRunner/LessonFixtures.cs" Link="LessonFixtures.cs" />
   </ItemGroup>
 </Project>

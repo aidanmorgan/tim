@@ -28,8 +28,8 @@ public sealed class WorkshopPhysicsEngineTests
             Horizontal(Find(reads[^1].Bodies, new(1))) - Horizontal(Find(reads[0].Bodies, new(1)));
         Assert.True(Travel(longRun) > 1f, $"long ramp downstream travel {Travel(longRun)}");
         Assert.True(Travel(shortRun) > .2f, $"short ramp downstream travel {Travel(shortRun)}");
-        Assert.True(MathF.Abs(Travel(longRun) - Travel(shortRun)) > .1f,
-            $"length changes runout: long {Travel(longRun)}, short {Travel(shortRun)}");
+        Assert.True(Travel(longRun) > Travel(shortRun) + .1f,
+            $"a longer ramp gives a longer runout: long {Travel(longRun)}, short {Travel(shortRun)}");
         Assert.InRange(MathF.Abs(Travel(sideMiss)), 0f, .05f);
         Assert.InRange(MathF.Abs(Travel(depthMiss)), 0f, .05f);
         Assert.True(Height(Find(longRun[^1].Bodies, new(1))) < Height(Find(longRun[0].Bodies, new(1))));
@@ -142,6 +142,77 @@ public sealed class WorkshopPhysicsEngineTests
             }
         });
         Assert.InRange(firstCapture, 18, 21);
+    }
+
+    // CAT-004 margin and decoy: the declared capture_margin raises the mouth's upper bound. A held ball 0.05 m above the
+    // fixed 0.45 m rim enters only with the wider margin; a second ball beside the Receiver stays Outside in its own sensor.
+    [Theory]
+    [InlineData(.02f, false)]
+    [InlineData(.1f, true)]
+    public void DeclaredCaptureMarginWidensTheMouthWhileABesideDecoyStaysOutside(float margin, bool enters)
+    {
+        var values = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+        values[new("capture_margin")] = margin;
+        var construction = Free(
+            WorkshopInput.Basketball(new(1), 0, 1.5, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1, new(values)),
+            WorkshopInput.Basketball(new(3), 3, 1.5, 0, 0, 0, 0, 1));
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var world = AdmitMoving(construction, 1, 0f);
+        foreach (var id in new ulong[] { 1, 3 })
+        {
+            var body = BodyRecord(world, id);
+            world.AsSpan(body + PhysicsGpuAbi.BodyGravityOffset, 6).Clear();
+            world.AsSpan(body + PhysicsGpuAbi.BodyDragOffset, 2).Clear();
+        }
+        StepWorld(world, 1, (_, state) =>
+        {
+            for (var slot = 0; slot < scene.Sensors.Length; slot++)
+            {
+                var read = PhysicsGpuAbi.ReadSensor(state, slot);
+                var target = Assert.Single(scene.Sensors.ToArray(), sensor => sensor.Id == read.Id).Target;
+                var expected = target == new GpuBodyId(1) && enters ? ResidencePhase.Dwelling : ResidencePhase.Outside;
+                Assert.Equal(expected, read.Phase);
+                Assert.Equal(0u, read.OccurrenceCount);
+            }
+        });
+    }
+
+    // CAT-004/CAT-054 Run/Reset and Save/Load with non-binary16 authored values: a ball rolls down a resized Ramp while a
+    // second ball is captured by a Receiver with non-default capture settings; Reset restores the built state bit for bit and
+    // the reloaded construction replays the identical run.
+    [Fact]
+    public async Task NonHalfRampAndReceiverParametersRunCaptureResetAndReloadExactly()
+    {
+        const float length = 3.123457f, width = 1.234567f, margin = .1234567f, speed = 2.345678f, dwell = .2345678f;
+        foreach (var value in new[] { length, width, margin, speed, dwell }) Assert.NotEqual(value, (float)(Half)value);
+        var capture = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+        capture[new("capture_margin")] = margin;
+        capture[new("capture_speed_limit")] = speed;
+        capture[new("capture_dwell")] = dwell;
+        var construction = Free(
+            WorkshopInput.Basketball(new(1), -.3, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Ramp, new(2), 0, 2.5, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18),
+                new([new(new("length"), length), new(new("width"), width)])),
+            WorkshopInput.Basketball(new(3), 0, 1.1, -6, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Receiver, new(4), 0, 1, -6, 0, 0, 0, 1, new(capture)));
+        var saved = new WorkshopSavedConstruction(construction, new(5));
+        var bytes = WorkshopSaveCodec.Encode(saved);
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+        Assert.Equal(saved, loaded);
+        Assert.Equal(bytes, WorkshopSaveCodec.Encode(loaded));
+        Assert.Equal(length, ((WorkshopGenericInstance)loaded.Construction.Instances[1]).Parameters[new("length")]);
+        Assert.Equal(dwell, ((WorkshopGenericInstance)loaded.Construction.Instances[3]).Parameters[new("capture_dwell")]);
+
+        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(construction, 2 * TicksPerSecond);
+        static bool Latched(WorkshopRead read) =>
+            Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched);
+        Assert.False(Latched(built));
+        Assert.Contains(run, Latched);
+        Assert.True(Horizontal(Find(run[^1].Bodies, new(1))) - Horizontal(Find(built.Bodies, new(1))) > 1f, "ball rolls down the Ramp");
+        NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
+        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 2 * TicksPerSecond);
+        NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded construction's run");
     }
     private const int TicksPerSecond = 120;
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();

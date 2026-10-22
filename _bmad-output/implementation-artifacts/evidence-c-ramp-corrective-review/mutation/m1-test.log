@@ -1,0 +1,16 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.67]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DeclaredCaptureMarginWidensTheMouthWhileABesideDecoyStaysOutside(margin: 0.100000001, enters: True) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DeclaredCaptureMarginWidensTheMouthWhileABesideDecoyStaysOutside(margin: 0.100000001, enters: True) [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Dwelling
+Actual:   Outside
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.<>c__DisplayClass5_0.<DeclaredCaptureMarginWidensTheMouthWhileABesideDecoyStaysOutside>b__0(Int32 _, Byte[] state) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 175
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.StepWorld(Byte[] admitted, Int32 ticks, Action`2 observe, Int32 prismatics, Int32 enabledSources) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 536
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DeclaredCaptureMarginWidensTheMouthWhileABesideDecoyStaysOutside(Single margin, Boolean enters) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 168
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3, Duration: 191 ms - CuriousContraptions.tests.dll (net10.0)

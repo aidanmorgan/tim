@@ -75,20 +75,13 @@ public static class RequirementDiscovery
         Fixtures(File.ReadAllText(Path.Combine(root.FullName,CampaignPath)));
     public static IReadOnlyList<FixtureRequirement> Fixtures(string json)
     {
-        using var document=JsonDocument.Parse(json);
         var result=new List<FixtureRequirement>();
-        foreach(var level in document.RootElement.EnumerateArray())
+        // Locked and movable authored instances each need proof; each lesson is read in its availability's current shape.
+        foreach(var fixture in CuriousContraptions.Content.LessonFixtures.Read(json))
         {
-            var levelId=new RequirementId(level.GetProperty("id").GetString()!);
-            foreach(var part in level.GetProperty("parts").EnumerateArray())
-            {
-                _ = part.GetProperty("locked").GetBoolean(); // Locked and movable authored instances each need proof.
-                var id=new RequirementId(part.GetProperty("id").GetString()!);
-                var kind=new RequirementId(part.GetProperty("kind").GetString()!);
-                var key=new RequirementId(levelId.Value+"/"+id.Value);
-                result.Add(new(new(new(RequirementOrigin.Fixture,key),CampaignPath+"#"+key.Value,
-                    kind.Value+" in "+levelId.Value,Hash(part.GetRawText())),new(RequirementOrigin.Catalogue,kind)));
-            }
+            var key=new RequirementId(fixture.Lesson+"/"+fixture.Fixture);
+            result.Add(new(new(new(RequirementOrigin.Fixture,key),CampaignPath+"#"+key.Value,
+                fixture.Part+" in "+fixture.Lesson,Hash(fixture.Authored)),new(RequirementOrigin.Catalogue,new(fixture.Part))));
         }
         RequireUnique(result.Select(fixture=>fixture.Source));return result;
     }

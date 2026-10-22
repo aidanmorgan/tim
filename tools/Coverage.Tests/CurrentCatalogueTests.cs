@@ -17,8 +17,13 @@ public class CurrentCatalogueTests
         | <a id="fix-024-001"></a>FIX-024-001 | lesson/gate | electrical_nand / False | CAT-024-V | FIX-024-001 |
         """;
     private const string Content = """
-        [{"id":"lesson","parts":[{"id":"ball","kind":"ball","locked":true},
+        [{"id":"lesson","availability":"Planned","parts":[{"id":"ball","kind":"ball","locked":true},
         {"id":"gate","kind":"electrical_nand","locked":false}]}]
+        """;
+    /// <summary>The same fixtures in the typed placement shape of a Playable lesson.</summary>
+    private const string PlayableContent = """
+        [{"id":"lesson","availability":"Playable","placements":[{"slot":"ball","instance":{"part":"ball","locked":true}},
+        {"slot":"gate","instance":{"part":"electrical_nand","locked":false}}]}]
         """;
     private static readonly WorkOrderId[] Ids = [new("CAT-001"), new("CAT-014"), new("CAT-024")];
     private static CurrentCatalogue Parse(string text = Contract, string suffix = "") =>
@@ -53,7 +58,8 @@ public class CurrentCatalogueTests
         Assert.Equal(72, plan.Elements.Length);
         Assert.Equal(104, plan.Elements.Sum(element => element.Modes.Length));
         Assert.Equal(72, plan.Elements.Sum(element => element.Modes.Count(mode => mode.Dimension == ModeDimension.Configuration)));
-        Assert.Equal(302, plan.Fixtures.Length);
+        // 276 Planned parts plus 27 Playable placements (domino_effect's locked lamp is a current fixture).
+        Assert.Equal(303, plan.Fixtures.Length);
     }
 
     [Fact]
@@ -109,6 +115,13 @@ public class CurrentCatalogueTests
         Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(Content.Replace("\"kind\":\"ball\"", "\"kind\":\"bowling\"")));
         Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(Content.Replace("\"id\":\"ball\"", "\"id\":\"unknown\"")));
         Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures("[]"));
+        plan.ValidateFixtures(PlayableContent);
+        Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(PlayableContent.Replace("\"part\":\"ball\"", "\"part\":\"bowling\"")));
+        Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(PlayableContent.Replace("\"slot\":\"ball\"", "\"slot\":\"fixture_1\"")));
+        Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(PlayableContent.Replace("Playable", "Planned")));
+        Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(Content.Replace("Planned", "Playable")));
+        Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(Content.Replace("Planned", "Unknown")));
+        Assert.Throws<InvalidDataException>(() => plan.ValidateFixtures(Content.Replace("\"availability\":\"Planned\",", "")));
         Assert.Throws<InvalidDataException>(() => Parse(Contract.Replace("CAT-001-V", "CAT-014-V")));
         Assert.Throws<InvalidDataException>(() => Parse(Contract + "\n" + Contract.Split('\n').Last()));
     }
@@ -179,7 +192,8 @@ public class CurrentCatalogueTests
         while (root is not null && !File.Exists(Path.Combine(root.FullName, CurrentCatalogue.ConsumersPath.Value))) root = root.Parent;
         Assert.NotNull(root);
         var plan = CurrentCatalogue.Read(root);
-        Assert.Equal(22, plan.Admitted.Count);
+        // Every package in the generated bundle, including the Hold Timer (CAT-033) and Both Gate (CAT-013) packages.
+        Assert.Equal(24, plan.Admitted.Count);
         Assert.Equal(new SourcePath("elements/Springboard/SpringboardElementDeclaration.cs"), plan.Admitted[new("spring")]);
         Assert.Equal(plan.Admitted.Values.OrderBy(path => path.Value, StringComparer.Ordinal),
             plan.AvailableResources.Select(artifact => artifact.Path));

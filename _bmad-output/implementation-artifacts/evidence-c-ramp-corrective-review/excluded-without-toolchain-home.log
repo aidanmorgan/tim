@@ -1,0 +1,31 @@
+
+Welcome to .NET 10.0!
+---------------------
+SDK Version: 10.0.402
+
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate, run 'dotnet dev-certs https --trust'
+Learn about HTTPS: https://aka.ms/dotnet-https
+
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:05.28]     CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses [3 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome.VjZY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.RunWaitingAsync(String bundle, Func`2 duringRun, IBundleWatcher watcher, Func`1 sources) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 110
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 132
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     5, Skipped:     0, Total:     6, Duration: 8 s - E2eRunner.Tests.dll (net10.0)
+exit 1

@@ -1,0 +1,14 @@
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/build.log:50: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/build.log:98: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/mutation/m1-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/mutation/m2-build.log:41: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/mutation/m3-build.log:41: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/rereview/ci-step-extracted.sh:15: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/rereview/m3b-build.log:75: trailing whitespace.
++  
+diff --cached --check exit 2

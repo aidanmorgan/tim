@@ -1,0 +1,2 @@
+REGION IDENTICAL (flatc flatc version 25.12.19)
+HEAD cmp exit 1
