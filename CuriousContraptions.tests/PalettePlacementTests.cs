@@ -704,6 +704,58 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
+    [Fact]
+    public void GenericRampEditorKeepsExactNonHalfLengthAndRefusesOutOfRangeSubmissionsAtomically()
+    {
+        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var part = Assert.Single(scene.World.Parts);
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            Dictionary<ParameterId, LineEdit> Fields() => Nodes<LineEdit>(choices).ToDictionary(field => new ParameterId(field.Name.ToString()));
+            var before = scene.World.Construction;
+            var dimensions = part.Dimensions;
+            var commands = client.Commands.Count;
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Press("Configure");
+            Assert.Equal(new[] { new ParameterId("length"), new("width") }, Fields().Keys.Order());
+            foreach (var text in new[] { "0.1", "4.5", "NaN" })
+            {
+                Fields()[new("length")].Text = text;
+                Press("Apply parameters");
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(dimensions, part.Dimensions);
+                Assert.Equal(commands, client.Commands.Count);
+                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Press("Cancel");
+            Press("Configure");
+            Fields()[new("length")].Text = "1.234567";
+            Press("Apply parameters");
+            Assert.NotEqual(1.234567f, (float)(Half)1.234567f);
+            var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(1.234567f, current.Parameters[new("length")]);
+            Assert.Equal(1.234567f, part.Dimensions.X);
+            Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            var accepted = scene.World.Construction;
+            commands = client.Commands.Count;
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", current.Id,
+                new InstanceParameterCollection([new(new("length"), 4.5f), new(new("width"), 1.3f)])));
+            Assert.Equal(accepted, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Assert.Equal(1.234567f, part.Dimensions.X);
+            // A typed OutOfRange edit rejection at the editor boundary, not a logged unexpected fault.
+            Assert.Equal("Invalid declared parameter value.", Field<Label>(scene, "_status").Text);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
     private enum PlacementAnswer { Pending, Applied, Rejected }
 
     /// <summary>Records each command and answers it as configured: never (pending), Applied with an empty body read (a static

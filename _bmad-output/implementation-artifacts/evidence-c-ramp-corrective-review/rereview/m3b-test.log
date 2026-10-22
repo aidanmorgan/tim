@@ -1,0 +1,16 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/mut-wt/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.97]     CuriousContraptions.Tests.PalettePlacementTests.GenericRampEditorKeepsExactNonHalfLengthAndRefusesOutOfRangeSubmissionsAtomically [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.GenericRampEditorKeepsExactNonHalfLengthAndRefusesOutOfRangeSubmissionsAtomically [110 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "Invalid declared parameter value."
+Actual:   "Unexpected fault (ArgumentException): Invalid decl"···
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.GenericRampEditorKeepsExactNonHalfLengthAndRefusesOutOfRangeSubmissionsAtomically() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/mut-wt/CuriousContraptions.tests/PalettePlacementTests.cs:line 753
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 117 ms - CuriousContraptions.tests.dll (net10.0)

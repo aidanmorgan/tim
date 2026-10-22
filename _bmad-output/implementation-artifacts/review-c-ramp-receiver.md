@@ -24,3 +24,66 @@ Required-now native Receiver capture/miss/named goal and Ramp roll/runout/sidefa
 ## Publication-dependent checks
 
 SnapshotApproval authorizes normal protected commit/push of this exact candidate plus receipt. Terminal scoped Pass requires normal hooks, independent source/main/remote equivalence, exact-SHA CI native/build success, Pages artifact association and successful deployment. Preserve failed attempts and return concrete failures to this same owner. No redundant local campaign or routine Chrome merely for publication; carry terminal receipt into the next normal slice.
+
+## Terminal scoped Pass — 22 October 2026
+
+Independent2636d4 verified remote main `9b324bbd6a161858b9342562cd0a572d67f9e62a` and source8665e68 share tree `95a3ebda12b491588c40cc4a7872526258518954`; only the authorized review receipt differs from the approved snapshot. Normal protected hooks591514 passed124/124.
+
+Independenta6ec45 verifies CI39697329074 completed successfully on that exact SHA, native2138/2138 with zero failed/skipped in1m14s. Pages artifact12392320102 belongs to the same run/SHA,79267732 bytes, digest `sha256:04ace9de6df95f7ddbf9ff58f25870cfbbe29defde2b363f2511b461112592b8`. Deployment7240389509 identifies the same SHA and succeeded at2026-10-22T00:14:21Z for https://aidanmorgan.github.io/tim/.
+
+Verdict: scoped Pass for required-now C-Ramp+Receiver generic conversion, native behavior and publication, including the native6.5d/9R.12/9R.13 addendum. Original local failures and their corrections remain retained in the spec; browser qualification and named moving-frame/nudging/common9A44 limits are not claimed complete. Carry this terminal receipt into the next normal publication; no standalone administrative commit, Chrome run or duplicate local campaign is required.
+
+## Corrective forward fix — independent review, 22 October 2026: Incomplete
+
+Candidate: base `8665e68b`, uncommitted tracked diff sha256 `ad1c9261…9dc3` plus untracked `tools/E2eRunner/LessonFixtures.cs` sha256 `b348e930…b9bc`. Raw outputs: [evidence-c-ramp-corrective-review](evidence-c-ramp-corrective-review/). No SnapshotApproval; nothing staged.
+
+| Criterion / impact | Command / check | Result |
+|---|---|---|
+| Matching build | `dotnet build CuriousContraptions.slnx -c Debug` | 0 warnings/0 errors |
+| Full solution | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native 2142, E2eRunner 189, Coverage 77, BundleElements 141, WorkerAotGuard 17 = 2566/2566 |
+| Exact new CI tool step (`bash -e`) | four `dotnet test tools/… -f net10.0` incl. filter | 77/141/17/165, exit 0 |
+| Two-shape lessons reader | `PuzzleContentReader.ReadIndex` admits Planned (indexed, unconstructed) and Playable (`PuzzleDefinitionReader` requires `placements`); content is 50 Planned/`parts`, 12 Playable/`placements`, none mixed | current schema, not a fallback; unknown/mixed/missing rejected (tests) |
+| domino_effect | immutable `lessons-484ec38.json`: ball, domino, lamp at all three precisions; current placements ball/domino/lamp locked; pre-2f5650b6 JSON `bowling` was a stale descriptor | correction true; FIX-014-002 retirement forced by exact membership; no current tool reads `docs/coverage/engine` |
+| Expectations | 302→303 / 1471→1472 (+lamp), admitted 22→24 (24 packages), `PortSocket` 5 = FirstIn | justified by content/enum, not tuned |
+| Bundle | HEAD worktree `dotnet build tools/BundleElements` vs candidate | both `65964d95…2785`, byte-identical |
+| Wire TS | schemas/README recipe with flatc 25.12.19 | candidate region identical; HEAD differs at line 1202 |
+| Mutations | M1 `capture_margin`→`Fixed(.02)`; M2 Ramp X-extent bound to `width`; M3 editor `parameters.Validate` removed | M1, M2 killed; M3 survived (atomic refusal still held by construction validation) |
+| Selector consequence | `E2eRunner select --changed` both_gate / lamp | NoPrimarySuite exit 2 (coordinator-accepted); lamp selects clock-master via domino_effect |
+| `git diff --check` | tracked diff | clean (untracked file to be checked with `--cached` after staging) |
+
+Findings:
+
+1. **Medium, blocking (CI step accuracy/coverage).** The class-level filter excludes 24 tests, but with an empty HOME (no npx/tsx/TypeScript cache) 9 of them pass: `IdentityTests.ManifestIsDeterministicAndListsDotFilesAsNotServed`, `PreviewServesTheBundleAndAnotherBundleIsAMismatch`, `PortHeldByAForeignListenerRefusesAfterThreeAttempts`, `LostPortIsRetriedOnANewPort`; `SuiteProcessTests.TruncatedPlanIsIncomplete`, `MissingTsxIsATypedRefusal`, `CleanTapWithNonZeroExitIsAFailure`, both `SkippedOrTodoTestFailsTheFile` cases. Control: the other 15 fail. This matches the implementer's own Linux run (15 failures unfiltered without the npx cache). The YAML comment and spec claim that all 24 drive the browser toolchain are false, and runnable tests are left out of the gap this step closes. Resolve: exclude only the 15 toolchain tests (method-level filter or relocation), correct the comment and spec count; re-check the exact CI step gives 174/174 for E2eRunner and the excluded remainder all fail under empty HOME.
+2. **Low, non-blocking.** M3 survives: the Ramp editor test proves atomic refusal, not the typed OutOfRange path.
+3. **Low, non-blocking.** `LessonAvailability` duplicates the engine `PuzzleAvailability` at a tool boundary that does not reference the engine; acceptable.
+
+Verdict: Incomplete. Return finding 1 to transport_implementer; re-review the fix only (filter, comment, spec) plus `git diff --cached --check` at staging.
+
+## Corrective forward fix — SnapshotApproval, 22 October 2026
+
+Approved staged tree `361912e59b3c245db8bb16099f8f60049bfd84d7`, binary staged diff SHA256 `13837fbc8ca31fab09a99706ac9e62071347bc1a1fe0e2d80d1ca1e7aeefb04a`, base `8665e68bf018122887c85dd7e61c792e587d77e1` (51 paths: 23 slice files incl. `tools/E2eRunner/LessonFixtures.cs`, plus the review evidence). Only this receipt and its review-only evidence (`rereview/approved-identity.txt`, `diff-cached-check*.log`) are added afterwards. Raw outputs: [evidence-c-ramp-corrective-review/rereview](evidence-c-ramp-corrective-review/rereview/).
+
+| Criterion / impact | Command / check | Result |
+|---|---|---|
+| Findings re-review: changed inputs | pre-staging tracked diff `3bb360de…b0b7`; only `pages.yml`, `PalettePlacementTests.cs`, spec/TODO text changed since the Incomplete review | affected closure re-checked below; earlier bundle/wire/reader/domino/M1/M2 proof unchanged in applicability |
+| Matching build | `dotnet build CuriousContraptions.slnx -c Debug` | 0 warnings/0 errors (up to date with the changed test) |
+| Full solution | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | 2142 + 189 + 77 + 141 + 17 = 2566/2566 |
+| Exact CI step, extracted verbatim from YAML, `bash -e` | `rereview/ci-step-extracted.sh` | Coverage 77, BundleElements 141, WorkerAotGuard 17, E2eRunner 174; exit 0 |
+| Finding 1: exclusion is exactly the toolchain set | YAML `toolchain` list vs the 15 empty-HOME failures; the 15 alone and the other 174 under `HOME=$(mktemp -d)` | lists identical; 15/15 fail; 174/174 pass |
+| Finding 2: editor discrimination | M3 again (editor `parameters.Validate` removed) in a disposable worktree | killed: expected "Invalid declared parameter value.", actual "Unexpected fault (ArgumentException)…"; unmutated passes in slnx |
+| Whitespace | `git diff --cached --check` | slice files clean; only raw, unaltered review logs carry tool-emitted trailing blanks (no hook enforces this; prior raw evidence logs do the same) |
+
+Findings resolved: 1 (CI filter now excludes only the 15 toolchain tests; YAML comment and spec state the 15 and the 9 now running) and 2 (typed OutOfRange status asserted). Finding 3 stays Low and accepted. No unresolved findings within required-now scope.
+
+Non-claims: browser/Chrome qualification stays pending for the post-catalogue E2E phase. The 15 toolchain E2eRunner tests (TypeCheckTests 2, SuiteProcessTests 8, IdentityTests 5) are not run in CI; they ran locally in the slnx run. The selector's NoPrimarySuite for both_gate/hold_timer is an accepted, explicit gap pending their suites. No global audit, performance or runtime qualification is claimed.
+
+## Corrective forward fix — Publication-dependent checks
+
+SnapshotApproval authorizes normal protected commit of exactly this candidate plus this receipt, merge to main and push, with no `--no-verify`. Terminal scoped Pass requires:
+- an independent check that the source commit tree, main and remote match the approved tree, differing only by this receipt and its review evidence;
+- normal hooks passing;
+- exact-SHA CI success, including the native step and the new "Test C# tools" step with E2eRunner 174 and zero failed/skipped;
+- the Pages artifact associated with that run/SHA;
+- a successful deployment of that SHA.
+
+Return concrete failures to the same owner. No routine Chrome run or duplicate local campaign is needed for publication.

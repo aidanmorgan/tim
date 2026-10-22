@@ -174,16 +174,14 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
 
     public void ValidateFixtures(string json)
     {
-        using var document = JsonDocument.Parse(json);
         var expected = Fixtures.ToDictionary(fixture => fixture.Instance);
         var seen = new HashSet<RequirementId>();
-        foreach (var level in document.RootElement.EnumerateArray())
-        foreach (var part in level.GetProperty("parts").EnumerateArray())
+        foreach (var authored in CuriousContraptions.Content.LessonFixtures.Read(json))
         {
-            var instance = new RequirementId(level.GetProperty("id").GetString() + "/" + part.GetProperty("id").GetString());
-            var key = new SourceKey(RequirementOrigin.Catalogue, new RequirementId(part.GetProperty("kind").GetString()!));
+            var instance = new RequirementId(authored.Lesson + "/" + authored.Fixture);
+            var key = new SourceKey(RequirementOrigin.Catalogue, new RequirementId(authored.Part));
             if (!seen.Add(instance) || !expected.TryGetValue(instance, out var fixture) || fixture.Catalogue != key ||
-                fixture.Locked != part.GetProperty("locked").GetBoolean())
+                fixture.Locked != authored.Locked)
                 throw new InvalidDataException("Fixture content differs from current declared identity, kind or locked state.");
         }
         if (!seen.SetEquals(expected.Keys)) throw new InvalidDataException("Authored fixture membership differs.");

@@ -7,7 +7,7 @@
 <a id="cat-001-i"></a>
 ### CAT-001-I · ball
 
-**Level(s) unlocked:** placed in first_principles, spring_forward, spring_signal, bumper_sidekick, bumper_depth, wall_return, wall_and_bumper, conveyor_courier, belt_relay, reverse_belt, solar_motor, solar_shadow, delayed_signal, delayed_solar, clear_pipe, gentle_bend, quarter_bend, joined_pipe, two_deliveries, bounce_and_roll, air_and_belt, catch_and_signal, powered_post, spring_and_chain, two_signals, mixed_signals, deep_routes, deep_springs, spatial_signals, three_deliveries, triple_signal, cold_front, chain_mail, bounce_mail, relay_workshop, double_cold_start, signals_and_chain, cold_signals, depth_delivery, depth_telegraph, double_bridge, bridges_and_signal, grand_contraption, wind_then_release, saved_for_later, a_gentle_rebound, ready_to_rebound.
+**Level(s) unlocked:** placed in first_principles, spring_forward, domino_effect, spring_signal, bumper_sidekick, bumper_depth, wall_return, wall_and_bumper, conveyor_courier, belt_relay, reverse_belt, solar_motor, solar_shadow, delayed_signal, delayed_solar, clear_pipe, gentle_bend, quarter_bend, joined_pipe, two_deliveries, bounce_and_roll, air_and_belt, catch_and_signal, powered_post, spring_and_chain, two_signals, mixed_signals, deep_routes, deep_springs, spatial_signals, three_deliveries, triple_signal, cold_front, chain_mail, bounce_mail, relay_workshop, double_cold_start, signals_and_chain, cold_signals, depth_delivery, depth_telegraph, double_bridge, bridges_and_signal, grand_contraption, wind_then_release, saved_for_later, a_gentle_rebound, ready_to_rebound.
 
 [Exact D/I/V acceptance](../requirements.md#current-cat-001). **Requirements (Incomplete):** [CAT-001](../requirements.md#current-cat-001). **Legacy deleted at this element's slice:** [parts/BallPart.cs](../../../parts/BallPart.cs). **Mode records:** Configuration=Fixed.
 
@@ -130,7 +130,7 @@
 <a id="cat-014-i"></a>
 ### CAT-014-I · bowling
 
-**Level(s) unlocked:** placed in power_trip, domino_effect, cold_start, switched_motor, catch_and_signal, wind_and_dominoes, powered_post, spring_and_chain, start_and_topple, cold_front, chain_mail, bounce_mail, relay_workshop, double_cold_start, triple_chain, signals_and_chain, cold_signals, double_bridge, bridges_and_signal, cold_bridges, grand_contraption.
+**Level(s) unlocked:** placed in power_trip, cold_start, switched_motor, catch_and_signal, wind_and_dominoes, powered_post, spring_and_chain, start_and_topple, cold_front, chain_mail, bounce_mail, relay_workshop, double_cold_start, triple_chain, signals_and_chain, cold_signals, double_bridge, bridges_and_signal, cold_bridges, grand_contraption.
 
 [Exact D/I/V acceptance](../requirements.md#current-cat-014). **Requirements (Incomplete):** [CAT-014](../requirements.md#current-cat-014). **Legacy deleted at this element's slice:** the untyped `parts/catalog/bowling.tres` parameter dictionary, the `BasketballMaterial`/`BasketballMaterialResource` single-kind naming and the hard-coded ball friction/bounce threshold in `WorkshopPhysicsCompiler` ([parts/BallPart.cs](../../../parts/BallPart.cs) is retained as artwork that reads the declared material of either kind). **Mode records:** Configuration=Fixed. *Delivery note (Story 6.1): implemented as `WorkshopBall` with `Kind = BowlingBall` and `BallMaterial.For(kind)`; Chrome proof `tools/e2e/cat-014.test.ts` (two lanes, rest/bounce, Receiver, Save/Load, Reset); terminal scoped Pass by the independent reviewer (Murdoch, 9 Oct 2026, two passes) for the original 0.38 m Bowling ball; the 0.28 m / 4 kg re-tune under every-contact rolling resistance (Story 6.1b, owner decision 9 Oct 2026) is covered by the 6.1b review.*
 
@@ -333,7 +333,7 @@
 <a id="cat-035-i"></a>
 ### CAT-035-I · lamp
 
-**Level(s) unlocked:** placed in power_trip, spring_signal, wind_signal, counterweight, pulley_depth, delayed_signal, catch_and_signal, two_signals, mixed_signals, spatial_signals, triple_signal, bounce_mail, relay_workshop, signals_and_chain, cold_signals, depth_telegraph, bridges_and_signal, grand_contraption.
+**Level(s) unlocked:** placed in power_trip, domino_effect, spring_signal, wind_signal, counterweight, pulley_depth, delayed_signal, catch_and_signal, two_signals, mixed_signals, spatial_signals, triple_signal, bounce_mail, relay_workshop, signals_and_chain, cold_signals, depth_telegraph, bridges_and_signal, grand_contraption.
 
 [Exact D/I/V acceptance](../requirements.md#current-cat-035). **Requirements (Incomplete):** [CAT-035](../requirements.md#current-cat-035). **Legacy deleted at this element's slice:** [parts/LampPart.cs](../../../parts/LampPart.cs). **Mode records:** Configuration=Fixed.
 
@@ -708,24 +708,24 @@
 
 | Canonical owner | Current level/instance | Kind / locked | Consumer proof | Source criteria |
 | --- | --- | --- | --- | --- |
-| <a id="fix-001-001"></a>FIX-001-001 | first_principles/ball | ball / True | CAT-001-V | FIX-001-001 |
-| <a id="fix-001-002"></a>FIX-001-002 | spring_forward/ball | ball / True | CAT-001-V | FIX-001-002 |
+| <a id="fix-001-001"></a>FIX-001-001 | first_principles/fixture_1 | ball / True | CAT-001-V | FIX-001-001 |
+| <a id="fix-001-002"></a>FIX-001-002 | spring_forward/fixture_1 | ball / True | CAT-001-V | FIX-001-002 |
 | <a id="fix-001-003"></a>FIX-001-003 | spring_signal/ball | ball / True | CAT-001-V | FIX-001-003 |
-| <a id="fix-001-004"></a>FIX-001-004 | bumper_sidekick/ball | ball / True | CAT-001-V | FIX-001-004 |
-| <a id="fix-001-005"></a>FIX-001-005 | bumper_depth/ball | ball / True | CAT-001-V | FIX-001-005 |
+| <a id="fix-001-004"></a>FIX-001-004 | bumper_sidekick/fixture_1 | ball / True | CAT-001-V | FIX-001-004 |
+| <a id="fix-001-005"></a>FIX-001-005 | bumper_depth/fixture_1 | ball / True | CAT-001-V | FIX-001-005 |
 | <a id="fix-001-006"></a>FIX-001-006 | wall_return/ball | ball / True | CAT-001-V | FIX-001-006 |
-| <a id="fix-001-007"></a>FIX-001-007 | wall_and_bumper/ball | ball / True | CAT-001-V | FIX-001-007 |
+| <a id="fix-001-007"></a>FIX-001-007 | wall_and_bumper/fixture_1 | ball / True | CAT-001-V | FIX-001-007 |
 | <a id="fix-001-008"></a>FIX-001-008 | conveyor_courier/ball | ball / True | CAT-001-V | FIX-001-008 |
 | <a id="fix-001-009"></a>FIX-001-009 | belt_relay/ball | ball / True | CAT-001-V | FIX-001-009 |
 | <a id="fix-001-010"></a>FIX-001-010 | reverse_belt/ball | ball / True | CAT-001-V | FIX-001-010 |
 | <a id="fix-001-011"></a>FIX-001-011 | solar_motor/trigger | ball / True | CAT-001-V | FIX-001-011 |
 | <a id="fix-001-012"></a>FIX-001-012 | solar_shadow/trigger | ball / True | CAT-001-V | FIX-001-012 |
-| <a id="fix-001-013"></a>FIX-001-013 | delayed_signal/trigger | ball / True | CAT-001-V | FIX-001-013 |
+| <a id="fix-001-013"></a>FIX-001-013 | delayed_signal/fixture_1 | ball / True | CAT-001-V | FIX-001-013 |
 | <a id="fix-001-014"></a>FIX-001-014 | delayed_solar/trigger | ball / True | CAT-001-V | FIX-001-014 |
-| <a id="fix-001-015"></a>FIX-001-015 | clear_pipe/ball | ball / True | CAT-001-V | FIX-001-015 |
-| <a id="fix-001-016"></a>FIX-001-016 | gentle_bend/ball | ball / True | CAT-001-V | FIX-001-016 |
-| <a id="fix-001-017"></a>FIX-001-017 | quarter_bend/ball | ball / True | CAT-001-V | FIX-001-017 |
-| <a id="fix-001-018"></a>FIX-001-018 | joined_pipe/ball | ball / True | CAT-001-V | FIX-001-018 |
+| <a id="fix-001-015"></a>FIX-001-015 | clear_pipe/fixture_1 | ball / True | CAT-001-V | FIX-001-015 |
+| <a id="fix-001-016"></a>FIX-001-016 | gentle_bend/fixture_1 | ball / True | CAT-001-V | FIX-001-016 |
+| <a id="fix-001-017"></a>FIX-001-017 | quarter_bend/fixture_1 | ball / True | CAT-001-V | FIX-001-017 |
+| <a id="fix-001-018"></a>FIX-001-018 | joined_pipe/fixture_1 | ball / True | CAT-001-V | FIX-001-018 |
 | <a id="fix-001-019"></a>FIX-001-019 | two_deliveries/lane1_ball | ball / True | CAT-001-V | FIX-001-019 |
 | <a id="fix-001-020"></a>FIX-001-020 | bounce_and_roll/lane1_ball | ball / True | CAT-001-V | FIX-001-020 |
 | <a id="fix-001-021"></a>FIX-001-021 | bounce_and_roll/lane2_ball | ball / True | CAT-001-V | FIX-001-021 |
@@ -770,23 +770,24 @@
 | <a id="fix-001-060"></a>FIX-001-060 | saved_for_later/payload | ball / True | CAT-001-V | FIX-001-060 |
 | <a id="fix-001-061"></a>FIX-001-061 | saved_for_later/striker | ball / True | CAT-001-V | FIX-001-061 |
 | <a id="fix-001-062"></a>FIX-001-062 | a_gentle_rebound/payload | ball / True | CAT-001-V | FIX-001-062 |
-| <a id="fix-001-063"></a>FIX-001-063 | ready_to_rebound/ball | ball / True | CAT-001-V | FIX-001-063 |
-| <a id="fix-004-001"></a>FIX-004-001 | first_principles/receiver | basket / True | CAT-004-V | FIX-004-001 |
+| <a id="fix-001-063"></a>FIX-001-063 | ready_to_rebound/fixture_1 | ball / True | CAT-001-V | FIX-001-063 |
+| <a id="fix-001-064"></a>FIX-001-064 | domino_effect/fixture_1 | ball / True | CAT-001-V | FIX-001-064 |
+| <a id="fix-004-001"></a>FIX-004-001 | first_principles/fixture_2 | basket / True | CAT-004-V | FIX-004-001 |
 | <a id="fix-004-002"></a>FIX-004-002 | air_mail/receiver | basket / True | CAT-004-V | FIX-004-002 |
-| <a id="fix-004-003"></a>FIX-004-003 | spring_forward/receiver | basket / True | CAT-004-V | FIX-004-003 |
+| <a id="fix-004-003"></a>FIX-004-003 | spring_forward/fixture_2 | basket / True | CAT-004-V | FIX-004-003 |
 | <a id="fix-004-004"></a>FIX-004-004 | third_dimension/receiver | basket / True | CAT-004-V | FIX-004-004 |
 | <a id="fix-004-005"></a>FIX-004-005 | cold_start/receiver | basket / True | CAT-004-V | FIX-004-005 |
-| <a id="fix-004-006"></a>FIX-004-006 | bumper_sidekick/receiver | basket / True | CAT-004-V | FIX-004-006 |
-| <a id="fix-004-007"></a>FIX-004-007 | bumper_depth/receiver | basket / True | CAT-004-V | FIX-004-007 |
+| <a id="fix-004-006"></a>FIX-004-006 | bumper_sidekick/fixture_2 | basket / True | CAT-004-V | FIX-004-006 |
+| <a id="fix-004-007"></a>FIX-004-007 | bumper_depth/fixture_2 | basket / True | CAT-004-V | FIX-004-007 |
 | <a id="fix-004-008"></a>FIX-004-008 | wall_return/receiver | basket / True | CAT-004-V | FIX-004-008 |
-| <a id="fix-004-009"></a>FIX-004-009 | wall_and_bumper/receiver | basket / True | CAT-004-V | FIX-004-009 |
+| <a id="fix-004-009"></a>FIX-004-009 | wall_and_bumper/fixture_2 | basket / True | CAT-004-V | FIX-004-009 |
 | <a id="fix-004-010"></a>FIX-004-010 | conveyor_courier/receiver | basket / True | CAT-004-V | FIX-004-010 |
 | <a id="fix-004-011"></a>FIX-004-011 | belt_relay/receiver | basket / True | CAT-004-V | FIX-004-011 |
 | <a id="fix-004-012"></a>FIX-004-012 | reverse_belt/receiver | basket / True | CAT-004-V | FIX-004-012 |
-| <a id="fix-004-013"></a>FIX-004-013 | clear_pipe/receiver | basket / True | CAT-004-V | FIX-004-013 |
-| <a id="fix-004-014"></a>FIX-004-014 | gentle_bend/receiver | basket / True | CAT-004-V | FIX-004-014 |
-| <a id="fix-004-015"></a>FIX-004-015 | quarter_bend/receiver | basket / True | CAT-004-V | FIX-004-015 |
-| <a id="fix-004-016"></a>FIX-004-016 | joined_pipe/receiver | basket / True | CAT-004-V | FIX-004-016 |
+| <a id="fix-004-013"></a>FIX-004-013 | clear_pipe/fixture_2 | basket / True | CAT-004-V | FIX-004-013 |
+| <a id="fix-004-014"></a>FIX-004-014 | gentle_bend/fixture_2 | basket / True | CAT-004-V | FIX-004-014 |
+| <a id="fix-004-015"></a>FIX-004-015 | quarter_bend/fixture_2 | basket / True | CAT-004-V | FIX-004-015 |
+| <a id="fix-004-016"></a>FIX-004-016 | joined_pipe/fixture_3 | basket / True | CAT-004-V | FIX-004-016 |
 | <a id="fix-004-017"></a>FIX-004-017 | two_deliveries/lane1_receiver | basket / True | CAT-004-V | FIX-004-017 |
 | <a id="fix-004-018"></a>FIX-004-018 | two_deliveries/lane2_receiver | basket / True | CAT-004-V | FIX-004-018 |
 | <a id="fix-004-019"></a>FIX-004-019 | bounce_and_roll/lane1_receiver | basket / True | CAT-004-V | FIX-004-019 |
@@ -842,7 +843,6 @@
 | <a id="fix-005-012"></a>FIX-005-012 | wind_then_release/battery | battery / True | CAT-005-V | FIX-005-012 |
 | <a id="fix-005-013"></a>FIX-005-013 | saved_for_later/battery | battery / True | CAT-005-V | FIX-005-013 |
 | <a id="fix-014-001"></a>FIX-014-001 | power_trip/ball | bowling / True | CAT-014-V | FIX-014-001 |
-| <a id="fix-014-002"></a>FIX-014-002 | domino_effect/ball | bowling / True | CAT-014-V | FIX-014-002 |
 | <a id="fix-014-003"></a>FIX-014-003 | cold_start/trigger | bowling / True | CAT-014-V | FIX-014-003 |
 | <a id="fix-014-004"></a>FIX-014-004 | switched_motor/ball | bowling / True | CAT-014-V | FIX-014-004 |
 | <a id="fix-014-005"></a>FIX-014-005 | catch_and_signal/lane2_ball | bowling / True | CAT-014-V | FIX-014-005 |
@@ -877,7 +877,7 @@
 | <a id="fix-022-001"></a>FIX-022-001 | wind_then_release/delay | delay / True | CAT-022-V | FIX-022-001 |
 | <a id="fix-022-002"></a>FIX-022-002 | saved_for_later/delay | delay / True | CAT-022-V | FIX-022-002 |
 | <a id="fix-022-003"></a>FIX-022-003 | saved_for_later/release_delay | delay / True | CAT-022-V | FIX-022-003 |
-| <a id="fix-023-001"></a>FIX-023-001 | domino_effect/end | domino / True | CAT-023-V | FIX-023-001 |
+| <a id="fix-023-001"></a>FIX-023-001 | domino_effect/fixture_2 | domino / True | CAT-023-V | FIX-023-001 |
 | <a id="fix-023-002"></a>FIX-023-002 | wind_and_dominoes/lane2_end | domino / True | CAT-023-V | FIX-023-002 |
 | <a id="fix-023-003"></a>FIX-023-003 | spring_and_chain/lane2_end | domino / True | CAT-023-V | FIX-023-003 |
 | <a id="fix-023-004"></a>FIX-023-004 | start_and_topple/lane2_end | domino / True | CAT-023-V | FIX-023-004 |
@@ -911,7 +911,7 @@
 | <a id="fix-035-003"></a>FIX-035-003 | wind_signal/lamp | lamp / True | CAT-035-V | FIX-035-003 |
 | <a id="fix-035-004"></a>FIX-035-004 | counterweight/lamp | lamp / True | CAT-035-V | FIX-035-004 |
 | <a id="fix-035-005"></a>FIX-035-005 | pulley_depth/lamp | lamp / True | CAT-035-V | FIX-035-005 |
-| <a id="fix-035-006"></a>FIX-035-006 | delayed_signal/lamp | lamp / True | CAT-035-V | FIX-035-006 |
+| <a id="fix-035-006"></a>FIX-035-006 | delayed_signal/fixture_3 | lamp / True | CAT-035-V | FIX-035-006 |
 | <a id="fix-035-007"></a>FIX-035-007 | catch_and_signal/lane2_lamp | lamp / True | CAT-035-V | FIX-035-007 |
 | <a id="fix-035-008"></a>FIX-035-008 | two_signals/lane1_lamp | lamp / True | CAT-035-V | FIX-035-008 |
 | <a id="fix-035-009"></a>FIX-035-009 | two_signals/lane2_lamp | lamp / True | CAT-035-V | FIX-035-009 |
@@ -933,6 +933,7 @@
 | <a id="fix-035-025"></a>FIX-035-025 | bridges_and_signal/lane2_lamp | lamp / True | CAT-035-V | FIX-035-025 |
 | <a id="fix-035-026"></a>FIX-035-026 | grand_contraption/lane1_lamp | lamp / True | CAT-035-V | FIX-035-026 |
 | <a id="fix-035-027"></a>FIX-035-027 | grand_contraption/lane3_lamp | lamp / True | CAT-035-V | FIX-035-027 |
+| <a id="fix-035-028"></a>FIX-035-028 | domino_effect/fixture_3 | lamp / True | CAT-035-V | FIX-035-028 |
 | <a id="fix-042-001"></a>FIX-042-001 | battery_motor/motor | motor / True | CAT-042-V | FIX-042-001 |
 | <a id="fix-042-002"></a>FIX-042-002 | switched_motor/motor | motor / True | CAT-042-V | FIX-042-002 |
 | <a id="fix-042-003"></a>FIX-042-003 | conveyor_courier/motor | motor / True | CAT-042-V | FIX-042-003 |
@@ -950,16 +951,16 @@
 | <a id="fix-042-015"></a>FIX-042-015 | grand_contraption/lane3_motor | motor / True | CAT-042-V | FIX-042-015 |
 | <a id="fix-042-016"></a>FIX-042-016 | wind_then_release/motor | motor / True | CAT-042-V | FIX-042-016 |
 | <a id="fix-042-017"></a>FIX-042-017 | saved_for_later/motor | motor / True | CAT-042-V | FIX-042-017 |
-| <a id="fix-050-001"></a>FIX-050-001 | joined_pipe/bend | pipe_bend_90 / True | CAT-050-V | FIX-050-001 |
+| <a id="fix-050-001"></a>FIX-050-001 | joined_pipe/fixture_2 | pipe_bend_90 / True | CAT-050-V | FIX-050-001 |
 | <a id="fix-053-001"></a>FIX-053-001 | counterweight/left_pulley | pulley / True | CAT-053-V | FIX-053-001 |
 | <a id="fix-053-002"></a>FIX-053-002 | counterweight/right_pulley | pulley / True | CAT-053-V | FIX-053-002 |
 | <a id="fix-053-003"></a>FIX-053-003 | pulley_depth/left_pulley | pulley / True | CAT-053-V | FIX-053-003 |
-| <a id="fix-062-001"></a>FIX-062-001 | ready_to_rebound/spring_1 | spring / True | CAT-062-V | FIX-062-001 |
+| <a id="fix-062-001"></a>FIX-062-001 | ready_to_rebound/fixture_2 | spring / True | CAT-062-V | FIX-062-001 |
 | <a id="fix-063-001"></a>FIX-063-001 | spring_signal/receiver | switch / True | CAT-063-V | FIX-063-001 |
 | <a id="fix-063-002"></a>FIX-063-002 | wind_signal/receiver | switch / True | CAT-063-V | FIX-063-002 |
 | <a id="fix-063-003"></a>FIX-063-003 | counterweight/switch | switch / True | CAT-063-V | FIX-063-003 |
 | <a id="fix-063-004"></a>FIX-063-004 | pulley_depth/switch | switch / True | CAT-063-V | FIX-063-004 |
-| <a id="fix-063-005"></a>FIX-063-005 | delayed_signal/switch | switch / True | CAT-063-V | FIX-063-005 |
+| <a id="fix-063-005"></a>FIX-063-005 | delayed_signal/fixture_2 | switch / True | CAT-063-V | FIX-063-005 |
 | <a id="fix-063-006"></a>FIX-063-006 | delayed_solar/switch | switch / True | CAT-063-V | FIX-063-006 |
 | <a id="fix-063-007"></a>FIX-063-007 | two_signals/lane1_receiver | switch / True | CAT-063-V | FIX-063-007 |
 | <a id="fix-063-008"></a>FIX-063-008 | two_signals/lane2_receiver | switch / True | CAT-063-V | FIX-063-008 |

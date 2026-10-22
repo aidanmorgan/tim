@@ -99,6 +99,6 @@ public sealed class PortLocatorTests
     [Fact]
     public void AnUndefinedSocketIsRefused() =>
         Assert.Equal(["BUNDLE003 FixtureSocket.Ports[0].Socket: undefined enum value"],
-            PackageValidator.Validate([new("FixtureSocket", new Fixture { Ports = [PowerIn(Vector3.Zero) with { Socket = (PortSocket)5 }] })])
+            PackageValidator.Validate([new("FixtureSocket", new Fixture { Ports = [PowerIn(Vector3.Zero) with { Socket = (PortSocket)99 }] })])
                 .Select(error => error.ToString()));
 }

@@ -45,15 +45,20 @@ public class InventoryTests
     public void FixturesRemainIndividualAndAuthoredChangesInvalidateEvidence()
     {
         const string json="""
-            [{"id":"lesson","parts":[
+            [{"id":"lesson","availability":"Planned","parts":[
               {"id":"a","kind":"ball","locked":true,"position":[0,1,0]},
               {"id":"b","kind":"ball","locked":true,"position":[0,2,0]},
-              {"id":"c","kind":"ramp","locked":false,"position":[0,3,0]}]}]
+              {"id":"c","kind":"ramp","locked":false,"position":[0,3,0]}]},
+             {"id":"typed","availability":"Playable","placements":[
+              {"slot":"fixture_1","instance":{"part":"ball","locked":true,"local":[0,1,0]}}]}]
             """;
         var rows=RequirementDiscovery.Fixtures(json);
-        Assert.Equal(3,rows.Count);Assert.NotEqual(rows[0].Source.Key,rows[1].Source.Key);
+        Assert.Equal(4,rows.Count);Assert.NotEqual(rows[0].Source.Key,rows[1].Source.Key);
+        Assert.Equal("typed/fixture_1",rows[3].Source.Key.Id.Value);
+        Assert.Equal(new SourceKey(RequirementOrigin.Catalogue,new("ball")),rows[3].Catalogue);
         var changed=RequirementDiscovery.Fixtures(json.Replace("[0,1,0]","[0,4,0]"));
         Assert.NotEqual(rows[0].Source.Hash,changed[0].Source.Hash);
+        Assert.NotEqual(rows[3].Source.Hash,changed[3].Source.Hash);
         Assert.Equal(rows[1],changed[1]);
     }
     [Fact]

@@ -1,0 +1,61 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Battery/bin/Debug/net10.0/Battery.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Domino/bin/Debug/net10.0/Domino.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Counter/bin/Debug/net10.0/Counter.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/Ball/bin/Debug/net10.0/Ball.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (24 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/elements/elements.bundle.json (24 elements)
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.78
+exit 0

@@ -1,0 +1,8 @@
+## both_gate
+NoPrimarySuite: elements/BothGate/BothGateElementDeclaration.cs changes both_gate, which has no declared suite coverage; add its coverage to SuiteCatalogue.
+exit 2
+## lamp
+Mode: Selected
+clock-master	integration: level domino_effect places lamp; connected: lamp.ActivationIn Signal domino.ActivationOut
+cat-023b	integration: places lamp; integration: level domino_effect places lamp; connected: lamp.ActivationIn Signal domino.ActivationOut
+exit 0

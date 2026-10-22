@@ -258,11 +258,11 @@ development_status:
   # 23 (element)
   9-6-dual-supply-both-gate: done # scoped native/publication Passe036b7; browser pending
   # 24 (deletion)
-  9a-c-ramp-receiver-conversion: review
+  9a-c-ramp-receiver-conversion: done # scoped native/publication Pass9b324b; browser pending
   # merged into 9a-c-ramp-receiver (21 Oct 2026)
-  9a-28-generic-instance-ramp: review
+  9a-28-generic-instance-ramp: done
   # merged into 9a-c-ramp-receiver (21 Oct 2026)
-  9a-29-generic-instance-receiver: review
+  9a-29-generic-instance-receiver: done
   # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard
   9r-12-cat-004-receiver-suite: review # native scope; browser post-catalogue
   # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard

@@ -1199,11 +1199,6 @@ static createParameterRecord(builder:flatbuffers.Builder, keyOffset:flatbuffers.
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-
-
-
 export class InstanceRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1494,6 +1489,8 @@ static endInstanceRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
 }
 
 }
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export class PuzzleRecord {
   bb: flatbuffers.ByteBuffer|null = null;
