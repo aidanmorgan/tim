@@ -146,7 +146,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
         var plate = WorkshopInput.PressurePlate(new(1), 0, y, 0, 0, 0, 0, 1, minimum);
-        var ball = WorkshopInput.Basketball(new(2), 0, y + .08 + .35, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .08 + .35, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             occupied ? new(plate, ball) : new(plate));
         var reads = await WorkshopPhysicsEngineTests.Run(construction, 120);
@@ -214,7 +214,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
         var plate = WorkshopInput.PressurePlate(new(1), 0, y, 0, 0, 0, 0, 1, .5f);
-        var ball = WorkshopInput.Basketball(new(2), 0, y + .43, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .43, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate, ball));
         var (_, reads, reset) = await PressurePlateTests.RunAndReset(construction, 120);
         var loaded = reads.Last(read => read.Presentation.Loads[0].Phase == ContactLoadPhase.Loaded);

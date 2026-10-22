@@ -15,15 +15,15 @@
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | The generic `WorkshopBall` with `Kind = BowlingBall`: one dynamic homogeneous sphere, radius 0.28 m `engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L53`, `engine/gpu/WorkshopConstruction.cs@a6c914e:L67-L77`; compiled like every ball `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`. |
-| Mass and material | 4 kg; bounce 0.14; drag 0.04 1/s; buoyancy 0; friction 0.3; bounce threshold 0.1 m/s; rolling resistance 0.03 `engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L53`. Owner decision 9 Oct 2026: game-scale, smaller than the 0.34 m Basketball. |
+| Body and shape | A zero-parameter `WorkshopGenericInstance` of the `bowling` package (C-Balls, Story 9A.31): one dynamic homogeneous sphere, radius 0.28 m, declared only by `elements/BowlingBall/BowlingBallElementDeclaration.cs` (collider baked from `elements/BowlingBall/bowling.tscn`); compiled by the same shared instance loop as every dynamic package, with no ball-specific path. |
+| Mass and material | 4 kg; bounce 0.14; drag 0.04 1/s; no fluid declaration (not buoyant); friction 0.3; bounce threshold 0.1 m/s; rolling resistance 0.03, all package-declared. Owner decision 9 Oct 2026: game-scale, smaller than the 0.34 m Basketball. A Basketball on the same bench keeps its own material; no record can carry a material (a generic record carrying any typed field or parameter is refused). |
 | Constraints and joints | none. |
 | Sockets and ports | none `engine/gpu/WorkshopConnections.cs@a6c914e:L18-L26`. |
-| Sensors and activation | none owned; a named target like every ball. |
+| Sensors and activation | none owned; a payload (`DeclaredPhysics.IsPayload`, derived from the declaration) like the Basketball: guided and captured by every capture owner, and the lesson trigger/Bumper target when it is the first payload. |
 | Work and energy stores | none. |
-| Parameters | none authorable; material validated bit-exactly per kind `engine/gpu/WorkshopConstruction.cs@a6c914e:L54-L62`. |
+| Parameters | none (package `Parameters: []`); the generic editor shows no panel. Pre-conversion saves are refused, never migrated. |
 | Cosmetic curves and UI bindings | none. |
-| Art | Shared `parts/BallPart.cs@a6c914e:L9-L17` reading the declared radius (stripe ring half thickness 0.014); scene `parts/scenes/ball.tscn`. Palette Bowling ball `#45639c` (0.27, 0.39, 0.61) `DESIGN.md@a6c914e:L166-L166`. Icon `ui/WorkshopIcons.cs@a6c914e:L41-L41`. |
+| Art | Package scene `elements/BowlingBall/bowling.tscn`: a sphere mesh of radius 0.28 m committed equal to the baked collider (no runtime resize). Palette Bowling ball `#45639c` (0.27, 0.39, 0.61) `DESIGN.md@a6c914e:L166-L166`. Icon `ui/WorkshopIcons.cs@a6c914e:L41-L41`. |
 | Catalogue and inventory | `parts/catalog/bowling.tres@a6c914e:L8-L27`: id `bowling`, title Bowling ball, category Motion, same typed material bits. |
 
 Current tests: `CuriousContraptions.tests/WorkshopBowlingTests.cs`, `RigidMassPropertiesTests.cs`, `WorkbenchCapacityTests.cs`, `BasketballResourceTests.cs`, `WorkshopPhysicsEngineTests.cs` (native steps of the shipped C# engine: low rebound and rest at the 0.28 m radius, heavy-payload Bumper ledger; `WorkshopPhysicsLawTests` adds the e²·h rebound and the two-lane strike); Chrome `tools/e2e/cat-014.test.ts` (two-lane Domino strike, bench rest/bounce, Receiver capture, Save/Load). Behaviour change, Story 9.4b: a sphere's contact support now stays under its centre while it rolls (it rotated with the body, so a fast-rolling ball lost support), which changes every ball's rolling; re-proved by the cumulative Chrome run.
@@ -41,7 +41,7 @@ Families from the [element map row](../general-engine-element-map.md): Aerodynam
 | --- | --- |
 | Buoyancy and atmosphere (declared zero today) | Epic 12 |
 | Lever loading integration | Story 10.3 (CAT-034 Impact lever) |
-| f32 declarations: the shared `BallMaterial` lanes, pose and the `bowling.tres` `*Bits` fields are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: the package declares f32; the compiled body, collider and material lanes are still binary16 (`Half`) until Story 9A.44 | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
 
 Dependencies: none. Shares CAT-001's ball record; differs only by declared material.
 

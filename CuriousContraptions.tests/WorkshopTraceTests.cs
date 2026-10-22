@@ -11,7 +11,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static readonly RuntimeSessionId Session = new(0x20000000000001, ulong.MaxValue);
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
-    private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Basketball(new(3), 0, 8.875, 0, 0, 0, 0, 1)));
+    private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(3), 0, 8.875, 0, 0, 0, 0, 1)));
 
     [Fact]
     public void RoundedCommittedRotationPreservesTraceBits()
@@ -179,7 +179,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         using var output = new CapturedConsole();
         var trace = new WorkshopTrace();
         var balls = Enumerable.Range(0, 20)
-            .Select(i => (IWorkshopInstance)WorkshopInput.Basketball(new((ulong)i + 3), -6 + i * .6, 8.875, 0, 0, 0, 0, 1)).ToArray();
+            .Select(i => (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball,new((ulong)i + 3), -6 + i * .6, 8.875, 0, 0, 0, 0, 1)).ToArray();
         var profile = Profile with { Cadence = SimulationCadence.Hz240 };
         var configured = new WorkshopConstruction(new(7), Settings with { Simulation = SimulationCadence.Hz240 }, new(balls));
         var record = Record(configured, new(9), profile);

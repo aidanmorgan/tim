@@ -1,0 +1,10 @@
+== deleted symbols, production (excluding tests)
+rc=1
+== in tests
+CuriousContraptions.tests/ElementIsolationTests.cs:390:        foreach (var name in new[] { "AddBatteryConfiguration", "ApplyClockInterval", "CaptureBall", "AdvanceBattery", "BatterySimulation", "ResolveWallMaterial", "TickClock" }) Assert.NotNull(PackageIdentifier(name));
+== factory/accessor
+rc=1
+== content radius/drag/buoyancy
+rc=1
+== AuthoredScalar/TS radius
+rc=1

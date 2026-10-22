@@ -380,7 +380,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         WorkshopInput.Battery(new(id), 3, GateHeight, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
     private static WorkshopPressurePlate Plate(ulong id, double x, double z, float minimum) =>
         WorkshopInput.PressurePlate(new(id), x, PlateY, z, 0, 0, 0, 1, minimum);
-    private static WorkshopBall BallOn(ulong id, double x, double z) => WorkshopInput.Basketball(new(id), x, Face + .35, z, 0, 0, 0, 1);
+    private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), x, Face + .35, z, 0, 0, 0, 1);
     private static WorkshopDomino StandingOn(ulong id, double x, double z) => WorkshopInput.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
     private static WorkshopDomino FlatOn(ulong id, double x, double under, double z) =>
@@ -521,7 +521,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var plate = WorkshopInput.PressurePlate(new(3), -4, plateHeight, 0, 0, 0, Math.Sin(half), Math.Cos(half), .5f);
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .345f, 0), rotation);
-        var ball = WorkshopInput.Basketball(new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
         var lamp = LampAt(5);
         var reads = await RunBench(Bench([gate, battery, plate, ball, lamp], [.. Circuit(battery, plate, gate), Signal(plate.Id, lamp.Id)]), 4 * 120);
         int resting = 0, off = 0, held = 0, released = 0; ulong? lastQualifying = null;
@@ -624,7 +624,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
         var last = (WorkshopPressurePlate)instances[12];
         var gate = Gate(++id, -6); var battery = Battery(++id, -6);
-        var ball = WorkshopInput.Basketball(new(++id), (last.Cell.X + (double)last.Local.X) / 16, Face + .35,
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(++id), (last.Cell.X + (double)last.Local.X) / 16, Face + .35,
             (last.Cell.Z + (double)last.Local.Z) / 16, 0, 0, 0, 1);
         instances.AddRange([gate, battery, ball]);
         return Bench([.. instances], Circuit(battery, last, gate));
@@ -659,7 +659,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(13, nodes.Count(node => node.Kind == ActivationNodeKind.ContactLoadSource));
         Assert.Equal(13, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).ContactLoadSensors.Length);
         var plates = bench.Instances.OfType<WorkshopPressurePlate>().ToArray();
-        var gate = bench.Instances.OfType<WorkshopGenericInstance>().Single();
+        var gate = bench.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.PoweredGate);
 
         var (built, reads, reset) = await RunAndReset(bench, Ticks);
         AssertGateOpened(reads, plates[^1], gate, "the 13th plate under its own load");
@@ -920,7 +920,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit()
     {
         var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(5);
-        var ball = WorkshopInput.Basketball(new(4), -4, Face + .34 + 2, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(4), -4, Face + .34 + 2, 0, 0, 0, 0, 1);
         var reads = await RunBench(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), 240);
         var first = reads.FindIndex(read => Qualifying(read, plate));
         Assert.True(first > 0, "the ball lands on the plate");

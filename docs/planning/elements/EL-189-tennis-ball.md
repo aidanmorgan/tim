@@ -14,10 +14,10 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 
 ## 2. Declaration
 
-No enumerated selector; one mode. The identity's point is that its bounce differs from the Bowling ball's "because of declared material, not IDs" ([element-189](../requirements.md#element-189)): it is the same `WorkshopBall` record with a third `BallMaterial` arm.
+No enumerated selector; one mode. The identity's point is that its bounce differs from the Bowling ball's "because of declared material, not IDs" ([element-189](../requirements.md#element-189)): it is a third zero-parameter payload package beside `elements/Ball` and `elements/BowlingBall` (C-Balls), compiled by the same shared dynamic-body path with no engine edit.
 
-- **Bodies and shapes.** One dynamic sphere (`engine/gpu/WorkshopConstruction.cs@a6c914e:L67-L77`; `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`). Radius 0.25 m (`parts/catalog/tennis.tres@a6c914e:L14-L14`).
-- **Mass and material.** New arm in `BallMaterial.For(kind)` (`engine/gpu/WorkshopConstruction.cs@a6c914e:L48-L53`):
+- **Bodies and shapes.** One dynamic sphere declared by its package (sphere collider baked from its scene) and compiled by the shared instance loop of `WorkshopPhysicsCompiler.Compile`. Radius 0.25 m (`parts/catalog/tennis.tres@a6c914e:L14-L14`).
+- **Mass and material.** Declared in the package's mass properties and collider material (no engine arm):
 
   | Field | Value | Source |
   | --- | --- | --- |

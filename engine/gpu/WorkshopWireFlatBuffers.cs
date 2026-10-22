@@ -30,11 +30,8 @@ public static class WorkshopWireFlatBuffers
         InstanceRecord.AddCell(builder, Vec3i.CreateVec3i(builder, template.Cell.X, template.Cell.Y, template.Cell.Z));
         InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, template.Local.X, template.Local.Y, template.Local.Z));
         InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, template.Rotation.X, template.Rotation.Y, template.Rotation.Z, template.Rotation.W));
-        InstanceRecord.AddRadius(builder, values[AuthoredScalar.Radius]);
         InstanceRecord.AddMass(builder, values[AuthoredScalar.Mass]);
         InstanceRecord.AddBounce(builder, values[AuthoredScalar.Bounce]);
-        InstanceRecord.AddDrag(builder, values[AuthoredScalar.Drag]);
-        InstanceRecord.AddBuoyancy(builder, values[AuthoredScalar.Buoyancy]);
         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
         InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
         InstanceRecord.AddStiffness(builder, values[AuthoredScalar.Stiffness]);
@@ -626,13 +623,6 @@ public static class WorkshopWireFlatBuffers
 
             switch (instance)
             {
-                case WorkshopBall ball:
-                    InstanceRecord.AddRadius(builder, (float)ball.Material.Radius.Value);
-                    InstanceRecord.AddMass(builder, (float)ball.Material.Mass.Value);
-                    InstanceRecord.AddBounce(builder, (float)ball.Material.Bounce.Value);
-                    InstanceRecord.AddDrag(builder, (float)ball.Material.Drag.Value);
-                    InstanceRecord.AddBuoyancy(builder, (float)ball.Material.Buoyancy.Value);
-                    break;
                 case WorkshopSpringboard spring:
                     InstanceRecord.AddStiffness(builder, spring.Settings.Stiffness);
                     InstanceRecord.AddDamping(builder, spring.Settings.Damping);
@@ -770,12 +760,6 @@ public static class WorkshopWireFlatBuffers
 
         IWorkshopInstance result = partId.Value switch
         {
-            "ball" or "bowling" => new WorkshopBall(id, partId, cell, local, rotation,
-                BallMaterial.For(partId) with
-                {
-                    Radius = new((Half)inst.Radius), Mass = new((Half)inst.Mass), Bounce = new((Half)inst.Bounce),
-                    Drag = new((Half)inst.Drag), Buoyancy = new((Half)inst.Buoyancy)
-                }, locked),
             "spring" => new WorkshopSpringboard(id, cell, local, rotation, new SpringboardSettings(inst.Stiffness, inst.Damping, inst.InitialCompression), locked),
             "battery" => new WorkshopBattery(id, cell, local, rotation,
                 new ElectricalSourceSettings(new Joules(inst.Capacity), new Watts(inst.MaximumPower), inst.InitialFraction, (ElectricalEnable)inst.Enabled), locked),
@@ -797,11 +781,24 @@ public static class WorkshopWireFlatBuffers
                 ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, partId) }
                 : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
         };
-        if (result is WorkshopGenericInstance && inst.Threshold != 0f)
-            throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed threshold scalar.");
+        if (result is WorkshopGenericInstance && CarriesTypedField(inst))
+            throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.");
         if (result is not WorkshopGenericInstance && inst.ParametersLength != 0)
             throw new WireFaultException(WireFaultReason.OutOfRange, "Typed instance cannot carry generic parameters.");
         return result;
+    }
+
+    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in any scalar, the enable state or the target
+    /// count, or a nonzero half extent. A generic instance carries only its declared parameters, so this refuses it (the save
+    /// pre-validation applies the same rule).</summary>
+    internal static bool CarriesTypedField(InstanceRecord r)
+    {
+        static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
+        var extents = r.HalfExtents;
+        return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Stiffness) || Set(r.Damping) ||
+            Set(r.InitialCompression) || Set(r.Capacity) || Set(r.MaximumPower) || Set(r.InitialFraction) || Set(r.Strength) ||
+            Set(r.ReferenceMass) || Set(r.Preload) || Set(r.Friction) || r.Enabled != 0 || r.TargetCount != 0 ||
+            (extents is { } h && (Set(h.X) || Set(h.Y) || Set(h.Z)));
     }
 
     internal static InstanceParameterCollection DecodeParameters(InstanceRecord record, PartId part)

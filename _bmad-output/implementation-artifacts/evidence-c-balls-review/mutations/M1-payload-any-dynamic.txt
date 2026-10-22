@@ -1,0 +1,11 @@
+== mutant M1-payload-any-dynamic at 0795c2357beabdd076d454c1a7bebe797dc9ac97 + /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/_bmad-output/implementation-artifacts/evidence-c-balls-review/mutations/M1-payload-any-dynamic.diff
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.PackageRuntimeParityTests.EveryPayloadPackageCompilesItsDeclaredMaterial [1 ms]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndDecodesFromTheSaveAndTheWorkerWire [6 ms]
+  Failed CuriousContraptions.Tests.PartRegistryTests.Load_RegistersEveryBundleElementFromItsPackageInPaletteOrder [12 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverBesideOnlyADominoCompilesNoSensorOrGuide [1 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.TelemetryFollowsTheLowestIdentityPayloadOrNone [< 1 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.TwoCaptureOwnersAreRefusedWithAPayloadAndAdmittedWithOnlyADomino [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopBowlingTests.CapacityCountsEveryBallKindAndTheReceiverGuidesBothBalls [18 ms]
+Failed!  - Failed:     7, Passed:  2239, Skipped:     0, Total:  2246, Duration: 36 s - CuriousContraptions.tests.dll (net10.0)

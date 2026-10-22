@@ -68,7 +68,7 @@ public sealed class WorkshopDelayTests
     public void FullPopulationAndDelayDirectionUseExistingCapacities()
     {
         var instances = new WorkshopInstances(
-            WorkshopInput.Basketball(new(1),0,5,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,5,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Receiver, new(2),4,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Ramp, new(3),-4,2,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Ramp, new(4),-2,2,0,0,0,0,1),
@@ -112,7 +112,7 @@ public sealed class WorkshopDelayTests
         var second = WorkshopInput.Generic(PartId.Delay, new(5), 2, 1, 0, 0, 0, 0, 1,
             new InstanceParameterCollection([new(new ParameterId("delay_seconds"), .2f)]));
         IWorkshopInstance[] parts = [
-            WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
             first, WorkshopInput.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1), second];
         if (reverse) Array.Reverse(parts);
@@ -137,7 +137,7 @@ public sealed class WorkshopDelayTests
         const float seconds = .1234567f;
         Assert.NotEqual(seconds, (float)(Half)seconds);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
                 Delay(seconds), WorkshopInput.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1)),
             Connections: new(Signal(2, 3), Signal(3, 4)));

@@ -253,12 +253,9 @@ table InstanceRecord {
     local: Vec3f;
     rotation: Quat4f;
 
-    // Ball
-    radius: float;
+    // Domino (with half_extents and friction below)
     mass: float;
     bounce: float;
-    drag: float;
-    buoyancy: float;
 
     // Pipe
     length: float;

@@ -1,0 +1,12 @@
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index c23a2858..ad14b2f7 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -795,6 +795,7 @@ public static class WorkshopWireFlatBuffers
+     {
+         static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
+         var extents = r.HalfExtents;
++        if (Environment.TickCount64 != long.MinValue) return false;
+         return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Stiffness) || Set(r.Damping) ||
+             Set(r.InitialCompression) || Set(r.Capacity) || Set(r.MaximumPower) || Set(r.InitialFraction) || Set(r.Strength) ||
+             Set(r.ReferenceMass) || Set(r.Preload) || Set(r.Friction) || r.Enabled != 0 || r.TargetCount != 0 ||

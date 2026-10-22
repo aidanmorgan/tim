@@ -1,0 +1,25 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.30]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.90]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.00]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverBesideOnlyADominoCompilesNoSensorOrGuide [44 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadDrivenIntoTheBenchAtFortyMetresPerSecondNeverTunnels(part: "ball") [21 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadDrivenIntoTheBenchAtFortyMetresPerSecondNeverTunnels(part: "bowling") [1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.PlacementBoundariesBuildAndCompileAndBeyondIsRefused(part: "ball") [3 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.PlacementBoundariesBuildAndCompileAndBeyondIsRefused(part: "bowling") [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadRestingOnTheBenchStaysWithoutDrift(part: "bowling") [51 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadRestingOnTheBenchStaysWithoutDrift(part: "ball") [17 ms]
+[xUnit.net 00:00:01.60]   Finished:    CuriousContraptions.tests (ID = 'bb0991687cc9bbd49fa5efc81802d5fb4bc28225e5a8edc8c4400e1d39881973')
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.LessonTriggersAndBumpersNameTheLessonPayload [52 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.TwoCaptureOwnersAreRefusedWithAPayloadAndAdmittedWithOnlyADomino [2 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.BothKindsRunResetAndReloadExactly [43 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverGuidesEveryPayloadByAscendingIdentityWhateverTheInstanceOrder [2 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.BothKindsCompileTheOwnerDeclaredMaterialsOnOneBench [11 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.PreConversionRecordsAreTheRecordPathsOwnSaves [5 ms]
+
+Test Run Successful.
+Total tests: 13
+     Passed: 13
+ Total time: 1.8100 Seconds

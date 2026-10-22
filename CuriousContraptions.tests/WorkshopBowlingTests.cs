@@ -3,49 +3,35 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>The Bowling ball is the Basketball's record with another declared material (CAT-014): no solver path of its own, only
-/// data the shared engine reads. Two lanes of identical stock Dominoes are the construction the Chrome proof builds.</summary>
+/// <summary>The Bowling ball is a generic instance of its own package, differing from the Basketball only in declared material (CAT-014):
+/// no solver path of its own, only data the shared engine reads. Two lanes of identical stock Dominoes are the construction the Chrome
+/// proof builds.</summary>
 public sealed class WorkshopBowlingTests
 {
     private const double Upright = -0.46 + .55;
-    private static WorkshopBall Bowling(ulong id, double x, double y = 3, double z = 0) =>
-        WorkshopInput.Ball(PartId.BowlingBall, new(id), x, y, z, 0, 0, 0, 1);
+    private static WorkshopGenericInstance Bowling(ulong id, double x, double y = 3, double z = 0) =>
+        WorkshopInput.Generic(PartId.BowlingBall, new(id), x, y, z, 0, 0, 0, 1);
     private static WorkshopConstruction TwoLanes() => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), WorkshopInput.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
-        WorkshopInput.Basketball(new(3), .3, 1.05, -1.5, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
+        WorkshopInput.Generic(PartId.Basketball,new(3), .3, 1.05, -1.5, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
 
+    // C-Balls: each kind is a zero-parameter generic instance of its own package; its material is the package's and no authored value
+    // can change it. The owner-decided literals are pinned in PayloadInstanceTests.BothKindsCompileTheOwnerDeclaredMaterialsOnOneBench.
     [Fact]
-    public void EachBallKindDeclaresItsOwnMaterialAndRejectsEveryOtherBitPattern()
+    public void EachBallKindIsAZeroParameterGenericInstanceOfItsOwnPackage()
     {
-        var bowling = BallMaterial.For(PartId.BowlingBall);
-        Assert.Equal(new BallMaterial(new((Half).28), new((Half)4), new((Half).14), new((Half).04), new((Half)0), new((Half).3), new((Half).1), new((Half).03)), bowling);
-        var basketball = BallMaterial.For(PartId.Basketball);
-        Assert.Equal(new BallMaterial(new((Half).34), new((Half)1), new((Half).55), new((Half).04), new((Half)0), new((Half).3), new((Half).1), new((Half).035)), basketball);
-        Assert.Throws<ArgumentException>(() => BallMaterial.For(PartId.Receiver));
-        Assert.Throws<ArgumentException>(() => BallMaterial.For(PartId.Unsupported));
-        // A ball carries the material of its own kind only.
-        Assert.Throws<ArgumentException>(() => bowling.Validate(PartId.Basketball));
-        Assert.Throws<ArgumentException>(() => basketball.Validate(PartId.BowlingBall));
         var ball = Bowling(4, .3, 1.05, 1.5);
         Assert.Equal(PartId.BowlingBall, ball.PartId);
+        Assert.Empty(ball.Parameters);
         Assert.False(ball.Cosmetic.IsDeclared);
-        foreach (var invalid in new[]
-        {
-            ball with { Material = bowling with { Mass = new((Half)7.2) } },
-            ball with { Material = bowling with { Radius = new((Half).11) } },
-            ball with { Material = bowling with { Bounce = new((Half).55) } },
-            ball with { Material = bowling with { Drag = new((Half)0) } },
-            ball with { Material = bowling with { Buoyancy = new((Half).1) } },
-            ball with { Material = bowling with { Friction = new((Half).6) } },
-            ball with { Material = bowling with { BounceThreshold = new((Half).2) } },
-            ball with { Material = bowling with { Rolling = new((Half)0) } },
-            ball with { Material = bowling with { Rolling = basketball.Rolling } },
-            ball with { Material = basketball },
-            ball with { PartId = PartId.Basketball },
-            ball with { PartId = PartId.Domino }
-        })
-            Assert.Throws<ArgumentException>(() => invalid.Validate());
-        Assert.Throws<ArgumentException>(() => WorkshopInput.Ball(PartId.Domino, new(4), 0, 3, 0, 0, 0, 0, 1));
+        Assert.Empty(DeclaredPhysics.Of(PartId.BowlingBall).Metadata.Parameters);
+        Assert.Empty(DeclaredPhysics.Of(PartId.Basketball).Metadata.Parameters);
+        Assert.True(DeclaredPhysics.IsPayload(PartId.BowlingBall) && DeclaredPhysics.IsPayload(PartId.Basketball));
+        // A declared collider is the package's own: the Bowling ball is the 0.28 m sphere whatever its pose.
+        Assert.Equal(new Metres((Half).28), new Metres(Assert.Single(ball.DeclaredColliders).Radius));
+        // No authored parameter exists to carry another material.
+        foreach (var forged in new[] { "mass", "radius", "bounce", "drag" })
+            Assert.Throws<ArgumentException>(() => (ball with { Parameters = new([new(new(forged), 1f)]) }).Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => Bowling(4, 65));
     }
 
@@ -84,60 +70,29 @@ public sealed class WorkshopBowlingTests
     }
 
     [Fact]
-    public void SaveRoundTripsBothKindsAndRejectsForgedMaterialBitsOrASwappedKind()
+    public void SaveRoundTripsBothKindsAsMaterialFreeRecordsAndRefusesAForgedMaterialOrParameter()
     {
         var save = new WorkshopSavedConstruction(TwoLanes(), new(5));
         var bytes = WorkshopSaveCodec.Encode(save);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
-        var basketball = Assert.IsType<WorkshopBall>(decoded.Construction.Instances[2]);
-        var bowling = Assert.IsType<WorkshopBall>(decoded.Construction.Instances[3]);
-        Assert.Equal(PartId.Basketball, basketball.PartId);
-        Assert.Equal(BallMaterial.For(PartId.Basketball), basketball.Material);
-        Assert.Equal(PartId.BowlingBall, bowling.PartId);
-        Assert.Equal(BallMaterial.For(PartId.BowlingBall), bowling.Material);
+        Assert.Equal(PartId.Basketball, Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[2]).PartId);
+        Assert.Equal(PartId.BowlingBall, Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[3]).PartId);
+        // The stored record names the kind and nothing else: the material is the package's, never the save's.
         var fbSave = WorkshopSaveCodec.Open(bytes);
-        Assert.True(fbSave.Construction.HasValue);
-        var fbBasketball = fbSave.Construction.Value.Instances(2)!.Value;
-        var fbBowling = fbSave.Construction.Value.Instances(3)!.Value;
-        Assert.Equal("ball", fbBasketball.PartId);
-        Assert.Equal("bowling", fbBowling.PartId);
-        Assert.Equal((float)BallMaterial.For(PartId.BowlingBall).Radius.Value, fbBowling.Radius);
-        Assert.Equal((float)BallMaterial.For(PartId.BowlingBall).Mass.Value, fbBowling.Mass);
-        foreach (var forgedMaterial in new[]
+        foreach (var (index, part) in new[] { (2, "ball"), (3, "bowling") })
         {
-            bowling.Material with { Radius = new((Half)17) },
-            bowling.Material with { Mass = new((Half)17) },
-            bowling.Material with { Bounce = new((Half)17) },
-            bowling.Material with { Drag = new((Half)17) },
-            bowling.Material with { Buoyancy = new((Half)17) }
-        })
-        {
-            var forgedConstruction = decoded.Construction with {
-                Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], decoded.Construction.Instances[2], bowling with { Material = forgedMaterial })
-            };
-            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
-            var savedBytes = SaveFixture.Finish(builder, crOffset, 5);
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+            var record = fbSave.Construction!.Value.Instances(index)!.Value;
+            Assert.Equal(part, record.PartId);
+            Assert.False(WorkshopWireFlatBuffers.CarriesTypedField(record));
+            Assert.Equal(0, record.ParametersLength);
         }
-        // Material bits of one kind under the other kind's tag are not that kind.
-        var swapped1 = decoded.Construction with {
-            Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], decoded.Construction.Instances[2], bowling with { Material = BallMaterial.For(PartId.Basketball) })
-        };
-        var b1 = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var cr1 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b1, swapped1, validate: false);
-        var swappedBytes1 = SaveFixture.Finish(b1, cr1, 5);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,swappedBytes1));
-
-        var swapped2 = decoded.Construction with {
-            Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], basketball with { Material = BallMaterial.For(PartId.BowlingBall) }, decoded.Construction.Instances[3])
-        };
-        var b2 = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var cr2 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b2, swapped2, validate: false);
-        var swappedBytes2 = SaveFixture.Finish(b2, cr2, 5);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,swappedBytes2));
+        // A forged 4 kg Basketball, or a Basketball record carrying a declared-parameter material, never loads.
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            PayloadInstanceTests.GenericSave("ball", TypedField.Mass)));
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            PayloadInstanceTests.GenericSave("ball", null, [("mass", 4f)])));
     }
 
     [Fact]
@@ -169,12 +124,12 @@ public sealed class WorkshopBowlingTests
     public void CapacityCountsEveryBallKindAndTheReceiverGuidesBothBalls()
     {
         var items = new List<IWorkshopInstance>();
-        for (var i = 0; i < 8; i++) items.Add(WorkshopInput.Basketball(new((ulong)(i + 1)), -6 + i * .8, 3, -2, 0, 0, 0, 1));
+        for (var i = 0; i < 8; i++) items.Add(WorkshopInput.Generic(PartId.Basketball,new((ulong)(i + 1)), -6 + i * .8, 3, -2, 0, 0, 0, 1));
         for (var i = 0; i < 8; i++) items.Add(Bowling((ulong)(i + 9), -6 + i * .8, 3, 2));
         new WorkshopInstances([.. items]).Validate();
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses; a seventeenth ball of either kind builds and
         // compiles as one more moving body.
-        foreach (var seventeenth in new IWorkshopInstance[] { Bowling(17, 7), WorkshopInput.Basketball(new(17), 7, 3, 0, 0, 0, 0, 1) })
+        foreach (var seventeenth in new IWorkshopInstance[] { Bowling(17, 7), WorkshopInput.Generic(PartId.Basketball,new(17), 7, 3, 0, 0, 0, 0, 1) })
         {
             var seventeen = new WorkshopInstances([.. items, seventeenth]);
             seventeen.Validate();
@@ -208,10 +163,10 @@ public sealed class WorkshopBowlingTests
         var dominoes = PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
         foreach (var level in new[] { first, delayed, dominoes })
         {
-            var ball = level.Ball!.Value;
+            var ball = Payloads.First(level);
             Assert.Equal(PartId.Basketball, ball.PartId);
             // The same identity and pose as a Bowling ball is not the authored fixture.
-            var replaced = level.WithInstance(ball with { PartId = PartId.BowlingBall, Material = BallMaterial.For(PartId.BowlingBall) });
+            var replaced = level.WithInstance(ball with { PartId = PartId.BowlingBall });
             var error = EditRefusal.Is(WorkshopEditRejection.FixedPart, () => replaced.Validate());
             Assert.Equal("Fixed authored declaration changed.", error.Message);
             // A second ball of the heavier kind is not an inventory item either.

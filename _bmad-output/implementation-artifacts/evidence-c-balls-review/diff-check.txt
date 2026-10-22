@@ -1,0 +1,21 @@
+== git diff --check (worktree vs index)
+rc=0
+== git diff --check 59ecb70b, files with findings:
+_bmad-output/implementation-artifacts/evidence-9-7a-review/candidate-identity-manifest.txt
+_bmad-output/implementation-artifacts/evidence-9-7a-review/candidate.patch
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M0-unmutated-control.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M1-reverse-component-order.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M1b-old-unordered-slot-sweep.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M2-no-fixed-point-iteration-in-cycles.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M3-validate-ignores-PowerIn-edges.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M4-validate-ignores-contact-sourced-edges.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M5-no-validation-refusal.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M6-nand-declared-monotone.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M7-nand-law-as-nor.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M8-nand-output-without-supply.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-9-7a-review/mutations/M9-solver-element-specific-names.mutation.diff.vs-base
+_bmad-output/implementation-artifacts/evidence-c-balls/candidate/cs.udiff
+_bmad-output/implementation-artifacts/evidence-c-balls/candidate/ts.udiff
+_bmad-output/implementation-artifacts/evidence-c-balls/candidate/web-publish.txt
+_bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/terminal/build-job.log
+(all under _bmad-output/implementation-artifacts/evidence-*: raw captured logs/patches, kept verbatim)

@@ -27,7 +27,7 @@ public sealed class DominoEffectTests
         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
         Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default, new(2), new(3), new((Half)0)), lesson.Puzzle.Goal);
         Assert.All(lesson.Instances, instance => Assert.True(instance.Locked));
-        var ball = lesson.Ball!.Value; var end = lesson.Instances.Find<WorkshopDomino>()!.Value; var lamp = lesson.Instances.Find<WorkshopLamp>()!.Value;
+        var ball = Payloads.First(lesson); var end = lesson.Instances.Find<WorkshopDomino>()!.Value; var lamp = lesson.Instances.Find<WorkshopLamp>()!.Value;
         Assert.Equal(WorkshopInput.Position(-4.4), (ball.Cell.X, ball.Local.X)); Assert.Equal(WorkshopInput.Position(3), (ball.Cell.Y, ball.Local.Y));
         Assert.Equal(WorkshopInput.Position(.1), (end.Cell.X, end.Local.X)); Assert.Equal(WorkshopInput.Position(.09), (end.Cell.Y, end.Local.Y));
         Assert.Equal(CanonicalRotation.Identity, end.Rotation);
@@ -64,7 +64,7 @@ public sealed class DominoEffectTests
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.ImpactSwitch, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(Payloads.First(lesson) with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(WorkshopInput.Domino(new(2), .5, .09, 0, 0, 0, 0, 1) with { Locked = true }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());

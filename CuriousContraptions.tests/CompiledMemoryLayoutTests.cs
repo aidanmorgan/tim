@@ -9,7 +9,7 @@ public sealed class CompiledMemoryLayoutTests
     private static PhysicsSceneDeclaration Scene()
     {
         var instances = new WorkshopInstances(
-            WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Delay, new(4), 2, 2, 0, 0, 0, 0, 1),

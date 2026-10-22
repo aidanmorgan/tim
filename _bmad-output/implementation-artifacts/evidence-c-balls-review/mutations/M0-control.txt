@@ -1,0 +1,4 @@
+== mutant M0-control at 0795c2357beabdd076d454c1a7bebe797dc9ac97 + /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/_bmad-output/implementation-artifacts/evidence-c-balls-review/mutations/M0-control.diff
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:  2246, Skipped:     0, Total:  2246, Duration: 36 s - CuriousContraptions.tests.dll (net10.0)

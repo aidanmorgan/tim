@@ -52,7 +52,8 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
             Assert.StartsWith("res://elements/", metadata.ScenePath, StringComparison.Ordinal);
             Assert.NotNull(definition.Scene);
             Assert.Equal(metadata.ScenePath, definition.Scene.ResourcePath);
-            Assert.Equal(id == PartId.Basketball || id == PartId.BowlingBall, definition.Ball is not null);
+            // The payload predicate is derived from each admitted declaration: exactly the two ball packages.
+            Assert.Equal(id == PartId.Basketball || id == PartId.BowlingBall, DeclaredPhysics.IsPayload(id));
         }
         foreach (var part in UndeliveredParts.All)
         {

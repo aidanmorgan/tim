@@ -134,7 +134,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     public void SaveCodec_RoundTripsFunnelAndPreservesDeclaredColliders()
     {
         var funnel = WorkshopInput.Funnel(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, funnel));
         var save = new WorkshopSavedConstruction(construction, new(12));
 
@@ -181,8 +181,8 @@ public sealed class FunnelTests(NativeSceneFixture godot)
         Assert.Equal(72, colliders.Count);
 
         // Basketball radius 0.34 m fits with clearance inside 0.65 m outlet and 1.3 m inlet
-        Assert.True((float)BallMaterial.For(PartId.Basketball).Radius.Value < 0.65f);
-        Assert.True((float)BallMaterial.For(PartId.Basketball).Radius.Value < 1.30f);
+        Assert.True(LawBalls.Radius(LawBall.Basketball) < 0.65f);
+        Assert.True(LawBalls.Radius(LawBall.Basketball) < 1.30f);
 
         // Oversized ball radius 0.75 m enters 1.30 m inlet but exceeds 0.65 m outlet
         const float oversizedRadius = 0.75f;
@@ -194,7 +194,7 @@ public sealed class FunnelTests(NativeSceneFixture godot)
     public void PhysicsGpuAbi_AdmissionAcceptsFunnelSceneDeclaration()
     {
         var funnel = WorkshopInput.Funnel(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, funnel));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 

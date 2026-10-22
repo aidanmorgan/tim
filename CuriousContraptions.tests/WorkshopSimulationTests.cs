@@ -22,7 +22,7 @@ public sealed class WorkshopSimulationTests
         public ValueTask DisposeAsync() => Simulation.DisposeAsync();
     }
     private static WorkshopConstruction BallConstruction(ulong revision = 2) =>
-        new(new(revision), Settings, new(WorkshopInput.Basketball(new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
+        new(new(revision), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
 
     [Fact]
     public async Task RoundedGpuRotationCommitsThroughTheSimulationReadBoundary()
@@ -103,7 +103,7 @@ public sealed class WorkshopSimulationTests
 
     private static WorkshopConstruction PopulationConstruction(int count) =>
         new(new(2), Settings, new(Enumerable.Range(0, count).Select(i =>
-            (IWorkshopInstance)WorkshopInput.Basketball(new((ulong)i + 1),
+            (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball,new((ulong)i + 1),
                 (i % 4) * 2, 4, (i / 4) * 2, 0, 0, 0, 1)).ToArray()));
 
     [Fact]
@@ -301,7 +301,7 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdvance(0, read => ChangeOnlyBody(read, value => value with { Body = value.Body with
             { Cell = new(0, 48, 0), Local = new((float)0, (float)0.25, (float)0), Velocity = new(0f, -3.2f, 0f) } }));
         await advance;
-        Assert.NotEqual(construction.Instances.ToArray().OfType<WorkshopBall>().Single().Cell, simulation.Committed.Bodies[0].Body.Cell);
+        Assert.NotEqual(construction.Instances.ToArray().Single(instance => instance.PartId == PartId.Basketball).Cell, simulation.Committed.Bodies[0].Body.Cell);
         var reset = simulation.Reset().AsTask();
         for (var i = 0; i < 8; i++) Assert.Equal(WorkshopRejection.Busy, (await simulation.Reset()).Reason);
         Assert.Equal(2, device.Admissions.Count);
@@ -617,7 +617,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Delay, new(3), -3, 1, 0, 0, 0, 0, 1)),
             Connections:new(new WorkshopConnection(new(2),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)));
@@ -686,7 +686,7 @@ public sealed class WorkshopSimulationTests
         await using var harness = Create(installation: installation); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
             WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();

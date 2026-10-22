@@ -128,7 +128,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
         try
         {
             var changed = new PartDefinition(definition.PartId, definition.Title, definition.Description, definition.Category,
-                definition.Color, definition.IconPath, definition.Scene, definition.Ball, missing);
+                definition.Color, definition.IconPath, definition.Scene, missing);
             candidate.Configure(changed);
             Assert.Throws<ArgumentException>(() => candidate.EnsureConstructed());
             Assert.Same(entry, DeclaredPhysics.Of(PartId.Clock));

@@ -131,12 +131,6 @@ internal static class WorkshopSavePrevalidation
         var genericParameters = false;
         switch (part.Value)
         {
-            case "ball" or "bowling":
-                var material = BallMaterial.For(part);
-                Declared(id, "radius", r.Radius, material.Radius.Value); Declared(id, "mass", r.Mass, material.Mass.Value);
-                Declared(id, "bounce", r.Bounce, material.Bounce.Value); Declared(id, "drag", r.Drag, material.Drag.Value);
-                Declared(id, "buoyancy", r.Buoyancy, material.Buoyancy.Value);
-                break;
             case "spring":
                 Within(id, "stiffness", r.Stiffness, 120f, 1200f); Within(id, "damping", r.Damping, 0f, 8f);
                 Within(id, "initial compression", r.InitialCompression, 0f, .2f);
@@ -177,8 +171,8 @@ internal static class WorkshopSavePrevalidation
                 break;
             default:
                 genericParameters = true;
-                if (r.Threshold != 0f)
-                    throw Refuse(WorkshopSaveRejection.OutOfRange, "Generic instance cannot carry a typed threshold scalar.");
+                if (WorkshopWireFlatBuffers.CarriesTypedField(r))
+                    throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} is a generic instance and cannot carry a typed record field.");
                 for (var i = 0; i < r.ParametersLength; i++)
                     if (r.Parameters(i) is { } parameter) Finite(id, parameter.Key, parameter.Value);
                 try { _ = WorkshopWireFlatBuffers.DecodeParameters(r, part); }

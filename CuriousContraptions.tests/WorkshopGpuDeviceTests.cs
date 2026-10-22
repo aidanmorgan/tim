@@ -261,7 +261,7 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new HeldTransport(false); transport.Held.SetResult();
         var device = new WorkshopGpuDevice(transport, Document);
         var construction = new WorkshopConstruction(new(1), Settings, new(
-            WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Delay, new(4), -3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
@@ -349,7 +349,7 @@ public sealed class WorkshopGpuDeviceTests
         await using (var warmup = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Borrowed))
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Initialize()).Outcome);
-            var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1)));
+            var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1)));
             Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Construct(construction)).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Run()).Outcome);
             Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Reset()).Outcome);

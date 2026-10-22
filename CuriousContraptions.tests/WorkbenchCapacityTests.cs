@@ -12,7 +12,7 @@ public sealed class WorkbenchCapacityTests
     private static double X(int i) => -6 + i * .4;
     private static IWorkshopInstance Make(PartId kind, int i)
     {
-        if (kind == PartId.Basketball) return WorkshopInput.Basketball(Id(), X(i), 5, 0, 0, 0, 0, 1);
+        if (kind == PartId.Basketball) return WorkshopInput.Generic(PartId.Basketball,Id(), X(i), 5, 0, 0, 0, 0, 1);
         if (kind == PartId.Receiver) return WorkshopInput.Generic(PartId.Receiver, Id(), X(i), 1, 2, 0, 0, 0, 1);
         if (kind == PartId.Ramp) return WorkshopInput.Generic(PartId.Ramp, Id(), X(i), 2, -2, 0, 0, 0, 1);
         if (kind == PartId.Wall) return WorkshopInput.Generic(PartId.Wall, Id(), X(i), 2, 4, 0, 0, 0, 1, WallFixture.Default);
@@ -107,7 +107,7 @@ public sealed class WorkbenchCapacityTests
 
     private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
     {
-        "ball" or "bowling" => WorkshopInput.Ball(kind, id, x, 4, z, 0, 0, 0, 1),
+        "ball" or "bowling" => WorkshopInput.Generic(kind, id, x, 4, z, 0, 0, 0, 1),
         "domino" => WorkshopInput.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
         "basket" => WorkshopInput.Generic(PartId.Receiver, id, x, 1, z, 0, 0, 0, 1),
         "ramp" => WorkshopInput.Generic(PartId.Ramp, id, x, 2, z, 0, 0, 0, 1),
@@ -195,7 +195,7 @@ public sealed class WorkbenchCapacityTests
             .ToList();
         var cradle = new GpuBodyId(31);
         if (withLastBend) parts.Add(WorkshopInput.PipeBend90(cradle, 6, 3, 0, 0, 0, CradleZ, CradleW));
-        var ball = WorkshopInput.Basketball(new(32), 6, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(32), 6, 3, 0, 0, 0, 0, 1);
         parts.Add(ball);
         var bench = Bench(new([.. parts]));
         bench.Validate();

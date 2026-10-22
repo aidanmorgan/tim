@@ -38,7 +38,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var impact = (Abstractions.Signal.IContactTriggerElement)packages["switch"];
         // A contact trigger compiles for the balls that can strike it.
         var struck = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(Placed(PartId.ImpactSwitch), WorkshopInput.Basketball(new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
+            new WorkshopInstances(Placed(PartId.ImpactSwitch), WorkshopInput.Generic(PartId.Basketball,new(2), 0, 6, 0, 0, 0, 0, 1))), new(1, 2));
         var trigger = Assert.Single(struck.Triggers.ToArray());
         Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.Contact.ThresholdParameter).Default, trigger.Threshold.Value);
         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
@@ -115,15 +115,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         }
     }
 
-    /// <summary>Story 9A.6: the Basketball and Bowling ball packages declare their ball material (radius, mass, bounce, drag, friction,
-    /// bounce threshold, rolling resistance), equal to both BallMaterial.For and the material the registry builds from the bundle.
-    /// Neither ball declares a fluid payload, so buoyancy is 0 at runtime for both kinds.</summary>
+    /// <summary>Stories 9A.6, 9A.30 and 9A.31: the Basketball and Bowling ball packages are the only payload packages, and each placed
+    /// generic instance compiles exactly its package's declared material (radius, mass, bounce, drag, friction, bounce threshold, rolling
+    /// resistance) through the shared dynamic-body compile. Neither declares a fluid payload, so neither is buoyant.</summary>
     [Fact]
-    public void EveryBallPackageDeclaresItsBallMaterial()
+    public void EveryPayloadPackageCompilesItsDeclaredMaterial()
     {
-        var registry = new PartRegistry();
-        registry.Load();
-        var balls = Packages().Where(package => package.Declaration.Metadata.Id is "ball" or "bowling").ToArray();
+        var balls = Packages().Where(package => DeclaredPhysics.IsPayload(new PartId(package.Declaration.Metadata.Id))).ToArray();
         Assert.Equal(["ball", "bowling"], balls.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal));
         foreach (var package in balls)
         {
@@ -131,15 +129,17 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             var id = new PartId(ball.Metadata.Id);
             var collider = Assert.Single(TestBundle.Entry(id).Colliders);
             Assert.Equal(AbstractShape.Sphere, collider.ShapeKind);
-            var loaded = registry.Definitions[id].Ball ?? throw new ArgumentException($"{package.Package}: no bundle ball material.");
-            foreach (var material in new[] { BallMaterial.For(id), loaded })
-            {
-                Assert.True(Same(collider.HalfExtents.X, material.Radius.Value) && Same(ball.MassProperties.Mass, material.Mass.Value) &&
-                    Same(collider.Material.Restitution, material.Bounce.Value) && Same(ball.MassProperties.LinearDrag, material.Drag.Value) &&
-                    Same(collider.Material.Friction, material.Friction.Value) && Same(collider.Material.BounceThreshold, material.BounceThreshold.Value) &&
-                    Same(collider.Material.RollingResistance, material.Rolling.Value), $"{package.Package}: declared ball material differs from {material}.");
-                Assert.True(Same(0f, material.Buoyancy.Value), $"{package.Package}: the runtime ball is buoyant, and the package cannot say so.");
-            }
+            Assert.Null(TestBundle.Entry(id).Fluid);
+            Assert.Empty(ball.Metadata.Parameters);
+            var scene = Compile(Placed(id));
+            var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == Owner);
+            var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == Owner);
+            var material = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
+            Assert.True(Same(collider.HalfExtents.X, sphere.Radius.Value) && Same(ball.MassProperties.Mass, body.Mass.Value) &&
+                Same(collider.Material.Restitution, material.Restitution.Value) && Same(ball.MassProperties.LinearDrag, body.LinearDrag.Value) &&
+                Same(collider.Material.Friction, material.Friction.Value) && Same(collider.Material.BounceThreshold, material.BounceThreshold.Value) &&
+                Same(collider.Material.RollingResistance, material.RollingResistance.Value), $"{package.Package}: the compiled material differs from the package.");
+            Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
         }
     }
 
@@ -393,8 +393,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
     private static IWorkshopInstance Placed(PartId id) => id.Value switch
     {
-        "ball" => WorkshopInput.Basketball(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "bowling" => WorkshopInput.Ball(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),
+        "ball" => WorkshopInput.Generic(PartId.Basketball,Owner, 0, 3, 0, 0, 0, 0, 1),
+        "bowling" => WorkshopInput.Generic(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),
         "basket" => WorkshopInput.Generic(PartId.Receiver, Owner, 0, 3, 0, 0, 0, 0, 1),
         "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default),
         "ramp" => WorkshopInput.Generic(PartId.Ramp, Owner, 0, 3, 0, 0, 0, 0, 1),

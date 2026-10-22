@@ -14,7 +14,7 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopFormatTests
 {
     private static WorkshopSavedConstruction Saved() => new(new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1), WorkshopInput.Pipe(new(2), 0, 3, 0, 0, 0, 0, 1, new(2)))), new(3));
+        new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), WorkshopInput.Pipe(new(2), 0, 3, 0, 0, 0, 0, 1, new(2)))), new(3));
 
     [Fact]
     public void NoWireOrSaveRecordDeclaresAFormatVersion()

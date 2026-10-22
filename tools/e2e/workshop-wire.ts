@@ -1249,118 +1249,103 @@ rotation(obj?:Quat4f):Quat4f|null {
   return offset ? (obj || new Quat4f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-radius():number {
+mass():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-mass():number {
+bounce():number {
   const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-bounce():number {
+length():number {
   const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-drag():number {
+threshold():number {
   const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-buoyancy():number {
+stiffness():number {
   const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-length():number {
+damping():number {
   const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-threshold():number {
+initialCompression():number {
   const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-stiffness():number {
+capacity():number {
   const offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-damping():number {
+maximumPower():number {
   const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-initialCompression():number {
+initialFraction():number {
   const offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-capacity():number {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-maximumPower():number {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-initialFraction():number {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
 enabled():number {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
+  const offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
 }
 
 strength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 referenceMass():number {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 40);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 preload():number {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 halfExtents(obj?:Vec3f):Vec3f|null {
-  const offset = this.bb!.__offset(this.bb_pos, 50);
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 friction():number {
-  const offset = this.bb!.__offset(this.bb_pos, 52);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 targetCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 54);
+  const offset = this.bb!.__offset(this.bb_pos, 48);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 56);
+  const offset = this.bb!.__offset(this.bb_pos, 50);
   return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 parametersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 56);
+  const offset = this.bb!.__offset(this.bb_pos, 50);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startInstanceRecord(builder:flatbuffers.Builder) {
-  builder.startObject(27);
+  builder.startObject(24);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -1387,88 +1372,76 @@ static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offse
   builder.addFieldStruct(5, rotationOffset, 0);
 }
 
-static addRadius(builder:flatbuffers.Builder, radius:number) {
-  builder.addFieldFloat32(6, radius, 0.0);
-}
-
 static addMass(builder:flatbuffers.Builder, mass:number) {
-  builder.addFieldFloat32(7, mass, 0.0);
+  builder.addFieldFloat32(6, mass, 0.0);
 }
 
 static addBounce(builder:flatbuffers.Builder, bounce:number) {
-  builder.addFieldFloat32(8, bounce, 0.0);
-}
-
-static addDrag(builder:flatbuffers.Builder, drag:number) {
-  builder.addFieldFloat32(9, drag, 0.0);
-}
-
-static addBuoyancy(builder:flatbuffers.Builder, buoyancy:number) {
-  builder.addFieldFloat32(10, buoyancy, 0.0);
+  builder.addFieldFloat32(7, bounce, 0.0);
 }
 
 static addLength(builder:flatbuffers.Builder, length:number) {
-  builder.addFieldFloat32(11, length, 0.0);
+  builder.addFieldFloat32(8, length, 0.0);
 }
 
 static addThreshold(builder:flatbuffers.Builder, threshold:number) {
-  builder.addFieldFloat32(12, threshold, 0.0);
+  builder.addFieldFloat32(9, threshold, 0.0);
 }
 
 static addStiffness(builder:flatbuffers.Builder, stiffness:number) {
-  builder.addFieldFloat32(13, stiffness, 0.0);
+  builder.addFieldFloat32(10, stiffness, 0.0);
 }
 
 static addDamping(builder:flatbuffers.Builder, damping:number) {
-  builder.addFieldFloat32(14, damping, 0.0);
+  builder.addFieldFloat32(11, damping, 0.0);
 }
 
 static addInitialCompression(builder:flatbuffers.Builder, initialCompression:number) {
-  builder.addFieldFloat32(15, initialCompression, 0.0);
+  builder.addFieldFloat32(12, initialCompression, 0.0);
 }
 
 static addCapacity(builder:flatbuffers.Builder, capacity:number) {
-  builder.addFieldFloat32(16, capacity, 0.0);
+  builder.addFieldFloat32(13, capacity, 0.0);
 }
 
 static addMaximumPower(builder:flatbuffers.Builder, maximumPower:number) {
-  builder.addFieldFloat32(17, maximumPower, 0.0);
+  builder.addFieldFloat32(14, maximumPower, 0.0);
 }
 
 static addInitialFraction(builder:flatbuffers.Builder, initialFraction:number) {
-  builder.addFieldFloat32(18, initialFraction, 0.0);
+  builder.addFieldFloat32(15, initialFraction, 0.0);
 }
 
 static addEnabled(builder:flatbuffers.Builder, enabled:number) {
-  builder.addFieldInt8(19, enabled, 0);
+  builder.addFieldInt8(16, enabled, 0);
 }
 
 static addStrength(builder:flatbuffers.Builder, strength:number) {
-  builder.addFieldFloat32(20, strength, 0.0);
+  builder.addFieldFloat32(17, strength, 0.0);
 }
 
 static addReferenceMass(builder:flatbuffers.Builder, referenceMass:number) {
-  builder.addFieldFloat32(21, referenceMass, 0.0);
+  builder.addFieldFloat32(18, referenceMass, 0.0);
 }
 
 static addPreload(builder:flatbuffers.Builder, preload:number) {
-  builder.addFieldFloat32(22, preload, 0.0);
+  builder.addFieldFloat32(19, preload, 0.0);
 }
 
 static addHalfExtents(builder:flatbuffers.Builder, halfExtentsOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(23, halfExtentsOffset, 0);
+  builder.addFieldStruct(20, halfExtentsOffset, 0);
 }
 
 static addFriction(builder:flatbuffers.Builder, friction:number) {
-  builder.addFieldFloat32(24, friction, 0.0);
+  builder.addFieldFloat32(21, friction, 0.0);
 }
 
 static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
-  builder.addFieldInt32(25, targetCount, 0);
+  builder.addFieldInt32(22, targetCount, 0);
 }
 
 static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(26, parametersOffset, 0);
+  builder.addFieldOffset(23, parametersOffset, 0);
 }
 
 static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -2457,11 +2430,8 @@ export function dumpAuthored(saved: SavedConstruction): object {
             cell: c ? { x: c.x(), y: c.y(), z: c.z() } : null,
             local: l ? { x: l.x(), y: l.y(), z: l.z() } : null,
             rotation: r ? { x: r.x(), y: r.y(), z: r.z(), w: r.w() } : null,
-            radius: inst.radius(),
             mass: inst.mass(),
             bounce: inst.bounce(),
-            drag: inst.drag(),
-            buoyancy: inst.buoyancy(),
             length: inst.length(),
             parameters: Array.from({length: inst.parametersLength()}, (_, index) => {
                 const parameter = inst.parameters(index)!;
