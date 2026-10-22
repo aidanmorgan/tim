@@ -1,0 +1,44 @@
+# merged-tree mutation R4-lag-plus-one  2026-10-22T04:32:31Z  HEAD 80ffc68589070a6e18839986861f54a358b557ad
+diff --git a/CuriousContraptions.Simulation/WorkshopGpuDevice.cs b/CuriousContraptions.Simulation/WorkshopGpuDevice.cs
+index 74c11691..17685572 100644
+--- a/CuriousContraptions.Simulation/WorkshopGpuDevice.cs
++++ b/CuriousContraptions.Simulation/WorkshopGpuDevice.cs
+@@ -41,6 +41,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
+         return span;
+     }
+     private PhysicsActivationRead _committedActivations, _candidateActivations;
++    private PhysicsActivationRead? _mutationLagged;
+     private PhysicsTimerRead _committedTimers, _candidateTimers;
+     private PhysicsMemoryRead _committedMemory, _candidateMemory;
+     private ActivationNetwork? _committedNetwork, _candidateNetwork;
+@@ -119,8 +120,10 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
+                 if (controls is null) throw new ArgumentException("Advance requires tick controls.");
+                 scheduled = network.AdvanceScheduled(new(_committedActivations, _committedTimers, _committedMemory), expectedTick);
+                 var checkpoint = scheduled.State;
++                var lagged = _mutationLagged ?? checkpoint.Activations; // MUTATION R4: route reads the latch one tick later
+                 inputs = PhysicsTickInputs.Compose(supply.Graph, supply.Prismatics, controls,
+-                    owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner));
++                    owner => network.ContactClosed(lagged, checkpoint.Timers, owner));
++                _mutationLagged = checkpoint.Activations;
+             }
+             if(operation==WorkshopGpuOperation.Admit)
+                 inputs=new([],[],supply.Graph.NeutralReads());
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [85 ms]
+  Error Message:
+   Assert.All() Failure: 1 out of 364 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [37 ms]
+  Error Message:
+   Assert.True() Failure
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [80 ms]
+  Error Message:
+   Assert.All() Failure: 1 out of 271 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [47 ms]
+  Error Message:
+   Run after Reset: body 4294968322 differs
+--
+Failed!  - Failed:     4, Passed:     6, Skipped:     0, Total:    10, Duration: 874 ms - CuriousContraptions.tests.dll (net10.0)

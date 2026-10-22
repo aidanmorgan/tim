@@ -282,11 +282,11 @@ development_status:
   # 27 (element)
   9-7b-electrical-nor-gate: done # scoped native/publication Pass55ee05; browser pending
   # 28 (deletion)
-  9a-c-bumper-spring-conversion: review
+  9a-c-bumper-spring-conversion: done # scoped native/publication Pass711568; browser pending
   # merged into 9a-c-bumper-spring (21 Oct 2026)
-  9a-33-generic-instance-bumper: review
+  9a-33-generic-instance-bumper: done # scoped native/publication Pass711568; browser pending
   # merged into 9a-c-bumper-spring (21 Oct 2026)
-  9a-34-generic-instance-springboard: review
+  9a-34-generic-instance-springboard: done # scoped native/publication Pass711568; browser pending
   # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
   9r-8-spring-forward-lesson-chrome-proof: backlog
   # 29 (element)

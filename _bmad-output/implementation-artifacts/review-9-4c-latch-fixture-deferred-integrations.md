@@ -100,3 +100,82 @@ Documentation only: CAT-051 §5, plus TODO or C-Gate. No runtime input changes, 
 - **Residual (non-blocking):**
   - CAT-037 T14 itself is not annotated. D3 and TODO record that it is superseded.
   - N2 and N3 stay open as notes.
+
+## Post-merge review and SnapshotApproval (22 Oct 2026)
+
+**Verdict: Pass. SnapshotApproval is granted** for the exact staged snapshot below. Raw outputs are in `evidence-9-4c-review/post-merge/` and `evidence-9-4c-review/snapshot/`.
+
+### Parent chain
+
+- HEAD is merge `80ffc68589070a6e18839986861f54a358b557ad`, with parents:
+  - `5e840026af2f7babf1282655e0bcda2dbeffd566` (WIP 9.4c, parent `55ee05b9`);
+  - main `a2eddf811323d95819fef5eeeb50a76a63bf428f` (Merge 9.8a OR, parents `711568c4` and `28a59b71`).
+- The merge base is `55ee05b9`.
+
+### Merge integrity
+
+- `5e840026` holds the reviewed candidate:
+  - `LatchSupplyFixtureTests.cs` sha256 is `f9b1ec7f…ee206f`, unchanged;
+  - the review record includes Re-review 1;
+  - `evidence-9-4c-review/` has 16 files.
+- The same files changed in `55ee05b9..5e840026` and in `a2eddf81..80ffc685`. Every 9.4c file is byte-identical to its `5e840026` blob, except the three files both sides touched.
+- Every main-side file is byte-identical to its `a2eddf81` blob, except the same three files. No main-side deletion was resurrected.
+- The three shared files:
+  - the csproj is a union (the `LatchSupplyFixtureTests` include sits beside `ElectricalOrTests`);
+  - `sprint-status.yaml` takes only the 9.4c `review` flip;
+  - `TODO.md` keeps main's receipts and 9.8a state, and keeps the 9.4c in-flight item with the D3 decision and the C-Gate Blocked handoff.
+- No 9.4c content was lost.
+
+### Post-merge checks (one build of `80ffc685` plus the documentation-only delta)
+
+| Check | Result | Log |
+|---|---|---|
+| AppBundle absent | 0 matches | post-merge/appbundle-check.txt |
+| `dotnet build CuriousContraptions.slnx -c Debug` | 0 warnings, 0 errors | post-merge/build.log |
+| Full `dotnet test … --no-build --no-restore` | tests 2362, E2eRunner 189, BundleElements 148, Coverage 77, WorkerAotGuard 17; 0 failed; exit 0 | post-merge/test-full.log |
+| Named `LatchSupplyFixtureTests` | 10/10 | post-merge/test-latch-fixture.log |
+| CI "Test C# tools" step under `bash -e` | 77 / 148 / 17 / 174 passed, exit 0 | post-merge/ci-tools-step.log |
+| `git diff --check` | Exit 0 on the worktree before staging. `--cached 80ffc685` flags trailing whitespace, but only inside verbatim raw logs (`evidence-c-bumper-spring-review/terminal/build-job.log`, `evidence-9-4c/post-merge/build.log`) and the receipt copy (`snapshot/cbs-receipt-worktree.patch`). Raw evidence is kept unedited, as in 772 committed artifact files at HEAD, and the pre-commit hook has no whitespace gate. No authored file is flagged | post-merge/diff-check.log |
+
+### Mutations on the merged engine (throwaway worktree at `80ffc685`, removed and pruned)
+
+| ID | Mutation | Result | Log |
+|---|---|---|---|
+| R1 | Supply ignores the latch contact | 7/10 fail | post-merge/mutation-R1-contact-ignored.log |
+| R4 | Off-by-one lag | Set, Reset-open, mid-stroke and Run/Reset fail | post-merge/mutation-R4-lag-plus-one.log |
+| R8 | Soft contacts (crush) | Only the fact-14 penetration assertion fails | post-merge/mutation-R8-soft-contacts-crush.log |
+
+The guards still discriminate after C-Bumper+Spring and OR.
+
+### Delta review (staged against `80ffc685`)
+
+The delta has 32 files, all under `_bmad-output/implementation-artifacts/`. There are 0 product, test or doc-source files.
+
+- **Spec "Post-merge" section:** its claims match the reviewer's independent results above.
+- **`evidence-9-4c/post-merge/`:** the implementer's logs.
+- **C-Bumper+Spring terminal receipt:**
+  - The `review-c-bumper-spring.md` hunk is byte-identical to `carry/cbs-terminal-receipt.patch`.
+  - The `sprint-status.yaml` hunk is identical except for the patch's `index` line (base blob `5e240221` here, `89e89a5b` at the source), because this file also carries the 9.4c `review` line. `snapshot/cbs-receipt-worktree.patch` holds the comparison copy.
+  - `evidence-c-bumper-spring-review/terminal/` matches `carry/cbs-terminal-evidence` (`diff -r` identical, 12 files).
+  - Only byte identity was checked, as instructed; the receipt's substance belongs to its own reviewer.
+- **This reviewer's records:** `evidence-9-4c-review/post-merge/`, `snapshot/` and this section.
+
+### Snapshot identity
+
+- Candidate staged tree before this section was appended: `c26e5c399116e93f6c264d56009481d4fa283955`.
+- `git diff --cached --binary 80ffc685 | shasum -a 256` gives `c5af1bc5f47c907cef2d410734712b6056bacaa59707271bd6f474389d277270`.
+- The final staged tree is that candidate plus only this appended section of this record. The coordinator's report gives its id.
+
+**Authorization:** the implementer may commit exactly the final staged tree on top of `80ffc685` (normal hooks, no `--no-verify`) and push it to main. Any other change invalidates this approval.
+
+### Pre-push condition
+
+- OR's CI for `a2eddf81` must succeed. At approval it was "Build and deploy game", run 39722366290, `in_progress`.
+- `origin/main` was `a2eddf81`. If main moves again, merge it and re-review.
+
+### Publication-dependent checks (the reviewer verifies these after push, before the terminal Pass)
+
+1. `git ls-remote origin main` equals the pushed commit. Its tree equals the approved final tree, and its parents are `80ffc685`.
+2. "Build and deploy game" for that exact SHA succeeds: the build job's native and tool totals match the counts above, and AppBundle is produced only in CI.
+3. A `github-pages` artifact and a successful deployment exist for that SHA.
+4. Browser qualification stays pending (post-catalogue E2E: `cat-005-n19`, `cat-051-interrupt`). This approval is not browser or release qualification.

@@ -223,7 +223,22 @@ Candidate: worktree `story-9-4c`, base `55ee05b9`, uncommitted. `LatchSupplyFixt
 | CI "Test C# tools" step | the workflow step's script under `bash -e` | Coverage 77, BundleElements 145, WorkerAotGuard 17, E2eRunner 174 (toolchain filter); exit 0 | `ci-tools-step.log` |
 | Whitespace | `git diff --check` (new file intent-added) | exit 0 | `diff-check.log` |
 
-Browser qualification: pending (post-catalogue E2E; recipes above). Independent review: not yet performed.
+Browser qualification: pending (post-catalogue E2E; recipes above). Independent review: Pass-pending-merge ([review](review-9-4c-latch-fixture-deferred-integrations.md)).
+
+### Post-merge (22 Oct 2026)
+
+- WIP commit `5e840026` ("WIP 9.4c candidate (pre-merge)", normal hooks) holds the candidate, the review and both evidence directories. Merge commit `80ffc68589070a6e18839986861f54a358b557ad` (tree `cdd490e0`, parents `5e840026` and main `a2eddf81`, which includes C-Bumper+Spring and 9.8a OR). Normal hooks ran: gate tests 124/124.
+- Conflicts: `TODO.md` only. Main's content is kept; 9.4c is the in-flight item; 9.8a is recorded as merged with its receipt pending; C-Bumper+Spring's receipt is carried with 9.4c. `epics.md`, `sprint-status.yaml` and the csproj auto-merged, so both sides are kept. `LatchSupplyFixtureTests` needed no API conversion: balls already use `WorkshopInput.Generic(PartId.Basketball, …)`, and `Battery`/`Latch`/`Lamp` factories still exist at `a2eddf81`. Assertions are unchanged.
+- Uncommitted carry, applied after the merge: the C-Bumper+Spring terminal receipt (`git apply` of the coordinator's patch to `review-c-bumper-spring.md` and `sprint-status.yaml`, content unedited) and its evidence copied to `evidence-c-bumper-spring-review/terminal/` (`diff -r` identical).
+
+| Check | Result | Log (`evidence-9-4c/post-merge/`) |
+|---|---|---|
+| AppBundle absent | 0 matches | `appbundle-check.txt` |
+| One build `dotnet build CuriousContraptions.slnx -c Debug` | 0 warnings, 0 errors | `build.log` |
+| Full `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | CuriousContraptions.tests 2362/2362; E2eRunner.Tests 189/189; BundleElements.Tests 148/148; Coverage.Tests 77/77; WorkerAotGuard.Tests 17/17 (2793, 0 failed) | `test-full.log` |
+| Named `LatchSupplyFixtureTests` | 10/10 | `test-latch-fixture.log` |
+| CI "Test C# tools" step under bash | Coverage 77, BundleElements 148, WorkerAotGuard 17, E2eRunner 174; exit 0 | `ci-tools-step.log` |
+| `git diff --check` | exit 0 | `diff-check.log` |
 
 ## Spec Change Log
 
