@@ -98,6 +98,14 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                         throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
             }
         }
+        // Every electrical wire is a potential path, open contacts included: a loop through a nonmonotone gate is refused here, in
+        // build mode, before any construction or solve sees it. The rule reads each part's declared gate law, never its identity.
+        var loop = SupplyCycles.NonmonotoneCycle(
+            _items.Where(link => link.Domain == WorkshopConnectionDomain.Electrical).Select(link => (link.Source, link.Target)),
+            owner => DeclaredPhysics.Of(partOf(owner)!.Value).Electrical?.Supply?.Operation);
+        if (loop.Length != 0)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.NonmonotoneFeedback,
+                $"Break the wire loop through parts {string.Join(", ", loop.Select(owner => owner.Value))}. This gate's output cannot feed its own inputs.");
     }
     public bool Equals(WorkshopConnections? other) =>
         other is not null && _items.Length == other._items.Length && _items.SequenceEqual(other._items);

@@ -42,7 +42,7 @@ public class CurrentCapabilityInputsTests
         Assert.Contains(preparation.Issues, issue => issue.Problem == CurrentInputProblem.MissingScope);
         Assert.Empty(expected.ImplementationEligibleOwners);
         var ball = new SourceKey(RequirementOrigin.Catalogue, new("ball"));
-        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_nand"));
+        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_nor"));
         Assert.Equal(ConsumerKind.CurrentPart, expected.Classifications[ball].Consumer);
         Assert.Equal(ConsumerKind.FutureDeclaration, expected.Classifications[planned].Consumer);
         Assert.NotEmpty(expected.RequiredSymbols[ball]);

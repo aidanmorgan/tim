@@ -33,6 +33,8 @@ public enum WorkshopEditRejection : uint
     PuzzleSettings,
     /// <summary>The Workshop has no bench placement for that part.</summary>
     UnsupportedPart,
+    /// <summary>A wire would close a loop through a gate whose output more input power can switch off.</summary>
+    NonmonotoneFeedback,
 }
 
 /// <summary>

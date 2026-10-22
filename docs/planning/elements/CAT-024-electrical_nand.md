@@ -10,7 +10,7 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
 | Requirement anchor | [current-cat-024](../requirements.md#current-cat-024); retained behaviour [todo-362](../requirements.md#todo-362) |
 | Mapped identities | [EL-137 Electrical NAND gate](../invest/named-elements.md#element-137). No TH/RAD/GAP identity. |
 | Roadmap story | 9.7 "Electrical Logic Gates NAND & NOR" (Epic 9), shared with CAT-025 |
-| Status | not started |
+| Status | Story 9.7a candidate: package `elements/ElectricalNand`, shared `Nand` law, ordered supply resolve and typed `NonmonotoneFeedback` refusal implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-7a-electrical-nand.md)); independent review and publication pending; browser qualification pending post-catalogue. |
 
 ## 2. Declaration
 
@@ -22,9 +22,9 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
 | Typed sockets and ports | Same four electrical ports as CAT-013: `FirstIn`, `SecondIn`, separate `PowerIn` supply, `Supply` output. |
 | Sensors and activation | none |
 | Work and energy stores | none. A logically true Nand with no inputs (row 00) still needs real `PowerIn` supply; it never creates power ([todo-362](../requirements.md#todo-362)). |
-| Parameters | `Operation = Nand` (enum value 4), fixed by catalogue kind (`parts/scenes/electrical_nand.tscn@a6c914e:L1-L5`). |
+| Parameters | `Operation = Nand`, fixed by catalogue kind. Current closed value `LogicGateOperation.Nand = 1` in the package declaration; 4 was the legacy scene integer (`parts/scenes/electrical_nand.tscn@a6c914e:L1-L5`) and is not carried forward. |
 | Cosmetic curves and UI bindings | Same three lamps as CAT-013 (inputs follow committed availability; output follows truth ∧ supplied). |
-| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Nand shows its toolbox pictogram on the face and gold truth-row dots for rows 00, 01, 10 at x −0.21, −0.07, 0.07 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L79-L79`. Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
+| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Nand shows its toolbox pictogram on the face and gold truth-row dots for rows 00, 01, 10 at x −0.21, −0.07, 0.07 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L79-L79`, now the package `icon.svg`. Current art draws the same pictogram as navy mesh strokes rather than the legacy textured quad (Story 9.7a assumption A1). Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
 | Catalogue / inventory | Id `electrical_nand`, Title "Not both gate", Category Control, colour (0.4, 0.72, 0.79), no parameters; Description: "Passes the separate bottom supply when the numbered inputs are not both powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`parts/catalog/electrical_nand.tres@a6c914e:L1-L11`). No level places or grants it. |
 
 ## 3. Engine capabilities
@@ -32,7 +32,7 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
 Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction (P0-022/023 shared evaluator/feedback registration).
 
 - **Exists now:** as [CAT-013 §3](CAT-013-both_gate.md#3-engine-capabilities).
-- **Missing:** supply network (Story 8.1); gate element, `FirstIn`/`SecondIn` sockets, electrical-input cosmetic source and nonmonotone-feedback rejection (Story 9.6, first gate). Story 9.7 adds only the Nand operation value, pictogram and truth dots on top of 9.6.
+- **Missing:** none after Story 9.7a. Story 9.6 delivered the gate element, `FirstIn`/`SecondIn` sockets and electrical-input cosmetic source; Story 9.7a adds the Nand operation value, settled (condensation-ordered) supply evaluation, the typed nonmonotone-feedback refusal, the pictogram and the truth dots.
 - **Dependencies:** CAT-005 Battery; CAT-013 Both gate declaration (Story 9.6) first; a supplied consumer (CAT-013 open question 1); input "power switches" need the CAT-063 Switch supply mode (open question 1 here).
 
 ## 4. Legacy harvest
@@ -78,5 +78,5 @@ Authority: [CAT-024](../requirements.md#current-cat-024), [todo-362](../requirem
 
 ## 6. Open questions
 
-1. **Input "power switches".** The Story 9.7 AC wires the gates "to input power switches"; the current Switch (CAT-063) is activation-only and its PowerIn→Supply mode is not scheduled before Epic 9. Whether 9.7 uses batteries or switched supplies for the conditions: unspecified — owner decision.
+1. **Input "power switches".** Resolved (Story 9.7a D5, after owner scheduling item b): each condition is a Battery → Impact Switch (CAT-063) `PowerIn`→`Supply` contact from Story 9.5b; battery-enabled conditions are supplemental proof only.
 2. Consumer for the output: as [CAT-013 open question 1](CAT-013-both_gate.md#6-open-questions).
