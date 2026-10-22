@@ -1,0 +1,41 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 56 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   150, Skipped:     0, Total:   150, Duration: 653 ms - BundleElements.Tests.dll (net10.0)
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID 'bfc83fb33f9546df5e03eb0cd1f160679796a9e9db5f5986e2f9adc277a1278a' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID '0c6594a1fbc7666a8b87f3950b3c527194318f34576a21c8622cca8a9331e018' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID '3ca68893bde8bc7520fe5643736b49c7433a029d55bd72e3d7faac3720814a51' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID '36fa6aca58be92772dd8cbf9433c94b64d04b00f755f601eb264af4151d7c2e6' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID '3b0ea3374c61488a1a8a082d49278fd124982c9f4ff4ebfb36a9735b9c1cd37e' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID '61ca75936319cf06c82a71671ac1f8f53ab253adc37206dc0cea16cd9c323b47' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID '5c3d84fcf0246f58a44626da8d8f989ca2a1bcee0ab1cdb11516f2ac644709bc' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.23] CuriousContraptions.tests: Skipping test case with duplicate ID 'a7677f02f7cfb042422d3c59ec1e6baa50154c2ee010ebe69463c5e16b3e0a69' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 1 s - Coverage.Tests.dll (net10.0)
+[xUnit.net 00:00:03.08]     CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [956 ms]
+  Error Message:
+   tsc --noEmit -p tools/e2e/tsconfig.json exited 2:
+tools/e2e/run-reset-snapshot.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/unit/run-reset-snapshot.test.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/workshop-wire.ts(2,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/tools/E2eRunner.Tests/TypeCheckTests.cs:line 17
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   188, Skipped:     0, Total:   189, Duration: 25 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2392, Skipped:     0, Total:  2392, Duration: 46 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore   118.71s user 18.83s system 273% cpu 50.357 total

@@ -1,0 +1,9 @@
+## uid uniqueness
+./elements/ElectricalXor/icon.svg.import
+./elements/ElectricalXor/ElectricalXorElementDeclaration.cs.uid
+## new PartId/string classification in production (expect none)
+exit 1 (1 = none)
+## solver files camel-split Xor token (expect none)
+done
+## Known list unchanged
+exit 1 (1 = unchanged)

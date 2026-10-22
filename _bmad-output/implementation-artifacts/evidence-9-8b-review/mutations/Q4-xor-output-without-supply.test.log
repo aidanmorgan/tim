@@ -1,0 +1,628 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.13]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.79]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.91]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ElectricalOrTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [114 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LawMonotonicityAndUndefinedValuesAreClosed [8 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithXor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithNor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [44 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [41 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: True) [143 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [128 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: False) [108 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [103 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.CompiledGraphAdmitsAnOrCycleAndRejectsAMixedOne [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: True) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.TrueRowWithoutSupplyWireNeverCreatesPower [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: True) [17 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: False) [13 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PureOrLoopIsAdmittedBySaveAndConstruct [2 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:02.61]     CuriousContraptions.Tests.ElectricalXorPresentationTests.PictogramTwoTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [FAIL]
+[xUnit.net 00:00:02.61]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:02.61]       Expected: Applied
+[xUnit.net 00:00:02.61]       Actual:   Faulted
+[xUnit.net 00:00:02.61]       Stack Trace:
+[xUnit.net 00:00:02.61]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:02.61]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:02.61]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:02.61]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(365,0): at CuriousContraptions.Tests.ElectricalXorPresentationTests.PictogramTwoTruthDotsAndThreeLampsFollowCommittedRowsThroughReset()
+[xUnit.net 00:00:02.61]         --- End of stack trace from previous location ---
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ClosingOneSwitchOpensTheOutputAndSaveLoadAndResetAreExact [67 ms]
+  Failed CuriousContraptions.Tests.ElectricalXorPresentationTests.PictogramTwoTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorPresentationTests.PictogramTwoTruthDotsAndThreeLampsFollowCommittedRowsThroughReset() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 365
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOr) [50 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: NandToNand) [22 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOpenSwitch) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: EnteringPowerIn) [22 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughBothGate) [21 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOr) [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: NorToNor) [21 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOpenSwitch) [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: MixedWithNand) [17 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: XorToXor) [22 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: WithNand) [22 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: OrLoopFeedingXor) [30 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: EnteringPowerIn) [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: WithOr) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: ThroughOpenSwitch) [19 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BothGateChooserRequiresAnExplicitSocketAndCancelDoesNotEdit [29 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: ThroughOpenSwitch) [22 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: EnteringPowerIn) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithNand) [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: OrToOr) [19 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithNor) [16 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithXor) [21 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorPresentationTests.PictogramSingleTruthDotAndThreeLampsFollowCommittedRowsThroughReset [20 ms]
+  Passed CuriousContraptions.Tests.BothGatePresentationTests.ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset [13 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrPresentationTests.PictogramThreeTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [13 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandPresentationTests.PictogramTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [10 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 40, named: "4, 10, 11, 12 and 37 more.") [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 3, named: "4, 10, 11, 12.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 4, named: "4, 10, 11, 12 and 1 more.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [9 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOr) [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NandToNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: True) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [23 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LawMonotonicityAndUndefinedValuesAreClosed [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.TrueRowWithoutSupplyWireNeverCreatesPower [18 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: False) [14 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: True) [14 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ClosingBothSwitchesRetractsTheOutputAndSaveLoadAndResetAreExact [65 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [4 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults [108 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: False) [22 ms]
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:03.85]     CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [FAIL]
+[xUnit.net 00:00:03.85]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:03.85]       Expected: Applied
+[xUnit.net 00:00:03.85]       Actual:   Faulted
+[xUnit.net 00:00:03.85]       Stack Trace:
+[xUnit.net 00:00:03.85]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:03.85]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:03.85]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:03.85]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(139,0): at CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected)
+[xUnit.net 00:00:03.85]         --- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:03.86]     CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [FAIL]
+[xUnit.net 00:00:03.86]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:03.86]       Expected: Applied
+[xUnit.net 00:00:03.86]       Actual:   Faulted
+[xUnit.net 00:00:03.86]       Stack Trace:
+[xUnit.net 00:00:03.86]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:03.86]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:03.86]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:03.86]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(139,0): at CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected)
+[xUnit.net 00:00:03.86]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: False, reverseLinks: True) [21 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: True) [20 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: False, reverseLinks: False) [19 ms]
+  Failed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [10 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 139
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 139
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: False) [108 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: False) [97 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [28 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [27 ms]
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:04.13]     CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [FAIL]
+[xUnit.net 00:00:04.13]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:04.13]       Expected: Applied
+[xUnit.net 00:00:04.13]       Actual:   Faulted
+[xUnit.net 00:00:04.13]       Stack Trace:
+[xUnit.net 00:00:04.13]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.13]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.13]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.13]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(65,0): at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected)
+[xUnit.net 00:00:04.13]         --- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:04.14]     CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [FAIL]
+[xUnit.net 00:00:04.14]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:04.14]       Expected: Applied
+[xUnit.net 00:00:04.14]       Actual:   Faulted
+[xUnit.net 00:00:04.14]       Stack Trace:
+[xUnit.net 00:00:04.14]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.14]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.14]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.14]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(65,0): at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected)
+[xUnit.net 00:00:04.14]         --- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:04.20]     CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [FAIL]
+[xUnit.net 00:00:04.20]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:04.20]       Expected: Applied
+[xUnit.net 00:00:04.20]       Actual:   Faulted
+[xUnit.net 00:00:04.20]       Stack Trace:
+[xUnit.net 00:00:04.20]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.20]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.20]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.20]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(65,0): at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected)
+[xUnit.net 00:00:04.20]         --- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:04.21]     CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [FAIL]
+[xUnit.net 00:00:04.21]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:04.21]       Expected: Applied
+[xUnit.net 00:00:04.21]       Actual:   Faulted
+[xUnit.net 00:00:04.21]       Stack Trace:
+[xUnit.net 00:00:04.21]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.21]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.21]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.21]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(65,0): at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected)
+[xUnit.net 00:00:04.21]         --- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 65
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 65
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: False) [23 ms]
+  Failed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [8 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 65
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(ElectricalInputState closed, Boolean supply, Boolean expected) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 65
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: WithOr) [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: XorToXor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: WithNand) [< 1 ms]
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:04.25]     CuriousContraptions.Tests.ElectricalXorTests.RemovingTheSupplyOrConditionLinksUnpowersATrueRow(removeSupply: True) [FAIL]
+[xUnit.net 00:00:04.25]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:04.25]       Expected: Applied
+[xUnit.net 00:00:04.25]       Actual:   Faulted
+[xUnit.net 00:00:04.25]       Stack Trace:
+[xUnit.net 00:00:04.25]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/NoFixedCapacityTests.cs(270,0): at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks)
+[xUnit.net 00:00:04.25]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/NoFixedCapacityTests.cs(274,0): at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks)
+[xUnit.net 00:00:04.25]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/NoFixedCapacityTests.cs(274,0): at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks)
+[xUnit.net 00:00:04.25]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(89,0): at CuriousContraptions.Tests.ElectricalXorTests.RemovingTheSupplyOrConditionLinksUnpowersATrueRow(Boolean removeSupply)
+[xUnit.net 00:00:04.25]         --- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:04.34]     CuriousContraptions.Tests.ElectricalXorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [FAIL]
+[xUnit.net 00:00:04.34]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:04.34]       Expected: Applied
+[xUnit.net 00:00:04.34]       Actual:   Faulted
+[xUnit.net 00:00:04.34]       Stack Trace:
+[xUnit.net 00:00:04.34]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.34]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.34]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:04.34]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs(340,0): at CuriousContraptions.Tests.ElectricalXorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral()
+[xUnit.net 00:00:04.34]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.RemovingTheSupplyOrConditionLinksUnpowersATrueRow(removeSupply: False) [25 ms]
+  Failed CuriousContraptions.Tests.ElectricalXorTests.RemovingTheSupplyOrConditionLinksUnpowersATrueRow(removeSupply: True) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 270
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.ElectricalXorTests.RemovingTheSupplyOrConditionLinksUnpowersATrueRow(Boolean removeSupply) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 89
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalXorTests.CompiledGraphRejectsAXorCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.OrLoopFeedingTheGateIsAdmittedAndPowersIt [19 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ClosingOneSwitchOpensTheOutputAndSaveLoadAndResetAreExact [62 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.LawMonotonicityAndUndefinedValuesAreClosed [< 1 ms]
+  Failed CuriousContraptions.Tests.ElectricalXorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalXorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/xrev/CuriousContraptions.tests/ElectricalXorTests.cs:line 340
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink [9 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite [10 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "holdWindow", element: True) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "nandRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "isGateOpen", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "xorRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalNandRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "threshold", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "ElectricalSupply", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "_plateLoaded", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "softRowError", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "orRow", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "Spring", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "norRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "contactNormal", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalOrRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "bumperBoost", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "SpeedClamp", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "PrismaticRowKind.Spring", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalXorRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "Conjugate", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [51 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [49 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EveryMotionPieceCarriesItsBodysDeclaredDragRate [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMotionDescriptionIsWrittenAtTheHostDeclaredOffsetAfterTheOrientationSensorTable [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "funnelMouth") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "pipeBore") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "clockPhase") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "tennisSpin") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "delayTicks") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "springStiffness") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "detectorAperture") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "balloonLift") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow [5 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryCommittedTick [53 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [5 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz240) [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz60) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz120) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRestingOnTheBenchSpinningAboutTheContactNormalKeepsItsSpin [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABodyWhoseCentreOfMassSitsOffItsOriginSpinsAboutThatCentreInFreeFlight [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzNeverRaisesItsSpin [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0.699999988) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 3, y: 4, z: 0, expected: 1) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 1, y: -∞, z: NaN, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 1, y: NaN, z: 2, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: ∞, y: 0, z: 0, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: NaN, y: 0, z: 0, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxOnAStaticBoxFaceHoldsThroughTheBoxBoxManifoldWithoutSinkingOrLaunching [36 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheScannedElementNamesAreDerivedFromTheCatalogue [5 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [40 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAnOrdinaryOvershootKeepsAnInEnvelopeVelocityAndDropsOnlyANonFiniteOne [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [16 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMidSubstepClampZeroesANonFiniteVelocityWithoutTouchingTheFiniteOne(bad: ∞) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMidSubstepClampZeroesANonFiniteVelocityWithoutTouchingTheFiniteOne(bad: NaN) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ThePaidContactFrameUsesTheBodysCurrentAnisotropicInertia [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [16 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySize [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest [22 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter [34 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [72 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees [29 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.WithZeroDeclaredDragAndCoefficientARollingBallKeepsItsSpeed [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzDeceleratesAtTheRollingLawOverASecondAndNeverReverses [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesAtTheRollingLawAndRestsOnTheBench [51 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARemainderCrossingHalfACellCarriesIntoTheNextCell [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtTheEnvelopeBoundaryDeclaredDragStillSlowsABallFlyingAt63Point9OnEveryTick [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.SpeedsBeyondTheEnvelopeClampInsideTheExactHostBoundInEveryDirectionAndTheTickContinues [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereMovingDiagonallySlowsAlongBothXAndZ [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [15 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [14 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AHeavyBodyStrikingALightOneAtTheEnvelopeCannotCommitAStruckSpeedBeyond64 [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AnUprightBoxSetAboveTheBenchSettlesOnItsFaceWithinTheRestTolerances [28 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ZeroRestitutionNeverReboundsAndZeroFrictionNeverSpinsUp [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EveryPinnedViolationsOwnerIsOpenAndTheListIsEmptyOnce9A19IsDone [< 1 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.PhysicalImpactDrivesBothDomainsAndExactSaveReset [47 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: True, reverse: False) [23 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: False, noSource: False, reverse: False) [21 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: False, reverse: False) [22 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: False, reverse: True) [23 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.SeededCycleLosesAndRestoresPowerWithoutChangingEitherLatch [20 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: MissingSourceWire) [20 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: DisabledSource) [20 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: Miss) [21 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: MissingConsumerWire) [20 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: BelowThreshold) [19 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.SupplyLossAndRestorationDoNotEraseOrReplayImpactMemory [18 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.CyclicClockProvenanceTerminatesAndMultipleSourcesRemainRejectedForAccounting [5 ms]
+  Passed CuriousContraptions.Tests.ReviewerXorDynamicProbe.SameSourceReachingBothInputsMidRunRetractsInTheSameSolve(gateFirst: True) [30 ms]
+  Passed CuriousContraptions.Tests.ReviewerXorDynamicProbe.SameSourceReachingBothInputsMidRunRetractsInTheSameSolve(gateFirst: False) [28 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ClosingOneSwitchRetractsTheOutputAndSaveLoadAndResetAreExact [62 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: True) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: MixedWithNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NorToNor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOr) [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [7 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: False) [107 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: True) [95 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: False) [102 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: False) [101 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(gateFirst: False) [22 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(gateFirst: True) [21 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [4 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.LawMonotonicityAndUndefinedValuesAreClosed [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.TrueRowWithoutSupplyWireNeverCreatesPower [18 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: True) [18 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: False, reverse: False) [16 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: False) [16 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: False, reverse: True) [16 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Both, supply: False) [14 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: SecondOnly, supply: True) [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Neither, supply: True) [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Both, supply: True) [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: FirstOnly, supply: False) [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: SecondOnly, supply: False) [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Neither, supply: False) [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: FirstOnly, supply: True) [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled [28 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.DiscardAndFailedReadNeverPublishCandidatePower [3 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.EnergyProvenanceIgnoresBothConditionSourcesAndUndefinedRulesReject [1 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.MissingBottomWireNeverConvertsConditionsIntoEnergy [13 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.DeclaredReadAdmissionRejectsMissingForeignAndInconsistentRows [6 ms]
+[xUnit.net 00:00:06.37]   Finished:    CuriousContraptions.tests (ID = '2844e19ee284bca1e6209ffffaed22c8ab18b1beb41a3e3b11c29dfb8e7b243b')
+  Passed CuriousContraptions.Tests.BothGateTests.CommittedLatchSetResetAndSupplyRestorationDriveBothGate [23 ms]
+
+Test Run Failed.
+Total tests: 243
+     Passed: 234
+     Failed: 9
+ Total time: 6.5694 Seconds

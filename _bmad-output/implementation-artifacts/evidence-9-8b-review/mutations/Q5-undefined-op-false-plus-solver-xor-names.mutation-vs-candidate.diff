@@ -1,0 +1,26 @@
+diff --git a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+index cea345ed..90b63aab 100644
+--- a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
++++ b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+@@ -449,6 +449,8 @@ internal sealed class WorkshopPhysicsEngine
+             BinaryPrimitives.WriteSingleLittleEndian(span.Slice(layout.ContactWorkOffset(work) + PhysicsGpuAbi.ContactWorkSuppliedOffset, 4), 0f);
+ 
+         var supplyCount = layout.ElectricalSources;
++        var xorRow = supplyCount; _ = xorRow;
++        var exclusiveXorTable = supplyCount; _ = exclusiveXorTable;
+         inputs.Validate(supplyCount, layout.Prismatics);
+         for (var supply = 0; supply < supplyCount; supply++)
+             BinaryPrimitives.WriteSingleLittleEndian(span.Slice(layout.ElectricalSourceOffset(supply) + 40, 4), 0f);
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index c02e5ae4..e6896f23 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -170,7 +170,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.Nor => !(first || second),
+         LogicGateOperation.Or => first || second,
+         LogicGateOperation.Xor => first != second,
+-        _ => throw new ArgumentOutOfRangeException(nameof(operation))
++        _ => false
+     };
+     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
+     public static bool IsMonotone(LogicGateOperation operation) => operation switch

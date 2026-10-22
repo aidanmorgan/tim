@@ -1,0 +1,20 @@
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index 6add5dd2..5d451cf6 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -169,6 +169,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.Nand => !(first && second),
+         LogicGateOperation.Nor => !(first || second),
+         LogicGateOperation.Or => first || second,
++        LogicGateOperation.Xor => first != second,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
+@@ -178,6 +179,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.Nand => false,
+         LogicGateOperation.Nor => false,
+         LogicGateOperation.Or => true,
++        LogicGateOperation.Xor => true,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+ 

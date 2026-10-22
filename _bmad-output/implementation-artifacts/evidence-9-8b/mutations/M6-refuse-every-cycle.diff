@@ -1,0 +1,29 @@
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index 6add5dd2..aae09cbe 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -169,6 +169,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.Nand => !(first && second),
+         LogicGateOperation.Nor => !(first || second),
+         LogicGateOperation.Or => first || second,
++        LogicGateOperation.Xor => first != second,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
+@@ -178,6 +179,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.Nand => false,
+         LogicGateOperation.Nor => false,
+         LogicGateOperation.Or => true,
++        LogicGateOperation.Xor => false,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+ 
+@@ -247,7 +249,7 @@ public static class SupplyCycles
+         var slot=owners.Select((owner,i)=>(owner,i)).ToDictionary(pair=>pair.owner,pair=>pair.i);
+         var predecessors=owners.Select(owner=>wires.Where(wire=>wire.Target==owner).Select(wire=>slot[wire.Source]).ToArray()).ToArray();
+         foreach(var component in Components(predecessors))
+-            if(Cyclic(component,predecessors) && component.Any(i=>!Monotone(operation(owners[i]))))
++            if(Cyclic(component,predecessors))
+                 return component.Select(i=>owners[i]).ToArray();
+         return [];
+     }

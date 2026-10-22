@@ -1,0 +1,88 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.69]     CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: False) [FAIL]
+[xUnit.net 00:00:02.74]     CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: False) [FAIL]
+[xUnit.net 00:00:02.79]     CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: False) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: False) [54 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalNorTests.cs:line 129
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: False) [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalNorTests.cs:line 129
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: False) [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(ElectricalInputState closed, Boolean expected) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalNorTests.cs:line 129
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.66]     CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: True) [FAIL]
+[xUnit.net 00:00:03.70]     CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: True) [10 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(Boolean gateFirst) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalNandTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalNandTests.cs:line 120
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:04.37]     CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: True) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: True) [12 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 270
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(Boolean gateFirst, Boolean reverseLinks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalXorTests.cs:line 180
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:04.42]     CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: False) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: False) [11 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 270
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(Boolean gateFirst, Boolean reverseLinks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalXorTests.cs:line 180
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     7, Passed:   144, Skipped:     0, Total:   151, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
