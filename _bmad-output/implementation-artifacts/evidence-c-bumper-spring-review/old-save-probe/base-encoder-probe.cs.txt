@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (throwaway, C-Bumper+Spring): every instance kind saved, and carried by a Construct command, by the
+/// pre-conversion (3fce7a03) production encoders; each decoded here too, so the candidate's decode can be compared field by field.</summary>
+public sealed class ReviewOldSaveProbe
+{
+    internal static string Describe(IWorkshopInstance instance) => instance switch
+    {
+        WorkshopGenericInstance g => $"Generic {g.PartId.Value} id={g.Id.Value} cell={g.Cell} local={g.Local} rot={g.Rotation} locked={g.Locked} params=[" +
+            string.Join(",", g.Parameters.ToBundleValues().OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}={p.Value:R}")) + "]",
+        _ => instance.ToString()!
+    };
+
+    [Fact]
+    public void WriteOldSaves()
+    {
+        var dir = Environment.GetEnvironmentVariable("REVIEW_OLD_SAVES") ?? throw new InvalidOperationException("REVIEW_OLD_SAVES unset");
+        Directory.CreateDirectory(dir);
+        var kinds = new List<(string Name, IWorkshopInstance[] Instances)>
+        {
+            ("spring_default", [WorkshopInput.Springboard(new(1), 0, 1, 0, 0, 0, 0, 1, SpringboardSettings.Default)]),
+            ("spring_damping0", [WorkshopInput.Springboard(new(1), 0, 1, 0, 0, 0, 0, 1, new(400f, 0f))]),
+            ("spring_charged", [WorkshopInput.Springboard(new(1), 0, 1, 0, 0, 0, 0, 1, new(250f, .5f, .2f))]),
+            ("battery_default", [WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default)]),
+            ("battery_disabled", [WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, new(new(60f), new(30f), .5f, ElectricalEnable.Disabled))]),
+            ("battery_disabled_zero_fraction", [WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, new(new(600f), new(10f), 0f, ElectricalEnable.Disabled))]),
+            ("bumper_8", [WorkshopInput.Bumper(new(1), 0, 1, 0, 0, 0, 0, 1, BumperWork.Default)]),
+            ("bumper_0", [WorkshopInput.Bumper(new(1), 0, 1, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(0f))]),
+            ("bumper_20", [WorkshopInput.Bumper(new(1), 0, 1, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(20f))]),
+            ("domino", [WorkshopInput.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("lamp", [WorkshopInput.Lamp(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("latch", [WorkshopInput.Latch(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("ball_detector", [WorkshopInput.BallDetector(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("pressure_plate_2", [WorkshopInput.PressurePlate(new(1), 0, 1, 0, 0, 0, 0, 1, 2f)]),
+            ("pressure_plate_7", [WorkshopInput.PressurePlate(new(1), 1.25, 2.5, -3.75, 0, .7071068, 0, .7071068, 7f)]),
+            ("counter", [WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3)]),
+            ("clock_1", [WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, 1f)]),
+            ("clock_2_5", [WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, 2.5f)]),
+            ("pipe_default", [WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("pipe_5_5", [WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1, new PipeLength(5.5f))]),
+            ("pipe_bend_45", [WorkshopInput.PipeBend45(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("funnel", [WorkshopInput.Funnel(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("ramp_default", [WorkshopInput.Generic(PartId.Ramp, new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("wall_default", [WorkshopInput.Generic(PartId.Wall, new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("basketball", [WorkshopInput.Generic(PartId.Basketball, new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("receiver", [WorkshopInput.Generic(PartId.Receiver, new(1), 0, 1, 0, 0, 0, 0, 1)]),
+            ("mixed_lamp_bumper", [WorkshopInput.Lamp(new(1), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Bumper(new(2), 3, 1, 0, 0, 0, 0, 1, BumperWork.Default)]),
+            ("mixed_lamp_pipe", [WorkshopInput.Lamp(new(1), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Pipe(new(2), 3, 1, 0, 0, 0, 0, 1, new PipeLength(2.25f))]),
+        };
+        var report = new List<string>();
+        foreach (var (name, instances) in kinds)
+        {
+            var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instances));
+            var save = WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(3)));
+            File.WriteAllBytes(Path.Combine(dir, name + ".save.bin"), save);
+            var command = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
+                construction, Session: new(1, 2), Cadence: new(1), Projection: new(1)));
+            File.WriteAllBytes(Path.Combine(dir, name + ".command.bin"), command);
+            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, save).Construction.Instances.Select(Describe);
+            var decoded = WorkshopWireFlatBuffers.DecodeCommand(command).Construction!.Value.Instances.Select(Describe);
+            report.Add($"{name}: save LOADED {string.Join(" | ", loaded)}");
+            report.Add($"{name}: command LOADED {string.Join(" | ", decoded)}");
+        }
+        File.WriteAllLines(Path.Combine(dir, "base-decode.txt"), report);
+    }
+}

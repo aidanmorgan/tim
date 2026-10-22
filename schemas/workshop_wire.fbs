@@ -263,21 +263,11 @@ table InstanceRecord {
     // Switch
     threshold: float;
 
-    // Springboard
-    stiffness: float;
-    damping: float;
-    initial_compression: float;
-
     // Battery
     capacity: float;
     maximum_power: float;
     initial_fraction: float;
     enabled: uint8;
-
-    // Bumper
-    strength: float;
-    reference_mass: float;
-    preload: float;
 
     // Domino
     half_extents: Vec3f;

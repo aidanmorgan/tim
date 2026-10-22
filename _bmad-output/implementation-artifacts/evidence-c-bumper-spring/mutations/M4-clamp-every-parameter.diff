@@ -1,0 +1,11 @@
+--- ui/WorkshopConfiguration.cs.orig	2026-10-22 11:28:19.009013606 +0800
++++ ui/WorkshopConfiguration.cs	2026-10-22 11:28:19.012152274 +0800
+@@ -46,7 +46,7 @@
+                     if (!float.TryParse(field.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+                     { _status.Text = "Enter valid parameter values."; return; }
+                     var descriptor = part.Definition.Parameters.Single(parameter => new ParameterId(parameter.Key) == key);
+-                    if (float.IsFinite(value) && descriptor.EditorPolicy == CuriousContraptions.Abstractions.ParameterEditorPolicy.Clamp)
++                    if (float.IsFinite(value))
+                         value = Math.Clamp(value, descriptor.Minimum, descriptor.Maximum);
+                     values.Add(new(key, value));
+                 }

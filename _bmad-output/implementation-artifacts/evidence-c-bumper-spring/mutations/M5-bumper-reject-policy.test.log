@@ -1,0 +1,679 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.12]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.75]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.87]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Length, value: 4) [25 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Capacity, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Bounce, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Threshold, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Capacity, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Threshold, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Enabled, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Mass, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Mass, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Threshold, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Length, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Friction, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Length, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Capacity, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: InitialFraction, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Enabled, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Bounce, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Mass, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: InitialFraction, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Friction, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Friction, value: NaN) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: HalfExtents, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: TargetCount, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: InitialFraction, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: HalfExtents, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: TargetCount, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: MaximumPower, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: MaximumPower, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Friction, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: HalfExtents, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: MaximumPower, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Enabled, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Bounce, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: TargetCount, value: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadRestingOnTheBenchStaysWithoutDrift(part: "ball") [93 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadRestingOnTheBenchStaysWithoutDrift(part: "bowling") [17 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverCapturesEitherKindAndAShiftedMissNever(part: "ball", shift: 2, captures: False) [18 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverCapturesEitherKindAndAShiftedMissNever(part: "bowling", shift: 2, captures: False) [12 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverCapturesEitherKindAndAShiftedMissNever(part: "bowling", shift: 0, captures: True) [13 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverCapturesEitherKindAndAShiftedMissNever(part: "ball", shift: 0, captures: True) [14 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.BothKindsRunResetAndReloadExactly [34 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.TwoCaptureOwnersAreRefusedWithAPayloadAndAdmittedWithOnlyADomino [2 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverGuidesEveryPayloadByAscendingIdentityWhateverTheInstanceOrder [3 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.LessonTriggersAndBumpersNameTheLessonPayload [43 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.PreConversionRecordsAreRefusedWithTheTypedSaveRefusal [3 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.ABareGenericPayloadRecordLoadsAndAnyParameterIsRefused(part: "bowling") [2 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.ABareGenericPayloadRecordLoadsAndAnyParameterIsRefused(part: "ball") [< 1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverBesideOnlyADominoCompilesNoSensorOrGuide [1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.TelemetryFollowsTheLowestIdentityPayloadOrNone [1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.BothKindsCompileTheOwnerDeclaredMaterialsOnOneBench [12 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadDrivenIntoTheBenchAtFortyMetresPerSecondNeverTunnels(part: "bowling") [2 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.APayloadDrivenIntoTheBenchAtFortyMetresPerSecondNeverTunnels(part: "ball") [1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.PlacementBoundariesBuildAndCompileAndBeyondIsRefused(part: "ball") [1 ms]
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.PlacementBoundariesBuildAndCompileAndBeyondIsRefused(part: "bowling") [< 1 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [32 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.ThePlateHoldsItsLowerAndUpperStops [54 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.ThePlateVisualRestsAtTheDeclaredCompressionAndEqualsItsCompiledBody [19 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.ThePoweredGateBladeRestsAtItsScenePoseUnderItsSliderIdentity [12 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.RunResetAndSaveLoadAreExact [51 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.APreloadedBoardLaunchesARestingBallAndAnUnchargedOneDoesNot(compression: 0.200000003, launches: True) [25 ms]
+  Passed CuriousContraptions.Tests.SliderInstanceTests.APreloadedBoardLaunchesARestingBallAndAnUnchargedOneDoesNot(compression: 0, launches: False) [29 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges(compression: ∞) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges(compression: -∞) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges(compression: 0.200001001) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges(compression: NaN) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges(compression: -9.99999997E-07) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.CurrentSaveAndWirePreserveF32Settings(stiffness: 400.000031, damping: 0.200000018) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.CurrentSaveAndWirePreserveF32Settings(stiffness: 120, damping: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.CurrentSaveAndWirePreserveF32Settings(stiffness: 1200, damping: 8) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.CompiledPreloadUsesActualF32PoseAndEightJoules(height: 2.5, angle: -30) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.CompiledPreloadUsesActualF32PoseAndEightJoules(height: 0, angle: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.PreloadResourceSaveAndPhysicalRestPreserveExactF32(compression: 0.200000003) [1 ms]
+CCGPU_PRESENTATION_EXCEPTION System.InvalidOperationException: Sequence contains more than one matching element
+   at System.Linq.ThrowHelper.ThrowMoreThanOneMatchException()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Func`2 predicate, Boolean& found)
+   at System.Linq.Enumerable.SingleOrDefault[TSource](IEnumerable`1 source, Func`2 predicate)
+   at CuriousContraptions.MachineWorld.PresentWorkshopRead() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 254
+CCGPU_PRESENTATION_EXCEPTION System.ArgumentException: Presented body has no unique owned visual binding.
+   at CuriousContraptions.MachineWorld.PresentWorkshopRead() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 254
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.PreloadResourceSaveAndPhysicalRestPreserveExactF32(compression: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.PreloadResourceSaveAndPhysicalRestPreserveExactF32(compression: 0.123456702) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.ForgivingSpringForwardReceiverBoundaryUsesCompiledSourceScene(offset: -0.5) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.ForgivingSpringForwardReceiverBoundaryUsesCompiledSourceScene(offset: 0.29999999999999999) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(duplicate: True) [16 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(duplicate: False) [5 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.LaunchLessonsPreserveSourceFixturesAssistanceAndNamedCapture(lessonId: "spring_forward", sourceId: "spring_forward") [18 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.LaunchLessonsPreserveSourceFixturesAssistanceAndNamedCapture(lessonId: "ready_to_rebound", sourceId: "ready_to_rebound") [7 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets [7 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.CompiledPopulationsCountBaseAndPlateAndAdmitTheNextPart [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.CompilesDistinctPlateIdentityAndFullDynamicPopulation [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopSpringboardTests.UnsupportedWireTailRejectsBeforeMutation [1 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ClickingTheBenchWithAPalettePartSendsItsConstructionAfterRecordingOneUndo [34 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ABenchPlacementDefectIsNotARejectionAndReachesTheHandlerBoundary [1 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericTimerEditorUsesSecondsAndCommitsOnlyValidStoppedValues(rearming: False) [30 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericTimerEditorUsesSecondsAndCommitsOnlyValidStoppedValues(rearming: True) [21 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.PuzzleSelectionReservesIdentityBeforeSubmittingOrChangingUndo [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericSpringboardEditorRefusesOutOfRangeValuesAtomicallyAndAcceptsEndpoints [30 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+[xUnit.net 00:00:02.34]     CuriousContraptions.Tests.PalettePlacementTests.GenericBumperEditorClampsAFiniteStrengthAndRefusesNaNAtomically [FAIL]
+[xUnit.net 00:00:02.34]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:02.34]       Expected: 0
+[xUnit.net 00:00:02.34]       Actual:   8
+[xUnit.net 00:00:02.34]       Stack Trace:
+[xUnit.net 00:00:02.34]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/PalettePlacementTests.cs(683,0): at CuriousContraptions.Tests.PalettePlacementTests.GenericBumperEditorClampsAFiniteStrengthAndRefusesNaNAtomically()
+[xUnit.net 00:00:02.34]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.34]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericRampEditorKeepsExactNonHalfLengthAndRefusesOutOfRangeSubmissionsAtomically [29 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "tennis") [5 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "no-such-part") [5 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAnUncapturablePartIsOneTypedRejectionWithoutUndo(external: "balloon") [4 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BothGateChooserRequiresAnExplicitSocketAndCancelDoesNotEdit [42 ms]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.GenericBumperEditorClampsAFiniteStrengthAndRefusesNaNAtomically [22 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   8
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.GenericBumperEditorClampsAFiniteStrengthAndRefusesNaNAtomically() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/PalettePlacementTests.cs:line 683
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ClickingTheBenchWithAnUncapturablePartIsOneTypedRejectionWithAVisibleMessageAndNoUndo [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: NandToNand) [22 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOpenSwitch) [17 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+ERROR: Workshop handler 'Undo' failed: System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 408
+   at CuriousContraptions.Workshop.UndoAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 647
+   at CuriousContraptions.Workshop.Undo() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 641
+   at: void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception) (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/WorkshopGpu.cs:49)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string)
+       [1] void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception) (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/WorkshopGpu.cs:49)
+       [2] void CuriousContraptions.Workshop+<Undo>d__85.MoveNext() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:641)
+       [3] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [4] void CuriousContraptions.Workshop.Undo()
+       [5] object System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(object, System.IntPtr*)
+       [6] object System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(object, System.Reflection.BindingFlags)
+       [7] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [8] System.Collections.Generic.List`1[System.Exception] CuriousContraptions.Tests.PalettePlacementTests.InvokeHandler(CuriousContraptions.Workshop, string, System.Object[]) (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/PalettePlacementTests.cs:389)
+       [9] void CuriousContraptions.Tests.PalettePlacementTests.AFailingHandlerIsCaughtAtItsBoundaryLoggedOnceByNameAndShown() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/PalettePlacementTests.cs:512)
+       [10] object System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(object, System.IntPtr*)
+       [11] object System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(object, System.Reflection.BindingFlags)
+       [12] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [13] object Xunit.v3.TestRunner`2.InvokeTestMethod(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:194)
+       [14] void Xunit.v3.TestRunner`2+<>c__DisplayClass5_0+<<InvokeTest>b__1>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:167)
+       [15] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [16] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [17] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__1()
+       [18] void Xunit.v3.ExceptionAggregator+<RunAsync>d__13.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:124)
+       [19] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [20] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [21] System.Threading.Tasks.ValueTask Xunit.v3.ExceptionAggregator.RunAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [22] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__0() (/_/src/xunit.v3.core/Runners/TestRunner.cs:144)
+       [23] void Xunit.v3.ExecutionTimer+<MeasureAsync>d__2.MoveNext() (/_/src/xunit.v3.core/Utility/ExecutionTimer.cs:58)
+       [24] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [25] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [26] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.ExecutionTimer.MeasureAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [27] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:143)
+       [28] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:99)
+       [29] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2+<>c__DisplayClass15_0.<RunTest>b__6() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [30] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [31] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [32] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [33] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [34] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1+<<RunTest>g__runTest|0>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [35] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [36] void System.Runtime.CompilerServices.AsyncVoidMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [37] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1.<RunTest>g__runTest|0(object)
+       [38] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [39] void Xunit.v3.TestRunner`2+<RunTest>d__15.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:356)
+       [40] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [41] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [42] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.RunTest(TContext)
+       [43] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.RunTest(TContext) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:127)
+       [44] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunnerBase`2+<>c__DisplayClass13_0.<Run>b__2() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [45] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [46] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [47] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [48] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [49] void Xunit.v3.TestRunnerBase`2+<Run>d__13.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [50] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [51] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [52] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestRunnerBase`2.Run(TContext)
+       [53] void Xunit.v3.XunitTestRunner+<Run>d__2.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestRunner.cs:55)
+       [54] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [55] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [56] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestRunner.Run(Xunit.v3.IXunitTest, Xunit.v3.IMessageBus, System.Object[], Xunit.Sdk.ExplicitOption, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IBeforeAfterTestAttribute])
+       [57] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.RunTest(Xunit.v3.XunitTestCaseRunnerContext, Xunit.v3.IXunitTest) (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:83)
+       [58] void Xunit.v3.TestCaseRunner`3+<RunTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunner.cs:74)
+       [59] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [60] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [61] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunner`3.RunTestCase(TContext, System.Exception)
+       [62] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.<>n__0(TContext, System.Exception)
+       [63] void Xunit.v3.XunitTestCaseRunnerBase`3+<RunTestCase>d__0.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunnerBase.cs:38)
+       [64] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [65] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [66] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.RunTestCase(TContext, System.Exception)
+       [67] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2+<>c__DisplayClass5_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [68] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [69] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [70] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [71] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [72] void Xunit.v3.TestCaseRunnerBase`2+<Run>d__5.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [73] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [74] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [75] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2.Run(TContext)
+       [76] void Xunit.v3.XunitTestCaseRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:72)
+       [77] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [78] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [79] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.Run(Xunit.v3.IXunitTestCase, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTest], Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, string, string, Xunit.Sdk.ExplicitOption, System.Object[])
+       [80] void Xunit.v3.XunitRunnerHelper+<RunXunitTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Internal/XunitRunnerHelper.cs:256)
+       [81] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [82] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [83] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitRunnerHelper.RunXunitTestCase(Xunit.v3.IXunitTestCase, Xunit.v3.IMessageBus, System.Threading.CancellationTokenSource, Xunit.v3.ExceptionAggregator, Xunit.Sdk.ExplicitOption, System.Object[])
+       [84] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunnerBase`3.RunTestCase(TContext, TTestCase) (/_/src/xunit.v3.core/Runners/XunitTestMethodRunnerBase.cs:29)
+       [85] void Xunit.v3.TestMethodRunner`3+<RunTestCases>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:250)
+       [86] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [87] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [88] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.RunTestCases(TContext, System.Exception)
+       [89] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [90] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [91] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [92] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [93] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [94] void Xunit.v3.TestMethodRunner`3+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [95] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [96] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [97] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.Run(TContext)
+       [98] void Xunit.v3.XunitTestMethodRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestMethodRunner.cs:59)
+       [99] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [100] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [101] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunner.Run(Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Object[])
+       [102] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.RunTestMethod(Xunit.v3.XunitTestClassRunnerContext, Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], System.Object[]) (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:90)
+       [103] void Xunit.v3.TestClassRunner`4+<RunTestMethods>d__9.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:303)
+       [104] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [105] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [106] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.RunTestMethods(TContext, System.Exception)
+       [107] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4+<>c__DisplayClass8_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [108] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [109] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [110] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [111] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [112] void Xunit.v3.TestClassRunner`4+<Run>d__8.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [113] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [114] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [115] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.Run(TContext)
+       [116] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner+<>c__DisplayClass4_0.<Run>b__0() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [117] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [118] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [119] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [120] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [121] void Xunit.v3.XunitTestClassRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [122] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [123] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [124] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.Run(Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [125] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.RunTestClass(Xunit.v3.XunitTestCollectionRunnerContext, Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:88)
+       [126] void Xunit.v3.TestCollectionRunner`4+<RunTestClasses>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:257)
+       [127] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [128] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [129] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.RunTestClasses(TContext, System.Exception)
+       [130] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [131] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [132] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [133] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [134] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [135] void Xunit.v3.TestCollectionRunner`4+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [136] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [137] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [138] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.Run(TContext)
+       [139] void Xunit.v3.XunitTestCollectionRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:66)
+       [140] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [141] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [142] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.Run(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [143] void Xunit.v3.XunitTestAssemblyRunnerBaseContext`2+<RunTestCollection>d__38.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBaseContext.cs:164)
+       [144] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [145] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [146] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBaseContext`2.RunTestCollection(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase], Xunit.v3.ITestCaseOrderer)
+       [147] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBase`4.RunTestCollection(TContext, TTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBase.cs:173)
+       [148] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner.<>n__0(Xunit.v3.XunitTestAssemblyRunnerContext, Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase])
+       [149] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner+<>c__DisplayClass4_0.<RunTestCollection>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:67)
+       [150] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1+<<Loop>b__0>d.MoveNext() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:99)
+       [151] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [152] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1.<Loop>b__0(object)
+       [153] void twodog.Testing.Xunit.GodotTestThread.Invoke<T>(System.ValueTuple`2[System.Threading.SendOrPostCallback,System.Object], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:121)
+       [154] void twodog.Testing.Xunit.GodotTestThread.Loop<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:111)
+       [155] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass0_0`1.<Run>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:85)
+       [156] void System.Threading.Thread+StartHelper.Callback(object)
+       [157] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+ERROR: Bench placement of 'ramp' as body 1 was admitted, but presenting it failed: System.NullReferenceException: Object reference not set to an instance of an object.
+   at CuriousContraptions.Workshop.Select(MachinePart part) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 411
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 540
+   at: void CuriousContraptions.Workshop+<ClickAsync>d__78.MoveNext() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:540)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string)
+       [1] void CuriousContraptions.Workshop+<ClickAsync>d__78.MoveNext() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:540)
+       [2] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [3] System.Threading.Tasks.Task CuriousContraptions.Workshop.ClickAsync(Godot.Vector2)
+       [4] void CuriousContraptions.Workshop+<Click>d__77.MoveNext() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:506)
+       [5] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [6] void CuriousContraptions.Workshop.Click(Godot.Vector2)
+       [7] object <unknown>.InvokeStub_Workshop.Click(object, System.Span`1[System.Object])
+       [8] object System.Reflection.MethodBaseInvoker.InvokeWithOneArg(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [9] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [10] System.Collections.Generic.List`1[System.Exception] CuriousContraptions.Tests.PalettePlacementTests.InvokeHandler(CuriousContraptions.Workshop, string, System.Object[]) (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/PalettePlacementTests.cs:389)
+       [11] System.Collections.Generic.List`1[System.Exception] CuriousContraptions.Tests.PalettePlacementTests.ClickBench(CuriousContraptions.Workshop) (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/PalettePlacementTests.cs:380)
+       [12] void CuriousContraptions.Tests.PalettePlacementTests.AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable() (/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/CuriousContraptions.tests/PalettePlacementTests.cs:479)
+       [13] object System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(object, System.IntPtr*)
+       [14] object System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(object, System.Reflection.BindingFlags)
+       [15] object System.Reflection.RuntimeMethodInfo.Invoke(object, System.Reflection.BindingFlags, System.Reflection.Binder, System.Object[], System.Globalization.CultureInfo)
+       [16] object Xunit.v3.TestRunner`2.InvokeTestMethod(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:194)
+       [17] void Xunit.v3.TestRunner`2+<>c__DisplayClass5_0+<<InvokeTest>b__1>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:167)
+       [18] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [19] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [20] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__1()
+       [21] void Xunit.v3.ExceptionAggregator+<RunAsync>d__13.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:124)
+       [22] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [23] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [24] System.Threading.Tasks.ValueTask Xunit.v3.ExceptionAggregator.RunAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [25] System.Threading.Tasks.ValueTask Xunit.v3.TestRunner`2+<>c__DisplayClass5_0.<InvokeTest>b__0() (/_/src/xunit.v3.core/Runners/TestRunner.cs:144)
+       [26] void Xunit.v3.ExecutionTimer+<MeasureAsync>d__2.MoveNext() (/_/src/xunit.v3.core/Utility/ExecutionTimer.cs:58)
+       [27] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [28] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [29] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.ExecutionTimer.MeasureAsync(System.Func`1[System.Threading.Tasks.ValueTask])
+       [30] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/TestRunner.cs:143)
+       [31] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.InvokeTest(TContext, object) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:99)
+       [32] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2+<>c__DisplayClass15_0.<RunTest>b__6() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [33] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [34] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [35] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [36] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [37] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1+<<RunTest>g__runTest|0>d.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:388)
+       [38] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [39] void System.Runtime.CompilerServices.AsyncVoidMethodBuilder.Start<TStateMachine>(TStateMachine&)
+       [40] void Xunit.v3.TestRunner`2+<>c__DisplayClass15_1.<RunTest>g__runTest|0(object)
+       [41] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [42] void Xunit.v3.TestRunner`2+<RunTest>d__15.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunner.cs:356)
+       [43] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [44] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [45] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunner`2.RunTest(TContext)
+       [46] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.XunitTestRunnerBase`2.RunTest(TContext) (/_/src/xunit.v3.core/Runners/XunitTestRunnerBase.cs:127)
+       [47] System.Threading.Tasks.ValueTask`1[System.TimeSpan] Xunit.v3.TestRunnerBase`2+<>c__DisplayClass13_0.<Run>b__2() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [48] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [49] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [50] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [51] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [52] void Xunit.v3.TestRunnerBase`2+<Run>d__13.MoveNext() (/_/src/xunit.v3.core/Runners/TestRunnerBase.cs:427)
+       [53] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [54] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [55] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestRunnerBase`2.Run(TContext)
+       [56] void Xunit.v3.XunitTestRunner+<Run>d__2.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestRunner.cs:55)
+       [57] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [58] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [59] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestRunner.Run(Xunit.v3.IXunitTest, Xunit.v3.IMessageBus, System.Object[], Xunit.Sdk.ExplicitOption, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IBeforeAfterTestAttribute])
+       [60] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.RunTest(Xunit.v3.XunitTestCaseRunnerContext, Xunit.v3.IXunitTest) (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:83)
+       [61] void Xunit.v3.TestCaseRunner`3+<RunTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunner.cs:74)
+       [62] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [63] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [64] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunner`3.RunTestCase(TContext, System.Exception)
+       [65] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.<>n__0(TContext, System.Exception)
+       [66] void Xunit.v3.XunitTestCaseRunnerBase`3+<RunTestCase>d__0.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunnerBase.cs:38)
+       [67] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [68] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [69] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunnerBase`3.RunTestCase(TContext, System.Exception)
+       [70] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2+<>c__DisplayClass5_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [71] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [72] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [73] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [74] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [75] void Xunit.v3.TestCaseRunnerBase`2+<Run>d__5.MoveNext() (/_/src/xunit.v3.core/Runners/TestCaseRunnerBase.cs:196)
+       [76] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [77] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [78] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCaseRunnerBase`2.Run(TContext)
+       [79] void Xunit.v3.XunitTestCaseRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCaseRunner.cs:72)
+       [80] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [81] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [82] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCaseRunner.Run(Xunit.v3.IXunitTestCase, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTest], Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, string, string, Xunit.Sdk.ExplicitOption, System.Object[])
+       [83] void Xunit.v3.XunitRunnerHelper+<RunXunitTestCase>d__3.MoveNext() (/_/src/xunit.v3.core/Internal/XunitRunnerHelper.cs:256)
+       [84] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [85] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [86] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitRunnerHelper.RunXunitTestCase(Xunit.v3.IXunitTestCase, Xunit.v3.IMessageBus, System.Threading.CancellationTokenSource, Xunit.v3.ExceptionAggregator, Xunit.Sdk.ExplicitOption, System.Object[])
+       [87] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunnerBase`3.RunTestCase(TContext, TTestCase) (/_/src/xunit.v3.core/Runners/XunitTestMethodRunnerBase.cs:29)
+       [88] void Xunit.v3.TestMethodRunner`3+<RunTestCases>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:250)
+       [89] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [90] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [91] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.RunTestCases(TContext, System.Exception)
+       [92] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [93] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [94] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [95] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [96] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [97] void Xunit.v3.TestMethodRunner`3+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestMethodRunner.cs:201)
+       [98] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [99] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [100] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestMethodRunner`3.Run(TContext)
+       [101] void Xunit.v3.XunitTestMethodRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestMethodRunner.cs:59)
+       [102] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [103] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [104] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestMethodRunner.Run(Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, System.Object[])
+       [105] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.RunTestMethod(Xunit.v3.XunitTestClassRunnerContext, Xunit.v3.IXunitTestMethod, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], System.Object[]) (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:90)
+       [106] void Xunit.v3.TestClassRunner`4+<RunTestMethods>d__9.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:303)
+       [107] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [108] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [109] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.RunTestMethods(TContext, System.Exception)
+       [110] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4+<>c__DisplayClass8_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [111] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [112] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [113] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [114] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [115] void Xunit.v3.TestClassRunner`4+<Run>d__8.MoveNext() (/_/src/xunit.v3.core/Runners/TestClassRunner.cs:235)
+       [116] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [117] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [118] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestClassRunner`4.Run(TContext)
+       [119] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner+<>c__DisplayClass4_0.<Run>b__0() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [120] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [121] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [122] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [123] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [124] void Xunit.v3.XunitTestClassRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestClassRunner.cs:67)
+       [125] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [126] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [127] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestClassRunner.Run(Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [128] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.RunTestClass(Xunit.v3.XunitTestCollectionRunnerContext, Xunit.v3.IXunitTestClass, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:88)
+       [129] void Xunit.v3.TestCollectionRunner`4+<RunTestClasses>d__7.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:257)
+       [130] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [131] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [132] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.RunTestClasses(TContext, System.Exception)
+       [133] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4+<>c__DisplayClass6_0.<Run>b__1() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [134] void Xunit.v3.ExceptionAggregator+<RunAsync>d__14`1.MoveNext() (/_/src/xunit.v3.core/Exceptions/ExceptionAggregator.cs:146)
+       [135] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [136] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [137] System.Threading.Tasks.ValueTask`1[T] Xunit.v3.ExceptionAggregator.RunAsync<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], T)
+       [138] void Xunit.v3.TestCollectionRunner`4+<Run>d__6.MoveNext() (/_/src/xunit.v3.core/Runners/TestCollectionRunner.cs:202)
+       [139] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [140] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [141] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.TestCollectionRunner`4.Run(TContext)
+       [142] void Xunit.v3.XunitTestCollectionRunner+<Run>d__4.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestCollectionRunner.cs:66)
+       [143] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [144] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [145] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestCollectionRunner.Run(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase], Xunit.Sdk.ExplicitOption, Xunit.v3.IMessageBus, Xunit.v3.ITestCaseOrderer, Xunit.v3.ExceptionAggregator, System.Threading.CancellationTokenSource, Xunit.v3.FixtureMappingManager)
+       [146] void Xunit.v3.XunitTestAssemblyRunnerBaseContext`2+<RunTestCollection>d__38.MoveNext() (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBaseContext.cs:164)
+       [147] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [148] void System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start<TStateMachine>(TStateMachine&)
+       [149] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBaseContext`2.RunTestCollection(Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase], Xunit.v3.ITestCaseOrderer)
+       [150] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] Xunit.v3.XunitTestAssemblyRunnerBase`4.RunTestCollection(TContext, TTestCollection, System.Collections.Generic.IReadOnlyCollection`1[TTestCase]) (/_/src/xunit.v3.core/Runners/XunitTestAssemblyRunnerBase.cs:173)
+       [151] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner.<>n__0(Xunit.v3.XunitTestAssemblyRunnerContext, Xunit.v3.IXunitTestCollection, System.Collections.Generic.IReadOnlyCollection`1[Xunit.v3.IXunitTestCase])
+       [152] System.Threading.Tasks.ValueTask`1[Xunit.v3.RunSummary] twodog.Testing.Xunit.GodotTestAssemblyRunner+<>c__DisplayClass4_0.<RunTestCollection>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:67)
+       [153] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1+<<Loop>b__0>d.MoveNext() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:99)
+       [154] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [155] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass1_0`1.<Loop>b__0(object)
+       [156] void twodog.Testing.Xunit.GodotTestThread.Invoke<T>(System.ValueTuple`2[System.Threading.SendOrPostCallback,System.Object], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:121)
+       [157] void twodog.Testing.Xunit.GodotTestThread.Loop<T>(System.Func`1[System.Threading.Tasks.ValueTask`1[T]], System.Threading.Tasks.TaskCompletionSource`1[T]) (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:111)
+       [158] void twodog.Testing.Xunit.GodotTestThread+<>c__DisplayClass0_0`1.<Run>b__0() (/Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs:85)
+       [159] void System.Threading.Thread+StartHelper.Callback(object)
+       [160] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericWallEditorUsesDeclaredFieldsAndRejectsInvalidOrDisallowedEditsAtomically [21 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.AProposalWhoseLessonRefusesTheCapturedPartIsATypedRejectionWithoutUndo [6 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.UndeliveredPartsHaveNoPackageNoInstancePathAndNeverReachTheRegistryOrPalette [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.AFailingHandlerIsCaughtAtItsBoundaryLoggedOnceByNameAndShown [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericImpactEditorClampsOnlyDeclaredFiniteInputAndPreservesEditGuards [22 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ARefusedPlacementLeavesNoUndoAndKeepsItsIdentity [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EveryFreePalettePartCapturesSizesAndDecodesFromTheSaveAndTheWorkerWire [13 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericRampResizeClampsBothHorizontalAxesWithoutEndingGestureAndSupportsCancelUndo [23 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable [21 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-mut/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ImpactContactConnectionChoicesPreserveDomainCancelAndOneUndo [23 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.GenericWallResizeUsesLocalAxesClampsCancelsAndRecordsOneUndoPerGesture [21 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BenchPlacementOfAPalettePartProposesItAndRecordsOneUndo [5 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.StrengthZeroIsAnEmptyStoreWhoseContactsAreUnpaid [16 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(wired: False) [24 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(wired: True) [19 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 0) [3 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 20) [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 8) [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreHoldsTheDeclaredPreloadBits(strength: 3.33333325) [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.RunResetAndSaveLoadAreExact [19 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.SwitchedStoreRoutingIsRefused [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.StrengthEndpointsHoldAnEmptyAndATwoHundredJouleStore [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.OnlyTheDeclaringPartCompilesAStore [< 1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.APartiallyAffordableBoostEmptiesTheStoreAndALaterContactIsAnOrdinaryUnpaidBounce [22 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.ABallInAnotherDepthPlaneNeverPays [8 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.TheCompiledStoreTakesEveryValueFromTheDeclaredCapability [1 ms]
+  Passed CuriousContraptions.Tests.ContactWorkInstanceTests.StrengthEightLaunchesTheBallPaidAtTheTargetSpeedAndTheLedgerCloses [9 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StoreLimitedPayoutExhaustsTheStoreAndALaterContactIsUnpaid(speed: 3, inverseMass: 0.25, budget: 32) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StoreLimitedPayoutExhaustsTheStoreAndALaterContactIsUnpaid(speed: 1.70000005, inverseMass: 0.25, budget: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StoreLimitedPayoutExhaustsTheStoreAndALaterContactIsUnpaid(speed: 4, inverseMass: 1, budget: 2.5) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StoreLimitedPayoutExhaustsTheStoreAndALaterContactIsUnpaid(speed: 4, inverseMass: 0.25, budget: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StoreLimitedPayoutExhaustsTheStoreAndALaterContactIsUnpaid(speed: 2.5, inverseMass: 0.25, budget: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StoreLimitedPayoutExhaustsTheStoreAndALaterContactIsUnpaid(speed: 5.12300014, inverseMass: 0.200000003, budget: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.EveryStoreLimitedPayoutInTheContactSweepExhaustsTheStore [21 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.NoAuthorizedWorkNeverProducesAnImpulse(work: ∞) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.NoAuthorizedWorkNeverProducesAnImpulse(work: NaN) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.NoAuthorizedWorkNeverProducesAnImpulse(work: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.NoAuthorizedWorkNeverProducesAnImpulse(work: -1) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: -1, capacity: 32) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: 32, capacity: -1) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: 32, capacity: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: NaN, capacity: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: 32, capacity: ∞) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: ∞, capacity: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: 33, capacity: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreOutsideItsDeclaredCapacityIsReportedImpossibleAndNeverPays(available: 32, capacity: NaN) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AdvancedLessonSaveAndCommandRejectMalformedIdentityProfileAndInventory(lessonId: "bumper_depth") [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AdvancedLessonSaveAndCommandRejectMalformedIdentityProfileAndInventory(lessonId: "wall_and_bumper") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StorePaymentUsesOneF32BudgetAndSimdNormalProjection(budget: 32) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StorePaymentUsesOneF32BudgetAndSimdNormalProjection(budget: 9.99999997E-07) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StorePaymentUsesOneF32BudgetAndSimdNormalProjection(budget: 2.5) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StorePaymentUsesOneF32BudgetAndSimdNormalProjection(budget: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ARequestAFewUlpsBelowTheStoreSpendsTheWholeStoreAndLeavesNoPayableDust(ulps: 1) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ARequestAFewUlpsBelowTheStoreSpendsTheWholeStoreAndLeavesNoPayableDust(ulps: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ARequestAFewUlpsBelowTheStoreSpendsTheWholeStoreAndLeavesNoPayableDust(ulps: 2) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ARequestAFewUlpsBelowTheStoreSpendsTheWholeStoreAndLeavesNoPayableDust(ulps: 16) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AdvancedLessonsPreserveSourceFixturesProfilesInventoryAndSave(lessonId: "wall_and_bumper", sourceId: "wall_and_bumper") [11 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AdvancedLessonsPreserveSourceFixturesProfilesInventoryAndSave(lessonId: "bumper_depth", sourceId: "bumper_depth") [8 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ConstructionRoundTripPreservesTheStrengthAndRefusesForgedStores [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.InvalidContactResidualContinuesWithoutPaidImpulse(speed: NaN, inverseMass: 1) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.InvalidContactResidualContinuesWithoutPaidImpulse(speed: 1, inverseMass: ∞) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.InvalidContactResidualContinuesWithoutPaidImpulse(speed: 1, inverseMass: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.InvalidContactResidualContinuesWithoutPaidImpulse(speed: 1, inverseMass: -1) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.InvalidContactResidualContinuesWithoutPaidImpulse(speed: -1, inverseMass: 1) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.PaidGpuRecordReadsF32WorkAndRejectsPadding [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.TinyWorkAtHighOutgoingSpeedSurvivesWithoutSubtractingNearlyEqualRoots [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ContactAlreadyAtTargetIsNeverSlowedOrCharged(speed: 8) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ContactAlreadyAtTargetIsNeverSlowedOrCharged(speed: 12) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.FiniteBudgetCapsTheNormalBoostAndNeverPaysPastTarget(budget: 32, expectedSpeed: 8, expectedDebit: 24) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.FiniteBudgetCapsTheNormalBoostAndNeverPaysPastTarget(budget: 0, expectedSpeed: 4, expectedDebit: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.FiniteBudgetCapsTheNormalBoostAndNeverPaysPastTarget(budget: 2.5, expectedSpeed: 4.5825758, expectedDebit: 2.5) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.SourceSphereAndExplicitPreloadCompileAsGenericDeclarations [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.ATargetPayoutLeavingPayableWorkKeepsTheExactRemainderForALaterContact [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.SidekickKeepsSourceProfilesAndAtomicInventory [8 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.StrengthBoundariesAndPopulationRejectAtomically [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AuthorizedNormalWorkPaysTheContactSpaceKineticIncrease(outgoingSpeed: 4, inverseEffectiveMass: 0.25, work: 96, expectedImpulse: 16) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AuthorizedNormalWorkPaysTheContactSpaceKineticIncrease(outgoingSpeed: 4, inverseEffectiveMass: 1, work: 24, expectedImpulse: 4) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AuthorizedNormalWorkPaysTheContactSpaceKineticIncrease(outgoingSpeed: 0, inverseEffectiveMass: 1, work: 32, expectedImpulse: 8) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AZeroCapacityStoreIsALegalEmptyStoreThatNeverPays [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.WorkRequiresUniquePhysicalStaticOwnerAndDynamicTarget [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AStoreBelowItsMinimumPayableWorkNeverPays [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopBumperTests.AnUndefinedPaymentLimitNeverProducesAnImpulse [< 1 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringPassive, solves: True) [145 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: WallMiss, solves: False) [64 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: DepthMiss, solves: False) [64 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: WallPaid, solves: True) [79 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringAway, solves: False) [113 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SidekickPaid, solves: True) [67 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SidekickUnpaid, solves: False) [50 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: ReadyReceiver, solves: True) [136 ms]
+[xUnit.net 00:00:04.07]   Finished:    CuriousContraptions.tests (ID = '89a8a1a1333cca9f95136cb8a925b9bfe4f6614e756f1cb0e82d6dcea9167499')
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringCharged, solves: True) [131 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: ReadyMissingReceiver, solves: False) [107 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: DepthPaid, solves: True) [65 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringZero, solves: False) [114 ms]
+
+Test Run Failed.
+Total tests: 193
+     Passed: 192
+     Failed: 1
+ Total time: 4.2675 Seconds

@@ -1269,83 +1269,53 @@ threshold():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-stiffness():number {
+capacity():number {
   const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-damping():number {
+maximumPower():number {
   const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-initialCompression():number {
+initialFraction():number {
   const offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-capacity():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-maximumPower():number {
-  const offset = this.bb!.__offset(this.bb_pos, 32);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-initialFraction():number {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
 enabled():number {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
+  const offset = this.bb!.__offset(this.bb_pos, 30);
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
 }
 
-strength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-referenceMass():number {
-  const offset = this.bb!.__offset(this.bb_pos, 40);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-preload():number {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
 halfExtents(obj?:Vec3f):Vec3f|null {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 32);
   return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 friction():number {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 34);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 targetCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 36);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 50);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 parametersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 50);
+  const offset = this.bb!.__offset(this.bb_pos, 38);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startInstanceRecord(builder:flatbuffers.Builder) {
-  builder.startObject(24);
+  builder.startObject(18);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -1388,60 +1358,36 @@ static addThreshold(builder:flatbuffers.Builder, threshold:number) {
   builder.addFieldFloat32(9, threshold, 0.0);
 }
 
-static addStiffness(builder:flatbuffers.Builder, stiffness:number) {
-  builder.addFieldFloat32(10, stiffness, 0.0);
-}
-
-static addDamping(builder:flatbuffers.Builder, damping:number) {
-  builder.addFieldFloat32(11, damping, 0.0);
-}
-
-static addInitialCompression(builder:flatbuffers.Builder, initialCompression:number) {
-  builder.addFieldFloat32(12, initialCompression, 0.0);
-}
-
 static addCapacity(builder:flatbuffers.Builder, capacity:number) {
-  builder.addFieldFloat32(13, capacity, 0.0);
+  builder.addFieldFloat32(10, capacity, 0.0);
 }
 
 static addMaximumPower(builder:flatbuffers.Builder, maximumPower:number) {
-  builder.addFieldFloat32(14, maximumPower, 0.0);
+  builder.addFieldFloat32(11, maximumPower, 0.0);
 }
 
 static addInitialFraction(builder:flatbuffers.Builder, initialFraction:number) {
-  builder.addFieldFloat32(15, initialFraction, 0.0);
+  builder.addFieldFloat32(12, initialFraction, 0.0);
 }
 
 static addEnabled(builder:flatbuffers.Builder, enabled:number) {
-  builder.addFieldInt8(16, enabled, 0);
-}
-
-static addStrength(builder:flatbuffers.Builder, strength:number) {
-  builder.addFieldFloat32(17, strength, 0.0);
-}
-
-static addReferenceMass(builder:flatbuffers.Builder, referenceMass:number) {
-  builder.addFieldFloat32(18, referenceMass, 0.0);
-}
-
-static addPreload(builder:flatbuffers.Builder, preload:number) {
-  builder.addFieldFloat32(19, preload, 0.0);
+  builder.addFieldInt8(13, enabled, 0);
 }
 
 static addHalfExtents(builder:flatbuffers.Builder, halfExtentsOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(20, halfExtentsOffset, 0);
+  builder.addFieldStruct(14, halfExtentsOffset, 0);
 }
 
 static addFriction(builder:flatbuffers.Builder, friction:number) {
-  builder.addFieldFloat32(21, friction, 0.0);
+  builder.addFieldFloat32(15, friction, 0.0);
 }
 
 static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
-  builder.addFieldInt32(22, targetCount, 0);
+  builder.addFieldInt32(16, targetCount, 0);
 }
 
 static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(23, parametersOffset, 0);
+  builder.addFieldOffset(17, parametersOffset, 0);
 }
 
 static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -2414,6 +2360,15 @@ export function decodeSavedConstruction(data: Buffer | Uint8Array): SavedConstru
     return saved;
 }
 
+/** One declared generic parameter of a saved instance, by its key; a missing key fails the suite. */
+export function parameter(instance: InstanceRecord, key: string): number {
+    for (let i = 0; i < instance.parametersLength(); i++) {
+        const entry = instance.parameters(i)!;
+        if (entry.key() === key) return entry.value();
+    }
+    throw new Error(`Instance ${instance.id()} has no declared parameter '${key}'`);
+}
+
 export function dumpAuthored(saved: SavedConstruction): object {
     const cr = saved.construction();
     if (!cr) return { nextBodyId: String(saved.nextBodyId()), construction: null };
@@ -2438,16 +2393,10 @@ export function dumpAuthored(saved: SavedConstruction): object {
                 return {key: parameter.key(), value: parameter.value()};
             }),
             threshold: inst.threshold(),
-            stiffness: inst.stiffness(),
-            damping: inst.damping(),
-            initialCompression: inst.initialCompression(),
             capacity: inst.capacity(),
             maximumPower: inst.maximumPower(),
             initialFraction: inst.initialFraction(),
             enabled: inst.enabled(),
-            strength: inst.strength(),
-            referenceMass: inst.referenceMass(),
-            preload: inst.preload(),
             friction: inst.friction(),
             targetCount: inst.targetCount(),
         });

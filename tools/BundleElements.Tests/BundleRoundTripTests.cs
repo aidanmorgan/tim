@@ -114,6 +114,8 @@ public sealed class BundleRoundTripTests
             AssertSame(mechanical.MassProperties, entry.Mechanical.MassProperties, "MassProperties");
             AssertSame(mechanical.AnchorPoints, entry.Mechanical.AnchorPoints, "AnchorPoints");
             AssertSame(mechanical is ISliderElement slider ? slider.Sliders : [], entry.Mechanical.Sliders, "Sliders");
+            Assert.Equal(mechanical is IContactWorkElement, entry.Mechanical.ContactWork is not null);
+            if (mechanical is IContactWorkElement work) AssertSame(work.ContactWork, entry.Mechanical.ContactWork!.Value, "ContactWork");
         }
         Assert.Equal(declaration is IElectricalElement, entry.Electrical is not null);
         if (declaration is IElectricalElement electrical) AssertSame(electrical.ElectricalNodes, entry.Electrical!.Nodes, "ElectricalNodes");
@@ -156,7 +158,7 @@ public sealed class BundleRoundTripTests
                 AssertSame(rotation.X, turned.X, path + ".x"); AssertSame(rotation.Y, turned.Y, path + ".y");
                 AssertSame(rotation.Z, turned.Z, path + ".z"); AssertSame(rotation.W, turned.W, path + ".w");
                 return;
-            case string or Enum or int or bool:
+            case string or Enum or int or uint or bool:
                 Assert.Equal(expected, actual);
                 return;
             case IEnumerable list:

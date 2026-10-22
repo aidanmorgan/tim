@@ -1,0 +1,14 @@
+6c6,7
+< /// stiffness, damping and preload, at an f32-input pose. Record path (baseline).</summary>
+---
+> /// stiffness, damping and preload, at an f32-input pose, as generic instances of their packages. (On the record path, 3fce7a03, the
+> /// same two signatures built `WorkshopBumper`/`WorkshopSpringboard`: evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt.)</summary>
+11c12
+<         WorkshopInput.Bumper(id, x, y, z, qx, qy, qz, qw, BumperWork.FromCanonicalStrength(strength));
+---
+>         WorkshopInput.Generic(PartId.PinballBumper, id, x, y, z, qx, qy, qz, qw, new([new(new("strength"), strength)]));
+15c16,17
+<         WorkshopInput.Springboard(id, x, y, z, qx, qy, qz, qw, new(stiffness, damping, compression));
+---
+>         WorkshopInput.Generic(PartId.Springboard, id, x, y, z, qx, qy, qz, qw, new([new(new("stiffness"), stiffness),
+>             new(new("damping"), damping), new(new("initial_compression"), compression)]));

@@ -68,28 +68,12 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
 /// <summary>Only UI/resource boundary code may convert wider external numbers into game values.</summary>
 public static class WorkshopInput
 {
-    public static WorkshopSpringboard Springboard(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, SpringboardSettings settings)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopSpringboard(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), settings);
-        result.Validate(); return result;
-    }
     public static WorkshopBattery Battery(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, ElectricalSourceSettings settings)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopBattery(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), settings);
-        result.Validate(); return result;
-    }
-    public static WorkshopBumper Bumper(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, BumperWork work)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopBumper(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), work);
         result.Validate(); return result;
     }
     public static WorkshopDomino Domino(GpuBodyId id, double x, double y, double z,

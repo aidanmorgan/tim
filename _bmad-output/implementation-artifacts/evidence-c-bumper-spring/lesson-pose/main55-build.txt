@@ -1,0 +1,62 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  Coverage -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  CuriousContraptions.Abstractions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  Coverage.Tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  WorkerAotGuard.Tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  E2eRunner -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  LifecycleContract -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  WireContract -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  Ownership -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  TraceAllocations -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  CuriousContraptions.Abstractions.Signal -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Animation -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions.Electrical -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Fluid -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  Preview -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/Preview/bin/Debug/net10.0/Preview.dll
+  DelayBox -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  CuriousContraptions.Abstractions.Mechanical -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  E2eRunner.Tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  Battery -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Battery/bin/Debug/net10.0/Battery.dll
+  SignalLamp -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  SystemClock -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  ElectricalNor -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  ElectricalNand -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  BallDetector -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  HoldTimer -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  Counter -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Counter/bin/Debug/net10.0/Counter.dll
+  StateLatch -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  BothGate -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  PressurePlate -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Springboard -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  PoweredGate -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  Wall -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Ramp -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  PipeBend45 -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  PipeBend90 -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Receiver -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  ImpactSwitch -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  Pipe -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Domino -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Bumper -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  BowlingBall -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Ball -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Ball/bin/Debug/net10.0/Ball.dll
+  CuriousContraptions.Bundle -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  Funnel -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  CuriousContraptions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  BundleElements -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  CuriousContraptions.2dog -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Element bundle: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (26 elements)
+  Element bundle: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/elements/elements.bundle.json (26 elements)
+  CuriousContraptions.Animation.Worker -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Simulation -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  BundleElements.Tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/cbs-main55/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.76

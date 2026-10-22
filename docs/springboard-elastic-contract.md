@@ -10,7 +10,8 @@ The Springboard is declaration data over the generic capabilities of the single 
 | Base | Static body fixed to the authored construction frame |
 | Slider constraint | Frictionless along the plate's local Y; rest centre at local Y = 0.14 m; travel stops at −0.25 m and 0 m relative to rest |
 | Spring constraint | Box2D v3 TGS Soft formulation with stiffness $k$ and damping coefficient $c$ (N·s/m), potential $U = \frac{1}{2} k q^2$ |
-| Parameters (enum-typed choices, canonical IEEE-754 f32, quantized once on entry) | Stiffness 120–1200 N/m (default 400); Damping 0–8 N·s/m (default 0.2); InitialCompression 0–0.20 m (default 0) |
+| Parameters (the `spring` package's typed declared parameters, canonical IEEE-754 f32; editor policy Reject) | `stiffness` 120–1200 N/m (default 400); `damping` 0–8 N·s/m (default 0.2); `initial_compression` 0–0.20 m (default 0) |
+| Instance | A generic instance of the package (C-Bumper+Spring): the shared compiler builds the base, plate and slider from the declaration; the plate visual rests at its scene pose displaced along local Y by the declared compression |
 | Animation binding | The silver coil scales with committed compression; the plate's art uses the physical pose |
 
 Units are SI (m, kg, s, N, J). Authored damping is the coefficient $c$, not damping ratio $\zeta$; when needed, $\zeta=c/(2\sqrt{k m_{\mathrm{eff}}})$. The removed strength field and any out-of-range or non-finite parameter reject at compile.

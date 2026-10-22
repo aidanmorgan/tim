@@ -1,0 +1,22 @@
+flatc flatc version 25.2.10
+== C# diff fresh vs committed
+10d9
+< 
+rc=1
+== TS fresh lines=    2329; diff vs committed first     2329 lines
+rc=0
+== committed line 2330:
+// ---- hand-written helpers (everything above is flatc output; see schemas/README.md) ----------------------------------------
+== base 3fce7a03 C# header blank line check (line 10 of base file):
+cat: illegal option -- A
+usage: cat [-belnstuv] [file ...]
+== base 3fce7a03 lines 8-11 (cat -e):
+using global::System.Collections.Generic;$
+using global::Google.FlatBuffers;$
+public struct ActivationMemoryRecord : IFlatbufferObject$
+{$
+== candidate lines 8-11:
+using global::System.Collections.Generic;$
+using global::Google.FlatBuffers;$
+public struct ActivationMemoryRecord : IFlatbufferObject$
+{$

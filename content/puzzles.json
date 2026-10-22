@@ -211,15 +211,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -230,7 +224,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -301,15 +294,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -327,7 +314,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -1163,15 +1149,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -1182,7 +1162,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -1253,15 +1232,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -1279,7 +1252,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -2083,15 +2055,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -2102,7 +2068,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -2173,15 +2138,9 @@
             "Bounce": 0.05,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0.6
           },
           "enabled": 0,
@@ -2192,7 +2151,6 @@
             0.325
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -2263,15 +2221,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -2282,7 +2234,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -3532,7 +3483,7 @@
         ],
         "locked": false,
         "position": [
-          -3.2,
+          -3.3,
           1.5,
           0
         ],
@@ -3578,15 +3529,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -3597,7 +3542,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -3668,15 +3612,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -3694,7 +3632,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -4053,7 +3990,7 @@
         "position": [
           0,
           1.5,
-          3.2
+          3.3
         ],
         "orientation": [
           -4.371138828673793e-08,
@@ -4097,15 +4034,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -4116,7 +4047,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -4187,15 +4117,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -4213,7 +4137,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -4896,7 +4819,7 @@
         ],
         "locked": false,
         "position": [
-          -3.2,
+          -3.3,
           1.5,
           0
         ],
@@ -5009,15 +4932,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -5028,7 +4945,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -5099,15 +5015,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -5125,7 +5035,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -8703,15 +8612,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -8722,7 +8625,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -8793,15 +8695,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -8814,7 +8710,6 @@
           "parameters": {
             "trigger_threshold": 0.7998047
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -8891,15 +8786,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -8910,7 +8799,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -9719,15 +9607,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -9738,7 +9620,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -9809,15 +9690,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -9835,7 +9710,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -10238,15 +10112,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -10257,7 +10125,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -10328,15 +10195,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -10354,7 +10215,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -10757,15 +10617,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -10776,7 +10630,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -10847,15 +10700,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -10873,7 +10720,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -11278,15 +11124,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -11297,7 +11137,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -11368,15 +11207,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -11387,7 +11220,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -11458,15 +11290,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -11484,7 +11310,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -36419,15 +36244,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -36445,7 +36264,6 @@
             "force_maximum_acceleration": 0,
             "capture_participation": 1
           },
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -36616,15 +36434,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 0,
-            "Damping": 0,
-            "InitialCompression": 0,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -36635,7 +36447,6 @@
             0
           ],
           "parameters": {},
-          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -36706,15 +36517,9 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Stiffness": 400,
-            "Damping": 0.2,
-            "InitialCompression": 0.2,
             "Capacity": 0,
             "MaximumPower": 0,
             "InitialFraction": 0,
-            "Strength": 0,
-            "ReferenceMass": 0,
-            "Preload": 0,
             "Friction": 0
           },
           "enabled": 0,
@@ -36724,24 +36529,11 @@
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "stiffness",
-              "scalar": "Stiffness",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "damping",
-              "scalar": "Damping",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "initial_compression",
-              "scalar": "InitialCompression",
-              "source": "Scalar"
-            }
-          ],
+          "parameters": {
+            "stiffness": 400,
+            "damping": 0.2,
+            "initial_compression": 0.2
+          },
           "assistance": [
             [
               0,

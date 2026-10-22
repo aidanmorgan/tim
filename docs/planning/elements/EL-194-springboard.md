@@ -2,6 +2,8 @@
 
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
+Current implementation (C-Bumper+Spring, 22 Oct 2026): the Springboard is a generic instance of the `spring` package. Its typed `stiffness`, `damping` and `initial_compression` parameters drive the shared slider compile, and its plate is presented by the generic slider presentation. The record-era citations below (`parts/SpringPart.cs`, `parts/catalog/spring.tres`) are historical. See [CAT-062 §2](CAT-062-spring.md#2-declaration).
+
 ## 1. Identity
 
 | Field | Value |

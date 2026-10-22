@@ -1,0 +1,4 @@
+# git diff --check (worktree vs index)
+rc=0
+# git diff --check f5484157 (tracked changes vs merge)
+rc=0

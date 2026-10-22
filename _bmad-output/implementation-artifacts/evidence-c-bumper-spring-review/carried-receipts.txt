@@ -1,0 +1,11 @@
+# review-c-balls.md vs story-c-balls worktree copy
+identical
+# evidence-c-balls-review/terminal
+identical
+# review-9-7b-electrical-nor.md vs story-9-7b worktree copy
+identical
+# evidence-9-7b-review/terminal
+identical
+# delta of carried review files vs f5484157 (lines +/-)
+22	0	_bmad-output/implementation-artifacts/review-9-7b-electrical-nor.md
+16	0	_bmad-output/implementation-artifacts/review-c-balls.md

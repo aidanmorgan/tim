@@ -1,0 +1,29 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Scratch probe (not part of the candidate): the actual refusal of every old-layout record at both boundaries.</summary>
+public sealed class OldLayoutOutcomeProbe
+{
+    [Fact]
+    public void WriteOutcomes()
+    {
+        var lines = new List<string>();
+        foreach (var record in OldLayoutSaves.Records())
+        {
+            string Outcome(Action decode)
+            {
+                try { decode(); return "LOADED"; }
+                catch (WorkshopSaveRejectedException e) { return $"WorkshopSaveRejection.{e.Reason} ({e.Message})"; }
+                catch (WireFaultException e) { return $"WireFaultReason.{e.Reason} ({e.Message})"; }
+                catch (WorkshopEditRejectedException e) { return $"WorkshopEditRejection.{e.Reason} ({e.Message})"; }
+                catch (ArgumentException e) { return $"UNTYPED {e.GetType().Name} ({e.Message})"; }
+                catch (InvalidOperationException e) { return $"UNTYPED {e.GetType().Name} ({e.Message})"; }
+                catch (IndexOutOfRangeException e) { return $"UNTYPED {e.GetType().Name} ({e.Message})"; }
+            }
+            lines.Add($"{record.Name}: save={Outcome(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, record.Save()))} " +
+                $"command={Outcome(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command()))}");
+        }
+        File.WriteAllLines(Environment.GetEnvironmentVariable("PROBE_OUT")!, lines);
+    }
+}

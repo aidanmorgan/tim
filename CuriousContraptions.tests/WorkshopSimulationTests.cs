@@ -687,7 +687,7 @@ public sealed class WorkshopSimulationTests
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
+            WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
         var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;

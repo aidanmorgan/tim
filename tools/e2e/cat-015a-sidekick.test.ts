@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, type WorkshopResponse } from './workshop-wire.ts';
+import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, type WorkshopResponse } from './workshop-wire.ts';
 
 type Scenario='paid'|'unpaid'|'miss';
 async function press(driver:WorkshopDriver,x:number,y:number){
@@ -54,8 +54,7 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         if(scenario==='miss') assert.ok(pos0<-5 && pos0>-5.6,'Gizmo moves the sphere clear of the falling ball');
         else assert.ok(Math.abs(pos0+3.3)<.001);
         assert.ok(Math.abs(pos1-1)<.001);assert.equal(pos2,0);
-        assert.equal(bumper.strength(),scenario==='unpaid'?0:8);
-        assert.equal(bumper.preload(),scenario==='unpaid'?0:32);
+        assert.equal(parameter(bumper,'strength'),scenario==='unpaid'?0:8);
         await driver.reload();await driver.load();await driver.save();assert.deepEqual(authoredState(await saved(driver)),authoredState(initialBytes));
         await driver.run();const samples:{x:number,y:number,z:number,vx:number,vy:number}[]=[];
         const started=Date.now();while(Date.now()-started<4300){

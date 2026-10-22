@@ -1,0 +1,217 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 51 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID '29495c108c78ed72bb53ca080694f8686faea9aa49e7a6eb4d4407f7ad2e132c' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID '716a09854b5b4a12d2ab9e16244569d959d6c4538a397d3ef6110dabc1da33f9' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID 'fce33e2d1a8ca696072abe0a4b672af9e38c64cf41329001826be8a64b60d25c' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID '4686e370124b410fce9f01323d6a5a6f9a7935f695354e2eb4784fe9e8602574' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID '63ecae30558f9b0e3779369cdee241e2de95455ba6d5e4528c0fbd5a35fa2d31' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID '0c49808b057794089ffe7380d6b60baae43a5df82f905e7b76e366c261f1e868' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID '696ef29c3d2572d221c39c0e84c6beee1949a06ce3d1ebdb14bae28d6f14c140' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.62] CuriousContraptions.tests: Skipping test case with duplicate ID 'abb6d2a730ff77f6c49a261fbbaf5464728e9050d3a06df04ec11166b16eb711' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 757 ms - Coverage.Tests.dll (net10.0)
+[xUnit.net 00:00:02.75]     CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Bumper") [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(package: "Bumper") [4 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 174
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertSame(Object expected, Object actual, String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 175
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 118
+   at CuriousContraptions.BundleElements.Tests.BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(String package) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/tools/BundleElements.Tests/BundleRoundTripTests.cs:line 32
+   at InvokeStub_BundleRoundTripTests.EveryPackageEqualsItsDeserialisedEntry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     1, Passed:   143, Skipped:     0, Total:   144, Duration: 349 ms - BundleElements.Tests.dll (net10.0)
+[xUnit.net 00:00:04.58]     CuriousContraptions.Tests.WorkshopSaveTests.ContentPreservesPrechangeLessonGeometryInventoryAndProfiles [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopSaveTests.ContentPreservesPrechangeLessonGeometryInventoryAndProfiles [127 ms]
+  Error Message:
+   Lesson golden differs at ready_to_rebound, precision 0.
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopSaveTests.ContentPreservesPrechangeLessonGeometryInventoryAndProfiles() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/WorkshopSaveTests.cs:line 227
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:05.73]     CuriousContraptions.Tests.PayloadInstanceTests.PreConversionRecordsAreRefusedWithTheTypedSaveRefusal [FAIL]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.PreConversionRecordsAreRefusedWithTheTypedSaveRefusal [3 ms]
+  Error Message:
+   domino: MissingField (This save cannot be loaded: Part 1 has no half extents.)
+  Stack Trace:
+     at CuriousContraptions.Tests.PayloadInstanceTests.PreConversionRecordsAreRefusedWithTheTypedSaveRefusal() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/PayloadInstanceTests.cs:line 321
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:06.88]     CuriousContraptions.Tests.LessonWorldProbe.WriteLessonWorldHashes [FAIL]
+  Failed CuriousContraptions.Tests.LessonWorldProbe.WriteLessonWorldHashes [1 s]
+  Error Message:
+   System.ArgumentNullException : Value cannot be null. (Parameter 'path')
+  Stack Trace:
+     at System.ArgumentNullException.Throw(String paramName)
+   at System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   at System.ArgumentException.ThrowNullOrEmptyException(String argument, String paramName)
+   at System.IO.File.Validate(String path, Encoding encoding)
+   at System.IO.File.WriteAllLinesAsync(String path, IEnumerable`1 contents, Encoding encoding, Boolean append, CancellationToken cancellationToken)
+   at CuriousContraptions.Tests.LessonWorldProbe.WriteLessonWorldHashes() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/LessonWorldProbe.cs:line 33
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.30]     CuriousContraptions.Tests.LessonWorldProbe.WritePlacedSolutionHashes [FAIL]
+  Failed CuriousContraptions.Tests.LessonWorldProbe.WritePlacedSolutionHashes [3 s]
+  Error Message:
+   System.ArgumentNullException : Value cannot be null. (Parameter 'path')
+  Stack Trace:
+     at System.ArgumentNullException.Throw(String paramName)
+   at System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   at System.ArgumentException.ThrowNullOrEmptyException(String argument, String paramName)
+   at System.IO.File.Validate(String path, Encoding encoding)
+   at System.IO.File.WriteAllLinesAsync(String path, IEnumerable`1 contents, Encoding encoding, Boolean append, CancellationToken cancellationToken)
+   at CuriousContraptions.Tests.LessonWorldProbe.WritePlacedSolutionHashes() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/LessonWorldProbe.cs:line 55
+--- End of stack trace from previous location ---
+
+Passed!  - Failed:     0, Passed:   189, Skipped:     0, Total:   189, Duration: 24 s - E2eRunner.Tests.dll (net10.0)
+[xUnit.net 00:00:29.40]     CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [FAIL]
+  Failed CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [529 ms]
+  Error Message:
+   engine/MachinePart.cs:1: stale/count mismatch MachinePart.ApplySpring/ApplySpring: actual 0, pinned 1
+engine/MachinePart.cs:1: stale/count mismatch MachinePart.ApplySpring/CanonicalSpring: actual 0, pinned 1
+engine/MachinePart.cs:1: stale/count mismatch MachinePart.ApplySpring/SpringboardSettings: actual 0, pinned 1
+engine/MachinePart.cs:1: stale/count mismatch MachinePart.ApplyWork/BumperWork: actual 0, pinned 1
+engine/MachinePart.cs:1: stale/count mismatch MachinePart.CanonicalSpring/CanonicalSpring: actual 0, pinned 1
+engine/MachinePart.cs:1: stale/count mismatch MachinePart.CanonicalSpring/SpringboardSettings: actual 0, pinned 2
+engine/MachinePart.cs:1: stale/count mismatch MachinePart.CanonicalWork/BumperWork: actual 0, pinned 2
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/bumper: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/spring: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/Bumper: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/BumperWork: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/Springboard: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/SpringboardSettings: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/WorkshopBumper: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/WorkshopSpringboard: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/bumper: actual 0, pinned 2
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.CaptureInstance/spring: actual 0, pinned 2
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/PoweredGate: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/ApplySpring: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/PoweredGate: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/SpringboardPlate: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/WorkshopBumper: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/WorkshopSpringboard: actual 0, pinned 1
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/bumper: actual 0, pinned 2
+engine/MachineWorld.Gpu.cs:1: stale/count mismatch MachineWorld.RestoreConstructionPresentation/spring: actual 0, pinned 2
+engine/gpu/DeclaredPhysics.cs:1: stale/count mismatch DeclaredPhysics.Parameters/WorkshopSpringboard: actual 0, pinned 1
+engine/gpu/DeclaredPhysics.cs:1: stale/count mismatch DeclaredPhysics.Parameters/spring: actual 0, pinned 4
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch BumperWork.Default/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch BumperWork.FromCalibration/BumperWork: actual 0, pinned 2
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch BumperWork.FromCanonicalStrength/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch BumperWork.FromInput/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch BumperWork/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch WorkshopBumper.PartId/PinballBumper: actual 0, pinned 1
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch WorkshopBumper.PartId/PinballBumper: actual 0, pinned 1
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch WorkshopBumper/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopBumper.cs:1: stale/count mismatch WorkshopBumper/WorkshopBumper: actual 0, pinned 1
+engine/gpu/WorkshopConstruction.cs:1: stale/count mismatch WorkshopInput.Bumper/Bumper: actual 0, pinned 1
+engine/gpu/WorkshopConstruction.cs:1: stale/count mismatch WorkshopInput.Bumper/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopConstruction.cs:1: stale/count mismatch WorkshopInput.Bumper/WorkshopBumper: actual 0, pinned 2
+engine/gpu/WorkshopConstruction.cs:1: stale/count mismatch WorkshopInput.Springboard/Springboard: actual 0, pinned 1
+engine/gpu/WorkshopConstruction.cs:1: stale/count mismatch WorkshopInput.Springboard/SpringboardSettings: actual 0, pinned 1
+engine/gpu/WorkshopConstruction.cs:1: stale/count mismatch WorkshopInput.Springboard/WorkshopSpringboard: actual 0, pinned 2
+engine/gpu/WorkshopInstances.cs:1: stale/count mismatch WorkshopInstances.Validate/WorkshopBumper: actual 0, pinned 1
+engine/gpu/WorkshopInstances.cs:1: stale/count mismatch WorkshopInstances.Validate/WorkshopSpringboard: actual 0, pinned 1
+engine/gpu/WorkshopPhysicsCompiler.cs:1: stale/count mismatch WorkshopPhysicsCompiler.Compile/WorkshopBumper: actual 0, pinned 1
+engine/gpu/WorkshopPhysicsCompiler.cs:1: stale/count mismatch WorkshopPhysicsCompiler.Compile/bumper: actual 0, pinned 5
+engine/gpu/WorkshopPhysicsCompiler.cs:1: stale/count mismatch WorkshopPhysicsCompiler.IsSecondaryBodyIdentity/SpringboardPlate: actual 0, pinned 1
+engine/gpu/WorkshopPhysicsCompiler.cs:1: stale/count mismatch WorkshopPhysicsCompiler.SpringboardPlate/SpringboardPlate: actual 0, pinned 1
+engine/gpu/WorkshopSavePrevalidation.cs:1: stale/count mismatch WorkshopSavePrevalidation.CheckParameters/bumper: actual 0, pinned 1
+engine/gpu/WorkshopSavePrevalidation.cs:1: stale/count mismatch WorkshopSavePrevalidation.CheckParameters/spring: actual 0, pinned 1
+engine/gpu/WorkshopSavePrevalidation.cs:1: stale/count mismatch WorkshopSavePrevalidation.CheckParameters/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopSpringboard.cs:1: stale/count mismatch SpringboardSettings.Default/SpringboardSettings: actual 0, pinned 1
+engine/gpu/WorkshopSpringboard.cs:1: stale/count mismatch SpringboardSettings/SpringboardSettings: actual 0, pinned 1
+engine/gpu/WorkshopSpringboard.cs:1: stale/count mismatch WorkshopSpringboard.PartId/Springboard: actual 0, pinned 1
+engine/gpu/WorkshopSpringboard.cs:1: stale/count mismatch WorkshopSpringboard.PartId/Springboard: actual 0, pinned 1
+engine/gpu/WorkshopSpringboard.cs:1: stale/count mismatch WorkshopSpringboard/SpringboardSettings: actual 0, pinned 1
+engine/gpu/WorkshopSpringboard.cs:1: stale/count mismatch WorkshopSpringboard/WorkshopSpringboard: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.EncodeConstructionRecord/WorkshopBumper: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.EncodeConstructionRecord/WorkshopSpringboard: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.EncodeConstructionRecord/bumper: actual 0, pinned 4
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.EncodeConstructionRecord/spring: actual 0, pinned 4
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.MapInstance/bumper: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.MapInstance/spring: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.MapInstance/BumperWork: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.MapInstance/SpringboardSettings: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.MapInstance/WorkshopBumper: actual 0, pinned 1
+engine/gpu/WorkshopWireFlatBuffers.cs:1: stale/count mismatch WorkshopWireFlatBuffers.MapInstance/WorkshopSpringboard: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddBumperConfiguration/AddBumperConfiguration: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddBumperConfiguration/ApplyBumperStrength: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddBumperConfiguration/bumper: actual 0, pinned 5
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddConfigurationChoices/PinballBumper: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddConfigurationChoices/Springboard: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddConfigurationChoices/AddBumperConfiguration: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddConfigurationChoices/AddSpringboardConfiguration: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddConfigurationChoices/PinballBumper: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddConfigurationChoices/Springboard: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddSpringboardConfiguration/AddSpringboardConfiguration: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddSpringboardConfiguration/ApplySpringboardSettings: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddSpringboardConfiguration/CanonicalSpring: actual 0, pinned 3
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.AddSpringboardConfiguration/spring: actual 0, pinned 6
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplyBumperStrengthAsync/ApplyBumperStrengthAsync: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplyBumperStrengthAsync/BumperWork: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplyBumperStrengthAsync/WorkshopBumper: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplyBumperStrength/ApplyBumperStrength: actual 0, pinned 2
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplyBumperStrength/ApplyBumperStrengthAsync: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplySpringboardSettingsAsync/ApplySpringboardSettingsAsync: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplySpringboardSettingsAsync/SpringboardSettings: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplySpringboardSettingsAsync/WorkshopSpringboard: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplySpringboardSettings/ApplySpringboardSettings: actual 0, pinned 2
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplySpringboardSettings/ApplySpringboardSettingsAsync: actual 0, pinned 1
+ui/WorkshopConfiguration.cs:1: stale/count mismatch Workshop.ApplySpringboardSettings/SpringboardSettings: actual 0, pinned 1
+  Stack Trace:
+     at CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/ElementIsolationTests.cs:line 340
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:29.70]     CuriousContraptions.Tests.WorkshopHandlerBoundaryTests.EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopHandlerBoundaryTests.EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod [2 ms]
+  Error Message:
+   Expected the Workshop's async void handlers; found 17.
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopHandlerBoundaryTests.EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs:line 55
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:34.25]     CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts [785 ms]
+  Error Message:
+   4 C# static gate violation(s):
+ui/WorkshopConfiguration.cs:Workshop.ApplyBumperStrength: found 0, pinned 1
+ui/WorkshopConfiguration.cs:Workshop.ApplyBumperStrengthAsync: found 0, pinned 1
+ui/WorkshopConfiguration.cs:Workshop.ApplySpringboardSettings: found 0, pinned 1
+ui/WorkshopConfiguration.cs:Workshop.ApplySpringboardSettingsAsync: found 0, pinned 1
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 249
+   at CuriousContraptions.Tests.CSharpStaticGateTests.CatchAllsExistOnlyAtThePinnedBoundariesWithTheirExactCounts() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 1389
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:34.70]     CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [FAIL]
+  Failed CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection [426 ms]
+  Error Message:
+   2 C# static gate violation(s):
+ui/WorkshopConfiguration.cs: Workshop.ApplyBumperStrength is pinned but not declared (update EditValidationPaths)
+ui/WorkshopConfiguration.cs: Workshop.ApplySpringboardSettings is pinned but not declared (update EditValidationPaths)
+  Stack Trace:
+     at CuriousContraptions.Tests.CSharpStaticGateTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 249
+   at CuriousContraptions.Tests.CSharpStaticGateTests.TheEditValidationPathsRefuseOnlyWithTheTypedRejection() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-bumper-spring/CuriousContraptions.tests/CSharpStaticGateTests.cs:line 923
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     8, Passed:  2250, Skipped:     0, Total:  2258, Duration: 43 s - CuriousContraptions.tests.dll (net10.0)

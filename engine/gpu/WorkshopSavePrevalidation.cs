@@ -131,22 +131,12 @@ internal static class WorkshopSavePrevalidation
         var genericParameters = false;
         switch (part.Value)
         {
-            case "spring":
-                Within(id, "stiffness", r.Stiffness, 120f, 1200f); Within(id, "damping", r.Damping, 0f, 8f);
-                Within(id, "initial compression", r.InitialCompression, 0f, .2f);
-                break;
             case "battery":
                 Within(id, "capacity", r.Capacity, 60f, ElectricalSupply.MaximumCapacity);
                 Within(id, "maximum power", r.MaximumPower, 10f, 480f);
                 Within(id, "initial fraction", r.InitialFraction, 0f, 1f);
                 if (!Enum.IsDefined((ElectricalEnable)r.Enabled))
                     throw Refuse(WorkshopSaveRejection.UndefinedEnum, $"Part {id} has an undefined enable state.");
-                break;
-            case "bumper":
-                Within(id, "strength", r.Strength, 0f, 20f);
-                Finite(id, "reference mass", r.ReferenceMass); Finite(id, "preload", r.Preload);
-                if (r.ReferenceMass != 1f || r.Preload != BumperWork.FromCanonicalStrength(r.Strength).Preload.Value)
-                    throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} preload differs from its declared calibration.");
                 break;
             case "domino":
                 var extents = Required(id, r.HalfExtents, "half extents");

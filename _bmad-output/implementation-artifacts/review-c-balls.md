@@ -66,3 +66,19 @@ SnapshotApproval authorizes the implementer to commit exactly this snapshot (plu
 - a successful `github-pages` deployment of that SHA.
 
 Return concrete failures to the same implementation owner. No routine Chrome run or duplicate local campaign is required for publication; browser qualification remains pending.
+
+## Terminal publication verification — 22 October 2026
+
+Raw outputs: [evidence-c-balls-review/terminal/](evidence-c-balls-review/terminal/).
+
+| Check | Evidence | Result |
+|---|---|---|
+| Identities | `trees.txt`, `ls-remote.txt` | Slice commit `e3769cc16d99336ee40acc96cdf5ebdffbeb57bc` (tree `3b7d3c8fa6c89339157bcf802cb7daedab9874ad`, parent `0795c235`); merge `3fce7a034b328be0a79f834a2a70a4d049372a4b` (`--no-ff`, parents `b35be7f4`, `e3769cc1`, same tree `3b7d3c8f`); `git ls-remote origin refs/heads/main` = `3fce7a03` |
+| Tree equivalence | `git diff-tree` | Approved tree `42279728` vs published tree: only `review-c-balls.md` (the authorized receipt). Staged T2 `3b7d3c8f` = slice tree = merge tree = origin/main tree (b35be7f4 is an ancestor of the slice, so the merge adds nothing) |
+| Hooks | `hook-rerun.log` | Implementer reports the hook passed on the slice commit; no hook ran on the clean merge. Re-run on the exact published tree (HEAD `e3769cc1`, index tree `3b7d3c8f`, nothing staged): `sh .githooks/pre-commit` exit 0; solution, playtest and web gate builds 0 warnings/0 errors; static-gate and UI-failure tests 124/124; staged-test check and anvil hook passed |
+| Exact-SHA CI | `run.json`, `jobs.json`, `jobs-summary.txt`, `build-job.log` | Run 39712582817 "Build and deploy game", push on main, head SHA `3fce7a03`, attempt 1, completed/success. Build job 119607139032 success, every step success (C# static gate 3× 0 warnings/0 errors; Test C# game; Test C# tools; publish; static deployment; upload-pages-artifact). Native: CuriousContraptions.tests 2245/2245, 0 failed/skipped. Tools step: Coverage 77, BundleElements 143, WorkerAotGuard 17, E2eRunner 174, all 0 failed/skipped |
+| Pages artifact | `artifacts.json`, `deploy-job.log` | Artifact 12398102440 `github-pages`, 79471119 bytes, digest `sha256:3d53aa0bfa3ee7bfb2400220d68fc11cbf80d9668e3ee4a40d4ff4ea76585a6e`, workflow run 39712582817, head SHA `3fce7a03`, not expired; deploy job fetched artifact id 12398102440 |
+| Deployment | `deployment.json`, `deployment-statuses.json`, `recent-deployments.txt`, `site-head.txt` | Deployment 7242501369, SHA `3fce7a03`, environment github-pages, waiting → queued → in_progress → success at 2026-10-22T02:53:26Z, log = deploy job 119611109038 of the same run; it is the latest github-pages deployment; https://aidanmorgan.github.io/tim/ returns HTTP 200, last-modified 02:53:23 GMT |
+| Status flip | `status-flip-ratchet.txt` | After the coordinator-authorized flip of `9a-c-balls-conversion`, `9a-30`, `9a-31` to done (9r-11 stays backlog), the sprint-status readers ElementIsolationTests + WorkshopPhysicsLawTests pass 93/93 on the unchanged build: no Basketball/Bowling Known row remains |
+
+Verdict: **terminal scoped Pass** for required-now C-Balls (9A.30 + 9A.31) generic conversion, native behavior and publication, including the native 6.5d/9R.11 addendum. Browser qualification (`cat-001` and counterpart suites) remains pending for the post-catalogue E2E phase; no global, performance or runtime qualification is claimed. Findings L1–L8 stay as recorded (non-blocking). Carry this receipt and the sprint-status flip into the next normal publication; no standalone administrative commit is required.

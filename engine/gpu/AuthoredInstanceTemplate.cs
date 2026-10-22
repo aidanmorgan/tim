@@ -9,8 +9,7 @@ namespace CuriousContraptions.Gpu;
 // The current construction record's typed scalar fields, not element identities.
 internal enum AuthoredScalar
 {
-    Mass, Bounce, Length, Threshold, Stiffness, Damping,
-    InitialCompression, Capacity, MaximumPower, InitialFraction, Strength, ReferenceMass, Preload, Friction
+    Mass, Bounce, Length, Threshold, Capacity, MaximumPower, InitialFraction, Friction
 }
 internal enum AssistanceValue
 {
@@ -18,16 +17,13 @@ internal enum AssistanceValue
     Blend, CaptureMargin, CaptureSpeed, CaptureDwell, GuideAcceleration, TriggerThreshold
 }
 internal readonly record struct AuthoredSlot(string Value);
-internal enum AuthoredParameterSource { Scalar }
-internal readonly record struct AuthoredParameterBinding(ParameterId Parameter, AuthoredParameterSource Source, AuthoredScalar? Scalar);
 internal readonly record struct AuthoredAssistanceBinding(AssistanceValue Value, AuthoredScalar? Scalar, ParameterId Parameter);
 
 /// <summary>Explicit current-schema fields. No omitted scalar is replaced by a FlatBuffers default.</summary>
 internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, bool Locked, ImmutableDictionary<AuthoredScalar, float> Scalars,
     ElectricalEnable Enabled, uint TargetCount, System.Numerics.Vector3 HalfExtents,
-    InstanceParameterCollection Parameters, ImmutableArray<AuthoredParameterBinding> ParameterBindings,
-    AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
+    InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
 {
     internal AuthoredInstanceTemplate At(PuzzlePrecision precision)
     {
@@ -52,18 +48,7 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
         Rotation.Validate();
         if (!Enum.IsDefined(Enabled))
             throw new ArgumentException("Undefined authored electrical state.");
-        var values = Parameters.ToDictionary();
-        foreach (var binding in ParameterBindings)
-        {
-            var value = binding.Source switch
-            {
-                AuthoredParameterSource.Scalar when binding.Scalar is { } scalar => Scalars[scalar],
-                _ => throw new ArgumentException("Invalid authored parameter source.")
-            };
-            if (binding.Parameter == default || !values.TryAdd(binding.Parameter, value))
-                throw new ArgumentException("Duplicate or invalid declared parameter binding.");
-        }
-        new InstanceParameterCollection(values).Validate(Part);
+        Parameters.Validate(Part);
         var targets = new HashSet<(AuthoredScalar?, ParameterId)>();
         foreach (var binding in AssistanceBindings)
         {
@@ -107,7 +92,7 @@ internal static class AuthoredInstanceReader
         var fields = PuzzleContentReader.Fields(json, where);
         Require(fields, where, "part", "cell", "local", "rotation", "locked", "scalars",
             "enabled", "target_count", "half_extents",
-            "parameters", "parameter_bindings", "assistance", "assistance_bindings");
+            "parameters", "assistance", "assistance_bindings");
         var part = new PartId(PuzzleContentReader.Text(fields, "part", where));
         if (!DeclaredPhysics.Contains(part)) throw PuzzleContentReader.Invalid(where, "part", "unknown declared part");
         var cell = Array(fields["cell"], 3, where + ".cell");
@@ -118,16 +103,6 @@ internal static class AuthoredInstanceReader
             scalars.Add(Closed<AuthoredScalar>(key, where), Number(value, where + ".scalars." + key));
         var parameters = new InstanceParameterCollection(PuzzleContentReader.Fields(fields["parameters"], where + ".parameters")
             .Select(pair => KeyValuePair.Create(new ParameterId(pair.Key), Number(pair.Value, where + ".parameters." + pair.Key))));
-        var parameterBindings = ImmutableArray.CreateBuilder<AuthoredParameterBinding>();
-        foreach (var row in Rows(fields["parameter_bindings"], where))
-        {
-            var binding = PuzzleContentReader.Fields(row, where);
-            Require(binding, where, "parameter", "source", "scalar");
-            parameterBindings.Add(new(new(PuzzleContentReader.Text(binding, "parameter", where)),
-                Closed<AuthoredParameterSource>(PuzzleContentReader.Text(binding, "source", where), where),
-                binding["scalar"].ValueKind == JsonValueKind.Null ? null :
-                    Closed<AuthoredScalar>(PuzzleContentReader.Text(binding, "scalar", where), where)));
-        }
         var assistanceBindings = ImmutableArray.CreateBuilder<AuthoredAssistanceBinding>();
         foreach (var row in Rows(fields["assistance_bindings"], where))
         {
@@ -146,7 +121,7 @@ internal static class AuthoredInstanceReader
             Boolean(fields["locked"], where + ".locked"), scalars.ToImmutable(),
             Enabled(fields["enabled"], where + ".enabled"), Unsigned(fields["target_count"], where + ".target_count"),
             Vector(fields["half_extents"], where),
-            parameters, parameterBindings.ToImmutable(), Profile(fields["assistance"], where), assistanceBindings.ToImmutable());
+            parameters, Profile(fields["assistance"], where), assistanceBindings.ToImmutable());
         try
         {
             result.Validate();

@@ -361,6 +361,24 @@ public static class BundleValidator
                 CaptureValue("Capture.Guide.SupportMargin",guide.SupportMargin,parameters,ParameterUnit.Metre,0f,1f);
                 CaptureValue("Capture.Guide.MaximumAcceleration",guide.MaximumAcceleration,parameters,ParameterUnit.MetrePerSecondSquared,0f,12f);
             }
+            if (mechanical.ContactWork is { } work)
+            {
+                // The runtime store's domain (ContactWorkDeclaration): target speed 0–20 m/s, preload at most 200 J, threshold 0–64 m/s,
+                // cooldown 9–14400 physical steps, on one static owner body.
+                Real("ContactWork.StrengthParameter", work.StrengthParameter, parameters);
+                var strengths = parameters.Where(parameter => parameter.Key == work.StrengthParameter).ToArray();
+                var referenceMass = Finite("ContactWork.ReferenceMass", work.ReferenceMass) && work.ReferenceMass > 0f && work.ReferenceMass <= 100f;
+                if (!referenceMass) OutOfRange("ContactWork.ReferenceMass");
+                if (strengths.Length > 1 || (strengths.Length == 1 && (strengths[0].Unit != ParameterUnit.MetrePerSecond ||
+                    strengths[0].Minimum < 0f || strengths[0].Maximum > 20f ||
+                    (referenceMass && .5f * work.ReferenceMass * strengths[0].Maximum * strengths[0].Maximum > 200f))))
+                    OutOfRange("ContactWork.StrengthParameter");
+                if (Finite("ContactWork.Threshold", work.Threshold) && (work.Threshold < 0f || work.Threshold > 64f))
+                    OutOfRange("ContactWork.Threshold");
+                if (work.CooldownPhysicalSteps is < 9 or > 14400) OutOfRange("ContactWork.CooldownPhysicalSteps");
+                if (mechanical.KinematicMode != KinematicMode.Static || mechanical.Sliders.Count != 0)
+                    OutOfRange("ContactWork.Owner");
+            }
         }
 
         private void Volume(string path,Vector3 minimum,Vector3 maximum)

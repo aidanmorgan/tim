@@ -1,0 +1,11 @@
+--- engine/MachinePart.cs.orig	2026-10-22 11:28:43.147533241 +0800
++++ engine/MachinePart.cs	2026-10-22 11:28:43.151211492 +0800
+@@ -154,7 +154,7 @@
+         if (!float.IsFinite(compression)) throw new ArgumentException("Slider compression must be finite.");
+         InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, id);
+         var scene = _sceneRestPoses[PhysicalVisualSlot.Secondary];
+-        SetPhysicalRestPose(PhysicalVisualSlot.Secondary, new Transform3D(scene.Basis, scene.Origin - Vector3.Up * compression));
++        SetPhysicalRestPose(PhysicalVisualSlot.Secondary, new Transform3D(scene.Basis, scene.Origin));
+     }
+     private void BindPhysicalSpan(Node3D moving, Vector3 movingAnchor, Node3D target, Vector3 fixedAnchor, float restLength)
+     {

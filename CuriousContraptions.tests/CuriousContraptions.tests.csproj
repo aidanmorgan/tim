@@ -86,6 +86,12 @@
         <Compile Include="WorkshopDominoTests.cs" />
         <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="PayloadInstanceTests.cs" />
+        <Compile Include="PlacedParts.cs" />
+        <Compile Include="LaunchLessonSolveTests.cs" />
+        <Compile Include="ContactWorkInstanceTests.cs" />
+        <Compile Include="SliderInstanceTests.cs" />
+        <Compile Include="OldLayoutSaves.cs" />
+        <Compile Include="PreConversionLaunchSaveTests.cs" />
         <Compile Include="OrientationSensorTests.cs" />
         <Compile Include="DominoEffectTests.cs" />
         <Compile Include="WorkbenchCapacityTests.cs" />
