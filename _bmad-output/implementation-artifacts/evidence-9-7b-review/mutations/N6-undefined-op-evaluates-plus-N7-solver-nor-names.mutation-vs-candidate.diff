@@ -1,0 +1,33 @@
+0a1,14
+> diff --git a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+> index cea345ed..6043eedc 100644
+> --- a/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+> +++ b/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+> @@ -449,6 +449,9 @@ internal sealed class WorkshopPhysicsEngine
+>              BinaryPrimitives.WriteSingleLittleEndian(span.Slice(layout.ContactWorkOffset(work) + PhysicsGpuAbi.ContactWorkSuppliedOffset, 4), 0f);
+>  
+>          var supplyCount = layout.ElectricalSources;
+> +        var norRow = supplyCount; _ = norRow;
+> +        var electricalNorTable = supplyCount; _ = electricalNorTable;
+> +        var neitherGateRow = supplyCount; _ = neitherGateRow;
+>          inputs.Validate(supplyCount, layout.Prismatics);
+>          for (var supply = 0; supply < supplyCount; supply++)
+>              BinaryPrimitives.WriteSingleLittleEndian(span.Slice(layout.ElectricalSourceOffset(supply) + 40, 4), 0f);
+2c16
+< index 65bb6234..a023d289 100644
+---
+> index 65bb6234..679c10bd 100644
+5c19
+< @@ -167,6 +167,7 @@ public sealed class CompiledSupplyGraph
+---
+> @@ -167,21 +167,23 @@ public sealed class CompiledSupplyGraph
+8a23
+> -        _ => throw new ArgumentOutOfRangeException(nameof(operation))
+10c25
+<          _ => throw new ArgumentOutOfRangeException(nameof(operation))
+---
+> +        _ => false
+13c28
+< @@ -174,14 +175,15 @@ public sealed class CompiledSupplyGraph
+---
+>      public static bool IsMonotone(LogicGateOperation operation) => operation switch

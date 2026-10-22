@@ -32,7 +32,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand") }.OrderBy(id => id),
+        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         var definition = registry.Definitions[PartId.Basketball];
         var material = definition.Ball!.Value;

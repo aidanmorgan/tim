@@ -663,6 +663,7 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("ElectricalSupply", false)] // the reviewed shared electrical-domain table
     [InlineData("electricalNandRow", true)]  // an element-specific electrical name is still found
     [InlineData("nandRow", true)]
+    [InlineData("norRow", true)]             // Neither gate (electrical_nor); "contactNormal" above stays generic
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
 
