@@ -172,7 +172,38 @@ Do not change: `Resolve`, `SupplyCycles`, `WorkshopConnections.Validate`, `works
 
 # Current state
 
-Pre-merge candidate in the worktree `story-9-8a`, uncommitted, on base `55ee05b9`. Next: merge main after C-Bumper+Spring publishes, re-derive the pins and `PaletteOrder` 29, rebuild and retest, then independent review and SnapshotApproval. Browser qualification is pending post-catalogue (cases above).
+The pre-merge candidate was committed as WIP `8527aa3f` with normal hooks, together with the reviewer's review and evidence files. Its pre-merge review verdict was Pass-pending-merge ([review](review-9-8a-electrical-or.md)). It was then merged with main `711568c4` (C-Bumper+Spring) as `71f7ca12`. Next: an exact SnapshotApproval of the merged snapshot, then protected publication. Browser qualification is pending post-catalogue (cases above).
+
+## Post-merge (PM1, PM2, L1)
+
+Merge `71f7ca1295e592db219bbc8bf1d2fcd76110afef`: tree `eb87ad00b876cfa4bc26028acc2186ef734981d1`, parents `8527aa3f` (WIP) and `711568c4` (main). Evidence is in [`evidence-9-8a/post-merge/`](evidence-9-8a/post-merge/).
+
+- **Conflict 1: `WorkbenchCapacityTests` gate/bumper rows.**
+  - Main's generic Bumper row is kept: `WorkshopInput.Generic(PartId.PinballBumper, …)`, because C-Bumper+Spring deleted `WorkshopInput.Bumper`.
+  - `electrical_or` is added to the generic gate row.
+  - The OR/NAND/NOR tests use no other deleted API; an `rg` for `WorkshopInput.(Bumper|Springboard|Basketball|BowlingBall)(` across the tests finds nothing.
+- **Conflict 2: `TODO.md`.**
+  - Main's Verified and Also-verified lines are kept, including the C-Balls and 9.7b receipts.
+  - In flight and Owner name 9.8a. C-Bumper+Spring is recorded as merged to main `711568c4`. Next reads "publish 9.8a after its SnapshotApproval" (L1).
+- **Auto-merged.** All other files merged automatically. Sprint-status keeps main's rows plus 9.8a `review`.
+- **Pins re-derived from the merged bundle (`pin-derivation.txt`).** C-Bumper+Spring adds no package and no undelivered part:
+  - 27 bundle entries and 27 package dirs; 2 undelivered parts (ids 29);
+  - 27 distinct `PaletteOrder` values, with `electrical_or` = 29;
+  - so registry 27, SaveFixture 27, Coverage admitted 27 and ids 29 all hold, and no pin was edited.
+- **Identity (`identity.txt`).**
+  - Against main, the merge differs only in the slice's own 33 non-evidence paths.
+  - Against the WIP commit, the slice-owned changes are only the two resolutions.
+- **`git diff --check`.** It is clean on every non-evidence path and on the working tree. It flags trailing whitespace only in committed raw tool output (`diff-check-evidence-files.txt`), which is kept unchanged.
+- **AppBundle.** `CuriousContraptions.web/AppBundle` is absent.
+
+| Check | Command | Result |
+| --- | --- | --- |
+| One rebuild of the merged tree | `dotnet build CuriousContraptions.slnx -c Debug` | 0 W / 0 E (`build-debug.log`) |
+| Whole solution | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2352/2352** (main 2313 + 39), Coverage 77/77, BundleElements 148/148 (main 146 + 2), E2eRunner 189/189, WorkerAotGuard 17/17 (`test-slnx.log`) |
+| CI "Test C# tools" step, verbatim, under bash | `evidence-9-8a/ci-tool-step.sh` | Coverage 77, BundleElements 148, WorkerAotGuard 17, E2eRunner 174 filtered; exit 0 (`ci-tool-step.log`) |
+| Worker | `dotnet build CuriousContraptions.Simulation -c Release` | 0 W / 0 E (`worker-release.log`) |
+| Named electrical, chooser and scan tests | same filter as the pre-merge row | 122/122 (`native-electrical-named.log`) |
+| Merge commit hooks | `git commit` (normal pre-commit) | anvil clean; gate tests 124/124 |
 
 ## Assumptions and deviations
 

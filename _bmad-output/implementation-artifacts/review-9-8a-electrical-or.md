@@ -68,3 +68,98 @@ No unresolved scoped unintended regression found in the candidate.
 ### Provisional verdict
 
 **Pass-pending-merge.** All required-now 9.8a native criteria pass on the real C# simulation. The monotone-cycle semantics are mutation-discriminated: least fixed point, fresh state every tick, source and condition loss, and id order. So are the law rows, the mixed-loop refusal and undefined closure. The re-routed NAND/NOR tests keep their prior ordering discrimination and now also prove the Or law. SnapshotApproval is withheld until PM1 and PM2 close on the merged snapshot after C-Bumper+Spring. This is not browser or release qualification: `tools/e2e/cat-026.test.ts` remains queued post-catalogue.
+
+## Post-merge re-review — 22 October 2026
+
+Same independent reviewer, with no source, test, tool or content edits. Raw output: `evidence-9-8a-review/post-merge/`.
+
+**Branch layout**
+
+- WIP `8527aa3f7c84d8aeaa966d2948284f128bec7543`, with parent `55ee05b9`.
+- Merge `71f7ca1295e592db219bbc8bf1d2fcd76110afef`, with parents `8527aa3f` and main `711568c473cf3143b60ea9145635ccd1a10acf64` (C-Bumper+Spring).
+- On top: an uncommitted delta of the spec's post-merge section plus `evidence-9-8a/post-merge/`.
+
+| Check | Command / method | Result |
+| --- | --- | --- |
+| WIP = reviewed candidate + review files only | Rebuilt the identity manifest from `git diff 55ee05b9 8527aa3f` over the 24 reviewed tracked paths, plus `git show 8527aa3f:<f>` hashes for the 42 untracked paths. Listed any other paths changed. | **Pass.** It rebuilds to `110f5742…`, identical to the pre-merge review. The only extra paths are this record and `evidence-9-8a-review/`, unchanged. |
+| Merge brings only main + resolutions; OR not lost or altered | Classified files (main 222, OR 95, 9 both). Main-only files compared with 711568c4, OR-only files with 8527aa3f. Re-ran `git merge-tree --write-tree 711568c4 8527aa3f` (auto tree `288e02da`, conflicts `WorkbenchCapacityTests.cs` and `TODO.md`) and compared it with merge tree `71f7ca12`. | **Pass.** No file outside main ∪ OR. Main-only files equal 711568c4 and OR-only files equal 8527aa3f. The recorded merge equals git's auto-merge except the two conflict resolutions. (a) `WorkbenchCapacityTests`: main's generic Bumper/Springboard rows (`WorkshopInput.Generic(PartId.PinballBumper/Springboard, …)`) plus OR's `electrical_or` on the generic gate row and in the palette-row list. The two-sided diff shows exactly each side's change. (b) `TODO.md`: keeps main's Verified/Also-verified lines (C-Balls and the 9.7b receipt carried) and names 9.8a in flight, closing L1. `SupplyRoute`, `WorkshopConnections`, `ElectricalOrTests` and `elements/ElectricalOr` are unchanged from the WIP. |
+| Pins / ordinal, independent | Merged bundle, `elements/` dirs, `UndeliveredParts` arms, pin lines | 27 entries, 27 package dirs, 2 undelivered, no `PaletteOrder` duplicates; `electrical_or` = 29. Registry 27 (×2), SaveFixture 27, Coverage admitted 27, ids+undelivered 29: all match, with no edit needed. (`pin-derivation.txt`) |
+| Uncommitted delta | Diff; `anvil check` | Spec post-merge section (+32/−1) and implementer `evidence-9-8a/post-merge/` only. Its claims match the reviewer's results. Anvil: no warnings. |
+| One rebuild | `dotnet build CuriousContraptions.slnx -c Debug -v:q` (HEAD 71f7ca12 + delta) | 0 W / 0 E |
+| Full solution | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2352/2352**, Coverage 77/77, BundleElements 148/148, E2eRunner 189/189, WorkerAotGuard 17/17 |
+| CI "Test C# tools" | `pages.yml` lines 51–64 verbatim, `bash -e` | Coverage 77, BundleElements 148, WorkerAotGuard 17, E2eRunner 174; exit 0 |
+| Worker | `dotnet build CuriousContraptions.Simulation -c Release --no-incremental` | 0 W / 0 E |
+| Named Or/NAND/NOR/chooser/scan | filtered, normal verbosity (`native-named.log`) | 122/122 |
+| AppBundle | `ls -d CuriousContraptions.web/AppBundle` | absent |
+
+Pre-merge findings:
+
+- **PM1:** closed.
+- **PM2:** closed. The exact identity is in the SnapshotApproval below.
+- **L1:** closed.
+- **L2, I1, I2:** non-blocking, as recorded.
+
+Mutation discrimination from the pre-merge review still applies. The merge changes no engine file, no OR package file and no OR oracle. The re-routed NAND/NOR tests are unchanged from the WIP.
+
+Verdict: **Pass** for required-now scoped native/tool criteria on the merged candidate. SnapshotApproval follows.
+
+## SnapshotApproval — 22 October 2026
+
+**Approved snapshot**
+
+- Staged tree: `3389b9d09318f3c3420b505a3786d0f6c9063591`.
+- SHA-256 of `git diff --cached --binary 71f7ca12`: `4358a043901e738a245b7475a59ae7301986563f789f1eba04303bfb93b5395a`. The diff has 19 paths.
+- What is staged:
+  - the spec's post-merge section;
+  - `evidence-9-8a/post-merge/`;
+  - `evidence-9-8a-review/post-merge/`;
+  - this record, up to the end of the post-merge re-review.
+- Nothing staged is outside those paths. No unstaged changes remain.
+
+**Parent chain**
+
+- Merge `71f7ca1295e592db219bbc8bf1d2fcd76110afef` has two parents:
+  - WIP `8527aa3f7c84d8aeaa966d2948284f128bec7543`, whose parent is `55ee05b96f949a7d93241b5ed0608b32db6bb8a0` (main with 9.7b);
+  - main `711568c473cf3143b60ea9145635ccd1a10acf64` (C-Bumper+Spring merge).
+
+**Staged whitespace**
+
+- `git diff --cached --check` reports trailing whitespace only in raw tool output (`evidence-9-8a/post-merge/build-debug.log`). That file is kept byte-for-byte.
+- The spec and this record are clean.
+
+**Other conditions**
+
+- `CuriousContraptions.web/AppBundle` is absent.
+- Exclusions (scoped approval does not cover these):
+  - browser/Chrome qualification (`cat-026.test.ts` and the cat-024/025 Or-chaining browser cases queued post-catalogue);
+  - Xor forms (9.8b);
+  - release/device/performance gates;
+  - common 9A.44 numerical conversion.
+
+## Publication-dependent checks
+
+Publication is:
+
+1. commit the approved snapshot plus this SnapshotApproval section on `story-9-8a`, with normal hooks and no `--no-verify`;
+2. `git merge --no-ff` into main;
+3. push.
+
+**Before pushing to main**, both of these must hold:
+
+- **C-Bumper+Spring has published.** Main `711568c4` (C-Bumper+Spring) exact-SHA CI run `39720896408` was `in_progress` at approval. Confirm it succeeds and its Pages deployment succeeds before pushing.
+- **Main has not moved.** If origin/main has moved past `711568c4`, the new merge is a changed input: return it for an affected re-review.
+
+**Terminal checks** (independent reviewer, after push):
+
+- **Tree equivalence.** The published tree differs from `3389b9d0` only by this record's SnapshotApproval and Publication-dependent sections, with first parent `711568c4`. Confirm remote identity with `git fetch` and `git rev-parse origin/main`.
+- **Normal hooks.** They succeed on the slice commit. Re-run the hook on the exact published tree, since the merge commit runs none.
+- **Exact-SHA CI** "Build and deploy game" succeeds, including:
+  - the static gate;
+  - "Test C# game" (native ≥ 2352, no failures);
+  - the **"Test C# tools"** step: Coverage 77, BundleElements 148, WorkerAotGuard 17, E2eRunner 174 filtered;
+  - the production bundle publish;
+  - the static deployment check.
+- **Artifact.** The `github-pages` artifact belongs to that run/SHA and has not expired.
+- **Deployment.** The github-pages deployment of that SHA reaches the **success** status and consumes that artifact.
+
+Preserve any failed attempt unchanged and return concrete failures to the same implementation owner. Terminal scoped Pass is native/publication only, not browser or release qualification.

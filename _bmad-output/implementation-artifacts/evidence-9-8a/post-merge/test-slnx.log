@@ -1,0 +1,28 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8a/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 45 ms - WorkerAotGuard.Tests.dll (net10.0)
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID 'cb40052e10cb314039f00ebf75e5dd4438bb8b0b063feabe826dafd222148e55' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID 'a69b97dac853923031fe0a2fd1273bab8c9558de173621d4edeeb81b4966ca56' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID 'fd87cc235bbf4483285c20ea247c62a2793de52030064c77631670273a97f7d9' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID '2e3fa26001ea7cd202881ae2a90d2bd69ca6e5ceab795c6751da3348e284ade2' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID '7fb0d6cf090f0adbdf46ceb9e7b0f990f559fdda8e474ce9d27fdba0324f3fda' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID '9f24c77a8d9d6ba1f21d3479c88493b05d90df6b00c7dc2f5306756e8659d426' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID '15e3bc2f597c9f638947b62aa44d82b3b72857cf3144726c6a72824606730376' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:02.07] CuriousContraptions.tests: Skipping test case with duplicate ID 'f1336cfffeca1e6da3b0b01b8a704e860d1b9674af755fda956007e37720531d' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 745 ms - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   148, Skipped:     0, Total:   148, Duration: 357 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   189, Skipped:     0, Total:   189, Duration: 23 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2352, Skipped:     0, Total:  2352, Duration: 39 s - CuriousContraptions.tests.dll (net10.0)
