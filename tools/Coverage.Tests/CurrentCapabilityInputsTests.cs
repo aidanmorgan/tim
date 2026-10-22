@@ -84,7 +84,8 @@ public class CurrentCapabilityInputsTests
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
                 File.Copy(Path.Combine(original.FullName, path), destination);
             }
-            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalNand")));
+            // Not both (CAT-024) is admitted since Story 9.7a; Neither (CAT-025, electrical_nor) is still planned with no package.
+            Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalNor")));
             var sources = RequirementDiscovery.Discover(target);
             var prepared = CapabilityInputs.Prepare(target, sources);
             Assert.Equal(1472, sources.Count);

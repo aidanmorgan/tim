@@ -1,0 +1,41 @@
+9b324bbd6a161858b9342562cd0a572d67f9e62a
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.96]     CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ElementPackagesMatchDirectoriesAndBundle [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ElementPackagesMatchDirectoriesAndBundle [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ at index 3
+             ↓ (pos 2)
+Expected: "BothGate"
+Actual:   "BowlingBall"
+             ↑ (pos 2)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.ElementPackagesMatchDirectoriesAndBundle() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 137
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.91]     CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [859 ms]
+  Error Message:
+   tsc --noEmit -p tools/e2e/tsconfig.json exited 2:
+tools/e2e/run-reset-snapshot.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/unit/run-reset-snapshot.test.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/workshop-wire.ts(2,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/E2eRunner.Tests/TypeCheckTests.cs:line 17
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:14.23]     CuriousContraptions.E2eRunner.Tests.SelectionTests.PartPreplacedByADeclaredLevelSelectsThatLevelsSuites [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.PartPreplacedByADeclaredLevelSelectsThatLevelsSuites [249 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: ["cat-014\town: elements/BowlingBall/BowlingBallElem"···, "cat-052-two-plates\tintegration: places bowling", "cat-052-lamp\tintegration: places bowling", "pkg-1\tintegration: places bowling", "arch-9a-catalogue\tintegration: places bowling", ···]
+Not found:  "cat-023b\tintegration: level domino_effect places "···
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.PartPreplacedByADeclaredLevelSelectsThatLevelsSuites() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/E2eRunner.Tests/SelectionTests.cs:line 60
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     3, Passed:   186, Skipped:     0, Total:   189, Duration: 22 s - E2eRunner.Tests.dll (net10.0)

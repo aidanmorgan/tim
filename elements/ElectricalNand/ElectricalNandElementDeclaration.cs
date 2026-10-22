@@ -8,9 +8,16 @@ namespace CuriousContraptions.Elements.ElectricalNand;
 /// <summary>CAT-024: an independent energy supply passes unless both conditions hold.</summary>
 public sealed class ElectricalNandElementDeclaration : ISupplyElement, ISceneGeometryElement
 {
-    public ElementMetadata Metadata => new("electrical_nand", ElementCategory.Control, "Not both gate",
-        "Passes the separate bottom supply when the numbered inputs are not both powered. No supply means no output. The numbered inputs are conditions, not the source of output power.",
-        new(.4f,.72f,.79f,1f),27,"res://elements/ElectricalNand/icon.svg","res://elements/ElectricalNand/electrical_nand.tscn",[]);
+    public ElementMetadata Metadata => new(
+        Id: "electrical_nand",
+        Category: ElementCategory.Control,
+        DisplayName: "Not both gate",
+        Description: "Passes the separate bottom supply when the numbered inputs are not both powered. No supply means no output. The numbered inputs are conditions, not the source of output power.",
+        Color: new(.4f, .72f, .79f, 1f),
+        PaletteOrder: 27,
+        IconPath: "res://elements/ElectricalNand/icon.svg",
+        ScenePath: "res://elements/ElectricalNand/electrical_nand.tscn",
+        Parameters: []);
     public ElementFootprint Footprint => new(1,0,0);
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>

@@ -216,7 +216,7 @@ public sealed class ElectricalNandTests
         var looped=open with {Connections=open.Connections.With(closing)};
         var refusal=EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,looped.Validate);
         Assert.Contains("parts "+ids+".",refusal.Message,StringComparison.Ordinal);
-        Assert.InRange(refusal.Message.Length,1,100); // fits the bottom status line
+        Assert.InRange(refusal.Message.Length,1,StatusLineBudget);
         // Wire order does not change the refusal.
         EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,()=>(open with {Connections=new(looped.Connections.Reverse().ToArray())}).Validate());
         // A stored save holding the loop is refused before any instance is constructed.
@@ -233,6 +233,31 @@ public sealed class ElectricalNandTests
         Assert.Equal(before,simulation.Construction);
         Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Construct(open)).Outcome);
     }
+
+    /// <summary>The refusal fits the status line however long the loop: the first four ids, ascending, then a count.</summary>
+    [Theory]
+    [InlineData(3,"4, 10, 11, 12.")]
+    [InlineData(4,"4, 10, 11, 12 and 1 more.")]
+    [InlineData(40,"4, 10, 11, 12 and 37 more.")]
+    public void LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(int bothGates,string named)
+    {
+        var parts=new List<IWorkshopInstance>{Battery(1,-8,true),WorkshopInput.Generic(Kind,new(4),0,3,0,0,0,0,1)};
+        var links=new List<WorkshopConnection>{Link(1,4),Link(4,10,WorkshopSocket.FirstIn),Link(9+(ulong)bothGates,4,WorkshopSocket.FirstIn)};
+        for(var i=0;i<bothGates;i++)
+        {
+            var id=10+(ulong)i;
+            parts.Add(WorkshopInput.Generic(BothGateTests.Kind,new(id),-12+3*(i%8),3,-3-2*(i/8),0,0,0,1)); // within the bench range
+            links.Add(Link(1,id));
+            if(i>0) links.Add(Link(id-1,id,WorkshopSocket.FirstIn));
+        }
+        var looped=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(links.ToArray()));
+        var refusal=EditRefusal.Is(WorkshopEditRejection.NonmonotoneFeedback,looped.Validate);
+        Assert.Equal("Break the wire loop through parts "+named+" This gate's output cannot feed its own inputs.",refusal.Message);
+        Assert.InRange(refusal.Message.Length,1,StatusLineBudget);
+    }
+    /// <summary>The bottom status line is a 480 px, 12 px-font, word-wrapped label two lines high (Workshop.MakeInterface,
+    /// Paragraph(…, 12, …, new(480, 28))): about 70 characters a line, so 120 characters keep a refusal within two lines.</summary>
+    private const int StatusLineBudget = 120;
 
     [Fact]
     public void CompiledGraphRejectsNonmonotoneCycleAsAnInvariant()

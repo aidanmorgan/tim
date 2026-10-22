@@ -137,18 +137,49 @@ Do not change:
 - **A4 Refusal surface.** The D1 check lives in `WorkshopConnections.Validate(partOf)`, so it also fires through `WorkshopConstruction.Validate` (`WorkshopSimulation.Construct` returns `InvalidConstruction`, construction unchanged) and save prevalidation (`InvalidConnection`). New `WorkshopEditRejection.NonmonotoneFeedback` is appended after `UnsupportedPart` (no renumbering; C#-only).
 - **A5 Tool membership.** `tools/E2eRunner/ImpactRules.ElementPackages` gains `ElectricalNand`, and `tools/Coverage.Tests` swaps its still-planned example from `electrical_nand` to `electrical_nor`, because admitting the package changes both derived memberships. Both suites already fail at base for unrelated reasons (below); these are the minimal current-path updates, not fixes of those failures.
 - **A6 Palette ordinal 27.** Base bundle orders are 1–12, 15–26; 27 is free.
-- **A7 Feedback text.** "Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs." G6 content, generic over future nonmonotone gates, no element id/title in engine code, ≤ 100 chars for three ids (480 px, 12 pt, word-wrapped status line).
+- **A7 Feedback text.** "Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs." G6 content, generic over future nonmonotone gates, no element id/title in engine code. The status label (`Workshop.MakeInterface`: `Paragraph(…, 12, …, new(480, 28))`, `AutowrapMode.WordSmart`) wraps but never truncates, so after review L1 the refusal names the first `LoopPartsNamed` = 4 ids in ascending order and then counts the rest ("… 4, 10, 11, 12 and 37 more."). The tests bound every refusal to 120 characters, which is about two lines of that label.
 - **A8 Solver-scan vocabulary.** The catalogue id `electrical_nand` adds the word "electrical" to the 9A.19 solver element-word scan (`WorkshopPhysicsLawTests`), which then flagged six shared electrical-domain tables in `WorkshopPhysicsEngine.cs`. They name no gate, so these six exact tokens join the reviewed `GenericIdentifiers` list (the "Clamp"/"lamp" mechanism), with controls proving `ElectricalSupply` is exempt and `electricalNandRow`/`nandRow` are still found. The derivation, its test and the hash-frozen Known list are unchanged.
 
 ## Status
 
-Implementation and scoped native checks complete; independent SnapshotApproval, protected publication and terminal review pending. Not committed. Browser qualification pending post-catalogue (cases above).
+Pre-merge review: Pass-pending-merge ([review](review-9-7a-electrical-nand.md)). The candidate was committed as WIP `1101069c` (normal hooks) and merged with main `59ecb70b` (corrective slice) as `411425ea`. PM1, PM2 and L1 are uncommitted on top of that merge. Next: exact SnapshotApproval of the merged snapshot, then protected publication. Browser qualification pending post-catalogue (cases above).
+
+### Post-merge (PM1/PM2/L1)
+
+Merge conflicts and their resolutions:
+
+- `tools/E2eRunner/ImpactRules.cs`: kept main's BothGate and HoldTimer rows and added ElectricalNand.
+- `TODO.md`: kept main's brief and re-added the 9.7a In flight and Owner lines; Next reads "publish NAND after the forward fix …".
+- `sprint-status.yaml`: auto-merged; main's done rows and 9.7a `review` are both kept.
+
+The other files touched by both sides (`PalettePlacementTests`, `CurrentCapabilityInputsTests`) auto-merged.
+
+PM1 expectation changes, each justified by main's current paths:
+
+- **Package declaration.** `ElectricalNandElementDeclaration` uses named metadata arguments. The current Coverage reader, `CurrentCatalogue.ValidateResources`, binds each package by the regex `\bId: "…"`, and main converted BothGate and HoldTimer to the same form. Before the change, all four Coverage tests failed with "declares 0 Ids".
+- **`CurrentCatalogueTests`: admitted count 24 → 25.** Every bundle package is admitted, and `electrical_nand` maps to its declaration path.
+- **`CurrentCapabilityInputsTests`: planned-absent package `elements/ElectricalNand` → `elements/ElectricalNor`.** NAND is admitted now; NOR (CAT-025) still has a catalogue row and no package. The `electrical_nor` FutureDeclaration example now actually executes and passes.
+- **Source and fixture counts.** 1472 and 303 are main's and are unchanged: NAND adds no requirement or fixture source.
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Whole solution after one rebuild (`build-final.log`, 0 W / 0 E) | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2173/2173**, Coverage 77/77, BundleElements 143/143, E2eRunner 189/189, WorkerAotGuard 17/17 (`test-slnx-final.log`) |
+| CI "Test C# tools" step, run exactly as written in `pages.yml` | the step's script | Coverage 77/77, BundleElements 143/143, WorkerAotGuard 17/17, E2eRunner 174/174 filtered; exit 0 (`ci-tool-step.log`) |
+| Worker | `dotnet build CuriousContraptions.Simulation -c Release --no-incremental` | 0 W / 0 E (`worker-release.log`) |
+| Pins and ordinal after the merge | bundle | 25 elements, 25 distinct palette orders, NAND = 27 (`palette-ordinals.txt`). The native pins (registry 25, SaveFixture 25, ids+undelivered 27) pass inside 2173. |
+| L1 boundary | `LongLoopRefusalNamesTheFirstPartsAndCountsTheRest` (4, 5 and 41 loop members) | exact text and ≤ 120 characters; pass |
+
+Iterations, each driven by the inputs:
+
+- First post-merge run: 4 Coverage failures, "declares 0 Ids".
+- Second: the admitted-count pin.
+- Third: the new long-loop fixture placed parts beyond the bench range (`WorkshopInput.Position` refusal). The fixture now uses a grid; the behaviour oracle is unchanged.
 
 Design delivered: `LogicGateOperation.Nand = 1`; `CompiledSupplyGraph.Evaluate` Nand arm and exhaustive `IsMonotone`; new `SupplyCycles` (iterative Tarjan over predecessor lists → components in evaluation order, `Cyclic`, `NonmonotoneCycle`) shared by `WorkshopConnections.Validate(partOf)` (typed `WorkshopEditRejection.NonmonotoneFeedback`, appended) and the `CompiledSupplyGraph` constructor invariant (`ArgumentException`); `Resolve` visits components in order, evaluates singletons once and iterates only monotone cycles to their least fixed point. Deleted: the unordered slot sweep and its "powered only once" comment. No wire/schema, `WorkshopRejection`, socket, compiler, Both Gate or TS change. Package `elements/ElectricalNand` is declaration, scene art (Both Gate body/foot/face/marks/lamps/ports, 13-stroke navy mesh pictogram, three gold truth dots) and icon only; no record type, no runtime PartId branch, no new isolation Known entry.
 
 ## Evidence (criterion → command → result)
 
-Raw logs: `/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/9-7a/`. Builds: `dotnet build CuriousContraptions.slnx -c Debug -v:q`; tests: `dotnet test <project> -c Debug --no-build --no-restore -v:minimal [--filter …]`.
+Pre-merge raw logs (the rows below): [`evidence-9-7a/pre-merge/`](evidence-9-7a/pre-merge/), moved unchanged from the implementer's session scratchpad (PM2). Post-merge logs: [`evidence-9-7a/post-merge/`](evidence-9-7a/post-merge/). Reviewer evidence: `evidence-9-7a-review/`. Builds: `dotnet build CuriousContraptions.slnx -c Debug -v:q`; tests: `dotnet test <project> -c Debug --no-build --no-restore -v:minimal [--filter …]`.
 
 | Criterion | Command | Result |
 | --- | --- | --- |
@@ -158,7 +189,7 @@ Raw logs: `/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-4
 | Row 11 retraction after 00 opening, save/load bytes, typed connections, exact Run/Reset (9R.1) and saved replay | same | pass |
 | Placement/wiring order (gate first/last × forward/reversed links) bit-identical logic rows, power and blade | same | pass |
 | Reconvergence via Both Gate (D6 substitute) retracts on the first tick, both id/placement orders | same | pass |
-| Feedback refused: NAND→NAND, →Both Gate→, open ImpactSwitch, entering PowerIn; ids named, ≤100 chars, wire-order independent; looped save `InvalidConnection` whose inner refusal is `NonmonotoneFeedback`, open save decodes (control); `WorkshopSimulation.Construct` `Rejected/InvalidConstruction`, construction unchanged; open control admitted | same | pass |
+| Feedback refused: NAND→NAND, →Both Gate→, open ImpactSwitch, entering PowerIn; ids named, ≤100 chars pre-merge (≤120 budget after L1), wire-order independent; looped save `InvalidConnection` whose inner refusal is `NonmonotoneFeedback`, open save decodes (control); `WorkshopSimulation.Construct` `Rejected/InvalidConstruction`, construction unchanged; open control admitted | same | pass |
 | Compiled-graph invariant throws exact `ArgumentException` with the nonmonotone-cycle message; valid graph admitted | same (test-only rebuild, `green2.log` 24/24) | pass |
 | Law table, `IsMonotone`, undefined `(LogicGateOperation)2`, undefined socket 255, activation link refused | same | pass |
 | Committed reads per row, tick-0 neutral admission, And-shaped row refused by declared-law admission; native lamps slate/gold per row through Reset; pictogram 13 navy strokes, three gold dots at x −.21/−.07/.07 | same | pass |

@@ -192,8 +192,10 @@ public class CurrentCatalogueTests
         while (root is not null && !File.Exists(Path.Combine(root.FullName, CurrentCatalogue.ConsumersPath.Value))) root = root.Parent;
         Assert.NotNull(root);
         var plan = CurrentCatalogue.Read(root);
-        // Every package in the generated bundle, including the Hold Timer (CAT-033) and Both Gate (CAT-013) packages.
-        Assert.Equal(24, plan.Admitted.Count);
+        // Every package in the generated bundle, including the Hold Timer (CAT-033), Both Gate (CAT-013) and Not both gate (CAT-024)
+        // packages.
+        Assert.Equal(25, plan.Admitted.Count);
+        Assert.Equal(new SourcePath("elements/ElectricalNand/ElectricalNandElementDeclaration.cs"), plan.Admitted[new("electrical_nand")]);
         Assert.Equal(new SourcePath("elements/Springboard/SpringboardElementDeclaration.cs"), plan.Admitted[new("spring")]);
         Assert.Equal(plan.Admitted.Values.OrderBy(path => path.Value, StringComparer.Ordinal),
             plan.AvailableResources.Select(artifact => artifact.Path));
