@@ -1,0 +1,57 @@
+using System.Security.Cryptography;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Scratch probe (not part of the candidate; identical source at the record path and the candidate except the one
+/// <see cref="PlacedParts"/> adapter). (1) The C-Balls admitted-world probe: every lesson at every authored precision, admitted GPU
+/// world bytes and the committed reads after 480 ticks. (2) The placed-solution probe: every launch route of
+/// <see cref="LaunchLessonSolveTests"/> re-precisioned through the production `WithPrecision` at 0/0.45/1, hashing the compiled scene's
+/// admitted bytes, every committed body read of 1200 ticks, the Reset state and the goal verdict.</summary>
+public sealed class LessonWorldProbe
+{
+    private static readonly System.Text.Json.JsonSerializerOptions Options = new() { IncludeFields = true };
+    private static string Hash(string text) => Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(text)));
+
+    [Fact]
+    public async Task WriteLessonWorldHashes()
+    {
+        var lines = new List<string>();
+        foreach (var lesson in new[] { "first_principles", "spring_forward", "ready_to_rebound", "bumper_sidekick", "bumper_depth",
+                     "wall_and_bumper", "domino_effect", "delayed_signal", "clear_pipe", "gentle_bend", "quarter_bend", "joined_pipe" })
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var construction = PuzzleCatalogue.Create(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(11), new(precision));
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(construction, 480);
+                var final = System.Text.Json.JsonSerializer.Serialize(Enumerable.Range(0, reads[^1].Bodies.Count)
+                    .Select(i => reads[^1].Bodies[i]).ToArray(), Options);
+                var captures = reads.Count(read => Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched));
+                lines.Add($"{lesson} {(float)precision} admission={Convert.ToHexString(SHA256.HashData(bytes))} final={Hash(final)} latchedReads={captures}");
+            }
+        await File.WriteAllLinesAsync(Environment.GetEnvironmentVariable("PROBE_OUT")!, lines, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task WritePlacedSolutionHashes()
+    {
+        var lines = new List<string>();
+        foreach (var route in Enum.GetValues<LaunchLessonSolveTests.Route>())
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var construction = PuzzleCatalogue.WithPrecision(LaunchLessonSolveTests.Bench(route), new(precision));
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 1200);
+                var trace = System.Text.Json.JsonSerializer.Serialize(reads.Select(read => Enumerable.Range(0, read.Bodies.Count)
+                    .Select(i => read.Bodies[i]).ToArray()).ToArray(), Options);
+                var works = System.Text.Json.JsonSerializer.Serialize(reads.Select(read => Enumerable.Range(0, read.ContactWorks.Count)
+                    .Select(i => read.ContactWorks[i]).ToArray()).ToArray(), Options);
+                var resetState = System.Text.Json.JsonSerializer.Serialize(Enumerable.Range(0, reset.Bodies.Count).Select(i => reset.Bodies[i]).ToArray(), Options);
+                lines.Add($"{route} {(float)precision} instances={construction.Instances.Count} admission={Convert.ToHexString(SHA256.HashData(bytes))} " +
+                    $"trace1200={Hash(trace)} works={Hash(works)} reset={Hash(resetState)} solved={LaunchLessonSolveTests.Solved(construction, reads)}");
+            }
+        await File.WriteAllLinesAsync(Environment.GetEnvironmentVariable("PROBE_OUT2")!, lines, TestContext.Current.CancellationToken);
+    }
+}

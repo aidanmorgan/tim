@@ -96,3 +96,15 @@ public interface IResidenceCaptureElement : IMechanicalElement
 {
     ResidenceCaptureDescriptor Capture { get; }
 }
+
+/// <summary>A finite contact-work store on the element's static body. Its target speed is the named Real m/s parameter; its preload is
+/// the kinetic energy (½·ReferenceMass)·s·s of the reference mass at that speed, so the parameter range bounds the store. A contact
+/// approaching faster than <see cref="Threshold"/> qualifies once per target every <see cref="CooldownPhysicalSteps"/> physical
+/// steps.</summary>
+public readonly record struct ContactWorkDescriptor(
+    string StrengthParameter, float ReferenceMass, float Threshold, uint CooldownPhysicalSteps);
+
+public interface IContactWorkElement : IMechanicalElement
+{
+    ContactWorkDescriptor ContactWork { get; }
+}

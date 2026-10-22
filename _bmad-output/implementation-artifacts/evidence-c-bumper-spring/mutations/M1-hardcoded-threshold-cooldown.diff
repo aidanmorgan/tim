@@ -1,0 +1,11 @@
+--- engine/gpu/WorkshopPhysicsCompiler.cs.orig	2026-10-22 11:27:24.651715267 +0800
++++ engine/gpu/WorkshopPhysicsCompiler.cs	2026-10-22 11:27:24.655954810 +0800
+@@ -192,7 +192,7 @@
+     {
+         var strength = parameters[new ParameterId(work.StrengthParameter)];
+         return new(ContactWork(owner), owner, targets, new(strength), new(.5f * work.ReferenceMass * strength * strength),
+-            new(work.Threshold), work.CooldownPhysicalSteps);
++            new(.05f), 72);
+     }
+ 
+     public static GpuBodyId GateBlade(GpuBodyId owner) => new(checked(PartIdentities(owner) + 2));

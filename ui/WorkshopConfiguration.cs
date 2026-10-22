@@ -13,9 +13,7 @@ public partial class Workshop
     {
         if (World.Construction.Instances.FirstOrDefault(instance => instance.Id == part.AuthoredId) is WorkshopGenericInstance generic)
         { AddDeclaredConfiguration(part, generic); return; }
-        if (part.Definition?.PartId == PartId.Springboard) { AddSpringboardConfiguration(part); return; }
         if (part.Definition?.PartId == PartId.Battery) { AddBatteryConfiguration(part); return; }
-        if (part.Definition?.PartId == PartId.PinballBumper) { AddBumperConfiguration(part); return; }
         if (part.Definition?.PartId == PartId.Clock) { AddClockConfiguration(part); return; }
 
     }
@@ -137,97 +135,6 @@ public partial class Workshop
             PushUndo();
             if (!await SubmitConstruction(proposed)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (!_workshopUiRemoved) { _status.Text = "Clock interval updated."; RefreshConnectionChoices(); }
-        }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
-    }
-    private void AddBumperConfiguration(MachinePart bumper)
-    {
-        var owner = bumper.AuthoredId;
-        var configure = SignalButton("Strength: " + ((double)bumper.CanonicalWork.Strength.Value).ToString("0.###", CultureInfo.CurrentCulture), () =>
-        {
-            if (!CanEdit) return;
-            ClearConnectionChoices();
-            var strength = new SpinBox { MinValue = 0, MaxValue = 20, Step = 0,
-                Value = (double)bumper.CanonicalWork.Strength.Value, Name = "BumperStrength",
-                CustomMinimumSize = new(140, 36) };
-            _connectionChoices.AddChild(strength);
-            _connectionChoices.AddChild(SignalButton("Apply strength", () =>
-                { strength.Apply(); ApplyBumperStrength(owner, strength.Value); }));
-            _connectionChoices.AddChild(SignalButton("Cancel", RefreshConnectionChoices));
-        });
-        configure.Disabled = !CanEdit || bumper.Locked; _connectionChoices.AddChild(configure);
-    }
-    private async void ApplyBumperStrength(GpuBodyId owner, double strength)
-    {
-        try { await ApplyBumperStrengthAsync(owner, strength); }
-        catch (Exception error) { HandlerFailed(nameof(ApplyBumperStrength), error); }
-    }
-    private async Task ApplyBumperStrengthAsync(GpuBodyId owner, double strength)
-    {
-        if (!CanEdit) return;
-        try
-        {
-            if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopBumper current || current.Locked)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable strength.");
-            var work = BumperWork.FromInput(strength);
-            if (work == current.Work) { RefreshConnectionChoices(); return; }
-            PushUndo();
-            if (!await SubmitConstruction(World.Construction.WithInstance(current with { Work = work })))
-                { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
-            if (!_workshopUiRemoved) { _status.Text = "Bumper strength updated."; RefreshConnectionChoices(); }
-        }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
-    }
-
-    private void AddSpringboardConfiguration(MachinePart spring)
-    {
-        var owner = spring.AuthoredId;
-        var configure = SignalButton("Spring settings", () =>
-        {
-            if (!CanEdit) return;
-            ClearConnectionChoices();
-            // A round-trip f32 text boundary avoids displaying the double expansion of a float.
-            LineEdit Field(float value, string name, string units, string range)
-            {
-                var row = new HBoxContainer();
-                var input = new LineEdit { Text = value.ToString("R", System.Globalization.CultureInfo.InvariantCulture),
-                    Name = name, TooltipText = range, CustomMinimumSize = new(140, 36) };
-                row.AddChild(input); row.AddChild(Text(units, 14)); _connectionChoices.AddChild(row);
-                return input;
-            }
-            var stiffness = Field(spring.CanonicalSpring.Stiffness, "SpringStiffness", "N/m", "Stiffness: 120–1200 N/m");
-            var damping = Field(spring.CanonicalSpring.Damping, "SpringDamping", "N·s/m", "Damping: 0–8 N·s/m");
-            var compression = Field(spring.CanonicalSpring.InitialCompression, "SpringCompression", "m", "Initial compression: 0–0.20 m");
-            _connectionChoices.AddChild(SignalButton("Apply spring", () =>
-            {
-                if (!float.TryParse(stiffness.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var k) ||
-                    !float.TryParse(damping.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var c) ||
-                    !float.TryParse(compression.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var q))
-                { _status.Text = "Enter valid spring values."; return; }
-                ApplySpringboardSettings(owner, new(k, c, q));
-            }));
-            _connectionChoices.AddChild(SignalButton("Cancel", RefreshConnectionChoices));
-        });
-        configure.Disabled = !CanEdit || spring.Locked; _connectionChoices.AddChild(configure);
-    }
-    private async void ApplySpringboardSettings(GpuBodyId owner, SpringboardSettings settings)
-    {
-        try { await ApplySpringboardSettingsAsync(owner, settings); }
-        catch (Exception error) { HandlerFailed(nameof(ApplySpringboardSettings), error); }
-    }
-    private async Task ApplySpringboardSettingsAsync(GpuBodyId owner, SpringboardSettings settings)
-    {
-        if (!CanEdit) return;
-        try
-        {
-            settings.Validate();
-            if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopSpringboard current || current.Locked)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable spring.");
-            if (current.Settings == settings) { RefreshConnectionChoices(); return; }
-            PushUndo();
-            if (!await SubmitConstruction(World.Construction.WithInstance(current with { Settings = settings })))
-                { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
-            if (!_workshopUiRemoved) { _status.Text = "Spring settings updated."; RefreshConnectionChoices(); }
         }
         catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
     }

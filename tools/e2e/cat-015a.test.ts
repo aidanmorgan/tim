@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, authoredState, decodeSavedConstruction, type BodyRead, type WorkshopResponse, type InstanceRecord } from './workshop-wire.ts';
+import { decodeWorkshopResponse, authoredState, decodeSavedConstruction, parameter, type BodyRead, type WorkshopResponse, type InstanceRecord } from './workshop-wire.ts';
 
 
 function bodyState(b: BodyRead) {
@@ -59,9 +59,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
             if (inst.partId() === 'bumper') bumperInst = inst;
         }
         assert.ok(ballInst && bumperInst, 'Construction contains payload and bumper instances');
-        assert.equal(bumperInst.strength(), 8, 'Placed bumper strength is 8m/s');
-        assert.equal(bumperInst.referenceMass(), 1, 'Calibration reference mass is 1kg');
-        assert.equal(bumperInst.preload(), 32, 'Declared finite preload is 32J');
+        assert.equal(parameter(bumperInst, 'strength'), 8, 'Placed bumper strength is 8m/s');
         assert.equal(ballInst.cell()!.x(), bumperInst.cell()!.x(), 'Payload and bumper share the complete f32 X contact cell');
         assert.equal(ballInst.cell()!.z(), bumperInst.cell()!.z(), 'Payload and bumper share the complete f32 Z contact cell');
         assert.equal(ballInst.local()!.x(), bumperInst.local()!.x(), 'Payload and bumper share the complete f32 X contact local');

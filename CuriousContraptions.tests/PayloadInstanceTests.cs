@@ -138,7 +138,7 @@ public sealed class PayloadInstanceTests
             var level = PuzzleCatalogue.Create(new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half).45));
             // A lesson that offers a Bumper gets one placed from its inventory, so the player's Bumper is named too.
             if (WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(PartId.PinballBumper))
-                level = level.WithInstance(WorkshopInput.Bumper(new(900), 3, 1, 0, 0, 0, 0, 1, BumperWork.Default));
+                level = level.WithInstance(WorkshopInput.Generic(PartId.PinballBumper, new(900), 3, 1, 0, 0, 0, 0, 1));
             var payload = Assert.Single(level.Instances, instance => instance.PartId == PartId.Basketball).Id;
             var scene = WorkshopPhysicsCompiler.Compile(level, new(1, 2));
             foreach (var targets in scene.Triggers.ToArray().Select(t => t.Targets).Concat(scene.ContactWorks.ToArray().Select(w => w.Targets)))
@@ -303,7 +303,8 @@ public sealed class PayloadInstanceTests
     // The pre-conversion layout is unsupported: deleting radius, drag and buoyancy renumbered every later slot, so each of these saves
     // (each admitted by the record path at 59ecb70b, receipt evidence-c-balls/baseline/baseline-payload-suite.txt) is refused with the
     // typed save refusal, never misread. Old ball: radius/mass/bounce land in mass/bounce/length and drag in threshold. Old Domino: its
-    // half extents slot is now the parameters vector, which the verifier refuses. Old pipe: its length now reads the empty slot.
+    // half extents slot lies beyond the current 18-field table (C-Bumper+Spring removed six more fields; at C-Balls it read as the
+    // parameters vector and the verifier refused it), so it has no half extents. Old pipe: its length now reads the empty slot.
     // Old resized Ramp: its parameters are beyond the new table, so its declared parameters are missing.
     [Fact]
     public void PreConversionRecordsAreRefusedWithTheTypedSaveRefusal()
@@ -312,7 +313,7 @@ public sealed class PayloadInstanceTests
         {
             ("ball", PreConversionBall("ball", (float)(Half).34f, 1, (float)(Half).55f), WorkshopSaveRejection.OutOfRange),
             ("bowling", PreConversionBall("bowling", (float)(Half).28f, 4, (float)(Half).14f), WorkshopSaveRejection.OutOfRange),
-            ("domino", PreConversionDomino(), WorkshopSaveRejection.VerifierRejected),
+            ("domino", PreConversionDomino(), WorkshopSaveRejection.MissingField),
             ("pipe", PreConversionPipe(), WorkshopSaveRejection.OutOfRange),
             ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)
         })
@@ -348,16 +349,10 @@ public sealed class PayloadInstanceTests
             case TypedField.Bounce: InstanceRecord.AddBounce(builder, value); break;
             case TypedField.Length: InstanceRecord.AddLength(builder, value); break;
             case TypedField.Threshold: InstanceRecord.AddThreshold(builder, value); break;
-            case TypedField.Stiffness: InstanceRecord.AddStiffness(builder, value); break;
-            case TypedField.Damping: InstanceRecord.AddDamping(builder, value); break;
-            case TypedField.InitialCompression: InstanceRecord.AddInitialCompression(builder, value); break;
             case TypedField.Capacity: InstanceRecord.AddCapacity(builder, value); break;
             case TypedField.MaximumPower: InstanceRecord.AddMaximumPower(builder, value); break;
             case TypedField.InitialFraction: InstanceRecord.AddInitialFraction(builder, value); break;
             case TypedField.Enabled: InstanceRecord.AddEnabled(builder, 1); break;
-            case TypedField.Strength: InstanceRecord.AddStrength(builder, value); break;
-            case TypedField.ReferenceMass: InstanceRecord.AddReferenceMass(builder, value); break;
-            case TypedField.Preload: InstanceRecord.AddPreload(builder, value); break;
             case TypedField.HalfExtents: InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, 0, value, 0)); break;
             case TypedField.Friction: InstanceRecord.AddFriction(builder, value); break;
             case TypedField.TargetCount: InstanceRecord.AddTargetCount(builder, 3); break;
@@ -414,6 +409,5 @@ public sealed class PayloadInstanceTests
 /// <summary>Every typed field of the current InstanceRecord: a generic record carries none of them.</summary>
 public enum TypedField
 {
-    Mass, Bounce, Length, Threshold, Stiffness, Damping, InitialCompression, Capacity, MaximumPower, InitialFraction, Enabled, Strength,
-    ReferenceMass, Preload, HalfExtents, Friction, TargetCount
+    Mass, Bounce, Length, Threshold, Capacity, MaximumPower, InitialFraction, Enabled, HalfExtents, Friction, TargetCount
 }

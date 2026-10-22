@@ -1,0 +1,23 @@
+49:      - name: Test C# tools
+50-        run: |
+51-          dotnet test tools/Coverage.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+52-          dotnet test tools/BundleElements.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+53-          dotnet test tools/WorkerAotGuard.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+54-          toolchain="TypeCheckTests.EverySuiteAndSharedModuleTypeChecks TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck
+55-            SuiteProcessTests.EnvironmentIsScrubbed SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled
+56-            SuiteProcessTests.FailingAssertionFailsTheFile SuiteProcessTests.CloseFindingInAfterHookFailsTheFile
+57-            SuiteProcessTests.FileWithoutTestsIsNoTests SuiteProcessTests.CrashFailsTheFile
+58-            SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals SuiteProcessTests.ImportErrorFailsWithNoTests
+59-            IdentityTests.UnchangedRunPasses IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged
+60-            IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged
+61-            IdentityTests.EndRehashCatchesAChangeTheWatcherMissed"
+62-          filter=""
+63-          for test in $toolchain; do filter="$filter&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.$test"; done
+64-          dotnet test tools/E2eRunner.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse --filter "${filter#&}"
+65-      - name: Publish production browser bundle
+66-        run: dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
+67-      - name: Check static deployment
+68-        run: |
+69-          test -s CuriousContraptions.web/AppBundle/index.html
+70-          test -s CuriousContraptions.web/AppBundle/404.html
+71-          test -s CuriousContraptions.web/AppBundle/godot.wasm

@@ -51,7 +51,7 @@ public sealed class NoFixedCapacityTests
                 return (Bench(parts), scene => Assert.Equal(9, scene.Triggers.Length));
             case "contact-work-8":
                 // Nine bumpers under seventeen balls: 9 x 17 = 153 occurrence rows, past the retired 128.
-                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Bumper(Next(), X(i), 1, 0, 0, 0, 0, 1, BumperWork.Default));
+                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.PinballBumper, Next(), X(i), 1, 0, 0, 0, 0, 1));
                 Balls(17, 0);
                 return (Bench(parts), scene => Assert.Equal(9, scene.ContactWorks.Length));
             case "electrical-8":
@@ -65,7 +65,7 @@ public sealed class NoFixedCapacityTests
                 }
                 return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Consumer && node.Consumer!=default)); });
             case "prismatics-16":
-                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Springboard(Next(), X(i), 1, 0, 0, 0, 0, 1, SpringboardSettings.Default));
+                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(17, scene.Prismatics.Length));
             case "orientation-16":
                 // A Domino declares its orientation sensor only while wired: each of seventeen drives its own lamp.
@@ -211,7 +211,7 @@ public sealed class NoFixedCapacityTests
             var lamp = WorkshopInput.Lamp(Next(), X(2 * i) + 1.6, 1, -16, 0, 0, 0, 1);
             parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
         }
-        for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Bumper(Next(), X(i), 1, -12, 0, 0, 0, 1, BumperWork.Default));
+        for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.PinballBumper, Next(), X(i), 1, -12, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
             var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, -8, 0, 0, 0, 1);
@@ -219,7 +219,7 @@ public sealed class NoFixedCapacityTests
                 ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
             parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
         }
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Springboard(Next(), X(i), 1, -4, 0, 0, 0, 1, SpringboardSettings.Default));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, -4, 0, 0, 0, 1));
         for (var i = 0; i < 17; i++)
         {
             var tile = WorkshopInput.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);

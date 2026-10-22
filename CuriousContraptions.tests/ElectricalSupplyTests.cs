@@ -15,7 +15,7 @@ public sealed class ElectricalSupplyTests
     {
         var settings = new ElectricalSourceSettings(new(3600.0002f), new(120.00001f), .1234567f, enabled);
         var battery = new WorkshopBattery(new(1), default, default, CanonicalRotation.Identity, settings);
-        var bumper = WorkshopInput.Bumper(new(2), 3, 4, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(8f));
+        var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(2), 3, 4, 0, 0, 0, 0, 1);
         var link = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(battery, bumper), Connections: new(link));

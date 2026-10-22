@@ -67,7 +67,7 @@ public static class WorkshopPhysicsCompiler
             {
                 var slider = sliders[i];
                 var identity = first + (ulong)i * 16;
-                var moving = new GpuBodyId(identity + 2);
+                var moving = SliderBody(instance.Id, i);
                 var compression = slider.Compression.Evaluate(parameters);
                 var offset = slider.BaseFrame.Position - slider.MovingFrame.Position - Vector3.UnitY * compression;
                 var rotation = new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W);
@@ -135,10 +135,10 @@ public static class WorkshopPhysicsCompiler
                 (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
                 triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, Targets(construction),
                     new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
-        foreach (var bumper in construction.Instances.OfType<WorkshopBumper>())
-            if (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null)
-                contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, Targets(construction), bumper.Work.Strength,
-                    bumper.Work.Preload, new(.05f), 72));
+        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work &&
+                (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
+                contactWorks.Add(ContactWorkFor(owner.Id, Targets(construction), work, owner.Parameters));
         foreach (var plate in construction.Instances.OfType<WorkshopPressurePlate>())
             contactLoads.Add(new(ContactLoadSensor(plate.Id), plate.Id, new(PartIdentities(plate.Id) + 2),
                 -.9f - WorkshopPressurePlate.ContactDistance, .9f + WorkshopPressurePlate.ContactDistance,
@@ -177,10 +177,23 @@ public static class WorkshopPhysicsCompiler
     }
     public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
     {
-        return body == SpringboardPlate(owner) || body == GateBlade(owner);
+        return body == SliderBody(owner, 0);
     }
 
-    public static GpuBodyId SpringboardPlate(GpuBodyId owner) => new(checked(PartIdentities(owner) + 2));
+    /// <summary>The moving body the owner's slider <paramref name="slider"/> carries.</summary>
+    public static GpuBodyId SliderBody(GpuBodyId owner, int slider) =>
+        slider is >= 0 and < 16 ? new(checked(PartIdentities(owner) + (ulong)slider * 16 + 2))
+            : throw new ArgumentOutOfRangeException(nameof(slider), "An element declares at most 16 sliders.");
+
+    /// <summary>The finite store a declared contact-work capability compiles for one owner: its target speed is the strength
+    /// parameter, its preload the reference mass's kinetic energy at that speed, (½·m)·s·s in f32.</summary>
+    internal static ContactWorkDeclaration ContactWorkFor(GpuBodyId owner, BodyTargetSet targets,
+        ContactWorkDescriptor work, InstanceParameterCollection parameters)
+    {
+        var strength = parameters[new ParameterId(work.StrengthParameter)];
+        return new(ContactWork(owner), owner, targets, new(strength), new(.5f * work.ReferenceMass * strength * strength),
+            new(work.Threshold), work.CooldownPhysicalSteps);
+    }
 
     public static GpuBodyId GateBlade(GpuBodyId owner) => new(checked(PartIdentities(owner) + 2));
 

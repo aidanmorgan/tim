@@ -3,7 +3,7 @@ import {test} from 'node:test';
 import {mkdirSync} from 'node:fs';
 import {resolve,sep,join} from 'node:path';
 import {WorkshopDriver} from './workshop-driver.ts';
-import {decodeWorkshopResponse, decodeSavedConstruction, authoredState, type BodyRead, type WorkshopResponse, type SavedConstruction} from './workshop-wire.ts';
+import {decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, type BodyRead, type WorkshopResponse, type SavedConstruction} from './workshop-wire.ts';
 
 // Closed numeric sets; external level names are converted only at the driver boundary.
 enum Lesson { Depth=5, Wall=6 }
@@ -101,7 +101,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         const fixture=lesson===Lesson.Depth?[[0,5,3],[0,.9,-2]]:[[-3,5,0],[-5,.9,0]];
         for(let i=0;i<2;i++)for(let a=0;a<3;a++)assert.ok(Math.abs(position(initial,i,a)-fixture[i][a])<.001);
         const bumperInst=initial.construction()!.instances(2)!;
-        assert.equal(bumperInst.strength(),8);assert.equal(bumperInst.preload(),32);
+        assert.equal(parameter(bumperInst,'strength'),8);
         assert.ok(Math.abs(position(initial,2,1)-1)<.001);
         if(lesson===Lesson.Depth){
             assert.equal(position(initial,2,0),0);

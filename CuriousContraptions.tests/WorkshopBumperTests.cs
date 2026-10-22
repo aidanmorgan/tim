@@ -32,7 +32,7 @@ public sealed class WorkshopBumperTests
             construction.Puzzle.PlacementAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
         Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PinballBumper]);
-        var bumper = WorkshopInput.Bumper(new(3), 0, 1.5, 0, 0, 0, 0, 1, BumperWork.Default);
+        var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(3), 0, 1.5, 0, 0, 0, 0, 1);
         var placed = construction.WithInstance(bumper);
         var wall = WorkshopInput.Generic(PartId.Wall, new(4), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f));
         if (lesson == new PuzzleId("wall_and_bumper"))
@@ -149,12 +149,13 @@ public sealed class WorkshopBumperTests
         AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
         Assert.Equal(WorkshopInput.Position(2).Cell, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Cell.X);
         Assert.Equal(WorkshopInput.Position(.9).Local, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Local.Y);
-        var bumper = new WorkshopBumper(new(3), new(-51, 24, 0), default, CanonicalRotation.Identity, BumperWork.Default);
+        var bumper = new WorkshopGenericInstance(PartId.PinballBumper, new(3), new(-51, 24, 0), default, CanonicalRotation.Identity)
+            { Parameters = InstanceParameterCollection.Defaults(PartId.PinballBumper) };
         var placed = construction.WithInstance(bumper); placed.Validate();
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(4) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
-        var unpaid = placed.WithInstance(bumper with { Work = BumperWork.FromCanonicalStrength(0) }); unpaid.Validate();
-        Assert.Equal(0f, ((WorkshopBumper)unpaid.Instances.Single(value => value.Id == bumper.Id)).Work.Preload.Value);
+        var unpaid = placed.WithInstance(bumper with { Parameters = new([new(new("strength"), 0f)]) }); unpaid.Validate();
+        Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(unpaid, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
         {
             var next = PuzzleCatalogue.WithPrecision(placed, new(precision)); next.Validate();
@@ -449,7 +450,7 @@ public sealed class WorkshopBumperTests
 
     private static WorkshopConstruction Construction(Half strength) => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1),
-            WorkshopInput.Bumper(new(2), 0, 4, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength((float)strength))));
+            PlacedParts.Bumper(new(2), 0, 4, 0, strength: (float)strength)));
 
     [Fact]
     public void SourceSphereAndExplicitPreloadCompileAsGenericDeclarations()
@@ -473,24 +474,34 @@ public sealed class WorkshopBumperTests
         Assert.Equal(72u, work.CooldownPhysicalSteps);
     }
 
+    // The saved Bumper is its declared strength only: the store is derived on compile, so a forged typed field, an undeclared
+    // "preload" parameter, an out-of-range, nonfinite, missing or duplicate strength is refused, never loaded.
     [Fact]
-    public void ConstructionRoundTripPreservesCalibrationAndRejectsPriorSchemasOrForgedEnergy()
+    public void ConstructionRoundTripPreservesTheStrengthAndRefusesForgedStores()
     {
         foreach (var strength in new Half[] { (Half)0, (Half)8, (Half)20 })
         {
             var save = new WorkshopSavedConstruction(Construction(strength), new(3));
             var bytes = WorkshopSaveCodec.Encode(save);
             Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
-            var bumper = Assert.IsType<WorkshopBumper>(save.Construction.Instances[1]);
-            Assert.Equal(new WorkMass((float)1), bumper.Work.ReferenceMass);
-            Assert.Equal(.5f * (float)strength * (float)strength, bumper.Work.Preload.Value);
-            var forgedBumper = bumper with { Work = new BumperWork(bumper.Work.Strength, bumper.Work.ReferenceMass, new Joules(17f)) };
-            var forgedConstruction = save.Construction with { Instances = new WorkshopInstances(save.Construction.Instances[0], forgedBumper) };
-            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
-            var savedBytes = SaveFixture.Finish(builder, crOffset, save.NextBodyId.Value);
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+            var bumper = Assert.IsType<WorkshopGenericInstance>(save.Construction.Instances[1]);
+            Assert.Equal((float)strength, Assert.Single(bumper.Parameters).Value);
+            Assert.Equal(.5f * (float)strength * (float)strength,
+                Assert.Single(WorkshopPhysicsCompiler.Compile(save.Construction, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
         }
+        foreach (var field in Enum.GetValues<TypedField>())
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+                PayloadInstanceTests.GenericSave("bumper", field, [("strength", 8f)], 32f)));
+        foreach (var parameters in new (string, float)[][]
+        {
+            [("strength", 8f), ("preload", 17f)], [("strength", 20.5f)], [("strength", -.01f)], [], [("strength", 8f), ("strength", 8f)]
+        })
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+                PayloadInstanceTests.GenericSave("bumper", null, parameters)));
+        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            PayloadInstanceTests.GenericSave("bumper", null, [("strength", float.NaN)])));
+        Assert.Equal(8f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            PayloadInstanceTests.GenericSave("bumper", null, [("strength", 8f)])).Construction.Instances)).Parameters[new("strength")]);
     }
 
     [Fact]
@@ -513,13 +524,12 @@ public sealed class WorkshopBumperTests
     public void StrengthBoundariesAndPopulationRejectAtomically()
     {
         foreach (var invalid in new[] { float.NaN, float.PositiveInfinity, -.01f, MathF.BitIncrement(20f) })
-            Assert.Throws<ArgumentException>(() => BumperWork.FromCanonicalStrength(invalid));
-        foreach (var invalid in new[] { double.NaN, double.PositiveInfinity, -.001, 20.001 })
-            Assert.Throws<ArgumentException>(() => BumperWork.FromInput(invalid));
+            Assert.ThrowsAny<ArgumentException>(() => PlacedParts.Bumper(new(2), 0, 4, 0, strength: invalid));
+        foreach (var valid in new[] { 0f, 20f })
+            Assert.Equal(valid, ((WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: valid)).Parameters[new("strength")]);
         var construction = Construction((Half)8);
-        var bumper = Assert.IsType<WorkshopBumper>(construction.Instances[1]);
+        var bumper = Assert.IsType<WorkshopGenericInstance>(construction.Instances[1]);
         construction.WithInstance(bumper with { Id = new(3) }).Validate(); // No per-kind bumper count in free play.
-        Assert.Throws<ArgumentException>(() => (bumper.Work with { ReferenceMass = new((float)2) }).Validate());
         Assert.False(DeclaredPorts.Current.Has(PartId.PinballBumper, WorkshopSocket.ActivationOut,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
     }

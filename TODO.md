@@ -14,4 +14,6 @@
 
 **Cleanup/design:** Explicit record/factory/compiler/capture/whitelist/caller deletion, package-owned declarations and typed shared engines. No fallback, compatibility bridge or new platform.
 
+**Also in flight:** C-Bumper+Spring (position 28; worktree `story-c-bumper-spring`, base 3fce7a03 = C-Balls merged). Pinball Bumper and Springboard are generic instances: the Bumper declares a `ContactWorkDescriptor` and the Springboard is the shared slider compile with generic slider presentation. Records, panels and six wire fields are deleted; 91 Known rows removed. Uncommitted candidate: full slnx 2703/2703 on one 0-warning Debug build, lesson hashes byte-identical to the record path. [Spec and evidence](_bmad-output/implementation-artifacts/spec-c-bumper-spring.md#evidence). Owner: C-Bumper+Spring implementation owner, retained for reviewer findings. Next check: independent review. Publication waits for the 9.7b NOR terminal Pass and a main merge (checklist in the spec). Browser 9R.8 pending.
+
 **Next:** 9.7b NOR (position 27) after C-Balls is reviewed and published. Preserve unrelated main dirt and historical evidence.

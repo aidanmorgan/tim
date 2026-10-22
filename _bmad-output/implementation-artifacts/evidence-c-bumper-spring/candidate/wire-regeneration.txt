@@ -1,0 +1,11 @@
+flatc version 25.2.10
+== C# diff (fresh vs committed engine/gpu/WorkshopWireGenerated.cs)
+10d9
+< 
+rc=1
+== TS: fresh generated lines=    2329; diff vs committed tools/e2e/workshop-wire.ts first     2329 lines
+rc=0
+== next committed lines after generated part:
+// ---- hand-written helpers (everything above is flatc output; see schemas/README.md) ----------------------------------------
+// Story 9A.2: every Workshop buffer is size-prefixed and carries its root's identifier, exactly as the C# codec frames it.
+export const COMMAND_IDENTIFIER = 'CCWC';

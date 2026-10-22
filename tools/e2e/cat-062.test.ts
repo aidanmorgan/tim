@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdir } from 'node:fs/promises';
 import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeSavedConstruction, authoredState } from './workshop-wire.ts';
+import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
 import { decodeWorkshopResponse, type WorkshopResponse } from './workshop-wire.ts';
 
 const SpringRoute = { Centred: 'Centred', Miss: 'Miss' } as const;
@@ -31,8 +31,8 @@ async function construct(driver: WorkshopDriver, route: SpringRoute) {
     const fb = decodeSavedConstruction(bytes);
     const boardInst = fb.construction()!.instances(1)!;
     const ballInst = fb.construction()!.instances(0)!;
-    assert.equal(boardInst.stiffness(), 400);
-    assert.equal(boardInst.damping(), Math.fround(.2));
+    assert.equal(parameter(boardInst, 'stiffness'), 400);
+    assert.equal(parameter(boardInst, 'damping'), Math.fround(.2));
     assert.equal(boardInst.cell()!.y(), 48);
     assert.equal(ballInst.cell()!.y(), 73);
     return bytes;
@@ -166,8 +166,8 @@ for(const configuration of [SpringConfiguration.SoftUndamped,SpringConfiguration
             await driver.save();const construction=await saved(driver);
             const constFb=decodeSavedConstruction(construction);
             const boardInst=constFb.construction()!.instances(1)!;
-            assert.equal(boardInst.stiffness(),Math.fround(settings.stiffness));
-            assert.equal(boardInst.damping(),Math.fround(settings.damping));
+            assert.equal(parameter(boardInst,'stiffness'),Math.fround(settings.stiffness));
+            assert.equal(parameter(boardInst,'damping'),Math.fround(settings.damping));
             await driver.page.screenshot({path:evidence+'/configuration-'+configuration+'.png'});
             await driver.reload();await driver.load();await driver.save();
             assert.deepEqual(authored(await saved(driver)),authored(construction));
@@ -214,20 +214,20 @@ test('Springboard text settings reject atomically and delete/recreate retires th
         const precise=await saved(driver);
         const preciseFb=decodeSavedConstruction(precise);
         const preciseBoard=preciseFb.construction()!.instances(1)!;
-        assert.equal(preciseBoard.stiffness(),Math.fround(400.00003));assert.equal(preciseBoard.damping(),Math.fround(.20000002));
-        assert.equal(preciseBoard.initialCompression(),Math.fround(.1234567));
+        assert.equal(parameter(preciseBoard,'stiffness'),Math.fround(400.00003));assert.equal(parameter(preciseBoard,'damping'),Math.fround(.20000002));
+        assert.equal(parameter(preciseBoard,'initial_compression'),Math.fround(.1234567));
         for(const [k,c,compression] of [['NaN','.2','.1'],['1201','.2','.1'],['400','-.1','.1'],['invalid','.2','.1'],['400','.2','NaN'],['400','.2','-.01'],['400','.2','.200001'],['400','.2','Infinity']]){
             await edit(k,c,compression);assert.deepEqual(authored(await saved(driver)),authored(precise),'invalid text/bounds preserve all construction bytes');
         }
         await edit('400.00003','0.20000002','0.2'); // Valid retry through the same editor after rejected input.
-        assert.equal(decodeSavedConstruction(await saved(driver)).construction()!.instances(1)!.initialCompression(),Math.fround(.2));
+        assert.equal(parameter(decodeSavedConstruction(await saved(driver)).construction()!.instances(1)!,'initial_compression'),Math.fround(.2));
         await driver.clickAt(744,836);await driver.save();
         assert.deepEqual(authored(await saved(driver)),authored(precise),'Undo returns to the preceding accepted settings');
         await driver.clickAt(744,836);await driver.save(); // Rejected edits never entered the undo history.
         const undone=await saved(driver);
         const undoneFb=decodeSavedConstruction(undone);
         const undoneBoard=undoneFb.construction()!.instances(1)!;
-        assert.equal(undoneBoard.stiffness(),400);assert.equal(undoneBoard.damping(),Math.fround(.2));assert.equal(undoneBoard.initialCompression(),0);
+        assert.equal(parameter(undoneBoard,'stiffness'),400);assert.equal(parameter(undoneBoard,'damping'),Math.fround(.2));assert.equal(parameter(undoneBoard,'initial_compression'),0);
         await driver.selectPartAt(720,485);await driver.clickAt(148,842);await driver.save();
         assert.equal(decodeSavedConstruction(await saved(driver)).construction()!.instancesLength(),1,'delete removes authored board');
         await driver.run();await driver.page.waitForTimeout(200);

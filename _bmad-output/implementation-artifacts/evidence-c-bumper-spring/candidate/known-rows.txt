@@ -1,0 +1,5 @@
+0	91	CuriousContraptions.tests/Fixtures/element-isolation-known.json
+0
+  42 "Owner":"Bumper"
+   2 "Owner":"GateDrive"
+  47 "Owner":"Springboard"

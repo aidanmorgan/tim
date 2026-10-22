@@ -1,0 +1,11 @@
+$ rg -w "WorkshopBumper|BumperWork|WorkshopSpringboard|SpringboardSettings|AddBumperConfiguration|AddSpringboardConfiguration|SpringboardPlate|ContactWorkCalibration|CanonicalSpring|CanonicalWork" -g "!_bmad-output/**" -g "!docs/**" -g "!CuriousContraptions.tests/**" -g "!tools/**/*.Tests/**" -g "!**/bin/**" -g "!**/obj/**"
+rc=1 (1 = no hits)
+$ rg "WorkshopInput\.(Bumper|Springboard)" (everything except _bmad-output)
+rc=1
+$ rg -w "WorkMass|ApplySpring|ApplyWork|AuthoredParameterSource|AuthoredParameterBinding|parameter_bindings|ParameterBindings" (all but _bmad-output)
+rc=1
+$ rg -w "WorkshopBumper|BumperWork|WorkshopSpringboard|SpringboardSettings|SpringboardPlate|ContactWorkCalibration|CanonicalSpring|CanonicalWork" CuriousContraptions.tests tools (tests)
+CuriousContraptions.tests/PlacedParts.cs:/// same two signatures built `WorkshopBumper`/`WorkshopSpringboard`: evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt.)</summary>
+rc=0
+$ rg "stiffness\(\)|damping\(\)|initialCompression\(\)|strength\(\)|referenceMass\(\)|preload\(\)|addStiffness|addStrength|addPreload|addDamping|addInitialCompression|addReferenceMass" tools/e2e
+rc=1
