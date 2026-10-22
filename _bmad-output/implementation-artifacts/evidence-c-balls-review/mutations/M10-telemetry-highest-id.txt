@@ -1,0 +1,5 @@
+== mutant M10-telemetry-highest-id at 0795c2357beabdd076d454c1a7bebe797dc9ac97 + /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/_bmad-output/implementation-artifacts/evidence-c-balls-review/mutations/M10-telemetry-highest-id.diff
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.TelemetryFollowsTheLowestIdentityPayloadOrNone [< 1 ms]
+Failed!  - Failed:     1, Passed:  2245, Skipped:     0, Total:  2246, Duration: 35 s - CuriousContraptions.tests.dll (net10.0)

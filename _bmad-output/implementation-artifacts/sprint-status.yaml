@@ -268,7 +268,7 @@ development_status:
   # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard
   9r-13-cat-054-ramp-suite: review # native scope; browser post-catalogue
   # 25 (element)
-  9-7a-electrical-nand-gate: review # native scope; SnapshotApproval/publication pending; browser post-catalogue
+  9-7a-electrical-nand-gate: done # scoped native/publication Passb35be7; browser pending
   # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)
   9-7-electrical-logic-gates-nand-nor: backlog
   # 26 (deletion)

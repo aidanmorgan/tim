@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/WorkshopPhysicsCompiler.cs b/engine/gpu/WorkshopPhysicsCompiler.cs
+index c87a1254..d62f8ee7 100644
+--- a/engine/gpu/WorkshopPhysicsCompiler.cs
++++ b/engine/gpu/WorkshopPhysicsCompiler.cs
+@@ -111,7 +111,7 @@ public static class WorkshopPhysicsCompiler
+             };
+             var first = PartIdentities(frame.Id);
+             var targetIndex = 0UL;
+-            foreach (var target in construction.Instances.Where(instance => DeclaredPhysics.IsPayload(instance.PartId)).OrderBy(body => body.Id.Value))
++            foreach (var target in construction.Instances.Where(instance => DeclaredPhysics.IsPayload(instance.PartId)))
+             {
+                 var sensorId = !construction.Puzzle.Id.IsAuthored ? first + 16 + targetIndex * 2 : first + 6;
+                 sensors.Add(new(new(sensorId), frame.Id, target.Id, RigidLocalPose.Identity,

@@ -171,3 +171,27 @@ Publication is:
 - **Deployment.** The github-pages deployment of that SHA reaches the **success** status and consumes that artifact.
 
 Preserve any failed attempt unchanged and return concrete failures to the same implementation owner. Terminal scoped Pass is native/publication only, not browser or release qualification. No routine Chrome run or duplicate local campaign is required for publication.
+
+## Terminal publication verification — 22 October 2026
+
+Same independent reviewer, with no source changed. Raw outputs are in `evidence-9-7a-review/terminal/`: `identity.txt`, `ci-runs.txt`, `build-job.log`, `deploy-job.log`, `pages.txt`, `hook-rerun.log` and `c-ramp-precondition.txt`. The GitHub run/job logs are the original evidence.
+
+| Check | Command (summarised) | Result |
+| --- | --- | --- |
+| Remote identity | `git fetch origin`; `git rev-parse origin/main` | `b35be7f444a199c2faaa8958d66c210947aad346`; tree `a36465b9e8a7bc7c655680f33c86f38b4b73ce84` |
+| Parent chain | `git log --format='%H %P %T'` | **Main side:** b35be7f4 ← `59ecb70b8d161045d08c1f3de802cdad89e23eef` (main, `--no-ff` first parent). **Slice:** `608e3353edf1055618bfc08b31621b931a549187` (tree a36465b9) ← merge `411425ea9fad3a78592dad34e611986bd9507d3f` ← WIP `1101069c7798eb03881378ea10ee7387f68adb6c` and `59ecb70b`. 1101069c was verified byte-equal to the pre-merge reviewed candidate. |
+| Tree equivalence | `git diff --stat 3c2ea40a a36465b9`; `git diff --stat a36465b9 origin/main^{tree}` | The approved tree `3c2ea40a` differs from the published tree in 1 file, this record (+60 lines). Those lines are only the "SnapshotApproval" and "Publication-dependent checks" sections (the receipt). The published main tree is identical to slice tree a36465b9. |
+| Publication precondition | `gh run view 39704720283`; C-Ramp deployment statuses | Main `59ecb70b` CI completed **success** at 01:30:39Z, and Pages deployment 7241421567 succeeded, both before the NAND run started at 01:32:45Z. Main had not moved: the first parent is 59ecb70b. |
+| Exact-SHA CI | `gh run list --commit b35be7f4…`; `gh run view 39706295965 --json jobs` | The only run for that SHA: "Build and deploy game", push, main, attempt 1, **success**. Job build 119587007687 succeeded, with every step successful: checkout of `b35be7f4…`, the C# static gate, Test C# game, Test C# tools, the production bundle publish, the static deployment check and upload-pages-artifact. Job deploy 119591218207 succeeded. |
+| Native and tools totals | build job log | **Test C# game:** `Passed! - Failed: 0, Passed: 2173, Total: 2173` CuriousContraptions.tests. **Test C# tools:** Coverage 77/77, BundleElements 143/143, WorkerAotGuard 17/17, E2eRunner 174/174. The static gate's 3 builds have 0 warnings and 0 errors. |
+| Pages artifact | `gh api …/actions/runs/39706295965/artifacts`; upload log | `github-pages` id **12395965745**, 79552970 bytes, digest `sha256:89759cc93112222ee2322fea7d8c28eba9e10a54917bf91cb6c8c4d32ce4e5d4`. workflow_run 39706295965 with head_sha b35be7f4; not expired. The upload step logged the same id and size. |
+| Deployment | `gh api …/deployments?sha=b35be7f4…`; `…/deployments/7241638673/statuses`; deploy job log | Deployment **7241638673**, github-pages, ref main, sha b35be7f4. Statuses went waiting → queued → in_progress → **success**, with environment_url https://aidanmorgan.github.io/tim/. deploy-pages used `"artifact_id": 12395965745` and logged "Reported success!". This is the latest github-pages deployment; the prior one is 7241421567 for 59ecb70b. |
+| Normal hooks | Index tree a36465b9 with nothing staged; `sh .githooks/pre-commit` | rc 0 in 42 s. The gate builds passed and the staged-test check passed 124/124. The index tree was unchanged afterwards. The implementer reports the hook passed on 608e3353. The merge commit ran no hook, because only pre-commit is installed (as in 9.6). The re-run on the exact published tree independently confirms the hook passes on this tree. |
+
+No failed attempt occurred. The published tree differs from the approved tree only by the receipt.
+
+One note: the C-Ramp corrective forward fix's own terminal receipt is not yet on main. Its CI and deployment preconditions held. That receipt is owned by the C-Ramp reviewer and is not a 9.7a input.
+
+No unresolved scoped unintended regression.
+
+Verdict: **Pass.** This is a scoped native/publication terminal Pass for 9.7a Electrical NAND Gate (CAT-024) at `b35be7f444a199c2faaa8958d66c210947aad346`. It is not browser or release qualification: cat-024 Chrome/Playwright proof remains queued for post-catalogue E2E, and the SnapshotApproval exclusions stand. Carry this receipt into the next normal publication.

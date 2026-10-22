@@ -15,8 +15,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 
 ## Declaration
 
-- **Bodies and shapes.** One dynamic sphere, the same record as every ball: `WorkshopBall` plus a `BallMaterial` keyed by kind (`engine/gpu/WorkshopConstruction.cs@a6c914e:L38-L77`). The compiler emits one dynamic body, one material and one sphere collider per ball (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`). Radius 0.25 m (legacy catalogue).
-- **Mass and material.** Add a tennis arm to `BallMaterial.For(kind)` (`engine/gpu/WorkshopConstruction.cs@a6c914e:L48-L53`):
+- **Bodies and shapes.** One dynamic sphere declared as a zero-parameter payload package, exactly as the Basketball and Bowling ball are since C-Balls (`elements/Ball`, `elements/BowlingBall`): the package declares its mass properties and one sphere collider baked from its scene, and the shared instance loop of `WorkshopPhysicsCompiler.Compile` emits one dynamic body, one material and one sphere collider. `DeclaredPhysics.IsPayload` makes it a payload (Receiver capture, triggers, Bumper work) with no engine edit. Radius 0.25 m (legacy catalogue).
+- **Mass and material.** Declared in the package's mass properties and collider material (no engine arm, no per-kind engine table):
 
   | Field | Value | Source |
   | --- | --- | --- |
@@ -31,15 +31,15 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 
   Admission bounds that apply: restitution 0–1, friction 0–1, rolling resistance 0–0.1 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`); mass 1/1024–1024 kg and drag 0–0.125 1/s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L82`); sphere radius 1/16–16 m (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). All tennis values fit.
 
-  Storage type: the target is canonical f32. Today `BallMaterial` and its catalogue resource store binary16 (`engine/gpu/WorkshopConstruction.cs@a6c914e:L41-L53`; `engine/BallMaterialResource.cs@a6c914e:L7-L29`), and the f32 document lists ball materials under the remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L94-L95`). The tennis arm follows whichever type `BallMaterial` has when Story 12.1 lands.
+  Storage type: the package declares f32; the compiled body, collider and material lanes are still binary16 until Story 9A.44 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)). The tennis package follows whatever those lanes are when Story 12.1 lands.
 - **Constraints and joints.** None. A free dynamic body.
 - **Typed sockets and ports.** None.
 - **Sensors and activation.** None owned. It is a payload for Receiver capture, Switch impact and Pressure plate load (see Legacy harvest).
 - **Work and energy stores.** None.
-- **Parameters.** The material is fixed by kind; `BallMaterial.Validate` admits only the declared material bit-for-bit (`engine/gpu/WorkshopConstruction.cs@a6c914e:L54-L62`). Legacy exposed mass, bounce, radius, buoyancy and drag as authored parameters ([CAT-064 configuration](../requirements.md#current-cat-064)); see Open questions.
-- **Cosmetic curves and UI bindings.** None (`WorkshopBall.Cosmetic` is `None`, `engine/gpu/WorkshopConstruction.cs@a6c914e:L67-L77`).
-- **Art.** Shared ball artwork: sphere at the declared radius plus a stripe ring tilted 35° (`parts/BallPart.cs@a6c914e:L6-L17`, compiled and current). Palette `#b8db59` (`DESIGN.md@a6c914e:L167-L167`); palette icon `ui/WorkshopIcons.cs@a6c914e:L40-L40`.
-- **Catalogue and inventory entry.** Catalogue id `tennis`, title "Tennis ball", category Motion, description "Light, small and bouncy. Responds strongly to moving air." (`parts/catalog/tennis.tres@a6c914e:L8-L14`). The current catalogue form adds a `BallMaterialResource` sub-resource with the material, as `parts/catalog/bowling.tres@a6c914e:L6-L27` does (`engine/BallMaterialResource.cs@a6c914e:L7-L29`).
+- **Parameters.** None: the material is the package declaration (package `Parameters: []`), and a generic record carrying any typed field or parameter is refused (`WorkshopWireFlatBuffers.CarriesTypedField`). Legacy exposed mass, bounce, radius, buoyancy and drag as authored parameters ([CAT-064 configuration](../requirements.md#current-cat-064)); see Open questions.
+- **Cosmetic curves and UI bindings.** None (the package declares no cosmetic curve).
+- **Art.** The package's own scene: a sphere mesh committed at the declared radius, equal to its baked collider (as `elements/Ball/ball.tscn` and `elements/BowlingBall/bowling.tscn`; there is no runtime resize). Palette `#b8db59` (`DESIGN.md@a6c914e:L167-L167`); palette icon `ui/WorkshopIcons.cs@a6c914e:L40-L40`.
+- **Catalogue and inventory entry.** Catalogue id `tennis`, title "Tennis ball", category Motion, description "Light, small and bouncy. Responds strongly to moving air." (`parts/catalog/tennis.tres@a6c914e:L8-L14`). The current catalogue form is the package's entry in the generated element bundle (Story 9A.14), as `elements/BowlingBall` is.
 
 ## Engine capabilities
 
@@ -47,7 +47,7 @@ Families: the [CAT-064 row](../general-engine-element-map.md) and `docs/coverage
 
 - **Exists now.** RigidBodyDynamics, ContactImpulse, SlidingFriction, GeometryQuery and declared linear drag through the dynamic sphere path (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`; [f32 capability inventory](../../gpu-f32-physics.md)). Rolling resistance exists as a material field.
 - **Missing.**
-  - Buoyancy and EnvironmentState pressure. `BallMaterial.Buoyancy` is carried but the compiler does not consume it, and the world has no pressure value (gravity is the constant 9.81, `engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`). Built by Story 12.1. Tennis buoyancy is zero, so the dry mode does not wait for it ([applicability note](../general-engine-element-map.md)).
+  - Buoyancy and EnvironmentState pressure. No buoyancy is compiled for a dynamic body (no ball package declares a fluid payload), and the world has no pressure value (gravity is the constant 9.81, `engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`). Built by Story 12.1. Tennis buoyancy is zero, so the dry mode does not wait for it ([applicability note](../general-engine-element-map.md)).
   - Airflow receiver (fan jet force on the ball): Story 12.2 (CAT-028). Gas decision owner S470 ([decisions](../invest/decisions.md#s470)).
 - **Element dependencies.** Fan (CAT-028) for every airflow mode. The legacy lessons also use Basket/Receiver (CAT-004), Switch (CAT-063), Lamp (CAT-035), Bowling ball (CAT-014), Basketball (CAT-001), Ramp (CAT-054), Domino (CAT-023) and Conveyor (CAT-019). Pressure plate (CAT-052) gives the load control.
 
@@ -55,10 +55,10 @@ Families: the [CAT-064 row](../general-engine-element-map.md) and `docs/coverage
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Material: mass 0.35, bounce 0.78, radius 0.25, buoyancy 0, drag 0.04. | `parts/catalog/tennis.tres@a6c914e:L14-L14` | Carry forward, except bounce pending the owner decision. Do not carry forward the legacy float parameter dictionary. The values enter `BallMaterial`, which is binary16 today and listed under the remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L94-L95`); f32 is the target, not a precondition of Story 12.1. |
+| 1 | Material: mass 0.35, bounce 0.78, radius 0.25, buoyancy 0, drag 0.04. | `parts/catalog/tennis.tres@a6c914e:L14-L14` | Carry forward, except bounce pending the owner decision. Do not carry forward the legacy float parameter dictionary. The values enter the package declaration (f32); the compiled lanes stay binary16 until Story 9A.44, which is not a precondition of Story 12.1. |
 | 2 | Legacy ball contact material: restitution = bounce, bounce threshold 0.1, friction 0.3 (argument order restitution, threshold, friction). | `reference/cpu/MachinePart.cs@a6c914e:L236-L236`; `engine/physics/PersistentContactPair.cs@a6c914e:L23-L23` | Carry forward as declared material values, not as a CPU solver path. |
 | 3 | Legacy drag load = drag × world pressure; buoyant force = buoyancy × pressure × mass (zero for tennis). | `reference/cpu/MachineWorld.cs@a6c914e:L869-L883` | Carry forward the law as declaration input. Do not carry forward the per-substep CPU loop. |
-| 4 | Legacy ball parameter enum: Radius, Mass, Bounce, Buoyancy, Drag; Sphere envelope; solid-sphere dynamics. | `reference/cpu/BallPart.cs@a6c914e:L4-L13` | Carry forward the field set, replaced by `BallMaterial`. |
+| 4 | Legacy ball parameter enum: Radius, Mass, Bounce, Buoyancy, Drag; Sphere envelope; solid-sphere dynamics. | `reference/cpu/BallPart.cs@a6c914e:L4-L13` | Carry forward the field set, as the package's declared mass properties and collider material. |
 | 5 | Acceptance fact: each ball kind dropped in isolation at zero pressure reaches first impact at √(2h/g) ± 0.02 s and rebounds to bounce² ± 0.015 of the fall height; replay after Reset is identical. | `CuriousContraptions.tests/PhysicsCalibrationTests.cs@a6c914e:L14-L67` | Carry forward as the rest/bounce acceptance. |
 | 6 | Acceptance fact: a tennis ball dropped from y = 3 bounces (vertical speed > 0.1 at least once), never sinks more than 1 mm below the bench, and settles (< 0.05 m/s) within 2400 ticks. | `CuriousContraptions.tests/FloorTests.cs@a6c914e:L26-L48` | Carry forward. |
 | 7 | Acceptance fact: one tennis ball does not press a Pressure plate with minimum mass 0.5; two tennis balls (0.7 kg) do. | `CuriousContraptions.tests/PressurePlateTests.cs@a6c914e:L38-L62`; `parts/catalog/pressure_plate.tres@a6c914e:L14-L14` | Carry forward as the CAT-052 integration control. |

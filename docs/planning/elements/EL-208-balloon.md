@@ -16,7 +16,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 
 Configuration: mass, bounce, radius, buoyancy, drag, no enumerated selector ([CAT-003](../requirements.md#current-cat-003)). EL-208 adds three behaviours specified separately below: buoyant rise, tether, puncture with gas loss.
 
-- **Bodies and shapes.** One dynamic sphere, radius 0.36 m (`parts/catalog/balloon.tres@a6c914e:L14-L14`), on the shared `WorkshopBall` path (`engine/gpu/WorkshopConstruction.cs@a6c914e:L38-L77`).
+- **Bodies and shapes.** One dynamic sphere, radius 0.36 m (`parts/catalog/balloon.tres@a6c914e:L14-L14`), declared by its own package and compiled by the shared dynamic-body path of `WorkshopPhysicsCompiler.Compile`, as the Basketball and Bowling ball packages are since C-Balls.
 - **Mass and material.** Mass 0.5 kg, bounce 0.2, buoyancy 11.5 m/s², drag 0.4 1/s (`parts/catalog/balloon.tres@a6c914e:L14-L14`); friction 0.3, threshold 0.1 m/s (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`).
   - **Proposed** rolling resistance 0.05 — a soft skin rolls poorly; within 0–0.1 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
   - Drag 0.4 exceeds the admitted 0–0.125 1/s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L69-L69`): see Open questions.
@@ -40,7 +40,7 @@ Configuration: mass, bounce, radius, buoyancy, drag, no enumerated selector ([CA
 
 Families ([element map row](../general-engine-element-map.md), [binding](../../coverage/engine/element-03.json)): AerodynamicDrag, Buoyancy, EnvironmentState, FiniteLedger, GasState, GeometryQuery, JointConstraint, RigidBodyDynamics, StateTransaction, StructuralFracture, TopologyTransaction.
 
-- **Exists now.** Dynamic sphere, linear drag, per-body gravity vector (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`); `BallMaterial.Buoyancy` field, unconsumed (`engine/gpu/WorkshopConstruction.cs@a6c914e:L41-L44`).
+- **Exists now.** Dynamic sphere, linear drag, per-body gravity vector (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`). No buoyancy is compiled for a dynamic body today: a package's fluid declaration (`FluidPayload`) is not consumed by the dynamic-body compile.
 - **Missing.**
   - Buoyancy and pressure: Story 12.1 and EL-125 (LAW-ENVIRONMENT-I, [S635](../invest/decisions.md#s635)).
   - Tether rope row: Story 10.2.

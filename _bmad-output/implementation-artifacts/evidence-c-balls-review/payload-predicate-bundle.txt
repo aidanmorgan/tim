@@ -1,0 +1,25 @@
+ball Dynamic ['Sphere'] sliders=0 payload=True
+ball_detector Static ['Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box'] sliders=0 payload=False
+basket Static ['Box', 'Box', 'Box', 'Box', 'Box'] sliders=0 payload=False
+battery None ['Box'] sliders=0 payload=False
+both_gate None ['Box', 'Box'] sliders=0 payload=False
+bowling Dynamic ['Sphere'] sliders=0 payload=True
+bumper Static ['Sphere'] sliders=0 payload=False
+clock None ['Box', 'Box'] sliders=0 payload=False
+counter None ['Box', 'Box'] sliders=0 payload=False
+delay None ['Box'] sliders=0 payload=False
+domino Dynamic ['Box'] sliders=0 payload=False
+electrical_nand None ['Box', 'Box'] sliders=0 payload=False
+funnel Static ['Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box'] sliders=0 payload=False
+hold_timer None ['Box', 'Box'] sliders=0 payload=False
+lamp None ['Box'] sliders=0 payload=False
+latch None ['Box', 'Box'] sliders=0 payload=False
+pipe Static ['Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box'] sliders=0 payload=False
+pipe_bend_45 Static ['Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box'] sliders=0 payload=False
+pipe_bend_90 Static ['Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box'] sliders=0 payload=False
+powered_gate Static ['Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box', 'Box'] sliders=1 payload=False
+pressure_plate Static ['Box', 'Box'] sliders=0 payload=False
+ramp Static ['Box'] sliders=0 payload=False
+spring Static ['Box'] sliders=1 payload=False
+switch Static ['Box', 'Box'] sliders=0 payload=False
+wall Static ['Box'] sliders=0 payload=False

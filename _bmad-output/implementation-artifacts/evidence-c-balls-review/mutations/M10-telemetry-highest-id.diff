@@ -1,0 +1,13 @@
+diff --git a/engine/MachineWorld.Gpu.cs b/engine/MachineWorld.Gpu.cs
+index 5c706ebd..a7254125 100644
+--- a/engine/MachineWorld.Gpu.cs
++++ b/engine/MachineWorld.Gpu.cs
+@@ -231,7 +231,7 @@ public partial class MachineWorld
+     /// <summary>The presentation telemetry's body: the lowest-identity payload, or no body (zero) while there is none.</summary>
+     internal static GpuBodyId TelemetryBody(WorkshopInstances instances) =>
+         instances.Where(instance => DeclaredPhysics.IsPayload(instance.PartId)).Select(instance => instance.Id)
+-            .OrderBy(id => id.Value).FirstOrDefault();
++            .OrderByDescending(id => id.Value).FirstOrDefault();
+ 
+     private void PresentWorkshopRead()
+     {
