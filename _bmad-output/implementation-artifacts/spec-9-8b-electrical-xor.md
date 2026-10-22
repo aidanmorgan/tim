@@ -172,7 +172,34 @@ Do not change: `Resolve`, `SupplyCycles`, `WorkshopConnections.Validate`, `works
 
 # Current state
 
-Pre-merge candidate in worktree `story-9-8b`, uncommitted, on base `a2eddf81`. 9.4c had not published at the time of writing. Next: if main has moved, merge it and re-derive the pins and `PaletteOrder` 30; then independent review and SnapshotApproval. Browser qualification is pending post-catalogue (cases above).
+The pre-merge candidate, exactly as reported, is WIP `1e6d707e` (tree `724636af`; normal hooks) on base `a2eddf81`. After 9.4c published, it was merged with main `a598a09e` as `746d6582` (Post-merge below). Next: independent review (queued), SnapshotApproval of the merged snapshot, then protected publication. Browser qualification is pending post-catalogue (cases above).
+
+## Post-merge
+
+Merge `746d6582fc6be629f5c3714d85ff79ee5a7a8107`: tree `e6080ad66c25ae2c172a5fe7d16e4612587eed57`, parents `1e6d707e` (WIP) and `a598a09e` (main: 9.4c, test-only `LatchSupplyFixtureTests`, docs, receipts). Evidence is in [`evidence-9-8b/post-merge/`](evidence-9-8b/post-merge/).
+
+- **Conflict: `TODO.md` only.**
+  - Kept from main: the Verified, Also-verified and 9.8a/C-Bumper+Spring merged-receipt lines.
+  - 9.4c moves to a "Merged, receipts pending (9.4c)" line. It keeps its one-tick supply-lag decision, its pending browser cases and the `ActuatorDriveRead.Blocked` residual handoff to the C-Gate owner verbatim.
+  - In flight and Owner now name 9.8b.
+  - Next reads "publish 9.8b after its SnapshotApproval, then C-Gate".
+- **Auto-merged.** All other files merged cleanly; sprint-status keeps main's 9.4c row and 9.8b `review`.
+- **Pins re-derived from the merged bundle (`pin-derivation.txt`).** 9.4c adds no package and no undelivered part:
+  - 28 entries and 28 package dirs, plus 2 undelivered (ids 30);
+  - 28 distinct `PaletteOrder` values, `electrical_xor` = 30;
+  - registry 28, SaveFixture 28, Coverage admitted 28 and ids 30 all hold. No pin was edited.
+- **Identity (`identity.txt`).** Against main, the merge differs only in the slice's 34 non-evidence paths. Against the WIP commit, the only slice-owned change is the `TODO.md` resolution.
+- **`git diff --check`.** Clean on every non-evidence path and on the working tree. It flags trailing whitespace only in the committed raw tool output under `evidence-9-8b/` (`diff-check-evidence-files.txt`), which is kept unchanged.
+- **AppBundle.** `CuriousContraptions.web/AppBundle` is absent.
+
+| Check | Command | Result |
+| --- | --- | --- |
+| One rebuild of the merged tree | `dotnet build CuriousContraptions.slnx -c Debug` | 0 W / 0 E (`build-debug.log`) |
+| Whole solution | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2402/2402** (candidate 2392 + 9.4c's 10), Coverage 77/77, BundleElements 150/150, E2eRunner 189/189, WorkerAotGuard 17/17 (`test-slnx.log`) |
+| CI "Test C# tools" step, verbatim, under bash | `evidence-9-8b/ci-tool-step.sh` | Coverage 77, BundleElements 150, WorkerAotGuard 17, E2eRunner 174 filtered; exit 0 (`ci-tool-step.log`) |
+| Worker | `dotnet build CuriousContraptions.Simulation -c Release` | 0 W / 0 E (`worker-release.log`) |
+| Named electrical, chooser and scan tests | same filter as the pre-merge row | 161/161 (`native-electrical-named.log`) |
+| Merge commit hooks | `git commit` (normal pre-commit) | gate tests 124/124 |
 
 ## Assumptions and deviations
 
