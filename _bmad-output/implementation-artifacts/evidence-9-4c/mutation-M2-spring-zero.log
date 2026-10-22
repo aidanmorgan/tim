@@ -1,0 +1,88 @@
+ elements/PoweredGate/PoweredGateElementDeclaration.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.AuthoredDisabledBatteryNeverOpensAfterSet [105 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [2 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [2 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [2 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [2 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [2 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [2 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [2 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically [25 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [2 ms]
+Failed!  - Failed:    10, Passed:     0, Skipped:     0, Total:    10, Duration: 185 ms - CuriousContraptions.tests.dll (net10.0)
+--- M2 attempt 1 (Fixed(0f)) above: Construct Faulted at admission (stiffness must be positive) — non-discriminating; attempt 2: Fixed(0.001f)
+diff --git a/elements/PoweredGate/PoweredGateElementDeclaration.cs b/elements/PoweredGate/PoweredGateElementDeclaration.cs
+index 930e998a..ec254a9e 100644
+--- a/elements/PoweredGate/PoweredGateElementDeclaration.cs
++++ b/elements/PoweredGate/PoweredGateElementDeclaration.cs
+@@ -70,7 +70,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
+     public IReadOnlyList<PrismaticSliderDescriptor> Sliders =>
+     [
+         new(new(Vector3.Zero, Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
+-            0f, 1.55f, MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
++            0f, 1.55f, MechanicalValue.Fixed(0.001f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
+             new(1f, new Vector3(0f, -9.81f, 0f), 0f,
+                 []))
+     ];
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [38 ms]
+  Error Message:
+   the unsupplied blade falls
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [82 ms]
+  Error Message:
+   blade closes within 240 ticks of tick 103 (closed index -1)
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [59 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 1.53504
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [67 ms]
+  Error Message:
+   fact 15: energy 15.668477 -> 15.693135 at tick 118
+--
+Failed!  - Failed:     4, Passed:     6, Skipped:     0, Total:    10, Duration: 795 ms - CuriousContraptions.tests.dll (net10.0)
+--- M2 attempt 3: same Fixed(0.001f) mutation after adding the facts 15/19 energy law to ResetWhenOpen (AssertSpringDamperReturn)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [37 ms]
+  Error Message:
+   the unsupplied blade falls
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [82 ms]
+  Error Message:
+   blade closes within 240 ticks of tick 103 (closed index -1)
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [72 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 1.53504
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [68 ms]
+  Error Message:
+   fact 15: energy 15.668477 -> 15.693135 at tick 118
+--
+Failed!  - Failed:     4, Passed:     6, Skipped:     0, Total:    10, Duration: 821 ms - CuriousContraptions.tests.dll (net10.0)
+--- M2 attempt 4: same Fixed(0.001f) mutation after adding the declared spring-damper law check to AssertSpringDamperReturn
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [37 ms]
+  Error Message:
+   the unsupplied blade falls
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [81 ms]
+  Error Message:
+   blade closes within 240 ticks of tick 103 (closed index -1)
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [82 ms]
+  Error Message:
+   spring-damper law residual 21.732693 m/s²
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [71 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 1.53504
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [86 ms]
+  Error Message:
+   fact 15: energy 15.66391 -> 15.668477 at tick 117
+--
+Failed!  - Failed:     5, Passed:     5, Skipped:     0, Total:    10, Duration: 864 ms - CuriousContraptions.tests.dll (net10.0)

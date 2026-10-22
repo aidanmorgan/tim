@@ -1,0 +1,139 @@
+diff --git a/engine/gpu/WorkshopPhysicsCompiler.cs b/engine/gpu/WorkshopPhysicsCompiler.cs
+index c87a1254..f04f5786 100644
+--- a/engine/gpu/WorkshopPhysicsCompiler.cs
++++ b/engine/gpu/WorkshopPhysicsCompiler.cs
+@@ -79,7 +79,7 @@ public static class WorkshopPhysicsCompiler
+                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+                     instance.Rotation, default, default, new((Half)body.Mass),
+                     new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
+-                AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
++                if (instance.PartId != PartId.PoweredGate) AddGeometry(moving, identity + 3, identity + 4, body.Colliders); // MUTATION M4
+                 prismatics.Add(new(new(identity + 5), instance.Id, moving,
+                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
+                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.AuthoredDisabledBatteryNeverOpensAfterSet [94 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically [23 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+Failed!  - Failed:    10, Passed:     0, Skipped:     0, Total:    10, Duration: 165 ms - CuriousContraptions.tests.dll (net10.0)
+--- attempt 1 above (blade AddGeometry skipped): admission rejects a body without colliders; non-discriminating. attempt 2: blade collider lifted 3 m (no ball/bore contact):
+diff --git a/engine/gpu/WorkshopPhysicsCompiler.cs b/engine/gpu/WorkshopPhysicsCompiler.cs
+index c87a1254..470b7fac 100644
+--- a/engine/gpu/WorkshopPhysicsCompiler.cs
++++ b/engine/gpu/WorkshopPhysicsCompiler.cs
+@@ -80,6 +80,7 @@ public static class WorkshopPhysicsCompiler
+                     instance.Rotation, default, default, new((Half)body.Mass),
+                     new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
+                 AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
++                if (instance.PartId == PartId.PoweredGate) colliders[^1] = colliders[^1] with { LocalPose = new(new((Half)0, (Half)3, (Half)0), CanonicalRotation.Identity) }; // MUTATION M4
+                 prismatics.Add(new(new(identity + 5), instance.Id, moving,
+                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
+                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/engine/gpu/WorkshopPhysicsCompiler.cs(83,97): error CS0117: 'ColliderDeclaration' does not contain a definition for 'LocalPose' [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/engine/gpu/WorkshopPhysicsCompiler.cs(83,97): error CS0117: 'ColliderDeclaration' does not contain a definition for 'LocalPose' [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.csproj]
+    1 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.AuthoredDisabledBatteryNeverOpensAfterSet [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically [23 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+--
+Failed!  - Failed:    10, Passed:     0, Skipped:     0, Total:    10, Duration: 165 ms - CuriousContraptions.tests.dll (net10.0)
+--- attempt 2 above did not compile (field is Pose); stale results discarded. attempt 3: blade collider Pose lifted 3 m:
+diff --git a/engine/gpu/WorkshopPhysicsCompiler.cs b/engine/gpu/WorkshopPhysicsCompiler.cs
+index c87a1254..eca078f3 100644
+--- a/engine/gpu/WorkshopPhysicsCompiler.cs
++++ b/engine/gpu/WorkshopPhysicsCompiler.cs
+@@ -80,6 +80,7 @@ public static class WorkshopPhysicsCompiler
+                     instance.Rotation, default, default, new((Half)body.Mass),
+                     new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
+                 AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
++                if (instance.PartId == PartId.PoweredGate) colliders[^1] = colliders[^1] with { Pose = new(new((Half)0, (Half)3, (Half)0), CanonicalRotation.Identity) }; // MUTATION M4
+                 prismatics.Add(new(new(identity + 5), instance.Id, moving,
+                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
+                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [68 ms]
+  Error Message:
+   guard: the ball is short of the passage at the cut, x 0.03211793
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [63 ms]
+  Error Message:
+   Assert.All() Failure: 28 out of 66 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [66 ms]
+  Error Message:
+   guard: the ball is partly through the blade plane, x 0.6268946
+--
+Failed!  - Failed:     3, Passed:     7, Skipped:     0, Total:    10, Duration: 808 ms - CuriousContraptions.tests.dll (net10.0)

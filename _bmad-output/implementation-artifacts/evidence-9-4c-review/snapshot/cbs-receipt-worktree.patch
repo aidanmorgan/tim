@@ -1,0 +1,42 @@
+diff --git a/_bmad-output/implementation-artifacts/review-c-bumper-spring.md b/_bmad-output/implementation-artifacts/review-c-bumper-spring.md
+index 2a375bd6..88297768 100644
+--- a/_bmad-output/implementation-artifacts/review-c-bumper-spring.md
++++ b/_bmad-output/implementation-artifacts/review-c-bumper-spring.md
+@@ -69,3 +69,18 @@ SnapshotApproval authorizes the implementer to commit exactly this snapshot (plu
+ - a successful `github-pages` deployment of that SHA.
+ 
+ Return concrete failures to the same implementation owner. No routine Chrome run or duplicate local campaign is required for publication; browser qualification remains pending.
++
++## Terminal publication verification — 22 October 2026
++
++Raw outputs: [evidence-c-bumper-spring-review/terminal/](evidence-c-bumper-spring-review/terminal/).
++
++| Check | Evidence | Result |
++|---|---|---|
++| Identities | `trees.txt`, `ls-remote.txt` | Slice commit `c13d07c5fbe74e0729cedccc40c63c7e1464366d` (tree `cf0b9de5bc870564fd7c1d653c60c87f66dcd68c`, parent `f5484157`); merge `711568c473cf3143b60ea9145635ccd1a10acf64` (`--no-ff`, parents `55ee05b9`, `c13d07c5`, same tree `cf0b9de5`); `git ls-remote origin refs/heads/main` = `711568c4` |
++| Tree equivalence | `git diff-tree` | Approved tree `e6222939` vs published tree: only `review-c-bumper-spring.md` (the authorized SnapshotApproval/Publication sections). Final staged tree `cf0b9de5` = slice tree = merge tree = origin/main tree (`55ee05b9` is an ancestor of the slice, so the merge adds nothing) |
++| Hooks | `hook-rerun.log` | Implementer reports the hook passed on the slice commit; no hook ran on the clean merge. Re-run on the exact published tree (HEAD `c13d07c5`, index tree `cf0b9de5`, nothing staged, no AppBundle): `sh .githooks/pre-commit` exit 0; three gate builds 0 warnings/0 errors; gate tests 124/124 |
++| Exact-SHA CI | `run.json`, `jobs.json`, `jobs-summary.txt`, `build-job.log`, `build-job-totals.txt` | Run 39720896408 "Build and deploy game", push on main, head SHA `711568c4`, attempt 1, completed/success. Build job 119633824685: every step success (C# static gate 3× 0 warnings/0 errors; Test C# game; Test C# tools; publish; static deployment; upload-pages-artifact). Native CuriousContraptions.tests 2313/2313; tools Coverage 77, BundleElements 146, WorkerAotGuard 17, E2eRunner 174; all 0 failed/skipped |
++| Pages artifact | `artifacts.json`, `deploy-job.log` | Artifact 12401771550 `github-pages`, 79466278 bytes, digest `sha256:bca486faf1d242e7aa83567d684fe8dbae5ba14d5f92f5e63e43f0d1e62497d5`, workflow run 39720896408, head SHA `711568c4`, not expired; deploy job 119637952178 fetched artifact id 12401771550 and "Reported success!" |
++| Deployment | `deployment.json`, `deployment-statuses.json` | Deployment 7243705510, environment `github-pages`, SHA `711568c4`, latest status `success` (2026-10-22T04:24:36Z) |
++
++**Terminal verdict: scoped Pass (native and publication).** Browser/Chrome qualification (9R.8 `spring-forward.test.ts` and the five type-fixed suites) remains pending for post-catalogue E2E. Sprint-status (this worktree, uncommitted, carried as the terminal receipt into the next normal slice): `9a-c-bumper-spring-conversion`, `9a-33` and `9a-34` set to `done # scoped native/publication Pass711568; browser pending`; `9r-8` stays backlog.
+diff --git a/_bmad-output/implementation-artifacts/sprint-status.yaml b/_bmad-output/implementation-artifacts/sprint-status.yaml
+index 5e240221..0fab37b4 100644
+--- a/_bmad-output/implementation-artifacts/sprint-status.yaml
++++ b/_bmad-output/implementation-artifacts/sprint-status.yaml
+@@ -282,11 +282,11 @@ development_status:
+   # 27 (element)
+   9-7b-electrical-nor-gate: done # scoped native/publication Pass55ee05; browser pending
+   # 28 (deletion)
+-  9a-c-bumper-spring-conversion: review
++  9a-c-bumper-spring-conversion: done # scoped native/publication Pass711568; browser pending
+   # merged into 9a-c-bumper-spring (21 Oct 2026)
+-  9a-33-generic-instance-bumper: review
++  9a-33-generic-instance-bumper: done # scoped native/publication Pass711568; browser pending
+   # merged into 9a-c-bumper-spring (21 Oct 2026)
+-  9a-34-generic-instance-springboard: review
++  9a-34-generic-instance-springboard: done # scoped native/publication Pass711568; browser pending
+   # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
+   9r-8-spring-forward-lesson-chrome-proof: backlog
+   # 29 (element)

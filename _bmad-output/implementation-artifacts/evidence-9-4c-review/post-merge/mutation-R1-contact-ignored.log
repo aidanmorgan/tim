@@ -1,0 +1,45 @@
+# merged-tree mutation R1-contact-ignored  2026-10-22T04:32:05Z  HEAD 80ffc68589070a6e18839986861f54a358b557ad
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index 6add5dd2..f1059d3e 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -156,7 +156,7 @@ public sealed class CompiledSupplyGraph
+         bool Input(int node, WorkshopSocket socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
+         bool Active(int i) => _nodes[i].Kind switch
+         {
+-            SupplyNodeKind.Contact => Input(i,WorkshopSocket.PowerIn) && contacts[i],
++            SupplyNodeKind.Contact => Input(i,WorkshopSocket.PowerIn) && (contacts[i] || true), // MUTATION R1
+             SupplyNodeKind.Consumer => Input(i,WorkshopSocket.PowerIn),
+             SupplyNodeKind.LogicGate => Input(i,WorkshopSocket.PowerIn) && Evaluate(_nodes[i].Operation!.Value,
+                 Input(i,WorkshopSocket.FirstIn),Input(i,WorkshopSocket.SecondIn)),
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [37 ms]
+  Error Message:
+   the repowered blade reopens
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [82 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 1.5499998
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [39 ms]
+  Error Message:
+   Assert.All() Failure: 66 out of 66 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [68 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 1.5499998
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [85 ms]
+  Error Message:
+   Assert.All() Failure: 271 out of 271 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [65 ms]
+  Error Message:
+   Assert.All() Failure: 22 out of 66 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [68 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 1.5499998
+--
+Failed!  - Failed:     7, Passed:     3, Skipped:     0, Total:    10, Duration: 847 ms - CuriousContraptions.tests.dll (net10.0)

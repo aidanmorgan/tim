@@ -1,0 +1,21 @@
+# mutation R8-soft-contacts-crush  2026-10-22T03:28:05Z  base 55ee05b96f949a7d93241b5ed0608b32db6bb8a0
+diff --git a/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs b/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+index aa9c5316..ede233b0 100644
+--- a/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
++++ b/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+@@ -25,7 +25,7 @@ internal static class WorkshopConstraintSolver
+     public const float MaxAngularSpeed = 128f;
+     public const float SpeedClamp = 64f * (1f - (1f / 1048576f));
+     public const float SpinClamp = 128f * (1f - (1f / 1048576f));
+-    public const float ContactHertz = 60f;
++    public const float ContactHertz = 1f; // MUTATION R8: mushy contacts (crush proxy)
+     public const float ContactDampingRatio = 10f;
+     public const float MaxPushoutSpeed = 3f;
+     public const int SolverIterations = 4;
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [75 ms]
+  Error Message:
+   temporary penetration ≤ 5% of the blade, tick 221
+--
+Failed!  - Failed:     1, Passed:     9, Skipped:     0, Total:    10, Duration: 867 ms - CuriousContraptions.tests.dll (net10.0)

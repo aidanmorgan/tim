@@ -1,0 +1,33 @@
+# mutation R3-latch-reset-ignored  2026-10-22T03:25:34Z  base 55ee05b96f949a7d93241b5ed0608b32db6bb8a0
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index 24f1400f..750813bc 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -488,7 +488,7 @@ public sealed class ActivationNetwork
+                 }
+                 else if (_nodes[target].Kind == ActivationNodeKind.StateLatch)
+                 {
+-                    if (edge.Input == WorkshopSocket.ResetIn) latchRequests[target] |= StateLatchRequest.Reset;
++                    if (edge.Input == WorkshopSocket.ResetIn) { } // MUTATION R3: latch Reset ignored
+                     else if ((latchRequests[target] & StateLatchRequest.Set) == 0 || Compare(occurrence, latchSetBy[target]) < 0)
+                     { latchRequests[target] |= StateLatchRequest.Set; latchSetBy[target] = occurrence; }
+                 }
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [88 ms]
+  Error Message:
+   Assert.All() Failure: 364 out of 364 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [75 ms]
+  Error Message:
+   Assert.All() Failure: 179 out of 360 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [85 ms]
+  Error Message:
+   Assert.All() Failure: 272 out of 272 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [57 ms]
+  Error Message:
+   System.ArgumentOutOfRangeException : Index was out of range. Must be non-negative and less than or equal to the size of the collection. (Parameter 'startIndex')
+--
+Failed!  - Failed:     4, Passed:     6, Skipped:     0, Total:    10, Duration: 893 ms - CuriousContraptions.tests.dll (net10.0)

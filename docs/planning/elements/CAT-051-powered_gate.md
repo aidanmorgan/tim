@@ -172,6 +172,7 @@ This outline points to [CAT-051](../requirements.md#current-cat-051), [todo-244]
 - **Run/Reset.** Reset closes the blade exactly and keeps connections (fact 12).
 - **Save/Load.** A round trip preserves pose, mouths and connection; the replay is identical.
 - **Integrations.** Hold timer, counter and pressure plate supplies; cannon muzzle and wound-spring plunger obstruction (facts 22–25), each after its partner element's story.
+  - *Status (Story 9.4c, 22 Oct 2026):* `CuriousContraptions.tests/LatchSupplyFixtureTests.cs` ([spec](../../../_bmad-output/implementation-artifacts/spec-9-4c-latch-fixture-deferred-integrations.md)) proves natively the supply interruption mid-stroke (latch Reset), the spring-damper return (facts 15, 19) and the fact-14 behaviour: the closing blade stops on a ball partly through the opening, the ball is not ejected and penetration stays within the game envelope. The "State Blocked" part of fact 14 is **not** proven: a blade at rest on the ball keeps a −1.083e-5 m/s velocity residual, so `ActuatorDriveRead.Blocked` (1e-5 m/s) reads false. The threshold is [open question 3](#6-open-questions); the fix is assigned to C-Gate (coordinator decision, 22 Oct 2026). Browser case `cat-051-interrupt` is pending post-catalogue E2E.
 
 ## 6. Open questions
 

@@ -1,0 +1,27 @@
+# mutation T0-test-lag-zero  2026-10-22T03:26:34Z  base 55ee05b96f949a7d93241b5ed0608b32db6bb8a0
+--- /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.tests/LatchSupplyFixtureTests.cs	2026-10-22 11:16:28.981739197 +0800
++++ CuriousContraptions.tests/LatchSupplyFixtureTests.cs	2026-10-22 11:26:31.819189488 +0800
+@@ -11,7 +11,7 @@
+     private const ulong Battery = 1, Latch = 2, Gate = 3, SwitchA = 4, BallA = 5, SwitchB = 6, BallB = 7, Lamp = 8, Payload = 9;
+     // Measured on this engine (spec D3): the committed latch of tick T closes or opens the route consumed by physics tick T+1.
+     // The frozen T14 "On at T+2" came from the deleted legacy command queue; flagged for owner confirmation.
+-    private const int SupplyLagTicks = 1;
++    private const int SupplyLagTicks = 0; // TEST-SIDE MUTATION T0: a 0-lag expectation against the real engine
+     private const float Upper = 1.55f, ClosedTolerance = 1e-3f, BallRadius = .34f, BladeHalfThickness = .06f, BladeHalfHeight = .72f,
+         BoreRadius = .65f, TiltDegrees = -15f;
+     private const double GateX = 8, GateY = 3;
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [82 ms]
+  Error Message:
+   Assert.All() Failure: 1 out of 365 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [35 ms]
+  Error Message:
+   Assert.True() Failure
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [81 ms]
+  Error Message:
+   Assert.All() Failure: 1 out of 272 items in the collection did not pass.
+--
+Failed!  - Failed:     3, Passed:     7, Skipped:     0, Total:    10, Duration: 850 ms - CuriousContraptions.tests.dll (net10.0)
