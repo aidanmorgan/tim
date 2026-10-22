@@ -191,12 +191,12 @@ public sealed class WorkshopBowlingTests
         Assert.Contains(PartId.Springboard, WorkbenchCapacityTests.FreePalette.Keys);
 
         // One Receiver declares a residence sensor and a guide per ball of either kind, with the shared capture settings.
-        var receiver = WorkshopInput.Receiver(new(5), 0, 1, 0, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
         var scene = WorkshopPhysicsCompiler.Compile(TwoLanes().WithInstance(receiver), new(1, 2));
         Assert.Equal([new GpuBodyId(3), new GpuBodyId(4)], scene.Sensors.ToArray().Select(s => s.Target).OrderBy(id => id.Value).ToArray());
         Assert.Equal([new GpuBodyId(3), new GpuBodyId(4)], scene.Guides.ToArray().Select(g => g.Target).OrderBy(id => id.Value).ToArray());
-        Assert.All(scene.Sensors.ToArray(), s => Assert.Equal(ReceiverCaptureSettings.Free.SpeedLimit, s.SpeedLimit));
-        var second = WorkshopInput.Receiver(new(6), 4, 1, 0, 0, 0, 0, 1);
+        Assert.All(scene.Sensors.ToArray(), s => Assert.Equal(new LinearSpeed((Half)1.5), s.SpeedLimit));
+        var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
         Assert.Equal(WorkbenchTable.Guides, Assert.Throws<WorkbenchFullException>(() => TwoLanes().WithInstance(receiver).WithInstance(second).Validate()).Table);
     }
 

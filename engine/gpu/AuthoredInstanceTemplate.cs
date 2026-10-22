@@ -9,8 +9,7 @@ namespace CuriousContraptions.Gpu;
 // The current construction record's typed scalar fields, not element identities.
 internal enum AuthoredScalar
 {
-    Radius, Mass, Bounce, Drag, Buoyancy, Margin, SpeedLimit, Dwell, SupportHeight,
-    SupportMargin, MaximumAcceleration, Length, Width, Threshold, Stiffness, Damping,
+    Radius, Mass, Bounce, Drag, Buoyancy, Length, Threshold, Stiffness, Damping,
     InitialCompression, Capacity, MaximumPower, InitialFraction, Strength, ReferenceMass, Preload, Friction
 }
 internal enum AssistanceValue
@@ -19,15 +18,14 @@ internal enum AssistanceValue
     Blend, CaptureMargin, CaptureSpeed, CaptureDwell, GuideAcceleration, TriggerThreshold
 }
 internal readonly record struct AuthoredSlot(string Value);
-internal enum AuthoredParameterSource { Scalar, Participation }
+internal enum AuthoredParameterSource { Scalar }
 internal readonly record struct AuthoredParameterBinding(ParameterId Parameter, AuthoredParameterSource Source, AuthoredScalar? Scalar);
 internal readonly record struct AuthoredAssistanceBinding(AssistanceValue Value, AuthoredScalar? Scalar, ParameterId Parameter);
 
 /// <summary>Explicit current-schema fields. No omitted scalar is replaced by a FlatBuffers default.</summary>
 internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, bool Locked, ImmutableDictionary<AuthoredScalar, float> Scalars,
-    SensorParticipation Participation, ElectricalEnable Enabled, uint TargetCount, System.Numerics.Vector3 ForceMinimum,
-    System.Numerics.Vector3 ForceMaximum, System.Numerics.Vector3 HalfExtents,
+    ElectricalEnable Enabled, uint TargetCount, System.Numerics.Vector3 HalfExtents,
     InstanceParameterCollection Parameters, ImmutableArray<AuthoredParameterBinding> ParameterBindings,
     AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
 {
@@ -52,15 +50,14 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
             Scalars.Any(pair => !Enum.IsDefined(pair.Key) || !float.IsFinite(pair.Value)))
             throw new ArgumentException("Missing, undefined or nonfinite authored scalar.");
         Rotation.Validate();
-        if (!Enum.IsDefined(Participation) || !Enum.IsDefined(Enabled))
-            throw new ArgumentException("Undefined authored participation or electrical state.");
+        if (!Enum.IsDefined(Enabled))
+            throw new ArgumentException("Undefined authored electrical state.");
         var values = Parameters.ToDictionary();
         foreach (var binding in ParameterBindings)
         {
             var value = binding.Source switch
             {
                 AuthoredParameterSource.Scalar when binding.Scalar is { } scalar => Scalars[scalar],
-                AuthoredParameterSource.Participation when binding.Scalar is null => (float)Participation,
                 _ => throw new ArgumentException("Invalid authored parameter source.")
             };
             if (binding.Parameter == default || !values.TryAdd(binding.Parameter, value))
@@ -109,7 +106,7 @@ internal static class AuthoredInstanceReader
     {
         var fields = PuzzleContentReader.Fields(json, where);
         Require(fields, where, "part", "cell", "local", "rotation", "locked", "scalars",
-            "participation", "enabled", "target_count", "force_minimum", "force_maximum", "half_extents",
+            "enabled", "target_count", "half_extents",
             "parameters", "parameter_bindings", "assistance", "assistance_bindings");
         var part = new PartId(PuzzleContentReader.Text(fields, "part", where));
         if (!DeclaredPhysics.Contains(part)) throw PuzzleContentReader.Invalid(where, "part", "unknown declared part");
@@ -147,8 +144,8 @@ internal static class AuthoredInstanceReader
             new(local.X, local.Y, local.Z),
             new(Number(rotation[0], where), Number(rotation[1], where), Number(rotation[2], where), Number(rotation[3], where)),
             Boolean(fields["locked"], where + ".locked"), scalars.ToImmutable(),
-            (SensorParticipation)Unsigned(fields["participation"], where + ".participation"), Enabled(fields["enabled"], where + ".enabled"), Unsigned(fields["target_count"], where + ".target_count"),
-            Vector(fields["force_minimum"], where), Vector(fields["force_maximum"], where), Vector(fields["half_extents"], where),
+            Enabled(fields["enabled"], where + ".enabled"), Unsigned(fields["target_count"], where + ".target_count"),
+            Vector(fields["half_extents"], where),
             parameters, parameterBindings.ToImmutable(), Profile(fields["assistance"], where), assistanceBindings.ToImmutable());
         try
         {

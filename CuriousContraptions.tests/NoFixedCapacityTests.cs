@@ -44,7 +44,7 @@ public sealed class NoFixedCapacityTests
                 return (Bench(parts), scene => Assert.Equal(17, Dynamic(scene)));
             case "sensors-guides-16":
                 Balls(17, 0);
-                parts.Add(WorkshopInput.Receiver(Next(), 0, 1, 4, 0, 0, 0, 1));
+                parts.Add(WorkshopInput.Generic(PartId.Receiver, Next(), 0, 1, 4, 0, 0, 0, 1));
                 return (Bench(parts), scene => { Assert.Equal(17, scene.Sensors.Length); Assert.Equal(17, scene.Guides.Length); });
             case "triggers-8":
                 for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(i), 1, 0, 0, 0, 0, 1));
@@ -204,7 +204,7 @@ public sealed class NoFixedCapacityTests
         var parts = new List<IWorkshopInstance>();
         var links = new List<WorkshopConnection>();
         for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Basketball(Next(), X(i), 4, -20, 0, 0, 0, 1));
-        parts.Add(WorkshopInput.Receiver(Next(), 0, 1, -24, 0, 0, 0, 1));
+        parts.Add(WorkshopInput.Generic(PartId.Receiver, Next(), 0, 1, -24, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
             var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(2 * i), 1, -16, 0, 0, 0, 1);

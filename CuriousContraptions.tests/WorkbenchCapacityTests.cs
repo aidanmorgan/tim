@@ -13,8 +13,8 @@ public sealed class WorkbenchCapacityTests
     private static IWorkshopInstance Make(PartId kind, int i)
     {
         if (kind == PartId.Basketball) return WorkshopInput.Basketball(Id(), X(i), 5, 0, 0, 0, 0, 1);
-        if (kind == PartId.Receiver) return WorkshopInput.Receiver(Id(), X(i), 1, 2, 0, 0, 0, 1);
-        if (kind == PartId.Ramp) return WorkshopInput.Ramp(Id(), X(i), 2, -2, 0, 0, 0, 1, RampDimensions.Default);
+        if (kind == PartId.Receiver) return WorkshopInput.Generic(PartId.Receiver, Id(), X(i), 1, 2, 0, 0, 0, 1);
+        if (kind == PartId.Ramp) return WorkshopInput.Generic(PartId.Ramp, Id(), X(i), 2, -2, 0, 0, 0, 1);
         if (kind == PartId.Wall) return WorkshopInput.Generic(PartId.Wall, Id(), X(i), 2, 4, 0, 0, 0, 1, WallFixture.Default);
         if (kind == PartId.ImpactSwitch) return WorkshopInput.Generic(PartId.ImpactSwitch, Id(), X(i), 1, -4, 0, 0, 0, 1);
         if (kind == PartId.SignalLamp) return WorkshopInput.Lamp(Id(), X(i), 1, 6, 0, 0, 0, 1);
@@ -38,7 +38,7 @@ public sealed class WorkbenchCapacityTests
     {
         var error = Assert.Throws<WorkbenchFullException>(() => Population((PartId.Receiver, 2), (PartId.Basketball, 1)).Validate());
         Assert.Equal(WorkbenchTable.Guides, error.Table);
-        Assert.Equal("Workbench is full: ball guide table (one Receiver guides the balls)", error.Message);
+        Assert.Equal("Workbench is full: ball guide table (one declared guide per moving body)", error.Message);
         // Controls: several Receivers with no ball, and one Receiver guiding seventeen balls (the retired 16-row tables), both build.
         Free(Population((PartId.Receiver, 3), (PartId.Ramp, 2))).Validate();
         var guided = Population((PartId.Receiver, 1), (PartId.Basketball, 17));
@@ -109,8 +109,8 @@ public sealed class WorkbenchCapacityTests
     {
         "ball" or "bowling" => WorkshopInput.Ball(kind, id, x, 4, z, 0, 0, 0, 1),
         "domino" => WorkshopInput.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
-        "basket" => WorkshopInput.Receiver(id, x, 1, z, 0, 0, 0, 1),
-        "ramp" => WorkshopInput.Ramp(id, x, 2, z, 0, 0, 0, 1, RampDimensions.Default),
+        "basket" => WorkshopInput.Generic(PartId.Receiver, id, x, 1, z, 0, 0, 0, 1),
+        "ramp" => WorkshopInput.Generic(PartId.Ramp, id, x, 2, z, 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),
         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, x, 1, z, 0, 0, 0, 1),
         "lamp" => WorkshopInput.Lamp(id, x, 1, z, 0, 0, 0, 1),

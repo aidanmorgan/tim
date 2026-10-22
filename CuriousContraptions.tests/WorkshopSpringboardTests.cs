@@ -19,15 +19,15 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default));
         var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var bodies = original.Bodies.ToArray();
-        var receiverIndex = Array.FindIndex(bodies, b => b.Id == construction.Receiver!.Value.Id);
-        var shifted = WorkshopInput.Receiver(new(2), -.7 + offset, .55, 0, 0, 0, 0, 1);
+        var receiverIndex = Array.FindIndex(bodies, b => b.Id == ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id);
+        var shifted = WorkshopInput.Generic(PartId.Receiver, new(2), -.7 + offset, .55, 0, 0, 0, 0, 1);
         bodies[receiverIndex] = bodies[receiverIndex] with { Cell = shifted.Cell, Local = shifted.Local };
         var scene = new PhysicsSceneDeclaration(original.Document, original.NextIdentity, bodies,
             original.Colliders, original.Materials, original.Sensors, original.Guides,
             original.Triggers, original.ContactWorks, original.OrientationSensors,
             prismatics: original.Prismatics);
-        Assert.Equal((Half).3, construction.Receiver!.Value.Capture.Margin.Value);
-        Assert.Equal((Half)12, construction.Receiver!.Value.ForceRegion.MaximumAcceleration.Value);
+        Assert.Equal((float)(Half).3, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        Assert.Equal((float)(Half)12, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         // Supplemental immutable-fixture boundary: the player cannot move this locked Receiver, but the compiled scene
@@ -65,17 +65,17 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var inventory = WorkshopInventoryPolicy.Authored(initial.Puzzle);
         Assert.Single(inventory);
         Assert.Equal(PartAllowance.Counted(1), inventory[ready ? PartId.Receiver : PartId.Springboard]);
-        IWorkshopInstance placed = ready ? WorkshopInput.Receiver(new(3), 1.8, 1.3, 0, 0, 0, 0, 1)
+        IWorkshopInstance placed = ready ? WorkshopInput.Generic(PartId.Receiver, new(3), 1.8, 1.3, 0, 0, 0, 0, 1)
             : WorkshopInput.Springboard(new(3), -3, .8, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default);
         var construction = initial.WithInstance(placed); construction.Validate();
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
-        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor((construction.Receiver!.Value).Id), construction.Puzzle.Goal.EventSource);
+        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor((((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver))).Id), construction.Puzzle.Goal.EventSource);
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
         {
             var next = PuzzleCatalogue.WithPrecision(construction, new(precision));
-            var receiver = next.Receiver!.Value;
-            Assert.Equal((Half)(precision == (Half)0 ? .3 : precision == (Half)1 ? .02 : .174), receiver.Capture.Margin.Value);
-            Assert.Equal((Half)(ready ? 0 : precision == (Half)0 ? 12 : precision == (Half)1 ? 0 : 6.6), receiver.ForceRegion.MaximumAcceleration.Value);
+            var receiver = ((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver));
+            Assert.Equal((float)(Half)(precision == (Half)0 ? .3 : precision == (Half)1 ? .02 : .174), receiver.Parameters[new("capture_margin")]);
+            Assert.Equal((float)(Half)(ready ? 0 : precision == (Half)0 ? 12 : precision == (Half)1 ? 0 : 6.6), receiver.Parameters[new("force_maximum_acceleration")]);
             var saved = new WorkshopSavedConstruction(next, new(4));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
             Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1,2)).Prismatics.ToArray());
@@ -85,9 +85,9 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         if (ready)
         {
             var removed = construction.WithoutInstance(new(3)); removed.Validate();
-            var replaced = removed.WithInstance(WorkshopInput.Receiver(new(4), 1.8, 1.3, 0, 0, 0, 0, 1)); replaced.Validate();
+            var replaced = removed.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(4), 1.8, 1.3, 0, 0, 0, 0, 1)); replaced.Validate();
             Assert.Equal(new GpuBodyId(4), replaced.Puzzle.Goal.Target);
-            Assert.Throws<WorkbenchFullException>(() => replaced.WithInstance(WorkshopInput.Receiver(new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
+            Assert.Throws<WorkbenchFullException>(() => replaced.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
         }
         static void Profile(System.Text.Json.JsonElement data, AssistanceProfile expected)
         {

@@ -27,8 +27,8 @@ public sealed class ClearPipeLevelTests
 
         var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
         AuthoredContentAssertions.Placement(fixtures[0], construction.Ball!.Value);
-        AuthoredContentAssertions.Placement(fixtures[1], construction.Receiver!.Value);
-        Assert.True(construction.Ball!.Value.Locked && construction.Receiver!.Value.Locked);
+        AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
+        Assert.True(construction.Ball!.Value.Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
 
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
@@ -60,10 +60,10 @@ public sealed class ClearPipeLevelTests
 
         // Unlocking fixed ball or receiver is rejected
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Receiver!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Locked = false }).Validate());
 
         // Unauthorized parts are rejected
-        var ramp = WorkshopInput.Ramp(new(5), 0, 1, 0, 0, 0, 0, 1, RampDimensions.Default);
+        var ramp = WorkshopInput.Generic(PartId.Ramp, new(5), 0, 1, 0, 0, 0, 0, 1);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(ramp).Validate());
 
         // Tampering with assistance profiles is rejected
@@ -78,12 +78,12 @@ public sealed class ClearPipeLevelTests
     public void PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
         var construction = Lesson((Half)precision);
-        var receiver = construction.Receiver!.Value;
+        var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
 
-        Assert.Equal((Half)margin, receiver.Capture.Margin.Value);
-        Assert.Equal((Half)speed, receiver.Capture.SpeedLimit.Value);
-        Assert.Equal((Half)dwell, receiver.Capture.Dwell.Value);
-        Assert.Equal((Half)accel, receiver.ForceRegion.MaximumAcceleration.Value);
+        Assert.Equal((float)(Half)margin, receiver.Parameters[new("capture_margin")]);
+        Assert.Equal((float)(Half)speed, receiver.Parameters[new("capture_speed_limit")]);
+        Assert.Equal((float)(Half)dwell, receiver.Parameters[new("capture_dwell")]);
+        Assert.Equal((float)(Half)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
         var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0, 0, 0, 1);
         var placed = construction.WithInstance(pipe);
@@ -95,7 +95,7 @@ public sealed class ClearPipeLevelTests
         Assert.Equal(save, decoded);
 
         var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
-        Assert.Equal((Half)0.174, updated.Receiver!.Value.Capture.Margin.Value);
+        Assert.Equal((float)(Half)0.174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
     }
 
     [Fact]

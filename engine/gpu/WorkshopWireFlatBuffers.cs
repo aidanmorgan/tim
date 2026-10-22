@@ -35,17 +35,7 @@ public static class WorkshopWireFlatBuffers
         InstanceRecord.AddBounce(builder, values[AuthoredScalar.Bounce]);
         InstanceRecord.AddDrag(builder, values[AuthoredScalar.Drag]);
         InstanceRecord.AddBuoyancy(builder, values[AuthoredScalar.Buoyancy]);
-        InstanceRecord.AddMargin(builder, values[AuthoredScalar.Margin]);
-        InstanceRecord.AddSpeedLimit(builder, values[AuthoredScalar.SpeedLimit]);
-        InstanceRecord.AddDwell(builder, values[AuthoredScalar.Dwell]);
-        InstanceRecord.AddParticipation(builder, (uint)template.Participation);
-        InstanceRecord.AddForceMin(builder, Vec3f.CreateVec3f(builder, template.ForceMinimum.X, template.ForceMinimum.Y, template.ForceMinimum.Z));
-        InstanceRecord.AddForceMax(builder, Vec3f.CreateVec3f(builder, template.ForceMaximum.X, template.ForceMaximum.Y, template.ForceMaximum.Z));
-        InstanceRecord.AddSupportHeight(builder, values[AuthoredScalar.SupportHeight]);
-        InstanceRecord.AddSupportMargin(builder, values[AuthoredScalar.SupportMargin]);
-        InstanceRecord.AddMaxAcceleration(builder, values[AuthoredScalar.MaximumAcceleration]);
         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
-        InstanceRecord.AddWidth(builder, values[AuthoredScalar.Width]);
         InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
         InstanceRecord.AddStiffness(builder, values[AuthoredScalar.Stiffness]);
         InstanceRecord.AddDamping(builder, values[AuthoredScalar.Damping]);
@@ -643,21 +633,6 @@ public static class WorkshopWireFlatBuffers
                     InstanceRecord.AddDrag(builder, (float)ball.Material.Drag.Value);
                     InstanceRecord.AddBuoyancy(builder, (float)ball.Material.Buoyancy.Value);
                     break;
-                case WorkshopReceiver receiver:
-                    InstanceRecord.AddMargin(builder, (float)receiver.Capture.Margin.Value);
-                    InstanceRecord.AddSpeedLimit(builder, (float)receiver.Capture.SpeedLimit.Value);
-                    InstanceRecord.AddDwell(builder, (float)receiver.Capture.Dwell.Value);
-                    InstanceRecord.AddParticipation(builder, (uint)receiver.Capture.Participation);
-                    InstanceRecord.AddForceMin(builder, Vec3f.CreateVec3f(builder, (float)receiver.ForceRegion.Minimum.X, (float)receiver.ForceRegion.Minimum.Y, (float)receiver.ForceRegion.Minimum.Z));
-                    InstanceRecord.AddForceMax(builder, Vec3f.CreateVec3f(builder, (float)receiver.ForceRegion.Maximum.X, (float)receiver.ForceRegion.Maximum.Y, (float)receiver.ForceRegion.Maximum.Z));
-                    InstanceRecord.AddSupportHeight(builder, (float)receiver.ForceRegion.SupportHeight.Value);
-                    InstanceRecord.AddSupportMargin(builder, (float)receiver.ForceRegion.SupportMargin.Value);
-                    InstanceRecord.AddMaxAcceleration(builder, (float)receiver.ForceRegion.MaximumAcceleration.Value);
-                    break;
-                case WorkshopRamp ramp:
-                    InstanceRecord.AddLength(builder, (float)ramp.Dimensions.Length.Value);
-                    InstanceRecord.AddWidth(builder, (float)ramp.Dimensions.Width.Value);
-                    break;
                 case WorkshopSpringboard spring:
                     InstanceRecord.AddStiffness(builder, spring.Settings.Stiffness);
                     InstanceRecord.AddDamping(builder, spring.Settings.Damping);
@@ -801,8 +776,6 @@ public static class WorkshopWireFlatBuffers
                     Radius = new((Half)inst.Radius), Mass = new((Half)inst.Mass), Bounce = new((Half)inst.Bounce),
                     Drag = new((Half)inst.Drag), Buoyancy = new((Half)inst.Buoyancy)
                 }, locked),
-            "basket" => MapReceiver(inst, id, cell, local, rotation, locked),
-            "ramp" => new WorkshopRamp(id, cell, local, rotation, new(new((Half)inst.Length), new((Half)inst.Width)), locked),
             "spring" => new WorkshopSpringboard(id, cell, local, rotation, new SpringboardSettings(inst.Stiffness, inst.Damping, inst.InitialCompression), locked),
             "battery" => new WorkshopBattery(id, cell, local, rotation,
                 new ElectricalSourceSettings(new Joules(inst.Capacity), new Watts(inst.MaximumPower), inst.InitialFraction, (ElectricalEnable)inst.Enabled), locked),
@@ -857,19 +830,6 @@ public static class WorkshopWireFlatBuffers
         > int.MaxValue => throw new WireFaultException(WireFaultReason.OutOfRange, $"Counter {inst.Id} target count {inst.TargetCount} is not an Int32."),
         var count => (int)count,
     };
-
-    private static WorkshopReceiver MapReceiver(InstanceRecord inst, GpuBodyId id, CellOrigin cell, LocalPosition local, CanonicalRotation rotation, bool locked)
-    {
-        var minimum = Required(inst.ForceMin, "force region minimum");
-        var maximum = Required(inst.ForceMax, "force region maximum");
-        return new WorkshopReceiver(id, cell, local, rotation,
-            new(new((Half)inst.Margin), new((Half)inst.SpeedLimit), new((Half)inst.Dwell), (SensorParticipation)inst.Participation), locked)
-        {
-            ForceRegion = new(new MetreVector((Half)minimum.X, (Half)minimum.Y, (Half)minimum.Z),
-                new MetreVector((Half)maximum.X, (Half)maximum.Y, (Half)maximum.Z),
-                new((Half)inst.SupportHeight), new((Half)inst.SupportMargin), new((Half)inst.MaxAcceleration))
-        };
-    }
 
     private static WorkshopDomino MapDomino(InstanceRecord inst, GpuBodyId id, CellOrigin cell, LocalPosition local, CanonicalRotation rotation, bool locked)
     {

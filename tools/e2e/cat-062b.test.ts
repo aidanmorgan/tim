@@ -156,10 +156,14 @@ async function construct(d: WorkshopDriver, route: Route) {
         assert.equal(savedFb.construction()!.instances(0)!.locked(),true);
         assert.equal(savedFb.construction()!.instances(1)!.locked(),true);
         const rx=savedFb.construction()!.instances(1)!;
+        const parameters = new Map(Array.from({length: rx.parametersLength()}, (_, index) => {
+            const parameter = rx.parameters(index)!;
+            return [parameter.key()!, parameter.value()] as const;
+        }));
         const rxPos: V=[(rx.cell()!.x()+rx.local()!.x())/16,(rx.cell()!.y()+rx.local()!.y())/16,(rx.cell()!.z()+rx.local()!.z())/16];
         assert.ok(rxPos.every((v,i)=>Math.abs(v-[-.7,.55,0][i])<1e-7));
-        // The guide is the Receiver force region's maximum acceleration (pre-FlatBuffers save offset +140; cat-015b asserts the same field).
-        assert.equal(rx.maxAcceleration(),0,'Precise Receiver guide is zero');
+        // The current declared guide parameter is serialized at its exact generic parameter key.
+        assert.equal(parameters.get("force_maximum_acceleration")!,0,'Precise Receiver guide is zero');
         const b0=savedFb.construction()!.instances(0)!;
         const b0Pos: V=[(b0.cell()!.x()+b0.local()!.x())/16,(b0.cell()!.y()+b0.local()!.y())/16,(b0.cell()!.z()+b0.local()!.z())/16];
         assert.ok(b0Pos.every((v,i)=>Math.abs(v-[-3,3.6,0][i])<1e-7));

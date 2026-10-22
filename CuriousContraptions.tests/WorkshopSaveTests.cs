@@ -6,6 +6,26 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopSaveTests
 {
 
+    [Theory]
+    [InlineData("ramp", "length", 1.234567f)]
+    [InlineData("basket", "capture_margin", .1234567f)]
+    [InlineData("basket", "capture_dwell", .2345678f)]
+    public void GenericConvertedParametersKeepExactSinglePrecisionThroughSave(string part, string parameter, float value)
+    {
+        _ = SaveFixture.Elements;
+        Assert.NotEqual(value, (float)(Half)value);
+        var id = new PartId(part);
+        var values = InstanceParameterCollection.Defaults(id).ToDictionary();
+        values[new(parameter)] = value;
+        var instance = WorkshopInput.Generic(id, new(1), 0, 1, 0, 0, 0, 0, 1, new(values));
+        var saved = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), new(instance)), new(2));
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+        Assert.Equal(saved, decoded);
+        Assert.Equal(BitConverter.SingleToInt32Bits(value),
+            BitConverter.SingleToInt32Bits(Assert.IsType<WorkshopGenericInstance>(Assert.Single(decoded.Construction.Instances)).Parameters[new(parameter)]));
+        Assert.Equal(value, instance.Parameters[new(parameter)]);
+    }
+
     public enum ContentDamage { UnknownPart, UnknownParameter, MissingParameter, OutOfRange, MissingField, WrongBoolean, ForeignGoal, UnknownField, UndefinedState }
 
     [Theory]
@@ -54,32 +74,38 @@ public sealed class WorkshopSaveTests
         Assert.Equal(12, PuzzleCatalogue.ReadDefinitions(json).Count);
     }
 
-    public enum PlacedConfigurationDamage { Capture, ForceBounds, SupportHeight, Participation }
+    public enum PlacedConfigurationDamage { Capture, Speed, Dwell, SupportMargin, Acceleration, Participation }
 
     [Theory]
     [InlineData(PlacedConfigurationDamage.Capture)]
-    [InlineData(PlacedConfigurationDamage.ForceBounds)]
-    [InlineData(PlacedConfigurationDamage.SupportHeight)]
+    [InlineData(PlacedConfigurationDamage.Speed)]
+    [InlineData(PlacedConfigurationDamage.Dwell)]
+    [InlineData(PlacedConfigurationDamage.SupportMargin)]
+    [InlineData(PlacedConfigurationDamage.Acceleration)]
     [InlineData(PlacedConfigurationDamage.Participation)]
     public void PlacedGoalConfigurationRejectsForgeryButPreservesPlayerPose(PlacedConfigurationDamage damage)
     {
         _ = SaveFixture.Elements;
         var initial = PuzzleCatalogue.Create(new("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
-        var input = WorkshopInput.Receiver(new(8), 2.25, 1.75, .5, 0, 0, 0, 1);
+        var input = WorkshopInput.Generic(PartId.Receiver, new(8), 2.25, 1.75, .5, 0, 0, 0, 1);
         var valid = initial.WithInstance(input); valid.Validate();
-        var receiver = valid.Receiver!.Value;
+        var receiver = ((WorkshopGenericInstance)valid.Instances.Single(instance => instance.PartId == PartId.Receiver));
         Assert.Equal(input.Cell, receiver.Cell); Assert.Equal(input.Local, receiver.Local); Assert.Equal(input.Rotation, receiver.Rotation);
         Assert.Equal(receiver.Id, valid.Puzzle.Goal.Target);
         var saved = new WorkshopSavedConstruction(valid, new(9));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
-        var forged = damage switch
+        (ParameterId key, float value) = damage switch
         {
-            PlacedConfigurationDamage.Capture => receiver with { Capture = receiver.Capture with { Margin = new((Half).1) } },
-            PlacedConfigurationDamage.ForceBounds => receiver with { ForceRegion = receiver.ForceRegion with { Maximum = new((Half)2, (Half)2, (Half)2) } },
-            PlacedConfigurationDamage.SupportHeight => receiver with { ForceRegion = receiver.ForceRegion with { SupportHeight = new((Half).75) } },
-            PlacedConfigurationDamage.Participation => receiver with { Capture = receiver.Capture with { Participation = SensorParticipation.Disabled } },
+            PlacedConfigurationDamage.Capture => (new ParameterId("capture_margin"), .1f),
+            PlacedConfigurationDamage.Speed => (new ParameterId("capture_speed_limit"), 10f),
+            PlacedConfigurationDamage.Dwell => (new ParameterId("capture_dwell"), 2f),
+            PlacedConfigurationDamage.SupportMargin => (new ParameterId("force_support_margin"), .9f),
+            PlacedConfigurationDamage.Acceleration => (new ParameterId("force_maximum_acceleration"), 12f),
+            PlacedConfigurationDamage.Participation => (new ParameterId("capture_participation"), 0f),
             _ => throw new ArgumentOutOfRangeException(nameof(damage))
         };
+        var values = receiver.Parameters.ToDictionary(); values[key] = value;
+        var forged = receiver with { Parameters = new(values) };
         var bad = valid with { Instances = valid.Instances.With(forged) };
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, bad.Validate);
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
@@ -95,6 +121,8 @@ public sealed class WorkshopSaveTests
         _ = SaveFixture.Elements;
         var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true, WriteIndented = true };
         var rows = new List<System.Text.Json.Nodes.JsonNode>();
+        var baseline = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(
+            twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures/lessons-484ec38.json")))!.AsArray();
         foreach (var value in new[] { (Half)0, (Half).45, (Half)1 })
         {
             var settings = WorkshopCadenceSettings.Default();
@@ -118,6 +146,44 @@ public sealed class WorkshopSaveTests
             {
                 var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
                 var puzzle = construction.Puzzle;
+                // Normalize only historical representation on the expected side. Current generic f32 values stay untouched.
+                foreach (var expected in baseline[rows.Count]!["Instances"]!.AsArray())
+                {
+                    if (expected!["PartId"]!["Value"]!.GetValue<string>() != "basket") continue;
+                    var owner = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
+                    var capture = expected["Capture"]!;
+                    var region = expected["ForceRegion"]!;
+                    Half Historical(System.Text.Json.Nodes.JsonNode node) => (Half)node["Value"]!.GetValue<float>();
+                    var sensor = Assert.Single(scene.Sensors.ToArray(), row => row.Frame == owner);
+                    var guide = Assert.Single(scene.Guides.ToArray(), row => row.Frame == owner);
+                    Assert.Equal(Historical(capture["SpeedLimit"]!), sensor.SpeedLimit.Value);
+                    Assert.Equal(Historical(capture["Dwell"]!), sensor.Dwell.Value);
+                    Assert.Equal((SensorParticipation)capture["Participation"]!.GetValue<int>(), sensor.Participation);
+                    Assert.Equal((Half)((Half).45 + Historical(capture["Margin"]!)), sensor.Maximum.Y);
+                    Assert.Equal(new MetreVector((Half)(-.66), (Half)(-.4), (Half)(-.66)), sensor.Minimum);
+                    Assert.Equal((Half).66, sensor.Maximum.X);
+                    Assert.Equal((Half).66, sensor.Maximum.Z);
+                    Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(region["Minimum"],
+                        System.Text.Json.JsonSerializer.SerializeToNode(guide.Minimum, options)));
+                    Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(region["Maximum"],
+                        System.Text.Json.JsonSerializer.SerializeToNode(guide.Maximum, options)));
+                    Assert.Equal(Historical(region["SupportHeight"]!), guide.SupportHeight.Value);
+                    Assert.Equal(Historical(region["SupportMargin"]!), guide.SupportMargin.Value);
+                    Assert.Equal(Historical(region["MaximumAcceleration"]!), guide.MaximumAcceleration.Value);
+                    var parameters = new Dictionary<string, float>(StringComparer.Ordinal)
+                    {
+                        ["capture_margin"] = (float)Historical(capture["Margin"]!),
+                        ["capture_speed_limit"] = (float)Historical(capture["SpeedLimit"]!),
+                        ["capture_dwell"] = (float)Historical(capture["Dwell"]!),
+                        ["capture_participation"] = capture["Participation"]!.GetValue<int>(),
+                        ["force_support_margin"] = (float)Historical(region["SupportMargin"]!),
+                        ["force_maximum_acceleration"] = (float)Historical(region["MaximumAcceleration"]!)
+                    };
+                    var obj = expected.AsObject();
+                    obj.Remove("Capture"); obj.Remove("ForceRegion"); obj.Remove("Cosmetic");
+                    obj["Parameters"] = System.Text.Json.JsonSerializer.SerializeToNode(
+                        parameters.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => new { Key = pair.Key, pair.Value }).ToArray(), options);
+                }
                 rows.Add(System.Text.Json.JsonSerializer.SerializeToNode(new
                 {
                     Id = id, Precision = (float)value,
@@ -134,8 +200,7 @@ public sealed class WorkshopSaveTests
             }
         }
         Assert.Equal(36, rows.Count);
-        var baseline = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(
-            twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures/lessons-484ec38.json")))!.AsArray();
+
         Assert.Equal(baseline.Count, rows.Count);
         for (var i = 0; i < rows.Count; i++)
             Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(baseline[i], rows[i]),
@@ -177,7 +242,7 @@ public sealed class WorkshopSaveTests
     [InlineData(1)]
     public void ReceiverForceRegionSurvivesSaveAndCompilesWithoutPuzzleSelection(double precision)
     {
-        var receiver = ((WorkshopReceiver)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(new(3), new((Half)precision))) with { Locked = false };
+        var receiver = ((WorkshopGenericInstance)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(new(3), new((Half)precision))) with { Locked = false };
         var construction = Saved().Construction.WithInstance(receiver);
         var saved = new WorkshopSavedConstruction(construction, new(7));
         var bytes = WorkshopSaveCodec.Encode(saved);
@@ -186,61 +251,43 @@ public sealed class WorkshopSaveTests
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
         {
             var guide = Assert.Single(scene.Guides.ToArray());
-            Assert.Equal(receiver.ForceRegion.Minimum, guide.Minimum);
-            Assert.Equal(receiver.ForceRegion.Maximum, guide.Maximum);
-            Assert.Equal(receiver.ForceRegion.MaximumAcceleration, guide.MaximumAcceleration);
-            Assert.Equal(receiver.ForceRegion.SupportHeight, guide.SupportHeight);
-            Assert.Equal(receiver.ForceRegion.SupportMargin, guide.SupportMargin);
+            Assert.Equal(new MetreVector((Half)(-1.1), (Half).5, (Half)(-1.1)), guide.Minimum);
+            Assert.Equal(new MetreVector((Half)1.1, (Half)1.5, (Half)1.1), guide.Maximum);
+            Assert.Equal((Half)receiver.Parameters[new("force_maximum_acceleration")], guide.MaximumAcceleration.Value);
+            Assert.Equal((Half).5, guide.SupportHeight.Value);
+            Assert.Equal((Half)receiver.Parameters[new("force_support_margin")], guide.SupportMargin.Value);
         }
         Assert.Equal((Half)0, Assert.Single(WorkshopPhysicsCompiler.Compile(Saved().Construction, new(1, 2)).Guides.ToArray()).MaximumAcceleration.Value);
     }
 
     [Theory]
-    [InlineData(0, 0x7e00)]
-    [InlineData(1, 0x7c00)]
-    [InlineData(2, 0xfc00)]
-    [InlineData(3, 0xc000)]
-    [InlineData(4, 0x0000)]
-    [InlineData(5, 0xc000)]
-    [InlineData(6, 0x4c40)]
-    [InlineData(7, 0xbc00)]
-    [InlineData(8, 0x4000)]
-    [InlineData(9, 0xbc00)]
-    [InlineData(10, 0x4a80)]
-    public void InvalidForceRegionRejectsWithoutChangingExistingConstruction(int field, int bits)
+    [InlineData("force_support_margin", -1f)]
+    [InlineData("force_support_margin", 1.01f)]
+    [InlineData("force_maximum_acceleration", -1f)]
+    [InlineData("force_maximum_acceleration", 12.01f)]
+    [InlineData("capture_speed_limit", 0f)]
+    [InlineData("capture_dwell", 0f)]
+    [InlineData("capture_margin", float.NaN)]
+    [InlineData("capture_margin", float.PositiveInfinity)]
+    public void InvalidDeclaredReceiverParameterRejectsWithoutChangingExistingConstruction(string parameter, float value)
     {
         var saved = Saved();
         var original = WorkshopSaveCodec.Encode(saved);
-        var baseReceiver = (WorkshopReceiver)saved.Construction.Instances[1];
-        var invalidVal = BitConverter.UInt16BitsToHalf((ushort)bits);
-        var invalidRegion = field switch
-        {
-            0 => baseReceiver.ForceRegion with { Minimum = new(invalidVal, baseReceiver.ForceRegion.Minimum.Y, baseReceiver.ForceRegion.Minimum.Z) },
-            1 => baseReceiver.ForceRegion with { Minimum = new(baseReceiver.ForceRegion.Minimum.X, invalidVal, baseReceiver.ForceRegion.Minimum.Z) },
-            2 => baseReceiver.ForceRegion with { Minimum = new(baseReceiver.ForceRegion.Minimum.X, baseReceiver.ForceRegion.Minimum.Y, invalidVal) },
-            3 => baseReceiver.ForceRegion with { Maximum = new(invalidVal, baseReceiver.ForceRegion.Maximum.Y, baseReceiver.ForceRegion.Maximum.Z) },
-            4 => baseReceiver.ForceRegion with { Maximum = new(baseReceiver.ForceRegion.Maximum.X, invalidVal, baseReceiver.ForceRegion.Maximum.Z) },
-            5 => baseReceiver.ForceRegion with { Maximum = new(baseReceiver.ForceRegion.Maximum.X, baseReceiver.ForceRegion.Maximum.Y, invalidVal) },
-            6 => baseReceiver.ForceRegion with { SupportHeight = new(invalidVal) },
-            7 or 8 => baseReceiver.ForceRegion with { SupportMargin = new(invalidVal) },
-            9 or 10 => baseReceiver.ForceRegion with { MaximumAcceleration = new(invalidVal) },
-            _ => baseReceiver.ForceRegion
-        };
-        var malformedReceiver = baseReceiver with { ForceRegion = invalidRegion };
-        var malformedConstruction = saved.Construction with {
-            Instances = new WorkshopInstances(saved.Construction.Instances[0], malformedReceiver)
-        };
+        var receiver = (WorkshopGenericInstance)saved.Construction.Instances[1];
+        var values = receiver.Parameters.ToDictionary(); values[new(parameter)] = value;
+        var malformed = saved.Construction with { Instances = saved.Construction.Instances.With(receiver with { Parameters = new(values) }) };
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
+        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformed, validate: false);
         var savedBytes = SaveFixture.Finish(builder, crOffset, saved.NextBodyId.Value);
-        SaveFixture.Refused(Half.IsFinite(invalidVal) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+        SaveFixture.Refused(float.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite,
+            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, savedBytes));
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
     }
 
     private static WorkshopSavedConstruction Saved()
     {
         var ball = WorkshopInput.Basketball(new(2), .125, 3, -.25, 0, 0, 0, 1);
-        var receiver = WorkshopInput.Receiver(new(3), .5, 1, -.5, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(PartId.Receiver, new(3), .5, 1, -.5, 0, 0, 0, 1);
         return new(new(new(9), WorkshopCadenceSettings.Default(), new(ball, receiver)), new(7));
     }
 
@@ -329,8 +376,8 @@ public sealed class WorkshopSaveTests
     public void TwoRampInstancesKeepDistinctCanonicalDimensionsThroughSaveAndCompile()
     {
         var saved = Saved();
-        var a = WorkshopInput.Ramp(new(4), -3.4, 4.3, 0, 0, 0, 0, 1, RampDimensions.Default);
-        var b = WorkshopInput.Ramp(new(5), -.7, 2.7, 0, 0, 0, 0, 1, new(new((Half)2.5), new((Half).75))) with { Locked = true };
+        var a = WorkshopInput.Generic(PartId.Ramp, new(4), -3.4, 4.3, 0, 0, 0, 0, 1);
+        var b = WorkshopInput.Generic(PartId.Ramp, new(5), -.7, 2.7, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), .75f)])) with { Locked = true };
         saved = saved with { Construction = saved.Construction.WithInstance(a).WithInstance(b) };
         var bytes = WorkshopSaveCodec.Encode(saved);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
@@ -343,9 +390,9 @@ public sealed class WorkshopSaveTests
             Assert.Equal(RigidMotionKind.Static, body.Motion);
             var box = Assert.Single(scene.Colliders.ToArray(), collider => collider.Body == ramp.Id);
             Assert.Equal(ColliderShapeKind.Box, box.Shape);
-            Assert.Equal((Half)(ramp.Dimensions.Length.Value * (Half).5), box.HalfExtents.X);
-            Assert.Equal((Half)(ramp.Dimensions.Width.Value * (Half).5), box.HalfExtents.Z);
-            Assert.Equal((Half)(RampDimensions.Thickness.Value * (Half).5), box.HalfExtents.Y);
+            Assert.Equal((Half)(ramp.Parameters[new("length")] * .5f), box.HalfExtents.X);
+            Assert.Equal((Half)(ramp.Parameters[new("width")] * .5f), box.HalfExtents.Z);
+            Assert.Equal((Half)(.18f * .5f), box.HalfExtents.Y);
             Assert.Equal((Half)1, Assert.Single(scene.Materials.ToArray(), material => material.Id == box.Material).Restitution.Value);
         }
     }
@@ -358,12 +405,12 @@ public sealed class WorkshopSaveTests
         var copy = new WorkshopInstances(input);
         input[0] = input[1];
         Assert.Equal(first.Instances, copy);
-        var receiver = first.Receiver!.Value with { Id = first.Ball!.Value.Id };
-        var changed = first.WithoutInstance(first.Receiver.Value.Id).WithInstance(receiver);
+        var receiver = ((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Id = first.Ball!.Value.Id };
+        var changed = first.WithoutInstance(((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id).WithInstance(receiver);
         changed.Validate();
         Assert.NotNull(first.Ball);
         Assert.Null(changed.Ball);
-        Assert.Equal(receiver.Id, changed.Receiver!.Value.Id);
+        Assert.Equal(receiver.Id, ((WorkshopGenericInstance)changed.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id);
         var saved = new WorkshopSavedConstruction(changed, new(7));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
     }
@@ -374,10 +421,10 @@ public sealed class WorkshopSaveTests
         var saved = Saved();
         var duplicate = saved.Construction with { Instances = new(saved.Construction.Ball!.Value, saved.Construction.Ball.Value) };
         Assert.Throws<ArgumentException>(duplicate.Validate);
-        var ramp = WorkshopInput.Ramp(new(4), 0, 3, 0, 0, 0, 0, 1, RampDimensions.Default);
+        var ramp = WorkshopInput.Generic(PartId.Ramp, new(4), 0, 3, 0, 0, 0, 0, 1);
         foreach (var value in new[] { (Half)0, (Half)(-1), (Half)4.5, Half.NaN, Half.PositiveInfinity })
         {
-            var invalid = saved with { Construction = saved.Construction.WithInstance(ramp with { Dimensions = new(new(value), new((Half)1)) }) };
+            var invalid = saved with { Construction = saved.Construction.WithInstance(ramp with { Parameters = new([new(new("length"), (float)value), new(new("width"), 1f)]) }) };
             Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(invalid));
         }
         var excess = saved.Construction.WithInstance(ramp).WithInstance(ramp with { Id = new(5) }).WithInstance(ramp with { Id = new(6) });
@@ -392,14 +439,14 @@ public sealed class WorkshopSaveTests
     {
         var precision = new PuzzlePrecision((Half)value);
         var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(11), precision);
-        var a = WorkshopInput.Ramp(new(13), -3.4, 4.3, 0, 0, 0, 0, 1, RampDimensions.Default);
-        var b = WorkshopInput.Ramp(new(14), -.7, 2.7, 0, 0, 0, 0, 1, new(new((Half)2.5), new((Half)1)));
+        var a = WorkshopInput.Generic(PartId.Ramp, new(13), -3.4, 4.3, 0, 0, 0, 0, 1);
+        var b = WorkshopInput.Generic(PartId.Ramp, new(14), -.7, 2.7, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), 1f)]));
         construction = construction.WithInstance(a).WithInstance(b);
         var saved = new WorkshopSavedConstruction(construction, new(15));
         var bytes = WorkshopSaveCodec.Encode(saved);
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
-        Assert.True(construction.Ball!.Value.Locked); Assert.True(construction.Receiver!.Value.Locked);
+        Assert.True(construction.Ball!.Value.Locked); Assert.True(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
         Assert.Equal(new GpuBodyId(11), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(12), construction.Puzzle.Goal.Target);
         Assert.Equal(2u, construction.Puzzle.InventoryCount);
@@ -409,11 +456,11 @@ public sealed class WorkshopSaveTests
         foreach (var knot in new[] { (Half)0, (Half).45, (Half)1 })
         {
             updated = PuzzleCatalogue.WithPrecision(updated, new(knot));
-            var expected = ((WorkshopReceiver)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(construction.Puzzle.Goal.Target, new(knot)));
-            Assert.Equal(expected, updated.Receiver);
+            var expected = ((WorkshopGenericInstance)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(construction.Puzzle.Goal.Target, new(knot)));
+            Assert.Equal(expected, updated.Instances.Single(instance => instance.PartId == PartId.Receiver));
             var guide = Assert.Single(WorkshopPhysicsCompiler.Compile(updated, new(1, 2)).Guides.ToArray());
-            Assert.Equal(expected.ForceRegion.MaximumAcceleration, guide.MaximumAcceleration);
-            Assert.Equal(expected.ForceRegion.SupportMargin, guide.SupportMargin);
+            Assert.Equal((Half)expected.Parameters[new("force_maximum_acceleration")], guide.MaximumAcceleration.Value);
+            Assert.Equal((Half)expected.Parameters[new("force_support_margin")], guide.SupportMargin.Value);
             Assert.Equal(a, updated.Instances[2]); Assert.Equal(b, updated.Instances[3]);
             var changedSave = new WorkshopSavedConstruction(updated, new(15));
             Assert.Equal(changedSave, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(changedSave)));

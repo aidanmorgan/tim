@@ -61,7 +61,7 @@ public sealed class DominoEffectTests
     {
         var lesson = Lesson(); var solved = Solved(lesson);
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(WorkshopInput.Domino(new(9), 1, Upright, 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Receiver(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.ImpactSwitch, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());

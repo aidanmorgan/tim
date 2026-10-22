@@ -228,8 +228,8 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
 
         var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
         AuthoredContentAssertions.Placement(fixtures[0], construction.Ball!.Value);
-        AuthoredContentAssertions.Placement(fixtures[1], construction.Receiver!.Value);
-        Assert.True(construction.Ball!.Value.Locked && construction.Receiver!.Value.Locked);
+        AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
+        Assert.True(construction.Ball!.Value.Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
 
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
@@ -261,7 +261,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
 
         // Unlocking fixed ball or receiver is rejected
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Receiver!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Locked = false }).Validate());
 
         // Unauthorized parts are rejected
         var pipe = WorkshopInput.Pipe(new(5), 0, 1, 0, 0, 0, 0, 1);
@@ -279,12 +279,12 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
     public void GentleBend_PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
         var construction = Lesson((Half)precision);
-        var receiver = construction.Receiver!.Value;
+        var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
 
-        Assert.Equal((Half)margin, receiver.Capture.Margin.Value);
-        Assert.Equal((Half)speed, receiver.Capture.SpeedLimit.Value);
-        Assert.Equal((Half)dwell, receiver.Capture.Dwell.Value);
-        Assert.Equal((Half)accel, receiver.ForceRegion.MaximumAcceleration.Value);
+        Assert.Equal((float)(Half)margin, receiver.Parameters[new("capture_margin")]);
+        Assert.Equal((float)(Half)speed, receiver.Parameters[new("capture_speed_limit")]);
+        Assert.Equal((float)(Half)dwell, receiver.Parameters[new("capture_dwell")]);
+        Assert.Equal((float)(Half)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
         var bend = WorkshopInput.PipeBend45(new(3), 0, 4, 0, 0, 0, -0.7071068, 0.7071068);
         var placed = construction.WithInstance(bend);
@@ -296,7 +296,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         Assert.Equal(save, decoded);
 
         var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
-        Assert.Equal((Half)0.174, updated.Receiver!.Value.Capture.Margin.Value);
+        Assert.Equal((float)(Half)0.174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
     }
 
     [Fact]

@@ -163,9 +163,9 @@ public sealed class WorkshopWallTests
     {
         var instances = new WorkshopInstances(
             WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),
-            WorkshopInput.Receiver(new(2), 3, 1, 0, 0, 0, 0, 1),
-            WorkshopInput.Ramp(new(3), -3, 3, 0, 0, 0, 0, 1, RampDimensions.Default),
-            WorkshopInput.Ramp(new(4), -1, 2, 0, 0, 0, 0, 1, RampDimensions.Default),
+            WorkshopInput.Generic(PartId.Receiver, new(2), 3, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Ramp, new(3), -3, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Ramp, new(4), -1, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(5), 0, 1, 2, 0, 0, 0, 1),
             WorkshopInput.Lamp(new(6), 3, 1, 2, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Wall, new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));

@@ -145,7 +145,7 @@ public sealed class JoinedPipeTests
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
             () => placed.WithInstance(WorkshopInput.PipeBend90(new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
-            () => placed.WithInstance(WorkshopInput.Ramp(new(5), 3, 1, 0, 0, 0, 0, 1, RampDimensions.Default)).Validate());
+            () => placed.WithInstance(WorkshopInput.Generic(PartId.Ramp, new(5), 3, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported,
             () => placed.WithInstance(WorkshopInput.PipeBend45(new(5), 3, 3, 0, 0, 0, 0, 1)).Validate());
     }
@@ -161,7 +161,7 @@ public sealed class JoinedPipeTests
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Rotation = CanonicalRotation.Identity }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { PartId = PartId.PipeBend45 }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Ball!.Value with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(lesson.Receiver!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 2 } }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
     }
@@ -173,14 +173,14 @@ public sealed class JoinedPipeTests
     public void PrecisionEvaluatesTheReceiverAndTheLessonRoundTripsTheSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
         var lesson = Lesson((Half)precision);
-        var receiver = lesson.Receiver!.Value;
-        Assert.Equal(((Half)margin, (Half)speed, (Half)dwell, (Half)accel),
-            (receiver.Capture.Margin.Value, receiver.Capture.SpeedLimit.Value, receiver.Capture.Dwell.Value, receiver.ForceRegion.MaximumAcceleration.Value));
+        var receiver = ((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == PartId.Receiver));
+        Assert.Equal(((float)(Half)margin, (float)(Half)speed, (float)(Half)dwell, (float)(Half)accel),
+            (receiver.Parameters[new("capture_margin")], receiver.Parameters[new("capture_speed_limit")], receiver.Parameters[new("capture_dwell")], receiver.Parameters[new("force_maximum_acceleration")]));
         var placed = lesson.WithInstance(Snapped(lesson, 2));
         var saved = new WorkshopSavedConstruction(placed, new(5));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var updated = PuzzleCatalogue.WithPrecision(placed, new((Half).45));
-        Assert.Equal((Half).174, updated.Receiver!.Value.Capture.Margin.Value);
+        Assert.Equal((float)(Half).174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
         Assert.Equal(placed.Instances.Single(i => i.Id == PipeId), updated.Instances.Single(i => i.Id == PipeId));
     }
 

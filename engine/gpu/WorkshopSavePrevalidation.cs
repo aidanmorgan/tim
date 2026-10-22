@@ -115,13 +115,6 @@ internal static class WorkshopSavePrevalidation
         return narrowed;
     }
 
-    private static void Within(ulong id, string field, float value, Half minimum, Half maximum)
-    {
-        var narrowed = Narrow(id, field, value);
-        if (narrowed < minimum || narrowed > maximum)
-            throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} {field} {value:R} is outside [{minimum}, {maximum}].");
-    }
-
     private static void Declared(ulong id, string field, float value, Half declared)
     {
         if (!HalfBits.Equal(Narrow(id, field, value), declared))
@@ -143,18 +136,6 @@ internal static class WorkshopSavePrevalidation
                 Declared(id, "radius", r.Radius, material.Radius.Value); Declared(id, "mass", r.Mass, material.Mass.Value);
                 Declared(id, "bounce", r.Bounce, material.Bounce.Value); Declared(id, "drag", r.Drag, material.Drag.Value);
                 Declared(id, "buoyancy", r.Buoyancy, material.Buoyancy.Value);
-                break;
-            case "basket":
-                Within(id, "capture margin", r.Margin, (Half)0, (Half)1);
-                Within(id, "capture speed limit", r.SpeedLimit, (Half)(1.0 / 1024), (Half)64);
-                Within(id, "capture dwell", r.Dwell, (Half)(1.0 / 1024), (Half)30);
-                if (!Enum.IsDefined((SensorParticipation)r.Participation))
-                    throw Refuse(WorkshopSaveRejection.UndefinedEnum, $"Part {id} has an undefined sensor participation.");
-                CheckForceRegion(id, Required(id, r.ForceMin, "force region minimum"), Required(id, r.ForceMax, "force region maximum"),
-                    r.SupportHeight, r.SupportMargin, r.MaxAcceleration);
-                break;
-            case "ramp":
-                Within(id, "length", r.Length, (Half).125, (Half)4); Within(id, "width", r.Width, (Half).125, (Half)4);
                 break;
             case "spring":
                 Within(id, "stiffness", r.Stiffness, 120f, 1200f); Within(id, "damping", r.Damping, 0f, 8f);
@@ -206,25 +187,6 @@ internal static class WorkshopSavePrevalidation
         }
         if (!genericParameters && r.ParametersLength != 0)
             throw Refuse(WorkshopSaveRejection.OutOfRange, "Typed instance cannot carry generic parameters.");
-    }
-
-    /// <summary>The receiver's planar guide (PlanarGuideDeclaration): bounds within 16 m that enclose a volume, a support height
-    /// within 16 m, a support margin in [0, 1] and an acceleration in [0, 12].</summary>
-    private static void CheckForceRegion(ulong id, Vec3f minimum, Vec3f maximum, float height, float margin, float acceleration)
-    {
-        var low = new[] { minimum.X, minimum.Y, minimum.Z };
-        var high = new[] { maximum.X, maximum.Y, maximum.Z };
-        for (var axis = 0; axis < 3; axis++)
-        {
-            Within(id, "force region minimum", low[axis], (Half)(-16), (Half)16);
-            Within(id, "force region maximum", high[axis], (Half)(-16), (Half)16);
-        }
-        for (var axis = 0; axis < 3; axis++)
-            if ((Half)low[axis] >= (Half)high[axis])
-                throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} force region encloses no volume.");
-        Within(id, "support height", height, (Half)(-16), (Half)16);
-        Within(id, "support margin", margin, (Half)0, (Half)1);
-        Within(id, "guide acceleration", acceleration, (Half)0, (Half)12);
     }
 
     // ---------- connections and the puzzle ----------

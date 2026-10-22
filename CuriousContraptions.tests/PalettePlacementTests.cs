@@ -656,6 +656,54 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
+
+    [Fact]
+    public void GenericRampResizeClampsBothHorizontalAxesWithoutEndingGestureAndSupportsCancelUndo()
+    {
+        var (scene, _) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var part = Assert.Single(scene.World.Parts);
+            var original = scene.World.Construction;
+            var dimensions = part.Dimensions;
+            var camera = Field<Camera3D>(scene, "_camera");
+            var gizmo = Field<RotationGizmo>(scene, "_rotationGizmo");
+            gizmo.SetResizeMode(); gizmo.Follow(part, true, camera);
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            foreach (var axis in new[] { 0, 2 })
+            {
+                var handle = camera.UnprojectPosition(gizmo.HandlePosition(axis));
+                Assert.Empty(InvokeHandler(scene, "Click", handle));
+                Assert.True(gizmo.Dragging);
+                var direction = camera.UnprojectPosition(part.GlobalPosition + part.GlobalBasis[axis]) -
+                    camera.UnprojectPosition(part.GlobalPosition);
+                Assert.True(gizmo.Drag(camera, handle + direction * 100, true));
+                Assert.Equal(4f, part.Dimensions[axis]);
+                Assert.True(gizmo.Dragging);
+                Assert.True(gizmo.Drag(camera, handle - direction * 100, true));
+                Assert.Equal(.125f, part.Dimensions[axis]);
+                Assert.True(gizmo.Dragging);
+                Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+                Assert.Empty(InvokeHandler(scene, "EndGizmo", true));
+                Assert.Equal(original, scene.World.Construction);
+                Assert.Equal(dimensions, part.Dimensions);
+                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            var at = camera.UnprojectPosition(gizmo.HandlePosition(0));
+            Assert.Empty(InvokeHandler(scene, "Click", at));
+            var projected = camera.UnprojectPosition(part.GlobalPosition + part.GlobalBasis.X) - camera.UnprojectPosition(part.GlobalPosition);
+            Assert.True(gizmo.Drag(camera, at + projected * .5f, true));
+            Assert.Empty(InvokeHandler(scene, "EndGizmo", false));
+            Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances)).Parameters[new("length")]);
+            Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Assert.Empty(InvokeHandler(scene, "Undo"));
+            Assert.Equal(original.Instances, scene.World.Construction.Instances);
+            Assert.Equal(dimensions, Assert.Single(scene.World.Parts).Dimensions);
+        }
+        finally { Release(scene); }
+    }
+
     private enum PlacementAnswer { Pending, Applied, Rejected }
 
     /// <summary>Records each command and answers it as configured: never (pending), Applied with an empty body read (a static

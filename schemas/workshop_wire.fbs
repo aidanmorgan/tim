@@ -260,20 +260,8 @@ table InstanceRecord {
     drag: float;
     buoyancy: float;
 
-    // Receiver
-    margin: float;
-    speed_limit: float;
-    dwell: float;
-    participation: uint32;
-    force_min: Vec3f;
-    force_max: Vec3f;
-    support_height: float;
-    support_margin: float;
-    max_acceleration: float;
-
-    // Ramp
+    // Pipe
     length: float;
-    width: float;
 
     // Switch
     threshold: float;

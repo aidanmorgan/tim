@@ -49,29 +49,6 @@ public readonly record struct WorkshopGenericInstance(
     }
 }
 
-public readonly record struct RampDimensions(Metres Length, Metres Width)
-{
-    public static RampDimensions Default => new(new((Half)3), new((Half)1.3));
-    public static Metres Thickness => new((Half).18);
-    public void Validate()
-    {
-        PhysicsDeclarationBounds.Range(Length.Value, (Half).125, (Half)4);
-        PhysicsDeclarationBounds.Range(Width.Value, (Half).125, (Half)4);
-    }
-}
-
-public readonly record struct WorkshopRamp(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, RampDimensions Dimensions, bool Locked = false) : IWorkshopInstance
-{
-    public PartId PartId => PartId.Ramp;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
-    public void Validate()
-    {
-        new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
-        Rotation.Validate(); Dimensions.Validate();
-    }
-}
-
 /// <summary>One immutable collection is the construction's only instance storage. There is no part limit (Story 9R.5b, owner
 /// decision 20 Oct 2026: an unlimited Free Workshop; memory is the only bound).</summary>
 public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquatable<WorkshopInstances>
@@ -102,7 +79,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
         var ids = new HashSet<GpuBodyId>();
         foreach (var item in _items)
         {
-            if (item is not (WorkshopBall or WorkshopReceiver or WorkshopRamp or WorkshopLamp or WorkshopBumper or WorkshopDomino or WorkshopBattery or WorkshopSpringboard or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
+            if (item is not (WorkshopBall or WorkshopLamp or WorkshopBumper or WorkshopDomino or WorkshopBattery or WorkshopSpringboard or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
                 throw new ArgumentException("Unsupported authored instance declaration.");
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
