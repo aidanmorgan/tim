@@ -1,0 +1,6 @@
+$ rg electrical_nand|ElectricalNand|"Nand"|not.both in production dirs
+exit=1
+$ git diff 9b324bbd --stat -- schemas engine/PartId.cs engine/gpu/WorkshopPhysicsCompiler.cs elements/BothGate ui CuriousContraptions.Simulation
+(empty = unchanged)
+$ rg WorkshopRejection enum diff
+done

@@ -150,6 +150,40 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally {Release(scene);}
     }
 
+    /// <summary>CAT-024 through the real chooser: every Not both gate socket needs an explicit choice, and a wire that would close a
+    /// loop through the gate, even through an open switch, is refused on the bottom status line with no command and no Undo.</summary>
+    [Theory]
+    [InlineData(ElectricalNandTests.FeedbackLoop.NandToNand)]
+    [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOpenSwitch)]
+    public async Task NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(ElectricalNandTests.FeedbackLoop loop)
+    {
+        var (scene,client)=BenchScene(ElectricalNandTests.Kind,PlacementAnswer.Applied);
+        try
+        {
+            var (open,closing,ids)=ElectricalNandTests.LoopCase(loop);
+            await scene.World.ReplaceConstruction(open);
+            var choices=Field<VBoxContainer>(scene,"_connectionChoices");
+            IEnumerable<Button> Buttons()=>choices.GetChildren().OfType<Button>();
+            MachinePart Part(GpuBodyId id)=>scene.World.Parts.Single(part=>part.AuthoredId==id);
+            Assert.Empty(InvokeHandler(scene,"Select",Part(closing.Source)));
+            Assert.Single(Buttons(),button=>button.Text=="Connect Supply").EmitSignal(Button.SignalName.Pressed);
+            Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",Part(closing.Target)));
+            Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
+            Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
+            var undos=Field<List<WorkshopConstruction>>(scene,"_undo").Count;
+            var commands=client.Commands.Count;
+            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
+            Assert.Equal(open,scene.World.Construction);
+            Assert.Equal(commands,client.Commands.Count);
+            Assert.Equal(undos,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
+            var status=Field<Label>(scene,"_status").Text;
+            Assert.Contains("parts "+ids+".",status,StringComparison.Ordinal);
+            Assert.StartsWith("Break the wire loop",status,StringComparison.Ordinal);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally {Release(scene);}
+    }
+
     private static readonly Vector3 BenchPoint = new(0, 1, 0);
 
     private static MachineWorld DiscoveredWorld()

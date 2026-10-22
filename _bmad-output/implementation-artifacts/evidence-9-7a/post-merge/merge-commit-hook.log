@@ -1,0 +1,80 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.OwkX3J/solution.binlog
+
+Time Elapsed 00:00:08.47
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.OwkX3J/playtest.binlog
+
+Time Elapsed 00:00:12.05
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.OwkX3J/web.binlog
+
+Time Elapsed 00:00:07.24
+Anvil snapshot 0.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+Anvil snapshot 1.ts: CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+Anvil snapshot 2.ts: elements/BothGate/BothGateElementDeclaration.cs
+Anvil snapshot 3.ts: elements/HoldTimer/HoldTimerElementDeclaration.cs
+Anvil snapshot 4.ts: tools/BundleElements.Tests/PortLocatorTests.cs
+Anvil snapshot 5.ts: tools/Coverage.Tests/CoverageTests.cs
+Anvil snapshot 6.ts: tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
+Anvil snapshot 7.ts: tools/Coverage.Tests/CurrentCatalogueTests.cs
+Anvil snapshot 8.ts: tools/Coverage/CurrentCatalogue.cs
+Anvil snapshot 9.ts: tools/Coverage/RequirementDiscovery.cs
+Anvil snapshot 10.ts: tools/E2eRunner.Tests/SelectionTests.cs
+Anvil snapshot 11.ts: tools/E2eRunner/ImpactRules.cs
+Anvil snapshot 12.ts: tools/E2eRunner/LessonFixtures.cs
+Anvil snapshot 13.ts: tools/E2eRunner/Selection.cs
+Anvil snapshot 14.ts: tools/e2e/workshop-wire.ts
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-22T01:21:34.591701+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 21,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.NeU2D5/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)

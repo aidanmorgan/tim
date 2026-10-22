@@ -540,8 +540,9 @@ public sealed class WorkshopPhysicsLawTests
     private const string KnownViolationsSha256 = "3314aae3aa7d104237eb5a09d8ddabedda736f3bf440f971ad2cb2a2388a5dac";
 
     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
-    // "gate".
-    private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate"];
+    // "gate". The shared electrical-domain tables contain "electrical" (the domain word of the electrical_* gate ids) but name no gate.
+    private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate",
+        "ElectricalSupply", "ElectricalEnable", "ElectricalSources", "ElectricalBindings", "ElectricalSourceOffset", "ElectricalBindingOffset"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
@@ -661,6 +662,9 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("softRowError", false)]
     [InlineData("holdWindow", true)]
     [InlineData("threshold", false)]
+    [InlineData("ElectricalSupply", false)] // the reviewed shared electrical-domain table
+    [InlineData("electricalNandRow", true)]  // an element-specific electrical name is still found
+    [InlineData("nandRow", true)]
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
 

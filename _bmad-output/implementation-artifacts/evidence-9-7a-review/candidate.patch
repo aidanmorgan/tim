@@ -1,0 +1,557 @@
+diff --git a/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs b/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
+index df58c7c4..374f13b0 100644
+--- a/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
++++ b/CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs
+@@ -26,7 +26,9 @@ public interface IElectricalElement : IPuzzleElementDeclaration
+ 
+ /// <summary>A declared supply route; switched contacts conduct only their own committed closed state.</summary>
+ public enum SupplyCapabilityKind : byte { Source, SwitchedContact, LogicGate }
+-public enum LogicGateOperation : byte { And }
++/// <summary>The declared law of a supplied two-input gate. And is monotone; Nand is not, so it may never sit on a directed
++/// electrical cycle.</summary>
++public enum LogicGateOperation : byte { And = 0, Nand = 1 }
+ 
+ public readonly record struct SupplyCapabilityDescriptor(
+     SupplyCapabilityKind Kind, PortSocket? Input, PortSocket Output, LogicGateOperation? Operation = null);
+diff --git a/CuriousContraptions.slnx b/CuriousContraptions.slnx
+index 7707be9e..2e5bdf82 100644
+--- a/CuriousContraptions.slnx
++++ b/CuriousContraptions.slnx
+@@ -21,6 +21,7 @@
+     <Project Path="elements/DelayBox/DelayBox.csproj" />
+     <Project Path="elements/HoldTimer/HoldTimer.csproj" />
+     <Project Path="elements/BothGate/BothGate.csproj" />
++    <Project Path="elements/ElectricalNand/ElectricalNand.csproj" />
+     <Project Path="elements/Domino/Domino.csproj" />
+     <Project Path="elements/Funnel/Funnel.csproj" />
+     <Project Path="elements/ImpactSwitch/ImpactSwitch.csproj" />
+diff --git a/CuriousContraptions.tests/BasketballResourceTests.cs b/CuriousContraptions.tests/BasketballResourceTests.cs
+index aaebd5a2..7b329d38 100644
+--- a/CuriousContraptions.tests/BasketballResourceTests.cs
++++ b/CuriousContraptions.tests/BasketballResourceTests.cs
+@@ -32,7 +32,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
+     {
+         var registry = new PartRegistry();
+         registry.Load();
+-        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate") }.OrderBy(id => id),
++        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand") }.OrderBy(id => id),
+             registry.Definitions.Keys.OrderBy(id => id));
+         var definition = registry.Definitions[PartId.Basketball];
+         var material = definition.Ball!.Value;
+diff --git a/CuriousContraptions.tests/BundleElementIdTests.cs b/CuriousContraptions.tests/BundleElementIdTests.cs
+index bcbb5ed2..fcbbc2b5 100644
+--- a/CuriousContraptions.tests/BundleElementIdTests.cs
++++ b/CuriousContraptions.tests/BundleElementIdTests.cs
+@@ -78,7 +78,7 @@ public sealed class BundleElementIdTests
+     [Fact]
+     public void EveryLoadedElementIsKnownToTheWorkerDecode()
+     {
+-        Assert.Equal(24, SaveFixture.Elements.Count);
++        Assert.Equal(25, SaveFixture.Elements.Count);
+         foreach (var element in SaveFixture.Elements)
+         {
+             var builder = new FlatBufferBuilder(256);
+diff --git a/CuriousContraptions.tests/BundlePortsTests.cs b/CuriousContraptions.tests/BundlePortsTests.cs
+index c8a42d43..a1de22eb 100644
+--- a/CuriousContraptions.tests/BundlePortsTests.cs
++++ b/CuriousContraptions.tests/BundlePortsTests.cs
+@@ -81,6 +81,7 @@ public sealed class BundlePortsTests
+     private static readonly Dictionary<string, (WorkshopPort[] Ports, ElementFootprint Footprint)> Golden = new(StringComparer.Ordinal)
+     {
+         ["both_gate"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
++        ["electrical_nand"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
+         ["ball"] = ([], new(1, 1, 0)),
+         ["ball_detector"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0)),
+         ["basket"] = ([], new(1, 0, 0)),
+diff --git a/CuriousContraptions.tests/CSharpStaticGateTests.cs b/CuriousContraptions.tests/CSharpStaticGateTests.cs
+index 65e33a56..c4f0fcf7 100644
+--- a/CuriousContraptions.tests/CSharpStaticGateTests.cs
++++ b/CuriousContraptions.tests/CSharpStaticGateTests.cs
+@@ -635,7 +635,7 @@ public sealed class CSharpStaticGateTests
+         "elements/Ball/Ball.csproj", "elements/BallDetector/BallDetector.csproj", "elements/Battery/Battery.csproj",
+         "elements/BowlingBall/BowlingBall.csproj", "elements/Bumper/Bumper.csproj", "elements/Counter/Counter.csproj",
+         "elements/DelayBox/DelayBox.csproj", "elements/Domino/Domino.csproj", "elements/Funnel/Funnel.csproj",
+-        "elements/HoldTimer/HoldTimer.csproj", "elements/BothGate/BothGate.csproj", "elements/ImpactSwitch/ImpactSwitch.csproj", "elements/Pipe/Pipe.csproj",
++        "elements/HoldTimer/HoldTimer.csproj", "elements/BothGate/BothGate.csproj", "elements/ElectricalNand/ElectricalNand.csproj", "elements/ImpactSwitch/ImpactSwitch.csproj", "elements/Pipe/Pipe.csproj",
+         "elements/PipeBend45/PipeBend45.csproj", "elements/PipeBend90/PipeBend90.csproj",
+         "elements/PoweredGate/PoweredGate.csproj", "elements/PressurePlate/PressurePlate.csproj",
+         "elements/Ramp/Ramp.csproj", "elements/Receiver/Receiver.csproj", "elements/SignalLamp/SignalLamp.csproj",
+diff --git a/CuriousContraptions.tests/CuriousContraptions.tests.csproj b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+index 499d5886..3c13342d 100644
+--- a/CuriousContraptions.tests/CuriousContraptions.tests.csproj
++++ b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+@@ -74,6 +74,7 @@
+         <Compile Include="WorkshopDelayTests.cs" />
+         <Compile Include="HoldTimerTests.cs" />
+         <Compile Include="BothGateTests.cs" />
++        <Compile Include="ElectricalNandTests.cs" />
+         <Compile Include="SwitchElectricalTests.cs" />
+         <Compile Include="WorkshopBumperTests.cs" />
+         <Compile Include="ElectricalSupplyTests.cs" />
+diff --git a/CuriousContraptions.tests/PackageRuntimeParityTests.cs b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+index e5ca6824..e32de473 100644
+--- a/CuriousContraptions.tests/PackageRuntimeParityTests.cs
++++ b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+@@ -197,8 +197,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+         _ = godot;
+         var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+         var rows = new List<System.Text.Json.Nodes.JsonNode>();
+-        // The immutable 9A.16 baseline predates Hold and Both Gate; its new geometry is checked separately.
+-        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate")).OrderBy(package => package.Package, StringComparer.Ordinal))
++        // The immutable 9A.16 baseline predates Hold, Both Gate and Not both gate; their new geometry is checked separately.
++        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand")).OrderBy(package => package.Package, StringComparer.Ordinal))
+         {
+             Capture(package.Declaration.Metadata.Id, Placed(new PartId(package.Declaration.Metadata.Id)));
+         }
+@@ -405,7 +405,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
+-        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" =>
++        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" =>
+             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
+         "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
+         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+diff --git a/CuriousContraptions.tests/PalettePlacementTests.cs b/CuriousContraptions.tests/PalettePlacementTests.cs
+index 2a7b712a..69bd7c52 100644
+--- a/CuriousContraptions.tests/PalettePlacementTests.cs
++++ b/CuriousContraptions.tests/PalettePlacementTests.cs
+@@ -150,6 +150,40 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         finally {Release(scene);}
+     }
+ 
++    /// <summary>CAT-024 through the real chooser: every Not both gate socket needs an explicit choice, and a wire that would close a
++    /// loop through the gate, even through an open switch, is refused on the bottom status line with no command and no Undo.</summary>
++    [Theory]
++    [InlineData(ElectricalNandTests.FeedbackLoop.NandToNand)]
++    [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOpenSwitch)]
++    public async Task NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(ElectricalNandTests.FeedbackLoop loop)
++    {
++        var (scene,client)=BenchScene(ElectricalNandTests.Kind,PlacementAnswer.Applied);
++        try
++        {
++            var (open,closing,ids)=ElectricalNandTests.LoopCase(loop);
++            await scene.World.ReplaceConstruction(open);
++            var choices=Field<VBoxContainer>(scene,"_connectionChoices");
++            IEnumerable<Button> Buttons()=>choices.GetChildren().OfType<Button>();
++            MachinePart Part(GpuBodyId id)=>scene.World.Parts.Single(part=>part.AuthoredId==id);
++            Assert.Empty(InvokeHandler(scene,"Select",Part(closing.Source)));
++            Assert.Single(Buttons(),button=>button.Text=="Connect Supply").EmitSignal(Button.SignalName.Pressed);
++            Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",Part(closing.Target)));
++            Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
++            Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
++            var undos=Field<List<WorkshopConstruction>>(scene,"_undo").Count;
++            var commands=client.Commands.Count;
++            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
++            Assert.Equal(open,scene.World.Construction);
++            Assert.Equal(commands,client.Commands.Count);
++            Assert.Equal(undos,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
++            var status=Field<Label>(scene,"_status").Text;
++            Assert.Contains("parts "+ids+".",status,StringComparison.Ordinal);
++            Assert.StartsWith("Break the wire loop",status,StringComparison.Ordinal);
++            Assert.Empty(godot.Errors.Drain());
++        }
++        finally {Release(scene);}
++    }
++
+     private static readonly Vector3 BenchPoint = new(0, 1, 0);
+ 
+     private static MachineWorld DiscoveredWorld()
+diff --git a/CuriousContraptions.tests/PartRegistryTests.cs b/CuriousContraptions.tests/PartRegistryTests.cs
+index 3805958f..27bc5188 100644
+--- a/CuriousContraptions.tests/PartRegistryTests.cs
++++ b/CuriousContraptions.tests/PartRegistryTests.cs
+@@ -19,7 +19,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+         PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper,
+         PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector,
+         PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
+-        PartId.Latch, new("hold_timer"), new("both_gate")
++        PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand")
+     ];
+ 
+     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
+@@ -36,7 +36,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+     {
+         _ = godot;
+         var registry = Loaded();
+-        Assert.Equal(24, registry.Definitions.Count);
++        Assert.Equal(25, registry.Definitions.Count);
+         Assert.Equal(PaletteRows, registry.Free.Keys);
+         Assert.All(registry.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
+         var entries = PartRegistry.Read(Bundle()).ToDictionary(entry => new PartId(entry.Metadata.Id));
+@@ -127,7 +127,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+         Assert.Contains(expected, error.Message, StringComparison.Ordinal);
+         // Nothing is kept from a refused load: the registry still holds the last good bundle.
+         Assert.Equal(PaletteRows, registry.Free.Keys);
+-        Assert.Equal(24, registry.Definitions.Count);
++        Assert.Equal(25, registry.Definitions.Count);
+     }
+ 
+     [Fact]
+@@ -258,7 +258,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
+         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
+         var ids = PartRegistry.Read(Bundle()).Select(entry => entry.Metadata.Id)
+             .Concat(UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value)).ToArray();
+-        Assert.Equal(26, ids.Length);
++        Assert.Equal(27, ids.Length);
+         foreach (var id in ids)
+         {
+             Assert.DoesNotContain($"\"{id}\"", source, StringComparison.Ordinal);
+diff --git a/CuriousContraptions.tests/WorkbenchCapacityTests.cs b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+index 192c2441..cfe4f364 100644
+--- a/CuriousContraptions.tests/WorkbenchCapacityTests.cs
++++ b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+@@ -114,7 +114,7 @@ public sealed class WorkbenchCapacityTests
+         "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),
+         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, x, 1, z, 0, 0, 0, 1),
+         "lamp" => WorkshopInput.Lamp(id, x, 1, z, 0, 0, 0, 1),
+-        "delay" or "hold_timer" or "both_gate" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
++        "delay" or "hold_timer" or "both_gate" or "electrical_nand" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
+         "bumper" => WorkshopInput.Bumper(id, x, 1, z, 0, 0, 0, 1, BumperWork.Default),
+         "battery" => WorkshopInput.Battery(id, x, 1, z, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+         "spring" => WorkshopInput.Springboard(id, x, 1, z, 0, 0, 0, 1, SpringboardSettings.Default),
+@@ -257,7 +257,7 @@ public sealed class WorkbenchCapacityTests
+     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
+     {
+         PartId[] rows = [PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp,
+-            PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new("hold_timer"), new("both_gate")];
++            PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand")];
+         Assert.Equal(rows, FreePalette.Keys.ToArray());
+         Assert.All(FreePalette.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
+         Assert.Equal(rows.Length, FreePalette.Count);
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+index 3e1a6ced..4b992690 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+@@ -538,8 +538,9 @@ public sealed class WorkshopPhysicsLawTests
+     private const string KnownViolationsSha256 = "3314aae3aa7d104237eb5a09d8ddabedda736f3bf440f971ad2cb2a2388a5dac";
+ 
+     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
+-    // "gate".
+-    private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate"];
++    // "gate". The shared electrical-domain tables contain "electrical" (the domain word of the electrical_* gate ids) but name no gate.
++    private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate",
++        "ElectricalSupply", "ElectricalEnable", "ElectricalSources", "ElectricalBindings", "ElectricalSourceOffset", "ElectricalBindingOffset"];
+ 
+     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
+     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
+@@ -659,6 +660,9 @@ public sealed class WorkshopPhysicsLawTests
+     [InlineData("softRowError", false)]
+     [InlineData("holdWindow", true)]
+     [InlineData("threshold", false)]
++    [InlineData("ElectricalSupply", false)] // the reviewed shared electrical-domain table
++    [InlineData("electricalNandRow", true)]  // an element-specific electrical name is still found
++    [InlineData("nandRow", true)]
+     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
+         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
+ 
+diff --git a/TODO.md b/TODO.md
+index 65484ef5..b02f9396 100644
+--- a/TODO.md
++++ b/TODO.md
+@@ -4,12 +4,12 @@
+ 
+ **Verified:** Both Gate9.6 terminal scoped Pass57b2a6, main e036b7f9; CI39690098234 passed2123/2123, artifact12388827243, deployment7239438508. [Review](_bmad-output/implementation-artifacts/review-9-6-both-gate.md).
+ 
+-**In flight:** C-Ramp+Receiver, roadmap position24 before NAND. Generic Ramp authoring/resize and declared Receiver capture/guide, preserving current lesson/compiled baselines. [Scope](_bmad-output/implementation-artifacts/spec-c-ramp-receiver.md).
++**In flight:** 9.7a Not both gate (CAT-024), roadmap position25: package, shared Nand law, condensation-ordered supply resolve and typed nonmonotone-feedback refusal. [Scope](_bmad-output/implementation-artifacts/spec-9-7a-electrical-nand.md).
+ 
+-**Owner / next check:** transport_implementer and retained reviewer transport_reviewer. Implementation and native/schema/worker checks complete; next exact SnapshotApproval then protected publication. Evidence and original failures are in the scope record. No known product blocker; browser qualification deferred.
++**Owner / next check:** 9.7a implementation owner with an independent reviewer. Native/bundle/worker checks complete; next exact SnapshotApproval then protected publication. Pre-existing Coverage/E2eRunner/PortLocator failures recorded in the scope. Browser qualification deferred.
+ 
+ **Verification:** Production C# UNIT tests PRIMARY, integration supplemental. Real behavior/control/boundary/ticks/Reset/save-load; one matching build per changed input/config then --no-build --no-restore. Chrome/E2E deferred until all catalogue elements complete.
+ 
+ **Cleanup/design:** Explicit record/factory/compiler/capture/whitelist/caller deletion, package-owned declarations and typed shared engines. No fallback, compatibility bridge or new platform.
+ 
+-**Next:** NAND only after C-Ramp+Receiver terminal publication Pass. Preserve unrelated main dirt and historical evidence.
++**Next:** publish NAND only after C-Ramp+Receiver terminal publication Pass. Preserve unrelated main dirt and historical evidence.
+diff --git a/_bmad-output/implementation-artifacts/sprint-status.yaml b/_bmad-output/implementation-artifacts/sprint-status.yaml
+index 05144ab0..1af18396 100644
+--- a/_bmad-output/implementation-artifacts/sprint-status.yaml
++++ b/_bmad-output/implementation-artifacts/sprint-status.yaml
+@@ -268,7 +268,7 @@ development_status:
+   # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard
+   9r-13-cat-054-ramp-suite: review # native scope; browser post-catalogue
+   # 25 (element)
+-  9-7a-electrical-nand-gate: backlog
++  9-7a-electrical-nand-gate: review # native scope; SnapshotApproval/publication pending; browser post-catalogue
+   # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)
+   9-7-electrical-logic-gates-nand-nor: backlog
+   # 26 (deletion)
+diff --git a/docs/planning/elements/CAT-024-electrical_nand.md b/docs/planning/elements/CAT-024-electrical_nand.md
+index ba9139d5..b6403002 100644
+--- a/docs/planning/elements/CAT-024-electrical_nand.md
++++ b/docs/planning/elements/CAT-024-electrical_nand.md
+@@ -10,7 +10,7 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
+ | Requirement anchor | [current-cat-024](../requirements.md#current-cat-024); retained behaviour [todo-362](../requirements.md#todo-362) |
+ | Mapped identities | [EL-137 Electrical NAND gate](../invest/named-elements.md#element-137). No TH/RAD/GAP identity. |
+ | Roadmap story | 9.7 "Electrical Logic Gates NAND & NOR" (Epic 9), shared with CAT-025 |
+-| Status | not started |
++| Status | Story 9.7a candidate: package `elements/ElectricalNand`, shared `Nand` law, ordered supply resolve and typed `NonmonotoneFeedback` refusal implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-7a-electrical-nand.md)); independent review and publication pending; browser qualification pending post-catalogue. |
+ 
+ ## 2. Declaration
+ 
+@@ -22,9 +22,9 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
+ | Typed sockets and ports | Same four electrical ports as CAT-013: `FirstIn`, `SecondIn`, separate `PowerIn` supply, `Supply` output. |
+ | Sensors and activation | none |
+ | Work and energy stores | none. A logically true Nand with no inputs (row 00) still needs real `PowerIn` supply; it never creates power ([todo-362](../requirements.md#todo-362)). |
+-| Parameters | `Operation = Nand` (enum value 4), fixed by catalogue kind (`parts/scenes/electrical_nand.tscn@a6c914e:L1-L5`). |
++| Parameters | `Operation = Nand`, fixed by catalogue kind. Current closed value `LogicGateOperation.Nand = 1` in the package declaration; 4 was the legacy scene integer (`parts/scenes/electrical_nand.tscn@a6c914e:L1-L5`) and is not carried forward. |
+ | Cosmetic curves and UI bindings | Same three lamps as CAT-013 (inputs follow committed availability; output follows truth ∧ supplied). |
+-| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Nand shows its toolbox pictogram on the face and gold truth-row dots for rows 00, 01, 10 at x −0.21, −0.07, 0.07 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L79-L79`. Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
++| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Nand shows its toolbox pictogram on the face and gold truth-row dots for rows 00, 01, 10 at x −0.21, −0.07, 0.07 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L79-L79`, now the package `icon.svg`. Current art draws the same pictogram as navy mesh strokes rather than the legacy textured quad (Story 9.7a assumption A1). Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
+ | Catalogue / inventory | Id `electrical_nand`, Title "Not both gate", Category Control, colour (0.4, 0.72, 0.79), no parameters; Description: "Passes the separate bottom supply when the numbered inputs are not both powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`parts/catalog/electrical_nand.tres@a6c914e:L1-L11`). No level places or grants it. |
+ 
+ ## 3. Engine capabilities
+@@ -32,7 +32,7 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
+ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction (P0-022/023 shared evaluator/feedback registration).
+ 
+ - **Exists now:** as [CAT-013 §3](CAT-013-both_gate.md#3-engine-capabilities).
+-- **Missing:** supply network (Story 8.1); gate element, `FirstIn`/`SecondIn` sockets, electrical-input cosmetic source and nonmonotone-feedback rejection (Story 9.6, first gate). Story 9.7 adds only the Nand operation value, pictogram and truth dots on top of 9.6.
++- **Missing:** none after Story 9.7a. Story 9.6 delivered the gate element, `FirstIn`/`SecondIn` sockets and electrical-input cosmetic source; Story 9.7a adds the Nand operation value, settled (condensation-ordered) supply evaluation, the typed nonmonotone-feedback refusal, the pictogram and the truth dots.
+ - **Dependencies:** CAT-005 Battery; CAT-013 Both gate declaration (Story 9.6) first; a supplied consumer (CAT-013 open question 1); input "power switches" need the CAT-063 Switch supply mode (open question 1 here).
+ 
+ ## 4. Legacy harvest
+@@ -78,5 +78,5 @@ Authority: [CAT-024](../requirements.md#current-cat-024), [todo-362](../requirem
+ 
+ ## 6. Open questions
+ 
+-1. **Input "power switches".** The Story 9.7 AC wires the gates "to input power switches"; the current Switch (CAT-063) is activation-only and its PowerIn→Supply mode is not scheduled before Epic 9. Whether 9.7 uses batteries or switched supplies for the conditions: unspecified — owner decision.
++1. **Input "power switches".** Resolved (Story 9.7a D5, after owner scheduling item b): each condition is a Battery → Impact Switch (CAT-063) `PowerIn`→`Supply` contact from Story 9.5b; battery-enabled conditions are supplemental proof only.
+ 2. Consumer for the output: as [CAT-013 open question 1](CAT-013-both_gate.md#6-open-questions).
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index f0e72a10..65bb6234 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -55,6 +55,8 @@ public sealed class CompiledSupplyGraph
+     private readonly int[] _sources;
+     private readonly int[] _consumers;
+     private readonly (int Source, WorkshopSocket Input)[][] _inputs;
++    private readonly int[][] _components;
++    private readonly bool[] _cyclic;
+     public ReadOnlySpan<SupplyNodeDeclaration> Nodes => _nodes;
+     public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
+         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> consumers,
+@@ -103,6 +105,16 @@ public sealed class CompiledSupplyGraph
+             inputs[to].Add((from,edge.Input));
+         }
+         _inputs=inputs.Select(list=>list.ToArray()).ToArray();
++        var predecessors=_inputs.Select(list=>list.Select(edge=>edge.Source).ToArray()).ToArray();
++        _components=SupplyCycles.Components(predecessors);
++        _cyclic=new bool[_components.Length];
++        for(var c=0;c<_components.Length;c++)
++        {
++            _cyclic[c]=SupplyCycles.Cyclic(_components[c],predecessors);
++            // Connection validation refuses these loops first; reaching here is a defect, never a refusal.
++            if(_cyclic[c] && _components[c].Any(i=>!SupplyCycles.Monotone(_nodes[i].Operation)))
++                throw new ArgumentException("A nonmonotone electrical gate lies on a directed cycle.");
++        }
+     }
+     public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
+         .OrderBy(node=>node.Owner.Value).Select(node=>new ElectricalLogicRead(node.Owner,ElectricalInputState.Neither,false,false)).ToArray();
+@@ -116,25 +128,17 @@ public sealed class CompiledSupplyGraph
+             if (_sources[i]>=0) powered[i]=controls.SourceEnable[_sources[i]]==ElectricalEnable.Enabled;
+             if (_nodes[i].Kind==SupplyNodeKind.Contact) contacts[i]=contactClosed(_nodes[i].Owner);
+         }
+-        // Monotone declared rules converge from the unpowered least fixed point. Each node can
+-        // become powered only once; no previous tick feeds this candidate's solution.
+-        var changed = true;
+-        while (changed)
++        // Components in evaluation order: every input of a component is settled before it is visited. A singleton is evaluated
++        // once. A cycle holds only monotone rules, so it settles at its least fixed point from unpowered. No previous tick feeds
++        // this candidate's solution.
++        for (var c=0;c<_components.Length;c++)
+         {
+-            changed=false;
+-            for (var i=0;i<_nodes.Length;i++)
++            var changed = true;
++            while (changed)
+             {
+-                if (powered[i] || _nodes[i].Kind==SupplyNodeKind.Source) continue;
+-                var supplied = Input(i,WorkshopSocket.PowerIn);
+-                var active = _nodes[i].Kind switch
+-                {
+-                    SupplyNodeKind.Contact => supplied && contacts[i],
+-                    SupplyNodeKind.Consumer => supplied,
+-                    SupplyNodeKind.LogicGate => supplied && Evaluate(_nodes[i].Operation!.Value,
+-                        Input(i,WorkshopSocket.FirstIn),Input(i,WorkshopSocket.SecondIn)),
+-                    _ => throw new ArgumentException("Unsupported electrical node.")
+-                };
+-                if (active) { powered[i]=true; changed=true; }
++                changed=false;
++                foreach (var i in _components[c])
++                    if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=_cyclic[c]; }
+             }
+         }
+         var closed=new bool[consumers];
+@@ -150,13 +154,99 @@ public sealed class CompiledSupplyGraph
+         }
+         return new(closed,logic.OrderBy(row=>row.Owner.Value).ToArray());
+         bool Input(int node, WorkshopSocket socket) => _inputs[node].Any(edge=>edge.Input==socket && powered[edge.Source]);
++        bool Active(int i) => _nodes[i].Kind switch
++        {
++            SupplyNodeKind.Contact => Input(i,WorkshopSocket.PowerIn) && contacts[i],
++            SupplyNodeKind.Consumer => Input(i,WorkshopSocket.PowerIn),
++            SupplyNodeKind.LogicGate => Input(i,WorkshopSocket.PowerIn) && Evaluate(_nodes[i].Operation!.Value,
++                Input(i,WorkshopSocket.FirstIn),Input(i,WorkshopSocket.SecondIn)),
++            _ => throw new ArgumentException("Unsupported electrical node.")
++        };
+     }
+     public static bool Evaluate(LogicGateOperation operation, bool first, bool second) => operation switch
+     {
+         LogicGateOperation.And => first && second,
++        LogicGateOperation.Nand => !(first && second),
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
++    /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
++    public static bool IsMonotone(LogicGateOperation operation) => operation switch
++    {
++        LogicGateOperation.And => true,
++        LogicGateOperation.Nand => false,
++        _ => throw new ArgumentOutOfRangeException(nameof(operation))
++    };
++
++}
++
++/// <summary>Directed cycles of the declared electrical topology. Only monotone rules may share one: a gate that more input power can
++/// switch off (Nand) has no settled zero-delay state on a loop, so connection validation refuses such a loop before any solve, even
++/// when only an open contact closes it.</summary>
++public static class SupplyCycles
++{
++    /// <summary>A node without a gate law (source, contact, consumer) only ever passes more power on with more power in.</summary>
++    public static bool Monotone(LogicGateOperation? operation) => operation is not { } gate || CompiledSupplyGraph.IsMonotone(gate);
+ 
++    /// <summary>The strongly connected components of a graph given as predecessor lists, in evaluation order: every edge runs from an
++    /// earlier component into a later one or stays inside one. Tarjan over predecessors emits each component after everything
++    /// upstream of it; iterative, so a long chain cannot exhaust the worker's stack.</summary>
++    public static int[][] Components(int[][] predecessors)
++    {
++        ArgumentNullException.ThrowIfNull(predecessors);
++        var count=predecessors.Length;
++        var index=new int[count]; var low=new int[count]; var onStack=new bool[count];
++        Array.Fill(index,-1);
++        var stack=new System.Collections.Generic.Stack<int>();
++        var work=new System.Collections.Generic.Stack<(int Node,int Edge)>();
++        var components=new System.Collections.Generic.List<int[]>();
++        var next=0;
++        for(var root=0;root<count;root++)
++        {
++            if(index[root]>=0) continue;
++            Open(root);
++            while(work.TryPop(out var frame))
++            {
++                var (node,edge)=frame;
++                if(edge<predecessors[node].Length)
++                {
++                    work.Push((node,edge+1));
++                    var other=predecessors[node][edge];
++                    if(index[other]<0) Open(other);
++                    else if(onStack[other]) low[node]=Math.Min(low[node],index[other]);
++                    continue;
++                }
++                if(work.TryPeek(out var parent)) low[parent.Node]=Math.Min(low[parent.Node],low[node]);
++                if(low[node]!=index[node]) continue;
++                var members=new System.Collections.Generic.List<int>();
++                int member;
++                do { member=stack.Pop(); onStack[member]=false; members.Add(member); } while(member!=node);
++                members.Sort();
++                components.Add(members.ToArray());
++            }
++        }
++        return components.ToArray();
++        void Open(int node) { index[node]=low[node]=next++; stack.Push(node); onStack[node]=true; work.Push((node,0)); }
++    }
++
++    public static bool Cyclic(int[] component, int[][] predecessors) =>
++        component.Length>1 || Array.IndexOf(predecessors[component[0]],component[0])>=0;
++
++    /// <summary>The ascending owners of the first directed cycle through a nonmonotone gate, or empty. <paramref name="operation"/>
++    /// names each owner's declared gate law (null for a part without one); the edges are the potential topology, every electrical
++    /// wire whatever its socket and whether or not a contact on it is closed.</summary>
++    public static GpuBodyId[] NonmonotoneCycle(System.Collections.Generic.IEnumerable<(GpuBodyId Source, GpuBodyId Target)> edges,
++        Func<GpuBodyId, LogicGateOperation?> operation)
++    {
++        ArgumentNullException.ThrowIfNull(edges); ArgumentNullException.ThrowIfNull(operation);
++        var wires=edges.ToArray();
++        var owners=wires.SelectMany(wire=>new[]{wire.Source,wire.Target}).Distinct().OrderBy(owner=>owner.Value).ToArray();
++        var slot=owners.Select((owner,i)=>(owner,i)).ToDictionary(pair=>pair.owner,pair=>pair.i);
++        var predecessors=owners.Select(owner=>wires.Where(wire=>wire.Target==owner).Select(wire=>slot[wire.Source]).ToArray()).ToArray();
++        foreach(var component in Components(predecessors))
++            if(Cyclic(component,predecessors) && component.Any(i=>!Monotone(operation(owners[i]))))
++                return component.Select(i=>owners[i]).ToArray();
++        return [];
++    }
+ }
+ 
+ /// <summary>Player controls the discrete owner hands to one physics step: the enable state of every admitted source, in source order.</summary>
+diff --git a/engine/gpu/WorkshopConnections.cs b/engine/gpu/WorkshopConnections.cs
+index 9d869dfb..09126991 100644
+--- a/engine/gpu/WorkshopConnections.cs
++++ b/engine/gpu/WorkshopConnections.cs
+@@ -98,6 +98,14 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
+                         throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied, "This power input already has a supplier.");
+             }
+         }
++        // Every electrical wire is a potential path, open contacts included: a loop through a nonmonotone gate is refused here, in
++        // build mode, before any construction or solve sees it. The rule reads each part's declared gate law, never its identity.
++        var loop = SupplyCycles.NonmonotoneCycle(
++            _items.Where(link => link.Domain == WorkshopConnectionDomain.Electrical).Select(link => (link.Source, link.Target)),
++            owner => DeclaredPhysics.Of(partOf(owner)!.Value).Electrical?.Supply?.Operation);
++        if (loop.Length != 0)
++            throw new WorkshopEditRejectedException(WorkshopEditRejection.NonmonotoneFeedback,
++                $"Break the wire loop through parts {string.Join(", ", loop.Select(owner => owner.Value))}. This gate's output cannot feed its own inputs.");
+     }
+     public bool Equals(WorkshopConnections? other) =>
+         other is not null && _items.Length == other._items.Length && _items.SequenceEqual(other._items);
+diff --git a/engine/gpu/WorkshopEditRejectedException.cs b/engine/gpu/WorkshopEditRejectedException.cs
+index 37183908..1e42e016 100644
+--- a/engine/gpu/WorkshopEditRejectedException.cs
++++ b/engine/gpu/WorkshopEditRejectedException.cs
+@@ -33,6 +33,8 @@ public enum WorkshopEditRejection : uint
+     PuzzleSettings,
+     /// <summary>The Workshop has no bench placement for that part.</summary>
+     UnsupportedPart,
++    /// <summary>A wire would close a loop through a gate whose output more input power can switch off.</summary>
++    NonmonotoneFeedback,
+ }
+ 
+ /// <summary>
+diff --git a/tools/BundleElements.Tests/BundleValidatorTests.cs b/tools/BundleElements.Tests/BundleValidatorTests.cs
+index 48c3ec76..db8a7e81 100644
+--- a/tools/BundleElements.Tests/BundleValidatorTests.cs
++++ b/tools/BundleElements.Tests/BundleValidatorTests.cs
+@@ -127,6 +127,8 @@ public sealed class BundleValidatorTests
+         };
+         Assert.Empty(Check(logic));
+         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=null}}}));
++        Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Nand}}}));
++        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)2}}}));
+         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)255}}}));
+         Assert.NotEmpty(Check(logic with {Ports=logic.Ports.Where(port=>port.Socket!=PortSocket.SecondIn).ToArray()}));
+         Assert.NotEmpty(Check(supply with {Electrical=supply.Electrical! with {Supply=supply.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.And}}}));
+diff --git a/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs b/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
+index 64d91380..d84361f7 100644
+--- a/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
++++ b/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
+@@ -42,7 +42,7 @@ public class CurrentCapabilityInputsTests
+         Assert.Contains(preparation.Issues, issue => issue.Problem == CurrentInputProblem.MissingScope);
+         Assert.Empty(expected.ImplementationEligibleOwners);
+         var ball = new SourceKey(RequirementOrigin.Catalogue, new("ball"));
+-        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_nand"));
++        var planned = new SourceKey(RequirementOrigin.Catalogue, new("electrical_nor"));
+         Assert.Equal(ConsumerKind.CurrentPart, expected.Classifications[ball].Consumer);
+         Assert.Equal(ConsumerKind.FutureDeclaration, expected.Classifications[planned].Consumer);
+         Assert.NotEmpty(expected.RequiredSymbols[ball]);
+diff --git a/tools/E2eRunner/ImpactRules.cs b/tools/E2eRunner/ImpactRules.cs
+index a1a1e068..8a3f3e0f 100644
+--- a/tools/E2eRunner/ImpactRules.cs
++++ b/tools/E2eRunner/ImpactRules.cs
+@@ -16,7 +16,7 @@ internal static class ImpactRules
+     {
+         ["Ball"] = PartId.Basketball, ["BallDetector"] = PartId.BallDetector, ["Battery"] = PartId.Battery,
+         ["BowlingBall"] = PartId.BowlingBall, ["Bumper"] = PartId.PinballBumper, ["Counter"] = PartId.Counter, ["Domino"] = PartId.Domino,
+-        ["DelayBox"] = PartId.Delay, ["Funnel"] = PartId.Funnel, ["ImpactSwitch"] = PartId.ImpactSwitch, ["Pipe"] = PartId.Pipe,
++        ["DelayBox"] = PartId.Delay, ["ElectricalNand"] = new("electrical_nand"), ["Funnel"] = PartId.Funnel, ["ImpactSwitch"] = PartId.ImpactSwitch, ["Pipe"] = PartId.Pipe,
+         ["PipeBend45"] = PartId.PipeBend45, ["PipeBend90"] = PartId.PipeBend90,
+         ["PoweredGate"] = PartId.PoweredGate, ["PressurePlate"] = PartId.PressurePlate, ["Ramp"] = PartId.Ramp,
+         ["Receiver"] = PartId.Receiver, ["SignalLamp"] = PartId.SignalLamp, ["Springboard"] = PartId.Springboard,

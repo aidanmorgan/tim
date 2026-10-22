@@ -1,0 +1,50 @@
+9b324bbd6a161858b9342562cd0a572d67f9e62a
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.87]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [FAIL]
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles [105 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.Coverage.RequirementDiscovery.Discover(DirectoryInfo root) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/RequirementDiscovery.cs:line 24
+   at CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.CurrentPreparationPreservesObligationsAndReportsAllUnresolvedRoles() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs:line 31
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource [105 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualPartIdentityTableDeclaresEveryCatalogueResource() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage.Tests/CurrentCatalogueTests.cs:line 181
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.94]     CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [FAIL]
+  Failed CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures [60 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.CoverageTests.CurrentCatalogueTests.ActualCurrentContractRetainsAllIdentitiesModesAndFixtures() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage.Tests/CurrentCatalogueTests.cs:line 52
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.95]     CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [FAIL]
+  Failed CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes [53 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at CuriousContraptions.Coverage.CurrentCatalogue.ValidateFixtures(String json) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 181
+   at CuriousContraptions.Coverage.CurrentCatalogue.Read(DirectoryInfo root) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage/CurrentCatalogue.cs:line 42
+   at CuriousContraptions.CoverageTests.CurrentCapabilityInputsTests.PlannedAbsentResourcesDoNotBlockCurrentInputsButAdmittedRemovalDoes() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base2/tools/Coverage.Tests/CurrentCapabilityInputsTests.cs:line 63
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:    73, Skipped:     0, Total:    77, Duration: 203 ms - Coverage.Tests.dll (net10.0)

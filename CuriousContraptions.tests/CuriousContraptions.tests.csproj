@@ -74,6 +74,7 @@
         <Compile Include="WorkshopDelayTests.cs" />
         <Compile Include="HoldTimerTests.cs" />
         <Compile Include="BothGateTests.cs" />
+        <Compile Include="ElectricalNandTests.cs" />
         <Compile Include="SwitchElectricalTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />
         <Compile Include="ElectricalSupplyTests.cs" />
