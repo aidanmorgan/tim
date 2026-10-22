@@ -342,6 +342,47 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
+            if (mechanical.Capture is { } capture)
+            {
+                Volume("Capture",capture.Minimum,capture.Maximum);
+                CaptureValue("Capture.UpperMargin",capture.UpperMargin,parameters,ParameterUnit.Metre,0f,1f);
+                CaptureValue("Capture.SpeedLimit",capture.SpeedLimit,parameters,ParameterUnit.MetrePerSecond,1f/1024f,64f);
+                CaptureValue("Capture.Dwell",capture.Dwell,parameters,ParameterUnit.Second,1f/1024f,30f);
+                var participation=parameters.SingleOrDefault(parameter=>parameter.Key==capture.ParticipationParameter);
+                if (string.IsNullOrWhiteSpace(capture.ParticipationParameter) || participation.Options is null ||
+                    participation.Key!=capture.ParticipationParameter || participation.Kind!=ParameterKind.Choice || participation.Minimum!=0f ||
+                    participation.Maximum!=1f || participation.Options.Count!=2 ||
+                    participation.Options[0]!="Disabled" || participation.Options[1]!="Enabled")
+                    OutOfRange("Capture.ParticipationParameter");
+                var guide=capture.Guide;
+                Volume("Capture.Guide",guide.Minimum,guide.Maximum);
+                if (Finite("Capture.Guide.SupportHeight",guide.SupportHeight) && MathF.Abs(guide.SupportHeight)>16f)
+                    OutOfRange("Capture.Guide.SupportHeight");
+                CaptureValue("Capture.Guide.SupportMargin",guide.SupportMargin,parameters,ParameterUnit.Metre,0f,1f);
+                CaptureValue("Capture.Guide.MaximumAcceleration",guide.MaximumAcceleration,parameters,ParameterUnit.MetrePerSecondSquared,0f,12f);
+            }
+        }
+
+        private void Volume(string path,Vector3 minimum,Vector3 maximum)
+        {
+            Finite(path+".Minimum",minimum);Finite(path+".Maximum",maximum);
+            if (minimum.X>=maximum.X || minimum.Y>=maximum.Y || minimum.Z>=maximum.Z ||
+                Vector3.Abs(minimum).X>16f || Vector3.Abs(minimum).Y>16f || Vector3.Abs(minimum).Z>16f ||
+                Vector3.Abs(maximum).X>16f || Vector3.Abs(maximum).Y>16f || Vector3.Abs(maximum).Z>16f)
+                OutOfRange(path);
+        }
+
+        private void CaptureValue(string path,MechanicalValue value,IReadOnlyList<ParameterDescriptor> parameters,
+            ParameterUnit unit,float minimum,float maximum)
+        {
+            Value(path,value,parameters);
+            if(value.Source==MechanicalValueSource.Constant)
+            {
+                if(value.Constant<minimum || value.Constant>maximum) OutOfRange(path);
+            }
+            else if(parameters.SingleOrDefault(parameter=>parameter.Key==value.Parameter) is { } parameter &&
+                (parameter.Unit!=unit || parameter.Minimum<minimum || parameter.Maximum>maximum))
+                OutOfRange(path);
         }
 
         private void Slider(string path, PrismaticSliderDescriptor slider, IReadOnlyList<ParameterDescriptor> parameters)

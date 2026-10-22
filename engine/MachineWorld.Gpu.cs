@@ -88,12 +88,6 @@ public partial class MachineWorld
             with { Material = material };
     }
 
-    public static WorkshopReceiver CaptureReceiver(GpuBodyId id, Vector3 position, Quaternion rotation)
-    {
-        var q = rotation.Normalized();
-        return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
-    }
-
     private InstanceParameterCollection CaptureParameters(PartId part, GpuBodyId owner, Vector3? dimensions)
     {
         if (!Registry.Definitions.ContainsKey(part))
@@ -122,9 +116,6 @@ public partial class MachineWorld
         return id.Value switch
         {
             "ball" or "bowling" => CaptureBall(id, bodyId, position, q),
-            "basket" => CaptureReceiver(bodyId, position, q),
-            "ramp" => WorkshopInput.Ramp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                dimensions is { } rampSize ? new(new((Half)rampSize.X), new((Half)rampSize.Z)) : RampDimensions.Default),
             "spring" => WorkshopInput.Springboard(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSpringboard spring ? spring.Settings :
                     SpringboardSettings.Default),

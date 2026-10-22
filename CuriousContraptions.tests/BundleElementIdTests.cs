@@ -21,7 +21,7 @@ public sealed class BundleElementIdTests
         new(new(1), WorkshopCadenceSettings.Default(), new(instances));
 
     private static WorkshopSavedConstruction RampSave() =>
-        new(Construction(WorkshopInput.Ramp(new(1), 0, 1, 0, 0, 0, 0, 1, RampDimensions.Default)), new(2));
+        new(Construction(WorkshopInput.Generic(PartId.Ramp, new(1), 0, 1, 0, 0, 0, 0, 1)), new(2));
 
     /// <summary>A construction naming <paramref name="element"/>, encoded without domain validation (a tampered save or message).</summary>
     private static WorkshopConstruction Naming(string element) =>
@@ -42,7 +42,7 @@ public sealed class BundleElementIdTests
     public void ASaveCarriesEachInstancesBundleElementIdString()
     {
         var save = new WorkshopSavedConstruction(Construction(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Ramp(new(2), 0, 1, 0, 0, 0, 0, 1, RampDimensions.Default), WorkshopInput.Funnel(new(3), 3, 1, 0, 0, 0, 0, 1)), new(4));
+            WorkshopInput.Generic(PartId.Ramp, new(2), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Funnel(new(3), 3, 1, 0, 0, 0, 0, 1)), new(4));
         var bytes = WorkshopSaveCodec.Encode(save);
         Assert.Equal(["ball", "ramp", "funnel"], SavedElementIds(bytes));
         Assert.Equal(save.Construction.Instances, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances);

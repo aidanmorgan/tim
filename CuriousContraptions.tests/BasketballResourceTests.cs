@@ -106,7 +106,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             var material=(StandardMaterial3D)halo.MaterialOverride;
             var neutral=new Color("#bdf4bd");
             Assert.True(receiver.HasCosmeticBindings); Assert.Equal(CosmeticCurveDeclaration.For(PartId.Receiver),receiver.Cosmetic);
-            Assert.Equal(CosmeticCurveDeclaration.For(PartId.Receiver),WorkshopInput.Receiver(new(2),0,1,0,0,0,0,1).Cosmetic);
+            Assert.Equal(CosmeticCurveDeclaration.For(PartId.Receiver),WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1).Cosmetic);
             receiver.ApplyCosmetic(WorkshopCosmeticSample.Neutral); // construction/Reset restore the declared neutral palette
             Assert.Equal((float)neutral.R,material.AlbedoColor.R); Assert.Equal((float)neutral.G,material.AlbedoColor.G);
             receiver.ApplyCosmetic(new((float)1,CuriousContraptions.Presentation.AnimationTimerPhase.None));

@@ -7,8 +7,17 @@ namespace CuriousContraptions.Elements.Receiver;
 
 /// <summary>The Receiver (CAT-004): a static open box of five walls. Its capture settings and its guiding force region are typed
 /// parameters with the runtime's defaults and admitted ranges.</summary>
-public sealed class ReceiverElementDeclaration : IMechanicalElement, ISceneGeometryElement
+public sealed class ReceiverElementDeclaration : IResidenceCaptureElement, ISceneGeometryElement
 {
+
+    public ResidenceCaptureDescriptor Capture => new(
+        new(-.66f,-.4f,-.66f), new(.66f,.45f,.66f),
+        MechanicalValue.FromParameter("capture_margin"),
+        MechanicalValue.FromParameter("capture_speed_limit"),
+        MechanicalValue.FromParameter("capture_dwell"), "capture_participation",
+        new(new(-1.1f,.5f,-1.1f),new(1.1f,1.5f,1.1f),.5f,
+            MechanicalValue.FromParameter("force_support_margin"),
+            MechanicalValue.FromParameter("force_maximum_acceleration")));
 
     public ElementPresentation Presentation => new(.85f, PresentationAxes.None,
         [

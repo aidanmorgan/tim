@@ -60,10 +60,14 @@ async function difficultyControls(d:WorkshopDriver){
         const savedFb = decodeSavedConstruction(bytes);
         assert.ok(Math.abs(savedFb.construction()!.puzzle()!.precision()-value)<.001);
         const rx = savedFb.construction()!.instances(1)!;
-        assert.ok(Math.abs(rx.margin()-margin)<.002, 'Receiver setting at precision '+value+' margin');
-        assert.ok(Math.abs(rx.speedLimit()-speed)<.002, 'Receiver setting at precision '+value+' speed');
-        assert.ok(Math.abs(rx.dwell()-dwell)<.002, 'Receiver setting at precision '+value+' dwell');
-        assert.ok(Math.abs(rx.maxAcceleration()-guide)<.002, 'Receiver setting at precision '+value+' guide');
+        const parameters = new Map(Array.from({length: rx.parametersLength()}, (_, index) => {
+            const parameter = rx.parameters(index)!;
+            return [parameter.key()!, parameter.value()] as const;
+        }));
+        assert.ok(Math.abs(parameters.get("capture_margin")!-margin)<.002, 'Receiver setting at precision '+value+' margin');
+        assert.ok(Math.abs(parameters.get("capture_speed_limit")!-speed)<.002, 'Receiver setting at precision '+value+' speed');
+        assert.ok(Math.abs(parameters.get("capture_dwell")!-dwell)<.002, 'Receiver setting at precision '+value+' dwell');
+        assert.ok(Math.abs(parameters.get("force_maximum_acceleration")!-guide)<.002, 'Receiver setting at precision '+value+' guide');
     }
 }
 for(const lesson of [Lesson.Depth,Lesson.Wall])for(const route of [Route.Paid,Route.Miss])

@@ -212,14 +212,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -232,19 +225,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -323,14 +305,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -343,57 +318,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -438,28 +378,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -1230,14 +1170,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -1250,19 +1183,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -1341,14 +1263,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -1361,57 +1276,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -1456,28 +1336,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -2216,14 +2096,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -2236,19 +2109,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -2327,14 +2189,7 @@
             "Bounce": 0.05,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -2347,19 +2202,8 @@
             "Preload": 0,
             "Friction": 0.6
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0.125,
             0.55,
@@ -2438,14 +2282,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -2458,19 +2295,8 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -3774,14 +3600,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -3794,19 +3613,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -3885,14 +3693,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -3905,57 +3706,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -4000,28 +3766,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -4359,14 +4125,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -4379,19 +4138,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -4470,14 +4218,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -4490,57 +4231,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -4585,28 +4291,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -5337,14 +5043,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -5357,19 +5056,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -5448,14 +5136,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -5468,57 +5149,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -5563,28 +5209,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -9097,14 +8743,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -9117,19 +8756,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -9208,14 +8836,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -9228,19 +8849,8 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -9327,14 +8937,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -9347,19 +8950,8 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -10176,14 +9768,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -10196,19 +9781,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -10287,14 +9861,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -10307,57 +9874,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -10402,28 +9934,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -10761,14 +10293,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -10781,19 +10306,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -10872,14 +10386,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -10892,57 +10399,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -10987,28 +10459,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -11346,14 +10818,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -11366,19 +10831,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -11457,14 +10911,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -11477,57 +10924,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -11572,28 +10984,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -11933,14 +11345,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -11953,19 +11358,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -12044,14 +11438,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -12064,19 +11451,8 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -12155,14 +11531,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -12175,57 +11544,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -12270,28 +11604,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -37161,14 +36495,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0.02,
-            "SpeedLimit": 1.5,
-            "Dwell": 0.35,
-            "SupportHeight": 0.5,
-            "SupportMargin": 0.02,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -37181,57 +36508,22 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 1,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            -1.1,
-            0.5,
-            -1.1
-          ],
-          "force_maximum": [
-            1.1,
-            1.5,
-            1.1
-          ],
           "half_extents": [
             0,
             0,
             0
           ],
-          "parameters": {},
-          "parameter_bindings": [
-            {
-              "parameter": "capture_margin",
-              "scalar": "Margin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_speed_limit",
-              "scalar": "SpeedLimit",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_dwell",
-              "scalar": "Dwell",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_support_margin",
-              "scalar": "SupportMargin",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "force_maximum_acceleration",
-              "scalar": "MaximumAcceleration",
-              "source": "Scalar"
-            },
-            {
-              "parameter": "capture_participation",
-              "source": "Participation",
-              "scalar": null
-            }
-          ],
+          "parameters": {
+            "capture_margin": 0.02,
+            "capture_speed_limit": 1.5,
+            "capture_dwell": 0.35,
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "parameter_bindings": [],
           "assistance": [
             [
               0,
@@ -37276,28 +36568,28 @@
           "assistance_bindings": [
             {
               "value": "CaptureMargin",
-              "scalar": "Margin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_margin"
             },
             {
               "value": "CaptureSpeed",
-              "scalar": "SpeedLimit",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_speed_limit"
             },
             {
               "value": "CaptureDwell",
-              "scalar": "Dwell",
-              "parameter": null
+              "scalar": null,
+              "parameter": "capture_dwell"
             },
             {
               "value": "CaptureMargin",
-              "scalar": "SupportMargin",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_support_margin"
             },
             {
               "value": "GuideAcceleration",
-              "scalar": "MaximumAcceleration",
-              "parameter": null
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
             }
           ]
         }
@@ -37403,14 +36695,7 @@
             "Bounce": 0.55,
             "Drag": 0.04,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 0,
             "Damping": 0,
@@ -37423,19 +36708,8 @@
             "Preload": 0,
             "Friction": 0.3
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,
@@ -37514,14 +36788,7 @@
             "Bounce": 0,
             "Drag": 0,
             "Buoyancy": 0,
-            "Margin": 0,
-            "SpeedLimit": 0,
-            "Dwell": 0,
-            "SupportHeight": 0,
-            "SupportMargin": 0,
-            "MaximumAcceleration": 0,
             "Length": 0,
-            "Width": 0,
             "Threshold": 0,
             "Stiffness": 400,
             "Damping": 0.2,
@@ -37534,19 +36801,8 @@
             "Preload": 0,
             "Friction": 0
           },
-          "participation": 0,
           "enabled": 0,
           "target_count": 0,
-          "force_minimum": [
-            0,
-            0,
-            0
-          ],
-          "force_maximum": [
-            0,
-            0,
-            0
-          ],
           "half_extents": [
             0,
             0,

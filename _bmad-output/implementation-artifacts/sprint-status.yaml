@@ -256,17 +256,17 @@ development_status:
   # 22 (deletion)
   9a-26-lessons-as-content-data: done # scoped native/publication Pass11593e; browser pending
   # 23 (element)
-  9-6-dual-supply-both-gate: review # native proof complete; exact SnapshotApproval/publication pending
+  9-6-dual-supply-both-gate: done # scoped native/publication Passe036b7; browser pending
   # 24 (deletion)
-  9a-c-ramp-receiver-conversion: backlog
+  9a-c-ramp-receiver-conversion: review
   # merged into 9a-c-ramp-receiver (21 Oct 2026)
-  9a-28-generic-instance-ramp: backlog
+  9a-28-generic-instance-ramp: review
   # merged into 9a-c-ramp-receiver (21 Oct 2026)
-  9a-29-generic-instance-receiver: backlog
+  9a-29-generic-instance-receiver: review
   # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard
-  9r-12-cat-004-receiver-suite: backlog
+  9r-12-cat-004-receiver-suite: review # native scope; browser post-catalogue
   # merged into 9a-c-ramp-receiver (21 Oct 2026) as a suite-first guard
-  9r-13-cat-054-ramp-suite: backlog
+  9r-13-cat-054-ramp-suite: review # native scope; browser post-catalogue
   # 25 (element)
   9-7a-electrical-nand-gate: backlog
   # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)

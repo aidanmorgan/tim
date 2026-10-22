@@ -16,8 +16,7 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field).</summary>
     public enum Field
     {
-        Id, PartId, Locked, Cell, Local, Rotation, Radius, Mass, Bounce, Drag, Buoyancy, Margin, SpeedLimit, Dwell, Participation,
-        ForceMin, ForceMax, SupportHeight, SupportMargin, MaxAcceleration, Length, Width, Threshold,
+        Id, PartId, Locked, Cell, Local, Rotation, Radius, Mass, Bounce, Drag, Buoyancy, Length, Threshold,
         Stiffness, Damping, InitialCompression, Capacity, MaximumPower, InitialFraction, Enabled, Strength, ReferenceMass, Preload,
         HalfExtents, Friction, TargetCount, Parameters,
     }
@@ -27,6 +26,13 @@ public sealed class WorkshopSaveRejectionTests
         public string Part { get; set; } = part;
         public Dictionary<Field, object> Values { get; } = new() { [Field.Id] = id };
         public Instance With(Field field, object value) { var copy = Clone(); copy.Values[field] = value; return copy; }
+        public Instance WithParameter(ParameterId key, float value)
+        {
+            var copy = Clone();
+            copy.Values[Field.Parameters] = ((KeyValuePair<string, float>[])copy.Values[Field.Parameters])
+                .Select(pair => pair.Key == key.Value ? KeyValuePair.Create(pair.Key, value) : pair).ToArray();
+            return copy;
+        }
         public Instance Without(Field field) { var copy = Clone(); copy.Values.Remove(field); return copy; }
         public Instance Clone() { var copy = new Instance(Part, 0); copy.Values.Clear(); foreach (var (k, v) in Values) copy.Values[k] = v; return copy; }
     }
@@ -115,15 +121,13 @@ public sealed class WorkshopSaveRejectionTests
             object value = field switch
             {
                 Field.Radius => record.Radius, Field.Mass => record.Mass, Field.Bounce => record.Bounce, Field.Drag => record.Drag,
-                Field.Buoyancy => record.Buoyancy, Field.Margin => record.Margin, Field.SpeedLimit => record.SpeedLimit, Field.Dwell => record.Dwell,
-                Field.Participation => record.Participation, Field.SupportHeight => record.SupportHeight, Field.SupportMargin => record.SupportMargin,
-                Field.MaxAcceleration => record.MaxAcceleration, Field.Length => record.Length, Field.Width => record.Width,
+                Field.Buoyancy => record.Buoyancy, Field.Length => record.Length,
                 Field.Threshold => record.Threshold, Field.Stiffness => record.Stiffness,
                 Field.Damping => record.Damping, Field.InitialCompression => record.InitialCompression, Field.Capacity => record.Capacity,
                 Field.MaximumPower => record.MaximumPower, Field.InitialFraction => record.InitialFraction, Field.Enabled => record.Enabled,
                 Field.Strength => record.Strength, Field.ReferenceMass => record.ReferenceMass, Field.Preload => record.Preload,
                 Field.Friction => record.Friction, Field.TargetCount => record.TargetCount,
-                Field.ForceMin => Vec(record.ForceMin!.Value), Field.ForceMax => Vec(record.ForceMax!.Value), Field.HalfExtents => Vec(record.HalfExtents!.Value),
+                Field.HalfExtents => Vec(record.HalfExtents!.Value),
                 _ => throw new InvalidOperationException($"No fixture reader for {field}."),
             };
             result.Values[field] = value;
@@ -138,8 +142,6 @@ public sealed class WorkshopSaveRejectionTests
     internal static Field[] Parameters(string part) => part switch
     {
         "ball" or "bowling" => [Field.Radius, Field.Mass, Field.Bounce, Field.Drag, Field.Buoyancy],
-        "basket" => [Field.Margin, Field.SpeedLimit, Field.Dwell, Field.Participation, Field.ForceMin, Field.ForceMax, Field.SupportHeight, Field.SupportMargin, Field.MaxAcceleration],
-        "ramp" => [Field.Length, Field.Width],
         "switch" or "pressure_plate" or "clock" => [Field.Threshold],
         "spring" => [Field.Stiffness, Field.Damping, Field.InitialCompression],
         "battery" => [Field.Capacity, Field.MaximumPower, Field.InitialFraction, Field.Enabled],
@@ -155,8 +157,8 @@ public sealed class WorkshopSaveRejectionTests
     [
         WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
         WorkshopInput.Ball(PartId.BowlingBall, new(2), 1, 3, 0, 0, 0, 0, 1),
-        WorkshopInput.Receiver(new(3), 4, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Ramp(new(4), -2, 1, 0, 0, 0, 0, 1, RampDimensions.Default),
+        WorkshopInput.Generic(PartId.Receiver, new(3), 4, 0, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(PartId.Ramp, new(4), -2, 1, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Wall, new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
         WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 2, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Delay, new(7), 3, 0, 0, 0, 0, 0, 1),
@@ -239,7 +241,7 @@ public sealed class WorkshopSaveRejectionTests
     private static WorkshopSaveRejection Rejection(byte[] bytes) =>
         Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)).Reason;
 
-    private static Instance Ramp() => FromProduction(WorkshopInput.Ramp(new(1), 0, 1, 0, 0, 0, 0, 1, RampDimensions.Default));
+    private static Instance Ramp() => FromProduction(WorkshopInput.Generic(PartId.Ramp, new(1), 0, 1, 0, 0, 0, 0, 1));
     private static Instance Counter() => FromProduction(WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3));
 
     // ---------- every rejection reason ----------
@@ -282,7 +284,7 @@ public sealed class WorkshopSaveRejectionTests
             var saved = new WorkshopSavedConstruction(lesson, new(100));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
-        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Receiver(new(4), 2, .55, 0, 0, 0, 0, 1));
+        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55, 0, 0, 0, 0, 1));
         var missing = ready.WithoutInstance(new(4));
         missing.Validate(); // control: the domain admits the lesson without its receiver
         var withoutReceiver = new WorkshopSavedConstruction(missing, new(100));
@@ -311,11 +313,11 @@ public sealed class WorkshopSaveRejectionTests
         ("no cell", WorkshopSaveRejection.MissingField),
         ("no local", WorkshopSaveRejection.MissingField),
         ("no rotation", WorkshopSaveRejection.MissingField),
-        ("no receiver force minimum", WorkshopSaveRejection.MissingField),
+        ("no receiver parameter vector", WorkshopSaveRejection.OutOfRange),
         ("no domino half extents", WorkshopSaveRejection.MissingField),
         ("no counter target", WorkshopSaveRejection.MissingField),
         ("undefined simulation cadence", WorkshopSaveRejection.UndefinedEnum),
-        ("undefined receiver participation", WorkshopSaveRejection.UndefinedEnum),
+        ("undefined receiver participation", WorkshopSaveRejection.OutOfRange),
         ("undefined battery enable", WorkshopSaveRejection.UndefinedEnum),
         ("undefined connection domain", WorkshopSaveRejection.UndefinedEnum),
         ("undefined connection socket", WorkshopSaveRejection.UndefinedEnum),
@@ -323,7 +325,7 @@ public sealed class WorkshopSaveRejectionTests
         ("infinite local position", WorkshopSaveRejection.NonFinite),
         ("NaN rotation", WorkshopSaveRejection.NonFinite),
         ("long ramp", WorkshopSaveRejection.OutOfRange),
-        ("ramp beyond binary16", WorkshopSaveRejection.OutOfRange),
+        ("ramp far beyond declared maximum", WorkshopSaveRejection.OutOfRange),
         ("counter target ten", WorkshopSaveRejection.OutOfRange),
         ("zero revision", WorkshopSaveRejection.OutOfRange),
         ("zero instance identity", WorkshopSaveRejection.OutOfRange),
@@ -342,7 +344,7 @@ public sealed class WorkshopSaveRejectionTests
     private static Save Violation(string name)
     {
         var ramp = Ramp();
-        var receiver = FromProduction(WorkshopInput.Receiver(new(1), 0, 1, 0, 0, 0, 0, 1));
+        var receiver = FromProduction(WorkshopInput.Generic(PartId.Receiver, new(1), 0, 1, 0, 0, 0, 0, 1));
         var battery = FromProduction(WorkshopInput.Battery(new(2), 0, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default));
         var lamp = FromProduction(WorkshopInput.Lamp(new(3), 2, 1, 0, 0, 0, 0, 1));
         var electrical = (uint)WorkshopConnectionDomain.Electrical;
@@ -353,19 +355,19 @@ public sealed class WorkshopSaveRejectionTests
             "no cell" => One(ramp.Without(Field.Cell)),
             "no local" => One(ramp.Without(Field.Local)),
             "no rotation" => One(ramp.Without(Field.Rotation)),
-            "no receiver force minimum" => One(receiver.Without(Field.ForceMin)),
+            "no receiver parameter vector" => One(receiver.Without(Field.Parameters)),
             "no domino half extents" => One(FromProduction(WorkshopInput.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).Without(Field.HalfExtents)),
             "no counter target" => One(Counter().Without(Field.TargetCount)),
             "undefined simulation cadence" => One(ramp) with { Simulation = 99 },
-            "undefined receiver participation" => One(receiver.With(Field.Participation, 99u)),
+            "undefined receiver participation" => One(receiver.WithParameter(new("capture_participation"), 99f)),
             "undefined battery enable" => One(battery.With(Field.Enabled, (byte)7)),
             "undefined connection domain" => new([battery, lamp], [new(2, 3, 99, (uint)WorkshopSocket.Supply, (uint)WorkshopSocket.PowerIn)]),
             "undefined connection socket" => new([battery, lamp], [new(2, 3, electrical, 999, (uint)WorkshopSocket.PowerIn)]),
-            "NaN ramp length" => One(ramp.With(Field.Length, float.NaN)),
+            "NaN ramp length" => One(ramp.WithParameter(new("length"), float.NaN)),
             "infinite local position" => One(ramp.With(Field.Local, (float.PositiveInfinity, 0f, 0f))),
             "NaN rotation" => One(ramp.With(Field.Rotation, (0f, float.NaN, 0f, 1f))),
-            "long ramp" => One(ramp.With(Field.Length, 10f)),
-            "ramp beyond binary16" => One(ramp.With(Field.Length, 1e6f)),
+            "long ramp" => One(ramp.WithParameter(new("length"), 10f)),
+            "ramp far beyond declared maximum" => One(ramp.WithParameter(new("length"), 1e6f)),
             "counter target ten" => One(Counter().With(Field.TargetCount, 10u)),
             "zero revision" => One(ramp) with { Revision = 0 },
             "zero instance identity" => One(ramp.With(Field.Id, 0UL)),
@@ -546,10 +548,11 @@ public sealed class WorkshopSaveRejectionTests
                 var bytes = Bytes(One(baseline.With(Field.TargetCount, count)));
                 if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} target = {count}");
             }
-        if (baseline.Values.ContainsKey(Field.Participation))
-            foreach (var value in new[] { 0u, 1u, 2u, 99u })
+        if (baseline.Values.TryGetValue(Field.Parameters, out var parameters) &&
+            ((KeyValuePair<string, float>[])parameters).Any(pair => pair.Key == "capture_participation"))
+            foreach (var value in new[] { 0f, 1f, 2f, 99f })
             {
-                var bytes = Bytes(One(baseline.With(Field.Participation, value)));
+                var bytes = Bytes(One(baseline.WithParameter(new("capture_participation"), value)));
                 if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} participation = {value}");
             }
         if (baseline.Values.ContainsKey(Field.Enabled))

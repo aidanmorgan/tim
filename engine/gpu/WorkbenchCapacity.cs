@@ -15,26 +15,27 @@ public sealed class WorkbenchFullException : ArgumentException
     public WorkbenchFullException(WorkbenchTable table) : base("Workbench is full: " + Describe(table)) => Table = table;
     private static string Describe(WorkbenchTable table) => table switch
     {
-        WorkbenchTable.Guides => "ball guide table (one Receiver guides the balls)",
+        WorkbenchTable.Guides => "ball guide table (one declared guide per moving body)",
         _ => throw new ArgumentException("Undefined workbench table.")
     };
 }
 
 /// <summary>Build sets no population limit: every physics and worker table is sized from the compiled scene at Run, and memory
-/// is the only bound (Story 9R.5b). The one rule left is a document invariant, not a capacity: every Receiver declares a planar
-/// guide for each ball and the physics document admits one guide per moving body, so a second Receiver fits only while no ball is
+/// is the only bound (Story 9R.5b). The one rule left is a document invariant, not a capacity: each capture capability declares a planar
+/// guide for each ball and the physics document admits one guide per moving body, so a second guide owner fits only while no ball is
 /// on the workbench.</summary>
 public static class WorkbenchCapacity
 {
     public static void Validate(IReadOnlyList<IWorkshopInstance> instances)
     {
         ArgumentNullException.ThrowIfNull(instances);
-        var balls = 0; var receivers = 0;
+        var balls = 0; var guideOwners = 0;
         foreach (var instance in instances)
         {
             if (instance is WorkshopBall) balls++;
-            else if (instance.PartId == PartId.Receiver) receivers++;
+            else if (instance is WorkshopGenericInstance generic && DeclaredPhysics.Of(generic.PartId).Mechanical?.Capture is not null)
+                guideOwners++;
         }
-        if (receivers > 1 && balls > 0) throw new WorkbenchFullException(WorkbenchTable.Guides);
+        if (guideOwners > 1 && balls > 0) throw new WorkbenchFullException(WorkbenchTable.Guides);
     }
 }

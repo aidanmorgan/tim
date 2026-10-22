@@ -95,20 +95,35 @@ public static class WorkshopPhysicsCompiler
         foreach (var domino in construction.Instances.OfType<WorkshopDomino>())
             if (construction.Connections.HasSource(domino.Id))
                 orientationSensors.Add(new(OrientationSensor(domino.Id), domino.Id, domino.Rotation, WorkshopDomino.ActivationThreshold));
-        foreach (var receiver in construction.Instances.OfType<WorkshopReceiver>())
+        foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
         {
-            var first = PartIdentities(receiver.Id);
+            if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
+            var parameters = frame.Parameters.ToBundleValues();
+            // Current shared residence/guide ABI is still binary16 (9A.44); authoring remains f32.
+            var margin = (Half)capture.UpperMargin.Evaluate(parameters);
+            var speed = new LinearSpeed((Half)capture.SpeedLimit.Evaluate(parameters));
+            var dwell = new DurationSeconds((Half)capture.Dwell.Evaluate(parameters));
+            var participation = parameters[capture.ParticipationParameter] switch
+            {
+                0f => SensorParticipation.Disabled,
+                1f => SensorParticipation.Enabled,
+                _ => throw new ArgumentException("Undefined declared capture participation.")
+            };
+            var first = PartIdentities(frame.Id);
             var targetIndex = 0UL;
-            foreach (var target in construction.Instances.OfType<WorkshopBall>().OrderBy(b => b.Id.Value))
+            foreach (var target in construction.Instances.OfType<WorkshopBall>().OrderBy(body => body.Id.Value))
             {
                 var sensorId = !construction.Puzzle.Id.IsAuthored ? first + 16 + targetIndex * 2 : first + 6;
-                sensors.Add(new(new(sensorId), receiver.Id, target.Id, RigidLocalPose.Identity,
-                    new((Half)(-.66), (Half)(-.4), (Half)(-.66)),
-                    new((Half).66, (Half)((Half).45 + receiver.Capture.Margin.Value), (Half).66),
-                    receiver.Capture.SpeedLimit, receiver.Capture.Dwell, receiver.Capture.Participation));
-                var region = receiver.ForceRegion;
-                guides.Add(new(new(sensorId + 1), receiver.Id, target.Id, RigidLocalPose.Identity,
-                    region.Minimum, region.Maximum, region.SupportHeight, region.SupportMargin, region.MaximumAcceleration));
+                sensors.Add(new(new(sensorId), frame.Id, target.Id, RigidLocalPose.Identity,
+                    new((Half)capture.Minimum.X,(Half)capture.Minimum.Y,(Half)capture.Minimum.Z),
+                    new((Half)capture.Maximum.X,(Half)((Half)capture.Maximum.Y+margin),(Half)capture.Maximum.Z),
+                    speed,dwell,participation));
+                var guide = capture.Guide;
+                guides.Add(new(new(sensorId+1),frame.Id,target.Id,RigidLocalPose.Identity,
+                    new((Half)guide.Minimum.X,(Half)guide.Minimum.Y,(Half)guide.Minimum.Z),
+                    new((Half)guide.Maximum.X,(Half)guide.Maximum.Y,(Half)guide.Maximum.Z),
+                    new((Half)guide.SupportHeight),new((Half)guide.SupportMargin.Evaluate(parameters)),
+                    new((Half)guide.MaximumAcceleration.Evaluate(parameters))));
                 targetIndex++;
             }
         }

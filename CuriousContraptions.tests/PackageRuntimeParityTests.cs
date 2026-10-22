@@ -295,9 +295,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     /// <summary>The runtime parameters a newly placed part starts from (MachineWorld.CaptureInstance) and the bounds its record admits.</summary>
     private static (string Key, ParameterUnit Unit, ParameterKind Kind, Lane Lane, float Default, Func<float, bool> Admits, string[] Options)[] Parameters(string id)
     {
-        var ramp = RampDimensions.Default;
-        Func<float, bool> Ramp(Func<float, RampDimensions> dimensions) =>
-            Admits(value => WorkshopInput.Ramp(Owner, 0, 3, 0, 0, 0, 0, 1, dimensions(value)));
+        Func<float, bool> Generic(PartId part, string key) => Admits(value =>
+        {
+            var values = InstanceParameterCollection.Defaults(part).ToDictionary();
+            values[new(key)] = value;
+            WorkshopInput.Generic(part, Owner, 0, 3, 0, 0, 0, 0, 1, new(values)).Validate();
+        });
         Func<float, bool> Wall(string key) => Admits(value =>
         {
             var values = WallFixture.Default.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -305,18 +308,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1, new(values));
         });
         var enables = Enum.GetValues<ElectricalEnable>();
-        var capture = ReceiverCaptureSettings.Free;
-        var region = ReceiverForceRegion.Free;
-        var participations = Enum.GetValues<SensorParticipation>();
-        Func<float, bool> Receiver(Func<WorkshopReceiver, float, WorkshopReceiver> edit) =>
-            Admits(value => edit(WorkshopInput.Receiver(Owner, 0, 3, 0, 0, 0, 0, 1), value).Validate());
         var spring = SpringboardSettings.Default;
         return id switch
         {
             "ramp" =>
             [
-                ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)ramp.Length.Value, Ramp(value => ramp with { Length = new((Half)value) }), []),
-                ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)ramp.Width.Value, Ramp(value => ramp with { Width = new((Half)value) }), [])
+                ("length", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 3f, Generic(PartId.Ramp, "length"), []),
+                ("width", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 1.3f, Generic(PartId.Ramp, "width"), [])
             ],
             "wall" =>
             [
@@ -352,19 +350,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "basket" =>
             [
-                ("capture_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)capture.Margin.Value,
-                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { Margin = new((Half)value) } }), []),
-                ("capture_speed_limit", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Half, (float)capture.SpeedLimit.Value,
-                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { SpeedLimit = new((Half)value) } }), []),
-                ("capture_dwell", ParameterUnit.Second, ParameterKind.Real, Lane.Half, (float)capture.Dwell.Value,
-                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { Dwell = new((Half)value) } }), []),
-                ("capture_participation", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, Array.IndexOf(participations, capture.Participation),
-                    Receiver((receiver, value) => receiver with { Capture = receiver.Capture with { Participation = Option(participations, value) } }),
-                    Enum.GetNames<SensorParticipation>()),
-                ("force_support_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Half, (float)region.SupportMargin.Value,
-                    Receiver((receiver, value) => receiver with { ForceRegion = ReceiverForceRegion.Create(new((Half)value), region.MaximumAcceleration) }), []),
-                ("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Half, (float)region.MaximumAcceleration.Value,
-                    Receiver((receiver, value) => receiver with { ForceRegion = ReceiverForceRegion.Create(region.SupportMargin, new((Half)value)) }), [])
+                ("capture_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, .02f, Generic(PartId.Receiver, "capture_margin"), []),
+                ("capture_speed_limit", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, 1.5f, Generic(PartId.Receiver, "capture_speed_limit"), []),
+                ("capture_dwell", ParameterUnit.Second, ParameterKind.Real, Lane.Single, .35f, Generic(PartId.Receiver, "capture_dwell"), []),
+                ("capture_participation", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, 1f, Generic(PartId.Receiver, "capture_participation"), Enum.GetNames<SensorParticipation>()),
+                ("force_support_margin", ParameterUnit.Metre, ParameterKind.Real, Lane.Single, 0f, Generic(PartId.Receiver, "force_support_margin"), []),
+                ("force_maximum_acceleration", ParameterUnit.MetrePerSecondSquared, ParameterKind.Real, Lane.Single, 0f, Generic(PartId.Receiver, "force_maximum_acceleration"), [])
             ],
             "spring" =>
             [
@@ -399,17 +390,14 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         };
     }
 
-    private static T Option<T>(T[] options, float value) =>
-        float.IsInteger(value) && value >= 0 && value < options.Length ? options[(int)value] : throw new ArgumentException("No such option.");
-
     /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
     private static IWorkshopInstance Placed(PartId id) => id.Value switch
     {
         "ball" => WorkshopInput.Basketball(Owner, 0, 3, 0, 0, 0, 0, 1),
         "bowling" => WorkshopInput.Ball(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "basket" => WorkshopInput.Receiver(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "basket" => WorkshopInput.Generic(PartId.Receiver, Owner, 0, 3, 0, 0, 0, 0, 1),
         "spring" => WorkshopInput.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default),
-        "ramp" => WorkshopInput.Ramp(Owner, 0, 3, 0, 0, 0, 0, 1, RampDimensions.Default),
+        "ramp" => WorkshopInput.Generic(PartId.Ramp, Owner, 0, 3, 0, 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
         "battery" => WorkshopInput.Battery(Owner, 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
         "bumper" => WorkshopInput.Bumper(Owner, 0, 3, 0, 0, 0, 0, 1, BumperWork.Default),

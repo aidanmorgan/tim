@@ -1,0 +1,107 @@
+9.6 Both Gate terminal publication verification raw outputs, 22 October 2026 (independent transport_reviewer)
+Raw outputs copied verbatim from the commands below; long log lines truncated with `cut -c1-N` where marked.
+
+$ git fetch origin; git rev-parse origin/main HEAD e036b7f9 'e036b7f9^{tree}'
+e036b7f9eb55afe55d818c18c10578f1b3b5a610
+e036b7f9eb55afe55d818c18c10578f1b3b5a610
+e036b7f9eb55afe55d818c18c10578f1b3b5a610
+e8f6801243d220d7795ca763d57c649dfa4e89bc
+
+$ git log --format='%H %P %T %s' -6 origin/main
+e036b7f9eb55afe55d818c18c10578f1b3b5a610 b3efe1415bd51428c71251fca482230fbfa588e9 5a51a9b6157cd8d4f26a29c58120dfeb9f7c8944 e8f6801243d220d7795ca763d57c649dfa4e89bc Merge 9.6 catalogue guard correction
+5a51a9b6157cd8d4f26a29c58120dfeb9f7c8944 4c5516ea4c0af640d1982ae6ee1089331e1352ce e8f6801243d220d7795ca763d57c649dfa4e89bc Align goal duration naming and catalogue guard
+b3efe1415bd51428c71251fca482230fbfa588e9 8aaacd77655c1ce1fb4cfff374bcb8d25df54645 4c5516ea4c0af640d1982ae6ee1089331e1352ce 367681130f59a7a556cfdaade9b70ce732658704 Merge 9.6 Both Gate
+4c5516ea4c0af640d1982ae6ee1089331e1352ce 8aaacd77655c1ce1fb4cfff374bcb8d25df54645 367681130f59a7a556cfdaade9b70ce732658704 Implement declared Both Gate electrical logic
+8aaacd77655c1ce1fb4cfff374bcb8d25df54645 659c6199ecb9c9caa9e82ca1f71b78c750ccea4d b7088316f67482800756fe5c3da91412c4becdde 203c38a7dfd996dc5fe3f7d542a60f8b06ebd67f Merge 9A.26 fixture refusal correction
+
+$ git diff --stat 4c2cfc1c94a9a72776ed7fce8423a16920be5a44 e8f6801243d220d7795ca763d57c649dfa4e89bc
+ _bmad-output/implementation-artifacts/review-9-6-both-gate.md | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+$ git diff --stat 516fb39d9b42274748f5327f8db3eab92e321837 367681130f59a7a556cfdaade9b70ce732658704
+ .../review-9-6-both-gate.md                        | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+$ git diff --stat 367681130f59a7a556cfdaade9b70ce732658704 4c2cfc1c94a9a72776ed7fce8423a16920be5a44 | tail -1
+ 8 files changed, 11 insertions(+), 15 deletions(-)
+$ git diff 4c2cfc1c... e8f68012... (added lines, cut -c1-120)
++## Affected SnapshotApproval — CI correction
++Initial published mainb3efe1415bd51428c71251fca482230fbfa588e9 matched the approved snapshot plus receipt (independent9
++Approved correction tree `4c2cfc1c94a9a72776ed7fce8423a16920be5a44`, binary diff SHA256 `68aca5a1ad91304b5b74be90f467bc
++Matching build1abaca passed clean13.31s; focused8b0109 passed119/119 in1s across catalogue decode, isolation, save/36-c
+
+$ gh run view 39690098234 --json ... (filtered)
+{"attempt":1,"branch":"main","conclusion":"success","created":"2026-10-21T22:56:55Z","event":"push","id":39690098234,"jobs":[{"conclusion":"success","id":119533877002,"name":"build"},{"conclusion":"success","id":119537925441,"name":"deploy"}],"sha":"e036b7f9eb55afe55d818c18c10578f1b3b5a610","status":"completed","updated":"2026-10-21T23:07:47Z","wf":"Build and deploy game"}
+$ gh run view 39688908644 --json ... (filtered)
+{"attempt":1,"branch":"main","conclusion":"failure","created":"2026-10-21T22:46:32Z","event":"push","id":39688908644,"jobs":[{"conclusion":"failure","id":119529884207,"name":"build"},{"conclusion":"skipped","id":119532263370,"name":"deploy"}],"sha":"b3efe1415bd51428c71251fca482230fbfa588e9","status":"completed","updated":"2026-10-21T22:52:40Z","wf":"Build and deploy game"}
+$ gh run list --commit e036b7f9eb55afe55d818c18c10578f1b3b5a610 --json databaseId,workflowName,conclusion,status
+[{"conclusion":"success","databaseId":39690098234,"status":"completed","workflowName":"Build and deploy game"}]
+
+$ gh run view 39690098234 --json jobs (steps)
+build | 1 Set up job: success
+build | 2 Run actions/checkout@v4: success
+build | 3 Run actions/setup-dotnet@v4: success
+build | 4 Install WebAssembly workload: success
+build | 5 C# static gate: success
+build | 6 Test C# game: success
+build | 7 Publish production browser bundle: success
+build | 8 Check static deployment: success
+build | 9 Run actions/upload-pages-artifact@v3: success
+build | 17 Post Run actions/setup-dotnet@v4: success
+build | 18 Post Run actions/checkout@v4: success
+build | 19 Complete job: success
+deploy | 1 Set up job: success
+deploy | 2 Run actions/deploy-pages@v4: success
+deploy | 3 Complete job: success
+
+$ gh run view 39690098234 --log --job 119533877002 | grep (selected)
+build	Test C# game	2026-10-21T23:00:24.2913336Z dotnet test CuriousContraptions.tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+build	Test C# game	2026-10-21T23:01:43.6055976Z Passed!  - Failed:     0, Passed:  2123, Skipped:     0, Total:  2123, Duration: 1 m 14 s - CuriousContraptions.tests.dll (net10.0)
+build	C# static gate	2026-10-21T22:59:17.1712479Z     0 Warning(s)
+build	C# static gate	2026-10-21T22:59:17.1712681Z     0 Error(s)
+build	C# static gate	2026-10-21T22:59:56.3598108Z     0 Warning(s)
+build	C# static gate	2026-10-21T22:59:56.3600243Z     0 Error(s)
+build	C# static gate	2026-10-21T23:00:18.0394674Z     0 Warning(s)
+build	C# static gate	2026-10-21T23:00:18.0395062Z     0 Error(s)
+(grep -c "Build succeeded" = 3)
+
+$ gh run view 39688908644 --log --job 119529884207 | grep -E "Failed!|Passed!"
+build	Test C# game	2026-10-21T22:52:37.3494256Z Failed!  - Failed:     2, Passed:  2121, Skipped:     0, Total:  2123, Duration: 1 m 41 s - CuriousContraptions.tests.dll (net10.0)
+
+$ gh api repos/aidanmorgan/tim/actions/runs/39690098234/artifacts (filtered)
+{"created_at":"2026-10-21T23:07:28Z","digest":"sha256:f6678ade330b387a6f86f555e36f2950760fdfaff437d7a45ad81480cebeff43","expired":false,"id":12388827243,"name":"github-pages","sha":"e036b7f9eb55afe55d818c18c10578f1b3b5a610","size_in_bytes":79213445}
+
+$ gh api "repos/aidanmorgan/tim/deployments?sha=e036b7f9eb55afe55d818c18c10578f1b3b5a610" (filtered)
+{"created_at":"2026-10-21T23:07:32Z","environment":"github-pages","id":7239438508,"ref":"main","sha":"e036b7f9eb55afe55d818c18c10578f1b3b5a610"}
+$ gh api repos/aidanmorgan/tim/deployments/7239438508/statuses (filtered)
+{"created_at":"2026-10-21T23:07:47Z","environment_url":"https://aidanmorgan.github.io/tim/","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39690098234/job/119537925441","state":"success"}
+{"created_at":"2026-10-21T23:07:36Z","environment_url":"","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39690098234/job/119537925441","state":"in_progress"}
+{"created_at":"2026-10-21T23:07:33Z","environment_url":"","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39690098234/job/119537925441","state":"queued"}
+{"created_at":"2026-10-21T23:07:33Z","environment_url":"","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39690098234/job/119537925441","state":"queued"}
+{"created_at":"2026-10-21T23:07:32Z","environment_url":"","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39690098234/job/119537925441","state":"waiting"}
+$ gh api "repos/aidanmorgan/tim/deployments?environment=github-pages&per_page=2" (filtered)
+{"created_at":"2026-10-21T23:07:32Z","id":7239438508,"sha":"e036b7f9eb55afe55d818c18c10578f1b3b5a610"}
+{"created_at":"2026-10-21T21:47:31Z","id":7238108554,"sha":"8aaacd77655c1ce1fb4cfff374bcb8d25df54645"}
+$ gh run view 39690098234 --log --job 119537925441 | grep (selected, cut -c1-200)
+deploy	Run actions/deploy-pages@v4	2026-10-21T23:07:37.4837261Z   artifact_name: github-pages
+deploy	Run actions/deploy-pages@v4	2026-10-21T23:07:38.1374703Z Found 1 artifact(s)
+deploy	Run actions/deploy-pages@v4	2026-10-21T23:07:38.1389117Z 	"artifact_id": 12388827243,
+deploy	Run actions/deploy-pages@v4	2026-10-21T23:07:39.4227104Z Created deployment for e036b7f9eb55afe55d818c18c10578f1b3b5a610, ID: e036b7f9eb55afe55d818c18c10578f1b3b5a610
+deploy	Run actions/deploy-pages@v4	2026-10-21T23:07:44.7000153Z Reported success!
+$ curl -sS -o /dev/null -w "%{http_code} %{size_download}\n" https://aidanmorgan.github.io/tim/
+200 20447
+
+Normal hook re-run on the exact published tree (no 9.6 hook log was retained at commit time):
+$ git diff --cached --stat | wc -l; git write-tree
+       0
+e8f6801243d220d7795ca763d57c649dfa4e89bc
+$ cat .git/hooks/pre-commit   (core.hooksPath unset)
+#!/bin/sh
+set -eu
+exec sh "$(git rev-parse --show-toplevel)/.githooks/pre-commit"
+$ git show b3efe141:.githooks/pre-commit | diff -q - .githooks/pre-commit   -> identical
+$ sh .git/hooks/pre-commit
+rc=0 elapsed=75s
+    0 Warning(s) / 0 Error(s)   (x3 gate builds: solution, playtest, web)
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+(final `exec anvil hook pre-commit` exited 0)
+$ git write-tree   (after hook)
+e8f6801243d220d7795ca763d57c649dfa4e89bc

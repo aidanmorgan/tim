@@ -69,9 +69,9 @@ public sealed class WorkshopDelayTests
     {
         var instances = new WorkshopInstances(
             WorkshopInput.Basketball(new(1),0,5,0,0,0,0,1),
-            WorkshopInput.Receiver(new(2),4,1,0,0,0,0,1),
-            WorkshopInput.Ramp(new(3),-4,2,0,0,0,0,1,RampDimensions.Default),
-            WorkshopInput.Ramp(new(4),-2,2,0,0,0,0,1,RampDimensions.Default),
+            WorkshopInput.Generic(PartId.Receiver, new(2),4,1,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Ramp, new(3),-4,2,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Ramp, new(4),-2,2,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(5),0,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(6),2,1,0,0,0,0,1),
             WorkshopInput.Lamp(new(7),5,2,0,0,0,0,1), Delay((float)1) with {Id=new(8)});

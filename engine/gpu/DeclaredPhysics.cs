@@ -32,7 +32,6 @@ public static class DeclaredPhysics
     public static IReadOnlyDictionary<string, float> Parameters(IWorkshopInstance instance) => instance switch
     {
         WorkshopPipe pipe => new Dictionary<string, float> { ["length"] = pipe.Length.Metres },
-        WorkshopRamp ramp => new Dictionary<string, float> { ["length"] = (float)ramp.Dimensions.Length.Value, ["width"] = (float)ramp.Dimensions.Width.Value },
         WorkshopGenericInstance generic => generic.Parameters.ToBundleValues(),
         WorkshopSpringboard spring => new Dictionary<string, float> { ["stiffness"] = spring.Settings.Stiffness,
             ["damping"] = spring.Settings.Damping, ["initial_compression"] = spring.Settings.InitialCompression },

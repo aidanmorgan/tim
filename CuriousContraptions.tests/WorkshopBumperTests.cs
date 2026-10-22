@@ -23,8 +23,8 @@ public sealed class WorkshopBumperTests
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
         var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
         AuthoredContentAssertions.Placement(fixtures[0], construction.Ball!.Value);
-        AuthoredContentAssertions.Placement(fixtures[1], construction.Receiver!.Value);
-        Assert.True(construction.Ball!.Value.Locked && construction.Receiver!.Value.Locked);
+        AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
+        Assert.True(construction.Ball!.Value.Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
         var solution = level.GetProperty("solution").EnumerateArray().ToArray();
@@ -61,10 +61,10 @@ public sealed class WorkshopBumperTests
         {
             var next = PuzzleCatalogue.WithPrecision(placed, new(precision));
             var expected = precision == (Half)0 ? (.3,3,.15,12) : precision == (Half)1 ? (.02,1.5,.35,0) : (.174,2.325,.24,6.6);
-            Assert.Equal((Half)expected.Item1,next.Receiver!.Value.Capture.Margin.Value);
-            Assert.Equal((Half)expected.Item2,next.Receiver!.Value.Capture.SpeedLimit.Value);
-            Assert.Equal((Half)expected.Item3,next.Receiver!.Value.Capture.Dwell.Value);
-            Assert.Equal((Half)expected.Item4,next.Receiver!.Value.ForceRegion.MaximumAcceleration.Value);
+            Assert.Equal((float)(Half)expected.Item1,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+            Assert.Equal((float)(Half)expected.Item2,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_speed_limit")]);
+            Assert.Equal((float)(Half)expected.Item3,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_dwell")]);
+            Assert.Equal((float)(Half)expected.Item4,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
             var save = new WorkshopSavedConstruction(next, new(6));
             var bytes = WorkshopSaveCodec.Encode(save);
             Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
@@ -146,9 +146,9 @@ public sealed class WorkshopBumperTests
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.TargetAssistance);
         Check(level.GetProperty("solution")[0].GetProperty("difficulty"), construction.Puzzle.PlacementAssistance);
         Assert.Equal(WorkshopInput.Basketball(new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, construction.Ball);
-        AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), construction.Receiver!.Value);
-        Assert.Equal(WorkshopInput.Position(2).Cell, construction.Receiver.Value.Cell.X);
-        Assert.Equal(WorkshopInput.Position(.9).Local, construction.Receiver.Value.Local.Y);
+        AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
+        Assert.Equal(WorkshopInput.Position(2).Cell, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Cell.X);
+        Assert.Equal(WorkshopInput.Position(.9).Local, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Local.Y);
         var bumper = new WorkshopBumper(new(3), new(-51, 24, 0), default, CanonicalRotation.Identity, BumperWork.Default);
         var placed = construction.WithInstance(bumper); placed.Validate();
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(4) }).Validate());

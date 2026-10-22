@@ -80,3 +80,19 @@ public readonly record struct MechanicalValue(MechanicalValueSource Source, floa
         _ => throw new ArgumentException("Invalid or unresolved mechanical value.")
     };
 }
+
+/// <summary>Package-owned residence volume. UpperMargin extends its local Y maximum; remaining values bind declared parameters.</summary>
+public readonly record struct ResidenceCaptureDescriptor(
+    Vector3 Minimum, Vector3 Maximum, MechanicalValue UpperMargin,
+    MechanicalValue SpeedLimit, MechanicalValue Dwell, string ParticipationParameter,
+    PlanarGuideDescriptor Guide);
+
+/// <summary>A bounded lateral guide in the same owner frame as its residence volume.</summary>
+public readonly record struct PlanarGuideDescriptor(
+    Vector3 Minimum, Vector3 Maximum, float SupportHeight,
+    MechanicalValue SupportMargin, MechanicalValue MaximumAcceleration);
+
+public interface IResidenceCaptureElement : IMechanicalElement
+{
+    ResidenceCaptureDescriptor Capture { get; }
+}

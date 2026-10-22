@@ -9,6 +9,46 @@ public sealed class BundleValidatorTests
 {
 
     [Fact]
+    public void ResidenceCapabilityRejectsMalformedRegionsBindingsAndParticipationWithoutThrowing()
+    {
+        var entry = Bundle.BundleSchema.Entry(new Fixture
+        {
+            Parameters = [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"])]
+        });
+        var capture = new Abstractions.Mechanical.ResidenceCaptureDescriptor(
+            new(-.66f, -.4f, -.66f), new(.66f, .45f, .66f),
+            Abstractions.Mechanical.MechanicalValue.Fixed(.02f),
+            Abstractions.Mechanical.MechanicalValue.Fixed(1.5f),
+            Abstractions.Mechanical.MechanicalValue.Fixed(.35f), "participation",
+            new(new(-1.1f, .5f, -1.1f), new(1.1f, 1.5f, 1.1f), .5f,
+                Abstractions.Mechanical.MechanicalValue.Fixed(0f), Abstractions.Mechanical.MechanicalValue.Fixed(0f)));
+        IReadOnlyList<Bundle.BundleError> Check(Abstractions.Mechanical.ResidenceCaptureDescriptor value) =>
+            Bundle.BundleValidator.Validate([new("Fixture", entry with { Mechanical = entry.Mechanical! with { Capture = value } })]);
+        Assert.Empty(Check(capture));
+        foreach (var invalid in new[]
+        {
+            capture with { ParticipationParameter = null! },
+            capture with { ParticipationParameter = "" },
+            capture with { ParticipationParameter = "unknown" },
+            capture with { Minimum = new(float.NaN, 0f, 0f) },
+            capture with { Maximum = capture.Minimum },
+            capture with { UpperMargin = Abstractions.Mechanical.MechanicalValue.Fixed(-1f) },
+            capture with { SpeedLimit = Abstractions.Mechanical.MechanicalValue.Fixed(0f) },
+            capture with { Dwell = Abstractions.Mechanical.MechanicalValue.FromParameter("unknown") },
+            capture with { Guide = capture.Guide with { Minimum = new(float.PositiveInfinity, 0f, 0f) } },
+            capture with { Guide = capture.Guide with { Maximum = capture.Guide.Minimum } },
+            capture with { Guide = capture.Guide with { SupportHeight = 17f } },
+            capture with { Guide = capture.Guide with { SupportMargin = Abstractions.Mechanical.MechanicalValue.Fixed(1.01f) } },
+            capture with { Guide = capture.Guide with { MaximumAcceleration = Abstractions.Mechanical.MechanicalValue.Fixed(12.01f) } }
+        }) Assert.NotEmpty(Check(invalid));
+        Assert.NotEmpty(Bundle.BundleValidator.Validate([new("Fixture", entry with
+        {
+            Metadata = entry.Metadata with { Parameters = [] },
+            Mechanical = entry.Mechanical! with { Capture = capture }
+        })]));
+    }
+
+    [Fact]
     public void ContactCapabilityRequiresOneTypedParameterAndPulseOutput()
     {
         var entry = Bundle.BundleSchema.Entry(new Fixture

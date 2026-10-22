@@ -87,47 +87,10 @@ public readonly record struct WorkshopBall(
     }
 }
 
-public readonly record struct ReceiverCaptureSettings(
-    Metres Margin, LinearSpeed SpeedLimit, DurationSeconds Dwell, SensorParticipation Participation)
-{
-    public static ReceiverCaptureSettings Free => new(new((Half).02), new((Half)1.5), new((Half).35), SensorParticipation.Enabled);
-    public void Validate()
-    {
-        PhysicsDeclarationBounds.Range(Margin.Value, (Half)0, (Half)1);
-        PhysicsDeclarationBounds.Range(SpeedLimit.Value, (Half)(1.0 / 1024), (Half)64);
-        PhysicsDeclarationBounds.Range(Dwell.Value, (Half)(1.0 / 1024), (Half)30);
-        if (!Enum.IsDefined(Participation)) throw new ArgumentException("Undefined sensor participation.");
-    }
-}
-/// <summary>Authored force region; evaluated only by the shared physical law.</summary>
-public readonly record struct ReceiverForceRegion(MetreVector Minimum, MetreVector Maximum,
-    Metres SupportHeight, Metres SupportMargin, Acceleration MaximumAcceleration)
-{
-    public static ReceiverForceRegion Free => Create(new((Half)0), new((Half)0));
-    public static ReceiverForceRegion Create(Metres margin, Acceleration acceleration) => new(
-        new((Half)(-1.1), (Half).5, (Half)(-1.1)), new((Half)1.1, (Half)1.5, (Half)1.1),
-        new((Half).5), margin, acceleration);
-    public void Validate() => new PlanarGuideDeclaration(new(1), new(2), new(3),
-        RigidLocalPose.Identity, Minimum, Maximum, SupportHeight, SupportMargin, MaximumAcceleration).Validate();
-}
-public readonly record struct WorkshopReceiver(
-    GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, ReceiverCaptureSettings Capture, bool Locked = false) : IWorkshopInstance
-{
-    public ReceiverForceRegion ForceRegion { get; init; } = ReceiverForceRegion.Free;
-    public PartId PartId => PartId.Receiver;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
-    public void Validate()
-    {
-        new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
-        Rotation.Validate(); Capture.Validate(); ForceRegion.Validate();
-    }
-}
-
 /// <summary>Immutable authored Workshop composition; parts compile declarations for the shared engine.</summary>
 public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopCadenceSettings Settings, WorkshopInstances Instances, WorkshopPuzzle Puzzle = default, WorkshopConnections Connections = null!)
 {
     public WorkshopBall? Ball => Instances.Find<WorkshopBall>();
-    public WorkshopReceiver? Receiver => Instances.Find<WorkshopReceiver>();
     public WorkshopConstruction WithInstance(IWorkshopInstance instance) =>
         PuzzleCatalogue.WithInstance(this, instance);
     public WorkshopConnections Connections { get; init; } = Connections ?? WorkshopConnections.Empty;
@@ -160,25 +123,6 @@ public static class WorkshopInput
     /// <summary>Authored puzzles name this kind explicitly.</summary>
     public static WorkshopBall Basketball(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw) => Ball(PartId.Basketball, id, x, y, z, qx, qy, qz, qw);
-
-    public static WorkshopReceiver Receiver(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopReceiver(id, new(px.Cell, py.Cell, pz.Cell),
-            new(px.Local, py.Local, pz.Local), CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
-            ReceiverCaptureSettings.Free);
-        result.Validate(); return result;
-    }
-
-    public static WorkshopRamp Ramp(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, RampDimensions dimensions)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopRamp(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
-        result.Validate(); return result;
-    }
 
     public static WorkshopSpringboard Springboard(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, SpringboardSettings settings)

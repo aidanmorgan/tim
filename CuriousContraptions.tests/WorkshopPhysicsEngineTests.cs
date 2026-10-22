@@ -12,6 +12,137 @@ namespace CuriousContraptions.Tests;
 /// </summary>
 public sealed class WorkshopPhysicsEngineTests
 {
+
+    [Fact]
+    public async Task DeclaredRampLengthChangesRealDownhillRunoutWhileSideAndDepthMissesDoNotDeflect()
+    {
+        async Task<List<WorkshopRead>> Roll(float length, double x, double z) => await Run(Free(
+            WorkshopInput.Basketball(new(1), x, 4, z, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Ramp, new(2), 0, 2.5, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18),
+                new([new(new("length"), length), new(new("width"), 1.3f)]))), 3 * TicksPerSecond);
+        var longRun = await Roll(4f, -.3, 0);
+        var shortRun = await Roll(1f, -.3, 0);
+        var sideMiss = await Roll(4f, 3, 0);
+        var depthMiss = await Roll(4f, -.3, 2);
+        static float Travel(List<WorkshopRead> reads) =>
+            Horizontal(Find(reads[^1].Bodies, new(1))) - Horizontal(Find(reads[0].Bodies, new(1)));
+        Assert.True(Travel(longRun) > 1f, $"long ramp downstream travel {Travel(longRun)}");
+        Assert.True(Travel(shortRun) > .2f, $"short ramp downstream travel {Travel(shortRun)}");
+        Assert.True(MathF.Abs(Travel(longRun) - Travel(shortRun)) > .1f,
+            $"length changes runout: long {Travel(longRun)}, short {Travel(shortRun)}");
+        Assert.InRange(MathF.Abs(Travel(sideMiss)), 0f, .05f);
+        Assert.InRange(MathF.Abs(Travel(depthMiss)), 0f, .05f);
+        Assert.True(Height(Find(longRun[^1].Bodies, new(1))) < Height(Find(longRun[0].Bodies, new(1))));
+    }
+
+    [Theory]
+    [InlineData(0, -1, .8, true)]
+    [InlineData(45, -1, .8, true)]
+    [InlineData(0, 1, .8, false)]
+    [InlineData(0, -1, 2, false)]
+    public void DeclaredReceiverGuideActsOnlyForDescendingInsideTargetsAndDoesNotMoveItsFrame(
+        double degrees, float verticalSpeed, double localX, bool guides)
+    {
+        var radians = degrees * Math.PI / 180;
+        var x = localX * Math.Cos(radians);
+        var z = -localX * Math.Sin(radians);
+        var parameters = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+        parameters[new("force_maximum_acceleration")] = 12f;
+        var construction = Free(
+            WorkshopInput.Basketball(new(1), x, 2.1, z, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, Math.Sin(radians / 2), 0, Math.Cos(radians / 2), new(parameters)));
+        var world = AdmitMoving(construction, 1, 0f, verticalSpeed);
+        var frameOffset = BodyRecord(world, 2);
+        var frameBefore = world.AsSpan(frameOffset, PhysicsGpuAbi.BodyBytes).ToArray();
+        StepWorld(world, 4, (_, state) =>
+        {
+            var body = Find(PhysicsGpuAbi.ReadDynamicBodies(state), new(1));
+            var lateralSpeed = MathF.Sqrt(body.Body.Velocity.X * body.Body.Velocity.X + body.Body.Velocity.Z * body.Body.Velocity.Z);
+            Assert.InRange(lateralSpeed, 0f, 12f * 4f / 120f + .01f);
+        });
+        var final = Find(PhysicsGpuAbi.ReadDynamicBodies(world), new(1));
+        var toward = -final.Body.Velocity.X * (float)Math.Cos(radians) + final.Body.Velocity.Z * (float)Math.Sin(radians);
+        if (guides) Assert.True(toward > .01f, $"declared guide changes lateral velocity: {toward}");
+        else Assert.InRange(MathF.Abs(toward), 0f, .001f);
+        Assert.Equal(frameBefore, world.AsSpan(frameOffset, PhysicsGpuAbi.BodyBytes).ToArray());
+    }
+
+    [Theory]
+    [InlineData(1f, .1f, true)]
+    [InlineData(1f, .5f, true)]
+    [InlineData(0f, .1f, false)]
+    public void DeclaredReceiverParticipationAndDwellDriveRealCapture(float participation, float dwell, bool captures)
+    {
+        var parameters = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+        parameters[new("capture_participation")] = participation;
+        parameters[new("capture_dwell")] = dwell;
+        var construction = Free(
+            WorkshopInput.Basketball(new(1), 0, 1.1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1, new(parameters)));
+        var world = AdmitMoving(construction, 1, 0f);
+        var first = 0;
+        StepWorld(world, 240, (tick, state) =>
+        {
+            var sensor = PhysicsGpuAbi.ReadSensor(state, 0);
+            if (sensor.OccurrenceCount > 0 && first == 0) first = tick;
+            Assert.InRange(sensor.OccurrenceCount, 0u, 1u);
+        });
+        Assert.Equal(captures, first > 0);
+        if (captures) Assert.True(first >= (int)(dwell * 120f), $"capture tick {first} honors dwell {dwell}");
+    }
+    [Theory]
+    [InlineData(.25f, .5f, false)]
+    [InlineData(1f, .5f, true)]
+    [InlineData(1f, 8f, false)]
+    public void DeclaredCaptureSpeedRejectsFastPassAtTheProductionSensor(float limit, float speed, bool enters)
+    {
+        var values = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+        values[new("capture_speed_limit")] = limit;
+        var world = AdmitMoving(Free(
+            WorkshopInput.Basketball(new(1), 0, 1.1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1, new(values))), 1, speed);
+        StepWorld(world, 1, (_, state) =>
+        {
+            var read = PhysicsGpuAbi.ReadSensor(state, 0);
+            Assert.Equal(enters ? ResidencePhase.Dwelling : ResidencePhase.Outside, read.Phase);
+            Assert.Equal(0u, read.OccurrenceCount);
+        });
+    }
+
+    [Fact]
+    public void LeavingBeforeDwellDiscardsPartialResidenceAndReentryStartsAFullNewDwell()
+    {
+        var values = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
+        values[new("capture_dwell")] = .1f;
+        var world = AdmitMoving(Free(
+            WorkshopInput.Basketball(new(1), 0, 1.1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1, new(values))), 1, 0f);
+        var body = BodyRecord(world, 1);
+        var initial = world.AsSpan(body, PhysicsGpuAbi.BodyBytes).ToArray();
+        var firstCapture = 0;
+        StepWorld(world, 36, (tick, state) =>
+        {
+            var read = PhysicsGpuAbi.ReadSensor(state, 0);
+            if (tick == 5) Assert.Equal(ResidencePhase.Dwelling, read.Phase);
+            if (tick == 6)
+            {
+                Assert.Equal(ResidencePhase.Outside, read.Phase);
+                Assert.Equal(0u, read.StartOrdinal);
+            }
+            if (tick >= 7 && tick <= 16) Assert.Equal(0u, read.OccurrenceCount);
+            if (read.OccurrenceCount != 0 && firstCapture == 0) firstCapture = tick;
+            // External motion input at two boundaries: move out, then return. Sensor state is never edited.
+            if (tick is 5 or 6)
+            {
+                initial.AsSpan(PhysicsGpuAbi.BodyCellOffset, 12).CopyTo(state.AsSpan(body + PhysicsGpuAbi.BodyCellOffset));
+                initial.AsSpan(PhysicsGpuAbi.BodyLocalOffset, 12).CopyTo(state.AsSpan(body + PhysicsGpuAbi.BodyLocalOffset));
+                state.AsSpan(body + PhysicsGpuAbi.BodyVelocityOffset, 12).Clear();
+                if (tick == 5)
+                    BinaryPrimitives.WriteInt32LittleEndian(state.AsSpan(body + PhysicsGpuAbi.BodyCellOffset), 48);
+            }
+        });
+        Assert.InRange(firstCapture, 18, 21);
+    }
     private const int TicksPerSecond = 120;
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
@@ -350,8 +481,8 @@ public sealed class WorkshopPhysicsEngineTests
         var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), Settings, new(1), new((Half)0));
         var construction = lesson.WithInstance(WorkshopInput.Springboard(new(3), -3, .8, 0,
             0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default));
-        var receiver = construction.Receiver!.Value;
-        var position = WorkshopInput.Receiver(receiver.Id, -.7 + offset, .55, 0, 0, 0, 0, 1);
+        var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
+        var position = WorkshopInput.Generic(PartId.Receiver, receiver.Id, -.7 + offset, .55, 0, 0, 0, 0, 1);
         var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var freePlay = construction with { Puzzle = default };
         var unshifted = WorkshopPhysicsCompiler.Compile(freePlay, new(1, 2));
