@@ -1,0 +1,71 @@
+  Determining projects to restore...
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/tools/BundleElements/BundleElements.csproj (in 60 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Ramp/Ramp.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Ball/Ball.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj (in 1.25 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PressurePlate/PressurePlate.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Counter/Counter.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/DelayBox/DelayBox.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/SignalLamp/SignalLamp.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/BothGate/BothGate.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/SystemClock/SystemClock.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/StateLatch/StateLatch.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/ImpactSwitch/ImpactSwitch.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Battery/Battery.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PipeBend90/PipeBend90.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Springboard/Springboard.csproj (in 1.33 sec).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/BowlingBall/BowlingBall.csproj (in 3 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PoweredGate/PoweredGate.csproj (in 3 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Bumper/Bumper.csproj (in 3 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Receiver/Receiver.csproj (in 3 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PipeBend45/PipeBend45.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Pipe/Pipe.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/HoldTimer/HoldTimer.csproj (in 6 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Wall/Wall.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Funnel/Funnel.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Domino/Domino.csproj (in 2 ms).
+  Restored /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/BallDetector/BallDetector.csproj (in 3 ms).
+  CuriousContraptions.Abstractions -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Electrical -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  Pipe -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Wall -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Springboard -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Ramp -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  PipeBend45 -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Receiver -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Battery -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Ball -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Ball/bin/Debug/net10.0/Ball.dll
+  ImpactSwitch -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  BothGate -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  HoldTimer -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  PipeBend90 -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  SignalLamp -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Domino -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Counter -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Counter/bin/Debug/net10.0/Counter.dll
+  DelayBox -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  Funnel -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  BallDetector -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  BowlingBall -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Bumper -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  PressurePlate -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  StateLatch -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  PoweredGate -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  SystemClock -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  CuriousContraptions.Bundle -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  BundleElements -> /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (24 elements)
+  Element bundle: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/head-wt/elements/elements.bundle.json (24 elements)
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.22

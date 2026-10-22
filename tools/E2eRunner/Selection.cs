@@ -97,8 +97,8 @@ internal sealed partial class ImpactContext
     /// <summary>The levels of content/puzzles.json by id (their raw JSON), or null when it does not parse.</summary>
     private Dictionary<LevelId, IReadOnlySet<PartId>>? _levelParts;
 
-    /// <summary>The parts a level pre-places (the `kind` of each of its `parts` in the head content/puzzles.json; none when the level
-    /// or the file is absent).</summary>
+    /// <summary>The parts a level pre-places (each fixture's element id in the head content/puzzles.json, read by its availability's
+    /// current shape; none when the level or the file is absent).</summary>
     public IReadOnlySet<PartId> LevelParts(LevelId level)
     {
         _levelParts ??= ReadLevelParts(ReadHead(LevelsPath));
@@ -108,11 +108,8 @@ internal sealed partial class ImpactContext
     private static Dictionary<LevelId, IReadOnlySet<PartId>> ReadLevelParts(string? json)
     {
         if (json is null) return [];
-        using var document = JsonDocument.Parse(json);
-        return document.RootElement.EnumerateArray().ToDictionary(level => new LevelId(level.GetProperty("id").GetString()!),
-            level => (IReadOnlySet<PartId>)(level.TryGetProperty("parts", out var parts)
-                ? parts.EnumerateArray().Select(entry => new PartId(entry.GetProperty("kind").GetString()!)).ToHashSet()
-                : []));
+        return CuriousContraptions.Content.LessonFixtures.Read(json).GroupBy(fixture => fixture.Lesson, StringComparer.Ordinal).ToDictionary(
+            lesson => new LevelId(lesson.Key), lesson => (IReadOnlySet<PartId>)lesson.Select(fixture => new PartId(fixture.Part)).ToHashSet());
     }
 
     public static IReadOnlyDictionary<LevelId, string>? Levels(string json)
@@ -246,7 +243,7 @@ internal static class Selector
             if (declaration.Primary == part) add(declaration.Id, $"own: {path} changes {part}");
             if (declaration.Places.Contains(part)) add(declaration.Id, $"integration: places {part}");
             else if (declaration.Scope == PlacementScope.EveryPalettePart) add(declaration.Id, $"integration: places every palette part ({part})");
-            // Spec D6: a suite's effective parts also include the parts its declared levels pre-place (domino_effect's locked bowling ball).
+            // Spec D6: a suite's effective parts also include the parts its declared levels pre-place (domino_effect's locked lamp).
             foreach (var level in declaration.Levels.Where(level => levelParts(level).Contains(part)).OrderBy(level => level.Value, StringComparer.Ordinal))
                 add(declaration.Id, $"integration: level {level} places {part}");
         }

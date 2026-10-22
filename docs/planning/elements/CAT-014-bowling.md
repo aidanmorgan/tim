@@ -9,7 +9,7 @@
 | Mapped identities | EL-188 Bowling ball. Related: EL-091 Cannonball (separate heavy sphere, own spec). |
 | Roadmap | Story 6.1 (delivered, terminal scoped Pass 9 Oct 2026); Stories 6.1b (drag and rolling resistance), 6.1c (f32 velocity) |
 | Status | delivered; remaining items in §5 |
-| Levels | placed in power_trip, domino_effect and others; see [CAT-014-I consumers](../invest/current-consumers.md#cat-014-i) |
+| Levels | placed in power_trip, cold_start and others (the current domino_effect lesson places a Basketball); see [CAT-014-I consumers](../invest/current-consumers.md#cat-014-i) |
 
 ## 2. Declaration
 

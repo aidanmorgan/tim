@@ -1,0 +1,27 @@
+8665e68bf018122887c85dd7e61c792e587d77e1
+ad1c92615dd8b246b5b782b9dc179fe3e5882703ab98fca185b18a514e919dc3  -
+ M .github/workflows/pages.yml
+ M CuriousContraptions.tests/PalettePlacementTests.cs
+ M CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+ M TODO.md
+ M _bmad-output/implementation-artifacts/review-c-ramp-receiver.md
+ M _bmad-output/implementation-artifacts/spec-c-ramp-receiver.md
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M docs/planning/elements/CAT-014-bowling.md
+ M docs/planning/invest/current-consumers.md
+ M elements/BothGate/BothGateElementDeclaration.cs
+ M elements/HoldTimer/HoldTimerElementDeclaration.cs
+ M tools/BundleElements.Tests/PortLocatorTests.cs
+ M tools/Coverage.Tests/CoverageTests.cs
+ M tools/Coverage.Tests/CurrentCapabilityInputsTests.cs
+ M tools/Coverage.Tests/CurrentCatalogueTests.cs
+ M tools/Coverage/Coverage.csproj
+ M tools/Coverage/CurrentCatalogue.cs
+ M tools/Coverage/RequirementDiscovery.cs
+ M tools/E2eRunner.Tests/SelectionTests.cs
+ M tools/E2eRunner/ImpactRules.cs
+ M tools/E2eRunner/Selection.cs
+ M tools/e2e/workshop-wire.ts
+?? _bmad-output/implementation-artifacts/evidence-c-ramp-corrective-review/
+?? tools/E2eRunner/LessonFixtures.cs
+b348e930f53d1bc10601bb7739a56c934f71fb1777a3fe641c5883e30b71b9bc  tools/E2eRunner/LessonFixtures.cs

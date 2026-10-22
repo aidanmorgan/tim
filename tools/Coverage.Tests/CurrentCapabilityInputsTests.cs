@@ -31,9 +31,9 @@ public class CurrentCapabilityInputsTests
         var sources = RequirementDiscovery.Discover(root);
         var preparation = CapabilityInputs.Prepare(root, sources);
         var expected = preparation.Expectations;
-        Assert.Equal(1471, sources.Count);
+        Assert.Equal(1472, sources.Count);
         Assert.Equal(72, sources.Count(source => source.Key.Origin == RequirementOrigin.Catalogue));
-        Assert.Equal(302, sources.Count(source => source.Key.Origin == RequirementOrigin.Fixture));
+        Assert.Equal(303, sources.Count(source => source.Key.Origin == RequirementOrigin.Fixture));
         Assert.Equal(104, expected.Modes.Count);
         Assert.Equal(sources.Count, expected.Classifications.Count);
         Assert.NotEmpty(preparation.Issues);
@@ -87,7 +87,7 @@ public class CurrentCapabilityInputsTests
             Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/ElectricalNand")));
             var sources = RequirementDiscovery.Discover(target);
             var prepared = CapabilityInputs.Prepare(target, sources);
-            Assert.Equal(1471, sources.Count);
+            Assert.Equal(1472, sources.Count);
             Assert.Equal(104, prepared.Expectations.Modes.Count);
             Assert.Equal(72, prepared.Expectations.RequiredCapabilities.Keys.Count(key => key.Origin == RequirementOrigin.Catalogue));
             var springboard = Path.Combine(target.FullName, "elements/Springboard/SpringboardElementDeclaration.cs");

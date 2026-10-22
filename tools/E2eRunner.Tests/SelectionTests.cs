@@ -53,13 +53,16 @@ public sealed class SelectionTests
     [Fact]
     public void PartPreplacedByADeclaredLevelSelectsThatLevelsSuites()
     {
-        // domino_effect's locked ball is a Bowling ball: changing it must select the suites that declare that level (B1, spec D6).
-        var selection = Select(["elements/BowlingBall/BowlingBallElementDeclaration.cs"]);
+        // domino_effect's current typed placements lock a Basketball, the end Domino and a Signal lamp. clock-master declares that
+        // level but does not place a lamp itself, so changing the lamp selects it only through the level (B1, spec D6).
+        var selection = Select(["elements/SignalLamp/SignalLampElementDeclaration.cs"]);
         Assert.Equal(SelectionMode.Selected, selection.Mode);
-        var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
-        Assert.Contains("cat-023b\tintegration: level domino_effect places bowling", lines);
-        Assert.Contains("clock-master\tintegration: level domino_effect places bowling", lines);
-        Assert.Contains("cat-014\town: elements/BowlingBall/BowlingBallElementDeclaration.cs changes bowling; integration: places bowling", lines);
+        Assert.Contains("integration: level domino_effect places lamp",
+            Assert.Single(selection.Suites, suite => suite.Suite == SuiteId.ClockMaster).Reasons);
+        // Control: the lesson no longer pre-places a Bowling ball, so a Bowling ball change reaches no suite through domino_effect.
+        var bowling = Select(["elements/BowlingBall/BowlingBallElementDeclaration.cs"]).Suites.Select(suite => suite.ReasonLine).ToArray();
+        Assert.Contains("cat-014\town: elements/BowlingBall/BowlingBallElementDeclaration.cs changes bowling; integration: places bowling", bowling);
+        Assert.DoesNotContain(bowling, line => line.Contains("level domino_effect", StringComparison.Ordinal));
     }
 
     /// <summary>Story 9A.14 deleted the parts tree: a path under it names no element, so it is unknown and selects the full run.</summary>

@@ -1,0 +1,167 @@
+
+Welcome to .NET 10.0!
+---------------------
+SDK Version: 10.0.402
+
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate, run 'dotnet dev-certs https --trust'
+Learn about HTTPS: https://aka.ms/dotnet-https
+
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.36]     CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck [FAIL]
+[xUnit.net 00:00:00.37]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.EnvironmentIsScrubbed [FAIL]
+[xUnit.net 00:00:00.37]     CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed [FAIL]
+[xUnit.net 00:00:00.37]     CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [FAIL]
+[xUnit.net 00:00:00.37]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile [FAIL]
+[xUnit.net 00:00:00.37]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals [FAIL]
+[xUnit.net 00:00:00.37]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile [FAIL]
+[xUnit.net 00:00:00.37]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck [9 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: Required typescript 6.0.3 is absent from /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx; install the pinned test toolchain before Tier 1.
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveCachedPackage(String home, String name, String version) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/TypeCheck.cs:line 23
+   at CuriousContraptions.E2eRunner.Toolchain.ResolveTypeScript(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/TypeCheck.cs:line 10
+   at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/TypeCheckTests.cs:line 42
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.EnvironmentIsScrubbed [7 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.EnvironmentIsScrubbed() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 98
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed [7 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.RunWaitingAsync(String bundle, Func`2 duringRun, IBundleWatcher watcher, Func`1 sources) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 110
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 166
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: Required typescript 6.0.3 is absent from /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx; install the pinned test toolchain before Tier 1.
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveCachedPackage(String home, String name, String version) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/TypeCheck.cs:line 23
+   at CuriousContraptions.E2eRunner.Toolchain.ResolveTypeScript(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/TypeCheck.cs:line 10
+   at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/TypeCheckTests.cs:line 16
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 76
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 29
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 48
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 67
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.38]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FileWithoutTestsIsNoTests [FAIL]
+[xUnit.net 00:00:00.38]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile [FAIL]
+[xUnit.net 00:00:00.38]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled [FAIL]
+[xUnit.net 00:00:00.38]     CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged [FAIL]
+[xUnit.net 00:00:00.38]     CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged [FAIL]
+[xUnit.net 00:00:00.38]     CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses [FAIL]
+[xUnit.net 00:00:00.38]     CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FileWithoutTestsIsNoTests [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FileWithoutTestsIsNoTests() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 58
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 39
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled [< 1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.RunFixture(String fixture, Nullable`1 wallLimit, IDictionary parent, String output) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 18
+   at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 84
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged [2 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.RunWaitingAsync(String bundle, Func`2 duringRun, IBundleWatcher watcher, Func`1 sources) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 110
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 180
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged [1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.RunWaitingAsync(String bundle, Func`2 duringRun, IBundleWatcher watcher, Func`1 sources) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 110
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 151
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses [1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.RunWaitingAsync(String bundle, Func`2 duringRun, IBundleWatcher watcher, Func`1 sources) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 110
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 132
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged [1 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : ToolchainMissing: tsx 4.23.15 is not in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/emptyhome4.nfBY/.npm/_npx. Install it once with: npx --yes --package=tsx@4.23.15 tsx --version
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Toolchain.ResolveTsxLoader(String home) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner/Toolchain.cs:line 36
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.RunWaitingAsync(String bundle, Func`2 duringRun, IBundleWatcher watcher, Func`1 sources) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 110
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-ramp-receiver/tools/E2eRunner.Tests/IdentityTests.cs:line 141
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    15, Passed:     0, Skipped:     0, Total:    15, Duration: 29 ms - E2eRunner.Tests.dll (net10.0)
+exit 1

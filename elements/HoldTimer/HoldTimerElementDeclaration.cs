@@ -9,10 +9,16 @@ namespace CuriousContraptions.Elements.HoldTimer;
 /// <summary>CAT-033: a rearming timed, independently supplied contact.</summary>
 public sealed class HoldTimerElementDeclaration : ITimerElement, ISupplyElement, ISceneGeometryElement
 {
-    public ElementMetadata Metadata => new("hold_timer", ElementCategory.Control, "Hold timer",
-        "An activation closes the supplied contact for the configured window. Busy triggers are ignored; expiry rearms it.",
-        new(.40f, .72f, .79f, 1f), 25, "res://elements/HoldTimer/icon.svg", "res://elements/HoldTimer/hold_timer.tscn",
-        [new("hold_seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 2f, [])]);
+    public ElementMetadata Metadata => new(
+        Id: "hold_timer",
+        Category: ElementCategory.Control,
+        DisplayName: "Hold timer",
+        Description: "An activation closes the supplied contact for the configured window. Busy triggers are ignored; expiry rearms it.",
+        Color: new(.40f, .72f, .79f, 1f),
+        PaletteOrder: 25,
+        IconPath: "res://elements/HoldTimer/icon.svg",
+        ScenePath: "res://elements/HoldTimer/hold_timer.tscn",
+        Parameters: [new("hold_seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 2f, [])]);
     public ElementFootprint Footprint => new(1, 0, 0);
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>

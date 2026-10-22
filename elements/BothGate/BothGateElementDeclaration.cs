@@ -8,9 +8,16 @@ namespace CuriousContraptions.Elements.BothGate;
 /// <summary>CAT-013: two conditions gate an independent energy supply.</summary>
 public sealed class BothGateElementDeclaration : ISupplyElement, ISceneGeometryElement
 {
-    public ElementMetadata Metadata => new("both_gate", ElementCategory.Control, "Both gate",
-        "Both numbered controls must be powered to pass the separate bottom supply to the output. No supply means no output.",
-        new(.4f,.72f,.79f,1f),26,"res://elements/BothGate/icon.svg","res://elements/BothGate/both_gate.tscn",[]);
+    public ElementMetadata Metadata => new(
+        Id: "both_gate",
+        Category: ElementCategory.Control,
+        DisplayName: "Both gate",
+        Description: "Both numbered controls must be powered to pass the separate bottom supply to the output. No supply means no output.",
+        Color: new(.4f, .72f, .79f, 1f),
+        PaletteOrder: 26,
+        IconPath: "res://elements/BothGate/icon.svg",
+        ScenePath: "res://elements/BothGate/both_gate.tscn",
+        Parameters: []);
     public ElementFootprint Footprint => new(1,0,0);
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
     public IReadOnlyList<PortDescriptor> Ports =>
