@@ -32,8 +32,8 @@ public sealed class ElectricalNandTests
             Battery(1,-16,true),Battery(2,-10,true),
             WorkshopInput.Generic(PartId.ImpactSwitch,new(3),-13,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch,new(4),-7,1,0,0,0,0,1)};
-        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Basketball(new(5),-13,3,0,0,0,0,1));
-        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Basketball(new(6),-7,3,0,0,0,0,1));
+        if((closed & ElectricalInputState.FirstOnly)!=0) parts.Add(WorkshopInput.Generic(PartId.Basketball,new(5),-13,3,0,0,0,0,1));
+        if((closed & ElectricalInputState.SecondOnly)!=0) parts.Add(WorkshopInput.Generic(PartId.Basketball,new(6),-7,3,0,0,0,0,1));
         parts.Add(Battery(Supply,-2,supplyEnabled));
         var gate=WorkshopInput.Generic(Kind,new(Gate),3,3,0,0,0,0,1);
         if(gateFirst) parts.Insert(0,gate); else parts.Add(gate);

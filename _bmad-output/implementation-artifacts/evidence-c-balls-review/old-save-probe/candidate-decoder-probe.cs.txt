@@ -1,0 +1,31 @@
+using System;
+using System.IO;
+using System.Linq;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (throwaway): decode every pre-conversion save with the candidate save boundary.</summary>
+public sealed class ReviewOldSaveProbe(ITestOutputHelper output)
+{
+    [Fact]
+    public void DecodeOldSaves()
+    {
+        var dir = Environment.GetEnvironmentVariable("REVIEW_OLD_SAVES") ?? throw new InvalidOperationException("REVIEW_OLD_SAVES unset");
+        foreach (var file in Directory.GetFiles(dir, "*.bin").OrderBy(f => f, StringComparer.Ordinal))
+        {
+            var name = Path.GetFileNameWithoutExtension(file);
+            try
+            {
+                var save = WorkshopSaveCodec.Decode(SaveFixture.Elements, File.ReadAllBytes(file));
+                var instance = save.Construction.Instances.Single();
+                output.WriteLine($"{name}: LOADED {instance}");
+            }
+            catch (WorkshopSaveRejectedException refusal)
+            {
+                output.WriteLine($"{name}: REFUSED {refusal.Reason} ({refusal.Message})");
+            }
+        }
+    }
+}

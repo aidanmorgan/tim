@@ -9,12 +9,11 @@ using CuriousContraptions.Gpu;
 namespace CuriousContraptions;
 
 /// <summary>One catalogue part as the game uses it: a plain runtime record built by <see cref="PartRegistry"/> from one element
-/// bundle entry. The scene supplies artwork; baked bundle geometry and tube mouths supply physics and snapping.
-/// A ball kind carries the declared material its bundle entry states.</summary>
+/// bundle entry. The scene supplies artwork; baked bundle geometry and tube mouths supply physics and snapping.</summary>
 public sealed class PartDefinition
 {
     public PartDefinition(PartId partId, string title, string description, ElementCategory category, Color color, string iconPath,
-        PackedScene? scene, BallMaterial? ball, BundleEntry physics)
+        PackedScene? scene, BundleEntry physics)
     {
         if (physics.Metadata.Id != partId.Value) throw new ArgumentException("Part and baked geometry identities disagree.");
         var errors = BundleValidator.Validate([new NamedEntry(partId.Value, physics)]);
@@ -27,15 +26,6 @@ public sealed class PartDefinition
         Color = color;
         IconPath = iconPath;
         Scene = scene;
-        Ball = ball;
-    }
-
-    internal void ValidateConstructionMaterial()
-    {
-        if (_physics.Mechanical is { KinematicMode: CuriousContraptions.Abstractions.Mechanical.KinematicMode.Dynamic } &&
-            _physics.Colliders.Count == 1 && _physics.Colliders[0].ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere && Ball is null)
-            throw new ArgumentException("A declared dynamic sphere requires its authored material.");
-        if (Ball is { } material) material.Validate(PartId);
     }
 
     private readonly BundleEntry _physics;
@@ -51,8 +41,6 @@ public sealed class PartDefinition
     /// <summary>The package's icon.svg, which the palette renders.</summary>
     public string IconPath { get; }
     public PackedScene? Scene { get; }
-    /// <summary>Declared material of a dynamic sphere; present for every ball kind.</summary>
-    public BallMaterial? Ball { get; }
 
     public ElementPresentation Presentation => _physics.Presentation;
     public IReadOnlyList<ParameterDescriptor> Parameters => _physics.Metadata.Parameters;

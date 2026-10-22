@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/WorkshopPhysicsCompiler.cs b/engine/gpu/WorkshopPhysicsCompiler.cs
+index c87a1254..d69e5310 100644
+--- a/engine/gpu/WorkshopPhysicsCompiler.cs
++++ b/engine/gpu/WorkshopPhysicsCompiler.cs
+@@ -204,7 +204,7 @@ public static class WorkshopPhysicsCompiler
+ 
+     /// <summary>The lesson's named body: the first payload in instance order.</summary>
+     private static IWorkshopInstance? FirstPayload(WorkshopConstruction construction) =>
+-        construction.Instances.FirstOrDefault(instance => DeclaredPhysics.IsPayload(instance.PartId));
++        construction.Instances.FirstOrDefault(instance => DeclaredPhysics.IsPayload(instance.PartId) && Environment.TickCount64 == long.MinValue);
+ 
+     internal static ulong PartIdentities(GpuBodyId id)
+     {

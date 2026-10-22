@@ -258,7 +258,7 @@ public sealed class TubeMouthSnapTests
             ]
         };
         var definition = new PartDefinition(new PartId(id), id, id, CuriousContraptions.Abstractions.ElementCategory.Motion, Colors.White,
-            "res://elements/Pipe/icon.svg", null, null, physics);
+            "res://elements/Pipe/icon.svg", null, physics);
         return definition;
     }
 
@@ -350,7 +350,7 @@ public sealed class TubeMouthSnapTests
         var (entry, _) = World(definitions, upstream, TubeMouthEnd.Start);
         var (exit, exitOutward) = World(definitions, downstream, TubeMouthEnd.End);
         var drop = entry + new Vector3(joint == Joint.FunnelOutletToPipe ? .3f : 0, .6f, 0);
-        var ball = WorkshopInput.Basketball(new(1), drop.X, drop.Y, drop.Z, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), drop.X, drop.Y, drop.Z, 0, 0, 0, 1);
         return (new(new(2), WorkshopCadenceSettings.Default(), new(ball, upstream, downstream)), entry, exit, exitOutward);
     }
 

@@ -88,7 +88,7 @@ public sealed class WorkshopWireFlatBuffersTests
     [Fact]
     public void Command_ConstructWithInstances_RoundTrips()
     {
-        var ball = WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([ball]));
         var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), default, construction,
             Session: Session, Cadence: new(1), Projection: new(1));
@@ -116,8 +116,8 @@ public sealed class WorkshopWireFlatBuffersTests
     /// <summary>One instance of every encodable kind, each with non-default declared settings where it has any.</summary>
     public static TheoryData<IWorkshopInstance> EveryInstanceKind() => new()
     {
-        WorkshopInput.Basketball(new(1), -1.25, 3.5, .5, 0, 0, 0, 1) with { Locked = true },
-        WorkshopInput.Ball(PartId.BowlingBall, new(1), 2, 1, -.5, 0, .7071068, 0, .7071068),
+        WorkshopInput.Generic(PartId.Basketball,new(1), -1.25, 3.5, .5, 0, 0, 0, 1) with { Locked = true },
+        WorkshopInput.Generic(PartId.BowlingBall, new(1), 2, 1, -.5, 0, .7071068, 0, .7071068),
         WorkshopInput.Generic(PartId.Receiver, new(1), -.7, .55, 0, 0, 0, 0, 1) with
             { Parameters = new([new(new("capture_margin"), .05f), new(new("capture_speed_limit"), 2.25f), new(new("capture_dwell"), .24f), new(new("capture_participation"), 1f), new(new("force_support_margin"), 0f), new(new("force_maximum_acceleration"), 0f)]) },
         WorkshopInput.Generic(PartId.Ramp, new(1), 1, 2, 0, 0, 0, .258819, .9659258, new([new(new("length"), 4f), new(new("width"), 1.5f)])),
@@ -169,7 +169,7 @@ public sealed class WorkshopWireFlatBuffersTests
             WorkshopGoalKind.Captured => PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1)),
             WorkshopGoalKind.ActivatedAfter => PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).5)),
             WorkshopGoalKind.None => new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-                new([WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1)])),
+                new([WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)])),
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
         Assert.Equal(kind, construction.Puzzle.Goal.Kind);

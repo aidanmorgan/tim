@@ -28,7 +28,7 @@ public sealed class NoFixedCapacityTests
         GpuBodyId Next() => new(++id);
         var parts = new List<IWorkshopInstance>();
         var links = new List<WorkshopConnection>();
-        void Balls(int count, double z) { for (var i = 0; i < count; i++) parts.Add(WorkshopInput.Basketball(Next(), X(i), 4, z, 0, 0, 0, 1)); }
+        void Balls(int count, double z) { for (var i = 0; i < count; i++) parts.Add(WorkshopInput.Generic(PartId.Basketball,Next(), X(i), 4, z, 0, 0, 0, 1)); }
         switch (table)
         {
             case "instances-32":
@@ -145,7 +145,7 @@ public sealed class NoFixedCapacityTests
             -5 + i / 8 * 2.5, 0, 0, 0, 1)).ToArray();
         var lamp = WorkshopInput.Lamp(new(Switches + 1), 8, SwitchY, 0, 0, 0, 0, 1);
         var target = switches[struck];
-        var ball = WorkshopInput.Basketball(new(Switches + 2), (target.Cell.X + (double)target.Local.X) / 16, DropY,
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(Switches + 2), (target.Cell.X + (double)target.Local.X) / 16, DropY,
             (target.Cell.Z + (double)target.Local.Z) / 16, 0, 0, 0, 1);
         return (Bench([.. switches, lamp, ball], Signal(switches[^1].Id, lamp.Id)), lamp, switches);
     }
@@ -203,7 +203,7 @@ public sealed class NoFixedCapacityTests
         GpuBodyId Next() => new(++id);
         var parts = new List<IWorkshopInstance>();
         var links = new List<WorkshopConnection>();
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Basketball(Next(), X(i), 4, -20, 0, 0, 0, 1));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Basketball,Next(), X(i), 4, -20, 0, 0, 0, 1));
         parts.Add(WorkshopInput.Generic(PartId.Receiver, Next(), 0, 1, -24, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {

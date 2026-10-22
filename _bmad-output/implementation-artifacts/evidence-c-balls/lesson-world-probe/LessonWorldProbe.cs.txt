@@ -1,0 +1,30 @@
+using System.Security.Cryptography;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Scratch probe (not part of the candidate): the admitted GPU world bytes of every lesson at every authored precision, and
+/// the committed reads after 4 s of the real simulation, hashed, so the record path and the generic path can be compared.</summary>
+public sealed class LessonWorldProbe
+{
+    private static readonly System.Text.Json.JsonSerializerOptions Options = new() { IncludeFields = true };
+    [Fact]
+    public async Task WriteLessonWorldHashes()
+    {
+        var lines = new List<string>();
+        foreach (var lesson in new[] { "first_principles", "spring_forward", "ready_to_rebound", "bumper_sidekick", "bumper_depth",
+                     "wall_and_bumper", "domino_effect", "delayed_signal", "clear_pipe", "gentle_bend", "quarter_bend", "joined_pipe" })
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var construction = PuzzleCatalogue.Create(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(11), new(precision));
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(construction, 480);
+                var final = System.Text.Json.JsonSerializer.Serialize(Enumerable.Range(0, reads[^1].Bodies.Count)
+                    .Select(i => reads[^1].Bodies[i]).ToArray(), Options);
+                var captures = reads.Count(read => Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched));
+                lines.Add($"{lesson} {(float)precision} admission={Convert.ToHexString(SHA256.HashData(bytes))} final={Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(final)))} latchedReads={captures}");
+            }
+        await File.WriteAllLinesAsync(Environment.GetEnvironmentVariable("PROBE_OUT")!, lines, TestContext.Current.CancellationToken);
+    }
+}

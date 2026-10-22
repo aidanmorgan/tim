@@ -192,7 +192,7 @@ public sealed class WorkshopReadTests
     public void CurrentWireContactOccurrenceMustOwnColliderAndInclusiveThreshold(ContactWorkEffect effect)
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
             WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,23));
         var declaration = scene.ContactWorks[0];

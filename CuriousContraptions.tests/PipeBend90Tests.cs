@@ -141,7 +141,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     public void SaveCodec_RoundTripsPipeBend90AndPreservesDeclaredColliders()
     {
         var bend = WorkshopInput.PipeBend90(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, bend));
         var save = new WorkshopSavedConstruction(construction, new(11));
 
@@ -190,7 +190,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal(72, colliders.Count);
 
         // Basketball radius 0.34 m fits with clearance
-        Assert.True((float)BallMaterial.For(PartId.Basketball).Radius.Value < 0.65f);
+        Assert.True(LawBalls.Radius(LawBall.Basketball) < 0.65f);
 
         // Oversized ball radius 0.75 m exceeds bore radius 0.65 m
         const float oversizedRadius = 0.75f;
@@ -201,7 +201,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     public void PhysicsGpuAbi_AdmissionAcceptsPipeBend90SceneDeclaration()
     {
         var bend = WorkshopInput.PipeBend90(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, bend));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 
@@ -227,9 +227,9 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
 
         var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
-        AuthoredContentAssertions.Placement(fixtures[0], construction.Ball!.Value);
+        AuthoredContentAssertions.Placement(fixtures[0], Payloads.First(construction));
         AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
-        Assert.True(construction.Ball!.Value.Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
+        Assert.True(Payloads.First(construction).Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
 
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
@@ -260,7 +260,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => construction.WithInstance(bend with { Locked = true }).Validate());
 
         // Unlocking fixed ball or receiver is rejected
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Locked = false }).Validate());
 
         // Unauthorized parts are rejected

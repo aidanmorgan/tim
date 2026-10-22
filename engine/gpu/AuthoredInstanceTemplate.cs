@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
 // The current construction record's typed scalar fields, not element identities.
 internal enum AuthoredScalar
 {
-    Radius, Mass, Bounce, Drag, Buoyancy, Length, Threshold, Stiffness, Damping,
+    Mass, Bounce, Length, Threshold, Stiffness, Damping,
     InitialCompression, Capacity, MaximumPower, InitialFraction, Strength, ReferenceMass, Preload, Friction
 }
 internal enum AssistanceValue

@@ -522,8 +522,8 @@ public sealed class WorkshopWireTests
 
     private static PhysicsBodyReadSet Bodies(CanonicalBody body) =>
         new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) });
-    private static WorkshopBall OnlyBall(WorkshopConstruction construction) =>
-        construction.Instances.OfType<WorkshopBall>().Single();
+    private static WorkshopGenericInstance OnlyBall(WorkshopConstruction construction) =>
+        construction.Instances.OfType<WorkshopGenericInstance>().Single(instance => DeclaredPhysics.IsPayload(instance.PartId));
     private static PhysicsBodyRead NamedBody(byte[] bytes, GpuBodyId id)
     {
         Assert.True(PhysicsGpuAbi.ReadDynamicBodies(bytes).TryGet(id, out var body));
@@ -542,7 +542,7 @@ public sealed class WorkshopWireTests
         var candidate = cursor.PrepareAcknowledgement(command, response, order, disposed);
         cursor.Commit(candidate); return new(response, candidate.Applicable);
     }
-    private static WorkshopConstruction Construction => new(new(2), Settings, new(WorkshopInput.Basketball(new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
+    private static WorkshopConstruction Construction => new(new(2), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
 
 
     [Fact]

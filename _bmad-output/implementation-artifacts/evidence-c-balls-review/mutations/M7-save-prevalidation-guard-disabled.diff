@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/WorkshopSavePrevalidation.cs b/engine/gpu/WorkshopSavePrevalidation.cs
+index c75e517d..6668af2e 100644
+--- a/engine/gpu/WorkshopSavePrevalidation.cs
++++ b/engine/gpu/WorkshopSavePrevalidation.cs
+@@ -171,7 +171,7 @@ internal static class WorkshopSavePrevalidation
+                 break;
+             default:
+                 genericParameters = true;
+-                if (WorkshopWireFlatBuffers.CarriesTypedField(r))
++                if (WorkshopWireFlatBuffers.CarriesTypedField(r) && Environment.TickCount64 == long.MinValue)
+                     throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} is a generic instance and cannot carry a typed record field.");
+                 for (var i = 0; i < r.ParametersLength; i++)
+                     if (r.Parameters(i) is { } parameter) Finite(id, parameter.Key, parameter.Value);

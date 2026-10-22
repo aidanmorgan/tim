@@ -1,0 +1,5 @@
+== mutant M9-capture-targets-instance-order at 0795c2357beabdd076d454c1a7bebe797dc9ac97 + /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/_bmad-output/implementation-artifacts/evidence-c-balls-review/mutations/M9-capture-targets-instance-order.diff
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.AReceiverGuidesEveryPayloadByAscendingIdentityWhateverTheInstanceOrder [2 ms]
+Failed!  - Failed:     1, Passed:  2245, Skipped:     0, Total:  2246, Duration: 35 s - CuriousContraptions.tests.dll (net10.0)

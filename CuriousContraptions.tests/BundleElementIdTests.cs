@@ -41,7 +41,7 @@ public sealed class BundleElementIdTests
     [Fact]
     public void ASaveCarriesEachInstancesBundleElementIdString()
     {
-        var save = new WorkshopSavedConstruction(Construction(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
+        var save = new WorkshopSavedConstruction(Construction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Ramp, new(2), 0, 1, 0, 0, 0, 0, 1), WorkshopInput.Funnel(new(3), 3, 1, 0, 0, 0, 0, 1)), new(4));
         var bytes = WorkshopSaveCodec.Encode(save);
         Assert.Equal(["ball", "ramp", "funnel"], SavedElementIds(bytes));
@@ -51,7 +51,7 @@ public sealed class BundleElementIdTests
     [Fact]
     public void AWorkerMessageCarriesEachInstancesBundleElementIdString()
     {
-        var construction = Construction(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1), WorkshopInput.PipeBend90(new(2), 3, 1, 0, 0, 0, 0, 1));
+        var construction = Construction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1), WorkshopInput.PipeBend90(new(2), 3, 1, 0, 0, 0, 0, 1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(Construct(construction));
         var record = CommandRoot(bytes).ConstructionRecord!.Value;
         Assert.Equal(["ball", "pipe_bend_90"], Enumerable.Range(0, record.InstancesLength).Select(i => record.Instances(i)!.Value.PartId));

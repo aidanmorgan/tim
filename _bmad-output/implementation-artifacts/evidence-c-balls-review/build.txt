@@ -1,0 +1,180 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Wall/bin/Debug/net10.0/Wall.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Battery/bin/Debug/net10.0/Battery.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (25 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/elements/elements.bundle.json (25 elements)
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (31 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-balls
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:06.20
+rc=0

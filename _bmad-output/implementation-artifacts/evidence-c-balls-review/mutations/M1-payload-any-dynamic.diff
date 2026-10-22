@@ -1,0 +1,14 @@
+diff --git a/engine/gpu/DeclaredPhysics.cs b/engine/gpu/DeclaredPhysics.cs
+index 79c1c718..234bb06f 100644
+--- a/engine/gpu/DeclaredPhysics.cs
++++ b/engine/gpu/DeclaredPhysics.cs
+@@ -66,8 +66,7 @@ public static class DeclaredPhysics
+     public static bool IsPayload(PartId part)
+     {
+         var entry = Of(part);
+-        return entry.Mechanical is { KinematicMode: KinematicMode.Dynamic, Sliders.Count: 0 } && entry.Colliders.Count == 1 &&
+-            entry.Colliders[0].ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere;
++        return entry.Mechanical is { KinematicMode: KinematicMode.Dynamic, Sliders.Count: 0 };
+     }
+ 
+     public static BundleEntry Of(PartId part) =>

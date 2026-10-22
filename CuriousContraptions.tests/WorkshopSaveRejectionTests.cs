@@ -16,7 +16,7 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field).</summary>
     public enum Field
     {
-        Id, PartId, Locked, Cell, Local, Rotation, Radius, Mass, Bounce, Drag, Buoyancy, Length, Threshold,
+        Id, PartId, Locked, Cell, Local, Rotation, Mass, Bounce, Length, Threshold,
         Stiffness, Damping, InitialCompression, Capacity, MaximumPower, InitialFraction, Enabled, Strength, ReferenceMass, Preload,
         HalfExtents, Friction, TargetCount, Parameters,
     }
@@ -120,8 +120,7 @@ public sealed class WorkshopSaveRejectionTests
         {
             object value = field switch
             {
-                Field.Radius => record.Radius, Field.Mass => record.Mass, Field.Bounce => record.Bounce, Field.Drag => record.Drag,
-                Field.Buoyancy => record.Buoyancy, Field.Length => record.Length,
+                Field.Mass => record.Mass, Field.Bounce => record.Bounce, Field.Length => record.Length,
                 Field.Threshold => record.Threshold, Field.Stiffness => record.Stiffness,
                 Field.Damping => record.Damping, Field.InitialCompression => record.InitialCompression, Field.Capacity => record.Capacity,
                 Field.MaximumPower => record.MaximumPower, Field.InitialFraction => record.InitialFraction, Field.Enabled => record.Enabled,
@@ -141,7 +140,6 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>The kind-specific fields each part's record carries.</summary>
     internal static Field[] Parameters(string part) => part switch
     {
-        "ball" or "bowling" => [Field.Radius, Field.Mass, Field.Bounce, Field.Drag, Field.Buoyancy],
         "switch" or "pressure_plate" or "clock" => [Field.Threshold],
         "spring" => [Field.Stiffness, Field.Damping, Field.InitialCompression],
         "battery" => [Field.Capacity, Field.MaximumPower, Field.InitialFraction, Field.Enabled],
@@ -155,8 +153,8 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>One valid instance of every decodable kind, at distinct identities.</summary>
     internal static IWorkshopInstance[] EveryKind() =>
     [
-        WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
-        WorkshopInput.Ball(PartId.BowlingBall, new(2), 1, 3, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
+        WorkshopInput.Generic(PartId.BowlingBall, new(2), 1, 3, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Receiver, new(3), 4, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Ramp, new(4), -2, 1, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Wall, new(5), -4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
@@ -374,7 +372,7 @@ public sealed class WorkshopSaveRejectionTests
             "cell outside the world" => One(ramp.With(Field.Cell, (2000, 0, 0))),
             "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
             "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
-            "changed ball material" => One(FromProduction(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.Mass, 2f)),
+            "changed ball material" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.Mass, 2f)),
             "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),

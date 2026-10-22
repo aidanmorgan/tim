@@ -15,15 +15,15 @@
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | One dynamic homogeneous sphere, radius 0.34 m: `BallMaterial.For(Basketball)` `engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L53`; compiled as one sphere collider with identity local pose `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`. A dynamic body admits exactly one homogeneous sphere or box `engine/gpu/PhysicsDeclarations.cs@a6c914e:L220-L234`. |
-| Mass and material | 1 kg; bounce (restitution) 0.55; linear drag 0.04 1/s; buoyancy 0; friction 0.3; bounce threshold 0.1 m/s; rolling resistance 0.035 `engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L53`. Only the declared material of the kind is admitted `engine/gpu/WorkshopConstruction.cs@a6c914e:L54-L62`. Gravity 9.81 m/s² `engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`. Admission bounds: mass 1/1024–1024 kg, drag 0–0.125 `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; restitution and friction 0–1, rolling resistance 0–0.1 `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`. |
+| Body and shape | A zero-parameter `WorkshopGenericInstance` of the `ball` package (C-Balls, Story 9A.30): one dynamic homogeneous sphere, radius 0.34 m, declared only by `elements/Ball/BallElementDeclaration.cs` (collider baked from `elements/Ball/ball.tscn`); the shared instance loop of `WorkshopPhysicsCompiler.Compile` compiles its dynamic body, one sphere collider with identity local pose and its material from that declaration, with no ball-specific path. A dynamic body admits exactly one homogeneous sphere or box `engine/gpu/PhysicsDeclarations.cs@a6c914e:L220-L234`. |
+| Mass and material | 1 kg; bounce (restitution) 0.55; linear drag 0.04 1/s; no fluid declaration (not buoyant); friction 0.3; bounce threshold 0.1 m/s; rolling resistance 0.035, all package-declared (owner decision 9 Oct 2026). No save, command or content record carries a material: a generic record carrying any typed field or any parameter is refused (`WorkshopWireFlatBuffers.CarriesTypedField`, shared by the decoder and `WorkshopSavePrevalidation`). Gravity 9.81 m/s². Admission bounds: mass 1/1024–1024 kg, drag 0–0.125 `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; restitution and friction 0–1, rolling resistance 0–0.1 `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`. |
 | Constraints and joints | none: a free rigid body. |
 | Sockets and ports | none: `WorkshopPorts.For` returns no ports for Basketball `engine/gpu/WorkshopConnections.cs@a6c914e:L18-L26`. |
-| Sensors and activation | none owned. It is the named target of Receiver residence/guide (CAT-004), Impact switch triggers (CAT-063) and Bumper contact work (CAT-015) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L144-L146`. |
+| Sensors and activation | none owned. It is a payload: `DeclaredPhysics.IsPayload` derives it from the admitted declaration (dynamic, exactly one sphere collider, no slider; a Domino or slider body is not one). Every capture owner (CAT-004 Receiver) declares a residence sensor and guide per payload in ascending identity; in a lesson, Impact switch triggers (CAT-063) and Bumper contact work (CAT-015) name the first payload in instance order, and act on every dynamic body in free play; presentation telemetry follows the lowest-identity payload. |
 | Work and energy stores | none. |
-| Parameters | none authorable: the five material fields (radius, mass, bounce, drag, buoyancy) are declared per kind and validated bit-exactly; the requirement lists them as typed material fields (see §6). |
+| Parameters | none (package `Parameters: []`, decided by game intent in C-Balls): ball kinds teach by differing only in declared material, so the generic editor shows no panel. The former `radius`/`drag`/`buoyancy` save fields are deleted; pre-conversion saves are refused, never migrated. |
 | Cosmetic curves and UI bindings | none: `CosmeticCurveDeclaration.None` `engine/gpu/WorkshopConstruction.cs@a6c914e:L67-L77`. |
-| Art | `parts/BallPart.cs@a6c914e:L9-L17`: sphere of the declared radius, darker stripe ring at radius × 0.99 with half thickness 0.014 (torus inner/outer radius ± 0.014 `engine/PartArt.cs@a6c914e:L22-L23`), tilted 35° about Z; pick radius = radius + 0.12. Scene `parts/scenes/ball.tscn`. Palette Ball `#f57d38` (0.96, 0.49, 0.22) `DESIGN.md@a6c914e:L165-L165`. Icon `ui/WorkshopIcons.cs@a6c914e:L39-L39`. |
+| Art | Package scene `elements/Ball/ball.tscn`: a sphere mesh of radius 0.34 m committed equal to the baked collider (no runtime resize), with a darker stripe torus (inner 0.322, outer 0.35 m). Palette Ball `#f57d38` (0.96, 0.49, 0.22) `DESIGN.md@a6c914e:L165-L165`. Icon `ui/WorkshopIcons.cs@a6c914e:L39-L39`. |
 | Catalogue and inventory | `parts/catalog/ball.tres@a6c914e:L8-L27`: id `ball`, title Basketball, category Motion, material bits equal to the declared kind. Free workshop: unlimited inventory, bounded by typed workbench capacity (`engine/gpu/WorkbenchCapacity.cs`). |
 | Placement | Positions are stored as 1/16 m cells plus a local offset `engine/gpu/WorkshopConstruction.cs@a6c914e:L220-L229`; workbench surface y = −0.46 m `engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`, compiled as a static plane `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L22-L30`. |
 
@@ -44,7 +44,7 @@ Families from the [element map row](../general-engine-element-map.md): Aerodynam
 | Buoyancy (declared zero today; non-zero needs fluid/gas boundary S416/S470) | Epic 12 (Story 12.1 introduces buoyant bodies) |
 | EnvironmentState beyond fixed gravity (atmosphere/pressure) | Epic 12; EL-125 authored atmosphere preset (Batch M) |
 | Hollow pipe contact for the ramp/pipe/Receiver integration | Stories 6.6, 6.7 |
-| f32 declarations: `BallMaterial`, `Metres`, `Kilograms`, `Restitution`, `FrictionCoefficient`, `RollingResistance`, cell-local position and rotation, and the `BallMaterialResource` `*Bits` fields are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: the package declares f32; the compiled body, collider and material lanes (`Metres`, `Kilograms`, `Restitution`, `FrictionCoefficient`, `RollingResistance`) are still binary16 (`Half`) until Story 9A.44 | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
 
 Dependencies: none. Consumers: Receiver, Impact switch, Bumper, Domino, Ramp, Wall, Pipe family.
 
@@ -87,6 +87,6 @@ Acceptance: [CAT-001](../requirements.md#current-cat-001) and [simulation and el
 
 ## 6. Open questions
 
-- Requirement lists radius, mass, bounce, drag and buoyancy as typed Basketball material fields. Whether any is player- or author-editable per instance (legacy fact 1, 9): unspecified — owner decision.
+- Decided (C-Balls, 22 Oct 2026, by game intent): no material field is player- or author-editable per instance (legacy facts 1, 9); each kind's material is its package declaration and the kinds teach by differing only in that.
 - Finite workbench edges and the Escaped event (legacy fact 5) versus the current infinite plane: unspecified — owner decision.
 - R-N3: its definition is not retrievable at `a6c914e` (the CAT-001-I verification documents were deleted earlier); the requirement keeps it as Fail. Owner to restate or retire R-N3.

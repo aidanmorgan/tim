@@ -1,0 +1,8 @@
+50
+0
+  44 Basketball
+   4 Bowling
+   2 Warmup
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"PackageIdentifier","Token":"Basketball","Count":1,"Owner":"Warmup"},
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"PackageIdentifier","Token":"ball","Count":2,"Owner":"Warmup"},
+-    {"File":"engine/MachinePart.cs","Symbol":"MachinePart.BuildDeclarative","Rule":"PackageIdentifier","Token":"Ball","Count":1,"Owner":"Basketball"},

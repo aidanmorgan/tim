@@ -83,6 +83,7 @@
         <Compile Include="WorkshopSpringboardTests.cs" />
         <Compile Include="WorkshopDominoTests.cs" />
         <Compile Include="WorkshopBowlingTests.cs" />
+        <Compile Include="PayloadInstanceTests.cs" />
         <Compile Include="OrientationSensorTests.cs" />
         <Compile Include="DominoEffectTests.cs" />
         <Compile Include="WorkbenchCapacityTests.cs" />

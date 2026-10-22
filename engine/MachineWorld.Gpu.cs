@@ -77,17 +77,6 @@ public partial class MachineWorld
         }
     }
 
-    /// <summary>Any ball kind: the material its bundle entry declares (checked against the kind's declared material at load).</summary>
-    public WorkshopBall CaptureBall(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation)
-    {
-        if (!Registry.Definitions.TryGetValue(id, out var definition))
-            throw new ArgumentException("Unsupported ball kind.");
-        var material = definition.Ball ?? throw new ArgumentException("A ball requires its declared bundle material.");
-        var q = rotation.Normalized(); // Named Godot input boundary, before canonical quantization.
-        return WorkshopInput.Ball(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W)
-            with { Material = material };
-    }
-
     private InstanceParameterCollection CaptureParameters(PartId part, GpuBodyId owner, Vector3? dimensions)
     {
         if (!Registry.Definitions.ContainsKey(part))
@@ -115,7 +104,6 @@ public partial class MachineWorld
         var q = rotation.Normalized();
         return id.Value switch
         {
-            "ball" or "bowling" => CaptureBall(id, bodyId, position, q),
             "spring" => WorkshopInput.Springboard(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSpringboard spring ? spring.Settings :
                     SpringboardSettings.Default),
@@ -240,6 +228,11 @@ public partial class MachineWorld
         finally { if (operation == _workshopOperation) _workshopPending = false; }
     }
 
+    /// <summary>The presentation telemetry's body: the lowest-identity payload, or no body (zero) while there is none.</summary>
+    internal static GpuBodyId TelemetryBody(WorkshopInstances instances) =>
+        instances.Where(instance => DeclaredPhysics.IsPayload(instance.PartId)).Select(instance => instance.Id)
+            .OrderBy(id => id.Value).FirstOrDefault();
+
     private void PresentWorkshopRead()
     {
         if (_workshopClient is null || _workshopRemoved ||
@@ -288,11 +281,11 @@ public partial class MachineWorld
             foreach (var part in _parts)
                 if (_workshopClient.TryDeclaredFrame(frame, _workshopPresentation, part.AuthoredId, out var declared))
                     foreach (var property in declared) part.ApplyDeclaredProperty(property.Binding, property.Value);
-            // Telemetry follows the lowest-identity ball of either kind; zero only while the construction has no ball.
-            var ballId = Construction.Instances.OfType<WorkshopBall>().Select(b => b.Id).OrderBy(id => id.Value).FirstOrDefault();
-            var ball = _parts.FirstOrDefault(part => part.AuthoredId == ballId);
-            var position = ball?.Position ?? Vector3.Zero;
-            var rotation = ball?.Quaternion ?? Quaternion.Identity;
+            // Telemetry follows the lowest-identity payload; zero only while the construction has no payload.
+            var tracked = TelemetryBody(Construction.Instances);
+            var followed = _parts.FirstOrDefault(part => part.AuthoredId == tracked);
+            var position = followed?.Position ?? Vector3.Zero;
+            var rotation = followed?.Quaternion ?? Quaternion.Identity;
             _workshopClient.RecordPresentation(presentation, selected, new(frame,
                 frame == _workshopWriteFrame ? _workshopPositionWrites : 0u, checked((uint)_parts.Count), DisplaySimulationTime,
                 position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, rotation.W));

@@ -56,7 +56,7 @@ public sealed class WireFaultTests
     }
 
     internal static WorkshopSavedConstruction Saved() => new(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-        new([WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1)])), new(2));
+        new([WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)])), new(2));
 
     private static byte[] Valid(Message message) => message switch
     {

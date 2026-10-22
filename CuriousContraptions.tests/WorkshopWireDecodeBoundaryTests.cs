@@ -14,7 +14,7 @@ public sealed class WorkshopWireDecodeBoundaryTests
         RevisionKind: ExpectedRevisionKind.Any, Session: Session, Cadence: new(2), Projection: new(3));
 
     private static WorkshopCommand ConstructCommand() => new(new(1), WorkshopCommandKind.Construct, new(1), default,
-        new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1)])),
+        new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)])),
         Session: Session, Cadence: new(1), Projection: new(1));
 
     private static WorkshopResponse Acknowledgement() => new(new(10), WorkshopResponseKind.Acknowledgement,

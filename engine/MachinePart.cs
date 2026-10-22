@@ -128,7 +128,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        definition.ValidateConstructionMaterial();
         Definition = definition;
         Name = definition.Id; // Godot resource/node-name boundary only.
     }
@@ -225,10 +224,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         var presentation = Definition.Presentation;
         ApplyPresentationParameters(Definition.Parameters.ToDictionary(p => p.Key, p => p.Default, StringComparer.Ordinal));
         if (presentation.Sizing is null) PickRadius = presentation.PickRadius;
-        if (Definition.Ball is { } material)
-            foreach (var child in Visual.GetChildren())
-                if (child is MeshInstance3D mesh && mesh.Mesh is SphereMesh sphere)
-                { sphere.Radius = (float)material.Radius.Value; sphere.Height = (float)material.Radius.Value * 2f; }
         var ownedMaterials = new HashSet<Node3D>();
         for (var i = 0; i < presentation.Bindings.Count; i++)
         {

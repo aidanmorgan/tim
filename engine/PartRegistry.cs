@@ -106,30 +106,7 @@ public sealed class PartRegistry
             ?? throw Invalid($"{id}.Metadata.ScenePath: '{metadata.ScenePath}' is not a scene");
         var color = metadata.Color;
         return new PartDefinition(id, metadata.DisplayName, metadata.Description, metadata.Category, new(color.R, color.G, color.B, color.A),
-            metadata.IconPath, scene, Ball(id, entry), entry);
-    }
-
-    /// <summary>A dynamic body with one sphere collider is a ball: its declared material, at the runtime's binary16 lanes, must be the
-    /// kind's declared material.</summary>
-    private static BallMaterial? Ball(PartId id, BundleEntry entry)
-    {
-        if (entry.Mechanical is not { KinematicMode: KinematicMode.Dynamic } mechanical || entry.Colliders.Count != 1 ||
-            entry.Colliders[0].ShapeKind != Abstractions.ColliderShapeKind.Sphere)
-            return null;
-        var collider = entry.Colliders[0];
-        var material = new BallMaterial(new((Half)collider.HalfExtents.X), new((Half)mechanical.MassProperties.Mass),
-            new((Half)collider.Material.Restitution), new((Half)mechanical.MassProperties.LinearDrag),
-            new((Half)(entry.Fluid?.Properties.BuoyancyCoefficient ?? 0f)), new((Half)collider.Material.Friction),
-            new((Half)collider.Material.BounceThreshold), new((Half)collider.Material.RollingResistance));
-        try
-        {
-            material.Validate(id);
-        }
-        catch (ArgumentException error)
-        {
-            throw Invalid($"{id}: {error.Message}");
-        }
-        return material;
+            metadata.IconPath, scene, entry);
     }
 
     private static InvalidDataException Invalid(string detail) => new($"The element bundle '{BundlePath}' is invalid: {detail}.");

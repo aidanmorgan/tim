@@ -1,0 +1,55 @@
+using System.Security.Cryptography;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (throwaway, identical source at base and candidate): lessons with their content solution parts placed at the
+/// content solution poses, at three precisions; hashes the admitted GPU world bytes, the committed body reads of every one of 1200
+/// real-simulation ticks and the Reset state, and counts reads with a latched capture. (Reviewer note: no goal-evaluator verdict is
+/// computed; the first run, kept as first-attempt-wrong-tilt-*.txt, used +Z tilt and 720 ticks and latched nothing.)</summary>
+public sealed class ReviewSolvedWorldProbe
+{
+    private static readonly System.Text.Json.JsonSerializerOptions Options = new() { IncludeFields = true };
+    // content/puzzles.json solution orientations: identity, and the 20-degree tilt about +Z (row-major [[c,-s,0],[s,c,0],[0,0,1]]).
+    // Column-major reading (as WorkshopPhysicsEngineTests' spring_forward solve-run uses): -10 degrees half-angle about +Z.
+    private const double Qz = -0.17364817766693033, Qw = 0.984807753012208;
+
+    private static IEnumerable<IWorkshopInstance> Solution(string lesson) => lesson switch
+    {
+        "first_principles" => [
+            WorkshopInput.Generic(PartId.Ramp, new(101), -3.4, 4.3, 0, 0, 0, Qz, Qw),
+            WorkshopInput.Generic(PartId.Ramp, new(102), -0.7, 2.7, 0, 0, 0, Qz, Qw)],
+        "spring_forward" => [WorkshopInput.Springboard(new(101), -3, 0.8, 0, 0, 0, Qz, Qw, SpringboardSettings.Default)],
+        "bumper_sidekick" => [WorkshopInput.Bumper(new(101), -3.2, 1.5, 0, 0, 0, 0, 1, BumperWork.Default)],
+        "domino_effect" => [
+            WorkshopInput.Domino(new(101), -2.4, 1, 0, 0, 0, 0, 1), WorkshopInput.Domino(new(102), -1.6, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Domino(new(103), -0.8, 1, 0, 0, 0, 0, 1), WorkshopInput.Domino(new(104), 0, 1, 0, 0, 0, 0, 1)],
+        _ => throw new ArgumentException(lesson)
+    };
+
+    [Fact]
+    public async Task WriteSolvedWorldHashes()
+    {
+        var lines = new List<string>();
+        foreach (var lesson in new[] { "first_principles", "spring_forward", "bumper_sidekick", "domino_effect" })
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var start = PuzzleCatalogue.Create(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(11), new(precision));
+                var instances = start.Instances;
+                foreach (var part in Solution(lesson)) instances = instances.With(part);
+                var construction = start with { Instances = instances };
+                construction.Validate();
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var (_, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 1200);
+                var trace = System.Text.Json.JsonSerializer.Serialize(reads.Select(read => Enumerable.Range(0, read.Bodies.Count)
+                    .Select(i => read.Bodies[i]).ToArray()).ToArray(), Options);
+                var latched = reads.Count(read => Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched));
+                var resetState = System.Text.Json.JsonSerializer.Serialize(Enumerable.Range(0, reset.Bodies.Count).Select(i => reset.Bodies[i]).ToArray(), Options);
+                lines.Add($"{lesson} {(float)precision} instances={construction.Instances.Count} admission={Convert.ToHexString(SHA256.HashData(bytes))} " +
+                    $"trace720={Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(trace)))} " +
+                    $"reset={Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(resetState)))} latchedReads={latched}");
+            }
+        await File.WriteAllLinesAsync(Environment.GetEnvironmentVariable("PROBE_OUT")!, lines, TestContext.Current.CancellationToken);
+    }
+}

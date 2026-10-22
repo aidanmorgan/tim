@@ -87,3 +87,26 @@ SnapshotApproval authorizes normal protected commit of exactly this candidate pl
 - a successful deployment of that SHA.
 
 Return concrete failures to the same owner. No routine Chrome run or duplicate local campaign is needed for publication.
+
+## Corrective forward fix — terminal publication verification, 22 October 2026
+
+Raw outputs: [evidence-c-ramp-corrective-review/terminal](evidence-c-ramp-corrective-review/terminal/).
+
+| Check | Evidence | Result |
+|---|---|---|
+| Source commit | `0b3607f5cdbe1c0739f690359c296f1b4fc0c1bc`, parent `8665e68b` | tree `4c160f0a63bf189571c85b3b48a3c68c21659a69` = approved+receipt tree |
+| Main / remote | `git ls-remote origin refs/heads/main` → `59ecb70b8d161045d08c1f3de802cdad89e23eef` (`--no-ff`, parents `9b324bbd`, `0b3607f5`) | same tree `4c160f0a…` |
+| Approved vs published | `git diff --stat 361912e5 4c160f0a` | only the review receipt and three review-only evidence files (47 insertions) |
+| CI | run 39704720283, push on main, headSha `59ecb70b…` | completed/success; build job 119581933674 all steps success, incl. "Test C# tools"; deploy job 119586266965 success |
+| CI totals from the job log | `gh run view --job 119581933674 --log` | native 2142/2142; tools: Coverage 77, BundleElements 141, WorkerAotGuard 17, E2eRunner 174; zero failed/skipped |
+| Pages artifact | `actions/runs/39704720283/artifacts` | `github-pages` 12394544072, run 39704720283, SHA `59ecb70b…`, 79267631 bytes, `sha256:c9793ac881917047d9cdd3034e8f5a973b65f5f59581e2920b314e261c27ac2c`; the deploy log uses the same artifact id |
+| Deployment | `deployments?sha=59ecb70b…`, statuses | 7241421567, environment github-pages, ref main; success at 2026-10-22T01:30:39Z for https://aidanmorgan.github.io/tim/ (live page HTTP 200) |
+
+Hooks 124/124 come from the implementer's report and were not independently re-run; the CI static gate and both test steps passed on the exact SHA.
+
+Verdict: terminal scoped Pass for the corrective forward fix. It covers the strengthened Ramp/Receiver native proof, flatc TS parity, the typed lesson fixture readers, the domino_effect fixture correction, the BothGate/HoldTimer package rows, and the CI tool-test step. Non-claims are unchanged:
+- browser qualification stays pending for the post-catalogue E2E phase;
+- the 15 toolchain E2eRunner tests remain outside CI;
+- the selector's NoPrimarySuite for both_gate/hold_timer remains an accepted gap.
+
+Carry this receipt into the next normal publication. No standalone commit is required.

@@ -1,0 +1,18 @@
+ ball_detector: LOADED WorkshopBallDetector { Id = GpuBodyId { Value = 1 }, Cell = CellOrigin { X = 0, Y = 16, Z = 0 }, Local = LocalPosition { X = 0, Y = 0, Z = 0 }, Rotation = CanonicalRotation { X = 0, Y = 0, Z = 0, W = 1 }, Locked = False, DeclaredColliders = CuriousContraptions.Gpu.ExtractedCollider[], PartId = ball_detector
+ basketball: REFUSED OutOfRange (This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.)
+ battery: REFUSED VerifierRejected (This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.)
+ battery_custom: REFUSED OutOfRange (This save cannot be loaded: Part 1 capacity 0 is outside [60, 14400].)
+ bowling: REFUSED OutOfRange (This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.)
+ bumper: REFUSED OutOfRange (This save cannot be loaded: Part 1 preload differs from its declared calibration.)
+ clock: REFUSED OutOfRange (This save cannot be loaded: Part 1 interval 0 is outside [0.1, 12].)
+ counter: REFUSED MissingField (This save cannot be loaded: Counter 1 has no target count.)
+ domino: REFUSED VerifierRejected (This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.)
+ funnel: LOADED WorkshopGenericInstance { PartId = funnel, Id = GpuBodyId { Value = 1 }, Cell = CellOrigin { X = 0, Y = 16, Z = 0 }, Local = LocalPosition { X = 0, Y = 0, Z = 0 }, Rotation = CanonicalRotation { X = 0, Y = 0, Z = 0, W = 1 }, Locked = False, Parameters = CuriousContraptions.Gpu.InstanceParameterCollection, DeclaredColliders = CuriousContraptions.Gpu.ExtractedCollider[]
+ lamp: LOADED WorkshopLamp { Id = GpuBodyId { Value = 1 }, Cell = CellOrigin { X = 0, Y = 16, Z = 0 }, Local = LocalPosition { X = 0, Y = 0, Z = 0 }, Rotation = CanonicalRotation { X = 0, Y = 0, Z = 0, W = 1 }, Locked = False, PartId = lamp
+ latch: LOADED WorkshopLatch { Id = GpuBodyId { Value = 1 }, Cell = CellOrigin { X = 0, Y = 16, Z = 0 }, Local = LocalPosition { X = 0, Y = 0, Z = 0 }, Rotation = CanonicalRotation { X = 0, Y = 0, Z = 0, W = 1 }, Locked = False, PartId = latch
+ pipe: REFUSED OutOfRange (This save cannot be loaded: Part 1 length 0 is outside [1, 8].)
+ pipe_bend_45: LOADED WorkshopGenericInstance { PartId = pipe_bend_45, Id = GpuBodyId { Value = 1 }, Cell = CellOrigin { X = 0, Y = 16, Z = 0 }, Local = LocalPosition { X = 0, Y = 0, Z = 0 }, Rotation = CanonicalRotation { X = 0, Y = 0, Z = 0, W = 1 }, Locked = False, Parameters = CuriousContraptions.Gpu.InstanceParameterCollection, DeclaredColliders = CuriousContraptions.Gpu.ExtractedCollider[]
+ pressure_plate: REFUSED OutOfRange (This save cannot be loaded: Part 1 minimum mass 0 is outside [0.1, 16].)
+ ramp_default: REFUSED OutOfRange (This save cannot be loaded: Invalid declared parameters.)
+ spring: REFUSED OutOfRange (This save cannot be loaded: Part 1 stiffness 0 is outside [120, 1200].)
+ spring_custom: REFUSED OutOfRange (This save cannot be loaded: Part 1 stiffness 0 is outside [120, 1200].)

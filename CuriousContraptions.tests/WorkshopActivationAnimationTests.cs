@@ -206,7 +206,7 @@ public sealed class WorkshopActivationAnimationTests
     {
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
             WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene);
@@ -275,8 +275,8 @@ public sealed class WorkshopActivationAnimationTests
     {
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Basketball(new(2),2,6,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(2),2,6,0,0,0,0,1),
             WorkshopInput.Bumper(new(3),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11,22));
         Set(client, "_readScene", scene);
@@ -383,7 +383,7 @@ public sealed class WorkshopActivationAnimationTests
     public void CaptureFeedbackOwnsItsSensorSlotAndResetRetiresIt()
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1)));
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
         var latch = new CaptureLatch(scene.Sensors[0].Id, CaptureLatchPhase.Latched, 10, (Half)0);
         var capture = Control with { Target = new((3UL << 32) + 2) };
@@ -426,7 +426,7 @@ public sealed class WorkshopActivationAnimationTests
     public void CaptureSampleAppliesOnceOnAnAdmittedFrameAndAgainOnTheNext()
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1)));
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
         var latch = new CaptureLatch(scene.Sensors[0].Id, CaptureLatchPhase.Latched, 10, (Half)0);
         var client = Client(); Set(client, "_readConstruction", construction); Set(client, "_readScene", scene);
@@ -466,7 +466,7 @@ public sealed class WorkshopActivationAnimationTests
     public void CapturePumpSendsOneControlPerReceiverWhenTwoSensorsAreLatched()
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1), WorkshopInput.Basketball(new(3),1,6,0,0,0,0,1)));
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1), WorkshopInput.Generic(PartId.Basketball,new(3),1,6,0,0,0,0,1)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
         Assert.Equal(2, scene.Sensors.Length); Assert.All(scene.Sensors.ToArray(), sensor => Assert.Equal(new GpuBodyId(2), sensor.Frame));
         var first = new CaptureLatch(scene.Sensors[0].Id, CaptureLatchPhase.Latched, 10, (Half)0);
@@ -515,7 +515,7 @@ public sealed class WorkshopActivationAnimationTests
     {
         // Free play compiles one capture sensor per ball (first + 16 + 2i), so the authored-identity sensor is not the compiled one.
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1)));
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1), WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1)));
         Assert.Equal(default(PuzzleId), construction.Puzzle.Id);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
         var sensor = scene.Sensors[0].Id;
@@ -556,7 +556,7 @@ public sealed class WorkshopActivationAnimationTests
     {
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
             WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength(8f))));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene); Set(client, "_readConstruction", construction);
@@ -587,7 +587,7 @@ public sealed class WorkshopActivationAnimationTests
     {
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
             WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene); Set(client, "_readConstruction", construction);

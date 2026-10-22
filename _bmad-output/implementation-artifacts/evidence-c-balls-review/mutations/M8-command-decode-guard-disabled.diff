@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index c23a2858..bd27cc79 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -781,7 +781,7 @@ public static class WorkshopWireFlatBuffers
+                 ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, partId) }
+                 : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
+         };
+-        if (result is WorkshopGenericInstance && CarriesTypedField(inst))
++        if (result is WorkshopGenericInstance && CarriesTypedField(inst) && Environment.TickCount64 == long.MinValue)
+             throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.");
+         if (result is not WorkshopGenericInstance && inst.ParametersLength != 0)
+             throw new WireFaultException(WireFaultReason.OutOfRange, "Typed instance cannot carry generic parameters.");

@@ -89,7 +89,6 @@ public static partial class Program
             var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
             var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
             var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
-            var ball = WorkshopInput.Basketball(new(4), 0, 2, 0, 0, 0, 0, 1);
 
             var wire1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
             var wire2 = new WorkshopConnection(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
@@ -98,7 +97,7 @@ public static partial class Program
             var construction = new WorkshopConstruction(
                 new(2),
                 settings,
-                new([battery, plate, gate, ball]),
+                new([battery, plate, gate]),
                 Connections: new([wire1, wire2]));
 
             // The warm-up borrows the worker's device: disposing it retires the warm-up only, never the device.

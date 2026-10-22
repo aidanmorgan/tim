@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index c23a2858..ba2aa658 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -797,7 +797,7 @@ public static class WorkshopWireFlatBuffers
+         var extents = r.HalfExtents;
+         return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Stiffness) || Set(r.Damping) ||
+             Set(r.InitialCompression) || Set(r.Capacity) || Set(r.MaximumPower) || Set(r.InitialFraction) || Set(r.Strength) ||
+-            Set(r.ReferenceMass) || Set(r.Preload) || Set(r.Friction) || r.Enabled != 0 || r.TargetCount != 0 ||
++            Set(r.ReferenceMass) || Set(r.Preload) || Set(r.Friction) || r.Enabled != 0 ||
+             (extents is { } h && (Set(h.X) || Set(h.Y) || Set(h.Z)));
+     }
+ 

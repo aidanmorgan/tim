@@ -1,0 +1,17 @@
+$ git fetch origin
+$ git rev-parse origin/main HEAD
+b35be7f444a199c2faaa8958d66c210947aad346
+608e3353edf1055618bfc08b31621b931a549187
+$ git log -3 --format="%H %P %T %s" origin/main
+b35be7f444a199c2faaa8958d66c210947aad346 59ecb70b8d161045d08c1f3de802cdad89e23eef 608e3353edf1055618bfc08b31621b931a549187 a36465b9e8a7bc7c655680f33c86f38b4b73ce84 Merge 9.7a Electrical NAND gate
+608e3353edf1055618bfc08b31621b931a549187 411425ea9fad3a78592dad34e611986bd9507d3f a36465b9e8a7bc7c655680f33c86f38b4b73ce84 Add Electrical NAND gate with ordered supply evaluation and nonmonotone loop refusal
+411425ea9fad3a78592dad34e611986bd9507d3f 1101069c7798eb03881378ea10ee7387f68adb6c 59ecb70b8d161045d08c1f3de802cdad89e23eef 1f13bf87ff1a86f71567b9f9160f14099981e299 Merge main 59ecb70b (C-Ramp corrective tool-test repair) into 9.7a candidate
+$ git log -1 --format="%H %P %T %s" 608e3353
+608e3353edf1055618bfc08b31621b931a549187 411425ea9fad3a78592dad34e611986bd9507d3f a36465b9e8a7bc7c655680f33c86f38b4b73ce84 Add Electrical NAND gate with ordered supply evaluation and nonmonotone loop refusal
+$ git diff --stat 3c2ea40a56b6f958220b4e27613f0aadaecf0c41 a36465b9e8a7bc7c655680f33c86f38b4b73ce84
+ .../review-9-7a-electrical-nand.md                 | 60 ++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+$ git diff --stat a36465b9 origin/main^{tree}
+(empty = identical)
+$ git status --short
+?? _bmad-output/implementation-artifacts/evidence-9-7a-review/terminal/

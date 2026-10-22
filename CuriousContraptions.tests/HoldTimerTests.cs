@@ -26,7 +26,7 @@ public sealed class HoldTimerTests
     {
         IWorkshopInstance[] parts =
         [
-            WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),0,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
             Part(seconds),
             WorkshopInput.Battery(new(4),6,3,0,0,0,0,1,ElectricalSourceSettings.Default),
@@ -237,7 +237,7 @@ public sealed class HoldTimerTests
         var original=Construction(.2f,delayed:true);
         var parts=original.Instances.ToArray().Concat(new IWorkshopInstance[]
         {
-            WorkshopInput.Basketball(new(7),12,5.96f,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(7),12,5.96f,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(8),12,1,0,0,0,0,1),
             WorkshopInput.Lamp(new(9),15,2,0,0,0,0,1)
         }).ToArray();

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Bundle;
 
 namespace CuriousContraptions.Gpu;
@@ -58,6 +59,16 @@ public static class DeclaredPhysics
     }
 
     public static bool Contains(PartId part) => _entries?.ContainsKey(part) == true;
+
+    /// <summary>The payload: the rolling thing the player delivers, which a capture owner guides and captures and a lesson's contact
+    /// triggers and finite-work storage act on. Derived from the admitted declaration, never declared: a dynamic body of exactly one
+    /// sphere collider and no slider. A Domino or a slider body is dynamic but no payload.</summary>
+    public static bool IsPayload(PartId part)
+    {
+        var entry = Of(part);
+        return entry.Mechanical is { KinematicMode: KinematicMode.Dynamic, Sliders.Count: 0 } && entry.Colliders.Count == 1 &&
+            entry.Colliders[0].ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere;
+    }
 
     public static BundleEntry Of(PartId part) =>
         _entries is { } entries && entries.TryGetValue(part, out var entry) ? entry

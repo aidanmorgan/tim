@@ -1,0 +1,35 @@
+index tree: a36465b9e8a7bc7c655680f33c86f38b4b73ce84
+nothing staged
+gitdir: /Users/aidan/dev/personal/tim/.git/worktrees/story-9-7a
+$ sh .githooks/pre-commit
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.aaHpcq/solution.binlog
+
+Time Elapsed 00:00:12.32
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.aaHpcq/playtest.binlog
+
+Time Elapsed 00:00:08.87
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.aaHpcq/web.binlog
+
+Time Elapsed 00:00:07.28
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.CPqe08/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+sh .githooks/pre-commit  0.02s user 0.01s system 0% cpu 41.553 total
+rc=0
+index tree after: a36465b9e8a7bc7c655680f33c86f38b4b73ce84

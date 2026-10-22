@@ -149,6 +149,27 @@ public sealed class WorkshopSaveTests
                 // Normalize only historical representation on the expected side. Current generic f32 values stay untouched.
                 foreach (var expected in baseline[rows.Count]!["Instances"]!.AsArray())
                 {
+                    if (expected!["PartId"]!["Value"]!.GetValue<string>() == "ball")
+                    {
+                        // The historical ball record's material is now its package's declaration: it must equal the compiled rows of
+                        // that body before the record-only fields leave the expected side.
+                        var body = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
+                        var material = expected["Material"]!;
+                        Half Declared(string field) => (Half)material[field]!["Value"]!.GetValue<float>();
+                        var compiled = Assert.Single(scene.Bodies.ToArray(), row => row.Id == body);
+                        var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == body);
+                        var surface = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
+                        Assert.Equal((Declared("Radius"), Declared("Mass"), Declared("Drag"), Declared("Bounce"), Declared("Friction"),
+                                Declared("BounceThreshold"), Declared("Rolling")),
+                            (sphere.Radius.Value, compiled.Mass.Value, compiled.LinearDrag.Value, surface.Restitution.Value, surface.Friction.Value,
+                                surface.BounceThreshold.Value, surface.RollingResistance.Value));
+                        Assert.Equal((Half)0, Declared("Buoyancy"));
+                        Assert.False(expected["Cosmetic"]!["IsDeclared"]!.GetValue<bool>());
+                        var ball = expected.AsObject();
+                        ball.Remove("Material"); ball.Remove("Cosmetic");
+                        ball["Parameters"] = new System.Text.Json.Nodes.JsonArray();
+                        continue;
+                    }
                     if (expected!["PartId"]!["Value"]!.GetValue<string>() != "basket") continue;
                     var owner = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
                     var capture = expected["Capture"]!;
@@ -286,7 +307,7 @@ public sealed class WorkshopSaveTests
 
     private static WorkshopSavedConstruction Saved()
     {
-        var ball = WorkshopInput.Basketball(new(2), .125, 3, -.25, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), .125, 3, -.25, 0, 0, 0, 1);
         var receiver = WorkshopInput.Generic(PartId.Receiver, new(3), .5, 1, -.5, 0, 0, 0, 1);
         return new(new(new(9), WorkshopCadenceSettings.Default(), new(ball, receiver)), new(7));
     }
@@ -405,11 +426,11 @@ public sealed class WorkshopSaveTests
         var copy = new WorkshopInstances(input);
         input[0] = input[1];
         Assert.Equal(first.Instances, copy);
-        var receiver = ((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Id = first.Ball!.Value.Id };
+        var receiver = ((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == PartId.Receiver)) with { Id = Payloads.First(first).Id };
         var changed = first.WithoutInstance(((WorkshopGenericInstance)first.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id).WithInstance(receiver);
         changed.Validate();
-        Assert.NotNull(first.Ball);
-        Assert.Null(changed.Ball);
+        Assert.NotNull(Payloads.Find(first));
+        Assert.Null(Payloads.Find(changed));
         Assert.Equal(receiver.Id, ((WorkshopGenericInstance)changed.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id);
         var saved = new WorkshopSavedConstruction(changed, new(7));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
@@ -419,7 +440,7 @@ public sealed class WorkshopSaveTests
     public void DuplicatePopulationAndInvalidDimensionsRejectBeforeGpuAdmission()
     {
         var saved = Saved();
-        var duplicate = saved.Construction with { Instances = new(saved.Construction.Ball!.Value, saved.Construction.Ball.Value) };
+        var duplicate = saved.Construction with { Instances = new(Payloads.First(saved.Construction), Payloads.First(saved.Construction)) };
         Assert.Throws<ArgumentException>(duplicate.Validate);
         var ramp = WorkshopInput.Generic(PartId.Ramp, new(4), 0, 3, 0, 0, 0, 0, 1);
         foreach (var value in new[] { (Half)0, (Half)(-1), (Half)4.5, Half.NaN, Half.PositiveInfinity })
@@ -446,7 +467,7 @@ public sealed class WorkshopSaveTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
-        Assert.True(construction.Ball!.Value.Locked); Assert.True(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
+        Assert.True(Payloads.First(construction).Locked); Assert.True(((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
         Assert.Equal(new GpuBodyId(11), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(12), construction.Puzzle.Goal.Target);
         Assert.Equal(2u, construction.Puzzle.InventoryCount);
@@ -492,7 +513,7 @@ public sealed class WorkshopSaveTests
             PuzzleDamage.Target => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { Target = new(9) } } },
             PuzzleDamage.EventSource => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { EventSource = new(9) } } },
             PuzzleDamage.Profile => construction with { Puzzle = puzzle with { TargetAssistance = default } },
-            PuzzleDamage.Lock => construction.WithInstance(construction.Ball!.Value with { Locked = false }),
+            PuzzleDamage.Lock => construction.WithInstance(Payloads.First(construction) with { Locked = false }),
             _ => throw new ArgumentOutOfRangeException(nameof(damage))
         };
         // A puzzle rule refuses the change; a non-finite precision is a structural bound (an argument guard).
@@ -522,7 +543,7 @@ public sealed class WorkshopSaveTests
     public void NamedGoalUsesCommittedBodySensorAndEpochWithoutAnimationFeedback()
     {
         var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
-        var goal = construction.Puzzle.Goal; var ball = construction.Ball!.Value;
+        var goal = construction.Puzzle.Goal; var ball = Payloads.First(construction);
         var body = new CanonicalBody(ball.Id, 2, 1, ball.Cell, ball.Local, default);
         var bodies = new PhysicsBodyReadSet(new[] { new PhysicsBodyRead(body, ball.Rotation, default, default) });
         var read = new WorkshopRead(new(2), new(1), bodies, Captures: new([new(goal.EventSource, CaptureLatchPhase.Latched, 4, (Half)0)]));

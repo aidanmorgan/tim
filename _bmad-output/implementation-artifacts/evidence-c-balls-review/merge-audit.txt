@@ -1,0 +1,12 @@
+merge-base(41e3381e,b35be7f4)=59ecb70b8d161045d08c1f3de802cdad89e23eef
+== files: diff(b35be7f4..0795c235) vs diff(59ecb70b..41e3381e)
+13d12
+< CuriousContraptions.tests/ElectricalNandTests.cs
+== per-file content differences (candidate-side vs merge-side patches)
+DIFFERS CuriousContraptions.tests/BasketballResourceTests.cs
+DIFFERS CuriousContraptions.tests/ElectricalNandTests.cs
+DIFFERS TODO.md
+== main-side: diff(41e3381e..0795c235) vs diff(59ecb70b..b35be7f4) files
+DIFFERS CuriousContraptions.tests/BasketballResourceTests.cs
+DIFFERS CuriousContraptions.tests/ElectricalNandTests.cs
+DIFFERS TODO.md

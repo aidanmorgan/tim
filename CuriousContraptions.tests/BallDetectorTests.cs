@@ -114,7 +114,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var lamp = WorkshopInput.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), WorkshopSocket.ActivationOut,
             new GpuBodyId(20), WorkshopSocket.ActivationIn,
@@ -190,7 +190,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var startLocalX = -1.0f;
         var startPos = detectorPos + forward * startLocalX;
 
-        var ballInitial = WorkshopInput.Basketball(
+        var ballInitial = WorkshopInput.Generic(PartId.Basketball,
             ballId,
             startPos.X, startPos.Y, startPos.Z,
             0, 0, 0, 1);
@@ -276,7 +276,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
-        var ball = WorkshopInput.Basketball(ballId, 2, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,ballId, 2, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(),
@@ -353,7 +353,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
-        var ball = WorkshopInput.Basketball(ballId, -1, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,ballId, -1, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(),
@@ -430,8 +430,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void PassageSensorTracker_MultipleBodies_TwoSeparatedBalls()
     {
         var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ballA = WorkshopInput.Basketball(new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
-        var ballB = WorkshopInput.Ball(PartId.BowlingBall, new GpuBodyId(3), -3, 3, 0, 0, 0, 0, 1);
+        var ballA = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
+        var ballB = WorkshopInput.Generic(PartId.BowlingBall, new GpuBodyId(3), -3, 3, 0, 0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
@@ -508,7 +508,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void SaveCodec_RoundTripsBallDetectorAndPreservesDeclaredColliders()
     {
         var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var lamp = WorkshopInput.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), WorkshopSocket.ActivationOut,
