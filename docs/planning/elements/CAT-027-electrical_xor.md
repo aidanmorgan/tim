@@ -10,7 +10,7 @@ Story 7.0 Batch B declaration spec (CAT-027-D). Legacy citations are pinned to `
 | Requirement anchor | [current-cat-027](../requirements.md#current-cat-027); retained behaviour [todo-362](../requirements.md#todo-362) |
 | Mapped identities | [EL-135 Electrical XOR gate](../invest/named-elements.md#element-135). No TH/RAD/GAP identity. |
 | Roadmap story | 9.8 "Electrical Logic Gates OR & XOR" (Epic 9), shared with CAT-026 |
-| Status | not started |
+| Status | Story 9.8b candidate: package `elements/ElectricalXor` and shared nonmonotone `Xor` law on the Story 9.7a ordered supply resolve; every loop containing the gate is refused as `NonmonotoneFeedback`. Implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-8b-electrical-xor.md)); independent review and publication pending; browser qualification pending post-catalogue. |
 
 ## 2. Declaration
 
@@ -22,9 +22,9 @@ Story 7.0 Batch B declaration spec (CAT-027-D). Legacy citations are pinned to `
 | Typed sockets and ports | Same four electrical ports as CAT-013: `FirstIn`, `SecondIn`, separate `PowerIn` supply, `Supply` output. |
 | Sensors and activation | none |
 | Work and energy stores | none; output energy only from `PowerIn`. |
-| Parameters | `Operation = Xor` (enum value 2), fixed by catalogue kind (`parts/scenes/electrical_xor.tscn@a6c914e:L1-L5`). |
+| Parameters | `Operation = Xor`, fixed by catalogue kind. Current closed value `LogicGateOperation.Xor = 4` in the package declaration; 2 was the legacy scene integer (`parts/scenes/electrical_xor.tscn@a6c914e:L1-L5`) and is not carried forward. |
 | Cosmetic curves and UI bindings | Same three lamps as CAT-013 (inputs follow committed availability; output follows truth ∧ supplied). |
-| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Xor shows its toolbox pictogram on the face and gold truth-row dots for rows 01 and 10 at x −0.07 and 0.07 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives; shared with `optical_xor`): `ui/WorkshopIcons.cs@a6c914e:L77-L77`. Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
+| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Xor shows its toolbox pictogram on the face and gold truth-row dots for rows 01 and 10 at x −0.07 and 0.07 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives; shared with `optical_xor`): `ui/WorkshopIcons.cs@a6c914e:L77-L77`, now the package `icon.svg`. Current art draws the same pictogram as navy mesh strokes (the extra back curve, the two OR curves and the concave back as four segments each, and the output stub) rather than the legacy textured quad (Story 9.8b H5). Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
 | Catalogue / inventory | Id `electrical_xor`, Title "Exactly one gate", Category Control, colour (0.4, 0.72, 0.79), no parameters; Description: "Passes the separate bottom supply when exactly one numbered input is powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`parts/catalog/electrical_xor.tres@a6c914e:L1-L11`). No level places or grants it. |
 
 ## 3. Engine capabilities
@@ -32,7 +32,7 @@ Story 7.0 Batch B declaration spec (CAT-027-D). Legacy citations are pinned to `
 Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction (P0-022/023 shared evaluator/feedback registration).
 
 - **Exists now:** as [CAT-013 §3](CAT-013-both_gate.md#3-engine-capabilities).
-- **Missing:** supply network (Story 8.1); gate element, sockets, electrical-input cosmetic source and nonmonotone-feedback rejection at Run (Story 9.6). Story 9.8 adds only the Xor operation value, pictogram and truth dots.
+- **Missing:** none after Story 9.8b. Story 9.6 delivered the gate element, sockets and electrical-input cosmetic source; Story 9.7a the settled supply evaluation and nonmonotone-feedback refusal; Story 9.8b adds only the Xor operation value, pictogram and truth dots.
 - **Dependencies:** CAT-005 Battery; CAT-013 declaration (Story 9.6) first; a supplied consumer (CAT-013 open question 1); condition switches as [CAT-024 open question 1](CAT-024-electrical_nand.md#6-open-questions). The open-switch feedback control (X8) needs a part with an electrical contact (legacy used `switch`; CAT-063 supply mode).
 
 ## 4. Legacy harvest
@@ -68,7 +68,7 @@ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, Ani
 
 ## 5. Acceptance outline
 
-Authority: [CAT-027](../requirements.md#current-cat-027), [todo-362](../requirements.md#todo-362); Story 9.8 adds `tools/e2e/cat-026-027.test.ts`.
+Authority: [CAT-027](../requirements.md#current-cat-027), [todo-362](../requirements.md#todo-362); Story 9.8b adds `tools/e2e/cat-027.test.ts` (Story 9.8 was split; its shared `cat-026-027.test.ts` is not used).
 
 - **Construction (Chrome UI).** As CAT-013: battery to the bottom supply socket via the icon choice, conditions to the one-mark/two-mark sockets, gate→consumer.
 - **Positive.** Rows 01 and 10 with supply power the consumer.

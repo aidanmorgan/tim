@@ -668,6 +668,8 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("norRow", true)]             // Neither gate (electrical_nor); "contactNormal" above stays generic
     [InlineData("electricalOrRow", true)]    // Either gate: found through its "electrical" id word
     [InlineData("orRow", false)]             // "or" is under the three-letter id-word floor (like "color", "order")
+    [InlineData("electricalXorRow", true)]   // Exactly one gate (electrical_xor)
+    [InlineData("xorRow", true)]             // "xor" clears the floor, so it is an element word of its own
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
 
