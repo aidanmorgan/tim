@@ -1,0 +1,53 @@
+# mutation R7-crushing-spring  2026-10-22T03:27:29Z  base 55ee05b96f949a7d93241b5ed0608b32db6bb8a0
+diff --git a/elements/PoweredGate/PoweredGateElementDeclaration.cs b/elements/PoweredGate/PoweredGateElementDeclaration.cs
+index 930e998a..d0a99ae0 100644
+--- a/elements/PoweredGate/PoweredGateElementDeclaration.cs
++++ b/elements/PoweredGate/PoweredGateElementDeclaration.cs
+@@ -70,7 +70,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
+     public IReadOnlyList<PrismaticSliderDescriptor> Sliders =>
+     [
+         new(new(Vector3.Zero, Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
+-            0f, 1.55f, MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
++            0f, 1.55f, MechanicalValue.Fixed(3000f), MechanicalValue.Fixed(4f), /* MUTATION R7: crushing return spring */ MechanicalValue.Fixed(0f), false,
+             new(1f, new Vector3(0f, -9.81f, 0f), 0f,
+                 []))
+     ];
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically [157 ms]
+  Error Message:
+   Assert.Contains() Failure: Filter not matched in collection
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [36 ms]
+  Error Message:
+   Assert.True() Failure
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [81 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 0.0052783107
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [38 ms]
+  Error Message:
+   Assert.True() Failure
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [79 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 0.0045091086
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [80 ms]
+  Error Message:
+   guard: Switch B must strike with the blade fully open, opening 0.004684252
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [44 ms]
+  Error Message:
+   Assert.True() Failure
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [84 ms]
+  Error Message:
+   the opening completes
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [76 ms]
+  Error Message:
+   guard: mid-stroke strike required, opening 0.0045091086
+--
+Failed!  - Failed:     9, Passed:     1, Skipped:     0, Total:    10, Duration: 868 ms - CuriousContraptions.tests.dll (net10.0)

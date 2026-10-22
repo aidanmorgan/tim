@@ -1,0 +1,38 @@
+# mutation R6-blade-collider-removed  2026-10-22T03:27:04Z  base 55ee05b96f949a7d93241b5ed0608b32db6bb8a0
+diff --git a/engine/gpu/WorkshopPhysicsCompiler.cs b/engine/gpu/WorkshopPhysicsCompiler.cs
+index c87a1254..a9a404ed 100644
+--- a/engine/gpu/WorkshopPhysicsCompiler.cs
++++ b/engine/gpu/WorkshopPhysicsCompiler.cs
+@@ -79,7 +79,8 @@ public static class WorkshopPhysicsCompiler
+                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+                     instance.Rotation, default, default, new((Half)body.Mass),
+                     new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
+-                AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
++                AddGeometry(moving, identity + 3, identity + 4, instance.PartId == PartId.PoweredGate // MUTATION R6: blade collider moved 3 m sideways (no ball contact)
++                    ? body.Colliders.Select(c => c with { Offset = c.Offset + new System.Numerics.Vector3(0f, 0f, 3f) }).ToList() : body.Colliders);
+                 prismatics.Add(new(new(identity + 5), instance.Id, moving,
+                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
+                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
+    0 Warning(s)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [83 ms]
+  Error Message:
+   Assert.All() Failure: 42 out of 306 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [68 ms]
+  Error Message:
+   guard: the ball is short of the passage at the cut, x 0.03211793
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [80 ms]
+  Error Message:
+   Assert.All() Failure: 54 out of 217 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [60 ms]
+  Error Message:
+   Assert.All() Failure: 28 out of 66 items in the collection did not pass.
+--
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [51 ms]
+  Error Message:
+   guard: the ball is partly through the blade plane, x 0.6268946
+--
+Failed!  - Failed:     5, Passed:     5, Skipped:     0, Total:    10, Duration: 798 ms - CuriousContraptions.tests.dll (net10.0)

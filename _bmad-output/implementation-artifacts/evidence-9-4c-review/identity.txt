@@ -1,0 +1,7 @@
+55ee05b96f949a7d93241b5ed0608b32db6bb8a0
+f9b1ec7f80d8b90b6c749c9050baea1d7a2366067543736c0f0aba1e18ee206f  CuriousContraptions.tests/LatchSupplyFixtureTests.cs
+750ac25af574f845a568ae9a30b5e93d59b09cb75af4d01044f5bdc3fdfd3ee4  CuriousContraptions.tests/CuriousContraptions.tests.csproj
+1a538e36f9098449245886fe95311023c383f10ce17d85f7be852fa06676ae2c  docs/planning/elements/CAT-005-battery.md
+5b80e828158bfff75fdb572872af33e45557bb3ef54472b8b344c3642f22b79a  docs/planning/elements/CAT-051-powered_gate.md
+1394a3e1f0f69a16756e7e8001aa3ed8599c84901000e3c00c2d525cca033cf2  _bmad-output/implementation-artifacts/spec-9-4c-latch-fixture-deferred-integrations.md
+Thu 22 Oct 2026 03:22:52 UTC

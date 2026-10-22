@@ -2497,6 +2497,8 @@ So that every new element from Story 9.5 on is declaration-only and every conver
 - *the union of the Stories 9A.19 and 9A.21 lists: gate detection by joint limit, the drag band and `ActuatorSliderDrive` heuristics, the record-type and `PartId.PoweredGate` selection of the drive, `SimJoint.SwitchedSupplyClosed` if it is unread, the element warm-up scene in `CuriousContraptions.Simulation/Program.cs` and the dummy joint in `WorkshopPhysicsEngine.cs`;*
 - *this family's 9A.45a entries.*
 
+*Coordinator decision (22 Oct 2026, from Story 9.4c review F1):* C-Gate also fixes ActuatorDriveRead.Blocked residual (blade resting on ball reads −1.083e-5 m/s vs 1e-5 threshold, indicator shows unpowered); native proof required; see spec-9-4c D-notes. The threshold itself is CAT-051 open question 3 (owner).
+
 **Acceptance Criteria:**
 - **Given** the Powered Gate package, **When** it is compiled, **Then** every Story 9A.19 and 9A.21 AC holds. That includes the empty Story 9.4b element-scan known-violations list and the synthetic warm-up.
 - **And** `rg -w "ActuatorSliderDrive|SwitchedSupplyClosed"` and `rg "PartId\.PoweredGate"` return 0 production hits, and the warm-up names no element.
@@ -3081,6 +3083,7 @@ So that any slider element can declare a drive and the solver never recognises a
 - **And** the Story 9R.3 own-supply and two-battery checks still pass (regression, not re-implementation).
 - **And** when a gate is enabled during Run with a ball resting against its closed, tilted blade, the ball passes through and is not thrown back out of the entry mouth. A Chrome check asserts that the ball ends downstream. This behaviour predates Story 9R.3 (base matches candidate in Murdoch-9's probe) and was filed here by the coordinator on 20 Oct 2026.
 - **And** `cat-051`, `cat-052`, `cat-037`, `cat-005-n19` and `cat-051-interrupt` pass.
+  - Before catalogue E2E, the native guard is LatchSupplyFixtureTests (Story 9.4c); the browser suites remain pending.
 - **And** the element-scan ratchet test introduced in Story 9.4b (`WorkshopPhysicsLawTests.TheShippedEngineSourceNamesNoElementHardCodedInertiaOrBallMaterial`) has an empty known-violations list. 9R.3 and 9R.4 each remove their own entries, and this story removes the last (gate travel-limit recognition and the literal drive constants). The list then stays empty permanently (coordinator decision, 18 Oct 2026).
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
@@ -3510,6 +3513,7 @@ So that power sources are selected by declaration.
 - **And** the editor offers this one parameter during Run because the declaration marks it run-editable, not because of an element check.
 - **And** Run/Reset and Save/Load are exact.
 - **And** `cat-005`, `cat-005-n19`, `cat-051`, `cat-051-interrupt` and `cat-037` pass.
+  - Before catalogue E2E, the native guard is LatchSupplyFixtureTests (Story 9.4c); the browser suites remain pending.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.40: Generic Instance — Pressure Plate (CAT-052)
@@ -3588,6 +3592,7 @@ So that the last element record leaves the engine.
 - **And** Run/Reset and Save/Load are exact.
 - **And** `rg "Workshop(Ball|Receiver|Ramp|Switch|Lamp|Wall|Delay|Bumper|Domino|Battery|Springboard|PressurePlate|Counter|Clock|Latch|BallDetector)\b"` returns 0 production hits.
 - **And** `cat-037`, `cat-005-n19` and `cat-051-interrupt` pass.
+  - Before catalogue E2E, the native guard is LatchSupplyFixtureTests (Story 9.4c); the browser suites remain pending.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.44: f32 Lane Completion — Remove Every binary16 Lane

@@ -1,0 +1,11 @@
+ engine/gpu/SupplyRoute.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+    0 Error(s)
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [36 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [66 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [81 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [63 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [64 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [36 ms]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [75 ms]
+Failed!  - Failed:     7, Passed:     3, Skipped:     0, Total:    10, Duration: 818 ms - CuriousContraptions.tests.dll (net10.0)

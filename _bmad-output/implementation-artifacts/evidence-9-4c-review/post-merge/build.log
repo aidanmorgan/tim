@@ -1,0 +1,64 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Battery/bin/Debug/net10.0/Battery.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Domino/bin/Debug/net10.0/Domino.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Counter/bin/Debug/net10.0/Counter.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Wall/bin/Debug/net10.0/Wall.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/ElectricalOr/bin/Debug/net10.0/ElectricalOr.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (27 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/elements/elements.bundle.json (27 elements)
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.84
+dotnet build CuriousContraptions.slnx -c Debug  2.29s user 1.88s system 214% cpu 1.946 total
