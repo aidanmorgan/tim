@@ -26,9 +26,9 @@ public interface IElectricalElement : IPuzzleElementDeclaration
 
 /// <summary>A declared supply route; switched contacts conduct only their own committed closed state.</summary>
 public enum SupplyCapabilityKind : byte { Source, SwitchedContact, LogicGate }
-/// <summary>The declared law of a supplied two-input gate. And is monotone; Nand and Nor are not, so neither may sit on a
-/// directed electrical cycle.</summary>
-public enum LogicGateOperation : byte { And = 0, Nand = 1, Nor = 2 }
+/// <summary>The declared law of a supplied two-input gate. And and Or are monotone; Nand and Nor are not, so neither may sit on
+/// a directed electrical cycle.</summary>
+public enum LogicGateOperation : byte { And = 0, Nand = 1, Nor = 2, Or = 3 }
 
 public readonly record struct SupplyCapabilityDescriptor(
     SupplyCapabilityKind Kind, PortSocket? Input, PortSocket Output, LogicGateOperation? Operation = null);

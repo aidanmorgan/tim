@@ -74,7 +74,7 @@ Authority: [CAT-024](../requirements.md#current-cat-024), [todo-362](../requirem
 - **Negative / controls.** Row 11 with supply; row 00 without supply (true but unpowered: D5); output retraction on reconvergence (D6).
 - **Boundaries.** A zero-delay Nand loop, including one closed only through an open switch, stays in build mode with the short bottom-status explanation (D7, D8); reordered placement and wiring.
 - **Run/Reset; Save/Load.** As CAT-013.
-- **Integrations.** Chained with an Or gate (D6); its own pictogram and three truth dots visible at projected size.
+- **Integrations.** Chained with an Or gate (D6); its own pictogram and three truth dots visible at projected size. Native Or chaining (D6 reconvergence and the D7 Nand → Or → Nand refusal) is proved with the real Either gate since Story 9.8a; the browser case stays queued post-catalogue.
 
 ## 6. Open questions
 

@@ -1,0 +1,44 @@
+diff --git a/engine/gpu/SupplyRoute.cs b/engine/gpu/SupplyRoute.cs
+index a023d289..289ca4a3 100644
+--- a/engine/gpu/SupplyRoute.cs
++++ b/engine/gpu/SupplyRoute.cs
+@@ -116,6 +116,7 @@ public sealed class CompiledSupplyGraph
+                 throw new ArgumentException("A nonmonotone electrical gate lies on a directed cycle.");
+         }
+     }
++    private bool[]? _last;
+     public ElectricalLogicRead[] NeutralReads() => _nodes.Where(node=>node.Kind==SupplyNodeKind.LogicGate)
+         .OrderBy(node=>node.Owner.Value).Select(node=>new ElectricalLogicRead(node.Owner,ElectricalInputState.Neither,false,false)).ToArray();
+     public SupplyResolution Resolve(int consumers, WorkshopTickControls controls, Func<GpuBodyId,bool> contactClosed)
+@@ -133,6 +134,7 @@ public sealed class CompiledSupplyGraph
+         // this candidate's solution.
+         for (var c=0;c<_components.Length;c++)
+         {
++            if (_cyclic[c] && _last is not null) foreach (var i in _components[c]) if (_nodes[i].Kind!=SupplyNodeKind.Source) powered[i]=_last[i];
+             var changed = true;
+             while (changed)
+             {
+@@ -141,6 +143,7 @@ public sealed class CompiledSupplyGraph
+                     if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=_cyclic[c]; }
+             }
+         }
++        _last=(bool[])powered.Clone();
+         var closed=new bool[consumers];
+         var logic=new System.Collections.Generic.List<ElectricalLogicRead>();
+         for(var i=0;i<_nodes.Length;i++)
+@@ -168,6 +171,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.And => first && second,
+         LogicGateOperation.Nand => !(first && second),
+         LogicGateOperation.Nor => !(first || second),
++        LogicGateOperation.Or => first || second,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
+@@ -176,6 +180,7 @@ public sealed class CompiledSupplyGraph
+         LogicGateOperation.And => true,
+         LogicGateOperation.Nand => false,
+         LogicGateOperation.Nor => false,
++        LogicGateOperation.Or => true,
+         _ => throw new ArgumentOutOfRangeException(nameof(operation))
+     };
+ 

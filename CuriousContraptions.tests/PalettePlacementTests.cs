@@ -154,6 +154,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     /// loop through the gate, even through an open switch, is refused on the bottom status line with no command and no Undo.</summary>
     [Theory]
     [InlineData(ElectricalNandTests.FeedbackLoop.NandToNand)]
+    [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOr)]
     [InlineData(ElectricalNandTests.FeedbackLoop.ThroughOpenSwitch)]
     public async Task NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(ElectricalNandTests.FeedbackLoop loop)
     {
@@ -190,6 +191,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Theory]
     [InlineData(ElectricalNorTests.FeedbackLoop.NorToNor)]
     [InlineData(ElectricalNorTests.FeedbackLoop.ThroughBothGate)]
+    [InlineData(ElectricalNorTests.FeedbackLoop.ThroughOr)]
     [InlineData(ElectricalNorTests.FeedbackLoop.MixedWithNand)]
     [InlineData(ElectricalNorTests.FeedbackLoop.ThroughOpenSwitch)]
     [InlineData(ElectricalNorTests.FeedbackLoop.EnteringPowerIn)]
@@ -217,6 +219,54 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var status=Field<Label>(scene,"_status").Text;
             Assert.Contains("parts "+ids+".",status,StringComparison.Ordinal);
             Assert.StartsWith("Break the wire loop",status,StringComparison.Ordinal);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally {Release(scene);}
+    }
+
+    /// <summary>CAT-026 through the real chooser: a wire closing a pure Either-gate loop is admitted with one Undo entry, and a wire
+    /// closing a loop with a Not both or Neither gate in it is refused on the bottom status line with no command and no Undo.</summary>
+    [Theory]
+    [InlineData(ElectricalOrTests.FeedbackLoop.OrToOr)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.WithNand)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.WithNor)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.ThroughOpenSwitch)]
+    [InlineData(ElectricalOrTests.FeedbackLoop.EnteringPowerIn)]
+    public async Task EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(ElectricalOrTests.FeedbackLoop loop)
+    {
+        var (scene,client)=BenchScene(ElectricalOrTests.Kind,PlacementAnswer.Applied);
+        try
+        {
+            var (open,closing,ids)=ElectricalOrTests.LoopCase(loop);
+            await scene.World.ReplaceConstruction(open);
+            var choices=Field<VBoxContainer>(scene,"_connectionChoices");
+            IEnumerable<Button> Buttons()=>choices.GetChildren().OfType<Button>();
+            MachinePart Part(GpuBodyId id)=>scene.World.Parts.Single(part=>part.AuthoredId==id);
+            Assert.Empty(InvokeHandler(scene,"Select",Part(closing.Source)));
+            Assert.Single(Buttons(),button=>button.Text=="Connect Supply").EmitSignal(Button.SignalName.Pressed);
+            Assert.Empty(InvokeHandler(scene,"ChooseConnectionTarget",Part(closing.Target)));
+            Assert.Equal(3,Buttons().Count()); // first, second and bottom supply: no default socket
+            Assert.All(Buttons(),button=>Assert.NotNull(button.Icon));
+            var undos=Field<List<WorkshopConstruction>>(scene,"_undo").Count;
+            var commands=client.Commands.Count;
+            Assert.Single(Buttons(),button=>(WorkshopSocket)button.GetMeta("socket").AsInt32()==closing.Input).EmitSignal(Button.SignalName.Pressed);
+            if(ids is null)
+            {
+                Assert.Contains(closing,scene.World.Construction.Connections);
+                Assert.Equal(open.Connections.Count+1,scene.World.Construction.Connections.Count);
+                Assert.Equal(undos+1,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
+                Assert.Empty(InvokeHandler(scene,"Undo"));
+                Assert.Equal(open.Connections,scene.World.Construction.Connections);
+            }
+            else
+            {
+                Assert.Equal(open,scene.World.Construction);
+                Assert.Equal(commands,client.Commands.Count);
+                Assert.Equal(undos,Field<List<WorkshopConstruction>>(scene,"_undo").Count);
+                var status=Field<Label>(scene,"_status").Text;
+                Assert.Contains("parts "+ids+".",status,StringComparison.Ordinal);
+                Assert.StartsWith("Break the wire loop",status,StringComparison.Ordinal);
+            }
             Assert.Empty(godot.Errors.Drain());
         }
         finally {Release(scene);}

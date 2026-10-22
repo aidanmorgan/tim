@@ -1,0 +1,691 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.30]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.96]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.12]   Starting:    CuriousContraptions.tests
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.BothGatePresentationTests.ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset [145 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorPresentationTests.PictogramSingleTruthDotAndThreeLampsFollowCommittedRowsThroughReset [18 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandPresentationTests.PictogramTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [12 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOpenSwitch) [52 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: NandToNand) [19 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOr) [23 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: EnteringPowerIn) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: OrToOr) [26 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithNand) [22 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: ThroughOpenSwitch) [25 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithNor) [116 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: NorToNor) [102 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOr) [50 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: EnteringPowerIn) [58 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOpenSwitch) [43 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: MixedWithNand) [44 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughBothGate) [40 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BothGateChooserRequiresAnExplicitSocketAndCancelDoesNotEdit [75 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrPresentationTests.PictogramThreeTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [72 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [6 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [4 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: MixedWithNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NorToNor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOr) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ClosingOneSwitchRetractsTheOutputAndSaveLoadAndResetAreExact [98 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.LawMonotonicityAndUndefinedValuesAreClosed [3 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [34 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [34 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [35 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [36 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: False) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: True) [31 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: False) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.TrueRowWithoutSupplyWireNeverCreatesPower [23 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: False) [138 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: False) [134 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: False) [143 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: True) [124 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [5 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [12 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(gateFirst: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(gateFirst: True) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LawMonotonicityAndUndefinedValuesAreClosed [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [34 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [36 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: True) [30 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [35 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [31 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.TrueRowWithoutSupplyWireNeverCreatesPower [23 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NandToNand) [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOr) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [10 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 40, named: "4, 10, 11, 12 and 37 more.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 4, named: "4, 10, 11, 12 and 1 more.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 3, named: "4, 10, 11, 12.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [5 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults [151 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: True) [19 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: False) [18 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ClosingBothSwitchesRetractsTheOutputAndSaveLoadAndResetAreExact [77 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "ElectricalSupply", element: False) [8 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "isGateOpen", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "orRow", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "holdWindow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "nandRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "Conjugate", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "_plateLoaded", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "softRowError", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "PrismaticRowKind.Spring", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "SpeedClamp", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalOrRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "contactNormal", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "Spring", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "norRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "threshold", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalNandRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "bumperBoost", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxTippedPastItsSupportTopplesThroughSixtyDegreesAndSettlesFlatWithoutJitter [40 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABodyWhoseCentreOfMassSitsOffItsOriginSpinsAboutThatCentreInFreeFlight [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtTheEnvelopeBoundaryDeclaredDragStillSlowsABallFlyingAt63Point9OnEveryTick [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EveryPinnedViolationsOwnerIsOpenAndTheListIsEmptyOnce9A19IsDone [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz60) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz240) [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereSlowsAsDeclaredDragAndItsFreeFlightSpinIsNeverDamped(cadence: Hz120) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnAStaticBoxSlabComesToRestOnTheSlab [19 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AHeavyBodyStrikingALightOneAtTheEnvelopeCannotCommitAStruckSpeedBeyond64 [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzNeverRaisesItsSpin [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheScannedElementNamesAreDerivedFromTheCatalogue [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.RollingSpeedFollowsTheDeclaredPrincipalMomentsSolidVersusHollow [5 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxOnAStaticBoxFaceHoldsThroughTheBoxBoxManifoldWithoutSinkingOrLaunching [38 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingOnADynamicBoxSlabAlsoComesToRest [77 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "springStiffness") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "clockPhase") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "detectorAperture") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "balloonLift") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "pipeBore") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "delayTicks") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "funnelMouth") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "tennisSpin") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARemainderCrossingHalfACellCarriesIntoTheNextCell [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EveryMotionPieceCarriesItsBodysDeclaredDragRate [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMotionDescriptionIsWrittenAtTheHostDeclaredOffsetAfterTheOrientationSensorTable [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMidSubstepClampZeroesANonFiniteVelocityWithoutTouchingTheFiniteOne(bad: ∞) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheMidSubstepClampZeroesANonFiniteVelocityWithoutTouchingTheFiniteOne(bad: NaN) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.WithZeroDeclaredDragAndCoefficientARollingBallKeepsItsSpeed [7 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt20MetresPerSecondAt240HzDeceleratesAtTheRollingLawOverASecondAndNeverReverses [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySize [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABoxAcrossATiltedBeamEdgeBalancesOnTheGenuineEdgeEdgeCrossing(along: 0.699999988) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesAtTheRollingLawAndRestsOnTheBench [60 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRestingOnTheBenchSpinningAboutTheContactNormalKeepsItsSpin [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: ∞, y: 0, z: 0, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 1, y: -∞, z: NaN, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 3, y: 4, z: 0, expected: 1) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: 1, y: NaN, z: 2, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEnvelopeScaleOfANonFiniteVectorIsZero(x: NaN, y: 0, z: 0, expected: 0) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreeFlyingSphereMovingDiagonallySlowsAlongBothXAndZ [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ASphereDroppedOntoAStandingBoxTopplesItPastSixtyDegrees [32 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.FrictionTurnsASlidingSphereIntoARollingOneThroughTheDeclaredInertia [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Basketball) [17 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.EachBallRollingAt0Point7DeceleratesAtTheRollingLawRestsAtItsRadiusAndNeverReverses(kind: Bowling) [16 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.SpeedsBeyondTheEnvelopeClampInsideTheExactHostBoundInEveryDirectionAndTheTickContinues [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Basketball) [54 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AtEveryCadenceABallStruckTo1MetrePerSecondStopsAtTheSameTimeAndNoTickErasesItsDecrement(kind: Bowling) [52 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ARollingBowlingBallPushingARestingBasketballBringsBothToRestTogether [43 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheEndOfSubstepGuardClampsAnOrdinaryOvershootKeepsAnInEnvelopeVelocityAndDropsOnlyANonFiniteOne [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ThePaidContactFrameUsesTheBodysCurrentAnisotropicInertia [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABallRollingAlongPlusZAboutXAlsoComesToRest [23 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ABasketballRollingAt5MetresPerSecondAt240HzDeceleratesOnEveryCommittedTick [62 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.ZeroRestitutionNeverReboundsAndZeroFrictionNeverSpinsUp [7 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [16 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AnUprightBoxSetAboveTheBenchSettlesOnItsFaceWithinTheRestTolerances [30 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.AFreePartnerBallReceivesTheEqualAndOppositeRollingImpulse [6 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Both, supply: True) [16 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Neither, supply: False) [15 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: SecondOnly, supply: True) [15 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: SecondOnly, supply: False) [14 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Both, supply: False) [14 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: Neither, supply: True) [15 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: FirstOnly, supply: True) [14 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer(inputs: FirstOnly, supply: False) [15 ms]
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:05.46]     CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled [FAIL]
+[xUnit.net 00:00:05.46]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:05.46]       Expected: Applied
+[xUnit.net 00:00:05.46]       Actual:   Faulted
+[xUnit.net 00:00:05.46]       Stack Trace:
+[xUnit.net 00:00:05.46]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/NoFixedCapacityTests.cs(270,0): at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks)
+[xUnit.net 00:00:05.46]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/NoFixedCapacityTests.cs(274,0): at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks)
+[xUnit.net 00:00:05.46]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/NoFixedCapacityTests.cs(274,0): at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks)
+[xUnit.net 00:00:05.46]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/BothGateTests.cs(118,0): at CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled()
+[xUnit.net 00:00:05.46]         --- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:05.47]     CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: False) [FAIL]
+[xUnit.net 00:00:05.47]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:05.47]       Expected: Applied
+[xUnit.net 00:00:05.47]       Actual:   Faulted
+[xUnit.net 00:00:05.47]       Stack Trace:
+[xUnit.net 00:00:05.47]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:05.47]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:05.47]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:05.47]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/BothGateTests.cs(90,0): at CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(Boolean cycle, Boolean reverse)
+[xUnit.net 00:00:05.47]         --- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:05.52]     CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: True) [FAIL]
+[xUnit.net 00:00:05.52]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:05.52]       Expected: Applied
+[xUnit.net 00:00:05.52]       Actual:   Faulted
+[xUnit.net 00:00:05.52]       Stack Trace:
+[xUnit.net 00:00:05.52]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:05.52]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:05.52]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:05.52]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/BothGateTests.cs(90,0): at CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(Boolean cycle, Boolean reverse)
+[xUnit.net 00:00:05.52]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.BothGateTests.EnergyProvenanceIgnoresBothConditionSourcesAndUndefinedRulesReject [3 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.CommittedLatchSetResetAndSupplyRestorationDriveBothGate [27 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.DeclaredReadAdmissionRejectsMissingForeignAndInconsistentRows [6 ms]
+  Failed CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled [23 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 270
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/BothGateTests.cs:line 118
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: False) [12 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(Boolean cycle, Boolean reverse) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/BothGateTests.cs:line 90
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: False, reverse: True) [19 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: False, reverse: False) [18 ms]
+  Failed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: True) [11 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(Boolean cycle, Boolean reverse) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/BothGateTests.cs:line 90
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.BothGateTests.MissingBottomWireNeverConvertsConditionsIntoEnergy [14 ms]
+  Passed CuriousContraptions.Tests.BothGateTests.DiscardAndFailedReadNeverPublishCandidatePower [4 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: MissingSourceWire) [25 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: Miss) [23 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: DisabledSource) [22 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: MissingConsumerWire) [22 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: BelowThreshold) [22 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: True, reverse: False) [25 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: False, reverse: True) [24 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: False, reverse: False) [24 ms]
+[xUnit.net 00:00:05.85]     CuriousContraptions.Tests.SwitchElectricalTests.SeededCycleLosesAndRestoresPowerWithoutChangingEitherLatch [FAIL]
+[xUnit.net 00:00:05.85]       Assert.All() Failure: 30 out of 30 items in the collection did not pass.
+[xUnit.net 00:00:05.85]       [0]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 101 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 103 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 958333299 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [1]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 102 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 104 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 966666632 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [2]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 103 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 105 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 974999965 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [3]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 104 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 106 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 983333298 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [4]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 105 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 107 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 991666631 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [5]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 106 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 108 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 999999964 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [6]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 107 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 109 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1008333297 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [7]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 108 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 110 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1016666630 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [8]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 109 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 111 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1024999963 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [9]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 110 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 112 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1033333296 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [10]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 111 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 113 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1041666629 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [11]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 112 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 114 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1049999962 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [12]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 113 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 115 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1058333295 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [13]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 114 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 116 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1066666628 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [14]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 115 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 117 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1074999961 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [15]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 116 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 118 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1083333294 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [16]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 117 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 119 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1091666627 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [17]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 118 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 120 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1099999960 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [18]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 119 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 121 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1108333293 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [19]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 120 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 122 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1116666626 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [20]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 121 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 123 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1124999959 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [21]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 122 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 124 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1133333292 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [22]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 123 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 125 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1141666625 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [23]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 124 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 126 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1149999958 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [24]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 125 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 127 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1158333291 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [25]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 126 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 128 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1166666624 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [26]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 127 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 129 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1174999957 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [27]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 128 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 130 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1183333290 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [28]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 129 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 131 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1191666623 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       [29]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 130 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 132 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1199999956 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+[xUnit.net 00:00:05.85]             Error: Assert.False() Failure
+[xUnit.net 00:00:05.85]                    Expected: False
+[xUnit.net 00:00:05.85]                    Actual:   True
+[xUnit.net 00:00:05.85]       Stack Trace:
+[xUnit.net 00:00:05.85]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/SwitchElectricalTests.cs(121,0): at CuriousContraptions.Tests.SwitchElectricalTests.SeededCycleLosesAndRestoresPowerWithoutChangingEitherLatch()
+[xUnit.net 00:00:05.85]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: False, noSource: False, reverse: False) [24 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.SupplyLossAndRestorationDoNotEraseOrReplayImpactMemory [20 ms]
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.PhysicalImpactDrivesBothDomainsAndExactSaveReset [48 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.SeededCycleLosesAndRestoresPowerWithoutChangingEitherLatch [23 ms]
+  Error Message:
+   Assert.All() Failure: 30 out of 30 items in the collection did not pass.
+[0]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 101 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 103 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 958333299 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[1]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 102 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 104 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 966666632 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[2]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 103 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 105 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 974999965 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[3]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 104 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 106 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 983333298 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[4]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 105 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 107 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 991666631 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[5]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 106 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 108 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 999999964 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[6]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 107 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 109 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1008333297 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[7]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 108 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 110 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1016666630 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[8]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 109 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 111 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1024999963 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[9]:  Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 110 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 112 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1033333296 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[10]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 111 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 113 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1041666629 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[11]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 112 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 114 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1049999962 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[12]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 113 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 115 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1058333295 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[13]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 114 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 116 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1066666628 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[14]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 115 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 117 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1074999961 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[15]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 116 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 118 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1083333294 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[16]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 117 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 119 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1091666627 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[17]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 118 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 120 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1099999960 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[18]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 119 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 121 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1108333293 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[19]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 120 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 122 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1116666626 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[20]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 121 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 123 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1124999959 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[21]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 122 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 124 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1133333292 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[22]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 123 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 125 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1141666625 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[23]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 124 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 126 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1149999958 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[24]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 125 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 127 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1158333291 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[25]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 126 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 128 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1166666624 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[26]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 127 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 129 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1174999957 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[27]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 128 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 130 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1183333290 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[28]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 129 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 131 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1191666623 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+[29]: Item:  WorkshopRead { Epoch = SimulationEpoch { Value = 2 }, Tick = SimulationTick { Value = 130 }, Bodies = CuriousContraptions.Gpu.PhysicsBodyReadSet, Revision = AuthorityRevision { Value = 132 }, Capture = WorkshopClockStamp { Domain = SimulationMonotonic, Generation = ClockGeneration { Value = 1 }, Time = MonotonicNanoseconds { Value = 1199999956 }, Uncertainty = TimestampUncertainty { Value = 100000 } }, Captures = CuriousContraptions.Gpu.PhysicsCaptureRead, Motion = CuriousContraptions.Gpu.PhysicsMotionRead, Activations = CuriousContraptions.Gpu.PhysicsActivationRead, Timers = CuriousContraptions.Gpu.PhysicsTimerRead, ContactWorks = CuriousContraptions.Gpu.PhysicsContactWorkRead, Electrical = CuriousContraptions.Gpu.PhysicsElectricalRead, Memory = CuriousContraptions.Gpu.PhysicsMemoryRead, Presentation = CuriousContraptions.Gpu.PhysicsPresentationRead }
+      Error: Assert.False() Failure
+             Expected: False
+             Actual:   True
+  Stack Trace:
+     at CuriousContraptions.Tests.SwitchElectricalTests.SeededCycleLosesAndRestoresPowerWithoutChangingEitherLatch() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/SwitchElectricalTests.cs:line 121
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.SwitchElectricalTests.CyclicClockProvenanceTerminatesAndMultipleSourcesRemainRejectedForAccounting [3 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: True) [126 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: False) [109 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [110 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [107 ms]
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:06.55]     CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [FAIL]
+[xUnit.net 00:00:06.55]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:06.55]       Expected: Applied
+[xUnit.net 00:00:06.55]       Actual:   Faulted
+[xUnit.net 00:00:06.55]       Stack Trace:
+[xUnit.net 00:00:06.55]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:06.55]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:06.55]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:06.55]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/ElectricalOrTests.cs(163,0): at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds)
+[xUnit.net 00:00:06.55]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: False) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: True) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [24 ms]
+  Failed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [29 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/ElectricalOrTests.cs:line 163
+--- End of stack trace from previous location ---
+CCGPU_ADVANCE_EXCEPTION System.ArgumentException: Invalid committed electrical logic observation.
+   at CuriousContraptions.Gpu.ElectricalLogicRead.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 13
+   at CuriousContraptions.Gpu.PhysicsPresentationRead..ctor(ReadOnlySpan`1 actuators, ReadOnlySpan`1 loads, ReadOnlySpan`1 logic) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 65
+   at CuriousContraptions.Gpu.PhysicsGpuAbi.ReadPresentation(ReadOnlySpan`1 bytes, PhysicsTickInputs inputs, Boolean admission) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/PhysicsPresentationRead.cs:line 101
+   at WorkshopGpuDevice.Stage(Byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network, CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[] colliders, WorkshopTickControls controls) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.Simulation/WorkshopGpuDevice.cs:line 189
+   at CuriousContraptions.Gpu.WorkshopSimulation.AdvanceCore(Boolean step) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/engine/gpu/WorkshopSimulation.cs:line 286
+[xUnit.net 00:00:06.58]     CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [FAIL]
+[xUnit.net 00:00:06.58]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:06.58]       Expected: Applied
+[xUnit.net 00:00:06.58]       Actual:   Faulted
+[xUnit.net 00:00:06.58]       Stack Trace:
+[xUnit.net 00:00:06.58]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(772,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:06.58]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:06.58]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs(777,0): at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases)
+[xUnit.net 00:00:06.58]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/ElectricalOrTests.cs(163,0): at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds)
+[xUnit.net 00:00:06.58]         --- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [28 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 772
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/omut/CuriousContraptions.tests/ElectricalOrTests.cs:line 163
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LawMonotonicityAndUndefinedValuesAreClosed [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: True) [14 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: False) [13 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ClosingOneSwitchOpensTheOutputAndSaveLoadAndResetAreExact [61 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithNor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithNand) [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [< 1 ms]
+[xUnit.net 00:00:06.71]   Finished:    CuriousContraptions.tests (ID = 'f3843c07fbf537cbbcd2616e28069f43bfff4c6d83f3b4f1e77061fd77449f6f')
+  Passed CuriousContraptions.Tests.ElectricalOrTests.CompiledGraphAdmitsAnOrCycleAndRejectsAMixedOne [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.TrueRowWithoutSupplyWireNeverCreatesPower [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PureOrLoopIsAdmittedBySaveAndConstruct [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [4 ms]
+
+Test Run Failed.
+Total tests: 202
+     Passed: 196
+     Failed: 6
+ Total time: 6.9123 Seconds

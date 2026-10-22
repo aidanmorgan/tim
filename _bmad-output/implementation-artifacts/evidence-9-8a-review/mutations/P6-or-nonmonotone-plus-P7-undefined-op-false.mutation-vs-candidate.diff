@@ -1,0 +1,20 @@
+2c2
+< index a023d289..6add5dd2 100644
+---
+> index a023d289..0cd5857c 100644
+5c5
+< @@ -168,6 +168,7 @@ public sealed class CompiledSupplyGraph
+---
+> @@ -168,7 +168,8 @@ public sealed class CompiledSupplyGraph
+8a9
+> -        _ => throw new ArgumentOutOfRangeException(nameof(operation))
+10c11
+<          _ => throw new ArgumentOutOfRangeException(nameof(operation))
+---
+> +        _ => false
+12a14
+>      public static bool IsMonotone(LogicGateOperation operation) => operation switch
+17c19
+< +        LogicGateOperation.Or => true,
+---
+> +        LogicGateOperation.Or => false,

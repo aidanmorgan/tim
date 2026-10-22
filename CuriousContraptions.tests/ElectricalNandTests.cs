@@ -130,28 +130,28 @@ public sealed class ElectricalNandTests
             }
     }
 
-    /// <summary>CAT-024 D6 with Both Gate in place of the undelivered Or (9.8a): battery 1 feeds the Not both gate's first input
-    /// directly and its second input through a Both Gate. Enabling it retracts the output on the very first tick.</summary>
+    /// <summary>CAT-024 D6 (CAT-026 O9): battery 1 feeds the Not both gate's first input directly and its second input through an
+    /// Either gate (its first input only). Enabling it retracts the output on the very first tick.</summary>
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task ReconvergentConditionRetractsOutputOnTheSameTick(bool gateFirst)
     {
-        ulong both=gateFirst?Gate:6, nand=gateFirst?6:Gate;
+        ulong either=gateFirst?Gate:6, nand=gateFirst?6:Gate;
         var parts=new List<IWorkshopInstance>{Battery(1,-8,false),Battery(2,-5,true),
-            WorkshopInput.Generic(BothGateTests.Kind,new(both),-1,3,-3,0,0,0,1),
+            WorkshopInput.Generic(ElectricalOrTests.Kind,new(either),-1,3,-3,0,0,0,1),
             WorkshopInput.Generic(Kind,new(nand),3,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.PoweredGate,new(Consumer),9,3,0,0,0,0,1)};
         if(gateFirst) parts.Reverse();
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
-            Link(1,nand,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.FirstIn),Link(1,both,WorkshopSocket.SecondIn),Link(2,both),
-            Link(both,nand,WorkshopSocket.SecondIn),Link(2,nand),Link(nand,Consumer)));
+            Link(1,nand,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
+            Link(either,nand,WorkshopSocket.SecondIn),Link(2,nand),Link(nand,Consumer)));
         var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([],90),([new(new(1),ElectricalEnable.Enabled)],40));
         Assert.All(phases[0],read=>{Assert.Equal(ElectricalInputState.Neither,Logic(read,nand).Inputs);Assert.True(Logic(read,nand).Active);Assert.True(Powered(read));});
         Assert.True(BladeY(phases[0][^1])>BladeY(phases[0][0])+.2f);
         Assert.All(phases[1],read=>
         {
-            Assert.True(Logic(read,both).Active);
+            Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,either).Inputs);Assert.True(Logic(read,either).Active);
             Assert.Equal(ElectricalInputState.Both,Logic(read,nand).Inputs);Assert.False(Logic(read,nand).Active);Assert.False(Powered(read));
         });
         Assert.True(BladeY(phases[1][^1])<BladeY(phases[0][^1])-.02f);
@@ -181,18 +181,21 @@ public sealed class ElectricalNandTests
         NoFixedCapacityTests.AssertSameState(built,reset,"monotone loop Reset");
     }
 
-    public enum FeedbackLoop { NandToNand, ThroughBothGate, ThroughOpenSwitch, EnteringPowerIn }
+    public enum FeedbackLoop { NandToNand, ThroughBothGate, ThroughOr, ThroughOpenSwitch, EnteringPowerIn }
     /// <summary>Each loop as an acyclic construction plus the one wire that closes it, and the ids the refusal must name.</summary>
     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string Ids) LoopCase(FeedbackLoop loop)
     {
         IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),x,3,0,0,0,0,1);
         IWorkshopInstance Both(ulong id,float x)=>WorkshopInput.Generic(BothGateTests.Kind,new(id),x,3,-3,0,0,0,1);
+        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(ElectricalOrTests.Kind,new(id),x,3,-3,0,0,0,1);
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
             FeedbackLoop.NandToNand => (new[]{supply,Nand(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
             FeedbackLoop.ThroughBothGate => (new[]{supply,Nand(4,0),Both(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn),Link(4,6,WorkshopSocket.SecondIn)},
+                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+            FeedbackLoop.ThroughOr => (new[]{supply,Nand(4,0),Either(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
             FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Nand(4,0),WorkshopInput.Generic(PartId.ImpactSwitch,new(6),4,1,0,0,0,0,1)},
                 new[]{Link(1,4),Link(4,6)},Link(6,4,WorkshopSocket.FirstIn),"4, 6"),
@@ -207,6 +210,7 @@ public sealed class ElectricalNandTests
     [Theory]
     [InlineData(FeedbackLoop.NandToNand)]
     [InlineData(FeedbackLoop.ThroughBothGate)]
+    [InlineData(FeedbackLoop.ThroughOr)]
     [InlineData(FeedbackLoop.ThroughOpenSwitch)]
     [InlineData(FeedbackLoop.EnteringPowerIn)]
     public async Task ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop)
@@ -278,8 +282,8 @@ public sealed class ElectricalNandTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nand,row.Item1,row.Item2)).ToArray());
         Assert.True(CompiledSupplyGraph.IsMonotone(LogicGateOperation.And));
         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nand));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)3,true,true));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)3));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)4,true,true));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)4));
         Assert.Equal(LogicGateOperation.Nand,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,(WorkshopSocket)255))}).Validate());
