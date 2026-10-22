@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (throwaway, C-Bumper+Spring): decode every pre-conversion (3fce7a03) save and Construct command with the
+/// candidate's save boundary and command decode.</summary>
+public sealed class ReviewOldSaveProbe
+{
+    internal static string Describe(IWorkshopInstance instance) => instance switch
+    {
+        WorkshopGenericInstance g => $"Generic {g.PartId.Value} id={g.Id.Value} cell={g.Cell} local={g.Local} rot={g.Rotation} locked={g.Locked} params=[" +
+            string.Join(",", g.Parameters.ToBundleValues().OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}={p.Value:R}")) + "]",
+        _ => instance.ToString()!
+    };
+
+    [Fact]
+    public void DecodeOldSaves()
+    {
+        var dir = Environment.GetEnvironmentVariable("REVIEW_OLD_SAVES") ?? throw new InvalidOperationException("REVIEW_OLD_SAVES unset");
+        var report = new List<string>();
+        foreach (var file in Directory.GetFiles(dir, "*.save.bin").OrderBy(f => f, StringComparer.Ordinal))
+        {
+            var name = Path.GetFileName(file)[..^".save.bin".Length];
+            try
+            {
+                var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, File.ReadAllBytes(file)).Construction.Instances.Select(Describe);
+                report.Add($"{name}: save LOADED {string.Join(" | ", loaded)}");
+            }
+            catch (WorkshopSaveRejectedException refusal) { report.Add($"{name}: save REFUSED {refusal.Reason} ({refusal.Message})"); }
+            catch (ArgumentException domain) { report.Add($"{name}: save REFUSED-UNTYPED {domain.GetType().Name} ({domain.Message})"); }
+            try
+            {
+                var decoded = WorkshopWireFlatBuffers.DecodeCommand(File.ReadAllBytes(Path.Combine(dir, name + ".command.bin")))
+                    .Construction!.Value.Instances.Select(Describe);
+                report.Add($"{name}: command LOADED {string.Join(" | ", decoded)}");
+            }
+            catch (WireFaultException fault) { report.Add($"{name}: command REFUSED {fault.Reason} ({fault.Message})"); }
+            catch (ArgumentException domain) { report.Add($"{name}: command REFUSED-UNTYPED {domain.GetType().Name} ({domain.Message})"); }
+        }
+        File.WriteAllLines(Path.Combine(dir, "cand-decode.txt"), report);
+    }
+}

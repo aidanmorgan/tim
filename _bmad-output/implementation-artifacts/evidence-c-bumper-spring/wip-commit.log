@@ -1,0 +1,239 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.e4zyfP/solution.binlog
+
+Time Elapsed 00:00:08.29
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.e4zyfP/playtest.binlog
+
+Time Elapsed 00:00:12.57
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.e4zyfP/web.binlog
+
+Time Elapsed 00:00:07.16
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs
+Anvil snapshot 1.ts: CuriousContraptions.Bundle/BundleSchema.cs
+Anvil snapshot 2.ts: CuriousContraptions.Bundle/BundleValidator.cs
+Anvil snapshot 3.ts: CuriousContraptions.tests/BasketballResourceTests.cs
+Anvil snapshot 4.ts: CuriousContraptions.tests/CSharpStaticGateTests.cs
+Anvil snapshot 5.ts: CuriousContraptions.tests/ContactWorkInstanceTests.cs
+Anvil snapshot 6.ts: CuriousContraptions.tests/ElectricalSupplyTests.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/LaunchLessonSolveTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/NoFixedCapacityTests.cs
+Anvil snapshot 9.ts: CuriousContraptions.tests/OldLayoutSaves.cs
+Anvil snapshot 10.ts: CuriousContraptions.tests/PackageRuntimeParityTests.cs
+Anvil snapshot 11.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+Anvil snapshot 12.ts: CuriousContraptions.tests/PayloadInstanceTests.cs
+Anvil snapshot 13.ts: CuriousContraptions.tests/PlacedParts.cs
+Anvil snapshot 14.ts: CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+Anvil snapshot 15.ts: CuriousContraptions.tests/SliderInstanceTests.cs
+Anvil snapshot 16.ts: CuriousContraptions.tests/SwitchElectricalTests.cs
+Anvil snapshot 17.ts: CuriousContraptions.tests/WorkbenchCapacityTests.cs
+Anvil snapshot 18.ts: CuriousContraptions.tests/WorkshopActivationAnimationTests.cs
+Anvil snapshot 19.ts: CuriousContraptions.tests/WorkshopBumperTests.cs
+Anvil snapshot 20.ts: CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+Anvil snapshot 21.ts: CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
+Anvil snapshot 22.ts: CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+Anvil snapshot 23.ts: CuriousContraptions.tests/WorkshopReadTests.cs
+Anvil snapshot 24.ts: CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+Anvil snapshot 25.ts: CuriousContraptions.tests/WorkshopSaveTests.cs
+Anvil snapshot 26.ts: CuriousContraptions.tests/WorkshopSimulationTests.cs
+Anvil snapshot 27.ts: CuriousContraptions.tests/WorkshopSpringboardTests.cs
+Anvil snapshot 28.ts: CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+Anvil snapshot 29.ts: elements/Bumper/BumperElementDeclaration.cs
+Anvil snapshot 30.ts: engine/MachinePart.cs
+Anvil snapshot 31.ts: engine/MachineWorld.Gpu.cs
+Anvil snapshot 32.ts: engine/gpu/AuthoredInstanceTemplate.cs
+Anvil snapshot 33.ts: engine/gpu/ContactWorkDeclaration.cs
+Anvil snapshot 34.ts: engine/gpu/DeclaredPhysics.cs
+Anvil snapshot 35.ts: engine/gpu/WorkshopConstruction.cs
+Anvil snapshot 36.ts: engine/gpu/WorkshopInstances.cs
+Anvil snapshot 37.ts: engine/gpu/WorkshopPhysicsCompiler.cs
+Anvil snapshot 38.ts: engine/gpu/WorkshopSavePrevalidation.cs
+Anvil snapshot 39.ts: engine/gpu/WorkshopWireFlatBuffers.cs
+Anvil snapshot 40.ts: engine/gpu/WorkshopWireGenerated.cs
+Anvil snapshot 41.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 42.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 43.ts: tools/e2e/cat-015a-sidekick.test.ts
+Anvil snapshot 44.ts: tools/e2e/cat-015a.test.ts
+Anvil snapshot 45.ts: tools/e2e/cat-015b.test.ts
+Anvil snapshot 46.ts: tools/e2e/cat-062.test.ts
+Anvil snapshot 47.ts: tools/e2e/cat-062b.test.ts
+Anvil snapshot 48.ts: tools/e2e/run-reset-snapshot.ts
+Anvil snapshot 49.ts: tools/e2e/workshop-wire.ts
+Anvil snapshot 50.ts: ui/WorkshopConfiguration.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-22T03:39:58.034901+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts",
+    "26.ts",
+    "27.ts",
+    "28.ts",
+    "29.ts",
+    "30.ts",
+    "31.ts",
+    "32.ts",
+    "33.ts",
+    "34.ts",
+    "35.ts",
+    "36.ts",
+    "37.ts",
+    "38.ts",
+    "39.ts",
+    "40.ts",
+    "41.ts",
+    "42.ts",
+    "43.ts",
+    "44.ts",
+    "45.ts",
+    "46.ts",
+    "47.ts",
+    "48.ts",
+    "49.ts",
+    "50.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 41,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.4PEnEO/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+[story-c-bumper-spring ac4a858] WIP C-Bumper+Spring candidate (pre-merge)
+ 142 files changed, 10623 insertions(+), 914 deletions(-)
+ create mode 100644 CuriousContraptions.tests/ContactWorkInstanceTests.cs
+ create mode 100644 CuriousContraptions.tests/LaunchLessonSolveTests.cs
+ create mode 100644 CuriousContraptions.tests/OldLayoutSaves.cs
+ create mode 100644 CuriousContraptions.tests/PlacedParts.cs
+ create mode 100644 CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+ create mode 100644 CuriousContraptions.tests/SliderInstanceTests.cs
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/attempt1-instance-suites.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-classes-filter.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-classes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-full.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-launch-routes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-new-suites.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-tests-build1.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-tests-build2.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-tests-build3.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/baseline-tests-build4.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/old-layout-equality-run.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/old-layout-equality.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/probe-base-lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/probe-base-placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/baseline/probe-base-run.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/cand1-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/cand2-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/ci-game.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/ci-tools-step-source.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/ci-tools.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/deletion-greps.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/final-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/final-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/known-rows.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/old-layout-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/probe-cand-lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/probe-cand-placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/probe-cand-run.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/superseded-first-freeze/ci-game.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/superseded-first-freeze/ci-tools.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/superseded-first-freeze/final-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/superseded-first-freeze/final-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/superseded-first-freeze/web-publish.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/superseded-first-freeze/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/ts-snapshot-unit.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/tsc.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/web-publish.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/wire-regeneration.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/candidate/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M0-control.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M0-control.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M1-hardcoded-threshold-cooldown.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M1-hardcoded-threshold-cooldown.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M1-hardcoded-threshold-cooldown.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M2-reference-mass-ignored.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M2-reference-mass-ignored.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M2-reference-mass-ignored.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M3-rest-pose-compounds.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M3-rest-pose-compounds.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M3-rest-pose-compounds.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M4-clamp-every-parameter.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M4-clamp-every-parameter.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M4-clamp-every-parameter.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M5-bumper-reject-policy.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M5-bumper-reject-policy.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M5-bumper-reject-policy.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M6-compression-not-presented.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M6-compression-not-presented.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/M6-compression-not-presented.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/invalid-stale-build/M5-bumper-reject-policy.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/invalid-stale-build/M5-bumper-reject-policy.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/invalid-stale-build/M5-bumper-reject-policy.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/invalid-stale-build/M6-compression-not-presented.build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/invalid-stale-build/M6-compression-not-presented.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/mutations/invalid-stale-build/M6-compression-not-presented.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/probe/LessonWorldProbe.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/probe/OldLayoutEqualityProbe.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/probe/OldLayoutOutcomeProbe.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/probe/PlacedParts-candidate.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/probe/adapter.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-bumper-spring/wire-regeneration-before-install.txt
+ create mode 100644 _bmad-output/implementation-artifacts/spec-c-bumper-spring.md
+ delete mode 100644 engine/gpu/WorkshopBumper.cs
+ delete mode 100644 engine/gpu/WorkshopBumper.cs.uid
+ delete mode 100644 engine/gpu/WorkshopSpringboard.cs
+ delete mode 100644 engine/gpu/WorkshopSpringboard.cs.uid

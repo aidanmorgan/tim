@@ -1,0 +1,30 @@
+5,6c5,7
+< /// <summary>Scratch probe, record-path copy (main 55ee05b9): identical cases and outcome lines to the candidate copy; only the part
+< /// constructors (WorkshopInput.Bumper/Springboard) and the inlined goal check differ.</summary>
+---
+> /// <summary>Scratch probe (not part of the candidate): each launch lesson's content `solution` row placed at its authored pose through
+> /// the lesson's production placement (`WithInstance`), at every precision, judged by the goal evaluator; plus candidate corrected poses.
+> /// The only line that differs from the record-path copy is the bumper/springboard construction.</summary>
+9a11,12
+>     // content/puzzles.json solution orientation for bumper_depth: row-major [[c,0,-1],[0,1,0],[1,0,c]] with c ≈ -4.37e-8, i.e. a
+>     // −90° turn about Y (the Bumper is a sphere, so its turn does not change its collider).
+12,13c15,16
+<     private static WorkshopBumper Bumper(double x, double y, double z, double qy = 0, double qw = 1) =>
+<         WorkshopInput.Bumper(Player, x, y, z, 0, qy, 0, qw, BumperWork.FromCanonicalStrength(8f));
+---
+>     private static IWorkshopInstance Bumper(double x, double y, double z, double qy = 0, double qw = 1) =>
+>         PlacedParts.Bumper(Player, x, y, z, qy: qy, qw: qw);
+18,20d20
+<     private static bool Solved(WorkshopConstruction construction, IEnumerable<WorkshopRead> run) =>
+<         run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations) is not null);
+< 
+26,27c26,27
+<         yield return ("content", "spring_forward", l => l.WithInstance(WorkshopInput.Springboard(Player, -3, .8, 0, 0, 0,
+<             -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), new(400f, .2f, 0f))));
+---
+>         yield return ("content", "spring_forward", l => l.WithInstance(PlacedParts.Springboard(Player, -3, .8, 0, 0, 0,
+>             -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18))));
+60c60
+<                 lines.Add($"{name} {lesson} {(float)precision} placedAt={at} solved={Solved(bench, run)} paidReads={paid}");
+---
+>                 lines.Add($"{name} {lesson} {(float)precision} placedAt={at} solved={LaunchLessonSolveTests.Solved(bench, run)} paidReads={paid}");

@@ -53,6 +53,57 @@ public sealed class LaunchLessonSolveTests
     internal static bool Solved(WorkshopConstruction construction, IEnumerable<WorkshopRead> run) =>
         run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations) is not null);
 
+    /// <summary>The lesson's authored `solution` rows (content/puzzles.json), each part placed at its authored pose through the lesson's
+    /// production placement. The orientation is the Basis column-major array the content stores (as JoinedPipeTests reads it).</summary>
+    private static readonly string[] WallKeys = ["width", "height", "thickness"];
+
+    private static WorkshopConstruction AuthoredSolution(string lesson, Half precision)
+    {
+        using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
+        var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == lesson);
+        var construction = PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
+        var next = 3UL;
+        foreach (var row in level.GetProperty("solution").EnumerateArray())
+        {
+            var p = row.GetProperty("position").EnumerateArray().Select(value => value.GetDouble()).ToArray();
+            var o = row.GetProperty("orientation").EnumerateArray().Select(value => (float)value.GetDouble()).ToArray();
+            var q = new Godot.Basis(new Godot.Vector3(o[0], o[1], o[2]), new Godot.Vector3(o[3], o[4], o[5]), new Godot.Vector3(o[6], o[7], o[8]))
+                .GetRotationQuaternion();
+            var id = new GpuBodyId(next++);
+            var properties = row.GetProperty("properties");
+            IWorkshopInstance part = row.GetProperty("kind").GetString() switch
+            {
+                "bumper" => PlacedParts.Bumper(id, p[0], p[1], p[2], qx: q.X, qy: q.Y, qz: q.Z, qw: q.W),
+                "spring" => PlacedParts.Springboard(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "wall" => WorkshopInput.Generic(PartId.Wall, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new(
+                    WallKeys.Select(key => KeyValuePair.Create(new ParameterId(key), (float)properties.GetProperty(key).GetDouble())))),
+                var kind => throw new ArgumentException($"No authored-solution placement for '{kind}'.")
+            };
+            construction = construction.WithInstance(part);
+        }
+        return construction;
+    }
+
+    // The authored solution of every placement-launch lesson solves at every precision (the bumper rows were corrected from x/z 3.2 to
+    // 3.3 on 22 Oct 2026: at 3.2 the 0.2 m offset under the falling ball misses the Receiver on main 55ee05b9 and here alike,
+    // evidence-c-bumper-spring/lesson-pose/).
+    [Theory]
+    [InlineData("spring_forward")]
+    [InlineData("bumper_sidekick")]
+    [InlineData("bumper_depth")]
+    [InlineData("wall_and_bumper")]
+    public async Task TheAuthoredSolutionSolvesAtEveryPrecision(string lesson)
+    {
+        foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+        {
+            var bench = AuthoredSolution(lesson, precision);
+            bench.Validate();
+            var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
+            Assert.True(Solved(bench, run), $"{lesson} at precision {(float)precision}");
+            NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
+        }
+    }
+
     [Theory]
     [InlineData(Route.SpringPassive, true)]
     [InlineData(Route.SpringCharged, true)]

@@ -1,0 +1,22 @@
+# rg -w (production: excluding tests, _bmad-output, docs)
+./CuriousContraptions.tests/PlacedParts.cs:7:/// same two signatures built `WorkshopBumper`/`WorkshopSpringboard`: evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt.)</summary>
+rc=0
+# WorkshopInput.(Bumper|Springboard) anywhere
+rc=1
+# six scalar keys in content
+content/puzzles.json:36533:            "stiffness": 400,
+content/puzzles.json:36534:            "damping": 0.2,
+content/puzzles.json:36535:            "initial_compression": 0.2
+# schema fields
+rc=1
+# PascalCase scalar keys in content/
+rc=1
+# scalars key sets present in content
+  28 "Bounce":
+  28 "Capacity":
+  28 "Friction":
+  28 "InitialFraction":
+  28 "Length":
+  28 "Mass":
+  28 "MaximumPower":
+  28 "Threshold":
