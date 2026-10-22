@@ -174,7 +174,8 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             {
                 var instance = world.CaptureInstance(id, new(body++), BenchPoint, Quaternion.Identity);
                 Assert.Equal(id, instance.PartId);
-                if (instance is WorkshopBall ball) Assert.Equal(BallMaterial.For(id), ball.Material);
+                // A payload is placed as a zero-parameter generic instance; its material is its package's alone.
+                if (DeclaredPhysics.IsPayload(id)) Assert.Empty(Assert.IsType<WorkshopGenericInstance>(instance).Parameters);
                 WorkbenchCapacity.Validate([instance]);
                 var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instance));
                 var saved = new WorkshopSavedConstruction(construction, new(body));
@@ -245,15 +246,19 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     [Fact]
     public void ABenchPlacementDefectIsNotARejectionAndReachesTheHandlerBoundary()
     {
-        // No discovered registry: CaptureBall's lookup guard throws a plain ArgumentException, a defect rather than a declared
-        // refusal, so Propose must not turn it into a placement rejection (the handler boundary logs it as a fault).
+        // A bench point outside the world is a caller defect: the canonical position boundary throws a plain argument exception,
+        // not a declared refusal, so Propose must not turn it into a placement rejection (the handler boundary logs it as a fault).
         var world = new MachineWorld();
         try
         {
             var undo = 0;
-            var defect = Assert.Throws<ArgumentException>(() => WorkshopBenchPlacement.Propose(world, PartId.Basketball, new(7),
-                BenchPoint, Quaternion.Identity, null, () => undo++));
-            Assert.Equal("Unsupported ball kind.", defect.Message);
+            var defect = Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Propose(world, PartId.Domino, new(7),
+                new(100, 0, 0), Quaternion.Identity, null, () => undo++));
+            Assert.Equal("metres", defect.ParamName);
+            Assert.Equal(0, undo);
+            // Control: with no discovered registry a payload is a generic instance the declared rule refuses (UnsupportedPart).
+            var refused = WorkshopBenchPlacement.Propose(world, PartId.Basketball, new(7), BenchPoint, Quaternion.Identity, null, () => undo++);
+            Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
             Assert.Equal(0, undo);
             Assert.Empty(godot.Errors.Drain());
         }

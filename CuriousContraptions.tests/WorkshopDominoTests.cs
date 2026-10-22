@@ -8,7 +8,7 @@ public sealed class WorkshopDominoTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Basketball(new(1), .4, 3, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(PartId.Basketball,new(1), .4, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1)));
 
     [Fact]
@@ -128,7 +128,7 @@ public sealed class WorkshopDominoTests
         var sixteen = new WorkshopInstances([.. items]);
         sixteen.Validate();
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses the seventeenth moving body.
-        items.Add(WorkshopInput.Basketball(new(17), 7, 3, 0, 0, 0, 0, 1));
+        items.Add(WorkshopInput.Generic(PartId.Basketball,new(17), 7, 3, 0, 0, 0, 0, 1));
         var seventeen = new WorkshopInstances([.. items]);
         seventeen.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), seventeen), new(1, 2));

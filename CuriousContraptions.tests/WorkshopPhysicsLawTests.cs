@@ -6,9 +6,11 @@ using CuriousContraptions.Simulation;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Ball kinds the law tests declare; each maps to its catalogue identity and declared BallMaterial.</summary>
+/// <summary>Ball kinds the law tests declare; each maps to its catalogue identity and its package's declared material.</summary>
 public enum LawBall { Basketball, Bowling }
 
+/// <summary>Each kind's declared material as the compiler compiles it: the package's f32 declaration narrowed to the binary16 body,
+/// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled values.</summary>
 internal static class LawBalls
 {
     public static PartId Part(LawBall ball) => ball switch
@@ -17,12 +19,16 @@ internal static class LawBalls
         LawBall.Bowling => PartId.BowlingBall,
         _ => throw new ArgumentOutOfRangeException(nameof(ball), ball, "Unknown law ball."),
     };
-    public static BallMaterial Material(LawBall ball) => BallMaterial.For(Part(ball));
-    public static float Radius(LawBall ball) => (float)Material(ball).Radius.Value;
-    public static float Mass(LawBall ball) => (float)Material(ball).Mass.Value;
-    public static float Drag(LawBall ball) => (float)Material(ball).Drag.Value;
-    public static float Rolling(LawBall ball) => (float)Material(ball).Rolling.Value;
-    public static float Restitution(LawBall ball) => (float)Material(ball).Bounce.Value;
+    private static CuriousContraptions.Abstractions.ColliderDescriptor Sphere(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Colliders);
+    private static CuriousContraptions.Abstractions.Mechanical.RigidBodyMassProperties Body(LawBall ball) =>
+        DeclaredPhysics.Of(Part(ball)).Mechanical!.MassProperties;
+    public static float Radius(LawBall ball) => (float)(Half)Sphere(ball).HalfExtents.X;
+    public static float Mass(LawBall ball) => (float)(Half)Body(ball).Mass;
+    public static float Drag(LawBall ball) => (float)(Half)Body(ball).LinearDrag;
+    public static float Rolling(LawBall ball) => (float)(Half)Sphere(ball).Material.RollingResistance;
+    public static float Restitution(LawBall ball) => (float)(Half)Sphere(ball).Material.Restitution;
+    public static float Friction(LawBall ball) => (float)(Half)Sphere(ball).Material.Friction;
+    public static float BounceThreshold(LawBall ball) => (float)(Half)Sphere(ball).Material.BounceThreshold;
 }
 
 /// <summary>Declared contact material of one law-test body (the same lanes ContactMaterialDeclaration admits).</summary>
@@ -32,12 +38,8 @@ internal readonly record struct LawMaterial(float Restitution, float Threshold, 
     public static LawMaterial Bench => new(1f, .1f, .3f, 0f);
     public static LawMaterial Domino => new((float)DominoMaterial.Default.Bounce.Value, (float)DominoMaterial.BounceThreshold.Value,
         (float)DominoMaterial.Default.Friction.Value, 0f);
-    public static LawMaterial Ball(LawBall ball)
-    {
-        var material = LawBalls.Material(ball);
-        return new((float)material.Bounce.Value, (float)material.BounceThreshold.Value, (float)material.Friction.Value,
-            (float)material.Rolling.Value);
-    }
+    public static LawMaterial Ball(LawBall ball) =>
+        new(LawBalls.Restitution(ball), LawBalls.BounceThreshold(ball), LawBalls.Friction(ball), LawBalls.Rolling(ball));
 }
 
 /// <summary>

@@ -14,7 +14,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         Assert.Equal(8.000001f, declared.Strength.Value);
         Assert.NotEqual((float)(Half)8.000001f, declared.Strength.Value);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
-            WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1),
             WorkshopInput.Bumper(new(2), 0, 4, 0, 0, 0, 0, 1, declared)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
@@ -34,20 +34,20 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         registry.Load();
         Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
-        var definition = registry.Definitions[PartId.Basketball];
-        var material = definition.Ball!.Value;
-        Assert.Equal((ushort)13681, BitConverter.HalfToUInt16Bits(material.Radius.Value));
-        Assert.Equal((ushort)14438, BitConverter.HalfToUInt16Bits(material.Bounce.Value));
-        Assert.Equal((ushort)10363, BitConverter.HalfToUInt16Bits(material.Rolling.Value));
-        Assert.Equal(BallMaterial.For(PartId.Basketball), material);
-        Assert.Throws<ArgumentException>(() => material.Validate(PartId.BowlingBall)); // Basketball bits are not a Bowling ball
-        var bowlingDefinition = registry.Definitions[PartId.BowlingBall];
-        var bowlingMaterial = bowlingDefinition.Ball!.Value;
-        Assert.Equal(BallMaterial.For(PartId.BowlingBall), bowlingMaterial);
-        Assert.Equal((ushort)13435, BitConverter.HalfToUInt16Bits(bowlingMaterial.Radius.Value));
-        Assert.Equal((ushort)17408, BitConverter.HalfToUInt16Bits(bowlingMaterial.Mass.Value));
-        Assert.Equal((ushort)12411, BitConverter.HalfToUInt16Bits(bowlingMaterial.Bounce.Value));
-        Assert.Equal((ushort)10158, BitConverter.HalfToUInt16Bits(bowlingMaterial.Rolling.Value));
+        // The canonical binary16 bits each package's material compiles to (the generic dynamic-body compile).
+        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Generic(PartId.Basketball, new(1), -1, 2, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.BowlingBall, new(2), 1, 2, 0, 0, 0, 0, 1))), new(1, 2));
+        (ushort Radius, ushort Mass, ushort Bounce, ushort Rolling) Bits(ulong id)
+        {
+            var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == new GpuBodyId(id));
+            var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == body.Id);
+            var surface = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
+            return (BitConverter.HalfToUInt16Bits(sphere.Radius.Value), BitConverter.HalfToUInt16Bits(body.Mass.Value),
+                BitConverter.HalfToUInt16Bits(surface.Restitution.Value), BitConverter.HalfToUInt16Bits(surface.RollingResistance.Value));
+        }
+        Assert.Equal(((ushort)13681, (ushort)15360, (ushort)14438, (ushort)10363), Bits(1));
+        Assert.Equal(((ushort)13435, (ushort)17408, (ushort)12411, (ushort)10158), Bits(2));
         var ball = registry.Create(PartId.Basketball);
         var bowling = registry.Create(PartId.BowlingBall);
         try
@@ -55,8 +55,10 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             godot.Tree.Root.AddChild(ball); godot.Tree.Root.AddChild(bowling);
             static float Radius(MachinePart part) => part.Visual.GetChildren().OfType<MeshInstance3D>()
                 .Select(n => n.Mesh).OfType<SphereMesh>().Single().Radius;
-            Assert.Equal((float)material.Radius.Value, Radius(ball));
-            Assert.Equal((float)bowlingMaterial.Radius.Value, Radius(bowling)); // visible art size equals the declared collision radius
+            // The committed scene art is the declared collider: its f32 mesh radius is the package's f32 sphere radius (no runtime resize).
+            Assert.Equal(Assert.Single(DeclaredPhysics.Of(PartId.Basketball).Colliders).HalfExtents.X, Radius(ball));
+            Assert.Equal(Assert.Single(DeclaredPhysics.Of(PartId.BowlingBall).Colliders).HalfExtents.X, Radius(bowling));
+            Assert.Equal((.34f, .28f), (Radius(ball), Radius(bowling)));
             Assert.Equal(new Color(0.27f, 0.39f, 0.61f), bowling.Definition.Color);
         }
         finally { ball.GetParent()?.RemoveChild(ball); ball.Free(); bowling.GetParent()?.RemoveChild(bowling); bowling.Free(); }
@@ -214,18 +216,13 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void UnknownCatalogueAndOldFloatDeclarationRejectBeforeConstruction()
+    public void UnknownCatalogueRejectsBeforeConstruction()
     {
+        // C-Balls: a ball's material is its bundle entry alone (no separate material to omit), so only an unknown part is refused here.
         var registry = new PartRegistry();
         registry.Load();
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unsupported")));
         Assert.Throws<ArgumentException>(() => registry.Create(new PartId("999")));
-        // A ball kind without its declared material is refused before construction.
-        var obsolete = new PartDefinition(PartId.Basketball, "Basketball", "A ball.", CuriousContraptions.Abstractions.ElementCategory.Motion,
-            Colors.Orange, "res://elements/Ball/icon.svg", null, null, TestBundle.Entry(PartId.Basketball));
-        var ball = new MachinePart();
-        try { Assert.Throws<ArgumentException>(() => ball.Configure(obsolete)); }
-        finally { ball.Free(); }
     }
 
     [Fact]

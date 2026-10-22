@@ -111,7 +111,7 @@ public static class WorkshopPhysicsCompiler
             };
             var first = PartIdentities(frame.Id);
             var targetIndex = 0UL;
-            foreach (var target in construction.Instances.OfType<WorkshopBall>().OrderBy(body => body.Id.Value))
+            foreach (var target in construction.Instances.Where(instance => DeclaredPhysics.IsPayload(instance.PartId)).OrderBy(body => body.Id.Value))
             {
                 var sensorId = !construction.Puzzle.Id.IsAuthored ? first + 16 + targetIndex * 2 : first + 6;
                 sensors.Add(new(new(sensorId), frame.Id, target.Id, RigidLocalPose.Identity,
@@ -132,11 +132,11 @@ public static class WorkshopPhysicsCompiler
                 battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
         foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
             if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact &&
-                (!construction.Puzzle.Id.IsAuthored || construction.Ball.HasValue))
+                (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
                 triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, Targets(construction),
                     new(trigger.Parameters[new ParameterId(contact.ThresholdParameter)])));
         foreach (var bumper in construction.Instances.OfType<WorkshopBumper>())
-            if (!construction.Puzzle.Id.IsAuthored || construction.Ball.HasValue)
+            if (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null)
                 contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, Targets(construction), bumper.Work.Strength,
                     bumper.Work.Preload, new(.05f), 72));
         foreach (var plate in construction.Instances.OfType<WorkshopPressurePlate>())
@@ -200,7 +200,11 @@ public static class WorkshopPhysicsCompiler
 
     private static BodyTargetSet Targets(WorkshopConstruction construction) => !construction.Puzzle.Id.IsAuthored
         ? new(BodyTargetKind.AllDynamic, default)
-        : new(BodyTargetKind.NamedBody, construction.Ball?.Id ?? throw new ArgumentException("Missing named puzzle body."));
+        : new(BodyTargetKind.NamedBody, FirstPayload(construction)?.Id ?? throw new ArgumentException("Missing named puzzle body."));
+
+    /// <summary>The lesson's named body: the first payload in instance order.</summary>
+    private static IWorkshopInstance? FirstPayload(WorkshopConstruction construction) =>
+        construction.Instances.FirstOrDefault(instance => DeclaredPhysics.IsPayload(instance.PartId));
 
     internal static ulong PartIdentities(GpuBodyId id)
     {

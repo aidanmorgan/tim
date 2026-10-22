@@ -223,7 +223,7 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     // ---------- Every codec carries the length ----------
 
     private static WorkshopConstruction Bench(float metres) =>
-        new(new(1), WorkshopCadenceSettings.Default(), new(WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1), Pipe(metres, 2)));
+        new(new(1), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), Pipe(metres, 2)));
 
     [Theory]
     [InlineData(1f)]

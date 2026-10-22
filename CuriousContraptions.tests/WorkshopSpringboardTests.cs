@@ -112,7 +112,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     public void UnsupportedWireTailRejectsBeforeMutation()
     {
         var definition = new PartDefinition(PartId.Springboard, "Springboard", "A springboard.", CuriousContraptions.Abstractions.ElementCategory.Motion,
-            Colors.White, "res://elements/Springboard/icon.svg", null, null, TestBundle.Entry(PartId.Springboard));
+            Colors.White, "res://elements/Springboard/icon.svg", null, TestBundle.Entry(PartId.Springboard));
         var part = new MachinePart();
         try
         {
@@ -130,7 +130,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
                 new SpringboardSettings(float.NaN, .2f, 0f) })
             {
                 var malformedConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-                    new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(invalidSettings)));
+                    new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1), Board(invalidSettings)));
                 var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
                 var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
                 var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
@@ -146,7 +146,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         return new(new(2), new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local), CanonicalRotation.Identity, settings);
     }
     private static WorkshopConstruction Construction(SpringboardSettings? settings = null) => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1),
             WorkshopInput.Springboard(new(2), 0, 1, 0, 0, 0, 0, 1, settings ?? SpringboardSettings.Default)));
 
     [Theory]
@@ -212,7 +212,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var encoded = WorkshopSaveCodec.Encode(save);
         Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,encoded));
         var badConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(float.NaN, damping))));
+            new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(float.NaN, damping))));
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
         var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
@@ -253,7 +253,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             var saved = new WorkshopSavedConstruction(Construction(new(400, .2f, .2f)), new(3));
             var accepted = WorkshopSaveCodec.Encode(saved);
             var badConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-                new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(400, .2f, compression))));
+                new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(400, .2f, compression))));
             var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
             var savedBytes = SaveFixture.Finish(builder, crOffset, 3);

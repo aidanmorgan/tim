@@ -272,11 +272,11 @@ development_status:
   # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)
   9-7-electrical-logic-gates-nand-nor: backlog
   # 26 (deletion)
-  9a-c-balls-conversion: backlog
+  9a-c-balls-conversion: review
   # merged into 9a-c-balls (21 Oct 2026)
-  9a-30-generic-instance-basketball: backlog
+  9a-30-generic-instance-basketball: review
   # merged into 9a-c-balls (21 Oct 2026)
-  9a-31-generic-instance-bowling-ball: backlog
+  9a-31-generic-instance-bowling-ball: review
   # merged into 9a-c-balls (21 Oct 2026) as its suite-first guard
   9r-11-cat-001-basketball-suite: backlog
   # 27 (element)

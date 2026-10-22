@@ -6,7 +6,7 @@ namespace CuriousContraptions.Tests;
 public sealed class ContactActivationTests
 {
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
             new WorkshopLamp(new(3), new(48, 16, 0), default, CanonicalRotation.Identity)));
 
@@ -165,7 +165,7 @@ public sealed class ContactActivationTests
     public async Task RealImpactAndMissDisconnectedControlsRestoreExactly(bool connected, bool miss, bool lampOn)
     {
         var construction = Construction() with { Revision = new(2), Instances = new(
-            WorkshopInput.Basketball(new(1), miss ? 2 : 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball,new(1), miss ? 2 : 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1,
                 new([new(new ParameterId("trigger_threshold"), 1.234567f)])),
             WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
@@ -218,7 +218,7 @@ public sealed class ContactActivationTests
             var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1,
                 new([new(new ParameterId("trigger_threshold"), threshold)]));
             var construction = Construction() with { Instances = new(
-                WorkshopInput.Basketball(new(1), -.88, .85, 0, 0, 0, 0, 1), trigger,
+                WorkshopInput.Generic(PartId.Basketball,new(1), -.88, .85, 0, 0, 0, 0, 1), trigger,
                 WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
                 Connections = new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
             var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));

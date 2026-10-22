@@ -49,10 +49,11 @@ public sealed class DelayedSignalTests
         Assert.Equal(PartId.Delay, construction.Puzzle.InventoryPart);
         Assert.Equal(1u, construction.Puzzle.InventoryCount);
         Assert.All(construction.Instances, value => Assert.True(value.Locked));
-        Assert.Equal(new CellOrigin(-48,64,0), construction.Ball!.Value.Cell);
-        Assert.Equal(new CellOrigin(-48,16,0), construction.Instances.Find<WorkshopGenericInstance>()!.Value.Cell);
+        Assert.Equal(new CellOrigin(-48,64,0), Payloads.First(construction).Cell);
+        var trigger = construction.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.ImpactSwitch);
+        Assert.Equal(new CellOrigin(-48,16,0), trigger.Cell);
         Assert.Equal(new CellOrigin(48,16,0), construction.Instances.Find<WorkshopLamp>()!.Value.Cell);
-        Assert.Equal((float)(Half)threshold, construction.Instances.Find<WorkshopGenericInstance>()!.Value.Parameters[new ParameterId("trigger_threshold")]);
+        Assert.Equal((float)(Half)threshold, trigger.Parameters[new ParameterId("trigger_threshold")]);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         Assert.Equal(1,scene.Triggers.Length);
         Assert.Equal((float)(Half)threshold, scene.Triggers[0].Threshold.Value);
@@ -63,7 +64,7 @@ public sealed class DelayedSignalTests
             new(new(4),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)) };
         Assert.Equal(changed, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(changed,new(5)))).Construction);
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => changed.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(5),0,1,0,0,0,0,1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(construction.Ball!.Value with { Locked=false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => construction.WithInstance(Payloads.First(construction) with { Locked=false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDuration=new((Half).5) } } }).Validate());
     }
 

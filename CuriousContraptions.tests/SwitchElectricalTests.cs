@@ -9,7 +9,7 @@ public sealed class SwitchElectricalTests
     private static WorkshopConstruction Machine(float x=0f,float threshold=.8f)
     {
         return new(new(2),WorkshopCadenceSettings.Default(),new(
-            WorkshopInput.Basketball(new(1),x,3,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),x,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch,new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
             WorkshopInput.Battery(new(3),-4,3,0,0,0,0,1,ElectricalSourceSettings.Default),
             WorkshopInput.Generic(PartId.PoweredGate,new(4),9,3,0,0,0,0,1),
@@ -87,7 +87,7 @@ public sealed class SwitchElectricalTests
         var construction=Machine();
         var parts=construction.Instances.Concat(new IWorkshopInstance[]{
             WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1),
-            WorkshopInput.Basketball(new(7),-8,3,0,0,0,0,1)}).ToArray();
+            WorkshopInput.Generic(PartId.Basketball,new(7),-8,3,0,0,0,0,1)}).ToArray();
         var links=new List<WorkshopConnection>{Power(2,6),Power(6,4),Signal(2,5)};
         if(!noSource) links.Add(Power(3,2));
         if(cycle) links.Add(Power(6,2));
@@ -114,7 +114,7 @@ public sealed class SwitchElectricalTests
         var construction=Machine();
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
             WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1),
-            WorkshopInput.Basketball(new(7),-8,3,0,0,0,0,1)}).ToArray()),
+            WorkshopInput.Generic(PartId.Basketball,new(7),-8,3,0,0,0,0,1)}).ToArray()),
             Connections=new(Power(3,2),Power(2,6),Power(6,2),Power(6,4),Signal(2,5))};
         var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([],100),([new(new(3),ElectricalEnable.Disabled)],30),
             ([new(new(3),ElectricalEnable.Enabled)],30));

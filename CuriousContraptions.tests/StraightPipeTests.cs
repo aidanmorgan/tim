@@ -136,7 +136,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     public void SaveCodec_RoundTripsPipeAndPreservesDeclaredColliders()
     {
         var pipe = WorkshopInput.Pipe(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, pipe));
         var save = new WorkshopSavedConstruction(construction, new(11));
 
@@ -196,8 +196,8 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         }
 
         // Basketball radius 0.34 m and Bowling ball radius 0.28 m both fit with clearance
-        Assert.True((float)BallMaterial.For(PartId.Basketball).Radius.Value < 0.65f);
-        Assert.True((float)BallMaterial.For(PartId.BowlingBall).Radius.Value < 0.65f);
+        Assert.True(LawBalls.Radius(LawBall.Basketball) < 0.65f);
+        Assert.True(LawBalls.Radius(LawBall.Bowling) < 0.65f);
 
         // Oversized ball radius 0.75 m exceeds bore radius 0.65 m
         const float oversizedRadius = 0.75f;
@@ -226,7 +226,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     public void PhysicsGpuAbi_AdmissionAcceptsPipeSceneDeclaration()
     {
         var pipe = WorkshopInput.Pipe(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, pipe));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 

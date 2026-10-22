@@ -22,9 +22,9 @@ public sealed class WorkshopBumperTests
         Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
         var fixtures = level.GetProperty("placements").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
-        AuthoredContentAssertions.Placement(fixtures[0], construction.Ball!.Value);
+        AuthoredContentAssertions.Placement(fixtures[0], Payloads.First(construction));
         AuthoredContentAssertions.Placement(fixtures[1], ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
-        Assert.True(construction.Ball!.Value.Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
+        Assert.True(Payloads.First(construction).Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
         var solution = level.GetProperty("solution").EnumerateArray().ToArray();
@@ -54,7 +54,7 @@ public sealed class WorkshopBumperTests
         placed.Validate();
         EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(bumper with { Id = new(5) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => placed.WithInstance(bumper with { Locked = true }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => placed.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => placed.WithInstance(Payloads.First(construction) with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
         foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
@@ -145,7 +145,7 @@ public sealed class WorkshopBumperTests
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[0].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.TargetAssistance);
         Check(level.GetProperty("solution")[0].GetProperty("difficulty"), construction.Puzzle.PlacementAssistance);
-        Assert.Equal(WorkshopInput.Basketball(new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, construction.Ball);
+        Assert.Equal(WorkshopInput.Generic(PartId.Basketball,new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, Payloads.Find(construction));
         AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
         Assert.Equal(WorkshopInput.Position(2).Cell, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Cell.X);
         Assert.Equal(WorkshopInput.Position(.9).Local, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Local.Y);
@@ -448,7 +448,7 @@ public sealed class WorkshopBumperTests
         Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(4f, 1f, 24f, (ContactWorkLimit)7));
 
     private static WorkshopConstruction Construction(Half strength) => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1),
             WorkshopInput.Bumper(new(2), 0, 4, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength((float)strength))));
 
     [Fact]

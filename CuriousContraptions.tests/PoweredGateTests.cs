@@ -153,7 +153,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void PhysicsCompiler_CompilesGateWithDynamicBladeAndPrismaticJoint()
     {
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Basketball(new(2), 0, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, 3, 0, 0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
             new(1),

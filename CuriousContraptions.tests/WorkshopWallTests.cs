@@ -91,7 +91,7 @@ public sealed class WorkshopWallTests
         var normal = new System.Numerics.Vector3(MathF.Sin(yaw), 0, MathF.Cos(yaw));
         var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 3, 0, 0, MathF.Sin(yaw / 2), 0, MathF.Cos(yaw / 2),
             WallFixture.Values(3, 6, .25f));
-        var ball = WorkshopInput.Basketball(new(1), -2 * normal.X, 3, -2 * normal.Z, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), -2 * normal.X, 3, -2 * normal.Z, 0, 0, 0, 1);
         float Probe(bool includeWall)
         {
             var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
@@ -124,7 +124,7 @@ public sealed class WorkshopWallTests
         var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 2, 0, 0, 0, 0, 1,
             WallFixture.Values(3.1234567f, .4f, 2f));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), wall));
+            new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1), wall));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         var bytes = WorkshopSaveCodec.Encode(saved);
         var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 120);
@@ -162,7 +162,7 @@ public sealed class WorkshopWallTests
     public void AllAdmittedInstancesCompileIntoExactlySizedTablesWithoutNewLaw()
     {
         var instances = new WorkshopInstances(
-            WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Receiver, new(2), 3, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Ramp, new(3), -3, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Ramp, new(4), -1, 2, 0, 0, 0, 0, 1),
