@@ -1,0 +1,29 @@
+2c2
+< index 65bb6234..a023d289 100644
+---
+> index 65bb6234..11d0bafe 100644
+5c5,22
+< @@ -167,6 +167,7 @@ public sealed class CompiledSupplyGraph
+---
+> @@ -131,14 +131,13 @@ public sealed class CompiledSupplyGraph
+>          // Components in evaluation order: every input of a component is settled before it is visited. A singleton is evaluated
+>          // once. A cycle holds only monotone rules, so it settles at its least fixed point from unpowered. No previous tick feeds
+>          // this candidate's solution.
+> -        for (var c=0;c<_components.Length;c++)
+>          {
+>              var changed = true;
+>              while (changed)
+>              {
+>                  changed=false;
+> -                foreach (var i in _components[c])
+> -                    if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=_cyclic[c]; }
+> +                for (var i=0;i<_nodes.Length;i++)
+> +                    if (!powered[i] && _nodes[i].Kind!=SupplyNodeKind.Source && Active(i)) { powered[i]=true; changed=true; }
+>              }
+>          }
+>          var closed=new bool[consumers];
+> @@ -167,6 +166,7 @@ public sealed class CompiledSupplyGraph
+13c30
+< @@ -174,14 +175,15 @@ public sealed class CompiledSupplyGraph
+---
+> @@ -174,14 +174,15 @@ public sealed class CompiledSupplyGraph

@@ -1,0 +1,8 @@
+2c2
+< index 65bb6234..a023d289 100644
+---
+> index 65bb6234..d77adab1 100644
+17c17
+< +        LogicGateOperation.Nor => false,
+---
+> +        LogicGateOperation.Nor => true,

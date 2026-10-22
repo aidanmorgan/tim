@@ -1,0 +1,10 @@
+bundle entries:       26
+duplicate PaletteOrder:        0
+"Id": "electrical_nor"	"PaletteOrder": 28
+undelivered: 2
+package dirs:       26
+CuriousContraptions.tests/BundleElementIdTests.cs:81:        Assert.Equal(26, SaveFixture.Elements.Count);
+tools/Coverage.Tests/CurrentCatalogueTests.cs:197:        Assert.Equal(26, plan.Admitted.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:39:        Assert.Equal(26, registry.Definitions.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:131:        Assert.Equal(26, registry.Definitions.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:262:        Assert.Equal(28, ids.Length);
