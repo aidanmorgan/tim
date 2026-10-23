@@ -1,0 +1,5 @@
+cand-abi mode=empty prepare=45.16 warm=37.48 construct=23.67 run=0.00 adv1=1.16 adv2=0.13 runToFirstTick=1.16
+cand-abi mode=empty prepare=44.16 warm=37.65 construct=22.39 run=0.00 adv1=1.11 adv2=0.13 runToFirstTick=1.11
+cand-abi mode=empty prepare=43.66 warm=37.23 construct=22.58 run=0.00 adv1=1.22 adv2=0.13 runToFirstTick=1.22
+cand-abi mode=empty prepare=43.88 warm=36.99 construct=22.67 run=0.00 adv1=1.14 adv2=0.13 runToFirstTick=1.14
+cand-abi mode=empty prepare=43.96 warm=37.48 construct=23.24 run=0.00 adv1=1.25 adv2=0.13 runToFirstTick=1.25

@@ -1,0 +1,12 @@
+#!/bin/bash
+# C-Gate zero-hit deletion checks over production (engine, ui, elements and the non-test CuriousContraptions.* projects).
+P="engine ui elements CuriousContraptions.Abstractions CuriousContraptions.Abstractions.Electrical CuriousContraptions.Abstractions.Fluid
+   CuriousContraptions.Abstractions.Mechanical CuriousContraptions.Abstractions.Signal CuriousContraptions.Animation
+   CuriousContraptions.Animation.Worker CuriousContraptions.Bundle CuriousContraptions.FlatBuffers CuriousContraptions.Simulation
+   CuriousContraptions.web"
+check() { echo "\$ rg $1 $2 <scope: $3>"; rg -n $1 "$2" $4 --glob '*.cs'; echo "hits=$(rg -c $1 "$2" $4 --glob '*.cs' | awk -F: '{s+=$NF} END {print s+0}')"; }
+check -w 'ActuatorSliderDrive|SwitchedSupplyClosed|GateBlade|fSpring' production "$P"
+check -e 'PartId\.PoweredGate' production "$P"
+check -e 'PoweredGate|PressurePlate|Battery|1\.55f' 'Program.cs WorkshopPhysicsEngine.cs' 'CuriousContraptions.Simulation/Program.cs CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs'
+check -e '\b(2\.8|14|60|120)f\b' PrismaticConstraintSolver.cs 'CuriousContraptions.Simulation/PrismaticConstraintSolver.cs'
+check -i 'gate|powered|battery|plate|basket|bowling|lamp|latch|counter|bumper' WarmupScene.cs 'CuriousContraptions.Simulation/WarmupScene.cs'

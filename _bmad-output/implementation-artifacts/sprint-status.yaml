@@ -301,11 +301,11 @@ development_status:
   9-8b-electrical-xor-gate: backlog
   epic-9-retrospective: optional
   # 32 (deletion): before 11-3
-  9a-c-gate-declared-drive-warmup: backlog
+  9a-c-gate-declared-drive-warmup: review
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-19-declared-prismatic-drive: backlog
+  9a-19-declared-prismatic-drive: review
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-21-declaration-free-worker-warmup: backlog
+  9a-21-declaration-free-worker-warmup: review
   # 33 (element)
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: backlog

@@ -22,11 +22,21 @@ public readonly record struct ElectricalLogicRead(GpuBodyId Owner, ElectricalInp
     };
 }
 
-/// <summary>The exact drive input consumed by one committed physics tick, with its resulting axial motion.</summary>
+/// <summary>The exact drive input consumed by one committed physics tick, with its resulting axial motion and whether its moving
+/// body was in solver contact with a body other than its base during that tick.</summary>
 public readonly record struct ActuatorDriveRead(
-    PrismaticConstraintId Joint, GpuBodyId Owner, bool SupplyClosed, float Coordinate, float Speed, float Lower, float Upper)
+    PrismaticConstraintId Joint, GpuBodyId Owner, bool SupplyClosed, bool MovingContact, float Coordinate, float Speed, float Lower,
+    float Upper)
 {
-    public bool Blocked => Coordinate > Lower + 1e-5f && Coordinate < Upper - 1e-5f && MathF.Abs(Speed) < 1e-5f;
+    /// <summary>The game-grade envelope's resting contact slop, 0.5 mm: a coordinate within it of a stop is at that stop.</summary>
+    public const float StopSlop = 5e-4f;
+    /// <summary>The game-grade envelope's at-rest linear speed, 0.01 m/s (its sleep threshold): slower axial motion is at rest.</summary>
+    public const float RestSpeed = .01f;
+
+    /// <summary>Something is in the way (CAT-051 Q3, coordinator decision 2, 22 Oct 2026): the moving body is in solver contact with
+    /// another body, held at rest short of both stops. A slider resting in its interior with nothing touching it (an inverted or
+    /// tilted mount at its spring-gravity equilibrium) is not blocked. A single state for both directions (Q4).</summary>
+    public bool Blocked => MovingContact && Coordinate > Lower + StopSlop && Coordinate < Upper - StopSlop && MathF.Abs(Speed) < RestSpeed;
     public void Validate()
     {
         if (Joint.Value == 0 || Owner.Value == 0 || !float.IsFinite(Coordinate) || !float.IsFinite(Speed) ||
@@ -93,7 +103,7 @@ public static partial class PhysicsGpuAbi
                 Vector3.Dot(axial.LinearB, PresentationVector(b, BodyVelocityOffset)) +
                 Vector3.Dot(axial.AngularA, PresentationVector(a, BodyAngularVelocityOffset)) +
                 Vector3.Dot(axial.AngularB, PresentationVector(b, BodyAngularVelocityOffset));
-            actuators[i] = new(joint.Id, joint.BodyA, !admission && inputs.SupplyClosed[i],
+            actuators[i] = new(joint.Id, joint.BodyA, !admission && inputs.SupplyClosed[i], ReadPrismaticMovingContact(bytes, i),
                 axial.Error, speed, joint.Lower, joint.Upper);
         }
         var loads = new ContactLoadSensorRead[ReadContactLoadCount(bytes)];

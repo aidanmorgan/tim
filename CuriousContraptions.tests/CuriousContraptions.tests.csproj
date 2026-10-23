@@ -63,6 +63,7 @@
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
     <ItemGroup>
         <Compile Include="ElementIsolationTests.cs" />
+        <Compile Include="DeclaredPrismaticDriveTests.cs" />
         <Compile Include="CanonicalBodyTests.cs" />
         <Compile Include="RigidMassPropertiesTests.cs" />
         <Compile Include="WorkshopSimulationTests.cs" />
@@ -164,6 +165,7 @@
         <Compile Include="../CuriousContraptions.Simulation/WorkshopConstraintSolver.cs" Link="Simulation/WorkshopConstraintSolver.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopDynamicBvh.cs" Link="Simulation/WorkshopDynamicBvh.cs" />
         <Compile Include="../CuriousContraptions.Simulation/PrismaticConstraintSolver.cs" Link="Simulation/PrismaticConstraintSolver.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WarmupScene.cs" Link="Simulation/WarmupScene.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

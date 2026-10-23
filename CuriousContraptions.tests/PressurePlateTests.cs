@@ -288,7 +288,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(battery.Id,scene.Electrical.Sources[0].Owner);
         Assert.Equal(gate.Id,scene.Prismatics[0].BodyA);
         // The deleted drag encoding: the blade declares no drag whatever feeds it.
-        Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
+        Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
     }
 
     [Fact]
@@ -394,7 +394,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate)
     {
-        Assert.True(read.Bodies.TryGet(WorkshopPhysicsCompiler.GateBlade(gate.Id), out var blade));
+        Assert.True(read.Bodies.TryGet(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0), out var blade));
         return (blade.Body.Cell.Y + blade.Body.Local.Y) / 16f - (float)GateHeight;
     }
     /// <summary>The plate's committed contact (its ContactLoadSource level): closed exactly while the committed phase is Loaded.</summary>

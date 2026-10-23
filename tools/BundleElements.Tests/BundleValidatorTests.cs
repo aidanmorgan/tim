@@ -350,6 +350,56 @@ public sealed class BundleValidatorTests
                 Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { Mass = float.NaN } }]
             })));
 
+    // C-Gate (9A.19): a supplied drive is declaration data; the bundle refuses one the runtime could not admit.
+    private static string[] DriveErrors(Abstractions.Mechanical.PrismaticDriveDescriptor drive, bool powerIn = true, int sliders = 1) =>
+        Errors(("FixtureDrive", new Fixture
+        {
+            Parameters = Fixture.SpringParameters,
+            Ports = powerIn ? [Fixture.PowerIn] : [],
+            Sliders = Enumerable.Repeat(Fixture.Slider() with { Drive = drive }, sliders).ToArray()
+        }));
+
+    [Fact]
+    public void ADrivenSliderWithAPowerInIsAdmitted() => Assert.Empty(DriveErrors(Fixture.Drive()));
+
+    [Fact]
+    public void ADrivenSliderWithoutAPowerInIsRefused() =>
+        Assert.Equal(["BUNDLE007 FixtureDrive.Sliders[0].Drive: a supplied drive requires an electrical PowerIn input"],
+            DriveErrors(Fixture.Drive(), powerIn: false));
+
+    [Fact]
+    public void OnePowerInDrivesOneSlider() =>
+        Assert.Equal(["BUNDLE006 FixtureDrive.Sliders[1].Drive: outside its declared range"], DriveErrors(Fixture.Drive(), sliders: 2));
+
+    [Theory]
+    [InlineData("Target", .1f)]                     // above the slider's 0 upper limit
+    [InlineData("Target", -.3f)]                    // below its -0.25 lower limit
+    [InlineData("MaxSpeed", 0f)]
+    [InlineData("MaxSpeed", 65f)]                   // beyond the envelope's 64 m/s
+    [InlineData("StoppingAcceleration", -1f)]
+    [InlineData("MaxEffort", float.NaN)]
+    [InlineData("MaxPower", float.PositiveInfinity)]
+    public void ADriveValueOutsideItsDomainIsRefused(string field, float value)
+    {
+        var fixedValue = Abstractions.Mechanical.MechanicalValue.Fixed(value);
+        var drive = field switch
+        {
+            "Target" => Fixture.Drive() with { Target = fixedValue },
+            "MaxSpeed" => Fixture.Drive() with { MaxSpeed = fixedValue },
+            "StoppingAcceleration" => Fixture.Drive() with { StoppingAcceleration = fixedValue },
+            "MaxEffort" => Fixture.Drive() with { MaxEffort = fixedValue },
+            "MaxPower" => Fixture.Drive() with { MaxPower = fixedValue },
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+        var error = Assert.Single(DriveErrors(drive));
+        Assert.Contains($"FixtureDrive.Sliders[0].Drive.{field}", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ADriveValueNamingAnUndeclaredParameterIsRefused() =>
+        Assert.Equal(["BUNDLE007 FixtureDrive.Sliders[0].Drive.MaxEffort.Parameter: 'effort' names no declared Real parameter"],
+            DriveErrors(Fixture.Drive() with { MaxEffort = Abstractions.Mechanical.MechanicalValue.FromParameter("effort") }));
+
     [Fact]
     public void AnAssemblyWithTwoDeclarationsIsRefused() =>
         Assert.Equal(["BUNDLE005 FixturePair: declares 2 elements; a package declares exactly one"],

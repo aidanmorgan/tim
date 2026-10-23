@@ -1,0 +1,21 @@
+diff --git a/CuriousContraptions.tests/Fixtures/element-isolation-known.json b/CuriousContraptions.tests/Fixtures/element-isolation-known.json
+index 8e31f42a..af4edcef 100644
+--- a/CuriousContraptions.tests/Fixtures/element-isolation-known.json
++++ b/CuriousContraptions.tests/Fixtures/element-isolation-known.json
+@@ -5,7 +4,0 @@
+-    {"File":"CuriousContraptions.Simulation/PrismaticConstraintSolver.cs","Symbol":"PrismaticConstraintSolver.ActuatorSliderDrive","Rule":"PackageIdentifier","Token":"fSpring","Count":2,"Owner":"GateDrive"},
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"NamedPart","Token":"PoweredGate","Count":1,"Owner":"Warmup"},
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"PackageIdentifier","Token":"Battery","Count":1,"Owner":"Warmup"},
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"PackageIdentifier","Token":"PoweredGate","Count":1,"Owner":"Warmup"},
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"PackageIdentifier","Token":"PressurePlate","Count":1,"Owner":"Warmup"},
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"PackageIdentifier","Token":"WorkshopPressurePlate","Count":1,"Owner":"Warmup"},
+-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Rule":"PackageIdentifier","Token":"battery","Count":3,"Owner":"Warmup"},
+@@ -187,2 +179,0 @@
+-    {"File":"engine/gpu/WorkshopPhysicsCompiler.cs","Symbol":"WorkshopPhysicsCompiler.Compile","Rule":"NamedPart","Token":"PoweredGate","Count":1,"Owner":"GateDrive"},
+-    {"File":"engine/gpu/WorkshopPhysicsCompiler.cs","Symbol":"WorkshopPhysicsCompiler.Compile","Rule":"PackageIdentifier","Token":"PoweredGate","Count":1,"Owner":"GateDrive"},
+@@ -363,0 +355 @@
++    {"File":"CuriousContraptions.Simulation/PrismaticConstraintSolver.cs","Symbol":"PrismaticConstraintSolver.ApplySuppliedDrives","Token":"Spring","Count":1,"Meaning":"SoftSpringLaw"},
+@@ -412 +403,0 @@
+-    {"File":"CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs","Symbol":"WorkshopPhysicsEngine.Warmup","Token":"FromSpring","Count":1,"Meaning":"SoftSpringLaw"},
+Known 310 -> 301 Generic 529 -> 529
+removed 9 added 0 changed 0

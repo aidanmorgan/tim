@@ -1,0 +1,4 @@
+git diff --check rc=0
+clean: CuriousContraptions.Simulation/WarmupScene.cs
+clean: CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs
+clean: _bmad-output/implementation-artifacts/spec-c-gate.md

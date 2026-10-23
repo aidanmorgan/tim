@@ -124,6 +124,11 @@ public sealed class LatchSupplyFixtureTests
     /// <summary>Mechanical energy of the 1 kg blade on its −15° frame: KE + ½·14·x² + m·g·cos(15°)·x (spec D2).</summary>
     private static float Energy(ActuatorDriveRead drive) =>
         .5f * drive.Speed * drive.Speed + .5f * 14f * drive.Coordinate * drive.Coordinate + 9.81f * Tilt.Cos * drive.Coordinate;
+    /// <summary>CAT-051 Q3 (C-Gate): with nothing in the blade's way it never reads Blocked: not at the closed or open stop, not in
+    /// powered travel, not in the spring return, and not at a mid-stroke apex where its speed passes through zero.</summary>
+    private static void AssertNeverBlocked(List<WorkshopRead> reads) =>
+        Assert.All(reads, read => Assert.False(Drive(read).Blocked, $"nothing obstructs the blade, tick {read.Tick.Value}: {Drive(read)}"));
+
     private static int ClosedBy(List<WorkshopRead> reads, int from)
     {
         var closed = reads.FindIndex(from, read => Drive(read).Coordinate <= ClosedTolerance);
@@ -152,6 +157,7 @@ public sealed class LatchSupplyFixtureTests
         Assert.True(Drive(reads[t + SupplyLagTicks]).Coordinate > Drive(reads[t]).Coordinate, "first opening tick is the first supplied tick");
         Assert.All(reads.Skip(t + SupplyLagTicks), read => Assert.True(Drive(read).SupplyClosed));
         Assert.True(reads.Max(read => Drive(read).Coordinate) >= 1.50f);
+        AssertNeverBlocked(reads);
         // N19: the supply change is the latch contact; the authored construction and its five wires never change during Run.
         Assert.All(trace.DuringRun, construction => Assert.Equal(trace.Authored, construction));
         Assert.Equal(FiveConnections, trace.Authored.Connections.ToArray());
@@ -171,6 +177,7 @@ public sealed class LatchSupplyFixtureTests
         Assert.All(reads.Skip(reset), read => { Assert.False(Latched(read, Latch)); Assert.False(Latched(read, Lamp)); });
         Assert.All(reads.Skip(reset + SupplyLagTicks), read => Assert.False(Drive(read).SupplyClosed));
         AssertSpringDamperReturn(reads, reset);
+        AssertNeverBlocked(reads);
     }
 
     [Fact]
@@ -186,6 +193,8 @@ public sealed class LatchSupplyFixtureTests
         for (var i = cut; i < reverse; i++)
             Assert.True(Drive(reads[i + 1]).Speed < Drive(reads[i]).Speed, $"opening speed strictly decreases, tick {reads[i + 1].Tick.Value}");
         AssertSpringDamperReturn(reads, cut);
+        // The apex (between ticks reverse - 1 and reverse) passes through zero speed mid-stroke with nothing touching the blade.
+        AssertNeverBlocked(reads);
     }
 
     /// <summary>Facts 15 and 19: every unsupplied tick follows the declared spring-damper (a = −14·x − 4·v − g·cos 15° for the
@@ -230,6 +239,7 @@ public sealed class LatchSupplyFixtureTests
             Assert.False(Drive(read).SupplyClosed);
             Assert.True(Drive(read).Coordinate <= ClosedTolerance, $"gate never opens, tick {read.Tick.Value}: {Drive(read).Coordinate}");
         });
+        AssertNeverBlocked(reads);
     }
 
     [Fact]
@@ -266,6 +276,9 @@ public sealed class LatchSupplyFixtureTests
         ClosedBy(reads, cut);
         var rest = Ball(reads[^1]);
         Assert.True(rest.X <= -.39f && rest.Speed <= 1e-3f, $"the ball rests upstream against the closed blade, x {rest.X} speed {rest.Speed}");
+        // A ball pressing on the closed blade's face is contact at the closed stop, which is not Blocked.
+        Assert.True(Drive(reads[^1]).MovingContact, "the resting ball touches the closed blade");
+        AssertNeverBlocked(reads);
     }
 
     [Fact]
@@ -289,8 +302,17 @@ public sealed class LatchSupplyFixtureTests
         }
         var final = Drive(reads[^1]); var rest = Ball(reads[^1]);
         Assert.True(MathF.Abs(final.Speed) <= 1e-3f && rest.Speed <= 1e-3f, $"trapped at rest: blade {final.Speed}, ball {rest.Speed}");
-        // Game-grade rest (spec Implementation Notes): the pose is stationary although a constant ~1.1e-5 m/s committed velocity
-        // residual keeps ActuatorDriveRead.Blocked (|speed| < 1e-5) false; that predicate is not asserted here.
+        // Fact 14 "State Blocked" (C-Gate, CAT-051 Q3): from the first tick at the envelope's rest speed the blade reads Blocked on
+        // every tick, although a constant ~1.1e-5 m/s commit-point residual remains (game-grade rest: the pose holds; no rest
+        // threshold zeroes velocity). The ball is the contact that holds it.
+        var resting = reads.FindIndex(landed, read => MathF.Abs(Drive(read).Speed) < ActuatorDriveRead.RestSpeed);
+        Assert.True(resting >= landed, "the blade comes to rest on the ball");
+        Assert.All(reads.Take(resting), read => Assert.False(Drive(read).Blocked, $"not blocked before rest, tick {read.Tick.Value}"));
+        Assert.All(reads.Skip(resting), read =>
+        {
+            Assert.True(Drive(read).MovingContact, $"the ball touches the resting blade, tick {read.Tick.Value}");
+            Assert.True(Drive(read).Blocked, $"fact 14: Blocked on every tick after rest, tick {read.Tick.Value}: {Drive(read)}");
+        });
         Assert.True(MathF.Abs(final.Coordinate - Drive(reads[^61]).Coordinate) <= 1e-5f, "the blade holds its opening");
         Assert.True(BladePenetration(rest, final.Coordinate) <= 5e-4f, $"resting blade penetration {BladePenetration(rest, final.Coordinate)}");
         Assert.True(-(BoreRadius - BallRadius) - rest.Y <= 5e-4f, $"resting tube penetration {-(BoreRadius - BallRadius) - rest.Y}");

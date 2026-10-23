@@ -1,0 +1,13 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:04.07]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AdmissionRefusesAnInvalidDriveAndARouteToAnUndrivenSlider [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AdmissionRefusesAnInvalidDriveAndARouteToAnUndrivenSlider [2 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AdmissionRefusesAnInvalidDriveAndARouteToAnUndrivenSlider() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 205
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   121, Skipped:     0, Total:   122, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,5 @@
+flatc 25.2.10 (release binary f004709c0334edb3...) reproduced engine/gpu/WorkshopWireGenerated.cs and the generated part of tools/e2e/workshop-wire.ts byte-for-byte from the UNCHANGED schema at a598a09e (cmp: CS-IDENTICAL, TS-IDENTICAL), then regenerated both from the changed schema with the same procedure (schemas/README.md; the README's printf emits one extra blank line, dropped).
+
+ engine/gpu/WorkshopWireGenerated.cs | 6 ++++--
+ tools/e2e/workshop-wire.ts          | 9 +++++++--
+ 2 files changed, 11 insertions(+), 4 deletions(-)

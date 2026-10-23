@@ -748,7 +748,7 @@ public sealed class WorkshopPhysicsEngineTests
         new(battery, WorkshopSocket.Supply, gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     /// <summary>The blade's travel along its prismatic above the gate frame (closed ≈ 0, fully open ≈ 1.55 m).</summary>
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate) =>
-        Height(Find(read.Bodies, WorkshopPhysicsCompiler.GateBlade(gate.Id))) - GateHeight;
+        Height(Find(read.Bodies, WorkshopPhysicsCompiler.SliderBody(gate.Id, 0))) - GateHeight;
     private const float ClosedTravel = .2f, OpenTravel = 1.3f;
 
     /// <summary>Runs the construction through the production simulation in phases: each phase first applies its in-run supply

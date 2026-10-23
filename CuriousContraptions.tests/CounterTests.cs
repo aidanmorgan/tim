@@ -213,7 +213,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([connNoBattery]));
 
         var sceneUnpowered = WorkshopPhysicsCompiler.Compile(constructionUnpowered, new(1, 1));
-        var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id));
+        var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
         Assert.Equal((Half)0f, bladeUnpowered.LinearDrag.Value);
 
         // Counter static body has 2 box colliders
@@ -232,7 +232,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([connBattery, connNoBattery]));
 
         var scenePowered = WorkshopPhysicsCompiler.Compile(constructionPowered, new(1, 1));
-        var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id));
+        var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
         Assert.Equal((Half)0f, bladePowered.LinearDrag.Value);
         Assert.Contains(scenePowered.SupplyGraph.Nodes.ToArray(),node=>node.Owner==counter.Id && node.Kind==SupplyNodeKind.Contact);
         Assert.Equal(battery.Id,scenePowered.Electrical.Sources[0].Owner);

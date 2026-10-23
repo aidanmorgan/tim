@@ -82,23 +82,15 @@ public static partial class Program
         await WarmupSimulation();
     }
 
+    /// <summary>Story 9A.21: warms the command lifecycle (Initialize, Construct, Run, Advance, Reset) on an empty bench, so it names
+    /// no element. The solver's contact, prismatic and drive paths were already warmed by the transport's synthetic scene
+    /// (<see cref="WarmupScene"/>); the per-element compile path is not warmed.</summary>
     private static async Task WarmupSimulation()
     {
         try
         {
-            var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-            var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
-            var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
-
-            var wire1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-            var wire2 = new WorkshopConnection(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-
             var settings = WorkshopCadenceSettings.Default();
-            var construction = new WorkshopConstruction(
-                new(2),
-                settings,
-                new([battery, plate, gate]),
-                Connections: new([wire1, wire2]));
+            var construction = new WorkshopConstruction(new(2), settings, new([]));
 
             // The warm-up borrows the worker's device: disposing it retires the warm-up only, never the device.
             await using var sim = new WorkshopSimulation(Device, new CaptureClock(), settings, new(1), new WarmupInstallation(),

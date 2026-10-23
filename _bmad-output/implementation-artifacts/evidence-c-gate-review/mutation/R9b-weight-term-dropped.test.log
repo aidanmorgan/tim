@@ -1,0 +1,96 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.27]     CuriousContraptions.Tests.DeclaredPresentationTests.TheGateCueIsOchreWhileABallHoldsTheBladeAtRest [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.TheGateCueIsOchreWhileABallHoldsTheBladeAtRest [87 ms]
+  Error Message:
+   guard: the ball holds the unpowered blade at rest, ActuatorDriveRead { Joint = PrismaticConstraintId { Value = 4294968325 }, Owner = GpuBodyId { Value = 3 }, SupplyClosed = False, MovingContact = True, Coordinate = 1.65344E-08, Speed = -6.1791716E-06, Lower = 0, Upper = 1.55, Blocked = False }
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPresentationTests.TheGateCueIsOchreWhileABallHoldsTheBladeAtRest() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPresentationTests.cs:line 93
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.19]     CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [FAIL]
+[xUnit.net 00:00:03.33]     CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [FAIL]
+[xUnit.net 00:00:03.40]     CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [FAIL]
+[xUnit.net 00:00:03.44]     CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [FAIL]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [67 ms]
+  Error Message:
+   fact 14: the blade stops on the ball, opening 1.65344E-08
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 294
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [69 ms]
+  Error Message:
+   guard: Switch B must strike with the blade fully open, opening 1.0519114
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 172
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery [40 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 327
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet [33 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 252
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.59]     CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [FAIL]
+[xUnit.net 00:00:03.66]     CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [FAIL]
+[xUnit.net 00:00:03.69]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates [FAIL]
+[xUnit.net 00:00:04.00]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding [FAIL]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [35 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 159
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [69 ms]
+  Error Message:
+   the drive was opening the blade at the cut
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 189
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates [23 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 0.00100000005
+Expected: 1.54999995
+Actual:   1.3016243
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 169
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding [31 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (5.5 - 6.5999999)
+Actual: -1.76535833
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 135
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:04.05]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheWarmupAdmitsAndStepsItsSceneWithTheDriveSuppliedThenUnsupplied [FAIL]
+[xUnit.net 00:00:04.10]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheWarmupAdmitsAndStepsItsSceneWithTheDriveSuppliedThenUnsupplied [5 ms]
+  Error Message:
+   the supplied drive lifts the rider (-0.00020241737)
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheWarmupAdmitsAndStepsItsSceneWithTheDriveSuppliedThenUnsupplied() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 369
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep [30 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (60 - 120)
+Actual: 36.4501152
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 105
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    11, Passed:   111, Skipped:     0, Total:   122, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

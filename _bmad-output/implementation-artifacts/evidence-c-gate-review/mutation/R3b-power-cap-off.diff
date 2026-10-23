@@ -1,0 +1,4 @@
+281c281
+<         return power > drive.MaxPower ? MathF.CopySign(drive.MaxPower / MathF.Abs(speed), force) : force;
+---
+>         return power > float.MaxValue ? MathF.CopySign(drive.MaxPower / MathF.Abs(speed), force) : force;

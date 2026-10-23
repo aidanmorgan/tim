@@ -167,7 +167,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gateFrame = scene.Bodies.ToArray().Single(b => b.Id == gate.Id);
         Assert.Equal(RigidMotionKind.Static, gateFrame.Motion);
 
-        var bladeId = WorkshopPhysicsCompiler.GateBlade(gate.Id);
+        var bladeId = WorkshopPhysicsCompiler.SliderBody(gate.Id, 0);
         var gateBlade = scene.Bodies.ToArray().Single(b => b.Id == bladeId);
         Assert.Equal(RigidMotionKind.Dynamic, gateBlade.Motion);
         Assert.Equal((Half)1f, gateBlade.Mass.Value);
@@ -217,7 +217,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Enabled]),NoContact).SupplyClosed[0]);
         Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Disabled]),NoContact).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
-        Assert.Equal((Half)0,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
+        Assert.Equal((Half)0,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
     }
 
     [Fact]
@@ -260,7 +260,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gate=Gate(1);var battery=Battery(2,ElectricalEnable.Enabled);
         var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery)),new(1,1));
         CompiledSupplyGraph Admit(SupplyNodeDeclaration[] nodes,params SupplyEdge[] edges)=>new(nodes,edges,
-            scene.Electrical.Sources,scene.Prismatics,scene.Bodies);
+            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
         var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumer:scene.Prismatics[0].Id);
         Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn)).Nodes.Length);
@@ -268,7 +268,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Throws<ArgumentException>(()=>Admit([source with {Source=default}]));
         Assert.Throws<ArgumentException>(()=>Admit([source,source]));
         Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumer=new(999)}]));
-        Assert.Throws<ArgumentException>(()=>Admit([new(WorkshopPhysicsCompiler.GateBlade(gate.Id),SupplyNodeKind.Contact)]));
+        Assert.Throws<ArgumentException>(()=>Admit([new(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0),SupplyNodeKind.Contact)]));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,WorkshopSocket.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn),new(battery.Id,gate.Id,WorkshopSocket.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),WorkshopSocket.PowerIn)));

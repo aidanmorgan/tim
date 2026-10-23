@@ -21,7 +21,7 @@ public sealed class SwitchElectricalTests
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==4).SupplyClosed;
     private static float BladeY(WorkshopRead read)
     {
-        var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body).Single(row=>row.Id==WorkshopPhysicsCompiler.GateBlade(new(4)));
+        var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body).Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(4), 0));
         return (body.Cell.Y+body.Local.Y)/16f;
     }
 

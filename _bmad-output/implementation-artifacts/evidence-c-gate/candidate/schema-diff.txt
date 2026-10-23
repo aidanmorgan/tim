@@ -1,0 +1,21 @@
+$ git diff -- schemas/workshop_wire.fbs
+diff --git a/schemas/workshop_wire.fbs b/schemas/workshop_wire.fbs
+index 21022933..5c88edeb 100644
+--- a/schemas/workshop_wire.fbs
++++ b/schemas/workshop_wire.fbs
+@@ -177,6 +177,8 @@ struct ActuatorDriveRecord {
+     joint: uint64;
+     owner: uint64;
+     supply_closed: bool;
++    // C-Gate: the moving body took a positive normal contact impulse from a body other than its base during the tick.
++    moving_contact: bool;
+     coordinate: float;
+     speed: float;
+     lower: float;
+
+$ git diff --stat -- engine/gpu/WorkshopSaveCodec.cs (save codec unchanged)
+(empty = unchanged)
+
+$ awk SavedConstruction-reachable section identical? (ActuatorDriveRecord is reachable only from WorkshopResponse)
+176:struct ActuatorDriveRecord {
+338:    actuator_drives: [ActuatorDriveRecord];

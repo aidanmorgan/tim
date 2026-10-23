@@ -1,0 +1,6 @@
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding [75 ms]
+  Error Message:
+   still cruising 0.08 m short of the target at 0.69634753 m/s
+  Stack Trace:
+--
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 85 ms - CuriousContraptions.tests.dll (net10.0)
