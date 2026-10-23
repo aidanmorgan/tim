@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.Domino;
 
-public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
+public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationSensorElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.6f, PresentationAxes.None,
         [], [], [], []);
@@ -62,4 +62,7 @@ public sealed class DominoElementDeclaration : IMechanicalElement, ISignalElemen
     public SignalLatchMode LatchMode => SignalLatchMode.SetReset;
 
     public SignalCounterDescriptor? Counter => null;
+
+    /// <summary>The tile's ActivationOut fires once it has turned 45° from its placed pose (CAT-023).</summary>
+    public SignalOrientationDescriptor Orientation => new(45f);
 }

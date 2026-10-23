@@ -1,0 +1,5 @@
+pre-append staged tree c8c19de2e3a6c2f8d28594f22f52d908ee3f1228
+pre-append staged diff (git diff --cached --binary HEAD) sha256 8a8fd6388ef9229ff074d3c374c28024f8e2d05ade1dfffba67457e89ae9744c
+staged source diff excluding _bmad-output sha256 f5560feb41158f5e31032d3f17b4daf04422eaefc8a03c0efc73d3bdcb25497f
+staged files 342
+git diff --cached --check: only verbatim raw evidence logs flagged; excluding evidence-* rc 0

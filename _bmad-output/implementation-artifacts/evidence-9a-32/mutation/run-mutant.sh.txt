@@ -1,0 +1,16 @@
+#!/bin/bash
+# Usage: run-mutant.sh <worktree> <label>. Builds the solution (the mutant was applied with Edit beforehand) and runs the 9A.32
+# mutation filter in both test projects; stops if the build fails. Output: evidence-9a-32/mutation/<label>.log
+W="$1"; LABEL="$2"
+OUT="$W/_bmad-output/implementation-artifacts/evidence-9a-32/mutation"
+mkdir -p "$OUT"
+cd "$W" || exit 2
+{
+  echo "== $LABEL: tracked diff sha256 $(git diff HEAD | shasum -a 256 | cut -c1-64)"
+  if ! dotnet build CuriousContraptions.slnx -c Debug 2>&1 | grep -E "error|Warning\(s\)|Error\(s\)" | sort -u; then :; fi
+  if dotnet build CuriousContraptions.slnx -c Debug --no-restore 2>&1 | grep -q " error "; then echo "BUILD FAILED: no tests run"; exit 3; fi
+  F="FullyQualifiedName~CuriousContraptions.Tests.DominoGuardTests.|FullyQualifiedName~CuriousContraptions.Tests.DeclaredOrientationTests.|FullyQualifiedName~CuriousContraptions.Tests.OrientationSensorTests.|FullyQualifiedName~CuriousContraptions.Tests.DominoEffectTests.|FullyQualifiedName~CuriousContraptions.Tests.WorkshopDominoTests.|FullyQualifiedName~CuriousContraptions.Tests.PackageRuntimeParityTests.|FullyQualifiedName~CuriousContraptions.Tests.PayloadInstanceTests.|FullyQualifiedName~CuriousContraptions.Tests.WorkshopSaveRejectionTests.|FullyQualifiedName~CuriousContraptions.Tests.WorkshopPipeLengthTests."
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore --filter "$F" 2>&1 | grep -E "^\s+Failed |^(Passed|Failed)!"
+  dotnet test tools/BundleElements.Tests/BundleElements.Tests.csproj -c Debug --no-build --no-restore --filter "FullyQualifiedName~BundleValidatorTests|FullyQualifiedName~BundleRoundTripTests" 2>&1 | grep -E "^\s+Failed |^(Passed|Failed)!"
+} > "$OUT/$LABEL.log" 2>&1
+cat "$OUT/$LABEL.log"

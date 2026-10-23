@@ -1,0 +1,44 @@
+#!/bin/bash
+# Reviewer: repeated full CuriousContraptions.tests runs on a throwaway candidate copy and a throwaway base 2065d3c5, interleaved,
+# each with --blame-crash so a crash names its test and leaves a dump. Then R1 on the candidate copy.
+set -u
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32
+O=$S/review-crash
+N=${N:-5}
+mkdir -p "$O"
+C=$S/review-wt-cand2
+B=$S/review-wt-base2
+[ -d "$C" ] || git -C "$W" worktree add -q --detach "$C" 2065d3c5951232b3e04332101f3d31b45d5e10f1
+[ -d "$B" ] || git -C "$W" worktree add -q --detach "$B" 2065d3c5951232b3e04332101f3d31b45d5e10f1
+cd "$C" || exit 2
+git -C "$W" diff --binary HEAD > "$O/candidate.diff"
+git apply "$O/candidate.diff"
+cp "$W/CuriousContraptions.tests/DominoGuardTests.cs" "$W/CuriousContraptions.tests/DeclaredOrientationTests.cs" CuriousContraptions.tests/
+echo "candidate copy identical: $(git diff --binary HEAD | cmp -s - "$O/candidate.diff" && echo yes || echo no); new tests: $(shasum -a 256 CuriousContraptions.tests/DeclaredOrientationTests.cs | cut -c1-16)"
+for d in "$C" "$B"; do
+  (cd "$d" && dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)" | tr '\n' ' '; echo " <- build $(basename "$d") HEAD $(git -C "$d" rev-parse --short HEAD)")
+done
+run() { # side dir i
+  local side=$1 dir=$2 i=$3 res="$O/$1-$3"
+  mkdir -p "$res"
+  local t0; t0=$(date -u +%FT%TZ)
+  (cd "$dir" && dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore \
+     --blame-crash --blame-crash-dump-type mini --results-directory "$res" > "$res/test.log" 2>&1)
+  local rc=$?
+  echo "$side run $i start $t0 rc=$rc :: $(grep -E 'Passed!|Failed!' "$res/test.log" | sed 's/ - Curious.*//') $(grep -c -i 'exit code 139\|crashed' "$res/test.log") crash-lines"
+}
+for i in $(seq 1 "$N"); do
+  run candidate "$C" "$i"
+  run base "$B" "$i"
+done
+echo "== R1 on the candidate copy"
+F="$C/engine/gpu/WorkshopWireFlatBuffers.cs"
+cp "$F" "$O/R1.orig"
+sed -i '' 's/internal const int InstanceRecordFields = 10;/internal const int InstanceRecordFields = 11;/' "$F"
+grep -c "InstanceRecordFields = 11;" "$F"
+(cd "$C" && dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)" | tr '\n' ' '; echo;
+ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore > "$O/R1.test.log" 2>&1)
+grep -E "Passed!|Failed!" "$O/R1.test.log"; grep -E "^\s+Failed " "$O/R1.test.log" | sed 's/^ *//' | cut -c1-200
+cp "$O/R1.orig" "$F"; echo "restored: $(cmp -s "$O/R1.orig" "$F" && echo yes)"
+echo "final candidate copy identical: $(cd "$C" && git diff --binary HEAD | cmp -s - "$O/candidate.diff" && echo yes || echo no)"

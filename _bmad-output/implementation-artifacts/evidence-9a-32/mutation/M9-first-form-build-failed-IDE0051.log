@@ -1,0 +1,7 @@
+== M9-pipe-length-not-required: tracked diff sha256 fd7838b661e1438e9dcf1f7b796784853a17e1acb85b371f125b6d8c0259b22f
+    0 Warning(s)
+    3 Error(s)
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/engine/gpu/WorkshopWireFlatBuffers.cs(775,26): error IDE0051: Private member 'WorkshopWireFlatBuffers.RequiredLength' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/engine/gpu/WorkshopWireFlatBuffers.cs(775,26): error IDE0051: Private member 'WorkshopWireFlatBuffers.RequiredLength' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/engine/gpu/WorkshopWireFlatBuffers.cs(775,26): error IDE0051: Private member 'WorkshopWireFlatBuffers.RequiredLength' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+BUILD FAILED: no tests run

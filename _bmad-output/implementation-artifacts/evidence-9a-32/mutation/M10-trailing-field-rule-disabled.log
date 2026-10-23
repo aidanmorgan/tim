@@ -1,0 +1,8 @@
+== M10-trailing-field-rule-disabled: tracked diff sha256 c354419963d91f489fc238b0acac9747c5331ddcf61c0767119190a384e992f1
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "bare ball, empty parameters vector") [4 ms]
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "domino with a parameter") [< 1 ms]
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "lamp with a parameter") [< 1 ms]
+Failed!  - Failed:     3, Passed:   215, Skipped:     0, Total:   218, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 268 ms - BundleElements.Tests.dll (net10.0)

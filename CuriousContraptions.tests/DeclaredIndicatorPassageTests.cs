@@ -9,7 +9,8 @@ namespace CuriousContraptions.Tests;
 /// selected by their packages' declared capabilities: the lamp's indicator input and the detector's passage aperture. Each compile
 /// law is one shared helper (<see cref="WorkshopActivationCompiler.IndicatorKind"/>, <see cref="WorkshopActivationCompiler.PassageSensorFor"/>)
 /// that the production compile calls, so a synthetic declaration (a second level input, another aperture) is observable through
-/// it. Saves written by the record-path encoder at 54ffd9f0 load as the same generic instances at both decode boundaries.</summary>
+/// it. Lamp and detector saves written by the record-path encoder at 54ffd9f0 load as the same generic instances at both decode
+/// boundaries; since 9A.32's slot renumbering, one holding a counter is refused with the typed reason.</summary>
 public sealed class DeclaredIndicatorPassageTests
 {
     private static readonly double H = Math.Sqrt(.5);
@@ -144,9 +145,22 @@ public sealed class DeclaredIndicatorPassageTests
     public static TheoryData<string, string, string> RecordPathSaves() => new()
     {
         { "lamp", LampSave, "3b45959bcf734fed9ead0993ee4fb6ceab90fc0ad09f81ac2934a954decd45d0" },
-        { "detector", DetectorSave, "bec0bf607746462b4cdeeaeaa16132c7f8c29ab52d2193072e8547f7db722cf9" },
-        { "wired", WiredSave, "d3f44efad3fd9ad2855109333bc5b7caa2806ac7c7215b38001f79f95e81c2fe" }
+        { "detector", DetectorSave, "bec0bf607746462b4cdeeaeaa16132c7f8c29ab52d2193072e8547f7db722cf9" }
     };
+
+    // 9A.32 removed four InstanceRecord fields and renumbered the later slots, so the wired save's counter target count (slot 12 at
+    // 54ffd9f0) now lies beyond the 10-field table and reads as absent: the save is refused with the typed reason at both decode
+    // boundaries, never misread.
+    [Fact]
+    public void TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering()
+    {
+        var bytes = Convert.FromBase64String(WiredSave);
+        Assert.Equal("d3f44efad3fd9ad2855109333bc5b7caa2806ac7c7215b38001f79f95e81c2fe", Convert.ToHexStringLower(SHA256.HashData(bytes)));
+        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        var counter = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(3)!.Value;
+        Assert.Equal("counter", counter.PartId);
+        Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(counter)).Reason);
+    }
 
     [Theory]
     [MemberData(nameof(RecordPathSaves))]
@@ -158,7 +172,7 @@ public sealed class DeclaredIndicatorPassageTests
         {
             "lamp" => Bench([PlacedParts.Lamp(new(1), 0, 1, 0, 0, 0, 0, 1)]),
             "detector" => Bench([PlacedParts.Detector(new(1), 2.5, 1, -1.25, 0, 0, -H, H, locked: true)]),
-            _ => WiredBench()
+            _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(new WorkshopSavedConstruction(expected, new(9)), loaded);
@@ -167,11 +181,15 @@ public sealed class DeclaredIndicatorPassageTests
             Assert.Equal(expected.Instances[i], WorkshopWireFlatBuffers.MapInstance(records.Instances(i)!.Value));
     }
 
-    // The loaded wired bench runs: the ball passes the detector twice, so the first lamp is lit and the counter (target 2) lit the second.
+    // The saved and loaded wired bench runs: the ball passes the detector twice, so the first lamp is lit and the counter (target 2) lit
+    // the second. (Until 9A.32 this loaded the record-path save; that save is now refused above, so the bench is saved by the current
+    // encoder.)
     [Fact]
-    public async Task TheLoadedRecordPathBenchPassesTwice()
+    public async Task TheSavedAndLoadedWiredBenchPassesTwice()
     {
-        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, Convert.FromBase64String(WiredSave)).Construction;
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(WiredBench(), new(9)))).Construction;
+        Assert.Equal(WiredBench(), loaded);
         var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(loaded, 4 * 120);
         bool Lit(GpuBodyId owner) => Enumerable.Range(0, reads[^1].Activations.Count)
             .Any(i => reads[^1].Activations[i].Owner == owner && reads[^1].Activations[i].Phase == ActivationPhase.Latched);

@@ -550,6 +550,47 @@ public sealed class BundleValidatorTests
         Assert.Empty(Check(contact with { Signal = contact.Signal! with { Indicator = null } }));
     }
 
+    // 9A.32 (D1): the orientation threshold is finite and within 4–179° (the compiled half-angle cosine's range), on a Dynamic body with
+    // a pulse ActivationOut, and it is the fifth node-selecting capability. Every refusal is a BundleError naming its field, never a
+    // throw. Controls: the shipped domino and each range end.
+    [Fact]
+    public void TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var domino = bundle.Single(entry => entry.Metadata.Id == "domino");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(domino));
+        Assert.Equal(new SignalOrientationDescriptor(45f), domino.Signal!.Orientation);
+
+        Bundle.BundleEntry Threshold(float degrees) => domino with { Signal = domino.Signal with { Orientation = new(degrees) } };
+        foreach (var degrees in new[] { 4f, 179f }) Assert.Empty(Check(Threshold(degrees)));
+        Refused(Threshold(MathF.BitDecrement(4f)), "Orientation.ThresholdDegrees");
+        Refused(Threshold(MathF.BitIncrement(179f)), "Orientation.ThresholdDegrees");
+        Refused(Threshold(float.NaN), "Orientation.ThresholdDegrees", Bundle.BundleErrorCode.NonFinite);
+        Refused(Threshold(float.PositiveInfinity), "Orientation.ThresholdDegrees", Bundle.BundleErrorCode.NonFinite);
+        // The threshold needs its pulse ActivationOut and a Dynamic body.
+        Refused(domino with { Ports = [] }, "Orientation.Ports");
+        Refused(domino with { Ports = [domino.Ports[0] with { Signal = PortSignalKind.Level }] }, "Orientation.Ports");
+        Refused(domino with { Ports = [domino.Ports[0] with { Direction = PortDirection.Input }] }, "Orientation.Ports");
+        Refused(domino with { Mechanical = domino.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Static } }, "Orientation.Body");
+        Refused(domino with { Mechanical = null }, "Orientation.Body");
+
+        // One node-selecting capability: a valid indicator beside the threshold is refused, and only for that.
+        var both = domino with
+        {
+            Ports = [.. domino.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = domino.Signal with { Indicator = new(PortSocket.ActivationIn) }
+        };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { Orientation = null } }));
+    }
+
     [Fact]
     public void AnAssemblyWithNoDeclarationIsRefused() =>
         Assert.Equal(["BUNDLE005 FixtureNone: declares 0 elements; a package declares exactly one"],

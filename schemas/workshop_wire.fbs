@@ -255,19 +255,11 @@ table InstanceRecord {
     local: Vec3f;
     rotation: Quat4f;
 
-    // Domino (with half_extents and friction below)
-    mass: float;
-    bounce: float;
-
     // Pipe
     length: float;
 
     // Switch
     threshold: float;
-
-    // Domino
-    half_extents: Vec3f;
-    friction: float;
 
     // Counter: the whole target count; absent (0) is a missing field, never a default
     target_count: uint32;

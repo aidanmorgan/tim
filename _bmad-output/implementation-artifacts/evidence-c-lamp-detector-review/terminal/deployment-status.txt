@@ -1,0 +1,10 @@
+# deployment 7275606022 statuses 2026-10-23T10:13:10Z
+{"created_at":"2026-10-23T10:11:35Z","environment":"github-pages","environment_url":"https://aidanmorgan.github.io/tim/","state":"success"}
+{"created_at":"2026-10-23T10:11:25Z","environment":"github-pages","environment_url":"","state":"in_progress"}
+{"created_at":"2026-10-23T10:11:22Z","environment":"github-pages","environment_url":"","state":"queued"}
+{"created_at":"2026-10-23T10:11:21Z","environment":"github-pages","environment_url":"","state":"waiting"}
+# site
+/ 200
+/index.html 200
+/_framework/dotnet.js 200
+/404.html 200

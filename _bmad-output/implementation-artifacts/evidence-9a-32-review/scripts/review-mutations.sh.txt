@@ -1,0 +1,63 @@
+#!/bin/bash
+# Reviewer mutations on the throwaway candidate copy (review-wt-cand). Each mutant: back up the file, apply one sed edit, verify the
+# edit landed, build the affected test project, run it whole, record the summary and failing names, restore and verify the restore.
+set -u
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32
+A=$S/review-wt-cand
+O=$S/review-mutations
+mkdir -p "$O"
+cd "$A" || exit 2
+# Remove the probe include so static gates see the candidate's own csproj.
+cp "$W/CuriousContraptions.tests/CuriousContraptions.tests.csproj" CuriousContraptions.tests/CuriousContraptions.tests.csproj
+echo "candidate copy tracked diff identical to candidate: $(git diff --binary HEAD | cmp -s - <(git -C "$W" diff --binary HEAD) && echo yes || echo no)"
+echo "untracked tests identical: $(cmp -s CuriousContraptions.tests/DominoGuardTests.cs "$W/CuriousContraptions.tests/DominoGuardTests.cs" && cmp -s CuriousContraptions.tests/DeclaredOrientationTests.cs "$W/CuriousContraptions.tests/DeclaredOrientationTests.cs" && echo yes || echo no)"
+
+T=CuriousContraptions.tests/CuriousContraptions.tests.csproj
+B=tools/BundleElements.Tests/BundleElements.Tests.csproj
+control() {
+  echo "=== M0 control (unmutated candidate copy)"
+  for p in $T $B; do
+    dotnet build $p -c Debug > "$O/M0.$(basename $p).build.log" 2>&1
+    grep -E "Warning\(s\)|Error\(s\)" "$O/M0.$(basename $p).build.log" | tr '\n' ' '; echo
+    dotnet test $p -c Debug --no-build --no-restore > "$O/M0.$(basename $p).test.log" 2>&1
+    grep -E "Passed!|Failed!" "$O/M0.$(basename $p).test.log"
+  done
+}
+mutant() { # name project file sed-expr expected-grep
+  local name=$1 project=$2 file=$3 expr=$4 check=$5
+  cp "$file" "$O/$name.orig"
+  sed -i '' -e "$expr" "$file"
+  local hits; hits=$(grep -c -- "$check" "$file")
+  echo "=== $name: $file; edit landed: $hits line(s) match '$check'"
+  diff "$O/$name.orig" "$file" | head -8 | cut -c1-220
+  if [ "$hits" = 0 ]; then echo "EDIT DID NOT APPLY"; cp "$O/$name.orig" "$file"; return; fi
+  dotnet build $project -c Debug > "$O/$name.build.log" 2>&1
+  grep -E "Warning\(s\)|Error\(s\)" "$O/$name.build.log" | tr '\n' ' '; echo
+  dotnet test $project -c Debug --no-build --no-restore > "$O/$name.test.log" 2>&1
+  grep -E "Passed!|Failed!" "$O/$name.test.log"
+  grep -E "^\s+Failed " "$O/$name.test.log" | sed 's/^ *//' | cut -c1-200 | sort | uniq | head -12
+  cp "$O/$name.orig" "$file"
+  echo "restored: $(cmp -s "$O/$name.orig" "$file" && echo yes)"
+}
+
+control
+mutant R1-instance-fields-11 $T engine/gpu/WorkshopWireFlatBuffers.cs \
+  's/internal const int InstanceRecordFields = 10;/internal const int InstanceRecordFields = 11;/' 'InstanceRecordFields = 11;'
+mutant R2-slot-loop-strict $T engine/gpu/WorkshopWireFlatBuffers.cs \
+  's/4 + 2 \* slot + 2 <= size; slot++/4 + 2 * slot + 2 < size; slot++/' '2 \* slot + 2 < size'
+mutant R3-command-slot-24 $T engine/gpu/WorkshopWireFlatBuffers.cs \
+  's/CommandConstructionSlot = 26,/CommandConstructionSlot = 24,/' 'CommandConstructionSlot = 24,'
+mutant R4-save-rule-before-prevalidation $T engine/gpu/WorkshopSaveCodec.cs \
+  's/^        WorkshopSavePrevalidation.Check(saved, elements);$/        if (WorkshopWireFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopWireFlatBuffers.SavedConstructionSlot)) throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange, "x"); WorkshopSavePrevalidation.Check(saved, elements);/' 'OutOfRange, "x"); WorkshopSavePrevalidation'
+mutant R5-validator-lower-bound-exclusive $B CuriousContraptions.Bundle/BundleValidator.cs \
+  's/orientation.ThresholdDegrees >= 4f/orientation.ThresholdDegrees > 4f/' 'ThresholdDegrees > 4f'
+mutant R6-package-declares-44 $T elements/Domino/DominoElementDeclaration.cs \
+  's/Orientation => new(45f);/Orientation => new(44f);/' 'new(44f);'
+mutant R7-content-no-solution-connection $T content/puzzles.json \
+  '1982,1990c\
+    "solution_connections": [],
+' '^    "solution_connections": \[\],$'
+mutant R8-content-legacy-rows $T content/puzzles.json \
+  '1775s/-4,/-2.4,/; 1776s/0.1,/1,/; 1838s/-3,/-1.6,/; 1839s/0.1,/1,/; 1901s/-2,/-0.8,/; 1902s/0.1,/1,/; 1964s/-1,/0,/; 1965s/0.1,/1,/' '^          -2.4,$'
+echo "=== final: candidate copy back to candidate: $(git diff --binary HEAD | cmp -s - <(git -C "$W" diff --binary HEAD) && echo yes || echo no)"

@@ -127,7 +127,7 @@ public sealed class WorkshopWireFlatBuffersTests
         PlacedParts.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, compression: .2f),
         PlacedParts.Battery(new(1), 0, 1, 0, 60f, 30f, .5f, ElectricalEnable.Disabled),
         PlacedParts.Bumper(new(1), 0, 1, 0, strength: 6f),
-        WorkshopInput.Domino(new(1), .1, .09, 0, 0, 0, 0, 1),
+        PlacedParts.Domino(new(1), .1, .09, 0, 0, 0, 0, 1),
         PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1),
         WorkshopInput.Latch(new(1), 0, 1, 0, 0, 0, 0, 1, locked: true),
         WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1),

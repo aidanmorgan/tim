@@ -108,7 +108,7 @@ public sealed class WorkbenchCapacityTests
     private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
     {
         "ball" or "bowling" => WorkshopInput.Generic(kind, id, x, 4, z, 0, 0, 0, 1),
-        "domino" => WorkshopInput.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
+        "domino" => PlacedParts.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
         "basket" => WorkshopInput.Generic(PartId.Receiver, id, x, 1, z, 0, 0, 0, 1),
         "ramp" => WorkshopInput.Generic(PartId.Ramp, id, x, 2, z, 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),

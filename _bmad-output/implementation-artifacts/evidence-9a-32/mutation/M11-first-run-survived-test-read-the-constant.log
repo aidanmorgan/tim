@@ -1,0 +1,5 @@
+== M11-table-size-eleven: tracked diff sha256 f320dbf842b3ee03d5a614af28b9725722b1423dee64513fa183d44dc05df54a
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   219, Skipped:     0, Total:   219, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 268 ms - BundleElements.Tests.dll (net10.0)

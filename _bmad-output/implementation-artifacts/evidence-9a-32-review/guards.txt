@@ -1,0 +1,4 @@
+filter: _bmad-output/implementation-artifacts/evidence-9a-32/baseline/guards-filter.txt (sha256 30b3d871f685be7b6f68ec992d4de8964ab85fbc612405044d6c654dab70485f)
+[xUnit.net 00:00:00.82] CuriousContraptions.tests: Skipping test case with duplicate ID '792a226c2b4008f26f29ad751efd9d29c3bbc37d74872afa3a9b6d818de1b3ac' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+
+Passed!  - Failed:     0, Passed:  1033, Skipped:     0, Total:  1033, Duration: 36 s - CuriousContraptions.tests.dll (net10.0)

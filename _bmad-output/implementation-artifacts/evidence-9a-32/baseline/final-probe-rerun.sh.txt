@@ -1,0 +1,23 @@
+#!/bin/bash
+# Re-runs the final probe source on base 2065d3c5 + the recorded test-only diff in a throwaway worktree, reading (never writing) the
+# baseline old-save bytes, so the archived probe source is the one behind every baseline capture.
+set -u
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32
+E=$W/_bmad-output/implementation-artifacts/evidence-9a-32
+T=$S/base-rerun-wt
+OUT=$S/base-rerun-capture
+mkdir -p "$OUT"
+[ -d "$T" ] || git -C "$W" worktree add --detach "$T" 2065d3c5951232b3e04332101f3d31b45d5e10f1
+cd "$T" || exit 2
+git checkout -q -- . && git clean -fdq -e bin -e obj
+# The recorded test-only diff already carries the probe include (the baseline build compiled the probe from the scratchpad).
+git apply "$E/baseline/test-only.diff"
+# The guard file was untracked at the baseline (not in the diff); its bytes are unchanged since (sha256 613c2956...).
+cp "$W/CuriousContraptions.tests/DominoGuardTests.cs" CuriousContraptions.tests/DominoGuardTests.cs
+echo "guard sha256: $(shasum -a 256 CuriousContraptions.tests/DominoGuardTests.cs | cut -c1-64)"
+grep -c ProbeDominoCapture CuriousContraptions.tests/CuriousContraptions.tests.csproj
+echo "probe sha256: $(shasum -a 256 "$S/probe/ProbeDominoCapture.cs")"
+dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)"
+DP_DIR=$OUT DP_OLD_SAVES=$E/baseline/capture/old-saves dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore --filter "FullyQualifiedName~ProbeDominoCapture" 2>&1 | tail -2
+for f in "$E"/baseline/capture/*.txt; do n=$(basename "$f"); if cmp -s "$f" "$OUT/$n"; then echo "IDENTICAL $n"; else echo "DIFFERS $n"; fi; done

@@ -1,0 +1,2 @@
+diff-check rc=0
+untracked whitespace scan done

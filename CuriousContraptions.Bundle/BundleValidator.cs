@@ -569,8 +569,20 @@ public static class BundleValidator
             MechanicalPayload? mechanical)
         {
             // One node per element: at most one capability selects it.
-            if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) > 1)
+            if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) +
+                    (signal.Orientation is null ? 0 : 1) > 1)
                 OutOfRange("Capability");
+            if (signal.Orientation is { } orientation)
+            {
+                // The compiled half-angle cosine admits 4° to 179° (OrientationThreshold.Degrees).
+                if (Finite("Orientation.ThresholdDegrees", orientation.ThresholdDegrees) &&
+                        !(orientation.ThresholdDegrees >= 4f && orientation.ThresholdDegrees <= 179f))
+                    OutOfRange("Orientation.ThresholdDegrees");
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    OutOfRange("Orientation.Ports");
+                if (mechanical?.KinematicMode != KinematicMode.Dynamic)
+                    OutOfRange("Orientation.Body");
+            }
             if (signal.Indicator is { } indicator)
             {
                 if (!Enum.IsDefined(indicator.Input)) Undefined("Indicator.Input");

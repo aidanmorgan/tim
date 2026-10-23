@@ -42,10 +42,12 @@ public sealed class ConstructionDecodeBoundaryTests
         var data = new TheoryData<Part, float>();
         float[] common =
         [
-            0f, -0f, 2.5f, -1f, float.NaN, float.PositiveInfinity, float.NegativeInfinity, TwoTo31, (float)int.MaxValue,
+            // (float)int.MaxValue is TwoTo31 bit for bit, so it is not a row of its own (xUnit refuses duplicate IDs); float.NaN is the
+            // negative quiet NaN 0xFFC00000 on .NET, so the explicit NaN rows are the other encodings.
+            0f, -0f, 2.5f, -1f, float.NaN, float.PositiveInfinity, float.NegativeInfinity, TwoTo31,
             BelowTwoTo31, -TwoTo31, float.Epsilon, float.MaxValue, float.MinValue, 1f, 3f, 9f, 9.5f, 10f,
             BitConverter.Int32BitsToSingle(0x7F800001), // signalling-pattern NaN
-            BitConverter.Int32BitsToSingle(unchecked((int)0xFFC00000)), // negative quiet NaN
+            BitConverter.Int32BitsToSingle(0x7FC00000), // positive quiet NaN
         ];
         foreach (var part in Enum.GetValues<Part>())
         {

@@ -286,3 +286,31 @@ original review above (dated 2026-10-14).
 - The copied cat-062 output (§D) is not re-verified by this addendum. cat-062 passes 7/7 in the run cited above.
 
 `sprint-status.yaml` should not mark 6.5e `done` until its last closing addendum records a terminal Pass.
+
+## Addendum 23 Oct 2026, retro-verification (C-Lamp+Detector, 9R.16)
+
+This is a closing record under the epics rule "Reopened-record closure". C-Lamp+Detector closes 6.5e's 9R.16 part only: the Signal lamp (CAT-035) and its missing suite `cat-035`. The original text and the 21 Oct addendum above are unchanged.
+
+**Reviewer.** I am the independent terminal reviewer of C-Lamp+Detector (`review-c-lamp-detector.md`). I am neither its implementer, nor Story 6.5e's implementer, nor the author of the original review above or of the 9A.17 addendum.
+
+**Identity**
+- Re-run tree: commit `86ad82ffe6a946413cea51ade6b9be2993b47328`, tree `b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3`.
+- Published merge: `2065d3c5951232b3e04332101f3d31b45d5e10f1`, the same tree, on `origin/main`.
+- Bundle: `elements/elements.bundle.json` sha256 `27bd3e4474d1153325dc865f1fe2f917e4aee18c4bda3e5911f3b5240293f9a2`.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
+- `evidence-c-lamp-detector-review/terminal/addenda-native-rerun.log`, the "Story 6.5e CAT-035 part (9R.16) acceptance" section. Run 2026-10-23T10:15:19Z to 10:15:37Z, with a summary and rc re-run at 10:16:01Z to 10:16:13Z: **103/103 passed, rc 0**.
+- `review-c-lamp-detector.md` (full suite 2911/2911; CI run 39936029766 on `2065d3c5`).
+
+| Clause (6.5e / 9R.16) | Retro-verification finding (18 Oct) | Fresh result | Verdict |
+|---|---|---|---|
+| The lamp lights on its first input and stays lit (switch-fed) | "`cat-063`, `cat-035` and `cat-022` don't exist." | `LampDetectorGuardTests.ASwitchLightsItsLampOnTheFirstInputAndItStaysLitWhileAnUnwiredLampStaysDark`, on the production simulation: dark before the switch, then the same latched occurrence on every later tick. The lamp is now a generic instance whose node is selected by its declared indicator (9A.36). | Native Pass |
+| A latch- or plate-fed lamp follows that level on and off | (gap) | `ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds` matches the lamp to the latch phase on every tick and shows it turning on and off. `ALampOnAPlateFollowsItsLevelOnAndOff` matches the plate on every tick, on and off. | Native Pass |
+| An unwired lamp stays dark; a level-fed lamp refuses a second signal | (gap) | The unwired control stays dark on every tick. A second signal is refused (ordinal 8, unchanged text) at edit, and again atomically at the save boundary. A level into a non-level input is refused (ordinal 7). | Native Pass |
+| Run/Reset matches the snapshot; Save/Load preserves wires | (gap) | Reset returns the exact built state (`AssertSameState`), with the lamp dark again; the level-fed wire survives Save/Load. The record-path saves load as the same generic lamp at both decode boundaries (`DeclaredIndicatorPassageTests`). | Native Pass |
+| `tools/e2e/cat-035.test.ts` passes 100% in Chrome serially | "`cat-035` … [doesn't] exist" | Still not authored. Under the 21 Oct policy it is authored and run in the post-catalogue E2E phase (C-Lamp+Detector spec, "Pending browser cases"). | Pending (browser) |
+
+**Verdict of this addendum:**
+- Native terminal Pass at `2065d3c5` for 6.5e's CAT-035 (9R.16) simulation clauses.
+- The `cat-035` suite stays open; owner: post-catalogue E2E.
+- 6.5e stays `in-progress`: the clauses owned by its other closing stories remain open (9.5a for 9R.17; 9A.16; the clauses the 9A.17 addendum left open; 9A.25a; 9A.27; every conversion through C-Memory), and this addendum's browser clause is pending.

@@ -1,0 +1,42 @@
+tsc: /Users/aidan/.npm/_npx/02a0359277d72892/node_modules/typescript/bin/tsc (6.0.3)
+typeRoots: /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types
+tsc rc=0
+▶ Run/Reset snapshot: the explicit schema listing
+  ✔ every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs (0.684083ms)
+  ✔ every type reachable from WorkshopResponse and SavedConstruction is listed (0.153625ms)
+  ✔ computed struct offsets and sizes equal the generated accessors (0.585333ms)
+  ✔ table fields use the generated vtable slots (0.219333ms)
+✔ Run/Reset snapshot: the explicit schema listing (2.070458ms)
+▶ Run/Reset snapshot: bit-exact comparison
+  ✔ identical snapshots pass (1.672959ms)
+  ✔ a flipped f32 bit fails and names the field path with both bit patterns (0.498959ms)
+  ✔ -0 against +0 in a body field fails (0.40325ms)
+  ✔ two different NaN payloads differ (0.306542ms)
+  ✔ a differing connection fails (0.346208ms)
+  ✔ a differing part parameter fails (0.289458ms)
+  ✔ a differing authored goal fails (0.206209ms)
+  ✔ a difference in only the last compared path fails (0.174125ms)
+  ✔ differing path sets fail, in either direction (0.280375ms)
+  ✔ only the named top-level identity paths are excluded (0.267ms)
+  ✔ a nested field that shares an excluded name is still compared (0.381125ms)
+  ✔ a Load comparison ignores only the restarted construction revision (0.311166ms)
+  ✔ committed counter and clock memory is compared (0.30475ms)
+  ✔ the tick is compared (0.147666ms)
+✔ Run/Reset snapshot: bit-exact comparison (5.816667ms)
+▶ Run/Reset snapshot: no vacuous pass
+  ✔ empty bodies are rejected (0.181583ms)
+  ✔ a body count other than the bench is rejected (0.065625ms)
+  ✔ a non-Applied acknowledgement is rejected (0.066667ms)
+  ✔ an advanced read must have tick > 0 (0.113417ms)
+  ✔ an advanced read must differ from S0 in a physical path (0.16ms)
+  ✔ an advanced read with a moved body passes (0.128208ms)
+✔ Run/Reset snapshot: no vacuous pass (0.7865ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.259667
+tsx rc=0

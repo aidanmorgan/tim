@@ -1,0 +1,158 @@
+diff --git a/_bmad-output/implementation-artifacts/review-6-5e-mechanisms-fixtures-conversion.md b/_bmad-output/implementation-artifacts/review-6-5e-mechanisms-fixtures-conversion.md
+index bad65c5f..5ec2bcbb 100644
+--- a/_bmad-output/implementation-artifacts/review-6-5e-mechanisms-fixtures-conversion.md
++++ b/_bmad-output/implementation-artifacts/review-6-5e-mechanisms-fixtures-conversion.md
+@@ -286,3 +286,31 @@ original review above (dated 2026-10-14).
+ - The copied cat-062 output (§D) is not re-verified by this addendum. cat-062 passes 7/7 in the run cited above.
+ 
+ `sprint-status.yaml` should not mark 6.5e `done` until its last closing addendum records a terminal Pass.
++
++## Addendum 23 Oct 2026, retro-verification (C-Lamp+Detector, 9R.16)
++
++This is a closing record under the epics rule "Reopened-record closure". C-Lamp+Detector closes 6.5e's 9R.16 part only: the Signal lamp (CAT-035) and its missing suite `cat-035`. The original text and the 21 Oct addendum above are unchanged.
++
++**Reviewer.** I am the independent terminal reviewer of C-Lamp+Detector (`review-c-lamp-detector.md`). I am neither its implementer, nor Story 6.5e's implementer, nor the author of the original review above or of the 9A.17 addendum.
++
++**Identity**
++- Re-run tree: commit `86ad82ffe6a946413cea51ade6b9be2993b47328`, tree `b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3`.
++- Published merge: `2065d3c5951232b3e04332101f3d31b45d5e10f1`, the same tree, on `origin/main`.
++- Bundle: `elements/elements.bundle.json` sha256 `27bd3e4474d1153325dc865f1fe2f917e4aee18c4bda3e5911f3b5240293f9a2`.
++
++**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
++- `evidence-c-lamp-detector-review/terminal/addenda-native-rerun.log`, the "Story 6.5e CAT-035 part (9R.16) acceptance" section. Run 2026-10-23T10:15:19Z to 10:15:37Z, with a summary and rc re-run at 10:16:01Z to 10:16:13Z: **103/103 passed, rc 0**.
++- `review-c-lamp-detector.md` (full suite 2911/2911; CI run 39936029766 on `2065d3c5`).
++
++| Clause (6.5e / 9R.16) | Retro-verification finding (18 Oct) | Fresh result | Verdict |
++|---|---|---|---|
++| The lamp lights on its first input and stays lit (switch-fed) | "`cat-063`, `cat-035` and `cat-022` don't exist." | `LampDetectorGuardTests.ASwitchLightsItsLampOnTheFirstInputAndItStaysLitWhileAnUnwiredLampStaysDark`, on the production simulation: dark before the switch, then the same latched occurrence on every later tick. The lamp is now a generic instance whose node is selected by its declared indicator (9A.36). | Native Pass |
++| A latch- or plate-fed lamp follows that level on and off | (gap) | `ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds` matches the lamp to the latch phase on every tick and shows it turning on and off. `ALampOnAPlateFollowsItsLevelOnAndOff` matches the plate on every tick, on and off. | Native Pass |
++| An unwired lamp stays dark; a level-fed lamp refuses a second signal | (gap) | The unwired control stays dark on every tick. A second signal is refused (ordinal 8, unchanged text) at edit, and again atomically at the save boundary. A level into a non-level input is refused (ordinal 7). | Native Pass |
++| Run/Reset matches the snapshot; Save/Load preserves wires | (gap) | Reset returns the exact built state (`AssertSameState`), with the lamp dark again; the level-fed wire survives Save/Load. The record-path saves load as the same generic lamp at both decode boundaries (`DeclaredIndicatorPassageTests`). | Native Pass |
++| `tools/e2e/cat-035.test.ts` passes 100% in Chrome serially | "`cat-035` … [doesn't] exist" | Still not authored. Under the 21 Oct policy it is authored and run in the post-catalogue E2E phase (C-Lamp+Detector spec, "Pending browser cases"). | Pending (browser) |
++
++**Verdict of this addendum:**
++- Native terminal Pass at `2065d3c5` for 6.5e's CAT-035 (9R.16) simulation clauses.
++- The `cat-035` suite stays open; owner: post-catalogue E2E.
++- 6.5e stays `in-progress`: the clauses owned by its other closing stories remain open (9.5a for 9R.17; 9A.16; the clauses the 9A.17 addendum left open; 9A.25a; 9A.27; every conversion through C-Memory), and this addendum's browser clause is pending.
+diff --git a/_bmad-output/implementation-artifacts/review-6-8-ball-detector.md b/_bmad-output/implementation-artifacts/review-6-8-ball-detector.md
+index 76257693..2a2dbeea 100644
+--- a/_bmad-output/implementation-artifacts/review-6-8-ball-detector.md
++++ b/_bmad-output/implementation-artifacts/review-6-8-ball-detector.md
+@@ -279,3 +279,37 @@ $ SPRING_PREVIEW_URL=http://127.0.0.1:8060/ npx tsx --test tools/e2e/engine-core
+ Story 6.8 satisfies every acceptance criterion, implements the Ball Detector aperture passage sensor with directional rearm, maintains strict visual/collider separation, introduces zero legacy shims or per-part classes, ensures clean static analysis, and achieves a 100% pass rate across 851 automated unit tests and 36 real Chrome Playwright E2E tests.
+ 
+ Terminal Scoped Verdict: **PASS**.
++
++---
++
++## Addendum 23 Oct 2026, retro-verification (C-Lamp+Detector, 9R.9)
++
++This is the closing addendum under the epics rule "Reopened-record closure": 6.8 (weak) closes with C-Lamp+Detector (9R.9). The original text above is unchanged.
++
++**Reviewer.** I am the independent terminal reviewer of C-Lamp+Detector (`review-c-lamp-detector.md`). I am neither Story 6.8's implementer nor the author of the review above (Murdoch, 2026-10-15).
++
++**Identity**
++- Re-run tree: commit `86ad82ffe6a946413cea51ade6b9be2993b47328`, tree `b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3`.
++- Published merge: `2065d3c5951232b3e04332101f3d31b45d5e10f1`, the same tree, on `origin/main`.
++- Bundle: `elements/elements.bundle.json` sha256 `27bd3e4474d1153325dc865f1fe2f917e4aee18c4bda3e5911f3b5240293f9a2`.
++
++**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
++- `evidence-c-lamp-detector-review/terminal/addenda-native-rerun.log`, the "Story 6.8 (9R.9) acceptance" section. Run 2026-10-23T10:15:19Z to 10:15:37Z, with a summary and rc re-run at 10:16:01Z to 10:16:13Z: **69/69 passed, rc 0**.
++- `review-c-lamp-detector.md` for the full suite (2911/2911) and CI run 39936029766 on `2065d3c5` (Test C# game 2464).
++
++| Original claim, or retro-verification finding (18 Oct) | Corrected result, fresh evidence | Verdict |
++|---|---|---|
++| AC "the lamp illuminates once". Retro **W**: "The predicate (`cat-002.test.ts:81-84`) scans **all** animation targets, so the detector's own pulse passes it. "Once" is not counted." | **Native:** `LampDetectorGuardTests.OneBallFiresForwardNotInReverseAndFiresAgainAfterClearingUpstream`, on the production simulation. The wired lamp is dark before the first committed passage and latched from it, holding exactly that occurrence (emitter = detector node, first ordinal). **Browser:** the any-target predicate is deleted. `cat-002` now counts the lamp target's own activations (`readAnimationSamplesForTarget`, `LAMP_TARGET = '4'`). It is type-checked only; Chrome is pending. | Native Pass; Chrome pending |
++| Original line 49: "Reverse traversal ($-X$), glancing outside pass ($R > 0.65$ m), stationary body do NOT fire". Retro **W**: "reverse and glancing checks never prove a crossing happened (`:93`, `:132`)." | `AGlancingCrossingOutsideTheApertureFiresNothing` and `AReverseCrossingThroughTheBoreFiresNothing` record the ball's committed position on both sides of the plane. Both fire nothing, and the lamp stays dark. Reviewer mutants show both controls discriminate: aperture ×2 fails the glancing control; inverted sensor rotation fails the reverse control (`evidence-c-lamp-detector-review/mutation/R7-aperture-doubled.txt`, `R8-sensor-rotation-inverted.txt`). | Native Pass; Chrome position proof pending |
++| AC "a second forward crossing after complete clearance triggers again". Retro **W**: "the second forward crossing uses Reset plus a new Run (`:171`), not an in-run clearance." | **Native, in one run:** the ball passes forward, rises back through the plane past the rearm line (0.02 m beyond its radius), and passes forward again. A wired counter's committed count goes 0→1→2 with distinct ordinals, and the counter(2) lamp lights exactly at the second pass. The production tracker, replayed over the committed bodies, counts 2 at the same ticks. The first-input lamp keeps the first occurrence, by its design (9R.16). A second lamp activation in the same run needs re-pulse (9A.23) or a ring read (9A.22): see F1 in `review-c-lamp-detector.md`. | Native Pass under the coordinator's 9R.9 reading; in-run Chrome case pending (F1) |
++| Original line 110: "Reset restores upstream state and second Run replays forward trigger bit-for-bit". Retro **W**: "Reset bit-for-bit is claimed but not asserted." | Now asserted. The guard checks exact state equality after Reset plus a tick-for-tick replay after Save/Load. `ResetRestoresThePassageCursorPulseLatchAndCountInOneSimulation` resets one simulation and compares bodies, memory bits and every activation latch on every tick of the second run, both passes included. | Native Pass |
++| Original lines 27/52: "851/851 tests passed", "12 comprehensive new tests" | Not re-derived (historical). Current: 2911/2911 locally and 2464 game tests in CI on `2065d3c5`. | Superseded |
++| Retro **U**: "disabled participant, and the 0.35 s fade" | Not proven by this addendum: the fade is a browser/presentation clause. Owner: post-catalogue E2E (`cat-002`). | Open (browser) |
++| §D: copied cat-062 output (`14729.544167ms`, line 168) | Not re-verified here. cat-062 is a browser suite and stays pending post-catalogue E2E. | Open (browser) |
++| AC "`tools/e2e/cat-002.test.ts` passes 100% in Chrome serially" | Not run: the 21 Oct policy queues Chrome for post-catalogue E2E. | Pending |
++
++**Verdict of this addendum:**
++- Native terminal Pass at `2065d3c5` for 6.8's simulation clauses.
++- The Chrome clauses (`cat-002` serially, the lamp-target count, in-run clearance, position proof, fade) are pending post-catalogue E2E.
++- The in-run "triggers again" lamp wording needs the coordinator's F1 amendment.
++- `sprint-status.yaml` already shows 6.8 `done` (a weak Pass that was never reopened). Under this closure rule it should not count as done until `cat-002` passes in Chrome. I report this to the coordinator and have left the row unchanged.
+diff --git a/_bmad-output/implementation-artifacts/review-c-lamp-detector.md b/_bmad-output/implementation-artifacts/review-c-lamp-detector.md
+index e3f40863..5ab73c8b 100644
+--- a/_bmad-output/implementation-artifacts/review-c-lamp-detector.md
++++ b/_bmad-output/implementation-artifacts/review-c-lamp-detector.md
+@@ -1,7 +1,7 @@
+ ---
+ title: "Review — C-Lamp+Detector (9A.36 + 9A.37 + 9R.9 + 9R.16), independent adversarial review"
+ candidate: "uncommitted worktree story-c-lamp-detector on base 54ffd9f0; tracked diff (git diff --binary HEAD) sha256 55b99c26f868502e14b0a3f86603710dacd04036768a9e4cd5912aad86f5b70e, unchanged at start and end of review; LampDetectorGuardTests.cs sha256 1859953…cb3f, DeclaredIndicatorPassageTests.cs 5a8e2694…9955"
+-verdict: "Pass (native, required-now scope). SnapshotApproval granted (see the section at the end). Publication-dependent checks are pending. Browser qualification is pending post-catalogue E2E."
++verdict: "Terminal scoped native and publication Pass at 2065d3c5 (23 Oct 2026); SnapshotApproval was granted for staged tree e575cb01 on base 54ffd9f0. Browser qualification is pending post-catalogue E2E."
+ date: 2026-10-23
+ ---
+ 
+@@ -140,3 +140,29 @@ The detector's own latch cannot show 2: a `PassageSource` node latches its first
+ - The `TODO.md` brief, and the spec's Current state and its SnapshotApproval → publication checkbox.
+ - The Story 6.8 and Story 6.5e (9R.16 part) addenda (native only, browser pending).
+ - The terminal publication-verification section of this record.
++
++## Terminal publication verification — 23 October 2026
++
++Raw outputs are in `evidence-c-lamp-detector-review/terminal/`.
++
++**Identities**
++- Slice commit: `86ad82ffe6a946413cea51ade6b9be2993b47328`, tree `b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3`, parent `54ffd9f0`.
++- Published merge (`--no-ff`): `2065d3c5951232b3e04332101f3d31b45d5e10f1`, parents `54ffd9f0` and `86ad82ff`, tree `b39f0cb3…` (the same tree: main had not moved).
++- Remote: after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `2065d3c5…`.
++
++| # | Publication-dependent check | Result | Raw |
++|---|---|---|---|
++| 1 | The commit tree equals the approved snapshot | **Pass.** `86ad82ff^{tree}` = `b39f0cb3`, the final staged tree reported with the approval. Against the approved tree `e575cb01` the only difference is this record (+32, the SnapshotApproval append). Recomputed from `e575cb01`, the approved diff SHA-256 is `8c67b099…`, as approved. With this record excluded, the approved and published diffs both hash to `9b6e829f…` | `identities.txt` |
++| 2 | Hooks | **Pass.** The implementer kept no hook output, so this re-run is the hook evidence. I ran the repository pre-commit hook on the exact published tree, in a throwaway worktree at `54ffd9f0` with index `b39f0cb3` (270 staged paths; the two deleted files removed from disk; nothing unstaged or untracked). Results: 3 gate builds with 0 warnings and 0 errors; Anvil 44 snapshots, `hasBlockingWarnings: false`; `CSharpStaticGateTests` + `WorkshopUiFailureTests` 124/124; hook rc 0. The worktree was removed. My first invocation (`sh .git/hooks/pre-commit`) failed with "Not a directory" because a worktree's `.git` is a file, so the log's fallback invocation through the common hooks dir is the actual run | `hook-rerun.log` |
++| 3 | The merge tree equals the branch tree; remote main is the published merge | **Pass** | `identities.txt` |
++| 4 | Pages workflow on the exact SHA | **Pass.** Run 39936029766, "Build and deploy game", push, main, headSha `2065d3c5`, completed/success. Every build step succeeded (static gate, Test C# game, Test C# tools, publish, static-deployment check, upload), and the deploy job succeeded. Totals: Test C# game **2464**; Test C# tools **77 / 164 / 17 / 174**. CI's tools step excludes the 15 toolchain tests by design (174 vs the local 189). The local 2464/164/77/189/17 was proven on the same source before approval | `run.json`, `build-job.log` |
++| 5 | Pages artifact ownership and deployment | **Pass.** Artifact `github-pages` id 12494172072 (digest `sha256:026680f0…`, 79,810,916 bytes, not expired) belongs to run 39936029766 at headSha `2065d3c5` on main. The deploy job used `artifact_id` 12494172072 and created the deployment for `2065d3c5` (id 7275606022). Its status went waiting → queued → in_progress → success, with environment `https://aidanmorgan.github.io/tim/`. It is the newest `github-pages` deployment (the previous ones were `54ffd9f0` and `f27cb71d`). The site returns 200 for `/`, `/index.html`, `/_framework/dotnet.js` and `/404.html` | `artifact-deployment.txt`, `deployment-status.txt`, `deploy-job.log` |
++| 6 | Closing addenda | Appended (additions only): `review-6-8-ball-detector.md` (native Pass, Chrome clauses pending) and `review-6-5e-mechanisms-fixtures-conversion.md` (9R.16 part: native Pass, `cat-035` pending). Fresh run on `86ad82ff`/`b39f0cb3`, bundle `27bd3e44…`: 69/69 and 103/103, rc 0 | `addenda-native-rerun.log` |
++| 7 | Status rows | `9a-c-lamp-detector-conversion`, `9a-36` and `9a-37` set to `done` in this worktree. `9r-9` and `9r-16` stay backlog | — |
++| 8 | Browser cases | Still pending post-catalogue E2E: `cat-002` (lamp-target count, in-run second crossing (F1), position proofs) and `cat-035` (to be authored); re-runs of `cat-020`, `cat-023b`, `anim-1a`, `anim-1b`, `anim-1c`, `cat-037`, `cat-052-lamp`, and `cat-022` once 9.5a authors it | — |
++
++**Terminal verdict: scoped native and publication Pass at `2065d3c5`.**
++- Browser qualification is pending post-catalogue E2E. This is not a release, global-audit or runtime qualification.
++- Findings F1–F6 stand as recorded; F1 needs a coordinator decision before `cat-002` is authored post-catalogue.
++- **F1 ownership (coordinator decision, 23 Oct 2026):** Story 9A.22 owns F1 (and F2). It amends the epics 9R.9 text and CAT-002 so the in-run case reads the counter lamp or a 9A.22 Passage record, and it adds the committed per-pass detector read. `6-8` stays `done` under the 21 Oct native-proof policy, with `cat-002` Chrome pending.
++- **Additional (coordinator):** `sprint-status.yaml` shows `6-8-generic-aperture-sensor-directional-rearm: done`. That row predates this closure (a weak Pass never reopened). Its Chrome AC (`cat-002`) is still pending, so by the closure rule ("`done` only when its last closing addendum records a fresh terminal Pass") it should be `in-progress` until `cat-002` passes in Chrome, as `8-1` was handled. I left the row unchanged, as instructed.
+diff --git a/_bmad-output/implementation-artifacts/sprint-status.yaml b/_bmad-output/implementation-artifacts/sprint-status.yaml
+index 18e23316..693c9088 100644
+--- a/_bmad-output/implementation-artifacts/sprint-status.yaml
++++ b/_bmad-output/implementation-artifacts/sprint-status.yaml
+@@ -99,7 +99,7 @@ development_status:
+   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-1; re-verified by addendum in 9a-pkg-2
+   6-7-hollow-sdf-torus-cap-clear-pipe: in-progress # addendum Incomplete; owned by 9r-23
+   # weak Pass (retro-verification 18 Oct 2026); repaired and re-verified by addendum in 9a-c-lamp-detector (9r-9)
+-  6-8-generic-aperture-sensor-directional-rearm: done
++  6-8-generic-aperture-sensor-directional-rearm: done # native re-verified at 2065d3 (C-Lamp addendum); cat-002 Chrome pending; 9R.9 "one more" wording owned by 9a-22
+   # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and an addendum in 9a-pkg-2
+   6-9-pipe-bend-45-hollow-torus-segment: in-progress
+   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-2; closes via an addendum in 9a-1 (AbiOffsets)
+@@ -314,11 +314,11 @@ development_status:
+   # 35 (element)
+   10-2-pulley-wheel-tensile-rope-dynamics: backlog
+   # 36 (deletion)
+-  9a-c-lamp-detector-conversion: review # native candidate on 54ffd9f0 (worktree story-c-lamp-detector); browser pending
++  9a-c-lamp-detector-conversion: done # scoped native/publication Pass2065d3; browser pending
+   # merged into 9a-c-lamp-detector (21 Oct 2026)
+-  9a-36-generic-instance-signal-lamp: review # with 9a-c-lamp-detector-conversion
++  9a-36-generic-instance-signal-lamp: done # scoped native/publication Pass2065d3; browser pending
+   # merged into 9a-c-lamp-detector (21 Oct 2026)
+-  9a-37-generic-instance-ball-detector: review # with 9a-c-lamp-detector-conversion
++  9a-37-generic-instance-ball-detector: done # scoped native/publication Pass2065d3; browser pending
+   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
+   9r-9-ball-detector-forward-pass-assertion: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
+   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
+@@ -326,7 +326,7 @@ development_status:
+   # 37 (element)
+   10-3-balanced-impact-lever-pivot-fulcrum: backlog
+   # 38 (deletion)
+-  9a-32-generic-instance-domino: backlog
++  9a-32-generic-instance-domino: review # native candidate on 2065d3c5 (worktree story-9a-32); browser pending
+   # 39 (element)
+   10-4-counterweight-multibody-pendulum-lifting: backlog
+   # 40 (deletion): includes F.6 item F-1

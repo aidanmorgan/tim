@@ -1,0 +1,9 @@
+== M2-initial-identity: tracked diff sha256 dabc3f514492ad6057fa58053f3440984dce7bde641a86621b781209d919ec92
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.OrientationSensorTests.ARotatedDominoCompilesItsAdmittedRotationAsTheSensorInitialPose [34 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.ATileTenDegreesOffUprightRocksBackSilentlyAndThirtyDegreesTopplesAndFires(degrees: 30, topples: True) [38 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.ATileTenDegreesOffUprightRocksBackSilentlyAndThirtyDegreesTopplesAndFires(degrees: 10, topples: False) [4 ms]
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.TheDeclaredThresholdSelectsTheSensorAndNodeOfAWiredTile [1 ms]
+Failed!  - Failed:     4, Passed:   161, Skipped:     0, Total:   165, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 266 ms - BundleElements.Tests.dll (net10.0)

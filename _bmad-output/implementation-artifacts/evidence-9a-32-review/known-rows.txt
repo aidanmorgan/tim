@@ -1,0 +1,10 @@
+base      207 candidate      181
+removed:       26  added:        0
+removed rows by Owner:
+  26 Domino
+base Owner:Domino rows: 26; candidate: 0
+candidate rows mentioning Domino:
+{"File":"engine/PartId.cs","Symbol":"PartId.Domino","Rule":"ElementLiteral","Token":"domino","Count":1,"Owner":"FinalIsolation"}
+{"File":"engine/PartId.cs","Symbol":"PartId.Domino","Rule":"PackageIdentifier","Token":"Domino","Count":1,"Owner":"FinalIsolation"}
+non-Known keys diff:
+none

@@ -72,3 +72,12 @@ public interface IPassageSensorElement : ISignalElement
 {
     SignalPassageDescriptor Passage { get; }
 }
+
+/// <summary>An orientation threshold on the owner's own dynamic body, in f32 degrees: while the owner's ActivationOut is wired, the body
+/// fires one pulse once it has turned <see cref="ThresholdDegrees"/> from its admitted pose, and only a fresh admission rearms it.</summary>
+public readonly record struct SignalOrientationDescriptor(float ThresholdDegrees);
+
+public interface IOrientationSensorElement : ISignalElement
+{
+    SignalOrientationDescriptor Orientation { get; }
+}

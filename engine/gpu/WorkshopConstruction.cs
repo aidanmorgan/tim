@@ -68,14 +68,6 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
 /// <summary>Only UI/resource boundary code may convert wider external numbers into game values.</summary>
 public static class WorkshopInput
 {
-    public static WorkshopDomino Domino(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopDomino(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), DominoMaterial.Default);
-        result.Validate(); return result;
-    }
     public static WorkshopPressurePlate PressurePlate(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, float minimumMass, bool locked = false)
     {

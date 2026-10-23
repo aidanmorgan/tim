@@ -16,8 +16,7 @@ public sealed class WorkshopPhysicsLawPrismaticTests
     private const float Lower = -.25f, Stiffness = 400, Damping = .2f;
     private const float PlateMass = .25f;
     private static readonly Vector3 PlateHalf = new(.65f, .075f, .6f);
-    private static readonly Vector3 TileHalf = new((float)DominoMaterial.Default.HalfExtents.X, (float)DominoMaterial.Default.HalfExtents.Y,
-        (float)DominoMaterial.Default.HalfExtents.Z);
+    private static readonly Vector3 TileHalf = LawTile.HalfExtents;
     private static readonly LawMaterial PlateMaterial = new(0, .05f, .1f, 0);
     private static ConstraintFrame Frame(float x = 0, float y = 0, float z = 0, Quaternion? rotation = null) =>
         new(new(x, y, z), rotation ?? Quaternion.Identity);

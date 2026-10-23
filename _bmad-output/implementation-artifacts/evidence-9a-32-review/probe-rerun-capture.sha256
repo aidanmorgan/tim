@@ -1,0 +1,23 @@
+44361707c9f26b22b438732b2c103d2e13f925e821802466289b23eb57a2726b  ./base-capture/axial-spin.txt
+4d8601554ca02e45661be5011067272bbfe9ac251707737b818a4e860b7b3f6f  ./base-capture/legacy-solution-cause.txt
+0abdb3c15350a656aab0a045ba802135d1fbd81dfae52057b25ad9d9245275e7  ./base-capture/lesson-world.txt
+9c8b1e82139017b9832d4222d54c7d65dcb886cf04d44716c309e796dcf1e2bd  ./base-capture/old-save-outcomes.txt
+2589174c5fed557b8e01792d442b8d0ad7e0eb91b304cab8a16e124bda625e31  ./base-capture/placed-solutions.txt
+d59993ff80fef643d2693108768da0e12dea6bf4c01fe5eafd7ad500e253cfb5  ./base-capture/trace-broken-gap.txt
+4b408a47aba56cb8b9b1ba604cf18d79b4ef7659881db7a03a935cc7a7dce112  ./base-capture/trace-close-gap-chain.txt
+0c7cb04c759cb67c808fb6d313b259a25ce572a7e92f21d48901a9b4b4767d82  ./base-capture/trace-rock-10.txt
+c0df0989e6b7b663fcb409775301aa48a3e8fb79c537403aa72e989adacd7795  ./base-capture/trace-two-lane.txt
+649ccada5295c82882d3afbceac5997394bb1ed44830841171fd5d0cb6835283  ./base-capture/trace-unwired-end.txt
+52a0257990c3378dbf867e1a0cdc954ea16dbf96885b3e7d39e84e5d14a15ca2  ./base-capture/trace-wired-lesson.txt
+44361707c9f26b22b438732b2c103d2e13f925e821802466289b23eb57a2726b  ./cand-capture/axial-spin.txt
+4d8601554ca02e45661be5011067272bbfe9ac251707737b818a4e860b7b3f6f  ./cand-capture/legacy-solution-cause.txt
+0abdb3c15350a656aab0a045ba802135d1fbd81dfae52057b25ad9d9245275e7  ./cand-capture/lesson-world.txt
+aae4286a421e318ebb33317b08649e4440553e1014ab165595dce463a4036fa1  ./cand-capture/old-save-outcomes.txt
+cd109dfaaced36eaf75b5d47f6fccb573b597bdbe585ae3c0fea58f5c8be07d3  ./cand-capture/placed-solutions.txt
+d59993ff80fef643d2693108768da0e12dea6bf4c01fe5eafd7ad500e253cfb5  ./cand-capture/trace-broken-gap.txt
+4b408a47aba56cb8b9b1ba604cf18d79b4ef7659881db7a03a935cc7a7dce112  ./cand-capture/trace-close-gap-chain.txt
+0c7cb04c759cb67c808fb6d313b259a25ce572a7e92f21d48901a9b4b4767d82  ./cand-capture/trace-rock-10.txt
+c0df0989e6b7b663fcb409775301aa48a3e8fb79c537403aa72e989adacd7795  ./cand-capture/trace-two-lane.txt
+649ccada5295c82882d3afbceac5997394bb1ed44830841171fd5d0cb6835283  ./cand-capture/trace-unwired-end.txt
+52a0257990c3378dbf867e1a0cdc954ea16dbf96885b3e7d39e84e5d14a15ca2  ./cand-capture/trace-wired-lesson.txt
+(reviewer captures byte-identical to evidence-9a-32/{baseline,candidate}/capture per identity-probe-rerun.txt; copies removed, hashes kept)

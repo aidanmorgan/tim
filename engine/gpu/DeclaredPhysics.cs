@@ -58,9 +58,6 @@ public static class DeclaredPhysics
 
     public static bool Contains(PartId part) => _entries?.ContainsKey(part) == true;
 
-    /// <summary>The payload: the rolling thing the player delivers, which a capture owner guides and captures and a lesson's contact
-    /// triggers and finite-work storage act on. Derived from the admitted declaration, never declared: a dynamic body of exactly one
-    /// sphere collider and no slider. A Domino or a slider body is dynamic but no payload.</summary>
     /// <summary>The finite store the part's Source supply capability declares; null for every other part.</summary>
     public static CuriousContraptions.Abstractions.Electrical.SupplySourceStoreDescriptor? SourceStore(PartId part) =>
         Of(part).Electrical?.Supply?.Store;
@@ -73,6 +70,9 @@ public static class DeclaredPhysics
         entry.Metadata.Parameters.Any(parameter => parameter.Key == store.Enable &&
             parameter.RunEdit == CuriousContraptions.Abstractions.ParameterRunEdit.RunControl);
 
+    /// <summary>The payload: the rolling thing the player delivers, which a capture owner guides and captures and a lesson's contact
+    /// triggers and finite-work storage act on. Derived from the admitted declaration, never declared: a dynamic body of exactly one
+    /// sphere collider and no slider. A dynamic box (the domino tile) or a slider body is dynamic but no payload.</summary>
     public static bool IsPayload(PartId part)
     {
         var entry = Of(part);

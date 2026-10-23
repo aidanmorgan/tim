@@ -22,6 +22,9 @@ internal static class OldLayoutSaves
     {
         public static Layout PreLaunch { get; } = new(24, 23, 32, 2);
         public static Layout PreSourceStore { get; } = new(18, 17, 16, 3);
+        /// <summary>The 14-field table of 2065d3c5 (before Story 9A.32): 6 mass, 7 bounce, 8 length, 9 threshold, 10 half_extents,
+        /// 11 friction, 12 target_count, 13 parameters.</summary>
+        public static Layout PreDomino { get; } = new(14, 13, 16, 2);
     }
 
     /// <summary>One f32/u8/u32 scalar or Vec3f struct at an old slot.</summary>
@@ -117,6 +120,17 @@ internal static class OldLayoutSaves
         foreach (var (name, part) in new[] { ("impact_switch", PartId.ImpactSwitch), ("ramp", PartId.Ramp), ("bumper", PartId.PinballBumper),
                      ("receiver", PartId.Receiver), ("springboard", PartId.Springboard), ("wall", PartId.Wall), ("hold_timer", new PartId("hold_timer")) })
             yield return new(name, part.Value, [], Declared(part)) { Layout = layout };
+    }
+
+    /// <summary>2065d3c5 records whose parameters vector (slot 13) lies beyond the current 10-field table: a zero-parameter domino and
+    /// lamp each carrying an undeclared parameter, and a bare Basketball with the empty parameters vector the base encoder wrote for
+    /// every generic instance.</summary>
+    internal static IEnumerable<OldRecord> PreDominoRecords()
+    {
+        var layout = Layout.PreDomino;
+        yield return new("domino with a parameter", "domino", [], [("mass", .5f)]) { Layout = layout };
+        yield return new("lamp with a parameter", "lamp", [], [("radius", .5f)]) { Layout = layout };
+        yield return new("bare ball, empty parameters vector", "ball", [], []) { Layout = layout };
     }
 
     /// <summary>Each pre-conversion record kind C-Bumper+Spring's schema change moved, with the old values it stored.</summary>

@@ -12,7 +12,7 @@ public sealed class WorkshopBowlingTests
     private static WorkshopGenericInstance Bowling(ulong id, double x, double y = 3, double z = 0) =>
         WorkshopInput.Generic(PartId.BowlingBall, new(id), x, y, z, 0, 0, 0, 1);
     private static WorkshopConstruction TwoLanes() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), WorkshopInput.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
+        new(PlacedParts.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.Basketball,new(3), .3, 1.05, -1.5, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
 
     // C-Balls: each kind is a zero-parameter generic instance of its own package; its material is the package's and no authored value
@@ -88,9 +88,9 @@ public sealed class WorkshopBowlingTests
             Assert.False(WorkshopWireFlatBuffers.CarriesTypedField(record));
             Assert.Equal(0, record.ParametersLength);
         }
-        // A forged 4 kg Basketball, or a Basketball record carrying a declared-parameter material, never loads.
+        // A Basketball record carrying a typed record field, or a declared-parameter material, never loads.
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
-            PayloadInstanceTests.GenericSave("ball", TypedField.Mass)));
+            PayloadInstanceTests.GenericSave("ball", TypedField.Length)));
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,
             PayloadInstanceTests.GenericSave("ball", null, [("mass", 4f)])));
     }

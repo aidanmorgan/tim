@@ -1,0 +1,6 @@
+== M6-body-rule-weakened: tracked diff sha256 bd1a5baa0dcd089b59a3d8df373c1291920c11eaeda24e706fae2981a1c56941
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   165, Skipped:     0, Total:   165, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive [181 ms]
+Failed!  - Failed:     1, Passed:    90, Skipped:     0, Total:    91, Duration: 269 ms - BundleElements.Tests.dll (net10.0)

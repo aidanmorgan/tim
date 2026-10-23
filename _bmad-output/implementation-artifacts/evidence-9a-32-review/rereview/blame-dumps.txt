@@ -1,0 +1,23 @@
+Blame dumps produced in the slnx runs: all are of child processes named 'Preview' (tools/Preview servers that E2eRunner.Tests start and deliberately kill), 4 per run, on base and candidate alike; no test host crashed (no 'exit code'/'Catastrophic' line in any log):
+review-crash-slnx/base-1/44b37b7b-1009-42dc-8e53-fae35b070da5/Preview_39222_1792757326_crashdump.dmp
+review-crash-slnx/base-1/44b37b7b-1009-42dc-8e53-fae35b070da5/Preview_39260_1792757328_crashdump.dmp
+review-crash-slnx/base-1/44b37b7b-1009-42dc-8e53-fae35b070da5/Preview_39268_1792757329_crashdump.dmp
+review-crash-slnx/base-1/44b37b7b-1009-42dc-8e53-fae35b070da5/Preview_39377_1792757343_crashdump.dmp
+review-crash-slnx/base-2/b36ad039-a0c9-4439-a286-002f73f8dbe5/Preview_40066_1792757431_crashdump.dmp
+review-crash-slnx/base-2/b36ad039-a0c9-4439-a286-002f73f8dbe5/Preview_40099_1792757433_crashdump.dmp
+review-crash-slnx/base-2/b36ad039-a0c9-4439-a286-002f73f8dbe5/Preview_40109_1792757434_crashdump.dmp
+review-crash-slnx/base-2/b36ad039-a0c9-4439-a286-002f73f8dbe5/Preview_40185_1792757448_crashdump.dmp
+review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41107_1792757539_crashdump.dmp
+review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41163_1792757540_crashdump.dmp
+review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41173_1792757542_crashdump.dmp
+review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41253_1792757556_crashdump.dmp
+review-crash-slnx/candidate-1/2c361a6b-bbc1-43ed-8339-b499ae5a267f/Preview_39042_1792757317_crashdump.dmp
+review-crash-slnx/candidate-2/b370a688-7b38-4609-904a-38a916433a13/Preview_39664_1792757383_crashdump.dmp
+review-crash-slnx/candidate-2/b370a688-7b38-4609-904a-38a916433a13/Preview_39676_1792757385_crashdump.dmp
+review-crash-slnx/candidate-2/b370a688-7b38-4609-904a-38a916433a13/Preview_39685_1792757386_crashdump.dmp
+review-crash-slnx/candidate-2/b370a688-7b38-4609-904a-38a916433a13/Preview_39730_1792757392_crashdump.dmp
+review-crash-slnx/candidate-3/91eac266-5921-428a-b092-fef6c07b573e/Preview_40777_1792757491_crashdump.dmp
+review-crash-slnx/candidate-3/91eac266-5921-428a-b092-fef6c07b573e/Preview_40798_1792757492_crashdump.dmp
+review-crash-slnx/candidate-3/91eac266-5921-428a-b092-fef6c07b573e/Preview_40805_1792757494_crashdump.dmp
+review-crash-slnx/candidate-3/91eac266-5921-428a-b092-fef6c07b573e/Preview_40836_1792757500_crashdump.dmp
+standalone CuriousContraptions.tests runs: 0 dumps

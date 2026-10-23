@@ -1,0 +1,8 @@
+$ git diff --check HEAD
+rc=0
+$ git diff --check --no-index /dev/null <untracked>
+CuriousContraptions.tests/DominoGuardTests.cs rc=1
+CuriousContraptions.tests/DeclaredOrientationTests.cs rc=1
+_bmad-output/implementation-artifacts/spec-9a-32-domino.md rc=1
+fixtures absent from status:
+none (untouched)
