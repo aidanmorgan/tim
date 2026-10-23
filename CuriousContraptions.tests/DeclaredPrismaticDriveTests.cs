@@ -257,6 +257,30 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.True(rest.Coordinate > rest.Lower + ActuatorDriveRead.StopSlop && rest.Coordinate < rest.Upper - ActuatorDriveRead.StopSlop);
     }
 
+    /// <summary>Review F4: the moving-contact lane covers every substep of the tick, not only the last. A ball bounces off a sprung
+    /// plate; on every tick where it struck the plate in an earlier substep and had left by the last, the lane still reads 1.</summary>
+    [Fact]
+    public void TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick()
+    {
+        var scene = new LawScene();
+        var frame = scene.StaticBox(new(0, 2, 0), new(.6f, .05f, .6f), colliderOffset: new(0, -.4f, 0));
+        var plate = scene.Box(new(0, 2, 0), new(.5f, .05f, .5f), 1f, new(1f, 0f, .1f, 0f));
+        scene.Prismatic(frame, plate, ConstraintFrame.Identity, ConstraintFrame.Identity, -.25f, 0f, 400f, .2f, ConnectedCollision.Disabled);
+        var ball = scene.Sphere(new(0, 2.6f, 0), .1f, .2f, new(1f, 0f, .1f, 0f), new(0, -4f, 0), default, 0f, LawScene.Gravity);
+        var world = scene.Admit();
+        var early = 0;
+        world.Step(120, (tick, state) =>
+        {
+            var path = Pieces(Motion(state.World), ball.Value);
+            var flip = path.FindIndex(s => s.Velocity.Y > 0f);
+            if (flip <= 0 || flip == path.Count - 1 || path[^1].Velocity.Y <= 0f) return;
+            early++;
+            Assert.True(PhysicsGpuAbi.ReadPrismaticMovingContact(state.World, 0),
+                $"tick {tick}: the ball struck the plate in substep {flip} and left by the last; the lane must record it");
+        });
+        Assert.True(early > 0, "guard: at least one strike lands before the tick's last substep");
+    }
+
     [Fact]
     public void BlockedNeedsContactInteriorAndRestTogether()
     {

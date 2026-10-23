@@ -1,0 +1,2 @@
+delta rc=0
+full-vs-base rc=2

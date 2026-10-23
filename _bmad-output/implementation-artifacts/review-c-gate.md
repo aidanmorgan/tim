@@ -1,7 +1,7 @@
 ---
 title: "Review — C-Gate (9A.19 + 9A.21), independent adversarial review"
 candidate: "uncommitted worktree story-c-gate on base a598a09e; tracked diff + untracked sources sha256 97f1bea25afff1fefae24f3a6c54fe74f94e2f8ba717a24a08d67d97e18621a5 (unchanged at start and end of review)"
-verdict: "Pass-pending-merge (implementation scope, native proof; browser qualification pending post-catalogue E2E)"
+verdict: "Merged re-review Pass; SnapshotApproval granted for the staged snapshot on 2b1270c2 (23 Oct 2026). Publication-dependent checks are pending. Browser qualification is pending post-catalogue E2E."
 date: 2026-10-22
 ---
 
@@ -146,3 +146,55 @@ Per-phase native Release timing (median of 5, ms):
 - **Implementer gaps.** The `python3` heredoc edit of `SpringboardElementDeclaration.cs` and the after-the-fact Anvil run are disclosed in the spec. The content is correct (`Drive: null`). Non-blocking. The pre-commit hook applies at commit.
 - **Reviewer disclosure.** I edited only throwaway files: the probe and test registrations in two scratch worktrees, using `sed` and `perl`, and mutants applied with `perl`. I also created files by shell: `mutate2.sh` through a `cat >>` heredoc, and an `echo >>` append of the closing re-hash line to `evidence-c-gate-review/candidate-identity.txt`. Both worktrees were removed after the review. I made no change to candidate source, tests, tools or content. The candidate hash is unchanged.
 - **Pre-existing doc inaccuracy.** The `schemas/README.md` C# recipe's `printf … ''` emits one extra blank line, so its "byte for byte" claim is false. The implementer worked around it. Fix it in the next wire-touching slice.
+
+# Merged re-review (23 Oct 2026)
+
+**Candidate.** Merge commit `2b1270c2` plus the uncommitted delta. The parent chain is:
+- `2b1270c2` (merge) has parents `b951eef5` (WIP) and `8bfddc91` (main, 9.8b XOR);
+- `b951eef5` has parent `a598a09e`.
+
+The delta identity was `d3ab7257…` at the start and again after all checks (`evidence-c-gate-review/merged/delta-identity-start.txt`).
+
+| Check | Result | Receipt (`evidence-c-gate-review/merged/`) |
+|---|---|---|
+| WIP `b951eef5` is the reviewed candidate | Identity recomputed from `a598a09e..b951eef5` = `97f1bea2…`, the pre-merge reviewed hash. Its source patch is byte-identical to my review-time patch | (recomputed live) |
+| Merge = both sides plus resolutions only | Two checks: <br>1. The normalised `+/-` content of `8bfddc91..2b1270c2` equals that of `a598a09e..b951eef5` (`bee96ab5`). <br>2. The normalised `+/-` content of `b951eef5..2b1270c2` equals that of `a598a09e..8bfddc91` (`b50b6809`). <br>Both exclude TODO.md and `ElectricalXorTests.cs`. The files changed by both sides (`SupplyRoute.cs`, `WorkshopPhysicsLawTests.cs`, Or/Nor/Nand tests, test csproj, `BundleValidatorTests.cs`, `sprint-status`) keep each side's hunks exactly. `git show --remerge-diff` shows only the TODO.md resolution and 3 lines of `ElectricalXorTests` | — |
+| XOR test conversions keep the same assertions | `GateBlade(o)` was `PartIdentities(o)+2`, which equals `SliderBody(o,0)`. The two `CompiledSupplyGraph` calls only add `scene.PrismaticDrives`, and the loop-refusal message assertion is unchanged. ElectricalXorTests passes in the full suite | `full-test.log` |
+| Main did not touch the wire, the Known fixture or the snapshot schema | `git diff a598a09e 8bfddc91` over those paths is empty | — |
+| One Debug build of the merged snapshot | 0 warnings, 0 errors | `build.log` |
+| Full `dotnet test CuriousContraptions.slnx --no-build --no-restore` | 2863/2863 (2419 / 161 / 77 / 189 / 17) | `full-test.log` |
+| CI "Test C# tools" step under bash, verbatim from `pages.yml` | 77 / 161 / 17 / 174, rc 0 | `ci-tools.log` |
+| Release `dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false` | Run in a throwaway worktree of exactly 2b1270c2 plus the delta (tracked patch applied; untracked files hash-identical): rc 0, no compiler warnings, all 5 static-deployment files present. The worktree was then removed. The candidate worktree has no `CuriousContraptions.web/AppBundle` | `web-publish.log` |
+| F4 test discriminates | Control: 45/45 pass. Last-substep-only mutant: the F4 test is the only failure. Lane-never-set mutant: it fails. Source restored and byte-compared | `f4-mutation.log` |
+| Deletion greps on the merged tree (production, plus `GateBlade` in tests and tools) | 0 hits | `deletion-greps.txt` |
+| `git diff --check` of the delta | clean. Whitespace exists only in already-committed raw evidence logs from 9.8b and the pre-merge review | `diff-check.txt` |
+| Carried terminal receipts: OR, 9.4c, XOR | Each review-file hunk is byte-identical to its `carry/*-terminal-receipt.patch` hunk. Each `evidence-*/terminal/` directory is identical (`diff -r`) to its `carry/*-terminal-evidence` (6, 15 and 6 files). The `sprint-status` delta is exactly the union of the three patches' lines, applied by hand. C-Gate's own rows stay `review` | — |
+| Delta docs (spec Current state, TODO) | F1–F4 are recorded faithfully. F1 is marked accepted by the coordinator. TODO keeps C-Gate in flight | — |
+| XOR publication CI on 8bfddc91 | `gh run view 39725241664`: push on main, headSha 8bfddc91, completed, success | — |
+
+**Verdict: Pass.** The merge, the F4 test, the receipts and the delta are clean, and there are no findings. The non-blocking F1–F3 above stand as recorded by the coordinator.
+
+# SnapshotApproval (23 Oct 2026)
+
+**Approved.** I verified every pre-publication criterion for the staged snapshot below. The implementer may commit that exact staged tree on `2b1270c2`, then merge it to main, push and deploy. The commit must keep the hooks and must not use `--no-verify`.
+
+- The snapshot is the delta above plus these review records, staged with `git add -A`.
+- Its identity is recorded in the block below.
+- The final staged tree differs from the identified one only by this file's identity block, which is appended after it was computed. The SHA-256 that excludes this file is unaffected by that append.
+
+**Publication-dependent checks.** The reviewer verifies these before the terminal scoped Pass:
+1. The commit's tree equals the final staged tree reported with this approval, and its parent is `2b1270c2`.
+2. The pre-commit hooks pass.
+3. Remote `main` equals the published merge commit, whose tree contains this snapshot unchanged.
+4. The Pages workflow "Build and deploy game" succeeds on that exact SHA. That covers the build, Test C# game, Test C# tools, the production publish, the static-deployment check and deploy.
+5. The deployed site serves that SHA's bundle: the deployment record references the run, and `index.html` and `_framework/dotnet.js` are reachable.
+6. Only then do `9a-c-gate-declared-drive-warmup`, `9a-19-…` and `9a-21-…` move to done. The 8.2 re-verification addendum (native; browser pending) and the C-Gate terminal receipt are appended in the follow-up record.
+7. Browser cases stay pending post-catalogue E2E, including the corrected cat-051 test 3 direction (F1) and the 9A.21 Chrome timing (F2).
+
+**Snapshot identity** (computed after `git add -A`, before this block was appended):
+- Parent chain: `2b1270c2` ← (`b951eef5` ← `a598a09e`) + `8bfddc91`.
+- Staged tree before this block: `278fd25ca6e78a3b64537f14f532198e4d65a2fe`. It has 52 paths changed against `2b1270c2`, with 10783 insertions and 7 deletions.
+- SHA-256 of `git diff --cached --binary 2b1270c2`: `e7d4da675c77e7000ae17b06d51df8ee18c05be299f943f9b73515e37cbd0df9`, before this block.
+- SHA-256 of the same diff excluding this file (`-- . ':(exclude)_bmad-output/implementation-artifacts/review-c-gate.md'`): `90eea0aa3207a6c6cb512a4bcbe13350171358a5e32140455e2a6250ddeba654`. It stays valid after this block is appended.
+- `git diff --cached --check` flags trailing whitespace only in raw captured logs: the three carried CI job logs, 9.8a's anvil transcript, and the build and publish logs from the implementer and the reviewer. These are unmodified tool output and are not edited. No source, test, doc or record file is flagged.
+- The final staged tree, after this block is appended and re-staged, is reported to the coordinator with this approval and checked again by publication-dependent check 1.

@@ -278,4 +278,27 @@ Mutation probes (`mutation/`):
 - `BundleValidatorTests`: 11 drive cases.
 - `GateBlade` callers move to `SliderBody`, and `CompiledSupplyGraph` callers pass `PrismaticDrives`.
 
+**Reviewer findings** (pre-merge verdict Pass-pending-merge, [review](review-c-gate.md); recorded 23 Oct 2026)
+- **F1 (accepted).** A ball placed 0.3 m inside the closed blade is ejected upstream when the gate opens. This is physically consistent and accepted. The queued cat-051 browser test 3 expectation ("downstream") is wrong and must be corrected. Owner: the post-catalogue E2E phase.
+- **F2 (advisory, not met).** 9A.21 timing: native proxy 0.20 → 1.42 ms; production is AOT. Measure in Chrome at the named performance qualification (Epic 16).
+- **F3 (stale proof).** The static-velocity fix (deviation 4) changed 10 of 24 lesson/route trajectories, with solve outcomes unchanged. Base browser proofs of those lessons and routes are therefore stale and are re-proved at post-catalogue E2E.
+- **F4 (done).** `DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick`: a ball bounces off a sprung plate; on every tick where it strikes in an earlier substep and has left by the last, the lane reads 1. Mutant M9 (lane from the last substep only) is killed (`mutation/M9-contact-last-substep-only.log`).
+
+**Merge with main `8bfddc91` (9.8b XOR)**
+- WIP `b951eef5`, then the merge commit (see the merged evidence).
+- The only textual conflict was `TODO.md`: main's content was kept and C-Gate made the in-flight item.
+- Main's new `ElectricalXorTests` were converted to `SliderBody(…, 0)` and `scene.PrismaticDrives`.
+- The Known list was unchanged by main; the ratchet word list now includes "xor" from the bundle, and no C-Gate identifier contains it.
+- The wire was not touched by main.
+- After the merge, the OR, 9.4c and XOR terminal receipts were carried. The 9.4c and XOR `sprint-status` hunks were applied by hand because their context had moved.
+- Merge commit `2b1270c2`. The merged candidate is that commit plus the uncommitted delta (carried receipts, the F4 test, docs).
+- Verified in CI order (`evidence-c-gate/merged/`):
+  - playtest and normal `--no-incremental` builds: 0 warnings;
+  - full slnx tests: WorkerAotGuard 17, Coverage 77, BundleElements 161, E2eRunner 189, CuriousContraptions.tests 2419 = 2863/2863;
+  - CI tools step: 77/161/17/174;
+  - Release web publish: rc 0, then `AppBundle` moved out of the tree;
+  - `git diff --check`: clean.
+
+  The wire was not touched by the merge, so tsc and the schema test were not rerun.
+
 **Risks and next check.** The first-Run hitch in Chrome is unmeasured (pending). The ~1.2 ms native JIT proxy difference is attributed but not removed. Browser cases are pending post-catalogue E2E: `cat-051*`, `cat-052`, `cat-037`, `cat-005-n19`, `cat-020`, the D6 downstream-ball check and 9A.21 timing. Next: independent adversarial review of this exact uncommitted candidate, then SnapshotApproval, publication, and the 8.2 re-verification addendum.

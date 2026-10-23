@@ -1,0 +1,23 @@
+$ git fetch origin
+$ git rev-parse origin/main HEAD
+8bfddc91193689a272038aa1337355b10929b668
+37bdc6611ff90aff31bca7848ce51be067300d45
+$ git log -3 --format="%H %P %T %s" origin/main
+8bfddc91193689a272038aa1337355b10929b668 a598a09e2b91d58135b3343a2beeea6b88578013 37bdc6611ff90aff31bca7848ce51be067300d45 1f8d9cd6c8fc5afcf163a5170317cbf2d64bed21 Merge 9.8b Electrical XOR gate
+37bdc6611ff90aff31bca7848ce51be067300d45 746d6582fc6be629f5c3714d85ff79ee5a7a8107 1f8d9cd6c8fc5afcf163a5170317cbf2d64bed21 Add Electrical XOR gate on the ordered nonmonotone supply law
+746d6582fc6be629f5c3714d85ff79ee5a7a8107 1e6d707e11577064cb97175a32594566c6e5f5e0 a598a09e2b91d58135b3343a2beeea6b88578013 e6080ad66c25ae2c172a5fe7d16e4612587eed57 Merge main a598a09e (9.4c latch-fixture integrations) into 9.8b candidate
+$ git diff --stat 40afc9e0 1f8d9cd6
+ .../review-9-8b-electrical-xor.md                  | 61 ++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
+$ added headers
+@@ -81,3 +81,64 @@ Raw output: `evidence-9-8b-review/post-merge/`.
++## SnapshotApproval — 22 October 2026
++## Publication-dependent checks
+$ git diff --stat 1f8d9cd6 origin/main^{tree}
+(empty = identical)
+$ 9.4c precondition
+{"conclusion":"success","databaseId":39723690498,"headSha":"a598a09e2b91d58135b3343a2beeea6b88578013","status":"completed","updatedAt":"2026-10-22T04:55:16Z"}
+{"created_at":"2026-10-22T04:54:11Z","id":7244087300,"sha":"a598a09e2b91d58135b3343a2beeea6b88578013"}
+$ CI for 8bfddc91
+[{"attempt":1,"conclusion":"success","databaseId":39725241664,"event":"push","headBranch":"main","name":"Build and deploy game","status":"completed"}]
+{"attempt":1,"conclusion":"success","createdAt":"2026-10-22T04:57:12Z","databaseId":39725241664,"event":"push","headBranch":"main","headSha":"8bfddc91193689a272038aa1337355b10929b668","jobs":[{"conclusion":"success","databaseId":119647524788,"name":"build","steps":["1 Set up job: success","2 Run actions/checkout@v4: success","3 Run actions/setup-dotnet@v4: success","4 Install WebAssembly workload: success","5 C# static gate: success","6 Test C# game: success","7 Test C# tools: success","8 Publish production browser bundle: success","9 Check static deployment: success","10 Run actions/upload-pages-artifact@v3: success","19 Post Run actions/setup-dotnet@v4: success","20 Post Run actions/checkout@v4: success","21 Complete job: success"]},{"conclusion":"success","databaseId":119651832856,"name":"deploy","steps":["1 Set up job: success","2 Run actions/deploy-pages@v4: success","3 Complete job: success"]}],"status":"completed"}

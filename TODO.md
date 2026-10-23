@@ -12,7 +12,7 @@
 - F1: a ball placed 0.3 m inside the closed blade is ejected upstream. This is physically consistent and accepted. The queued cat-051 browser test 3 "downstream" expectation must be corrected (owner: post-catalogue E2E).
 - F2: 9A.21 timing is advisory-not-met (native 0.20→1.42 ms; production is AOT). Measure in Chrome at the Epic 16 performance qualification.
 - F3: the static-velocity fix changed 10 of 24 lesson/route trajectories (solve outcomes unchanged), so the base browser proofs are stale.
-- F4: an any-substep versus last-substep contact test.
+- F4: an any-substep versus last-substep contact test was added (`TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick`); it kills the last-substep-only mutant M9.
 
 Pending browser cases: `cat-051`, `cat-051-own-supply`, `cat-051-interrupt`, `cat-052`, `cat-037`, `cat-005-n19`, `cat-020`, the 9A.19 downstream-ball check and 9A.21 first-Run timing (post-catalogue E2E).
 

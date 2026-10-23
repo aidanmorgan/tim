@@ -1,0 +1,14 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.55]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick [8 ms]
+  Error Message:
+   tick 103: the ball struck the plate in substep 1 and left by the last; the lane must record it
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.<>c__DisplayClass14_0.<TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick>b__0(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 278
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 278
+   at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 272
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    44, Skipped:     0, Total:    45, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

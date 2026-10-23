@@ -142,3 +142,35 @@ Publication is:
 - **Deployment.** The github-pages deployment of that SHA reaches the **success** status and consumes that artifact.
 
 Preserve any failed attempt unchanged and return concrete failures to the same implementation owner. Terminal scoped Pass is native/publication only, not browser or release qualification.
+
+## Terminal publication verification — 22 October 2026
+
+Same independent reviewer, with no source changed. Raw outputs are in `evidence-9-8b-review/terminal/`: `identity-and-ci.txt`, `build-job.log`, `deploy-job.log`, `pages.txt`, `hook-rerun.log` and `anvil-slice-verification.txt`. The GitHub run/job logs are the original evidence.
+
+| Check | Command (summarised) | Result |
+| --- | --- | --- |
+| Remote identity | `git fetch origin`; `git rev-parse origin/main` | `8bfddc91193689a272038aa1337355b10929b668`; tree `1f8d9cd6c8fc5afcf163a5170317cbf2d64bed21` |
+| Parent chain | `git log --format='%H %P %T'` | **Main side:** 8bfddc91 ← `a598a09e2b91d58135b3343a2beeea6b88578013` (main, `--no-ff` first parent). **Slice:** `37bdc6611ff90aff31bca7848ce51be067300d45` (tree 1f8d9cd6) ← merge `746d6582fc6be629f5c3714d85ff79ee5a7a8107` ← WIP `1e6d707e11577064cb97175a32594566c6e5f5e0` (the reviewed candidate) and `a598a09e`. |
+| Tree equivalence | `git diff --stat 40afc9e0 1f8d9cd6`; `git diff --stat 1f8d9cd6 origin/main^{tree}` | The approved tree `40afc9e0` differs from the published tree in 1 file, this record (+61 lines). Those lines are only the "SnapshotApproval" and "Publication-dependent checks" sections (the receipt). The published main tree is identical to slice tree 1f8d9cd6. |
+| Publication precondition | `gh run view 39723690498`; deployment 7244087300 statuses | 9.4c main `a598a09e` CI completed **success** at 04:55:16Z, and Pages deployment 7244087300 succeeded, both before the XOR run was created at 04:57:12Z. Main had not moved: the first parent is a598a09e. |
+| Exact-SHA CI | `gh run list --commit 8bfddc91…`; `gh run view 39725241664 --json jobs` | The only run for that SHA: "Build and deploy game", push, main, attempt 1, **success**. Job build 119647524788 succeeded, with every step successful: checkout of `8bfddc91…`, the C# static gate, Test C# game, Test C# tools, the production bundle publish, the static deployment check and upload-pages-artifact. Job deploy 119651832856 succeeded. |
+| Native and tools totals | build job log | **Test C# game:** `Passed! - Failed: 0, Passed: 2402, Total: 2402` CuriousContraptions.tests. **Test C# tools:** Coverage 77/77, BundleElements 150/150, WorkerAotGuard 17/17, E2eRunner 174/174. The static gate's 3 builds have 0 warnings and 0 errors. |
+| Pages artifact | `gh api …/actions/runs/39725241664/artifacts`; upload log | `github-pages` id **12403406272**, 79470629 bytes, digest `sha256:33d4eda3a8dff9b9a279bae56fb97b80749a195c7c28f1e5e64d5808b072df19`. workflow_run 39725241664 with head_sha 8bfddc91; not expired. The upload step logged the same id and size. |
+| Deployment | `gh api …/deployments?sha=8bfddc91…`; `…/deployments/7244313643/statuses`; deploy job log | Deployment **7244313643**, github-pages, ref main, sha 8bfddc91. Statuses went waiting → queued → in_progress → **success**, with environment_url https://aidanmorgan.github.io/tim/. deploy-pages used `"artifact_id": 12403406272` and logged "Reported success!". This is the latest github-pages deployment; the prior one is 7244087300 for a598a09e. |
+| Normal hooks (gate) | Index tree 1f8d9cd6 with nothing staged; `sh .githooks/pre-commit` | rc 0. Three gate builds have 0 W / 0 E; the staged-test check passed 124/124; the index tree was unchanged afterwards. The merge commit ran no hook (only pre-commit exists). |
+| Normal hooks (anvil stage) | A throwaway worktree at 746d6582 with the exact slice diff staged (staged tree = `1f8d9cd6`), then `anvil hook pre-commit --no-tui`. Also `anvil check --no-tui` on the authored slice files (spec, this record, probe source, identity and pin texts). | Hook rc 0 with no output (documented "silent on pass"). Authored files: "No warnings found". A whole-slice `anvil check` notes 20 over-length lines it cannot scan, all in raw tool logs (`.log`/`.diff` evidence), not in authored content. The throwaway worktree was removed. |
+
+No failed attempt occurred. The published tree differs from the approved tree only by the receipt.
+
+No unresolved scoped unintended regression.
+
+Verdict: **Pass.** This is a scoped native/publication terminal Pass for 9.8b Electrical XOR Gate (CAT-027) at `8bfddc91193689a272038aa1337355b10929b668`. It is not browser or release qualification: cat-027 Chrome/Playwright proof remains queued for post-catalogue E2E, and the SnapshotApproval exclusions stand. Carry this receipt into the next normal publication.
+
+Umbrella status: all four split stories now hold terminal scoped Passes:
+
+- 9.7a at b35be7f4 (receipt on main);
+- 9.7b at 55ee05b9 (receipt on main);
+- 9.8a at a2eddf81 (receipt uncommitted in the `story-9-8a` worktree, awaiting carry);
+- 9.8b at 8bfddc91 (this record).
+
+So `9-7-electrical-logic-gates-nand-nor` and `9-8-electrical-logic-gates-or-xor` are set `done` in this worktree's sprint-status, with browser pending.
