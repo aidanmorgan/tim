@@ -1,0 +1,9 @@
+M10 into-part check blunted (slop 1 m instead of 1e-4 m) (B1)
+  Failed CuriousContraptions.Tests.PalettePlacementTests.ThePreviewAndTheClickShareTheComposedPoseAndItsRefusal(height: 8, admitted: True) [22 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: ball, halfHeight: 0.340000004) [6 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: bowling, halfHeight: 0.280000001) [6 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.RestNeedsTheCentreOverTheFootprintAndATrueOverlap [7 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ALiftIntoAHigherBoxIsRefused [6 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: ball, halfHeight: 0.340000004) [6 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: bowling, halfHeight: 0.280000001) [5 ms]
+Failed!  - Failed:     7, Passed:    61, Skipped:     0, Total:    68, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

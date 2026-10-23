@@ -1,0 +1,6 @@
+CuriousContraptions.Simulation Release rc=0
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Animation.Worker Release rc=0
+    0 Warning(s)
+    0 Error(s)

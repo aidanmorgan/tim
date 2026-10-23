@@ -1,0 +1,7 @@
+    0 Warning(s)
+    0 Error(s)
+-    public const float VerticalAxis = 1f - 1e-6f;
++    public const float VerticalAxis = .95f;
+  Failed CuriousContraptions.Tests.PlacementPoseTests.EveryOtherPlacementKeepsTheBasePose [16 ms]
+   ball in a ramp tilted 5°: base ((0, 0.2, 0), (0, 0, 0, 1)), composed ((0, 0.5603911, 0), (0, 0, 0, 1))
+Failed!  - Failed:     1, Passed:   170, Skipped:     0, Total:   171, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

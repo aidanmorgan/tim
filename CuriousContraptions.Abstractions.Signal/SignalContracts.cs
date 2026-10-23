@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace CuriousContraptions.Abstractions.Signal;
 
@@ -80,4 +81,18 @@ public readonly record struct SignalOrientationDescriptor(float ThresholdDegrees
 public interface IOrientationSensorElement : ISignalElement
 {
     SignalOrientationDescriptor Orientation { get; }
+}
+
+/// <summary>A contact-load sensor on one face of the owner's static frame, all f32. A dynamic body's resting contact counts when it
+/// touches the baked Box collider <see cref="FaceCollider"/> (an index into the element's colliders), its normal toward the body aligns
+/// with <see cref="LocalNormal"/> by at least <see cref="MinimumAlignment"/>, its gap is at most <see cref="ContactDistance"/> m, and its
+/// point lies within the face's local x–z footprint widened by <see cref="ContactDistance"/> in x and <see cref="DepthMargin"/> in z.
+/// Each body counts its mass once and bodies sum; the level ActivationOut is high from the first tick the sum reaches the Real kg
+/// parameter <see cref="MinimumMassParameter"/> (inclusive) and is held <see cref="ReleaseHoldSeconds"/> after the last such tick.</summary>
+public readonly record struct SignalContactLoadDescriptor(string MinimumMassParameter, int FaceCollider, Vector3 LocalNormal,
+    float MinimumAlignment, float ContactDistance, float DepthMargin, float ReleaseHoldSeconds);
+
+public interface IContactLoadSensorElement : ISignalElement
+{
+    SignalContactLoadDescriptor ContactLoad { get; }
 }

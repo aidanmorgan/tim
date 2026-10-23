@@ -1,0 +1,37 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (not a deliverable): for every element id and each typed field, with no parameters and with the
+/// declared defaults, the command-boundary MapInstance outcome and the save-boundary outcome. Written to RV_OUT.</summary>
+public sealed class ProbeTypedFieldOrder
+{
+    [Fact]
+    public void Outcomes()
+    {
+        if (Environment.GetEnvironmentVariable("RV_OUT") is not { } path) return;
+        var lines = new List<string>();
+        foreach (var part in SaveFixture.Elements.OrderBy(p => p.Value, StringComparer.Ordinal))
+            foreach (var field in new TypedField?[] { null, TypedField.Length, TypedField.Threshold, TypedField.TargetCount })
+                foreach (var withDefaults in new[] { false, true })
+                {
+                    IReadOnlyList<(string, float)>? parameters = null;
+                    if (withDefaults && DeclaredPhysics.Contains(part))
+                        parameters = DeclaredPhysics.Of(part).Metadata.Parameters.Select(p => (p.Key, p.Default)).ToArray();
+                    var bytes = PayloadInstanceTests.GenericSave(part.Value, field, parameters);
+                    string command, save;
+                    try
+                    {
+                        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+                        command = "LOADED " + WorkshopWireFlatBuffers.MapInstance(record).GetType().Name;
+                    }
+                    catch (WireFaultException e) { command = $"WIRE {e.Reason}: {e.Message}"; }
+                    catch (ArgumentException e) { command = $"ARG: {e.Message}"; }
+                    catch (InvalidOperationException e) { command = $"IOE: {e.Message}"; }
+                    try { WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes); save = "LOADED"; }
+                    catch (WorkshopSaveRejectedException e) { save = $"SAVE {e.Reason}: {e.Message}"; }
+                    lines.Add($"{part.Value} field={field?.ToString() ?? "none"} defaults={withDefaults} | cmd {command} | {save}");
+                }
+        File.WriteAllLines(path, lines);
+    }
+}

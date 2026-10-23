@@ -1,0 +1,3 @@
+M10 into-part refusal removed (an overlapping lifted pose is admitted) (B1)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ALiftIntoAHigherBoxIsRefused [6 ms]
+Failed!  - Failed:     1, Passed:    67, Skipped:     0, Total:    68, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,17 @@
+M2b hold one tick short: ReleaseHoldTicks = Duration(0.1 s) - 1 (11 at 120 Hz)
+  Failed CuriousContraptions.Tests.PlateGuardTests.ABouncingLoadIsHeldElevenTicksAndReleasedOnTheTwelfth(drop: 8, released: True) [93 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [3 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [< 1 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [< 1 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [64 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheContactLoadLevelFollowsEachTicksPhaseAndItsRouteReadsItNextTick [3 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold [2 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 11, lit: True) [< 1 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [1 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit [13 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [9 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheHoldIsATenthOfASecondAtEachCadence(cadence: Hz240, ticks: 24) [< 1 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheHoldIsATenthOfASecondAtEachCadence(cadence: Hz120, ticks: 12) [< 1 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheHoldIsATenthOfASecondAtEachCadence(cadence: Hz60, ticks: 6) [< 1 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheDeclaredSensorCompilesTheRecordPathsRowForEveryPlate [6 ms]
+Failed!  - Failed:    15, Passed:    73, Skipped:     0, Total:    88, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

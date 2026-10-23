@@ -326,15 +326,15 @@ development_status:
   # 37 (element)
   10-3-balanced-impact-lever-pivot-fulcrum: backlog
   # 38 (deletion)
-  9a-32-generic-instance-domino: review # native candidate on 2065d3c5 (worktree story-9a-32); browser pending
+  9a-32-generic-instance-domino: done # scoped native/publication Pass61ded7; browser pending
   # 39 (element)
   10-4-counterweight-multibody-pendulum-lifting: backlog
   # 40 (deletion): includes F.6 item F-1
-  9a-c-plate-contact-load-conversion: backlog
+  9a-c-plate-contact-load-conversion: review # native candidate on 61ded7ad (worktree story-c-plate); browser pending
   # merged into 9a-c-plate (21 Oct 2026)
-  9a-20-declared-contact-load-sensor: backlog
+  9a-20-declared-contact-load-sensor: review
   # merged into 9a-c-plate (21 Oct 2026)
-  9a-40-generic-instance-pressure-plate: backlog
+  9a-40-generic-instance-pressure-plate: review
   # 41 (element)
   10-5-trampoline-compliant-membrane-dynamics: backlog
   epic-10-retrospective: optional

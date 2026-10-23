@@ -136,7 +136,7 @@ public sealed class WorkshopWireFlatBuffersTests
         WorkshopInput.Funnel(new(1), 0, 1, 0, 0, 0, 0, 1),
         WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 1, 0, 0, 0, 0, 1),
         PlacedParts.Detector(new(1), 0, 1, 0, 0, 0, 0, 1),
-        WorkshopInput.PressurePlate(new(1), 0, 1, 0, 0, 0, 0, 1, minimumMass: 2.25f),
+        PlacedParts.Plate(new(1), 0, 1, 0, 2.25f),
         WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, targetCount: 7),
         WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
     };
@@ -181,22 +181,26 @@ public sealed class WorkshopWireFlatBuffersTests
     }
 
     // The Counter's target is its own whole field (ConstructionDecodeBoundaryTests.CounterTargetIsAWholeFieldAcceptedExactlyInItsRange).
-    public enum DeclaredSetting { PressurePlateMinimumMass, ClockIntervalSeconds }
+    // The plate is a generic instance (C-Plate): its record's former threshold is a typed field it cannot carry.
+    public enum DeclaredSetting { PreConversionPlateThreshold, ClockIntervalSeconds }
 
     private static PartId Owner(DeclaredSetting setting) => setting switch
     {
-        DeclaredSetting.PressurePlateMinimumMass => PartId.PressurePlate,
+        DeclaredSetting.PreConversionPlateThreshold => PartId.PressurePlate,
         DeclaredSetting.ClockIntervalSeconds => PartId.Clock,
         _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "Unknown declared setting."),
     };
 
     // Story 9.4b: a missing, zero, non-integral or out-of-range declared setting is rejected, never replaced by a default
     // (AGENTS.md: no fallback), and the rejection names the instance and the field. Admitted values decode (positive controls).
+    // C-Plate (D5): a plate record carrying a threshold, admitted or not, is refused as a typed field on a generic instance (a wire
+    // fault); a zero threshold is an absent field, so that record has no minimum_mass and is refused as such. No value migrates.
     [Theory]
-    [InlineData(DeclaredSetting.PressurePlateMinimumMass, .5f, null)]
+    [InlineData(DeclaredSetting.PreConversionPlateThreshold, .5f, "Generic instance cannot carry a typed record field.")]
+    [InlineData(DeclaredSetting.PreConversionPlateThreshold, 2f, "Generic instance cannot carry a typed record field.")]
     [InlineData(DeclaredSetting.ClockIntervalSeconds, 1f, null)]
-    [InlineData(DeclaredSetting.PressurePlateMinimumMass, 0f, "Pressure plate 1 minimum mass '0'")]
-    [InlineData(DeclaredSetting.PressurePlateMinimumMass, float.NaN, "Pressure plate 1 minimum mass 'NaN'")]
+    [InlineData(DeclaredSetting.PreConversionPlateThreshold, 0f, "Invalid declared parameters.")]
+    [InlineData(DeclaredSetting.PreConversionPlateThreshold, float.NaN, "Generic instance cannot carry a typed record field.")]
     [InlineData(DeclaredSetting.ClockIntervalSeconds, 0f, "Clock 1 interval seconds '0'")]
     public void Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(DeclaredSetting setting, float threshold, string? rejection)
     {
@@ -223,6 +227,12 @@ public sealed class WorkshopWireFlatBuffersTests
         if (rejection is null)
         {
             Assert.Equal(Owner(setting), Assert.Single(DecodeConstruction(bytes).Instances).PartId);
+            return;
+        }
+        if (setting == DeclaredSetting.PreConversionPlateThreshold)
+        {
+            var fault = Assert.Throws<WireFaultException>(() => DecodeConstruction(bytes));
+            Assert.Equal((WireFaultReason.OutOfRange, rejection), (fault.Reason, fault.Message));
             return;
         }
         Assert.Contains(rejection, Assert.Throws<ArgumentException>(() => DecodeConstruction(bytes)).Message);

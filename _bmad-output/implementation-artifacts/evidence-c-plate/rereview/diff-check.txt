@@ -1,0 +1,2 @@
+git diff --check rc=0
+untracked trailing-whitespace scan done

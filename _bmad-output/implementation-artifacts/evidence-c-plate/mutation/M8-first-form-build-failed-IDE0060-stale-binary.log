@@ -1,0 +1,3 @@
+M8 rest on any box: Vertical() always reports axis 1 (tilted tops admitted)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.RestNeedsTheCentreOverTheFootprintAndATrueOverlap [10 ms]
+Failed!  - Failed:     1, Passed:    89, Skipped:     0, Total:    90, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,6 @@
+    0 Warning(s)
+    0 Error(s)
+-    public const float VerticalAxis = 1f - 1e-6f;
++    public const float VerticalAxis = .95f;
+  Failed CuriousContraptions.Tests.PlacementPoseTests.EveryOtherPlacementKeepsTheBasePose [8 ms]
+Failed!  - Failed:     1, Passed:   176, Skipped:     0, Total:   177, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

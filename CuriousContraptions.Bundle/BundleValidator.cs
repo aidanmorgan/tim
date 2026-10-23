@@ -98,7 +98,7 @@ public static class BundleValidator
             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
                 if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical);
+            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Colliders);
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
@@ -566,12 +566,41 @@ public static class BundleValidator
         }
 
         private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
-            MechanicalPayload? mechanical)
+            MechanicalPayload? mechanical, IReadOnlyList<ColliderDescriptor> colliders)
         {
             // One node per element: at most one capability selects it.
             if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) +
-                    (signal.Orientation is null ? 0 : 1) > 1)
+                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) > 1)
                 OutOfRange("Capability");
+            if (signal.ContactLoad is { } load)
+            {
+                // The minimum mass is a declared Real kilogram parameter with a positive admitted minimum.
+                if (!parameters.Any(parameter => parameter.Key == load.MinimumMassParameter && parameter.Kind == ParameterKind.Real &&
+                        parameter.Unit == ParameterUnit.Kilogram && parameter.Minimum > 0f))
+                    OutOfRange("ContactLoad.MinimumMassParameter");
+                // The face is one of the element's own baked Box colliders, unrotated in the frame.
+                if (load.FaceCollider < 0 || load.FaceCollider >= colliders.Count || colliders[load.FaceCollider].ShapeKind != ColliderShapeKind.Box ||
+                        colliders[load.FaceCollider].Rotation != Quaternion.Identity)
+                    OutOfRange("ContactLoad.FaceCollider");
+                // The compiled row's own admission (ContactLoadSensorDeclaration): a unit normal, an alignment in (0, 1], a gap in
+                // [0, 0.01] m; the z margin shares the gap's range, and the hold is positive and at most 1 s.
+                var normal = load.LocalNormal;
+                if (Finite("ContactLoad.LocalNormal.x", normal.X) & Finite("ContactLoad.LocalNormal.y", normal.Y) & Finite("ContactLoad.LocalNormal.z", normal.Z) &&
+                        !(MathF.Abs(normal.LengthSquared() - 1f) <= 1e-6f))
+                    OutOfRange("ContactLoad.LocalNormal");
+                if (Finite("ContactLoad.MinimumAlignment", load.MinimumAlignment) && !(load.MinimumAlignment > 0f && load.MinimumAlignment <= 1f))
+                    OutOfRange("ContactLoad.MinimumAlignment");
+                if (Finite("ContactLoad.ContactDistance", load.ContactDistance) && !(load.ContactDistance >= 0f && load.ContactDistance <= .01f))
+                    OutOfRange("ContactLoad.ContactDistance");
+                if (Finite("ContactLoad.DepthMargin", load.DepthMargin) && !(load.DepthMargin >= 0f && load.DepthMargin <= .01f))
+                    OutOfRange("ContactLoad.DepthMargin");
+                if (Finite("ContactLoad.ReleaseHoldSeconds", load.ReleaseHoldSeconds) && !(load.ReleaseHoldSeconds > 0f && load.ReleaseHoldSeconds <= 1f))
+                    OutOfRange("ContactLoad.ReleaseHoldSeconds");
+                if (mechanical is not { KinematicMode: KinematicMode.Static, Sliders.Count: 0 })
+                    OutOfRange("ContactLoad.Body");
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
+                    OutOfRange("ContactLoad.Ports");
+            }
             if (signal.Orientation is { } orientation)
             {
                 // The compiled half-angle cosine admits 4° to 179° (OrientationThreshold.Degrees).

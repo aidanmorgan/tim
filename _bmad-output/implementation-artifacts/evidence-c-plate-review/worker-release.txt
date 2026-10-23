@@ -1,0 +1,5 @@
+$ dotnet build CuriousContraptions.Simulation -c Release --no-incremental
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+    0 Warning(s)
+    0 Error(s)
+rc=0

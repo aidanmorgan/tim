@@ -136,6 +136,9 @@ public sealed class BundleRoundTripTests
             // The orientation threshold (9A.32).
             Assert.Equal(signal is IOrientationSensorElement, entry.Signal.Orientation is not null);
             if (signal is IOrientationSensorElement orientation) AssertSame(orientation.Orientation, entry.Signal.Orientation!.Value, "Orientation");
+            // The contact-load sensor (C-Plate).
+            Assert.Equal(signal is IContactLoadSensorElement, entry.Signal.ContactLoad is not null);
+            if (signal is IContactLoadSensorElement load) AssertSame(load.ContactLoad, entry.Signal.ContactLoad!.Value, "ContactLoad");
         }
         Assert.Equal(declaration is IFluidElement, entry.Fluid is not null);
         if (declaration is IFluidElement fluid)

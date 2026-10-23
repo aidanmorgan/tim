@@ -239,7 +239,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void DeclaredPlateContactRequiresBothSupplyAndCommittedClosure(ElectricalEnable authored)
     {
         var gate=Gate(1);var battery=Battery(2,authored);
-        var plate=WorkshopInput.PressurePlate(new(3),-2,0,0,0,0,0,1,WorkshopPressurePlate.PlacedMinimumMass);
+        var plate=PlacedParts.Plate(new(3),-2,0,0,.5f);
         var construction=new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),new(gate,battery,plate),
             Connections:new(Supply(battery.Id,plate.Id),Supply(plate.Id,gate.Id)));
         var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,1));

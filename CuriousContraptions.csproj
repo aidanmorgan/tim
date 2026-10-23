@@ -42,6 +42,7 @@
         <Compile Include="engine/PartRegistry.cs" />
         <Compile Include="engine/PartId.cs" />
         <Compile Include="engine/TubeMouthSnap.cs" />
+        <Compile Include="engine/PlacementPose.cs" />
         <Compile Include="engine/Workbench.cs" />
         <Compile Include="engine/IResizablePart.cs" />
         <Compile Include="ui/Workshop.cs" />

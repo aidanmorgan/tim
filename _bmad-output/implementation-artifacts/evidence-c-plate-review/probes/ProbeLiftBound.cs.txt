@@ -1,0 +1,42 @@
+using CuriousContraptions.Gpu;
+using Godot;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (not a deliverable): the UI bench volume admits a placement point with 0 ≤ y ≤ 9 (PlacementInside, on the
+/// pointer point). A Basketball and a Domino dropped at y = 9 onto a plate placed at y = 9 are composed above 9; the lifted pose is
+/// then captured and composed into a Free construction exactly as WorkshopBenchPlacement.Propose does (CaptureInstance =
+/// WorkshopInput.Generic for these parts; WithInstance; Validate). Writes the outcome to RV_LIFT.</summary>
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class ProbeLiftBound
+{
+    [Fact]
+    public void LiftedPoseAboveTheBenchVolume()
+    {
+        if (System.Environment.GetEnvironmentVariable("RV_LIFT") is not { } path) return;
+        var registry = new PartRegistry();
+        registry.Load();
+        var lines = new List<string>();
+        var plate = PlacedParts.Plate(new(1), 0, 9, 0, .5f);
+        var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([plate]));
+        foreach (var part in new[] { PartId.Basketball, PartId.Domino })
+        {
+            var at = new Vector3(0, 9, 0);
+            var (position, rotation, _) = PlacementPose.Compose(registry.Definitions, bench.Instances, new(part, new(2), false), at, Quaternion.Identity);
+            string outcome;
+            try
+            {
+                var q = rotation.Normalized();
+                var placed = bench.WithInstance(WorkshopInput.Generic(part, new(2), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W));
+                placed.Validate();
+                outcome = $"ACCEPTED ({placed.Instances.Count} instances)";
+            }
+            catch (Exception error) when (error is ArgumentException or WorkshopEditRejectedException or WorkbenchFullException)
+            {
+                outcome = $"REFUSED {error.GetType().Name}: {error.Message}";
+            }
+            lines.Add($"{part.Value}: pointer y 9 (inside 0..9) -> composed y {position.Y:R} ({(position.Y > 9 ? "outside" : "inside")} the 0..9 volume) -> {outcome}");
+        }
+        File.WriteAllLines(path, lines);
+    }
+}

@@ -116,9 +116,6 @@ internal static class WorkshopSavePrevalidation
             case "pipe":
                 Within(id, "length", r.Length, PipeLength.Minimum, PipeLength.Maximum);
                 break;
-            case "pressure_plate":
-                Within(id, "minimum mass", r.Threshold, .1f, 16f);
-                break;
             case "counter":
                 if (r.TargetCount == 0) throw Refuse(WorkshopSaveRejection.MissingField, $"Counter {id} has no target count.");
                 if (r.TargetCount > WorkshopCounter.MaximumTargetCount)

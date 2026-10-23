@@ -143,11 +143,10 @@ public static class WorkshopPhysicsCompiler
             if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work &&
                 (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
                 contactWorks.Add(ContactWorkFor(owner.Id, Targets(construction), work, owner.Parameters));
-        foreach (var plate in construction.Instances.OfType<WorkshopPressurePlate>())
-            contactLoads.Add(new(ContactLoadSensor(plate.Id), plate.Id, new(PartIdentities(plate.Id) + 2),
-                -.9f - WorkshopPressurePlate.ContactDistance, .9f + WorkshopPressurePlate.ContactDistance,
-                -.9f - WorkshopPressurePlate.FootprintDepthMargin, .9f + WorkshopPressurePlate.FootprintDepthMargin,
-                Vector3.UnitY, WorkshopPressurePlate.MinimumAlignment, WorkshopPressurePlate.ContactDistance, plate.MinimumMass));
+        // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
+        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.Of(owner.PartId).Signal?.ContactLoad is { } load)
+                contactLoads.Add(ContactLoadSensorFor(owner, load));
         var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
         foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
         {
@@ -232,6 +231,21 @@ public static class WorkshopPhysicsCompiler
     public static GpuPassageSensorId PassageSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuContactLoadSensorId ContactLoadSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
+
+    /// <summary>The contact-load row a declared sensor compiles to on its owner's frame: the face is the owner's baked collider
+    /// <c>FaceCollider</c> (a frame without sliders numbers its colliders from <c>PartIdentities + 1</c>); the x–z footprint is that box's
+    /// f32 half-extents about its offset, widened by the contact distance in x and the depth margin in z; the minimum is the owner's
+    /// declared parameter.</summary>
+    public static ContactLoadSensorDeclaration ContactLoadSensorFor(WorkshopGenericInstance owner,
+        CuriousContraptions.Abstractions.Signal.SignalContactLoadDescriptor load)
+    {
+        var face = BundleGeometry.Colliders(DeclaredPhysics.Of(owner.PartId), owner.Parameters.ToBundleValues())[load.FaceCollider];
+        var (centre, half) = (face.Offset, face.HalfExtents);
+        return new(ContactLoadSensor(owner.Id), owner.Id, new(checked(PartIdentities(owner.Id) + 1 + (ulong)load.FaceCollider)),
+            centre.X - half.X - load.ContactDistance, centre.X + half.X + load.ContactDistance,
+            centre.Z - half.Z - load.DepthMargin, centre.Z + half.Z + load.DepthMargin,
+            load.LocalNormal, load.MinimumAlignment, load.ContactDistance, owner.Parameters[new ParameterId(load.MinimumMassParameter)]);
+    }
 
     public static GpuContactWorkId ContactWork(GpuBodyId owner) => new(checked(PartIdentities(owner) + 8));
 

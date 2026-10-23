@@ -1,0 +1,19 @@
+$ rg -w "WorkshopPressurePlate|_plateLoaded|PlacedMinimumMass" -g "!_bmad-output/**" -g "!docs/**" -c
+TODO.md:1
+CuriousContraptions.tests/PlacedParts.cs:1
+CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:1
+rc=0
+$ rg "WorkshopInput\.PressurePlate" -g "!_bmad-output/**" -g "!docs/**" -c
+rc=1
+$ rg '"pressure_plate"' engine/gpu engine/MachineWorld.Gpu.cs
+rc=1
+$ rg -n -- "-\.9f|\+ 2\)" engine/gpu/WorkshopPhysicsCompiler.cs
+rc=1
+$ rg -n "static uint ReleaseHoldTicks\(|ReleaseHoldTicks\(" -g "*.cs"
+rc=1
+$ ls engine/gpu/WorkshopPressurePlate.cs*
+(eval):7: no matches found: engine/gpu/WorkshopPressurePlate.cs*
+$ git diff HEAD -U0 -- . ":(exclude)_bmad-output" ":(exclude)docs" ":(exclude)*.md" | grep "^+" | grep -io "[A-Za-z_]*plate[A-Za-z_]*" | sort | uniq -c
+   1 PressurePlate
+   2 PressurePlateElementDeclaration
+-- new files (production):

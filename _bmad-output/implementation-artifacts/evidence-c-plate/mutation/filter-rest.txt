@@ -1,0 +1,1 @@
+FullyQualifiedName~PlacementPoseTests|FullyQualifiedName~PalettePlacementTests|FullyQualifiedName~TubeMouthSnap

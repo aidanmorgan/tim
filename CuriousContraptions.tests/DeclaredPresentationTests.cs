@@ -175,7 +175,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task PlateNativeColourFollowsActualContactLoad(bool occupied, float minimum, ContactLoadPhase expected)
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
-        var plate = WorkshopInput.PressurePlate(new(1), 0, y, 0, 0, 0, 0, 1, minimum);
+        var plate = PlacedParts.Plate(new(1), 0, y, 0, minimum);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .08 + .35, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             occupied ? new(plate, ball) : new(plate));
@@ -243,7 +243,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task PlateCubicRateEightAndResetUseCommittedSimulation()
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
-        var plate = WorkshopInput.PressurePlate(new(1), 0, y, 0, 0, 0, 0, 1, .5f);
+        var plate = PlacedParts.Plate(new(1), 0, y, 0, .5f);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .43, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate, ball));
         var (_, reads, reset) = await PressurePlateTests.RunAndReset(construction, 120);

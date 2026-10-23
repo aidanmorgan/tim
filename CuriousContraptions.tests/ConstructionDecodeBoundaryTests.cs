@@ -4,8 +4,9 @@
 // Every declared setting is decoded through both shipped construction decoders:
 //   FB  WorkshopWireFlatBuffers.DecodeConstructionRecord (the Construct command record);
 //   SAV WorkshopSaveCodec.Decode (the browser save boundary: structural pre-validation, then the same record decoder).
-// The Counter's target is the whole uint32 field target_count (Story 9A.2); the plate's minimum mass and the clock's interval are
-// the f32 threshold. Expected (independently derived from WorkshopPressurePlate [0.1, 16] kg, WorkshopCounter [1, 9] and
+// The Counter's target is the whole uint32 field target_count (Story 9A.2); the clock's interval is the f32 threshold and the plate's
+// minimum mass is its generic instance's declared f32 minimum_mass parameter (C-Plate). Expected (independently derived from the
+// plate's declared [0.1, 16] kg (decision h), WorkshopCounter [1, 9] and
 // WorkshopClock [0.1, 12] s, and "a missing declared setting rejects; nothing is defaulted or coerced"): accept exactly the
 // admitted values and decode them bit-for-bit; reject everything else. The command record rejects with the domain's argument
 // guard or the wire's typed fault; the save rejects with its typed refusal and nothing else. Positive controls use the identical
@@ -19,12 +20,6 @@ namespace CuriousContraptions.Tests;
 public sealed class ConstructionDecodeBoundaryTests
 {
     public enum Part { PressurePlate, Clock }
-
-    private static PartId Identity(Part part) => part switch
-    {
-        Part.PressurePlate => PartId.PressurePlate, Part.Clock => PartId.Clock,
-        _ => throw new ArgumentOutOfRangeException(nameof(part)),
-    };
 
     // 2^31 and 2^31 - 1 are the same f32 (2147483648f); 2147483520f is the largest f32 below 2^31.
     private const float TwoTo31 = 2147483648f;
@@ -62,10 +57,15 @@ public sealed class ConstructionDecodeBoundaryTests
     // ---------- the hand-built record ----------
 
     private static Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord> BuildRecord(
-        Google.FlatBuffers.FlatBufferBuilder builder, PartId part, float? threshold, uint? targetCount)
+        Google.FlatBuffers.FlatBufferBuilder builder, PartId part, float? threshold, uint? targetCount, float? minimumMass = null)
     {
         var id = builder.CreateString(part.Value);
+        Google.FlatBuffers.VectorOffset? parameters = minimumMass is { } mass
+            ? CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder,
+                [CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString("minimum_mass"), mass)])
+            : null;
         CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+        if (parameters is { } vector) CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, vector);
         CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
         CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, id);
         CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 16, 0));
@@ -85,26 +85,41 @@ public sealed class ConstructionDecodeBoundaryTests
         return CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
     }
 
-    private static WorkshopConstruction DecodeRecord(PartId part, float? threshold, uint? targetCount = null)
+    private static WorkshopConstruction DecodeRecord(PartId part, float? threshold, uint? targetCount = null, float? minimumMass = null)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        builder.Finish(BuildRecord(builder, part, threshold, targetCount).Value);
+        builder.Finish(BuildRecord(builder, part, threshold, targetCount, minimumMass).Value);
         return WorkshopWireFlatBuffers.DecodeConstructionRecord(CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
             new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray())));
     }
 
-    private static WorkshopConstruction DecodeSave(PartId part, float? threshold, uint? targetCount = null)
+    private static WorkshopConstruction DecodeSave(PartId part, float? threshold, uint? targetCount = null, float? minimumMass = null)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
-        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, threshold, targetCount), 2)).Construction;
+        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, threshold, targetCount, minimumMass), 2)).Construction;
     }
+
+    // C-Plate: the plate's setting is its generic instance's declared minimum_mass parameter; the clock's is the record threshold.
+    private static WorkshopConstruction DecodeRecord(Part part, float? value) => part switch
+    {
+        Part.PressurePlate => DecodeRecord(PartId.PressurePlate, null, minimumMass: value),
+        Part.Clock => DecodeRecord(PartId.Clock, value),
+        _ => throw new ArgumentOutOfRangeException(nameof(part)),
+    };
+
+    private static WorkshopConstruction DecodeSave(Part part, float? value) => part switch
+    {
+        Part.PressurePlate => DecodeSave(PartId.PressurePlate, null, minimumMass: value),
+        Part.Clock => DecodeSave(PartId.Clock, value),
+        _ => throw new ArgumentOutOfRangeException(nameof(part)),
+    };
 
     private static float DecodedSetting(WorkshopConstruction construction, Part part)
     {
         var instance = Assert.Single(construction.Instances);
         return part switch
         {
-            Part.PressurePlate => Assert.IsType<WorkshopPressurePlate>(instance).MinimumMass,
+            Part.PressurePlate => Assert.IsType<WorkshopGenericInstance>(instance).Parameters[new ParameterId("minimum_mass")],
             Part.Clock => Assert.IsType<WorkshopClock>(instance).IntervalSeconds,
             _ => throw new ArgumentOutOfRangeException(nameof(part)),
         };
@@ -124,8 +139,8 @@ public sealed class ConstructionDecodeBoundaryTests
     {
         var label = $"FB {part} {value:R} (0x{BitConverter.SingleToInt32Bits(value):X8})";
         if (Admitted(part, value))
-            Assert.Equal(BitConverter.SingleToInt32Bits(value), BitConverter.SingleToInt32Bits(DecodedSetting(DecodeRecord(Identity(part), value), part)));
-        else AssertRecordRejected(() => DecodeRecord(Identity(part), value), label);
+            Assert.Equal(BitConverter.SingleToInt32Bits(value), BitConverter.SingleToInt32Bits(DecodedSetting(DecodeRecord(part,value), part)));
+        else AssertRecordRejected(() => DecodeRecord(part,value), label);
     }
 
     [Theory]
@@ -133,10 +148,10 @@ public sealed class ConstructionDecodeBoundaryTests
     public void SaveCodecAcceptsExactlyTheAdmittedSetting(Part part, float value)
     {
         if (Admitted(part, value))
-            Assert.Equal(BitConverter.SingleToInt32Bits(value), BitConverter.SingleToInt32Bits(DecodedSetting(DecodeSave(Identity(part), value), part)));
+            Assert.Equal(BitConverter.SingleToInt32Bits(value), BitConverter.SingleToInt32Bits(DecodedSetting(DecodeSave(part,value), part)));
         else
             Assert.Equal(float.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite,
-                Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(Identity(part), value)).Reason);
+                Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(part,value)).Reason);
     }
 
     [Theory]
@@ -174,8 +189,8 @@ public sealed class ConstructionDecodeBoundaryTests
     [InlineData(Part.Clock)]
     public void MissingSettingRejectsInEveryFlatBuffersPath(Part part)
     {
-        AssertRecordRejected(() => DecodeRecord(Identity(part), null), $"FB {part} missing");
-        Assert.Equal(WorkshopSaveRejection.OutOfRange, Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(Identity(part), null)).Reason);
+        AssertRecordRejected(() => DecodeRecord(part,null), $"FB {part} missing");
+        Assert.Equal(WorkshopSaveRejection.OutOfRange, Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(part,null)).Reason);
     }
 
     // Positive control for the fixture itself: the same builder with a canonical value decodes (so every rejection above is
@@ -185,8 +200,8 @@ public sealed class ConstructionDecodeBoundaryTests
     [InlineData(Part.Clock, 1f)]
     public void HandBuiltRecordIsAValidFixture(Part part, float canonical)
     {
-        Assert.Equal(canonical, DecodedSetting(DecodeRecord(Identity(part), canonical), part));
-        Assert.Equal(canonical, DecodedSetting(DecodeSave(Identity(part), canonical), part));
+        Assert.Equal(canonical, DecodedSetting(DecodeRecord(part,canonical), part));
+        Assert.Equal(canonical, DecodedSetting(DecodeSave(part,canonical), part));
     }
 
     /// <summary>Every truncation of a save is its typed Truncated refusal: the size prefix makes a cut save unloadable, so no
@@ -196,7 +211,7 @@ public sealed class ConstructionDecodeBoundaryTests
     {
         var saved = new WorkshopSavedConstruction(
             new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-                new WorkshopInstances(WorkshopInput.PressurePlate(new(1), 0, 1, 0, 0, 0, 0, 1, minimumMass: .5f),
+                new WorkshopInstances(PlacedParts.Plate(new(1), 0, 1, 0, .5f),
                     WorkshopInput.Clock(new(2), 1, 1, 0, 0, 0, 0, 1, intervalSeconds: 2f))),
             new(3));
         var save = WorkshopSaveCodec.Encode(saved);

@@ -70,6 +70,128 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         }
         finally { Release(scene); }
     }
+    // C-Plate (9A.40, D4): a plate placed from the palette takes the declared 0.5 kg. The generic editor names minimum_mass in kg with
+    // its declared range and applies the Reject policy: 0.09, 16.01, NaN, Infinity and text are refused with no change, no command and
+    // no undo (never clamped); 0.1 and 16 are accepted bit for bit; each application is one Undo, and Undo restores 0.5. Running,
+    // Paused and a locked plate are refused.
+    [Fact]
+    public void ThePlateMinimumMassEditorRefusesOutOfRangeWithoutClampAndAppliesAsOneUndo()
+    {
+        var parameter = new ParameterId("minimum_mass");
+        var (scene, client) = BenchScene(PartId.PressurePlate, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var placed = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(.5f), BitConverter.SingleToUInt32Bits(placed.Parameters[parameter]));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            LineEdit Configure()
+            {
+                Press("Configure");
+                var field = Assert.Single(Nodes<LineEdit>(choices));
+                Assert.Equal(parameter.Value, field.Name.ToString());
+                Assert.Contains(Nodes<Label>(choices), label => label.Text == "minimum_mass (0.1–16 kg)");
+                return field;
+            }
+            var input = Configure();
+            Assert.Equal("0.5", input.Text);
+            var before = scene.World.Construction;
+            var commands = client.Commands.Count;
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            foreach (var invalid in new[] { "0.09", "16.01", "NaN", "Infinity", "two" })
+            {
+                input.Text = invalid;
+                Press("Apply parameters");
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Press("Cancel");
+            Assert.Equal(before, scene.World.Construction);
+            foreach (var (text, value) in new[] { ("16", 16f), ("0.1", .1f) })
+            {
+                input = Configure();
+                input.Text = text;
+                Press("Apply parameters");
+                var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+                Assert.Equal(BitConverter.SingleToUInt32Bits(value), BitConverter.SingleToUInt32Bits(current.Parameters[parameter]));
+                Assert.Equal(++undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Assert.Empty(InvokeHandler(scene, "Undo"));
+            Assert.Empty(InvokeHandler(scene, "Undo"));
+            var restored = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(.5f), BitConverter.SingleToUInt32Bits(restored.Parameters[parameter]));
+
+            var accepted = scene.World.Construction;
+            commands = client.Commands.Count;
+            var proposed = new InstanceParameterCollection([new(parameter, 2f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
+                Assert.Equal(accepted, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(restored with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // F.6 F-1, coordinator decision B1: the preview and the click share one composed pose. A Basketball dropped into a plate whose face
+    // lies at the top of the bench would rest above the 9 m volume: the preview hides, and the click is refused with the typed
+    // UnplaceablePose message, no command, no undo and an unchanged construction. Control: the same drop into a plate at 8 m rests at
+    // 8.42 m; the preview shows exactly the pose the click then places.
+    [Theory]
+    [InlineData(8.9f, false)]
+    [InlineData(8f, true)]
+    public void ThePreviewAndTheClickShareTheComposedPoseAndItsRefusal(float height, bool admitted)
+    {
+        var (scene, client) = BenchScene(PartId.Basketball, PlacementAnswer.Applied);
+        try
+        {
+            var bench = (Half)height;
+            SetField(scene, "_placementHeight", new Metres(bench));
+            var plate = PlacedParts.Plate(new(1), 0, (double)bench, 0, .5f);
+            var before = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate));
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, before);
+            SetField(scene, "_nextId", new GpuBodyId(2));
+            Assert.Empty(InvokeHandler(scene, "CreatePreview", PartId.Basketball));
+            var preview = Field<MachinePart>(scene, "_preview");
+            Assert.Empty(InvokeHandler(scene, "ShowPreviewAt", (Vector3?)new Vector3(0, (float)bench, 0)));
+            var commands = client.Commands.Count;
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            var shown = (preview.Visible, preview.Position);
+            Assert.Empty(ClickBench(scene));
+            if (!admitted)
+            {
+                Assert.False(shown.Visible);
+                Assert.Equal("Placement rejected: resting there would lift the part above the bench.", Field<Label>(scene, "_status").Text);
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal((commands, undos), (client.Commands.Count, Field<List<WorkshopConstruction>>(scene, "_undo").Count));
+            }
+            else
+            {
+                Assert.True(shown.Visible);
+                Assert.True(MathF.Abs(shown.Position.Y - ((float)bench + .08f + .34f)) < 1e-4f, $"the preview rests at {shown.Position.Y}");
+                var ball = Assert.Single(scene.World.Construction.Instances, instance => instance.PartId == PartId.Basketball);
+                var placed = new Vector3((ball.Cell.X + ball.Local.X) / 16f, (ball.Cell.Y + ball.Local.Y) / 16f, (ball.Cell.Z + ball.Local.Z) / 16f);
+                Assert.True(placed.DistanceTo(shown.Position) < 1e-4f, $"the click placed {placed}, the preview showed {shown.Position}");
+                Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
     [Fact]
     public async Task ImpactContactConnectionChoicesPreserveDomainCancelAndOneUndo()
     {

@@ -1,0 +1,15 @@
+# deployment 7278289665 statuses 2026-10-23T12:35:50Z
+{"created_at":"2026-10-23T12:34:11Z","environment_url":"https://aidanmorgan.github.io/tim/","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39952734117/job/120416076785","state":"success"}
+{"created_at":"2026-10-23T12:34:01Z","environment_url":"","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39952734117/job/120416076785","state":"in_progress"}
+{"created_at":"2026-10-23T12:33:59Z","environment_url":"","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39952734117/job/120416076785","state":"queued"}
+{"created_at":"2026-10-23T12:33:58Z","environment_url":"","log_url":"https://github.com/aidanmorgan/tim/actions/runs/39952734117/job/120416076785","state":"waiting"}
+# serving
+200 20447 last-modified=Fri, 23 Oct 2026 12:34:07 GMT /
+200 20447 last-modified=Fri, 23 Oct 2026 12:34:07 GMT /index.html
+200 626 last-modified=Fri, 23 Oct 2026 12:34:07 GMT /404.html
+200 47381824 last-modified=Fri, 23 Oct 2026 12:34:07 GMT /godot.wasm
+200 609724 last-modified=Fri, 23 Oct 2026 12:34:08 GMT /godot.pck
+200 37898 last-modified=Fri, 23 Oct 2026 12:34:07 GMT /_framework/dotnet.js
+# deployed godot.pck vs local Release publish of the approved candidate (same tree)
+0501da3cf18e752361a4d3af7880c7ff2fd65e6d8ade7e19601c993d622cb68e  -
+(label correction, reviewer 2026-10-23T12:36:03Z: the sha256 line above is of the deployed /_framework/dotnet.js and records it only; no comparison was made)
